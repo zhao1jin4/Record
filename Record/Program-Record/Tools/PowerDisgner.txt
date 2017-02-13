@@ -1,0 +1,106 @@
+=================================PowerDisgner
+
+
+ER 图  Entity Relationship
+
+
+
+点左边树中的图，菜单才会出来了
+右击项目->new->conceptual diagram ,为不同的功能模块不同的视图
+
+修改值的时候，在右边有一个=按钮点表示和相反一边的相同
+
+fil->new ->Conceptual Data Model-> 在工具箱点entity按钮，工作区点(右击取消)后双击－>显示属性 name 是显示的名字 code 是生成代码的名字
+	attributes标签中输入VA3 是varchar(3)，I 都是简定的Integer,, mandatory (M)是否是强制not null,鼠标移上显示提示
+数据类型有Money
+
+双击实体在Attributes   标签 customer column and filter (ctrl +u) 可以增加一个列comment注释列,来加注释
+
+relationShip 工具按钮,拖一表到另一表,一对多关系(只是显示)
+双击关系->cardinalities->Role name:写 拥有(dep to emp) 或者 属于,在cardinality可选择0,n或者1,n
+可选择多对多
+
+tools->display perference->object view->relationship 打开 cardinality,就会显示0,n或者1,n
+
+
+tools->modle options->Model Settings中可打开Name/Code Case sentive区分大小
+
+
+1.右击工作区－>chick Model ..(f4)检查是否有错
+2.tools->generate Physical Data Model->选择数据库类型->ok  
+3.database->generate Database..->保存脚本，可设置一些不要输出
+
+
+generate Physical Data Model后，左侧树中的data items文件夹有字段属性，可以重复使用（在code 相同的）
+Model ->data items... 可建立多个重用字段
+可为表使用,双击Entity->Attributes->点Add Date Item铵钮,
+
+改主键名,双击Entity->Attributes->Identifier标签中改
+
+tools->generate Physical Data Model 后点开左树中的tables,有columns,keys,indexes
+
+
+索引index 在物理模型里建立,双击表->index中建立索引名字,可选U(unique)和C(cluster)索引，不可P(primary),F(foreign)
+双击索引行,提示保存,在弹出窗口中的columns标签中,add column->选择已有的列
+
+
+建数据库,model->model properties-> general标签->database 行中，点击建按钮弹出窗口，OK后，database->generate Database->option标签，发现create database选中
+
+
+在字段属性中加check约束，双击实体->双击做的列->standard check标签->中增加
+
+子表不写外键列会自动生成的
+
+可右击生成的物理模型->close 会提示是否保存
+
+表的owner 在物理模型里的表属性里设置 要设每个表的owner(Model->user and role->user)
+可以在此上分配权限 在用户属性中privilage（create table ,create database）
+permission可以访问的表，select insert update ...
+
+
+物理下，在generate databse 选择用户，下的privilege 打钩 (Mysql无，SQlServer和Oracle 有的)
+
+
+
+
+在物理模型下database ->connect可连接数据库(ODBC),database ->reverse engineeer database,可以数据库中的表转换成关系图 
+(PL/SQL Developer 的Diagram 视图也可以)
+
+也可JDBC连接 数据库database ->configure data connections->connection profiles标签->点add datasource 按钮->
+
+可在连接数据后,右击new->建立表,也可以再返向到概念模型 database->generate Conceptual Data Model,
+但在修改时要注意,有很多共用的data item 
+
+----------多表间的主键字段不能重复 
+1.tools->modle options ->Model Settings中data item栏->取消 unique code (每新建一个conceptual model 都要改)
+最好也把 allow reuse也取消
+
+但在data itmes 中只可只一次,不可以再加第二个同名的属性..................
+生成的外键字段的comment即然和主表的主键comment相同,外键字段名也和主表的字段名相同.................
+
+
+
+Oracle的PDM中有modle->user and role->建立User后，双击用户所在的行->设置权限
+PDM后database->edit current DBMS...->General标签->Script->Objects->Users->Create->有命令的模板
+
+
+PMD后双击表->Trigger/Procedures->增加后，双击项->在弹出窗口的Definition中可以选择模板来修改
+
+
+如列名是小写,会在生成SQL时加"",生成comment 列加入""报错
+1、物理模型下database-> Edit Current DBMS－ORACLE10gR2::Script\Sql\Format\CaseSensitivityUsingQuote将双引号的设置改为NO , OK
+建表用"sync_dev_man" ,查表用sync_dev_man是查不到的
+
+
+
+
+
+
+==================架构
+ESB 全称为 Enterprise Service Bus ，即企业服务总线 
+
+
+
+
+
+

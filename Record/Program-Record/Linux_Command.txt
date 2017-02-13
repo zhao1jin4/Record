@@ -1,0 +1,2217 @@
+
+penguin  企鹅
+
+http://ftp.icm.edu.pl/packages/GNOME/sources/  gnome源码
+http://www.gnome-cn.org/  中文的gnome
+http://www.51cto.com/os/linux2008/map.html 在线图书
+
+
+putty工具连接linux/unix 可把屏幕输出保存到日志文件中
+右击标题栏->change settinges...->log->session下的logging->选择all session output,选择保存文件位置
+putty.exe -cleanup　可以删除所有的记录,密钥
+删 HKEY_CURRENT_USER\Software\SimonTatham\ 下的所有东西也可重置
+windows->Transation中修改编码显示中文
+
+
+SecureCRT 中 会话选项->外观中修改为UTF-8
+export LANG=zh_CN.UTF-8
+
+
+
+GPL (General Public License)
+内核　次版本号是偶数是稳定版
+
+linux硬件兼容支持,显示设备XFree86
+
+
+lsb_release -a
+cat /etc/issue
+cat /etc/SUSE-release
+cat /etc/oracle-release
+cat /etc/redhat-release
+========================Gnome-3 界面
+
+要多个图形用户同时登录  锁机 -> login another user
+
+totem 命令打开播放器
+cheese 命令是一个载图软件
+
+
+
+~/.Trash //是回收站
+~/桌面  //这个目录是桌面
+
+/usr/share/pixmaps  图标文件 
+/usr/share/pixmaps/backgrounds/gnome/  有图片
+/usr/share/icon
+/usr/share/applications  像是Activies下的应用
+
+
+ctrl+小写L 在文件浏览器就有地址栏
+alter+上键，向上
+Alt+F2,打开“运行应用程序”对话框
+ 
+gconf-editor 配置界面没有gedit的项,类似windows的注册表一样的东西
+gedit 打开文件时可以选择GBK编码,一下次再打开这个文件就会记录,自动选择正确的中文编码，而不是手工选择，？？
+
+Ctrl+Shift+Alt+R    开始屏幕录像,上方栏中有红点,再按结束,会生成文件 ~/Vides/screencase-时间.webm   使用Totem Movie Player 3.2.1来播放,但好像没有声音
+
+在 文件浏览器中  ctrl+alt +backspace 可以注销
+锁机快捷键？？？
+
+gedit 打开自动换行->preference-> not select "Enable text wrapping"
+
+用  "CD/DVD创建者"打开*.iso文件
+
+ctrl+shift+拖文件创建链接
+ 
+
+========================命令
+!ps 表示调用历史命令中以最近的 ps开头的
+
+linux 的mv 命令不能合并,如目录中有相同目录,先合并没相同的,再用cp -r 
+
+init 5 可以成功,OK
+修改/etc/inittab文件，将id:3:initdefault:修改为：id:5:initdefault:
+
+e2label  /dev/sda1 显示挂在哪个分区下
+
+Windows  下用Easy CD Creator,linux下用cdrecord
+1.cdrecord -scanbus 寻找到光驱的通道编号,显示三个数字如0,0,0
+2.cdrecord -v dev=0,0,0 speed=32 file.iso  ###dev=0,0,0 是上面的值
+
+第一个IDE 主　: hda   　第一个IDE 从  hdb
+第二个IDE 主　　hdc
+SCSI   sda 
+
+onporob 　###porob 探针, 探测器　　
+命令行alter+fn 切换终端   图形用ctrl+alt+fn
+安装过程中按alt+f3 ,f5有信息
+ 
+
+dd if=bootdisk.img of=/dev/fd0  ##备份引导分区到时软盘 if(input file )
+引导后用,在提示中输入 linux askmethod 可选Hard drive
+ 
+ 
+挂载ISO  mount -t  iso9660  -o loop,ro XXX.iso /mnt/some-dir
+
+du -sh 目录名   来看这个目录一共占用的空间
+
+uname -r内核版本 -o 操作系统 -a 全部信息
+pstree
+ps -ef |grep tomcat (-e同-A 全部,-f full-format listing)
+kill -9 (刚才的进程ID)
+ps -aux |808
+# rm ./F\:\\  对 : 和 \ 空格目录时要用\进行转义  ,即\:  和 \\ 
+如果文件中以-开头  如文件名是  -m , 使用 rm -- -m 或者rm ./-m
+
+
+pgrep -l httpd 显示进程名字及进程ID,再用 killall 进程名
+pgrep -u root,daemon httpd    , pkill httpd
+
+rmmod pcspkr 可以将该命令写到 /etc/rc.local 这样下次系统启动的时候就会执行
+  
+vi /etc/shells文件中显示这个系统有哪些shell 
+/bin/csh    退出shell 用exit(shell中运行子shell)
+bash是默认的,   help命令
+
+
+kernel 中加single 时入单例用户
+
+
+加swap分区  （count 等于想要的块大小。 ）
+	#dd if=/dev/zero of=/home/swap bs=1024 count=1024000    ##bs(bytes),1G
+	#mkswap /home/swap
+	#swapon /home/swap
+	free -m  看swap 分区
+	编辑 /etc/fstab 文件来包含以下行。
+	/home/swap swap swap defaults 0 0
+
+ 
+
+/etc/yum.conf 文件中修改  keepcache=0  改为keepcache=1 这样在yum install xx 时，就不会删 /var/cache/yum/fedora/packages/e下的包了
+										/var/cache/yum/updates/packages/  
+
+w 谁在做什么 w -f    显示ip  ,看哪个在使用w 命令,哪个就是当前的 ( 也可以用who am i 会显示是哪个pts/)
+who 看谁在用本机,
+finger -l
+
+fuser -k /dev/tty1   杀用户连接  (可能图形界面的多个 终端)
+fuser -k /dev/pts/1
+
+fuser   /usr/java/jdk1.6.0_43/bin/java  查哪个进程使用这个文件
+
+查这个进程使用命令所在路径
+ls -l /proc/<PID>/exe  是一个链接
+file /proc/<PID>/exe  
+lsof -c mongod  查看这个字符开头的命令所打开的文件
+
+ 
+聊天用write,talk
+write root pts/2 对方只显示,不能回复,要双方都使用write
+talk  135.251.27.76  pts/1  #可能要安装talk-server
+talk  user@135.251.27.76  pts/1
+
+zip -r filename.zip filesdir 创建zip
+zip -s 4m filename.zip --out filename_part 可以把zip文件分卷压缩,文件以z01,z02结尾
+cat filename_part.z* > filename.zip   //利用cat来合卷  
+
+按print 或者alt+print 生出现 Save Screenhot 对话框可以抓图
+ 
+/etc/inittab 文件
+
+sar 1(间隔) 10 (总次数)  (system activity report)
+	-o 输出二进制
+	-f 读二进制
+	-u cpu信息
+	-d disk
+		rd_sec/s  一个 sector是 512 bytes
+
+	-r 是page，不是实际的
+用vmstat是对的
+
+
+iostat 
+	Blk_read/s  Block=Sector=512 bytes
+
+mpstat 查看多处理器状况 (smp 是支持多处理器,up是不支持多处理器)
+
+ watch -n 1 "/sbin/ifconfig eth0 | grep bytes"  每一秒执行一次命令
+
+
+stty erase ^h  使用backspace键生效　　(Oracle中)
+
+
+bash 中ls-> 按esc 3 ->再按a  ,就会出现3个a (aaa)
+
+ dd if=/dev/cdrom of=RedhatEL5.iso
+ mkisofs -o RedhatEL5.iso -r /dev/cdrom
+ 
+
+mkisofs  -r -o a.iso    a/  
+建立映像文件 (把目录a下的内容做成iso文件)
+
+mkisofs -volset-size 4  -volset-seqno 2  -r -o a.iso    a/   
+建立映像文件 (把目录a下的内容做成iso文件,并指定共4张光盘，此为第2张)
+
+
+mkisofs  -print-size  -r a/
+预计建立映像文件的容量大小(extents) extent的单位是扇区
+
+
+ 数据同步  sync 命令,async
+
+LD_LIBRARY_PATH Solaris/Linux
+
+linux开通组播命令
+route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
+如启动就开通组播
+/etc/sysconfig/static-routes 文件内加入 eht0 net 224.0.0.0 netmask 240.0.0.0
+
+gparted安装时最好不要改fstab文件，否则可能不能启动系统
+
+/boot分区不能设置为ex4 分区
+
+sort命令  -t 分隔符 -u 标志告诉 sort 命令除去重复的行,-r 反向排序
+/usr/ucb/ps aux | sort -k 4 -r
+
+
+vi /etc/sysconfig/i18n 改系统语言和字符集  echo $LANG=更优先
+
+
+iconv -f GBK -t UTF-8 ./Egg.h  >Egg_1.h      把GBK编码转换成UTF-8 ,-f是from ,-t是 to
+
+man -w 显示man 搜索路径
+man -w fork 
+man2html ./xxx.1 > xxx.html   autogen包
+groff -Thtml -mandoc ld.1 > ld.html
+2、测试显示效果
+$ groff -Tascii -man hello.1   
+
+man --path ,manpath  和man -w 一样的效果,所有 man 的查找目录,配置在/etc/man.conf中的MANPATH
+man xxx.file 要加./的路径
+ 
+
+touch * 把当前目录下的文件的时间修改为当前时间
+  
+windows 是\r\n
+linux是\n
+
+zip -e  #终端提示输入密码,来替换对文件夹加密
+ 
+
+为用户指定shell 为　/bin/fals 　就不可以登录
+passwd -l (lock) -d (delete password,unlock),-u unlock
+
+在/etc/init.d/一般需要关闭的服务有：
+	sendmail 
+	lp 
+	rpc 
+	snmpdx 
+	keyserv 
+	nscd 
+	volmgt 
+	uucp 
+	dmi 
+	autoinstall
+
+nohup ${DOMAIN_HOME}/bin/startWebLogic.sh $* 1> console.log 2>&1 &
+echo "hello" 1 >> test.log 2>&1    # 2>&1 中不能用空格 
+
+ipcs	查ipc已有的资源
+ipcrm -m 删除ipc资源,可根据id,key .可删
+ 
+runlevel 查看是3还是5 运行级别 也可用 who -rH
+
+
+普通用户不能监听1024以下端口,
+1.iptables -t nat -A PREROUTING -p tcp --dport <低端口> -i eth0 -j REDIRECT --to-port <原先监听的高端口> 
+2.rinetd
+3.ipchans -I input --proto TCP --dport <低端口> -j REDIRECT <高端口> 
+4.chmod 7755
+5.修改内核的make_sock相关部分
+
+
+stat file.txt  查看文件创建,修改时间的详细信息
+chattr +i myfile 禁用所有用户修改文件(root 在内) 
+chattr -i myfile
+stat myfile
+chattr +a myfile 只可append >>
+lsattr  myfile
+
+查  聊天用write,talk,  加
+write,wall(ctrl+d)
+w 查看所有的ttyp,write user pts/1
+mesg n 表示不想接收消息 ,
+mesg y 开启
+
+  
+export TZ=GMT
+date后时间就变了
+
+ntpdate time.windows.com 时间同步
+
+linux 长按键 没用，使用 xset r命令后就可用了
+
+
+清除history (最近命令)
+　　1、在终端运行history -c，清除杂乱的历史记录
+　　2、运行history -r /root/history.txt,把指定文件中的命令读进来作为当前bash的历史记录
+
+清除last  (最近登录),lastb最近登录失败的 ,lastlog -u root最近登录时间
+1.  rm   -f   /var/log/wtmp*  (该文件只能用who /var/log/wtmp来查看)
+	touch /var/log/wtmp
+2. 直接删除/var/log/wtmp和/var/log/lastlog文件得了
+3. 删除/var/log/lastlog这个文件就可以不显示：
+4. last命令缺省读取的是/var/adm/wtmp
+
+
+tty7表示在本机的ctrl+alter +F7
+pts/2表示SSH登录
+
+
+sed -n '89P' filename
+sed -n 111p filename
+sed -n '起始行号,结束行号p' xx.log >partLog.txt
+
+ldd /bin/ls 命令打印现所依赖的共享
+
+date -s 07/28/2008  来改日期  月/日/年
+hwclock --hctosys
+hwclock --systohc
+
+改时间
+ date -s 13:27
+ date -s 1327
+date -s 2008-07-01  来改日期，08/07/01或者2008/07/01也可
+
+
+time <命令>  可以显看命令的执行时间 
+
+
+iwconfig 
+man iwconfig 会显示iwlist 显示所无线网络的命令
+iwlist scan 来显示所有的无线 网络(iwlist wlan0 scan)
+TYPE=Wireless
+ 
+make -j4 起4个gcc(job)
+make depend && make (用　＆＆　同时执行两条命令在一行上)
+ 
+ 
+
+
+dos2unix xx.txt  可以把windows的^M 转换成 unix 回车
+tr -d "\r" < oldfile.sh > newfile.sh
+
+sed 's/^M//g w newfilename' oldfilename  //-i  ,-e
+其中：
+s  表示Searchg 表示搜索全文,缺省是搜索第一个^M 是回车换行符,输入方法是按住CTRL+v,松开v,按m  
+w  表示写到新文档中.
+
+86103111879708,
+sed 's/^86//;s/,$//' user.txt     #去掉开头的86 及尾部的,号
+
+windows 下打linux文件用,写字板来打开
+
+eject cdrom  
+Nero 记录光盘 ，ISO 标签栏，文件名长度ISO (1，最多8＋32，最多31)
+
+
+$find  .  -perm -007  -exec ls -l {} \;
+
+cdrecord dev=b,t,l -v -dao schillix-0.1.iso
+ ls --color=tty 可以高亮 或  --color=always
+ 
+alias ls='ls --color=always -ahl'
+unalias 
+
+#ifconfig eth0 down
+更换物理地址
+# ifconfig eth0 hw ether AA：BB：CC：DD：EE：FF
+# ifconfig eth0 up
+ ifconfig eth0 192.168.0.118 netmask 255.255.255.0
+ ifconfig eth0 192.168.0.118/24
+ 
+last登录用户历史
+rout
+tcpdump
+windows 下php+mysql+apache的安装集成
+hostname
+
+route add default gw 202.2.2.2 dev eth0
+
+route del default gw 202.2.2.2
+
+
+ping -c 发出报文数  -i 间隔时间　
+
+traceroute IP
+netstat -anptu
+nslookup输入域名或者IP
+	lserver
+	server
+	exit
+
+
+/etc/services/服务名与端口的对就的关系
+
+tcpdump -e host 主机名
+ 
+/etc/host.conf文件 order host,bind  #先按hosts文件再按ＤＮＳ
+		multi on	#是否/etc/hosts中允许一个主机有多个ＩＰ地址
+
+
+whereis gcc
+which gcc
+whoami
+GCC  3.4 将${destdir}/lib路径添加到环境变量LD_LIBRARY_PATH中
+
+
+shutdown -h now  关机
+shutdown -r now  重启
+
+halt 系统停机
+
+
+
+登录后用　　＼s 看状态信息　　＼ｑ退出　　exit
+
+/etc/rc.local 文件的脚本会在开机自动运行
+
+
+md5sum -c httpd......md5    显示OK
+
+make & > make.log& 后台编译
+tail -f make.log可以监控
+tail -50f make.log 最后50行
+head -n50 make.log
+
+
+(lynx)
+links  http://localhost/　　可以显示网页的结果
+两次esc键出菜单 
+links 下载地址 http://links.twibright.com/download.php  2.13
+
+elinks 是基于 links 的,但长时间不更新
+
+
+md5sum mysql-.tar.gz  的结果与网站上的结果比对
+
+gpg --import  公钥文件 -pubkey.asc
+gpg --verify   签名文件  tar.gz.sign(tar.asc)
+复制网页上的公钥文件
+
+wget http://  来下载
+curl 来请求
+
+iostat
+vmstat的输入格式
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+
+Procs
+   r: The number of processes waiting for run time.
+   b: The number of processes in uninterruptible sleep.
+
+Memory
+   swpd: the amount of virtual memory used.
+   free: the amount of idle memory.
+   buff: the amount of memory used as buffers.
+   cache: the amount of memory used as cache.
+   inact: the amount of inactive memory. (-a option)
+   active: the amount of active memory. (-a option)
+
+Swap
+   si: Amount of memory swapped in from disk (/s).
+   so: Amount of memory swapped to disk (/s).
+
+IO
+   bi: Blocks received from a block device (blocks/s).
+   bo: Blocks sent to a block device (blocks/s).
+
+System
+   in: The number of interrupts per second, including the clock.
+   cs: The number of context switches per second.
+
+CPU
+   These are percentages of total CPU time.
+   us: Time spent running non-kernel code. (user time, including nice time)
+   sy: Time spent running kernel code. (system time)
+   id: Time spent idle. Prior to Linux 2.5.41, this includes IO-wait time.
+   wa: Time spent waiting for IO. Prior to Linux 2.5.41, included in idle.
+   st: Time stolen from a virtual machine. Prior to Linux 2.6.11, unknown.
+
+
+
+iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT 
+iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
+
+iptables -A INPUT  -p tcp   --sport 22 -j ACCEPT 
+iptables -A OUTPUT -p tcp   --dport 22 -j ACCEPT
+
+iptables -A INPUT  -p icmp   -j ACCEPT 
+iptables -A OUTPUT -p icmp   -j ACCEPT
+
+iptables -P INPUT DROP  
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP
+ 
+ 
+在/etc/inputrc文件中把 set bell style none 前面的#去掉===就可以在的按tab 键时不发声音
+ 
+### 可以不用的 /etc/systab  文件中在某一个分区后方的defaults变为 defaults,acl,来开启ACL的功能,重启后生效
+whoami 当前用户
+
+fdisk /dev/sda
+	m->p
+	m->l
+
+
+mkfs -t ext3 /dev/hda
+fsck  不能对已挂载的
+
+ls /dev/ram*     是内存
+mkfs -t ext3 /dev/ram15
+mount /dev/ram15 /mnt/mem1
+df   可显示挂载状态 (磁盘的可用空间)
+
+
+ls -R 递归
+ls -t 按修改时间排序  -r 反向排序
+
+linux 文件没有创建时间, 有状态改变时间(chmod) , 有访问时间( more命令)
+stat temp.c 查看文件详情
+
+ln	 软链接可跨分区
+	硬链接不可以跨分区
+
+
+du -h 显示目录使用的空间
+whereis  ls  比which 多显示man文件
+
+find /usr/ -name core -exec rm {} \;
+find /usr/ *.so
+find /usr/ -name '*.so'
+
+find ./ -name  *.h -type f | xargs grep "xxx"
+find /usr/include/ -name *.h  -print -exec grep -n LOCAL_ {} \;
+//可以打出哪个文件多少行
+
+
+
+ps aux | wc -l    (-l行数)
+
+su - 比 加－继承了录前用户的环境变量
+
+su -切换到一登录到SHELL的用户
+
+useradd -d <HOME DIR>  -s <SHELL>
+
+文件权限的中有s位的,会以root身份的执行
+
+chmod 4777 属主加s ,,67777属组加要，ls用红色来表示
+
+
+black size 大 ，inode就多
+mkfs .ext3 -b 1024 /dev/ram3s  (1024Bit=1k blocksize )块大小
+
+mount 信息-h 
+mkfs.ext3 -b 1024 -i 8196 /dev/ram4   一个结点代表8个文件块  来节约inode（有可能用光）
+
+tune2fs -l /dev/sda7 查看 Block size:1024 
+tune2fs -l /dev/ram13  来查看信息( 块和结点对应)
+	有Inode count:
+	  Block count:
+mkfs.ext3 -m 2 保留硬盘的%2的空间  （防止硬盘空间满）
+	  
+hdparm /dev/sda1
+
+tune2fs -c 1000 /dev/ram3 最大挂载数量1000
+	-id 10d  自检时间间隔 d| m |w
+	-m 保留块百分数
+	-j  转换为ext3文件系统
+
+
+locale -a  列出系统所支持的所有的编码
+LANG=zh_CN.utf8
+
+at 9:40 + 7days 
+>ls
+>pwd
+>按ctrl+d结束
+
+at now + 3 minutes   (hours,weeks 或者 today,tomorrow)
+
+atq 显示所有任何的id和时间
+at -c 2 显示脚本
+atrm 2 删除任务
+
+chkconfig --list
+chkconfig crond on/off       定时任务
+
+telnet <IP> <port>  退出 按ctrl+],出现telent>打q回车
+
+
+
+/etc/ssh/sshd_config 文件中打开下面三个
+#RSAAuthentication yes
+#PubkeyAuthentication yes
+#AuthorizedKeysFile     .ssh/authorized_keys
+
+ssh-keygen 会要求输入密码(可不输),有 -t rsa 和 -t dsa
+默认生成 自己用的私钥 ~/.ssh/id_rsa 和传给对方的公钥 ~/.ssh/id_rsa.pub 
+
+收到别人的公钥后 追加写入自己机器的 ~/.ssh/authorized_keys 文件,别人就可(使用建立密钥时的密码或无)连接自己机器
+自己的机器有公钥,对方连我不用密码
+
+接收方 tail -f   /var/log/secure 看日志 如报 Authentication refused: bad ownership or modes for file /home/zh/.ssh/authorized_keys
+chmod 700 /home/zh/.ssh/
+chmod 700 /home/zh/.ssh/authorized_keys
+chmod 600 /home/zh/.ssh/authorized_keys
+
+
+
+
+#PermitRootLogin yes
+#ClientAliveInterval 0
+#ClientAliveCountMax 3
+
+ClientAliveInterval 60
+ClientAliveCountMax 6
+SSH Server 每 60秒就会自动发送一个信号给 Client，而等待 Client 回应，如果客户端没有回应，会记录下来直到记录数超过 ClientAliveCountMax(这里设置为6次) 的值时，才会断开连接。
+
+ 
+
+groupadd
+groupdel
+groupmod
+groups git  查用户所在的组
+
+id
+logname 登录用户名
+chroot
+dmesg 开机设备信息 /var/log/dmesg  
+
+resize -s 800 600 终端大小
+cksum 显示文件的CRC
+startx
+
+cal 
+cal 2012
+
+diff 命令产生的文件,再patch 打补丁
+curl http://www.baidu.com
+
+webservice 请求  ,当前目录建立xml中写请求体
+curl --request POST -k --data-binary @hello.xml -H "Content-Type:text/xml;charset=UTF-8"  http://127.0.0.1:8080/J_CXFSpring/Hello
+
+-o out  将指定curl返回保存为out文件,同 >
+-d <key=value>  向服务器POST表单数据,值加"" 
+-x  ip:port 指定使用的http代理
+
+-H <header:value>  为HTTP请求设置任意header及值  
+curl -A "Mozilla/5.0 Firefox/21.0" http://www.baidu.com #设置http请求头User-Agent
+curl -e "http://pachong.org/" http://www.baidu.com #设置http请求头Referer
+curl -I http://www.baidu.com #仅仅返回header
+curl -D /tmp/header www.baidu.com  #将http header保存到/tmp/header文件
+
+curl -u admin:admin http://127.0.0.1:8161/admin/  对要Basic的验证 如ActiveMQ
+
+
+Linux 下挂载 Mac 的dmg 格式  mount -t hsfplus -o ro /dev/cdrom /mnt
+
+
+sudo -i 可以进入全root模式 
+	chmod 4755 /usr/bin/sudo
+	要 /etc/sudoers 文件中有当前登录的用户(在root下加一行 )
+	user1    ALL=(ALL)       ALL
+	或者用命令 visudo修改,可防止两个用户同时修改它,有限的语法检查
+
+	
+sudo 时要的是root密码???
+
+mail 看邮件  /var/spool/mail/root  ,如 cron 任务语法错误
+
+=== 上命令
+------/etc/crontab
+
+1 	分 	0-59 	 
+2 	小时 	0-23 	 
+3 	月中日 	1-31 	与分和小时不同，月中日不是从零开始的。
+4 	月份 	1-12 	月份也不是从零开始的。也可以不使用 1-12 的数字，而是使用月份名的前三个字母，比如 jan 或 may。
+5 	周中日 	0-7 	0 和 7 都代表星期日。还可以使用名称的前三个字母，比如 mon 或 wed。 
+
+用星号（*）表示 “所有"
+列表 是一个逗号分隔的值集
+范围 由启始值和结束值（含）以及可选的步长值构成。 
+
+分		小时		月中日	月份			周中日期	说明
+0 		1 			15 		1,3,5,7,9,11 	* 			在 1、3、5、7、9 和 11 月的 15 日的 1 a.m. 运行命令。为了更容易理解，也可以把这个时间表写成 0 1 15 jan,mar,may,jul,sep,nov *。在指定列表时，不要在逗号后面加空格。
+0-59/15 * 			* 		* 				* 			这个调度计划每 15 分钟运行命令一次。
+30 		* 			* 		* 				wed,fri 	这个时间表只在星期三和星期五每小时的 30 分时执行命令一次。（在列表中可以使用日和月份的名称，但是在范围中不可以）。
+0,30 	0-5,17-23 	* 		* 				* 			在午夜到 5 a.m. 以及 7 p.m. 到 11 p.m. 之间整点时和 30 分时运行命令。
+0 		0 			1 		1 				* 			在每年 1 月 1 日午夜执行命令一次。
+0 		0 			* 		* 				0 			在每个星期日午夜运行命令。这相当于每周一次。
+30 		0 			0,20,30 * 				6 			因为月中日和周中日受到限制，这个时间表在每星期六和每月的 10、20 和 30 日（二月除外）的 12:30 a.m. 运行命令。 
+
+*/1 在第一列表示每分钟
+
+简写形式	说明
+@reboot 	每当计算机重新引导时运行命令。
+@daily 	每天一次的简写形式。
+@weekly 	每周一次的简写形式。
+@annually 	每年一次的简写形式。也可以写成 @yearly。
+@midnight 	在每天午夜运行命令。这个简写形式相当于 @daily。 
+
+
+00 23 28-31 * * [`date -d tomorrow +\%e` -eq 1] && do-something		每月的最后一天的23点做do-something,%e表示第一天用 1表示同%_d,%d就是01 
+
+/etc/crontab 中的配置
+@daily     zhaojin  find $HOME -type f -name '.#*' -print -delete
+#要加用户名,Mac修改文件都是彩色配置才是正确的,修改文件立即生效,contab -l 查不到
+
+crontab -e 当前用户增加/修改  文件存在/var/spool/cron/<user>文件中 
+crontab -u zhaojin -l 来查看
+crontab -r 删除当前用户全部
+Mac记录在 cat /usr/lib/cron/tabs/<用户> 文件中
+	
+cron命令启动服务，
+/etc/rc.local 中写入cron
+
+Mac 是/usr/lib/cron/cron.allow  
+
+------
+
+
+netstat -vat 所有活动的 与被监听的连接
+route add 127.0.0
+route add default gw 网关地址  
+route add -net 202.202.0.0 netmask 255.255.0.0 gw 172.18.20.1 dev eth1
+
+
+netstat -vat
+  
+whoami 显示当前用户
+ 
+which 命令，显示命令所在位置
+
+vfat,ntfs是window的分区格式
+
+/proc/目录来获取硬件信息
+/opt/第三方应用程序安装这个目录
+/sbin/ root或是管理使用的命令文件
+
+
+umask 033 设初建立文件的权限为 744  用777来减   （r-4   w-2  x-1）
+
+fstab文件 自动每次开机时自动挂载光驱
+
+
+/proc/cpuinfo  CPU的信息
+top d 2 ,H显示线程，h帮助 ，k kill  15 要比 9 更有强度
+/proc/meminfo 
+free ,vmstat 5可每5秒自动更新
+iostat
+nice -20~20   默认0，值越小越快
+& 后台运行  fg jobs ctrl +z
+　
+telinit q  重新加载initab  文件
+tload 系统负载
+top 工具
+	o 列的位置
+	f 加减列
+	F  或 O -> 再选择 要排序列
+	
+	M,P按内存和cpu排序
+	R反向排序
+	
+	< 排序字段移动为向左一个   > 排序字段移动为向右一个  
+
+	H 开关显示线程
+	l 开关load average
+	m 开关memory
+	t 开关task
+	u 只显示输入的用户
+	n 或 # 显示最多的
+	d 或 s  每几秒显示一次
+	W 将当前设置写入~/.toprc文件中
+
+grep -v grep 　不显示grep  -n显示行号, -C 50 显示周边50行
+
+zgrep keyworkd file*.zip  对.zip文件
+zless file.zip 对.zip文件  相当于zcat file.zip | less
+
+rpm -qc openssh-server 查找软件包配置文件
+
+which 命令
+
+panic 惊慌, 恐慌, 没有理由的
+
+
+liux下的记录软件 cdrecord 工具
+cdrecord -scanbus
+把值给下的的 dev=...
+cdrecord -v dev=0,0,0 speed=32 file.iso
+
+
+如果可以FTP用户 访问自己的目录要 setsebool -P ftp_home_dir =1
+ 
+export LANG =zh_CN.UTF-8
+date后可中文
+
+modprobe usb-storage  USB存储器的驱动  会认为sd类型的
+
+mount -t vfat -o ro,utf8,uid=zhaojin,gid=zhaojin /dev/....
+-o      iocharset=gb2312
+	iocharset=utf8(可省为utf8)
+	uid=xx,gid=xxxx,umask=0077
+-a 会读/etc/fstab文件 ( -a -t vfat 会/etc/fstab 中有所的vfat类型的) 
+wheel组为root组
+
+mount -o iocharset=utf8 -t vfat /dev/sda7 /media/E/
+fat32 要加iocharset=utf8 ,是正常显示中文的，ntfs就不用了只ro
+
+netstat -tnl  显示端口
+
+
+--------
+strace
+ulimit -c 100   core file size 
+gcc 11_5_3.c -o 3 -g
+gdb ./3 -c core
+
+linux下默认是不产生core文件的，运行 ulimit -c unlimited 放开
+-------
+------linux 双显卡切换 
+lspci | grep VGA  显示的第一列的 "号" 与后面的描述对应哪个是独立显卡
+cat /sys/kernel/debug/vgaswitcheroo/switch  显示+表示当前使用的, Pwr 表示通电,Off表示未通电
+echo ON > /sys/kernel/debug/vgaswitcheroo/switch   打开独显
+echo OFF > /sys/kernel/debug/vgaswitcheroo/switch   关闭独显
+dmesg | tail -15 查看是否成功
+
+ 
+linux-q50c:~ # lspci | grep VGA
+00:02.0 VGA compatible controller: Intel Corporation 2nd Generation Core Processor Family Integrated Graphics Controller (rev 09)
+01:00.0 VGA compatible controller: ATI Technologies Inc Whistler [AMD Radeon HD 6600M Series] (rev ff)
+
+openSUSE-13.2不用了,只是DynOff
+linux-cxfp:/home/zhaojin # cat /sys/kernel/debug/vgaswitcheroo/switch
+0:IGD:+:Pwr:0000:00:02.0
+1:DIS: :DynOff:0000:01:00.0
+linux-cxfp:/home/zhaojin # echo OFF > /sys/kernel/debug/vgaswitcheroo/switch 
+linux-cxfp:/home/zhaojin # cat /sys/kernel/debug/vgaswitcheroo/switch
+0:IGD:+:Pwr:0000:00:02.0
+1:DIS: :DynOff:0000:01:00.0
+ 
+
+-------------
+(一个硬盘 主分区（包括扩展分区）的最大个数是四个)
+一个硬盘最多可以有 4 个 Primary + Extended 的扇区
+
+分区中不要删除boot分区,如果没有boot分区，最好不要在winodws 下删/ 分区 
+手工分区最好也加/boot分区,自动分是会加的
+windows 安装不要用修复安装，不能加引导区，只能格式化C盘：复制完成重启后，才可以（其它版本的windows 也可以(如winXP,使用win200来修复)，win2000没有快速格式化）
+不能用linux，虽然可以检查到其它系统，但没有安装完成所有的软件包也不行的，（除非选择很少的系统包，安装完成）
+Ghost 不会改变引导分区的东西 （对已有linux的引导）
+
+
+chainloader + 1
+boot  无效
+可尝试用
+rootnoverify(hd0,0)
+chainloader+1
+-------------
+-----------千万不要运行的命令-------------
+:(){:|:&};:
+这段不知所云的符号，可以让 Shell 不停的 fork 子进程，最后导致内存耗尽，
+
+:(){:|:&};: 等价于
+f() # 定义函数
+{ f | f # 这个是精华, 管道线使两个 f 同时运行 }; f # 调用函数永不返回, 无穷递归. bash 的调用栈放在堆上, 结果耗尽所有CPU和内存空间. 而且同时运行的 f() 是指数爆炸式的…
+
+
+“\x6e\x2f\x73\x68\x00\x2d\x63\x00″  是表示可能表示 一个破坏的命令
+--------------------------
+-----wine
+用wine PlSqlDev.exe 来安装PL／SQL Devolope  (可以成功安装在～/.wine/drive_c/Program Files/PLSQL Developer 下)
+			 ~/.local/share/applications/wine/Programs/PLSQL\ Developer/ 下也有文件 (像是windows下的桌面,可以双击运行它)
+进入 安装目录 wine plsqldev.exe 就可以成功的运行 了，但是界面上的工具栏上的图标不能显示（右击图标－＞customer...显示 全部不能显示）
+ 
+==========IPv6
+==========vi================
+
+~/.viminfo
+vim -u vimrc文件
+SUSE vim 文档路径 /usr/share/vim/vim64/doc/starting.txt
+	/etc/vimrc文件加syntax on
+					  
+solaris 下安装 vim-7.2 的语法加亮,vim 也可撤消多步了
+	~/.vimrc配置文件中 , 添加set term=sun-color 
+
+	在vim中用 :syntax on 或者用　:syntax enable
+	也可在　~/.vimrc　中加入　　syntax enable
+
+可在　~/.vimrc　中加入　 set hlsearch 
+:set hlsearch  会在搜索时高亮选中当前页全部搜索到的文字
+:set incsearch 在输入搜索文字时 , 时时定位到找到地方
+
+view 是以只读打开(不高亮语法) ,vi -R 只读有高亮
+
+J 删除当前行的换行符
+v 进入可视模式,可以移动光标来选中文本
+
+ * 查找光标的单词
+
+:>4　把当前行和下４行缩进一个tab  (两个＞＞,两个tab)
+
+
+:qa (quit all)
+:wqa
+
+
+
+:set autoindent (noautoindent) 当tab时,再回会缩进
+
+:set fdm=indent  (foldmethod)
+zf56G，创建从当前行起到56行的代码折叠
+10zf+或zf10↓ 创建从当前行起到后10行的代码折叠。
+
+
+zo 展开折叠(光标位置) zO 全部:
+zc 关闭折叠(光标位置) zC 全部
+zd 删除 (delete) 在光标下的折叠
+zD 循环删除 (Delete) 光标下的折叠，即嵌套删除折叠。
+[z       到当前打开的折叠的开始处。
+]z       到当前打开的折叠的末尾处。
+zj       向下移动。到达下一个折叠的开始处。关闭的折叠也被计入。
+zk      向上移动到前一折叠的结束处。关闭的折叠也被计入。
+
+
+
+1.vimdiff 文件1,文件2
+	 ]c   跳转到下一个diff点
+	 [c   跳转到上一个diff点
+	 2]c  跳转到下两个diff点
+	 dp (diff "put")  一个差异点中 当前文件的内容复制到另一个文件里
+	 do (diff "get") 一个差异点中 另一个文件的内容复制到当前行
+	ctrl+w 在各个窗口切换按 (esc情况下,否则删光标到上一个标点)
+	 
+2.vim -d  文件1,文件2
+3.vi 文件1  :vertical diffsplit 文件2   
+:set diffopt=context:3(缺省是会把不同之处上下各 6 行的文本都显示出来以供参考)
+
+
+
+
+:diffput(dp)
+:diffget(do) 用 :1,$+1diffget 修改光标文件内容全部和另一侧相同
+:diffupdate (当dp后,再u后要diffupdate  才显示效果)
+
+:set nowrap后可以用 
+	zL 向右移动半个屏幕  
+	zH 向左移动半个屏幕
+	zs 移动屏幕,使光标位于屏幕在开始处
+	ze 移动屏幕,使光标位于屏幕在尾处
+	
+	
+:set wrap
+:set nu 显示行号
+
+当vim在utf-8的local下打开gbk文件时,显示的是乱码,可以在~/.vimrc文件中加入如下代码来解决
+set fencs=utf-8,gbk
+或者
+set fileencodings=utf-8,gbk
+
+打开显示正常后, :set fileencoding=utf-8  ,再:w the_utf8.txt  ,就把gbk的转换为utf8文件了
+
+---查看文件字符集
+file -i the_utf8.txt 如果文件和系统编码相同则显示utf8,否则GBK就显示为iso-8859-1,同有中文显示为us-ascii
+vi 中 :set  fileencoding 可显示文件字符集 ,GBK对应的是 CP936,有时也为latin1,没有中文时显示就是系统字符集,不对???
+---正常显示后以下两个配对使用
+:set termencoding=utf-8  输出到客户终端（Term）采用的编码类型,一般不要修改
+:set encoding=utf-8  该选项使用于缓冲的文本(你正在编辑的文件)
+
+
+:f 可显示当前正在编辑的文件
+:history 显示最近命令
+  q? 显示最近向前查询命令
+  q/ 显示最近向后查询的
+命令“gg”移动到文件的第一行
+跳转到文件的第1234行，只需输入“1234G
+跳到文件的正中间，输入“50%
+3fx”表示移动到光标右边的第3个'x'字符上
+
+:split  文件名  
+:vsplit  文件名     (打开多个文件用vertical split 文件2  )
+:resize +10 高度加大(-10) ,:resize 20高度到20
+:vertical resize N 宽度
+
+
+
+vim 同时打开多个文件
+:close关闭当前窗口
+:bn       切换到下一个文件 可循环的
+:bp       切换到上一个文件 可循环的
+:bw       关闭当前文件
+:hide e		a.txt 隐藏
+:args	显示多文件信息
+:next	向后切换文件
+:prev	向前切换文件
+:first	定位首文件
+:last	定位尾文件
+Ctrl+^ (Ctrl+6)快速切换到编辑器中切换前的文件
+:n 下一个文件
+:N上一个文件
+:args	显示编辑名单中的各个文件名   
+:n	读入编辑名单中的下一个文件  
+:rew	读入编辑名单中的第一个文件  
+:e#	读入编辑名单内的前一个文件  
+:e filename
+:e! filename 打开新的文件到vi编辑器中，并放弃对当前文件的修改
+:r filename  读取文件内容到当前vi编辑器中
+
+
+ctrl+z 最小化
+ctrl+q 最小化 不可以fg 1 ,在不小心按了ctrl+s 无响应
+发现交换文件:
+	D delete ,E edit ,R recover ,O readonly
+	:recover 恢复
+	vi -r xx.
+
+D  剪贴(删除)当前光标到时最后的字符
+>   向右一个tab位
+vi 中可以用!ls
+vim +n file               打开 file 并将将光标移动到第n行
+:x               保存并退出， 等效命令为 :wq
+O行前加一行
+o行后加一行
+0或^           跳到行首
+$                跳到行尾
+i字符前加入
+a 字符后加入
+x                删除当前字符
+X                删除前一个字符
+:m,n d       删除 m～n行
+:nd            删除第n行
+dd             删除当前行
+
+9u      就是9次
+u                撤销前一步操作 :u 3  撤销3步 (可与ctrl+r 重做 多次)
+U               撤销本行所有操作
+
+:/word            向下查找word
+:?word           向上查找word
+n                     以当前查找方向同向查找下一个word
+N                    以当前查找方向反向查找下一个word
+fx 下一个x上
+Fx 
+yy               复制当前行
+y2      算当前行向下共2 行
+4yl  复制光标后4个字符  
+4yh  复制光标前4个字符 
+
+3. 把剪贴板中的粘贴3次
+
+p                在前粘贴
+P                在后粘贴
+:$ 移动到尾行 
+G  移动到尾行 
+
+:n 到指定行
+:m,n copy x   将m～n行内容复制到 x 行之后   ＃
+:m,n move x 将m～n行内容移动到 x 行之后   ＃move可以简写为mo
+
+:set autoindent
+:set showmode
+ctrl +d /ctrl +u
+
+替换：
+:s/src/dst               将本行搜索到的第一个 src 替换为 dst
+:%s/src/dst            将全文所有的 src 替换为 dst
+:s/src/dst/g            将本行的 src 替换为 dst
+:$,$… s/src/dst/g      在指定范围内替换src为dst，其中$,$… 为指定行号，例： :2,5,6 s/hi/hello/g
+:s/old/new/c		在替换命令末尾加入c命令，将对每个替换动作提示用户进行确认
+
+:命令模式下   :history   调出vi历史命令,输入序号
+				按ctrl+f (q:) 调出窗口可以移动光标
+
+:命令模式下  ctrl+h 同backspace
+:命令模式下 ctrl+b 到行首,ctrl+e 到行尾 ,向前移动一个字符用方向键有时有问题
+
+6yy向下复制6行
+5G 向下5行
+
+
+~ 大小写转换
+
+(Normal Mode 下)gu 小写 gU大写  可继命令再输入影响范围 ,如 gu2j 从光标向下3行变为小写
+v进入Visula Mode
+i进入Insert Mode
+:进入Command Line
+
+vim 语法高亮 可直接用 
+:syntax enable (或者syntax on)
+:set autoindent
+
+vim ~/.vimrc文件中加入 (没有建立,也不会在插件模式按方向键有问题)
+	if &t_Co > 1
+	syntax enable
+	endif
+
+
+:help 光标到链接处按ctrl+]进入,ctrl+o ,ctrl+t  返回
+:viusage帮助
+
+
+backspace 键工作
+~/.vimrc文件中 加入就可以了
+set backspace=indent,eol,start
+#eol 全写 end of line
+源码安装在doc 默认安装后在/usr/local/share/vim/vim72/doc/  里有:help 的文档
+:undo
+:undo 2
+:undolist
+:earlier 10h
+:earlier 10s
+:later 1m
+
+
+ctrl+d 下半页
+ctrl+u 上半页
+ctrl+b 上一页
+ctrl+f 下一页
+
+:set runtimepath?	查看插件目录,有$VIM/vimfiles/after,所有的路径下都有plugin目录
+
+:set rtp+=/usr/share/vim/vimfiles	设定 vim 的 runtimepath 选项
+:set ffs=unix,dos,mac			设置换行符格式 
+:set history=400    
+
+关闭备份
+set nobackup                           
+set nowb	#wb=writebackup
+set noswapfile
+
+---vim自动识别中文编码
+:help encoding-values 列出Vim支持的所有编码。
+vi ~/.vimrc   添加
+set fileencodings=utf-8,cp936
+Vim在打开文件时会根据fileencodings选项来识别文件编码 GBK还是UTF-8自动识别  OK
+
+也可在/etc/vim/vimrc
+在最下面添加一行这样的代码： 
+set fileencodings=utf-8,gbk  
+
+
+gvimtutor 命令有vim 的学习命令(中文的)
+
+
+gedit -3 在打开文件时有选择编码 
+
+vim 源码安装 make & make instll
+
+.java文件中写//再回车时下行会自动加,取消它
+/etc/vimrc 中加 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+
+==========vi================
+--ed编辑器中的命令
+a - 在文件的末尾添加新内容 
+w file.txt
+q-退出
+
+!引用外部系统命令
+---
+od -c file.txt 命令  有像ultraEdit的二进制的地址码
+===========console========
+Ctrl + d        删除一个字符，相当于通常的Delete键
+Ctrl + h        退格删除一个字符，相当于通常的Backspace键
+
+Ctrl + c        取消当前行输入的命令，相当于Ctrl + Break
+Ctrl + a        光标移动到行首（Ahead of line），相当于通常的Home键
+Ctrl + e        光标移动到行尾（End of line）
+Ctrl + l        清屏，相当于执行clear命令
+Ctrl + p        调出命令历史中的前一条（Previous）命令，相当于通常的上箭头
+Ctrl + n        调出命令历史中的下一条（Next）命令，相当于通常的上箭头
+Ctrl + r        显示：号提示，根据用户输入查找相关历史命令（reverse-i-search,反向搜索）
+
+ctrl + k	删当前到行尾
+
+
+ctrl+f 向后一个字符
+ctrl+b 向前一个字符
+esc+F 向前一个单词
+esc+b 
+
+ctrl+T 当前字与前一个字对换,并移动一下一字符
+
+!+  一个命令的第几个字符
+ctrl+o 执行当前行,取得上一和行
+　
+===============grub 
+引导 windows 
+rootnoverify (hd0,0)
+chainloader +1
+boot
+
+
+
+linux grub 引导路径 
+root (hd0,x)
+kernel /vmlinuz-2.x ro root=LABEL=/
+initrd /inird-2.x.img
+
+title前加
+splashimag=(hd0,x)/grub/splash.xpm.gz
+
+hiddenmenu  ##不显示grub菜单  
+
+
+光盘rescue ,linux rescue
+
+1.进入 rescue 模式		   # grub-install /dev/hda 
+	find /boot/grub/stage1 来得到boot分区在hd0,x 中
+2.进入 grub 模式(linux rescue)	grub>setup (hd0,0);
+
+
+
+fdisk /mbr
+
+
+在有/boot分区的情况下OK 开机就进入grub>
+1. grub>root (hd0,0)
+2. grub>find /grub/stage1 结果是hd0.x
+3. grub>root (hd0,x)
+4. grub>setup (hd0)
+
+
+
+备份mbr
+dd if=/dev/hda1 of=/root/mbr bs=512 count=1
+恢复mbr
+dd if=/root/mbr/ of=/dev/hda1 bs=512 count=1
+
+
+在kernel 最后加init 1 单例用户
+
+grub 加密码
+在 title 内加 password=mypassword  表示启动时要密码
+在 title 外加 password=mypassword  表示设置内核参数要密码
+
+如不想显示明文用password  --md5 xxxxx   (xx是用grub-md5-crypt来生成的)
+
+如想title 内外用同一个密码，就在title 外加password ,title内最下加lock
+
+
+grub-md5-crypt<psd>>/etc/grub.conf ##为了好复制，psd文件中有原密码
+另一种生成密码的方式是用grub模式下的 md5crypt
+
+
+
+
+=================iptables
+
+一个数据据包有 源地址,目标地址,协议
+
+iptables -A INPUT -p(protocol) icmp -j (jump)DROP  (Target,DROP,ACCEPT ,REJECT,LOG)
+
+icmp不可ping一个地址
+
+ip6tables -L
+iptables -L -n 显示 数字IP
+iptables -F (flush)    清空规则
+-D delete  从一开始
+-Z 清零(包的个数)
+-N --new 新建一个链
+-X 删自己的链
+-P 大P 改变默认
+-p 小p 协议 可用! 来排除
+-s 
+-d
+--line-numbers 显示链的编号
+
+
+链，INPUT，OUTPUT，FORWARD(对其它机器服务,的来源和目录都不是自己)
+
+保证SSH 服务正常
+iptables -A INPUT  -p tcp   (-d 127.0.0.1)   --dport 22 -j ACCEPT  () 中可省,INPUT的目标地址,OUTPUT的源地址是本机IP
+iptables -A OUTPUT -p tcp   (-s 127.0.0.1)   --sport 22 -j ACCEPT
+
+-s 源 --sport
+iptables -P INPUT DROP  改变默认 -P 所有的 INPUT 都DROP
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP
+
+service iptables save  保存到/etc/sysconfig/iptables或者用
+iptables-save>/etc/sysconfig/iptables
+
+相应的有 iptables-restore
+
+
+/etc/services 找domain为53端口的是DNS
+
+为了可用使用DNS来上网,
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A INPUT -p udp --sport 53 -j ACCEPT  如果自己是DNS服务器没有指定目标端口是53,采用默认DROP
+
+iptables -D INPUT 5 删INPUT第5行
+
+为了本机可正常工作
+iptables -A INPUT -s 127.0.0.1 -d 127.0.0.1  -j ACCEPT  
+
+^IN^OUT 或者
+iptables -A OUTPUT -s 127.0.0.1 -d 127.0.0.1  -j ACCEPT
+
+^oldchar^newchar   替换上一次执行过的命令中的字符
+
+
+iptables -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT	(-sport 服务器)
+-m state --state ESTAbLISHED 表示只响应有过请求的包,对没有请求过的包,不可出 m match
+
+iptables -D OUTPUT 1
+做为服务器删上一个OUTPUT 22 的链 ,
+
+做客户机
+iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT   (--dport)
+iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+
+
+
+service iptables save		redhat 保存到 /etc/sysconfig/iptables
+iptablse -A INPUT -p tcp -dport 22 -j  LOG --log-level 5 --log-prefix "iptables::" ###记录日志 --prefix 并不是最前的
+要确保前方没有DROP, 或者ACCEPT 的规则对应的包,并在其它对应的ACCEP规则的前面才有效 
+
+/etc/syslog.conf加入
+kern.=notice    /var/log/firewall.log ###### man syslog 看到 5 是NOTICE
+注意文件中的 *.* 不要有
+
+/etc/sysconfig/syslog
+	SYSLOGD_OPTIONS="-m 0 -r -x"  改成了 SYSLOGD_OPTIONS="-m 0"
+重启  service syslog restart
+-I　INPUT 6 插入第6条前面
+
+FORWARD是在本机是路由发送给其它人的情况下的
+打开内核中的转发
+要 /proc/sys/net/ipv4/ip_forward的值为1  是临时的
+/etc/sysctl.conf文件中的net.ipv4.ip_forward=1  (ctl control)
+
+sysctl -p 
+
+10.0.0.1~10.255.255.254
+172.16.0.1~172.31.255.254
+192.168.0.1~192.168.255.254
+以上是专用网络
+
+局域网地址反译到互联网地址时，叫NAT
+
+SNAT 源地址转换,只能发生在POSTROUTING
+DNAT 目标地址转换  只能发生在PREROUTING
+
+iptables -t nat -L -n 来显示    nat表中的信息
+iptables -t nat -A POSTROUTING -s 10.0.0.0/24(24=255.255.255.0) -j SNAT --to-source 192.168.0.254
+iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j MASQUERADE 违装(masquerade 化装)
+
+iptables -t nat -A PREROUTING -d 10.0.0.254 -p tcp -dport 80 -j DNAT --to-destination 192.168.0.1
+
+
+
+=================pam模块
+ldd /usr/sbin/sshd 如果链接了 /lib/libpam.so->/etc/pam.d/<service>
+							/lib/security/...
+
+格式 :module-type   control-falg    module-path    arguaments
+
+module-type :auth,account,session,password
+control-flag:required,requisite(如果失败,并不马上失败),sufficient(充足,这一个就可以了,不会继续),optional
+例:   auth   required pam_stack.so service = system-auth 调用另一个模块
+
+
+
+/usr/share/doc/pam-0.99/txts/中是README。文档
+
+/etc/pam.d/login
+README.pam_securetty 在root 登录时,只在安全的终端/etc/secretty 是一普通文件不是一个全局可写的,(如果该文件中的一个终端删除,就不可以root登录)
+
+pam_stack.so是用来调用其它模块用的
+service =system-auth 会开另一个模块system-auth中和该对就相同的类型的(auth)
+
+
+/etc/pam.d/《service》
+文件中的为
+auth,account,session,password		required,requisite（如查失败会下一个）,sufficient(不会向下检查),optional
+
+
+
+sshd.so
+
+pam_nologin.so 如果在 /etc/有一个nologin文件，那么一般用户不能登录，并显示内容
+pam_deny.so 无条件拒绝
+tty 显示终端
+/dev/tty
+/dev/pts/
+
+
+system-auth中有一个password  用pam_cracklib.so retry=3(密码重试次数,普通用户改密码时,简单不可以)
+
+tty 显示当前使用的终端
+session pam_console.so 的作用是:当有人登录时/dev/tty ... pts/中的文件会改属主,属组,退出时还原成 root用户 
+
+/etc/security/access.conf  对/lib/security/pam_access.so
+
+sshd文件中加入
+account required  pam_access.so
+
+
+/etc/security/access.conf
+	permission(可用+,-)	:users( 可用多相名字,ALL) 	: origins(可多个tty名,主机名,以点开头的域名,以点结尾的网络地址,ALL EXCEPT ..,LOCAL)
+
+-:redhat:ALL EXCEPT 10.0.0.  拒绝所有redhat 访问本机,除在10.0.
+可以在模块后加一个参数accessfile='<full-path>'  可以覆盖默认配置文件/etc/security/access.conf
+
+
+pam_listfile.so 
+ftp  (看帮助/usr/share/doc/pam../txts/READE.pam_listfile) 没有默认配置文件  
+模块选项 后加item=user sense=allow file =/the/file (文件中的内容是item=user,即是用户名) onerror=succeed
+
+
+------
+pam_limits.so 块
+
+more /us/share/doc/pam../txts/READEME.pam_limits，
+limits.conf ,
+<domain>(用户名,@组名  )    <type>(soft ,hard(不可达到),- 即both)   <item data,fsize,nproc,cpu,maxlogins>   <value>
+
+
+session  required pam_limits (maxlogins )
+w显示登录人数
+ssh -l redhat 10.0.0.1  (-l 加用户)
+scp ./tuxedo100_32_Linux_01_x86.bin oracle@192.168.1.121:/bea
+
+pam_rootok.so  检查是root用户，(对root 无条件通过sufficient )
+chfn 命令 改变个人信息  使用了pam_rootok模块
+
+pam_userdb.so db=/文件  要指定参数db    (db ftp中的)
+============ACL
+在分区上加入acl类型(fstab文件)
+
+setfacl -m u:oracle:rw file.txt
+-m :modify 
+oracle是用户
+rw是读写权限　　或用　rw-
+file.txt 对这个文件
+
+u指定用户，g 同组　o其它　　可以用::不指定名字
+setfacl -m u::rwx,g::rwx,o::rwx file1.txt
+	与chmod权限相同
+
+setfacl -x u:oracle file.txt  取消oracle用户对file.txt 地ＡＣＬ权限控制
+
+ll后 权限给后多了一个＋号
+
+getfacl 文件名　　　　可以看文件的信息
+
+setfacl -m mask::r--   文件a   这个'文件a'权限要和其它用户做运算（源文件权限不可大于mask权限,），结果是＃ effective (有效的)
+setfacl -b file.txt 删除所有的ACL权限控制在file.txt文件上(没有＋号显示) -b 或  --remove-all 
+
+
+getfacl -R 目录>bak.txt　　	-R　对文件来 recursive
+setfacl --restore bak.txt  备份与恢复要在同一个目录下
+
+
+read (4), write (2), and execute (1)
+set user ID (4) and set group ID (2) and restricted deletion or sticky (1) attributes.//1显示t  4或2 显示s
+chmod u+s g+s //uid ,gid
+=====================quota 磁盘限额 
+/etc/fstab文件中的类型中加入,usrquota,grpquota
+
+quotacheck -ug /home
+会在目录下生成 aquota.group  和aquota.user文件
+
+quotaoff -a
+
+edquota -u zhaojin 增加配额  
+-p login   把login用户配额信息复制给 -u指定的用户
+
+requota -a 显示报告
+
+quota 命令
+	inode  会限制创建文件数量
+	block  会限制磁盘容量
+
+在fstab文件中的 要限制的分区(/dev/hda3/ext3)  defaults 改成defaults,usrquota,grpquota 1(由dump是否要备份)   1（fsck是否要检查和次序）
+重启后，quotacheck -cvug /dev/hda3 c生成文件(quota.user ,quota.group) v 显示 u检查用户的配额 g  检查组的配额
+
+quotaon /dev/hda3     
+
+edquota user1显示文件 
+filesystem	block		soft	hard	inodes	soft	hard
+/dev/had3	752		0	 0	163	0	0 
+单位是K
+软限制默认是7天
+
+edquota -t 显示文件可以修改过度期
+quotacheck -vug 检查正确性
+
+quota user  或 quota -g group1来显示磁盘使用情况 也可以是UID，GID
+
+repquota /dev/had3 来生成报告
+其中	--   块和索引，如果超出会变成+   ，grace列表示软限超出后还有多少天
+repquota -a显示所有的
+quotaoff 关闭功能
+===============上  quota
+
+------------------Raid//多磁盘的
+要内核支持
+
+0级加,(至少两硬盘)速度最快,但如要一个磁盘坏,其它的无用 (硬盘使用100%)
+1级加(至少两硬盘)速度和使用一个硬盘一样,很安全(硬盘使用1/2)
+5级加(至少三硬盘),速度快,安全,(硬盘使用(N-1)/N)	只是多了一个奇偶校验信息，写入数据的速度相当的慢，若使用“回写高速缓存”可以让效能改善不少
+1和0相加10(至少四硬盘)(硬盘使用1/2)
+
+rqm -ql raidtools
+man 5 raidtab
+
+1. 写配置/etc/raidtab文件 (可以复制安装包中的)
+2.为硬盘分区(fdisk ->n(new),w(write))
+3.mkraid /dev/md0   //md0 是配置文件中的  
+4.mkfs.ext3 /dev/md0 格式化
+5.mount /dev/md0 /opt
+umount /opt
+raidstop  /dev/md0
+
+lsraid -a -A  /dev/md1  显示信息,有good/online
+防止每次开机raid ,可删/etc/raidtab文件
+
+mkraid (看提示-f 可以强制迫害superblock,看提示再-R,删数据)
+cat /proc/mdstat 可看内核信息 (raidstop后也有)
+
+/boot  (grub.conf中的内核路径)目录不能在 raid分区上
+raidsetfaulty /dev/md1 /dev/sdb1  摸拟硬盘损坏
+lsraid -A -a /dev/md1 后会看到/dev/sdb1 是Failed
+raidhotadd /dev/md1 /dev/sdc1  这样就可以再加一个硬盘 (spare)
+raidhostremove /dev/md1 /dev/sdb1 可以把坏硬盘拿掉 (missing)
+在/etc/raidtab文件中
+raid-level 1
+nr-spare-disks 1 (nr =>number 就要再加一个硬盘,自动修复坏硬盘 ,对1,5级别)
+....
+device   /dev/sdd1
+spare-disk 0    (之前是raid-disk ,以0开始,一个就足以)
+
+如查1,0一起时,mkfs.ex3时只对最上层的就可以了
+-------------------LVM 逻辑卷管理器 ,硬盘满,
+
+fdisk 准备分区,改Id和System ,用 t 转换 ->L ->8e 是Linux LVM
+所有的分区(System)是 Linux LVM的 (p) ->w
+
+(phasical valume)
+pvcreate /dev/sda1 /dev/sda2  ...  //也可以用 /dev/sda[1-2]
+
+vgscan 第一次会自动生成配置文件 /etc/lvmtab
+
+vgcreate vg0 /dev/sda1 /dev/sda2    ///vg0(volume group)自起新卷组名,下面的分区不能使用
+
+vgdisplay vg0 看信息
+	PE size是物理扩展(Phsical extend)(会影响Max LV size 的大小)  4M
+
+lvcreate -n data -L 10M vg0 
+	(logicol volume)
+	data 新逻辑卷名
+	vg0已有的卷组名
+	-L  指定长度
+
+
+会生成文件/dev/vg0/data
+mkfs.ext3 /dev/vg0/data
+
+可以mount来使用
+
+lvdisplay /dev/vg0/data 查信息
+	占用空间是(vgdisplay vg0) PE size的整数倍
+	lvcreate -n data -l 5 vg0  (-l 5 是 PE size的倍数)
+
+lvscan  有多少个逻辑卷,大小,状态
+
+umount /dev/vg0/data
+e2fsadm -L +10M /dev/vg0/data    来扩大逻辑卷的大小(只对ext2,和ext3), - 来减少空间 ,-l  PEsize 数
+	实际上运行了3个命令e2fsck,lvextend,resizefs
+
+	(现在没有e2fsadm命令了,  也没有resizefs要用resize2fs)
+	lvextend -L +800M /dev/VolGroup00/LogVol00
+	lvreduce -L 800M /dev/VolGroup00/LogVol00
+	resize2fs /dev/VolGroup00/LogVol00
+pvscan  物理卷的状态,
+
+vgextend vg0 /dev/sda3  将sda3加入vg0组中 ,来扩大卷组
+
+pvmove /dev/sda1 [/dev/sda2] ,把数据移动到其它的物理卷上,也可把数据放在/dev/sda2
+vgreduce vg0 /dev/sda1 把/dev/sda1从卷组vg0中移除
+
+vgcreate -s 来指定PE(Phiscal extend) size (默认4M)
+	PEsize 越大,Max LV size越大
+
+vgcreate -s -l 2 -n datasnap  /dev/vg0/data (是逻辑卷路径)
+	-s (--snapshot) 只可一次,重启失效  (会影响系统性能,可以防止多用户对同一LVM操作产生数据不一致)
+
+mount /dev/vg0/datasnap /opt使用
+原来/dev/vg0/data 是挂在/mnt下
+删/mnt下的文件 ,看/opt还是有文件的
+
+删LV,和创建相反,先删LV,VG,PV
+umount
+lvremove /dev/vg0/data
+	lvscan
+vgchange -an vg0 (active no,-ay yes )转换状态 
+vgremove vg0 ,会删/dev/vg0目录
+
+vi /etc/[rc.d/]rc.sysinit文件中 会自动找/etc/lvmtab文件
+
+LVM挂载 / 分区
+1)lvcreat ...
+2)lvmcreate_initrd 命令会创建文件/boot/initd-lvm-2.xx-img,可以解压,挂载iso,看里文件  (会读所有/dev/目录 包括LVM)
+3)修改grub.conf为新生成的img文件
+
+gunzip -c 
+file xxx 看文件系统是ext2
+
+unzip -l  显示文件目录结构  -o 覆盖存在的不提示   -n 不覆盖存在的
+unzip file.zip -d mydir
+tar -t    显示文件目录结构
+tar -zcvf my.tar.gz xx.txt
+
+xz test.txt
+xz -d -k test.txt.xz  (-k 保持原文件不被删除)
+
+--------------------Raid LVM实例
+fdisk 中 t 转换类型->L 列表->fd 是Linux raid auto
+fdisk -l /dev/sd[bcd]     //可以用[]
+
+让linux 认出Raid设备 vi /etc/rc.sysinit 系统启动时,第一个运行
+会找/etc/raidtab文件 
+在if[ -f /etc/raidtabl];then
+	[-f /proc/mdstat] || modprobe md >/dev/null 2>&1
+下面加入 raidstart /dev/md0
+
+转分区时 ,cp完成,重启后,可以把一个分区,挂在多个目录,删原始数据
+
+cp 时先不要/boot 目录
+ctrl+z 挂起,再bg 后台运行
+
+mkinitrd  /boot/initrd-lvm-$(uname -r).img   $(uname -r)  ///会把当前系统的所有模块加入
+//也可以用lvmcreate_initrd,不能直接使用
+
+lsmod 目前系统模块,要有raid5,raid5还依赖于xor ,还lvm-mod,针对SCSI硬盘BusLogic,scsi_mod
+
+file /boot/initrd-lvm* 看文件格式 
+解压,挂载-o loop , 看dev目录
+cp -a /dev/lvm  ./dev/    ////lvm设备文件
+cp -a /dev/vg   ./dev/	  ////vg 卷组文件,建的
+还要用md0,和md0使用的设置sd[a-c],sd[a-c]1
+vi linuxrc 修改
+注释raidautorun /dev/md0
+加入raidstart /dev/md0 
+vgscan
+vgchange -a y
+
+改下面的mount .... /dev/root 为/dev/vg/root(创建的)
+
+还要把raidstart vgscan vgchange 这新加的三个命令复制到./bin目录下
+ldd /sbin/raidstart  来检查 raidstart 命令运行时要哪些库文件,复制到./lib目录下,目录结构也要相同
+
+raidstart 要读/etc/raidtab文件,也要复制到./etc下
+
+gzip xxx -c >xxx.gz
+gzip xxx 自动把文件压成xxx.gz 原文件消失 
+gzip -d xxx.gz  解压
+
+4yy 复制4行
+
+修改grub.conf文件中
+kernel 后root=LABLE=/ 修改为 root=/dev/vg/root(创建的)
+initrd 后的文件改为新的
+
+更改/etc/fstab中的根 LABEL=/ 修改为/dev/vg/root
+
+reboot
+
+/boot 目录不能变,只能放在物理硬盘上,可单独给/boot目录做一个分区
+
+
+------------------ SAMBA
+./source/configure 来源码安装
+
+SAMBA 使用的端口(netstat -anp 可以看到有smbd 和　nmbd 进程)
+TCP 
+139 netbios-ssn  
+445 microsoft-ds
+ 
+
+
+要三个软件包，samba ,samba-common,samba-client
+/etc/samba/smb.conf配置的是samba-common中的
+
+;为注释
+testparm来检查文件语法的正确性
+
+[gloabl]和[home]每个用户的，其它的为自定义的([docs])
+
+
+vi 中可以用!ls
+smbtree 可有哪些主机
+smbtree -b 表示广播
+smbtree -D 只查域,工作组
+	-U username%password
+hostname 
+nmblookup lizhaojin ##查找网上邻居的主机是lizhaojin的IP,可能有多个IP
+			发送.255的广播地址
+nmblookup \*      ##看所有活动的主机
+
+smbclient -L [主机]  -U user%pass  ##显示列表,以$结尾的在windows中看不到的
+smbclient //host/share  -U user%pass  ##后像ftp工具 help,
+	可ls,
+	get xxx 
+	mget xxx #可以目录但每个文件都要提示
+	put 本机文件 (远程的重命名)   ##如不加第二参数,和第一参数一样 
+	rm xxx ,
+	!pwd 	##使用一机命令,
+	lcd  xxx 	##切换本机目录
+
+有时要"/"要转义,也可不转
+smbclient \/\/192.168.253.1\/share -U administrator%pass   ,用户必须要设置密码才行
+
+
+mount -t cifs -o username=xxx,password=xxx //192.168.1.100/temp /mnt
+//Common Internet File Systemcifs(cifs)来代替原来的smbfs  
+//对solaris无效
+mount -t cifs -o username=xxx,password=xxx  \/\/192.168.253.1\/share /mnt/smb
+
+
+nmblookup -A 192.168.1.100 根据IP得到主机
+smbtar -s server -u user -p password -x sharename -t output.tar  打成tar包
+smbtar  -s 192.168.1.100 -u -p -x temp -t temp.tar 对不要密码的,不会提示要密码
+file temp.tar 来检查文件类型 ,tar -tvf  temp.tar 
+smbclient -N 不要提示输入密码
+nslookup
+
+
+smb.conf文件
+workgroup = workgroup
+server string= 描述信息
+netbios name=redhat显示主机的名字
+security=share(不要密码)
+	user(对win用户所有的用户要密码)
+	server(如是该项还要加一个password server=xx)/domain
+password server =IP/FQDN     只有当security为server或是domain时才有效
+
+%m表示netbios主机名，%I (IP) %T (time)  %U (username)
+---man smb.conf
+encrypt password  = yes 要与window一到,默认windows是加密的,所以一般为yes
+smb passwd file=/etc/smb/smbpasswd
+include = ...%m(包含不同配置文件)
+interfaces  =	
+name solver order =wins   imhosts(/etc/samba/imhosts文件存IP与主机的对应关系) bcast
+;wins support =yes (本机做服务器)
+;wins server =w.y.ww.(本机做客户机,指定服务器)
+---
+/etc/samba/lmhost
+smbclient -L [IP]  显示主机上的共享目录
+smbclient //[IP]/docs(配置文件中的共享目录) -U username
+
+ cat /etc/passwd | mksmbpasswd.sh > /etc/samba/smbpasswd
+    如果系统使用 NIS，键入以下命令：
+    ypcat passwd | mksmbpasswd.sh > /etc/samba/smbpasswd
+smbclient //192.168.1.230/win  -U test
+ mount -t cifs //192.168.1.230/win /mnt/samba/
+
+smb.conf
+[docs]
+public = yes  ##为所有用户提供可以共同访问的目录,默认是yes
+path= 
+comment=
+writable = yes
+create mask = 0765
+valid users = mary fred
+smbd (nmbd)来启动
+
+
+windows本地连接属性中 可以取消Microsoft 网络的文件和打印机共享,其它人不可仿问我
+
+valid users = @root 表示只是root组里的用户
+
+man 5 hosts_access 的正则(“.”开头（.xx）  表示所有 以.xx结尾的)
+			以 . 结束的 ,以@开头的
+			1.1.1.1/255.255.255.0
+host allow =ALL (122.22.2.2) except xx.x.xx.x
+smbclient -L 10.0.254 (主机列表) -U=tom%tompwd用户列表
+smbclient //10.0.0.254/docs
+useradd -s /bin/false 或者是 /dev/null 指定无用的SHELL
+充许优先   可以ALL except 2.2.2.2
+
+samba用户首先是系统用户 
+smbpasswd -a 用户  ##使用不同的密码
+-a add user
+-d disable 
+-e enable
+-n no password
+-x delete
+写入/etc/samba/smbpasswd文件中的
+for user in lisi zhangsang
+do
+	$user
+done
+
+
+chomd g+s /home/sxx 同组加权限
+
+tail命令 显示文件尾部
+
+####smbmount //10.0.0.1/sales /mnt/ -o username=tom%tompwd
+
+smbusers 文件
+
+/etc/auto.misc文件中加入
+sales	-fstype=smbfs,username=tom%tompwd	://10.0.0.254/sales
+
+
+testparm 测试samba 服务的配置是否正确
+
+
+==========================NFS 
+安装 nfs-utils 软件包
+
+cat /etc/mtab 
+cat /proc/mounts 
+与mount 命输出都一样
+ 
+cat /proc/filesystems  | grep nfs
+ 
+--Server端226上
+
+/etc/exports 文件 和　 /etc/exports.d目录　, exportfs命令也会修改这它们
+ exportfs -r 加载配置
+ 
+/etc/exports　 文件格式         
+	/root/shareDir/            10.1.5.225/24(rw,no_root_squash) 　##表示共享/root/shareDir/  目录给10.1.5.x的用户
+ 
+	选项 no_root_squash 表示 NFS客户端连接服务端时如果使用的是root的话，那么对服务端分享的目录来说，也拥有root权限。显然开启这项是不安全的，这个一定要加上，否则客户端连接报access denie
+
+service nfs start 会转到 /bin/systemctl start  nfs.service
+	showmount -e 可看有分享哪些目录，即/etc/exports的配置
+ # showmount -a 可看出所有的 mount 
+	
+  # /bin/systemctl start  rpcbind.service  也可以用  systemctl start rpcbind  可以不要的
+  systemctl start nfs  
+ 
+systemctl stop firewalld
+
+--Client端 225上
+rpcinfo -p 10.1.5.226  查看服务器提供的rpc服务
+	显示portmap服务指派端口（111）
+	
+mount -tnfs4 10.1.5.226:/root/shareDir  /home/hrbb/remoteDir (要root权限)
+ 
+==========================VNC-5.2
+----linux 通用tar包安装
+root用户运行 ./vncinstall /usr/local/bin /usr/local/man
+vnclicense -add DN2AB-2224A-VRGSB-7J3D9-NN3RA   增加免费的license
+vncserver   第一次运行vncserver会提示输入密码 ,修改密码用 vncpasswd
+vncserver :1
+依赖于xauth (gnome 或者KDE)命令
+vncserver -geometry 1366x768 :1 启动时指定分辩率
+vncserver -geometry 1340x740 :1
+
+windows 打开 VNCViewer   输入  your-server:X-display号 如192.168.190.134:1 (比用jar好处是可记住上次IP,可传剪贴板中文字符)
+netstat -an | grep 5901	 vncviewer的端口是5900+N N是你设置的X-display号 ,
+
+vncserver -kill :1
+
+~/.vnc/config.d/Xvnc 存密码
+/etc/vnc/xstartup 中有 gnome-session  (GNOME桌面) ,(KDE桌面 是 startkde& )  
+
+源码目录java -jar java/vcnviewer.jar 有界面,也有 vncviewer 命令 
+
+如多个客户端同时连接到同一个显示端口,则一方鼠标动,另一方鼠标也动(可做远程演示)
+
+solaris  可以用Xmanager 直接远程桌面连接 (XDMCP)
+
+ ---------------XDMCP--------------
+修改文件/etc/X11/gdm/gdm.conf，查找到[xdmcp]模块
+Enable=false修改为Enable=true，同时查找#Port=177这一行，把行首的#号去掉。
+
+修改文件/etc/X11/xdm/Xaccess文件，查找到下面一行，把前面的#号去掉。
+# *         #any host can get a login window
+
+
+修改文件/etc/X11/xdm/xdm-config文件，找到下面这一行，把它注释掉。[注意该地方注释使用!,而不是我们常用的#号]
+！Display Manager .Requestport 0
+
+修改/etc/inittab文件，将id:3:initdefault:修改为：id:5:initdefault:并且在最后一行添加x:5:respawn:/usr/bin/gdm
+
+修改/etc/X11/xdm/Xsetup_0的属性为755。
+
+重新启动服务器
+
+-------------上 XDMCP-----------
+
+rdesktop 工具 同windows的mstsc ,使用RDP协议,linux服务端xrdp
+
+
+-------------gcc 的安装(4.3.1较新的)
+　% .configure --prefix=/usr/local/gcc-4.3 --enable-languages=c,c++
+	###solaris 10	--with-gmp=/usr/local/gmp --with-mpfr=/usr/local/mpfr
+　% make 
+　　这是一个漫长的过程。在我的机器上（P4-1.6），这个过程用了50多分钟。 
+　% make install 
+
+LD_LIBRARY_PATH =/usr/local/gcc-3.4.0/lib:$LD_LIBRARY_PATH
+/etc/ld.so.conf 配置文件设置　lib 的查找路径
+pkg-config --libs --cflags gtk+-2.0
+
+gcc的环境变量 CPATH(-I选项),C_INCLUDE_PATH,CPLUS_INCLUDE_PATH,OBJC_INCLUDE_PATH(#Objective-C 编译加-lobjc)
+
+ldconfig	生成/etc/ld.so.cache文件, LD_LIBRARY_PATH 或者 /etc/ld.so.conf 	里只 include ld.so.conf.d/*.conf	
+因此当安装完一些库文件，(例如刚安装好glib)，或者修改ld.so.conf增加新的库路径后，需要运行一下 /sbin/ldconfig
+
+pkg-config	PKG_CONFIG_PATH
+pkg-config --modversion glib-2.0 显示大于这个版本的 ,一般在prefix/lib/pkgconfig,文件以.pc扩展名	 
+-------
+=======编译升级内核
+tar zxvfj linux-2.4.26.tar.bz2(后,当前目录有linux-2.4.26文件夹)
+bzcat patch-2.4.27.bz2 | more 有--- linux-2.4.26
+打补丁:bzcat patch-2.4.27.bz2| patch -p0   //p1表示不要第一目录(--linux-2.4.26),把2.4.26的源码升级到时2.4.27的源码
+
+make menuconfig 后看版本
+mv linux-2.4.26 linux-2.4.27
+make dep bzImage modulues modules_install install
+
+lsmod
+insmod
+depmod
+modinfo ext3
+modprob (依赖安装,如失败会卸载整组的模块)
+rmmod
+
+============================Redhat专用的
+镜像地址  
+	
+##netconfig 终端界面 
+setup     终端界面
+ntsysv    终端界面来配置服务 类似chkconfig
+system-config-network  终端界面配置网络
+timeconfig 时区界面
+
+/etc/sysconfig/network-scripts/ifcfg-eth0　配置文件
+##IPV6INIT=no可以没有
+##DEVICE=eth0 可以没有
+##NAME=""  可以没有显示在界面上
+BOOTPROTO=dhcp/none(none是可没有)
+#下面的必须要有
+ONBOOT=yes
+HWADDR=
+TYPE=Ethernet
+#以下对非DHPC
+DNSI=
+IPADDR=
+GATEWAY=
+PREFIX=24 ###NETMASK=  
+  
+ 
+service iptables stop 
+service crond start/stop/restart/reload
+service network restart ##SSH会断
+service iptables start/stop/restart/status/condrestart/panic/save
+　
+
+关SELinux (如果不关就要 chcon -t textrel_shlib_t /usr/local/apache2/modules/* 很麻烦)
+	/etc/selinux/config文件中的SELINUX=  改为 disabled
+	echo 0 > /selinux/enforce  暂时性的关闭 SELinux
+启动时读/etc/rc.local
+
+
+rpm -q --requires pam-1.1.8-12.el7.i686 查已安装包的依赖
+rpm -q --requires -p pam-1.1.8-12.el7.i686.rpm 查指定包的依赖
+--requires 可以-R ,即 rpm -qR pam-1.1.8-12.el7.i686
+
+----------- Fedora11不能使用root用户登录的解决办法
+ 修改 /etc/pam.d/gdm 中下面这行
+auth       required    pam_succeed_if.so user != root quiet
+为
+auth       required    pam_succeed_if.so  quiet
+去掉 user != root
+
+---------Redhat  修改主机名
+hostname myhost
+/etc/sysconfig/network 中的 hostname
+/etc/hosts 文件
+
+-------------redhat rpm-build
+可以安装rpm-build 来安装 *.src.rpm 等同于解压->./configure ->make 不过会提示少 openssl-devel
+ /usr/src/redhat/SOURCE目录下
+vsftp.src.rpm的示例
+
+/usr/src/redhat
+	BUILD目录：编译时存放临时文件
+	SOURCES目录：存放.tar.gz源码包   
+	SPECS目录：存放spec文件          ###   http://svn.rpmforge.net/svn/trunk/rpms/	下有mplayer 和unrar的spec 文件   
+	RPMS目录：存放打包好的rpm文件	
+	SRPMS目录：存放src.rpm文件
+
+spec文件   rpmbuild  -ba vsftpd.spec  ()
+	Summary: the First RPM of Howard
+	Name: hellow
+	Version: 0.1
+	Release: 1
+	Vendor:Ace soft (howard_ace@hotmail.com )
+	Source0:hellow-0.1-1.tar.gz
+	%description
+		My test hellow
+	%prep
+		tar –xzvf $RPM_SOURCES_DIR/hellow-0.1-1.tar.gz
+	%build
+		cd $RPM_BUILD_DIR/hellow
+		./configure
+		make
+	%install
+		cd $RPM_BUILD_DIR/hellow
+		make install
+	%clean
+		rm –fr $RPM_BUILD_DIR/hellow
+	%defattr(-,root,root
+		/usr/bin/hellow
+	%doc $RPM_BUILD_DIR/hellow/readme
+
+
+
+#rpm -ivh vsftpd-1.2.1-3E.1.src.rpm
+#cd /usr/src/redhat/SPECS/
+#rpmbuild  -ba vsftpd.spec
+#cd /usr/src/redhat/RPMS/i386
+#rpm -ivh vsftpd-1.2.1-3E.1.i386.rpm
+
+
+yum -y install d4x 来在线下载安装
+yum update 
+yum list
+yum search xxx
+
+在/var/cache/yum/extras/packages/目录有下载的软件包
+在/var/cache/yum/base/packages/目录有下载的软件包
+rpm -qa显示所有安装的软件包
+rpm -ql 软件包名   显示软件包安装的文件
+rpm -qf 文件名  显示文件属于哪个软件包
+rpm -e 卸载软件包
+useradd -d /u01/oracle  这是用户的默认主目录
+------------
+----------------Redhat yum自动安装光盘中软件包,相当于 SUSE的yast2
+mount -t iso9660 -o ro,loop /dev/cdrom /mnt/cdrom
+cd /etc/yum.repos.d/
+mkdir bak
+mv ./* bak
+vi Redhat6.3DVD.repo  文件名任意,要以.repo结尾
+写入
+[base]
+name=iso
+baseurl=file:///mnt/cdrom
+gpgcheck=0
+
+保存 
+yum clean all		清除yum缓存
+yum install gnome-desktop  就可以了,会自动查找依赖包
+yum install gnome-session
+
+给最小化安装的RHEL-6配置GNOME桌面环境
+yum groupinstall "X Window System"
+yum groupinstall Desktop
+	没有 1和2提供最基本的桌面环境(Gnome)
+yum groupinstall "Chinese Support"
+yum groupinstall Fonts
+
+yum search gcc  模糊查找软件包名
+yum list |grep gcc 
+64位机 yum 安装32位 gcc ,yum search all gcc
+----------------
+-----------------硬盘安装RedhatEL5------------
+
+把ISO镜像文件放入 FAT32分区,不能是NTFS
+
+把Grub For Dos解压缩,把grldr,menu.lst复制到C:\盘的根目录下
+menu.lst也可复制到C:\boot\grub下(boot和grub文件夹自己建立)
+
+boot.ini了,用记事本打开之后,在里面加上这么一行C:\grldr="GRUB For Dos" 然后保存退出.
+
+isolinux文件夹解压出来放到C:\的根目录下,保留vmlinuz和initrd.img文件就可以了  (可以NTFS)
+
+
+grub 下用find /isolinux/vmlinuz 会显示 hd0,x 为下面使用
+
+C:\根目录的menu.lst文件,(先找c:\menu.lst  再找c:\boot\grub\menu.lst),在其最后
+添加这么几行:
+
+grub 下用find /isolinux/vmlinuz  会显示hd(0,x) 
+
+title Install Redhat5
+kernel (hd0,x)/isolinux/vmlinuz
+initrd (hd0,x)/isolinux/initrd.img
+
+或者是
+title Install Redhat5
+root (hd0,x)
+kernel /isolinux/vmlinuz
+initrd /isolinux/initrd.img
+
+
+ISO镜像最好是在分区的根目录下,就不用输入路径了,grub 下用find /isolinux/vmlinuz  会显示hd(0,6) 那么就是/dev/hda7
+可按提示按 F2,
+
+
+
+引导windows 是
+rootnoverify(hd0,0)
+chainloader+1
+
+不要删除boot 分区
+
+其它命令
+clear,displaymem内存,reboot重启
+restart 重启,help 会打开编辑器
+
+一个硬盘最多可以有 4 个 Primary + Extended 的扇区
+------------
+-----------Redhat EL5 安装Maya2008
+[系统]－>[首选项]－>[窗口]    ,更改alt键为其它的
+[Maya 2008](redhat 提示的)
+
+chcon -t textrel_shlib_t /usr/autodesk/maya2008/lib/
+setsebool -P allow_execheap=1
+chcon -t textrel_shlib_t /usr/autodesk/maya2008/bin/plug-ins/*.so
+chcon -t textrel_shlib_t /usr/autodesk/maya2008/bin/plug-ins/image/*.so
+----------- 
+
+
+====rsync
+rsync -av dir/* dir2 					把dir/*的所有修改的内容再复制到dir2中 , -a是组合,有-r递归目录
+rsync -av file*.txt dir2
+rsync -av file  root@127.0.0.1:/root 	远程复制
+rsync -av root@127.0.0.1:/root  dir
+rsync  dir/  							相当于ls -l dir
+rsync  root@127.0.0.1:/root/
+
+--/etc/rsyncd.conf
+uid = nobody
+gid = nobody
+
+#传输文件以前首先chroot到path,需要root权限
+use chroot = no
+max connections = 10
+
+#是否检查口令文件的权限，如果为yes，则密码文件必须为root所有
+strict modes = yes
+
+pid file = /var/run/rsyncd.pid
+lock file = /var/run/rsync.lock
+log file = /var/log/rsyncd.log
+
+#定义一个模块,可以有多个,web是对应模块的名称
+[web]
+# 指定要备份的文件或者目录
+path = /var/log/httpd
+
+comment = web server log 
+#忽略无关的I/O错误
+ignore errors
+
+read only = no
+write only = no
+hosts allow = *
+#hosts deny = 172.16.30.1
+list = false
+
+#该选项指定当该模块传输文件时守护进程应该具有的uid和gid，默认值为全局定义的"nobody"
+uid = root
+gid = root
+
+#定义可以连接该模块的用户名，和系统用户无关，多个用户名用空格或者,好隔开
+auth users = jia
+#指定一个“用户名:密码”格式的文件，用户名就是auth users指定的，密码要和客户端的密码文件对用起来
+secrets file = /etc/server.pass
+--
+vim /etc/server.pass
+jia:leejia(第一个为用户名，第二个为对应的密码)
+ 
+chmod 600 /etc/server.pass
+
+启用服务用 rsync --daemon  监听 873 端口
+
+测试文件是否能同步
+rsync -vzrtopg --delete --progress jia@127.0.0.1::web /tmp/test  删本地的/tmp/test
+ 
+
+--password-file=/etc/server.pass 客户端加这个无效果 
+/tmp是客户端存放备份文件的目录
+
+未成功,看日志
+lsof -i :873  有ipv4 和 ipv6协议  ,执行时的权限 
+
+
+--progress 显示进度
+-z compress 传输时压缩
+-r recursive
+-t time 更新修改时间
+-o owner 保存属主
+-g group 保存组
+-p perm 保存权限
+
+====FTP client
+
+
+======linux 内核参数
+/proc/sys/kernel/threads-max  最大线程数
+
+ps -eLf
+ps axms
+ 
+ulimit -a
+open files                      (-n) 1024
+
+
+
+
+

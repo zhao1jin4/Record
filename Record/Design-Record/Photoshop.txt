@@ -1,0 +1,51 @@
+Photoshop CS4
+
+alt+del 填充前景色
+ctrl+del 填充前景色
+ctrl+t 变换
+ctrl+shit+t 再次使用上次的变换
+
+ctrl+d 取消选区
+
+f  切换全屏
+q 快速蒙版 
+
+ctrl+[ 向下移动 当前层
+ctrl+] 向上移动 当前层
+
+alt+[ 向下选择 当前层
+alt+] 向上选择 当前层
+
+
+
+在文本区中选择文字  ctrl+shift+<  减小字体
+在文本区中选择文字  ctrl+shift+>  增加字体
+在文本区中选择文字  alter + 上箭头   减小行距
+在文本区中选择文字  alter + 下箭头   增加行距
+
+
+
+ctrl+shift+i 返选择
+ctrl+ + 放大视图
+ctrl+ - 缩小视图
+
+
+按空格+拖动鼠标  =  移动视图
+
+
+ctrl+e 向下合并图层
+ctrl+j 把选区中的内容 复制出一个图层
+
+---
+Photoshop CS6
+界面变黑但菜单不是黑色_图标不是彩色难看
+edit->preferences->interface 只可修改界面为正常灰色，而不是黑色，但图标不是彩色
+
+Extended 没有3D 工具，和3D菜单
+
+启动时的一个提示，好像意思是显卡不被官方支持,让我取消　use Graphics Processor的复选框
+在 edit->preferences->performance...->Advance Settings...->如果use openGL不能选择就会关闭3D功能
+看到检测的显卡是我的集成卡，并不是独立显卡
+
+
+

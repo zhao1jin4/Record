@@ -1,0 +1,1237 @@
+
+--------------------------makefile 
+
+
+$@ 目的文件名
+$<”表示规则中的第一个依赖文件，
+$*不带匹配元素的依赖文件名主干部分
+$? 所有过期文件的列表(所有这些文件都要重新编译)
+$^所有唯一的依赖文件列表
+$+所有非唯一的依赖文件列表,依原先的顺序排列
+$%只适用于程序档案库,目的成员名(当目的是档案库时)
+
+
+
+
+
+OBJECTS=${SOURCES:.cpp=.o} 把.cpp 成.o
+链接使用 ld
+默认的情况下，make执行的是Makefile中的第一个规则,称之为“最终目的”或者“终极目标”
+
+更新（或者创建）终极目标的过程中，如果任何一个规则执行出现错误make就立即报错并退出
+
+
+对一个目标文件是“N.o”， 依赖文件是“N.c”的规则(隐含规则) //不用手工指定N.o依赖于N.c make 默认是这样的,会使用${CC}  指定的编译器,默认值 cc
+
+可以一个.o文件依赖于一个.h文件,
+也可以多个.o文件件依赖于一个.h文件,
+
+$(objects) : defs.h　　　//不推荐的
+kbd.o command.o files.o : command.h
+
+
+
+.PHONY : clean  //伪目标
+
+以[tab]开头的
+
+-rm edit $(objects) “-”，意思是忽略命令“rm”的执行错误
+
+#注释行的结尾如果存在反斜线（\），那么下一行也被作为注释行
+（\#）来实现（对特殊字符“#”的转义）
+
+以[Tab]字符开始的的行，make程序都会将其交给系统shell程序去解释执行
+用指示符“define”定义一个多行的变量或者命令包时，其定义体（“define”和“endef”之间的内容）会被完整的展开到Makefile中引用此变量的地方（包含定义体中的注释行）
+
+
+查找的文件名顺序为：“GNUmakefile”(只有“GNU make”才可以识别)、“makefile”、“Makefile”。				(OK)
+make的 “-f NAME”或者“--file =NAME” (指定多个需要读取的makefile文件)   两个中的 "="  可有可无,也可用-file --f	(OK)
+
+
+如果目标依赖于 foo.o ,而当目录下有foo.c或者foo.cpp ,自动用g++ -c -o foo.o foo.c[pp](如定义过CFLAGS,会使用它的值) 来创建
+
+
+include FILENAMES...   可以有空格 ,不能以[tab]开头  ,多个文件之间使用空格或者[Tab]键隔开,文件名可以用*,${VAR} (一个文件OK ,多个文件在solaris9 上不行的)  
+
+
+make的行选项“-I”或者“--include-dir”,依此搜索以下几个目录（如果其存在）：“/usr/gnu/include”、“/usr/local/include”和“/usr/include
+
+-include  ////（“-”的意思是告诉make，忽略此操作的错误。make继续执行
+为了和其它的make程序进行兼容。也可以使用“sinclude”来代替“-include”（GNU所支持的方式）。
+
+“MAKEFILES”环境变量 用空格分格多个文件名
+环境变量指定的makefile文件中的“目标”不会被作为make执行的“终极目标”,(文件不存在等错误)  make不会提示错误，也不退出
+，首先读取的是环境变量“MAKEFILES”所指定的文件列表，之后才是工作目录下的makefile文件
+
+
+
+“MAKEFILES”指定、命令行指、当前工作下的默认的以及使用指示符“include”指定，make读取的文件名将会被自动依次追加到变量“MAKEFILE_LIST”，
+变量的最后一个字来获取当前make程序正在处理的makefile文件名，，变量“MAKEFILE_LIST”的最后一个字只可能是指示符“include”指定所要包含的那个文件的名字
+
+
+特殊的变量是“.VARIABLES”。它被展开以后是此引用点之前、makefile文件中所定义的所有全局变量列表
+
+用一个没有依赖只有命令行的双冒号规则(::) ,  此规则的目标文件将会被无条件的更新 (如规则的目标是makefile文件,死循环,忽略)
+ //(没有依赖)而普通规则，当规则的目标文件存在时，此规则的命令永远不会被执行
+
+如果缺省makefile文件不存在，但可以通过一个规则来创建它（此规则是隐含规则）,如果不能成功地创建缺省的makefile文件，并不一定会导致错误
+
+
+“-t（--touch）”选项来更新Makefile的目标文件（更新规则目标文件的时间戳）
+“-q（—question）如目标已经到日期返回0（man看的）”和“-n（—just-print）
+
+make –f mfile –n foo    打印出更新目标“foo”所要执行的命令
+
+“所有模式匹配规则” “%
+%: force
+	@$(MAKE) -f Makefile $@
+force: ;
+它的依赖是“force”，保证了即使目标文件已经存在也会执行这个规则,“force”规则中使用空命令是为了防止make程序试图寻找一个规则去创建目标“force”时，又使用了模式规则“%: force”而陷入无限循环
+
+
+用追加符（+=）时，如果此前这个变量是一个简单变量（使用 :=定义的）则认为它是立即展开的
+
+?=  ,= 
+define IMMEDIATE
+DEFERRED
+Endef
+
+立即展开，条件“ifdef”、“ifeq”、“ifndef”和“ifneq
+
+所有的规则在make执行时，都按照如下的模式展开：
+IMMEDIATE : IMMEDIATE ; DEFERRED
+	DEFERRED
+
+
+第一个规则,如是模式规则,或者以点号“.”开始(没有/),不会被作为“终极目标
+
+“A(M)”表示档案文件（Linux下的静态库.a文件）的成员“M”
+命令可以和目标：依赖描述放在同一行。命令在依赖文件列表后并使用分号（；),独立的命令行时必须以 [Tab]字符开始
+
+$（表示变量或者函数的引用）$$ 可以转义 $,   \ 下一行
+
+只需要根据依赖文件中的部分来决定目标是否需要被重建，而不是在依赖文件的任何一个被修改后都重建目标
+更新这些依赖的，可不需要更新规则的目标,称为：“order-only”依赖。
+
+“order-only”依赖使用管道符号“|”开始 , “|”左边的是常规依赖，管道符号右边的就是“order-only”依赖
+		常规依赖文件可以是空   ,order-only”依赖只有在目标文件不存在的情况下，才会参与规则的执行
+
+如果一个文件同时出现在常规列表和“order-only”列表中，那么此文件被作为常规依赖处理
+
+
+
+文件名 通配符有：“*”、“?”和“[…]”。		1. 可以用在规则的目标、依赖   2. 可出现在规则的命令中 
+反斜线（\）进行转义
+“~john/bin”就是代表用户john的宿主目录下的bin目录
+
+lpr -p 打印
+
+“$?”在这里表示依赖文件列表中被改变过的所有文件。
+
+变量“objects”代表所有.o文件列表示,需要使用函数“wildcard”（objects = $(wildcar *.o)）。
+
+但在变量的定义和函数引用时，通配符将失效,使用函数“wildcard”
+“$(patsubst %.c,%.o,$(wildcard *.c))”，首先使用“wildcard”函数获取工作目录下的.c文件列表；之后将列表中所有文件名的后缀.c替换为.o
+
+变量的赋值也用到了一个特殊的符号（:=）
+
+
+
+make提供的目录搜索依赖文件功能 GNU make可以识别一个特殊变量“VPATH”。，使用空格或者冒号（:）将多个需要搜索的目录分开 
+当前目录永远是第一搜索目录
+
+
+make的关键字 vpath,
+vpath PATTERN DIRECTORIES   符合模式“PATTERN”的文件指定搜索目录“DIRECTORIES”		多个目录使用空格或者冒号（：）分开
+vpath PATTERN    清除之前为符合模式“PATTERN”
+vpath  清除所有已被设置
+“%”意思是匹配一个或者多个字符  ,反斜杠 转义
+vpath %.h ../    仅限于在Makefile文件内容中出现的.h文件。并不能指定源文件中包含的头文件
+
+如果相同的“PATTERN”,vpath语句一个一个进行处理
+
+
+VPATH 则目标文件在搜索目录中有,但如目录需重建,则搜索目录中的无效(还在),则在当前目录新建,GPATH则不会在当前目录下建,而是在依赖目录中更新 (43页)
+
+将目标文件在已存在的目录存下进行重建，我们可以使用“GPATH”变量来指定这些目标所在的目录。“GPATH”变量和“VPATH”变量具有相同的语法格式。
+
+
+目录搜寻成功，在指定的目录下存在此规则的目标,那么搜索到的完整的路径名就被作为临时的目标文件被保存,，
+当规则的目标需要重建时，规则的目标文件会在工作目录下被重建(只对GNU,些时只有目标文件的完整路径名失效)
+
+
+
+
+依赖文件列表中存在一个“-lNAME”形式的文件时
+1.当前目录下搜索一个名字为“libNAME.so”的文件
+2.使用“VPATH”或者“vpath”指定的搜索目录
+3.顺序是：“/lib”、“/usr/lib”和“PREFIX/lib”（在Linux系统中为“/usr/local/lib”
+4.如果“libNAME.so”通过以上的途径最后还是没有找到的话,按上顺序,查找名字为“libNAME.a”的文件。
+
+
+要搜索的依赖文件名为“libNAME.so”和“libNAME.a”，这是由变量“.LIBPATTERNS”指定的,包含模式字符（%,多个字之间使用空格分开
+
+(“-lNAME”)用“NAME”代替变量“.LIBPATTERNS”的第一个字的模式字符（%）
+默认情况时，“.LIBPATTERNS”的值为：“lib%.so lib%.a”
+
+
+clean:
+rm *.o temp
+不存在“clean”这个文件,总会被执行
+目录下存在文件“clean”,个规则没有任何依赖文件，所以目标被认为是最新的而不去执
+
+在之前或者之后多加一行.PHONY : clean无论在当前目录下是否存在“clean”这个文件 ,都会被执行, 不会去试图去查找隐含规则来创建它(效率)
+
+make -C 目录 (--directory=目录)  在指定的目录下做事情
+	-k, --keep-going            Keep going when some targets can't be made.
+
+对多个目录进行make的实现方式
+
+SUBDIRS = foo bar baz
+.PHONY: subdirs $(SUBDIRS)
+subdirs: $(SUBDIRS)
+$(SUBDIRS):
+	$(MAKE) -C $@
+foo: baz  #####处理“foo”目录之前，需要等待“baz”目录处理完成  ,,,并行执行make的
+
+
+
+当一个伪目标作为另外一个目标的依赖,在每一次执行这个规则时伪目标所定义的命令都会被执行
+
+一个目录下如果需要创建多个可执行程序,第一个目标是“终极目标”，约定的做法是使用一个称为“all”的伪目标来作为终极目标,它的依赖文件就是那些
+
+
+“rm”之前加上“-”来防止“rm”错误退出
+make存在一个内嵌隐含变量“RM”，它被定义为：“RM = rm –f”
+
+
+如果一个规则没有命令或者依赖，并且它的目标不是一个存在的文件名。在执行此规则时，目标总会被认为是最新,已经被更新过
+clean: FORCE
+	rm $(objects)
+FORCE:
+和将“clean”声明为伪目标效果相同
+
+
+
+print: foo.c bar.c
+lpr -p $?
+touch print
+
+
+
+
+特殊目标
+.SUFFIXES:
+.DEFAULT	说一个文件作为某个规则的依赖，但却不是另外一个规则的目标时。Make程序无法找到重建此文件的规则，此种情况时就执行“.DEFAULT”所指定的命令
+.PRECIOUS”(宝贵的) ：当命令在执行过程中被中断时，make不会删除它们
+.INTERMEDIATE”	的依赖文件在make时被作为中间过程文件对待
+.SECONDARY”	的依赖文件被作为中间过程文件对待。但这些文件不会被自动删除
+.IGNORE”	指定依赖文件，则忽略创建这个文件所执行命令的错误。
+.LOW_RESOLUTION_TIME”的依赖文件被make认为是低分辨率时间戳文件。给目标“.LOW_RESOLUTION_TIME”指定命令是没有意义的
+	.LOW_RESOLUTION_TIME: dst
+	dst: src
+		cp -p src dst所创建的文件“dst”在时间戳上稍稍比“src”晚
+
+	初始时间相等，就认为目标已经过期
+
+.SILENT”的依赖列表中的文件，make在创建这些文件时，不打印出重建此文件所执行的命令,给目标“.SILENT”指定命令行是没有意义的
+	果需要禁命令执行过程的打印，可以使用make的命令行参数“-s”或者“--silent”
+
+.EXPORT_ALL_VARIABLES 此目标应该作为一个简单的没有依赖的目标，它的功能含义是将之后所有的变量传递给子make进程
+NOPARALLEL”，则所有命令按照串行方式执行，即使存在make的命令行参数“-j”,不应该有依赖文件。但在递归调用的字make进程中，命令可以并行执行所有出现的依赖文件将被忽略
+
+
+多目标
+bigoutput littleoutput : text.g
+	generate text.g -$(subst output,,$@) > $@
+
+
+一个多规则的目标，重建此目标的命令只能出现在一个规则中.如果多个规则同时给出重建此目标的命令，make将使用最后一个规则中所定义的,会提示错误
+使用“.”开头的多规则目标文件，可以在多个规则中给出多个重建命令  避免使用
+
+
+extradeps=
+$(objects) : $(extradeps)
+它的意思是：如果我们执行“make extradeps=foo.h”那么“foo.h”将作为所有的.o文件的依赖文件
+
+
+静态模式：规则存在多个目标，并且不同的目标可以根据目标文件的名字来自动构造出依赖文件
+objects = foo.o bar.o
+all: $(objects)
+$(objects): %.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+
+
+
+
+“filter”函数
+files = foo.elc bar.o lose.o
+$(filter %.o,$(files)): %.o: %.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+
+
+bigoutput littleoutput : %output : text.g
+generate text.g -$* > $@
+自动环变量“$*”被展开为“茎”。在这里就是“big”和“little”。
+
+
+
+
+
+（双冒号规则允许在多个规则中为同一个目标指定不同的重建目标的命令）。
+一个目标可以出现在多个规则中。但是这些规则必须是同一类型的规则，要么都是普通规则，要么都是双冒号规则
+
+
+对于一个没有依赖而只有命令行的双冒号规则，当引用此目标时，规则的命令将会被无条件执行
+
+当同一个文件作为多个双冒号规则的目标时。这些不同的规则会被独立的处理，而不是像普通规则那样合并所有的依赖到一个目标文件
+比较罕见
+
+
+gcc -M main.c
+其输出是：
+main.o : main.c defs.h
+
+Gcc使用“-M”选项gcc将自动找寻源文件中包含的头文,不需要在依赖关系中考虑标准库头文件时，对于gcc需要使用“-MM
+
+
+
+为每一个源文件产生一个描述其依赖关系的makefile文件。对于一个源文件“NAME.c”，对应的这个makefile文件为“NAME.d”。“NAME.d”中描述了文件“NAME.o”所要依赖的所有头文
+
+
+
+
+%.d: %.c
+	$(CC) -M $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+		
+sed完成了如下的转换过程。例如对已一个.c源文件。将编译器产生的依赖关系：
+main.o : main.c defs.h
+转成：
+main.o main.d : main.c defs.h
+
+sources = foo.c bar.c
+sinclude $(sources:.c=.d)
+
+
+
+
+
+使用分号隔开的命令  ,，如果没有明确指定，那么对所有规则中命令行的解析使用“/bin/sh”来完成
+
+命令行以字符“@”开始，则make在执行这个命令时就不会回显这个将要被执行的命令
+make的命令行参数“-n”或“--just-print”，那么make执行时只显示所要执行的命令，但不会真正的去执行这些命令,调试Makefile非常有
+-s”或“--slient”则是禁止所有执行命令的显示
+特殊目标“.SILENT”也可以禁止命令的回显
+
+每一行命令将在一个独立的子shell进程中被执行
+不能把“cd”和其后的命令放在两行来书写。而应该把这两条命令写在一行上，用分号分隔。这样它们才是一个完整的shell命令行
+需要使用反斜杠（\）来对处于多行的命令进行连接，
+
+
+
+解析使用环境变量“SHELL”所指定的那个程序,默认的程序是“/bin/sh ,make的环境变量中“SHELL
+
+make的命令行选项“-j”或者“--job”来告诉make在同一时刻可以允许多条命令同时被执行,得到标准输入的顺序总是按照先来先获得的原则
+
+
+make使用“-k”或“--keep-going”选项
+
+
+系统运行于重负荷状态下 -l”或“--max-load”选项一般后边需要跟一个浮点数
+-l 2.5 它的意思是告诉make当系统平均负荷高于2.5时，不再启动任何执行命令的子任务。
+不带浮点数的“-l”选项用于取消前面通“-l”给定的负荷限制。
+
+
+命令前加- 来忽略错误
+“-i”或者“—ignore-errors” make将忽略所有规则中命令执行的错误
+特殊目标“.IGNORE
+make的命令行选项“-k”或者“--keep-going”来
+
+
+
+
+应该在一次make执行失败之后使用“make clean”
+特殊的目标“.DELETE_ON_ERROR  不兼容
+
+
+“Ctrl-c”产生的信号关闭了编译,内容不完整的“foo.o”文件的时间戳比源程序
+
+将一个目标文件作为特殊目标“.PRECIOUS”的依赖，来取消make在重建这个目标时，在异常终止的情况下对这个目标文件的删除动作
+
+
+
+subsystem:
+	cd subdir && $(MAKE)
+其等价于规则：
+subsystem:
+	$(MAKE) -C subdir
+
+
+make的递归调用 变量“CURDIR”，此变量代表make的工作目录
+变量“MAKE”的值是“make
+
+
+规则中命令行首使用字符“+”的效果相同
+
+
+make的命令行选项“-t”来更新目标的时间戳或者“-n”选项打印命令时，这些选项将会被赋值给变量“MAKEFLAGS”被传递到下一级的make程序中。
+
+
+如果上层make传递的变量和子make所执行的Makefile中存在重复的变量定义，则以子Makefile中的变量定义为准。
+除非使用make的“-e”选项,用命令行指定的变量
+
+-e --environment-overrides
+使用系统环境变量的定义覆盖Makefile中的同名变量定义
+
+上层make过程要将所执行的Makefile中的变量传递给子make过程,GNU make中，一个变量使用“export”进行声明
+make –e CFLAGS +=-g
+
+
+“SHELL”和“MAKEFLAGS”，对于这两个变量除非使用指示符“unexport”对它们进行声明，它们在整个make的执行过程中始终被自动的传递给所有的子make。另外一个变量“MAKEFILES”，如果此变量有值（不为空）那么同样它会被自动的传递给子make
+
+
+
+export 含义是将此Makefile中定义的所有变量传递给子make过程,   老版本
+
+不带任何参数的“unexport”指示符却是没有任何意义
+“.EXPORT_ALL_VARIABLES”来代替“export”
+
+ unexport 在中间的Makefile中使用它来限制上层传递来的变量再向下传递
+
+
+
+“MAKELEVEL”代表了调用的深度,。最上一级时“MAKELEVEL”的值为“0
+
+
+希望一个子目录必须被上层make调用才可以执行此目录下的Makefile
+ifeq ($(MAKELEVEL),0)
+
+自动的通过环境变量“MAKEFLAGS”传递给子make进程  ,
+-C”、“-f”、“-o”和“-W”。这些命令行选项是不会被赋值给变量“MAKEFLAGS”
+
+
+不希望传递“MAKEFLAGS”的给子make时，需要在调用子make是对这个变量进行赋空。例如：
+subsystem:
+	cd subdir && $(MAKE) MAKEFLAGS=
+
+
+真正的命令行中的变量定义 是通过另外一个变量“MAKEOVRRIDES”记录的，在变量“MAKEFLAGS”的定义中引用了此变量
+当Makefile中出现“.POSIX”这个特殊的目标时，在上层Makefile中修改变量“MAKEOVERRIDES”对子make不会产生任何影响
+最好不使用
+
+MFLAGS  和老版本兼
+
+
+选项 -w”或者“--print-directory”可以让make在开始编译一个目录之前和完成此目录的编译之后给出相应的提示信息
+
+
+
+用“define”定义的一组命令称为一个命令包。定义一个命令包的语法以“define”开始，以“endef”
+
+“define”定义的变量属于递归展开式变量
+
+
+
+define run-yacc
+	yacc $(firstword $^)
+	mv y.tab.c $@
+endef
+引用此命令包之前使用了控制命令的前缀字符。那么这个前缀字符将会被添加到命令包定义的每一个命令行之中
+frob.out: frob.in
+	@$(frobnicate)
+
+
+
+空命令行可以防止make在执行时试图为重建这个目标去查找隐含命令
+.DEFAULT”指定的命令
+
+
+“$（VARIABLE_NAME）”或者“${ VARIABLE_NAME }”
+
+变量的引用 $x”的格式来实现，此种用法仅限于变量名为单字符  
+
+SUBDIRS := src foo   ###:=可以用空格
+
+Subdir :
+	@for dir in $(SUBDIRS); do \
+	$(MAKE) –C $$dir || exit 1; \
+	done
+
+
+
+“递归展开”式变量 后续部分定义，或者是通过make的命令行选项传递的变量
+CFLAGS = $(CFLAGS) –O //是死循环
+
+x = $(y)
+y = $(x) $(z)//x是死循环
+
+
+直接展开”式。这种风格的变量使用“:=”定义 ,定义时就完成了对所引用变量和函数的展开,不能实现对其后定义变量的引用
+
+
+
+cur-dir := $(shell pwd)
+host-type := $(shell arch)
+
+
+${subdirs}:
+${MAKE} cur-dir=${cur-dir}/$@ -C $@ all  
+make xx=yy
+
+
+:=会保存首尾,和中间的空间
+#注释
+
+GNU make中 条件赋值的赋值操作符“?=  变量在之前没有赋值的情况下才会对这个变量进行赋值
+
+FOO ?= bar
+其等价于：
+ifeq ($(origin FOO), undefined)
+FOO = bar
+endif
+
+
+foo := a.o b.o c.o
+bar := $(foo:.o=.c)  "结尾”的含义是空格之前
+
+foo := a.o b.o c.o
+bar := $(foo:%.o=%.c)
+是函数“patsubst”
+
+x = y
+y = z
+a := $($(x))
+
+
+
+
+x = $(y)
+y = z
+z = Hello
+a := $($(x)) //因为:= 要先$(x)
+
+
+
+不能通过指定部分需要调用的函数名称
+
+所有系统环境变量都可以被make使
+
+“+=”（追加方式） 使用空格和原有值分开
+
+
+追加值的变量之前没有定义，那么，“+=”会自动变成“=”，此变量就被定义为一个递归展开式的变量
+
+
+如果不希望命令行指定的变量值替代在Makefile中的变量定义，那么我们需要在Makefile中使用指示符“override”来对这个变量进行声
+
+
+
+变量在定义时使用了“override”，则后续对它值进行追加时，也需要使用带有“override”指示符的追加方式
+override CFLAGS += -g
+
+
+使用“define”定义变量时同样也可以使用“override”进行声明
+
+“eval”函数
+使用“define”定义的变量 ，属于“递归展开”式的变量
+
+
+在Makefile中对一个变量的定义或者以make命令行形式对一个变量的定义，都将覆盖同名的环境变量,除 make使用“-e”参数时
+
+
+默认情况下，只有环境变量和通过命令行方式定义的变量才会被传递给子make进程
+
+
+make在执行之前将变量“SHELL”设置 为“/bin/sh”
+环境变量的错误定义都对系统上的所有make产生影响，甚至是毁坏性的。
+
+
+目标指定的变量具有只对此目标上下文有效的“局部性”。
+make命令行的方式定义变量时，命令行中的定义将替代目标指定的同名变量定义
+make的“-e”选项时，同名的环境变量也将覆盖目标指定的变量定义
+“override”对目标指定的变量进行声
+
+prog : CFLAGS = -g
+prog : prog.o foo.o bar.o
+对于目标“prog”以及其所引发的所有（包含目标为“prog.o”、“foo.o”和“bar.o”的所有规则）规则，变量“CFLAGS”值都是“-g”。
+
+%.o : CFLAGS += -O
+
+
+ifeq ($(strip $(foo)),) ###“strip”函数
+
+foo =
+ifdef foo 返回否 
+关键字 ifdef前 不能以[Tab]字符做为开始（不然就被认为是命令）
+条件表达式中不能使用自动化变量  ,表达式的值决定判断语句  ,自动化变量在规则命令执行时才有效
+
+ifneq (,$(findstring t,$(MAKEFLAGS)))
+	+touch archive.a  ## “+” 即使make使用了“-t”参数，“+”之后的命令都需要被执行
+函数“findstring”
+
+
+
+用户自己的函数需要通过make的“call”函数来间接调用
+参数和函数名之间使用若干个空格或者[tab],参数之间使用逗号“,”分开
+
+
+“vim”编辑器书写Makefile时，使用圆括它可以亮度显式make的内嵌 函数名
+参数中如果存在对其它变量或者函数的引用
+当有逗号或者空格作为函数的参数时，需要把它们赋值给一个变量
+
+
+函数中大文本总是在最后一个参数
+
+$(subst FROM,TO,TEXT) 
+	把字串“TEXT”中的“FROM”字符替换为“TO”。
+$(patsubst PATTERN,REPLACEMENT,TEXT) 
+	搜索“TEXT”中以空格分开的单词，将否符合模式“TATTERN”替换为“REPLACEMENT”。
+	参数“PATTERN”中可以使用模式通配符“%”  来代表一个单词中的若干字符。如果参数“REPLACEMENT”中也包含一个“%”，那么“REPLACEMENT”中的“%”将是“TATTERN”中的那个“%”所代表的字符串。在
+
+$(strip STRINT)
+	去掉字串“STRINT”开头和结尾的空字符，并将其中多个连续空字符合并为一个空字符。
+$(findstring FIND,IN)
+	函数功能：搜索字串“IN”，查找“FIND”字串。
+	返回值：如果在“IN”之中存在“FIND”，则返回“FIND”，否则返回空。
+$(filter PATTERN…,TEXT)
+	过滤掉字串“TEXT”中所有不符合模式“PATTERN”的单词,模式字符“%”。存在多个模式时，模式表达式之间使用空格分割。  返回所有符合模式
+$(filter-out PATTERN...,TEXT) 上相反
+$(sort LIST) （升序），并取掉重复
+$(word N,TEXT) 取字串“TEXT”中第“N”个单词（“N”的值从1开始）。
+$(wordlist S,E,TEXT) ：从字串“TEXT”中取出从“S”开始到“E”的单词串。“S”和“E”表示单词在字串中位置的数字
+$(words TEXT)统计单词数目函数
+$(firstword NAMES…) 取字串“NAMES…”中的第一个单词。
+
+
+
+
+$(dir NAMES…)
+$(notdir NAMES…)
+$(suffix NAMES…)
+$(basename NAMES…)
+$(addsuffix SUFFIX,NAMES…)
+$(addprefix PREFIX,NAMES…)
+
+$(join a b , .c .o) 返回值为：“a.c b.o”。
+$(wildcard PATTERN) 列出当前目录下所有符合模式“PATTERN”格式的文件名  ?”（单字符）、“*”（多
+
+	find_files = $(wildcard $(dir)/*)###是“递归展开”时的变量“find_files”。直接展开式的定义将是无效的表达式
+	dirs := a b c d
+	files := $(foreach dir,$(dirs),$(find_files))
+	和下相同
+	files := $(wildcard a/* b/* c/* d/*) ##可以有多个空格分隔
+
+$(if CONDITION,THEN-PART[,ELSE-PART])  “CONDITION”的展开结果非空，则条件为真
+
+$(call VARIABLE,PARAM,PARAM,...)
+参数“PARAM”依次赋值给临时变量“$(1)”、“$(2)”
+量$(0)代表变量“VARIABLE”本身
+变量“VARIABLE”在定义时不能定义为直接展开式！只能定义为递归展开式
+
+reverse = $(2) $(1)
+foo = $(call reverse,a,b)
+
+
+每一层“call”函数的调用都为它自己的局部变量“$(1)”等赋值
+
+“call”函数会保留出现在其参数值列表中的空字符
+
+$(value VARIABLE)
+此过程不能取消此变量在定义时已经发生了的替换展开动作
+函数功能：不对变量“VARIBLE”进行任何展开操作，直接返回变量“VARIBALE”的值
+
+FOO = $PATH
+all:
+@echo $(FOO)
+@echo $(value FOO) ###显示的系统环境变量“PATH”的值
+
+
+eval函数 
+第一次展开过程发是由函数本身完成的，第二次是函数展开后的结果被作为Makefile内容时由make解析时展开的
+函数的参数中应该使用“$$”来代替“$”
+	$(eval $(call PROGRAM_template,$(prog)))
+	$(LINK.o)
+
+
+$(origin VARIABLE) “VARIABLE”是一个变量名而不是一个变量的引用
+
+返回值有如下方式
+
+1. undefined 	没有被定义。
+
+2. default 	内嵌变量，如“CC”、“MAKE”、“RM”
+
+3. environment 系统环境变量，并且make没有使用命令行选项“-e”
+
+4. environment override 系统环境变量，并且make使用了命令行选项“-e”
+
+5. file 	在某一个makefile文件中定义。
+
+6. command 	line 在命令行中定义。
+
+7. override 	在makefile文件中定义并使用“override”指示符声明。
+
+8. automatic 	是自动化变量。
+
+
+
+
+shell函数 执行是在另外一个shell进程中完成的
+contents := $(shell cat foo) //用 :=  直接展开式定义
+
+
+$(error TEXT…) 产生致命错误，并提示“TEXT…”信息给用户，并退出make的执行
+	一般不出现在直接展开式
+
+$(warning TEXT…) 不会导致致命错误（make不退出）
+
+make的退出状态 1 — 在执行make时使用了“-q”参数
+
+用make的“-f”、“--file”或者“--makefile”  ,多个“-f”参数
+
+
+Makefile中不存在的目标作为终极目标，前提是存在一个对应的隐含规则能够实现对这个目标的重建
+make foo 从foo.c到foo
+
+make在执行时设置一个特殊变量“MAKECMDGOALS” ，此变量记录了命令行参数指定的终极目标列表
+（比如判断），在Makeifle中不要对它进行重新定义
+ifneq ($(MAKECMDGOALS),clean)
+
+
+部分标准的伪目标和空目标命名：
+all
+	作为Makefile的顶层目标，一般此目标作为默认的终极目标。
+ clean
+	这个伪目标定义了一组命令，这些命令的功能是删除所有由make创建的文件。
+ mostlyclean
+	它所定义的删除命令不会全部删除由make生成的文
+distclean
+realclean
+clobber 所删除的文件更多。可以包含非make创建的文件
+install
+tar
+	创建一个tar文件（归档文件包）。
+shar
+	创建一个源代码的shell文档（shar文件）。
+dist
+	为源文件创建发布的压缩包，可以使各种压缩方式的发布包。
+TAGS
+	创建当前目录下所有源文件的符号信息（“tags”）文件，这个文件可被vim使用
+check
+test
+对Makefile最后生成的文件进行检查。
+
+
+
+
+
+-n
+--just-print
+--dry-run
+--recon
+只打印出需要重建目标使用的命令（只打印过期的目标的重建命令）
+
+-t
+--touch
+类似于shell下的“touch”命令的功能。更新所有目标文件的时间戳
+
+-q
+--question
+不执行任何命令并且不打印任何输出信息，只检查所指定的目标是否已经是最新的。如果是则返回0，否则返回1。
+
+-W FILE
+--what-if= FILE
+--assume-new= FILE
+--new-file= FILE
+“-W”参数和“-n”参数一同使用，可以在修改一个文件后来检查修改会造成那些目标需要被更新
+“-W”和“-t”参数配合使用时，make将忽略其它规则的命令。只对依赖于“-W”指定文件的目标执行“touch”命令
+-W”和“-q 所以make的返回状态在没有错误发生时为1，存在错误时为2。
+
+“-n”、“-t”和“-q”不影响之前带“+”号和包含“$(MAKE)”的命令行的执行。就是说如果在规则的命令行中命令之前使用了“+”或者此命令行是递归地make调用时，无论是否使用了这三个参数之一，这些命令都得到执行。
+
+
+-p”和“-v”参数可以允许我们输出Makefille被执行的过程信息
+
+不指定“-n”和“-q”参数、只使用“-W”指定一个文件时，可以模拟这个文件被修改的状态
+
+
+
+
+
+修改了工程中的某一个文件后，并不希望重建那些依赖于这个文件的目标
+方法一,“make -t”命令来改变已存在的所有的目标文件的时间戳，将其最后修改时间修改到当前时间。
+
+方法二,“make –o HEADERFILE”，“HEADERFILE”为需要忽略更改的头文件,-o”参数的这种使用方式仅限于头文件（.h文件）
+
+
+
+命令行定义变量时，递归展开式的定义（使用“=”），也可以是直接展开式的（使用“:=”）
+
+不是编译一次改正一个文件，或者改正一个文件再编译一次。
+需要使用make的“-k”或者“--keep-going,，直到最后出现致命错误（无法重建终极目标）才退出
+
+-d
+make在执行过程中打印出所有的调试信息。使用的隐含规则 ,它等效于“—debug=a
+
+
+—debug[=OPTIONS]默认是“OPTIONS=b （basic）
+	i（implicit）输出所有使用到的隐含规则
+
+查看make执行前的预设规则和变量，可使用命令“make –p -f /dev/null
+
+-r
+--no-builtin-rules
+取消所有内嵌的隐含规则  
+
+-R
+--no-builtin-variabes
+取消make内嵌的隐含变量，没有了隐含变量，隐含规则将失去意义
+
+
+在子make中使用“-S”选项取消上层传递的“-k”选项
+
+
+-w
+--print-directory
+在make进入一个目录读取Makefile之前打印工作目录。使用“-C”选项时默认打开这个选项。
+
+
+--warn-undefined-variables
+在发现Makefile中存在对没有定义的变量进行引用时给出告警信息
+
+
+
+内嵌变量“CFLAGS”代表了gcc编译器编译源文件的编译选项
+
+
+
+建议使用“.cc”作为C++源文件的后缀
+
+编译Modula-2程序
+	“N.sym”自动由“N.def” 生成，执行的命令是：“$(M2C) $(M2FLAGS) $(DEFFLAGS)”。“N.o”自动由“N.mod”生成，执行的命令是：“$(M2C) $(M2FLAGS) $(MODFLAGS)”。
+汇编和需要预处理的汇编程序
+	“N.s”是不需要预处理的汇编源文件，“N.S”是需要预处理的汇编源文件。汇编器为“as”。
+	“N.o” 可自动由“N.s”生成，执行命令是：“$(AS) $(ASFLAGS)”。
+	“N.s” 可由“N.S”生成，C预编译器“cpp”，执行命令是：“$(CPP) $(CPPFLAGS)”。
+
+
+
+
+AR
+	函数库打包程序，可创建静态库.a文档。默认是“ar”。
+AS
+	汇编程序。默认是“as”。
+CC
+	C编译程序。默认是“cc”。
+CXX
+	C++编译程序。默认是“g++”。
+
+CPP
+	C程序的预处理器（输出是标准输出设备）。默认是“$(CC) -E”。
+
+RM
+	删除命令。默认是“rm -f”。
+
+
+
+
+
+ARFLAGS
+	执行“AR”命令的命令行参数。默认值是“rv”。
+ASFLAGS
+	执行汇编语器“AS”的命令行参数（明确指定“.s”或“.S”文件时）。
+
+CFLAGS
+	执行“CC”编译器的命令行参数（编译.c源文件的选项）。
+CXXFLAGS
+	执行“g++”编译器的命令行参数（编译.cc源文件的选项）。
+CPPFLAGS
+	执行C预处理器“cc -E”的命令行参数（C 和 Fortran 编译器会用到）。
+LDFLAGS
+	链接器（如：“ld”）参数。
+
+
+
+要用到一个中间过程文件，那么默认的动作将是：这个过程文件在make执行结束后会被删除
+
+作为特殊目标“.INTERMEDIATE”依赖的文件在make执行结束之后会被自动删除。
+
+留某些中间过程文件，不希望make结束时自动删除它们。可以在Makefile中使用特使目标“.SECONDARY ,；需要保留的文件作为特殊目标“.SECONDARY”的依赖文件罗列）
+
+保留二 .o文件的模式（%.o）作为特殊目标“.PRECIOUS”的依赖
+
+模式字符“%”至少匹配一个字符
+
+因为多个目标共同拥有规则的命令行，因此一次命令执行之后，规则不会再去检查是否需要重
+%.o %.x : %.c
+	$(CC) $(CFLAGS) $< -o $@
+
+
+“make foo.o foo.x”时，会看到只有一个文件“foo.o”被创建了，同时make会提示“foo.x”文件是最新的  ###－－－＝＝＝ 错，会生成两个文件 
+
+
+，规则的目标是“foo.a(bar.o)”，那么，“$%”的值就为“bar.o”，“$@”的值为“foo.a
+
+文件“dir/a.foo.b”，当目标的模式为“a.%.b”时，“$*”的值为“dir/a.foo”
+例如：“foo.c”则“$*”的值为：“foo”
+
+只将更新后的.o文件加入到库中：
+lib: foo.o bar.o lose.o win.o
+	ar r lib $?
+
+
+以前版本 $(@D)只目录 ,$(@F)只文件 , 使用“$@”的值
+当前版本的make中，可以使用“dir”或者“notdir”函数
+
+$(*D)
+$(*F)
+分别代表目标“茎”中的目录部分和文件名部分。
+$(%D)
+$(%F)
+当以如“archive(member)”形式静态库为目标时，分别表示库文件成员“member”名中的目录部分和文件名部分。它仅对这种形式的规则目标有效。
+$(<D)
+$(<F)
+分别表示规则中第一个依赖文件的目录部分和文件名部分。
+$(^D)
+$(^F)
+分别表示所有依赖文件的目录部分和文件部分（不存在同一文件）。
+$(+D)
+$(+F)
+分别表示所有依赖文件的目录部分和文件部分（可存在重复文件）。
+$(?D)
+$(?F)
+分别表示被更新的依赖文件的目录部分和文件名部分。
+
+
+以使用“$(<)”来替代“$<”
+
+“$$@”、“$$(@D)”和“$$(@F)”（注意：要使用“$$”），它们分别代表了“目标的完整文件名”、“目标文件名中的目录部分”和“目标的实际文件名部分
+	只能用在明确指定目标文件名的规则中或者是静态模式规则中，不用于隐含规则中
+
+
+在进行目标文件匹配时，文件名中包含的目录字符串在匹配之前被移除，只进行基本文件名的匹配；匹配成功后，再将目录部分加入
+如目标模式为“e%t”，文件“src/eat”匹配这个模式，那么“茎”就是“src/a”
+
+
+
+的目标只是一个模式字符“%”,万用规则设置为最终规则，定义时使用双冒号规则
+
+
+%::
+	touch $@
+
+.DEFAULT :
+	touch $@
+
+后缀规则是一种古老,被模式规则替代
+一个后缀规则中不存在任何依赖文件
+.c”和“.o”都是make可识别的后缀。因此当定义了一个目标是“.c.o”的规则时。make会将它作为一个双后缀规则来处理
+所有“.o”文件的依赖文件是对应的“.c”文件
+
+
+SUFFIXES: .hack .win
+它所实现的功能是把后缀“.hack”和“.win”加入到可识别后缀列表的末尾。
+.SUFFIXES: #删除所有已定义的可识别后缀
+
+：make的“-r”或“-no-builtin-rules”可以清空所有已定义的可识别后缀
+
+
+foolib(hack.o kludge.o)
+它就等价于：
+foolib(hack.o) foolib(kludge.o)
+
+ar r foo.a dir/file.o ,的.o文件直接加入到了库的末尾，却并没有更新库的有效符号表
+“ranlib”来对静态库的符号索引表进行更新
+静态库（文档文件）中 “__.SYMDEF”。它包含了静态库中所有成员所定义的有效符号（函数名、变量名）。
+libfoo.a: libfoo.a(x.o) libfoo.a(y.o) ...
+	ranlib libfoo.a
+
+ar工具来维护、管理静态库，我们就不需要考虑这一步 ,不要make时加-j
+
+对于一个双后缀规则的目标“.x.a”，经过make转换后会产生两个模式规则：“(%.o): %.x” 和“%.a: %.x”。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------automake ,autoconf
+(自动化工具)automake ,autoconf ,m4宏,libtool
+
+1.autoscan 命令,多了一个configure.scan文件,
+	#######AC_CONFIG_HEADER([config.h])修改为：AM_CONFIG_HEADER(config.h),######这行是不能在autoconf时改的，要在automake是改
+	在AC_INIT宏之后加入AM_INIT_AUTOMAKE(hello, 1.0)，hello是你的软件名称，1.0是版本号,
+	最后一行AC_OUTPUT宏填写完整变成AC_OUTPUT(Makefile)，表明autoconf和automake最终将生成Makefile文件,把configure.scan文件改名为configure.in
+AC_OUTPUT([Makefile
+                src/lib/Makefile
+                src/ModuleA/apple/core/Makefile
+                src/ModuleA/apple/shell/Makefile
+                ])
+
+
+“config.h.in” is created by `autoheader	#####AC_CONFIG_HEADERS
+
+4) 在project目录下新建NEWS、 README、 ChangeLog 、AUTHORS,INSTALL,COPYING文件  可以用automake --help来看,
+5) 将/usr/share/automake-1.X/目录下的depcomp和complie文件拷贝到本目录下
+
+2.aclocal命令，ls会发现多了一个aclocal.m4
+3.autoconf命令，ls将发现生成了一个可执行的configure
+4.编辑一个Makefile.am文件
+	AUTOMAKE_OPTIONS=foreign
+	bin_PROGRAMS=hello
+	hello_SOURCES=main.c ....
+5. automake --add-missing 命令   就会有depcomp文件 #####--copy
+6. ./configure命令
+
+
+
+automake选项
+ -a, --add-missing      add missing standard files to package
+      --libdir=DIR       directory storing library files
+
+
+在configure.in中  (后来新版本改为configure.ac，但configure.in也可以)
+	AC_PROG_CC：选择 C 编译器。如果在环境中不设置 CC 的话，则检测 gcc。
+	AC_PROG_CXX：选择 C++ 编译器。
+
+	看后有AC_CHECK_HEADERS([fcntl.h limits.h ...
+		AC_CHECK_FUNCS([bzero floor 
+	AC_OUTPUT(最后要生成的Makefile , 包括 子目录中的，中间用空格隔开) ,
+	    例如 AC_OUTPUT(Makefile  subdir/Makefile subdir1/Makefile)
+
+	如果在configure.ac中定义了一些特殊的宏，比如AC_PROG_LIBTOOL，它会调用libtoolize
+
+
+	在 configure.in 中，有一些被 autoconf 宏预先定义的变量，重要的有如下几个：
+	    bindir：安装可执行文件的目录。
+	    includedir：C 头文件目录。
+	    infodir：info 页安装目录。
+	    mandir：安装手册页的目录。
+	    sbindir：为管理员运行该该程序提供的安装路径。
+	    srcdir：为 Makefile 提供的源代码路径。
+	    top_srcdir：源代码的最上层目录。
+	    LIBS：给连接程序的 -l 选项
+	    LDFLAGS：给连接程序的 stripping（-s）和其他一些选项。
+	    DEFS：给 C 编译器的 -D 选项。
+	    CFLAGS：给 C 编译器的 debug 和优化选项。当调用了 AC_PROG_CC 才有效。
+	    CPPFLAGS：头文件搜索路径（-I)和给 C 预处理器和编译器的其他选项。
+	    CXXFLAGS：给 C++ 编译器的 debug 和优化选项。当调用了 AC_PROG_CXX 才有效。
+
+	同一个目录下编译多个程序的话， AC_CONFIG_SUBDIRS(DIR....)
+
+
+
+Makefile.am中可用的全局变量
+	
+	LDADD    所有的库
+	LDFLAGS 所有的选项
+	EXTRA_DIST
+	SUBDIRS 
+	INCLUDES = -I/include
+	LIBS = -lm -lcrypt
+
+	
+Some variables are inherited from Autoconf; these are CC, CFLAGS, CPPFLAGS, DEFS,LDFLAGS, and LIBS.
+
+
+Makefile.am含义
+	AUTOMAKE_OPTIONS  否存在标准GNU软件包中应具备的各种文件，例如AUTHORS、ChangeLog、NEWS等文件。我们将其设置成foreign时，
+	bin_PROGRAMS	要产生的可执行文件的文件名。多个用空格隔开。
+	helloworld_SOURCES  产生"helloworld"时所需要的源代码。多个源文件用空格隔开
+		如果你在bin_PROGRAMS定义了多个可执行文件，则对应每个可执行文件都要定义相对的filename_SOURCES。
+      
+	AUTOMAKE_OPTIONS=foreign 就不会提示少了文件README NEWS AUTHORS ChangeLog,不加报错时会自动生成COPYING,INSTALL两文件 
+		  foreign:Automake 将只检查绝对必须的东西.
+		    gnu:Automake 将尽可能多的检查以适应GNU标准, 这是默认项.
+
+	
+
+
+	xxx=$(shell /bin/pwd)
+
+       SUBDIRS  = dir1   这个目录没有要编译的文件 ，只包含了子目录，则只写个
+	 EXTRA_DIST= \
+	  a.h \
+	  b.h
+	 # 不用编成.o，但生成target myprogram也需要给编译器处理的头文件放这里
+
+	myprogram_LDADD = libsub1.a 这个_LDADD是关键字，
+	 # 最后生成myprogram这个执行文件，还要link src/sub1这个目录中的内容编成的一个lib :libsub1.a，
+	 
+	 myprogram_LDFLAGS = -lpthread -lglib-2.0 -L/usr/bin $(all_libraries)
+	 # myprogram还要link系统中的动态so，以此类推，需要连自编译的so,也写到这个关键字 _LDFLAGS后面就好了。
+	  
+	 AM_CXXFLAGS = -D_LINUX
+	 # 传递给g++编译器的一些编译宏定义，选项，
+
+	 INCLUDES=-IPassport -Isub1/ -I/usr/include/glib-2.0\
+	    -I/usr/lib/glib-2.0/include $(all_includes)
+	 #  传递给编译器的头文件路径。
+
+
+	noinst_LIBRARIES = libprotocol.a
+	# 不是生成可执行文件，而是静态库，target用noinst_LIBRARIES
+	 libprotocol_a_SOURCES = \
+				 alib.cpp
+	“noinst”前缀专门指定有问题的对象不被安装。
+	“check”前缀表示有问题的对象知道make check命令被执行猜被创建
+	 可用的主变量是 'PROGRAMS','LIBRARIES','LISP','SCRIPTS','DATA','HEADERS','MANS'和'TEXINFOS'
+
+'##'开头的行将被Automake 完全忽略.
+	xs = a.c b.c
+    foo_SOURCES = c.c $(xs)
+    它将使用文件：'a.c','b.c'和'c.c' 作为foo_SOURCES的内容.
+
+EXTRA_PROGRAMS
+
+$(prefix)
+$(top_srcdir)
+
+
+
+ Makefile.in是由automake生成的
+
+config.h is created by `configure` from “config.h.in”
+
+如修改源码autoscan ,autoreconf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+autoheader命令是autoconf软件包中的
+
+
+
+生成的make目标
+make clean
+make dist 	产生发布软件包文件(即distribution)打包成一个PACKAGE-VERSION.tar.gz压缩的   不会所config.log等打进去
+make distcheck  自动把压缩包文件解开，然后执行configure命令，并且执行make，来确认编译不出现错误
+make distclean　　类似make clean，但同时也将configure生成的文件全部删除掉，包括Makefile。 
+
+
+
+
+------------------binutil 生成.bin 安装文件------------
+solaris 控制台运行.bin文件显示彩色文字
+
+
+
+
+
+
+
+-----------------------groff   不常用
+man -w 显示man 搜索路径
+man -w fork 
+man2html ./xxx.1 > xxx.html
+groff －Thtml -mandoc ld.1 > ld.html
+2、测试显示效果
+$ groff -Tascii -man hello.1   
+
+man --path ,manpath  和man -w 一样的效果,所有 man 的查找目录,配置在/etc/man.conf中的MANPATH
+man xxx.file 要加./的路径
+
+-mandoc or -m mandoc. 会检测是 -m man(传统的 -man or -m man 使用man 7 groff_man) 还是 -m mdoc (BSD风格  -mandoc or -m mandoc 使用man 7 groff_mdoc )
+
+-m www  HTML   ( man 7 groff_www)
+
+
+.TH title section [extra1 [extra2 [extra3]]]   ###标题头extra1在页脚中间 ,extra2在页脚左 , 偶数页左,奇数页右,extra3在头中心
+.TH LS "1" "June 2006" "ls 5.97" "User Commands"
+
+
+
+man groff_man		
+
+.SH NAME		#小节头
+ls \- list directory contents   ##小节的子内容 \是转义-  ,可在-前加多个man命令
+
+
+
+.B ls		###加粗ls
+.I ls		###下划线ls
+[\fIOPTION\fR]  ##\fI xxx \fR 表示加下划线从O到R
+
+.PP		###一个段落
+
+.TP		###下的第一行标签值不缩进,第二行缩进
+\fB\-a\fR, \fB\-\-all\fR	###\fB xxx \fR  把xxx加粗,标签值		
+do not ignore entries starting with .
+
+.IP 下面的一部分缩进一段
+.br #换行
+
+.\" 注释
+
+.BI "FILE *fopen(const char *" path ", const char *" mode );  ##第一参数加粗,每参数下划线,交替的
+.BR open (2),   用空格交替粗体和正常
+.IR  交替斜体(其实是下划线)和罗马字(正常)
+
+.SS 加粗,Section
+
+
+.sp ##空行吧
+ man -w execle 和  man -w execlp 都是同一文件,因man后
+ NAME
+       execl, execlp, execle, execv, execvp - 
+
+
+man system 显示  .nf   .fi 中加程序代码(nf 是no-fill模式,)
+
+
+help2man 工具   要可执行文件加--help有输出  ,看ls --help的输出
+help2man ./xxx >xxx.1  ## 可./xxx --help
+-L zh
+
+
+view /etc/man.config   有
+MANPATH /usr/share/man
+MANPATH_MAP     /usr/local/bin          /usr/local/share/man
+
+man国际化  /usr/share/man/zh_CN/   试过的OK,但一定要写两次man文件,
+
+
+
+
+
+
+

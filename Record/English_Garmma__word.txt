@@ -1,0 +1,1707 @@
+1立方米=1000升
+水的密度 1000kg/m3   =   1kg/L  =1g/ml
+
+商户		佣金
+用户		手续费
+
+borrow		借入
+lend 		借出
+ 
+debit 		借出
+credit		货入
+
+prevailing wage  现行工资
+
+一般说来，元音字母发元音，辅音字母发辅音
+an hour 元音音标使用an
+honest, honor
+
+
+
+名词复数的不规则变化
+child---children
+foot---feet
+tooth---teeth
+mouse---mice
+man---men
+woman---women
+ 
+
+单复同形
+deer，sheep，fish，Chinese，Japanese 
+
+去f,fe 加ves
+half---halves
+knife---knives
+leaf---leaves
+wolf---wolves
+wife---wives
+life---lives
+thief---thieves
+
+不规则 过去式,过去分词表			
+			过去试:       过去分词
+am\are\is    was\were      been
+bear         bore          born
+beat         beat          beaten
+become       became        become
+begin        began         begun
+blow         blew          blown
+break        broke         broken
+bring        brought       brought
+build        built         built
+burn         burnt         burnt
+buy          bought        bought
+can          could
+catch        caught        caught
+choose       chose         chosen
+come         came          come
+cost         cost          cost
+cut          cut           cut
+dig          dug           dug
+do           did           done
+draw         drew          drawn
+drink        drank         drunk
+drive        drove         driven
+eat          ate           eaten
+fall         fell          fallen
+feed         fed           fed
+feel         felt          felt
+fight        fought        fought
+find         found         found
+fly          flew          flown
+forget       forgot        forgetten
+freeze       froze         frozen
+get          got           got
+give         gave          given
+go           went          gone
+grow         grew          grown
+hang         hung          hung
+have         had           had
+hear         heard         heard
+hide         hid           hidden
+hit          hit           hit
+hold         held          held
+hurt         hurt          hurt
+keep         kept          kept
+kneel        knelt         knelt
+know         knew          known
+lay          laid          laid
+lean         leant         leant
+leave        left          left
+let          let           let
+lie          lay           lain
+lose         lost          lost
+make         made          made
+may          might
+mean         meant         meant
+meet         meet          met
+melt         melted        melted
+pay          paid          paid
+put          put           put
+read         read          read
+ride         rode          ridden
+ring         rang          rung
+rise         rose          risen
+run          ran           run
+say          said          said
+see          saw           seen
+sell         sold          sold
+send         sent          sent
+sew          sewed         sewn
+shake        shook         shaken
+shine        shone         shone
+show         showed        shown
+shut         shut          shut
+sing         sang          sung
+sink         sank          sunk
+sit          sat           sat
+sleep        slept         slept
+smell        smelt         smelt
+speak        spoke         spoken
+speed        sped          sped
+spell        spelt         spelt
+spend        spent         spent
+spin         spun          spun
+spread       spread        spread
+spring       sprang        sprung
+stand        stood         stood
+steal        stole         stolen
+stick        stuck         stuck
+sweat        sweated       sweated
+sweep        swept         swept
+swim         swam          swum
+swing        swung         swung
+take         took          taken
+teach        taught        taught
+tell         told          told
+think        thought       thought
+throw        threw         thrown
+understand   understood    understood
+wake         woke          woken
+wear         wore          worn
+win          won           won
+write        wrote         written
+ 
+
+
+
+在hope, suggest, agree, decide, demand等后不可接sb. to do sth.
+
+
+宾语 是动作承受者
+表语是 主语的状态,特征
+定语修饰名词,代词,
+状语修饰动词,形容词,副词,
+
+引导定语从句的代词叫关系代词,who, whom  ，which, as  ，whose, that
+
+关系副词 ,when,where,why(reason why)有时也可换成that，甚至省略
+
+表示在某一年，英语习惯上用介词in，如in 1988
+表示在某一天，英语习惯上用介词on，如on Friday
+表示在某一时刻，英语习惯上用介词at，如at the moment
+表示在某一地点，英语习惯上说 at,at home
+
+非限制性定语从句 ,句中有","号
+
+
+虚拟语气
+一、与现在事实相反
+	虚拟语气的条件从句的谓语用过去式(be通常用were)，主句谓语用“should (would, could, might)+动词原形”
+If I knew her number I could ring her up. 要是我知道她的电话号码，我就可以给她打电话了。(可惜我不知道)
+
+二、与过去事实相反
+	虚拟语气的条件从句的谓语用过去完成时(had+过去分词)，主句谓语用“should (would, could, might)+have+过去分词
+If we had found him earlier we could have saved his life. 要是我们当时早点找到他的话，我们就可以救活他。(可惜我们找到他太晚了)
+三、与将来事实相反  可与   [现在事实相反]  相同
+	条件从句用 “should+动词原形”(表示可能性极小，常译为“万一”)
+	条件从句用 “were to+动词原形”(表示与将来事实相反的假设)；
+	
+ 
+	
+--词区别
+说人，动物，树木等有生命的东西,用tall，不用hight
+high可作副词，tall不能
+tall的反义词为short, high的反义词为low
+
+
+Purse是女式的钱包，
+Wallet是男士用的钱包
+
+
+---------PETS3
+let sb. down 		使某人失望
+be/get used to 		习惯于..
+drop sth/sb.  off	把某人/某物 送到某地
+susceptible to 		受影响
+out of proportion	不成比例
+
+
+===============Oracle-EBS 单词=================
+
+ledger		[会计]分类帐  分户总帐
+general ledger	 总清帐
+
+---目录树
+Logistics	后勤学, 后勤
+transportation  运输
+
+Scorecard	记分卡
+
+governance	 统治, 管理
+
+compliance	依从
+
+procurement	获得, 取得
+
+
+treasury	财政部, 国库
+ 
+provision	供应,预备, 防备,
+
+integrator	综合者
+
+ 
+
+regulatory	调整的
+
+Capital  Manager 长期资本经营者
+Capital		资金
+ 
+lease		租借,出租
+ 
+clinical	临床的, 病房用的
+ 
+thesaurus	辞典
+
+shop floor	车间；工场
+
+ 
+aerospace	航空宇宙
+
+defense		(美国)国防部, 防卫, 防卫物
+
+overhaul	检查
+
+
+---
+journal		分类账
+voucher		凭证
+consolidate	巩固
+revalue		再评价
+
+
+safari n.旅行,
+opera 歌剧
+
+partner		合伙人, 股东
+consign　　托运, 委托
+commerce   商业
+warehouse  仓库
+telesales  电话销售
+
+territory   领土,
+vendor 卖主
+
+incentive 激励的
+compensation  补偿, 赔偿
+incentive compensation 奖金
+brokerage  佣金, 手续费, 经纪费
+brokage		付给经纪人的手续费
+commission 委任
+
+Freight 货物,运费, 货运
+
+cooperative 合作的, 协作的 
+
+Optimization  最优化
+
+Collaborative 合作的,协作的
+
+strategic 战略(上)的  ,strategy
+
+forecasting   预测 　　forecast
+
+predictive  预言性的,成为前兆的 
+Deduction 减除, 扣除
+
+Settlement　结算,
+
+aggregate 合计,
+
+derive 起源 solaris
+
+===============Oracle Database 单词=================
+=============走遍美国
+
+episode		一段情节
+vender		卖主, 售卖者
+
+album		集邮本, 照相簿
+steelworker	钢铁工厂的工人
+this's a nice idea
+I appreciate you help	感激
+
+terrific	令人恐怖的,[口]极大的, 非常的, 极端的
+		[美俚]了不起的, 极好的
+
+Hispanic	西班牙的
+Greece		希腊
+Greek		希腊的,
+by the way	顺便
+subway		地道, <美> 地铁
+platform	讲台, 讲坛平台
+ferry		渡船, 渡口	渡运
+teaspoon	茶匙
+pasta		意大利面食
+dessert		餐后甜点
+vanilla		[植]香草	
+scoop		铲子	,掘, 挖?????????????????????????
+stuff		原料, 材料
+take it easy
+keep donig 
+
+pediatrician	儿科医师
+paediatrician	儿科医师
+biology		生物学,
+smart		漂亮的
+block		街区
+blind date	从未晤面的男女经第三者安排所作的约会
+ma'am		夫人, 太太
+intercom	连络用对讲电话装置
+excuse the mess 混乱
+sister-in-law	夫或妻的姊妹
+
+reservation	保留
+daddy		爸爸
+after you	请先走
+shall we go ?
+have a nice evening
+I 'd like you to meet my sister-in-law xx 介绍
+Thai		泰国人, 泰国语
+Thailand	泰国
+starve		饿得要死
+ginger		姜, 生姜
+ale		淡色啤酒
+chablis		白葡萄酒的一种,夏布利酒 dry white wine
+petal		花瓣
+crispy		易碎的,			????花瓣
+fry	
+fried		油炸的,
+accountant	会计(员), 会计师
+vice-president	副总裁, 副校长
+CPA=Certified public accountant 
+academy		高等)专科院校,
+I hope nothing is wrong 但愿没事
+reset		其余
+stomachache	胃痛
+herbal		草药的
+fashion show	时装表演会
+stand		架子
+bonsai		盆景
+tummy		胃, 肚子
+occupation	职业
+salesclerk	商店里的店员
+pilot		飞行员,
+trunk		箱子
+will be + doing 将来进行时
+neat 整洁的
+that's a neat idea
+pleased to meet you 
+wallet		皮夹, 钱夹
+junior		年少者, 晚辈
+graduation	毕业,
+hanger		衣架
+closet		壁橱?????衣橱
+on business trip  出差
+darling		亲爱的
+Chicago		芝加哥
+aisle		走廊, 过道
+bother		烦扰, 打扰
+anniversary	周年纪念
+construction	建筑
+purse		钱包
+permanently	永存地, 不变地
+announce	宣布, 通告
+kid		哄骗, 取笑, 开玩笑
+belongings	财产
+fabulous	神话般的
+daughter-in-law	儿媳妇
+bet		赌, 打赌
+exhaust		耗尽, 抽完, 使精疲力尽
+instructor	教师
+aerobics	有氧运动法
+advance 发音是万
+nap		打盹,
+it's a snap	小事一桩???????
+no sweat(汗)	不费力地
+a piece of cake	轻松的事
+idiom		成语,
+tough		艰苦的
+physical	体格检查
+sunrise		日出
+ideal		理想
+nope		不, 不是
+lettuce		[植]莴苣, 生菜, 
+cucumber	[植]黄瓜
+onion		洋葱
+steak		肉, 鱼, 肉片
+broccoli	椰菜
+grocery		食品杂货店, 食品
+hop		(鸟, 蛙等)跳跃	
+scissor		剪, 剪取, 
+pony		小型马
+pack up the pace 加快,走动步法???????????
+barely		仅仅, 刚刚
+jog		轻推, 轻撞, 漫步
+tomato 发音
+refrigerator	 冰箱
+last		持续,
+enough for army 丰盛的,很多的????????
+baseball	棒球,
+You going to	口语化
+Are you going to 正式
+ward		守卫, 保卫,
+thrill		发抖
+mild		温和的, 温柔的,
+hook		钩, 吊钩
+in order to	为了...
+lodge		门房, 
+boot		(长统)靴, 靴子
+no way		 不，决不
+chef		厨师
+blanket		毯子
+not a chance 不可能?????????????????
+Hi there, guy 家伙 ,人
+grateful	感激的,
+so long		再见
+ruin		(使)破产, (使)堕落, 毁灭
+fever		发烧, 发热
+emergency	紧急情况, 突然事件, 
+spoil		损坏, 搞糟
+bowling		保龄球
+fishing		钓鱼,
+ngredient	成分, 因素
+walnut		胡桃, 胡桃木
+cinnamon	[植物]肉桂, 桂皮
+cabinet		(有抽屉或格子的)橱柜
+pepper		胡椒粉
+dill	小茴香???????
+weed		杂草
+powder		粉, 粉末
+slam		砰地关上, 砰地放下
+cna you do me a favour 你能帮我忙?
+grouchy		<美>不高兴的, 不满的
+protein		[生化]蛋白质
+vitamin		维他命, 维生素
+turkey		火鸡,
+Turkey		土耳其
+parade		游行
+bulloon		汽球
+band		带子, 乐队
+clown		小丑
+kid		哄骗, 取笑, 
+go over		(渡过...)转变, 
+dressing	调味品
+recipe		处方
+serve		当仆人
+come on		出台, 上演 ;;快点,赶快
+be found of	 喜欢的
+be found of gossip	喜欢说人闲话
+be wild about	热衷于,因(某事)狂怒  (喜欢程度大)
+be crazy about	对...疯狂		(喜欢程度大)
+pilgrim		朝圣
+spirit		精神,
+patient		患者;忍耐的,
+pour		灌注, 倾泻, 涌入
+artistic	艺术的
+bless		祝福, 保佑
+go along with	一起去, 赞同
+pumpkin		南瓜
+oven		烤箱,
+what's up	怎么了, 发生什么啦
+silly		愚蠢的, 无聊的
+cheese		干酪, 
+burger		碎肉夹饼, 各种夹饼
+fry		油炸食物,
+fried		油炸的
+Walkman		-mans 随身听（商标名称）
+bark		吠,
+cute		可爱的, 聪明的
+prevention	预防, 防止
+curelty		残忍?????????????
+paw		手掌, 手爪
+adopt		 收养
+semester	学期
+affection	友爱, 爱情
+shelter		掩蔽处, 
+claim		认领, 声称
+cuddle		拥抱
+pal		<口>好朋友
+couple		(一)对, 
+reference	 证明书(人)
+is that it 
+is that all
+folk		人们
+medium		半生熟的,中间的,媒介
+residence	居住, 住处
+cola		可乐类饮料
+infect		[医] 传染, 感染
+infected	(伤口)被感染的
+handle		处理
+talk over	 商量
+reassurance	放心
+sore		疼痛的
+throat		咽喉
+ectome		作手术切除
+pajamas		睡衣
+robe		长袍
+put off		推迟
+dwarf		矮子
+gany	??????群,伙
+bowl		碗, 碗状物
+mop		拖把(俗称地拖), 洗碗
+pat		轻拍
+rack		 行李架,
+leap		跳, 跳越, 跳
+lip		嘴唇, 
+sick		病人
+strawberry	[植]草莓
+sandwich	夹心面包, 三明治
+scare		惊吓, 
+hail		冰雹, 致敬,
+conquer		征服,
+victory		胜利,
+valiant		勇敢的
+conquest	征服
+club		俱乐部,
+appointment	约会,
+dean		(大学)院长
+tough	 	强硬的
+school transcript(抄本)	学生成绩单
+editorial	社论
+violin		小提琴,
+tuition		学费
+hamburger	汉堡包
+agency		代理处,
+approve		赞成
+sketch		略图, 草图,
+conference	会议,
+doll		洋娃娃, 玩偶
+fountain	泉水, 喷泉,
+crab		螃蟹
+lemonade	柠檬水
+celery		 芹菜
+carrot		胡萝卜
+pitcher		(带柄和倾口的)大水罐
+carriage	马车
+take the time  别那么忙???????
+fill in		填写,替代
+pregnant	怀孕的
+stubborn	顽固的,
+estate		状态, 不动产,
+mortgage	抵押
+gorgeous	华丽的
+headpiece	头盔
+lace		 鞋带
+blond		金发的
+ranch		大农场
+investment	投资
+loan		(借出的）贷款,
+freelance	自由作家；
+guarantor	[律]保证人	guarantee
+likewise	同样地
+boutique	专卖流行衣服的小商店
+collateral	担保物???????????????
+purchase	买, 
+brain		脑, 头脑
+bore		令人讨厌的人, 
+how are things	近如何
+how you doing	近如何
+how've you been 近如何
+
+rest		其他
+lamb		小羊,
+chop		砍,
+mash		捣碎
+toss		投
+tossed green salad	鲜蔬砂拉?????????
+positive	 积极的,
+negative	 消极的
+have/has been +doing 现在完成进行时  有延续时间
+bother		烦扰, 打
+found		建立
+trade		行业,
+foundation	基础,	
+due		应得物、权力, [复]应付款
+forman		工头
+contractor	 承包人
+aboard		在船(飞机、车)上, 
+inspiration	灵感
+owe		欠
+thrill		发抖,???????强烈的兴奋
+steak		 牛排
+joyous		快乐的,
+nephew		侄子, 外甥
+adorable	可崇拜的, 可爱的
+grandchild	孙子, 孙女
+great-grandchild	曾孙, 曾孙女
+pound		磅, 英镑
+ounce		盎司,(重量单位)
+sweetheart	情人, 爱人
+fond		[只作表语]喜爱的, 多情的, 喜欢的
+bassinet	摇篮, 摇篮车
+motto		座右铭, 格言, 题词, 笺言
+crib		婴儿床, 
+
+sweet		可受的 (可爱的)????????????
+tender		嫩的, 温柔的
+washcloth	毛巾, 面巾
+cuddly		令人想拥抱的
+glove		手套
+teddy bear	玩具熊
+so do I
+neither do i 
+I don't neither
+outfit		用具
+mature		成熟的
+whisper		耳语, 私语, 密谈,
+diaper		尿布
+count on	依靠, 指望
+get long	融洽
+蓝为男,粉红为女,黄不知
+
+cute		可爱的,
+get used to	习惯于
+great-grandson	曾孙
+squeeze		压榨, 挤
+aquarium	养鱼池,
+metropolitan	首都的
+uptown		住宅区的
+manage to do	设法
+inviting	引人动心的, 有魅力的
+scout		侦察, 搜索, 侦察员, 侦
+manufacture	制造
+in charge of	负全责, 
+vice-president	副总裁,
+shuffle		洗纸牌
+deck	甲板,  一副(纸牌)
+counterclockwise	反时针方向的
+creep	爬
+sheet		(一)片, (一)张, 薄片, 被单, 
+troop		群, 组
+chest		胸腔, 胸膛
+figure out	合计为, 计算出
+proposal	提议
+silly		愚蠢的, 无聊的
+honeymoon	蜜月
+anniversary	周年纪念
+romantic	传奇式的, 浪漫的
+tempt		诱惑, 引诱, 吸引
+tempting	诱惑人的
+balcony		阳台,
+clerk		职员
+rate		费用
+inn		旅馆, 客栈
+blame		 责备
+stick it out	坚持到底
+good sport	看得开?????????????
+modest		谦虚的,
+gerund		动名词
+infinitive	不定词
+enjoy/keep/suggest+doing    
+want/have/need to 
+quilt		棉被
+liberty		自由,
+take the liberty to do sth.	冒昧做某事
+take the liberty of doing	
+
+compliment	称赞, 恭维, 
+syrup		糖浆
+scramble	爬行, 攀缘
+clove		[植]丁香
+biscuit		饼干,
+maple		[植]枫, 枫木
+heavenly	如天堂的
+Washington	华盛顿
+reunion		团圆
+roommate	同屋者, 室友
+classmate
+how come = why
+get over	克服,
+must have (done)+ed 推测
+hood		 车蓬,
+whereabout	在何处
+barn		[农]谷仓
+shortcut	捷径
+change		改变, 变化, 转变, 找回的零钱,
+yonder		更远的, 那边的
+railroad	铁路<美>
+opposite	相对的, 对面的
+fork		叉,餐叉
+intersection	[数]交集, 十字路口
+beard		胡须
+rascal		流氓, 无赖
+pass away	去世
+He isn't  me ? No 是的
+drama		(在舞台上演的)戏剧,
+honor		尊敬, 敬意,
+toast		干杯
+gosh		唉!, 必定!, 糟了!
+a couple of	两个, 几个
+sake		 理由
+perform		表演,
+ballet		芭蕾舞
+philharmonic	爱好音乐的	,交响乐团
+broad		宽的, 
+Lincoln		林肯
+Los Angeles	洛杉矶(美国城市)
+alley		小路, 巷,
+portrait	肖像
+landmark	(航海)陆标,
+mime		笑剧
+coffee-table	咖啡茶几
+receptionist	招待员
+roller-skate	用滚轮溜冰
+juggler		变戏法者
+breakdance	 霹雳舞
+fiddle		小提琴,
+fabulous	 神话般的, 
+sensational	使人感动的,
+advance payment	预付款
+praise		赞扬,
+contract	合同
+contrast	使与...对比
+amaze		使吃惊
+marvelous	引起惊异的, 不可思议的
+outstanding	突出的
+super		 极好的
+decision-maker	决策人
+election	选举
+budget		预算
+run for		竞选
+run against	撞上
+need doing 
+taxpayer	纳税人, 
+campaign	[军]战役,
+office		 公职, 职
+stand for	代表,
+influential	有影响的, 有
+announce	宣布
+publicity	公开
+slogan		口号, 标语
+flier		传单 
+poll		选举之投票,
+gang		(一)伙, (一)群
+lick		舔,
+stuff		原料, 材料,
+commercial	商业的
+locker		有锁的橱柜,
+fixture		固定设备,
+in favor of	赞同, 有利于
+hallway		走廊
+clap		拍手声
+stomp		 跺脚
+yell		大叫
+appliance	用具, 器具
+brilliant	灿烂的
+housewife	主妇, 
+store		商店
+gonna		<美> 将要
+contest		论争, 竞赛
+rival		竞争者, 对手
+backyard	后院,
+calm		(天气、海洋等)静的, 平静的
+resident	居民
+appoint		约定, 指定(时间,地点), 任命,
+committee	委员会
+clip-on		可用夹子夹住的
+tie the knot	结婚
+rental		租金额, 租金收入, 租贷,租用的
+bride		新娘
+jitter		<美口>紧张不安
+lapel		翻领
+fella		伙伴,伙计,小伙子
+ceremony	典礼
+figure		考虑,
+pearl		珍珠
+veil		面纱
+be about to	将要, 正打算
+beloved		心爱的
+church		教堂
+holy		神圣的
+matrimony	结婚
+lawful		法律许可的, 守法的
+groom		马夫, 新郎,
+bride's maid(少女)
+best man	<美>男傧相
+confetti	(旧时狂欢节或庆祝场合抛撒的)糖果, (婚礼、狂欢节中抛撒的)五彩纸屑
+sit around	无所事事
+sandwich	三明治
+paperwork	文书工作
+checkbook	支票簿
+dine		吃饭, 进餐
+propose		打算, 
+on one's mind	使人担心, 惦念
+lately		最近
+pay attention to 	专心
+yup	<美俚> 是, 是的
+ward	病房
+fit in with	适合, 符合, 适应
+leisure		空闲
+patio		天井, 院子
+I couldn't agree with you more  我完全同意你
+experiment	实验,
+accomplish	完成
+poem		诗,
+frost		结霜
+queer		同性恋者,奇怪的
+harness		(全套)马具, 
+downy		绒毛的, 柔和的, 
+flake		薄片
+alteration	变更, 改造
+jeans		牛仔裤
+blouse		宽松的上衣
+outfit		用具
+affect		影响
+garment		衣服
+career		事业
+executive	实行的, 执行的,
+dilemma		进退两难的局面,
+sacrifice	牺牲,
+better off	状况好的
+interest	利益
+partner		合伙人
+craft		工艺
+poster		海报
+mood		心情
+touched		被感动的
+I cann't be more sure 我再确定不过了
+as long as	只要, 在...的时候
+rock		摇摆, 
+cradle		摇篮
+bough		大树枝,
+wrestle		摔跤, 
+pursue		追赶,
+tear->tore	撕破
+idiom		成语,
+I'm in a fog  ==   I'm really in a bind
+i 've got to on the right track 
+I 'm all mixed up
+I'm wrestling with the question
+I can't make up my mind (up)
+I'm up in the air 
+I'm feeling  I'm split in tow 
+I'm pulled in to directions
+I've got get my act together
+I've got get it all figured out 
+I've got straighten everything out 
+I've got of two minds about it 
+----------
+I don't follow you  exactly what do you mean
+run that by me again 
+I don't get it 
+I don't get the picture 
+explain it all again ,Could you explain that again 
+what are you try to say ?
+---
+I get it , I see what you mean 
+I understand  I see what you've try to say 
+		I follow you now
+
+check up	检验
+injection	注射
+regarding	关于
+raise		 饲养
+wind up		卷起,
+versus		与...相对
+wound		创伤, 伤口
+sign		标记, 符号, 记号, 征兆,
+anxious		观念的, 担忧的
+niece		侄女, 甥女
+editorial	社论
+vacant		空的, 空白的,
+senior		年长的
+due to		由于, 应归于
+interior	内部的,
+indefinitely	不确定地
+postpone	推迟, 使延期, 延迟
+soda		苏打, 碳酸水
+get a handle on  开窍 ????????
+hardware	五金器具
+tutor		家庭教师
+cola		可乐
+get down to	开始认真考虑
+fix up		安排, 修补
+sleeve		袖子
+supervise	监督,
+refurbish	 刷新
+backbreaking	非常辛劳的
+drugstore	<美> 药房, 
+jazzetry	爵士乐伴奏的诗歌朗诵
+drum		鼓
+pastry		面粉糕饼, 
+intergenerational	两代间的
+original	(发鹅音)最初的
+asleep	(发鹅音)
+council		 委员会, 参议会
+inspection	检查
+come by		 得到
+generous	慷慨的
+stamina		毅力, 持久力,
+live up to	实践, 做到
+table		搁置
+end table	茶几
+pitch in	努力投入
+idiom		成语
+in order for us to 
+assembly	集合, 汇编
+hall		会堂
+peel		剥, 削, 
+farewell	辞别, 再见,
+lifeguard	救生员
+short		 缺乏
+wristwatch	手表
+flashy		华而不实的????????
+fracture	破裂, 骨折 ,(使)破碎
+loan		（借出的）
+participle	分词
+lemonade	柠檬水
+Athens		雅典(希腊首都)发
+folk		人们, 
+count on	依靠, 指望
+scare		惊吓
+hammer		铁锤
+blow		殴打
+horn		 喇叭
+amuse		使发笑,
+bon voyage	<法>一路平安, 再见
+bon	==good
+voyage		航程
+mustard		芥菜
+ketchup		调味蕃茄酱
+head back	回去
+patty		小馅饼, 
+flashlight	手电筒, 
+bottle openner
+relish		意味?????调味酱	 
+utensil		器具
+teething	出牙, 出牙期
+no big deal  没有什么大不了的
+lap		(坐时的)大腿前部
+drawer		抽屉
+match		火柴,
+rub		擦, 摩擦
+cassette	盒子, 盒式磁带
+tense		紧张的
+campsite	野营地,
+heaven		天, 天空
+teenager	十几岁的青少年
+spot		 场所, 现场
+plastic		塑胶, 
+bench		长椅子
+fork		叉 
+refresh		(使)精神振作
+sooth		真实
+assure		断然地说, 确告, 保证
+exhibit		展览品
+enlargement	放大
+autograph	亲笔签名
+reviewer	批评家,
+stand by	支持, 
+syndicate	企业联合
+throat		咽喉,
+brilliant	灿烂的
+intern		实习医师
+gallery		 画廊, 
+compliment	称赞,
+favorably	顺利地, 好意地,
+advance copy	新书样本
+keep one's fingers crossed	祈愿, 祷告
+bore		令人讨厌的人
+ridiculous	荒谬的, 可笑的
+run out of	用完
+stall		(使)停止, 
+cuff		袖口
+attractive	吸引人的
+charmed		喜悦的, 着迷的
+oeuvre		全部作品
+hors		不必, ...之外
+hors d'oeuvre	(正餐前的)开胃食品
+fruit punch(冲压机)	果汁喷趣酒
+breakdown		崩溃
+My heart is pound	重击
+I'm out of breath
+I can't think straight	 诚实的
+My palms are sweaty 
+sweaty	出汗的, 
+palm	手掌,
+I've got butterfies in my stomach
+I've weak in the knees
+weak		不牢固的
+jittery		神经过敏的
+jumpy		跳跃的, 神经质的
+panicky		恐慌的
+shake		摇动
+remarkable	不平常的, 
+overwhelm	淹没, 覆没, 受打击
+adventure	冒险
+settle for	满足于
+wonder of humanity  人类的奇迹
+flatter		过分夸赞
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+===============新概念词汇=================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=========大学英语
+pronoun		代名词
+preposition	介词
+vocabulary	词汇
+explanatory	解释
+raise		提出
+datum		数据
+poet		诗人
+adjective	形容词
+noun		名词
+adverb		副词
+verb		动词
+chairmen	主席
+lecture		演讲
+nod		点头
+master		精通
+lip		嘴唇
+antonym		反义词
+shake(shook )	摇头
+dumb		哑的
+conjunction	连词
+transitive	及物动词
+intransitive	不及物动词
+interjection	感叹词
+predicate	谓词
+adverbial	状语
+
+
+learn 刚开始学
+study 学到一定程序
+
+tibet	西藏
+academic	学院的, 理论的
+pay(paid) a visit to 去参观, 拜访
+rock	摇摆
+
+
+due 应付
+
+impart	传授
+Aids	艾滋病，
+dishonest 不诚实的
+hydrogen   氢	
+
+iron	铁, 熨斗
+steel	钢, 钢铁
+
+misunderstand	误解
+mistrust	不信任
+ex-president	前任总统
+postgraduate	研究生
+ultraviolet	紫外线的
+violet		紫罗兰
+ultrasonic	超音速的
+sonic		音速的
+
+premier		总理
+unilateral	单方面, 
+bimonthly	双月的
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=============
+deposit  , 存款, 押金, 保证金
+withdraw  收回
+overdraft  透支, 
+prohibit 禁止, 阻止
+worm  蠕虫
+
+diploma 文凭
+wheat 小麦,
+
+
+
+
+
+===========手机
+analogue	相似物  (时钟形状)
+gallery		戏院
+lens		透镜, 镜头
+imaging		[计] 成像
+divert		转移
+barring		不包括, 除非
+
+----日常
+Bachelor	单身汉, 文理学士
+competence	能力
+extensive	广泛的
+Referral	提名, 推举
+Bonus		奖金, 红利
+Regards		尊敬, 尊重
+simultaneous	同时的, 同时发生的
+peripheral	外围的
+referral	提名, 推举
+bonus		奖金, 红利
+
+---
+robust		精力充沛的；坚定的；粗野的，粗鲁的；需要体力的 
+intuitive	 直觉的
+recipe		食谱；处方
+empower		授权；准许
+leverage	杠杆作用；优势，力量
+clinic		诊所，门诊部
+therapy		治疗，疗法
+
+--
+gnome		格言   
+Tomb-sweeping Day	清明节
+dragon boat festival	端午节
+
+---------------------------电影--终结者2
+foster		养育者
+mall		购物商场
+assessment	估价
+vest		汗衫, 背心
+warrior  勇士
+dammit	 该死，真他妈的
+race	种族
+Caucasian	高加索人, 白种人
+
+juvenile	青少年的
+arrest		逮捕,
+trespass	过失, 罪过
+vandalism	故意破坏艺术的行为
+guardian	护卫者, 保护人
+pigsty		猪舍, 脏房子
+kinda	有一点, 有几分(=kind of)
+dick <美俚><俗>侦探, 家伙, (=dictinary)词典, 声明
+	<俚>阴茎, 鸡巴
+swear	诅咒 宣誓, 发誓
+goddamn	(受)诅咒的, 讨厌的
+butt	粗大的一端, 靶垛, 笑柄
+emergency 紧急情况
+ass	驴, 笨人, 臀部
+ass in grain	十足的大傻瓜
+criminal	罪犯
+female	女性
+acute	敏锐的
+schizo	<口>精神分裂症的
+anxiety		忧虑,
+depression	沮丧
+delusion	错觉
+persecution	迫害, 烦扰
+fairly		相当地,,公正地, 正当的, 
+originality	创意, 新奇
+original	最初的, 原始的, 独创的
+stab	刺, 刺伤的伤口
+kneecap	膝盖骨,
+zap	攻击
+buck	<美口> 元
+piece of cake	非常容易的事
+psycho	心理学
+shot	开枪
+fate	天数, 命运, 运
+moron <口>低能者, 笨人, [医]痴愚者(指智商在50-70之间的成年人)
+sunblock 防晒霜
+crush	压碎
+hydraulic	水力的, 水
+neuron		[解]神经细胞
+inhibit		抑制, 约束
+naked		无保护的
+bitch		母狗, 母狼
+beast		兽, 畜牲,
+palliative	减轻的
+bloody	该死的
+fool	愚人, 白痴
+underneath	在下面
+holy	神圣的,
+organism	生物体,
+tissue 薄纸, 棉纸, [生]组织, 连
+endo-	表示“内部
+grip	紧握
+mission	使命
+mimetic	模仿的
+imitate	模仿
+stabbing	刺穿的, 
+surveillance	监视, 
+sting		刺
+shack up	同居
+military	军事的
+bullshit	胡说
+kidnap		诱拐(小孩), 绑架
+hike		远足
+bozo		[美俚]家伙, (尤指四肢发达, 头脑简单的)大汉
+dipshit		笨蛋
+grab	抢夺
+milligram	毫克
+liquid	液体, 流体, 流音
+swear	诅咒	宣誓,
+bitch	母狗   son of bitch
+fuck	性交 shit
+stupid	愚蠢的,
+anatomy	剖析, 解剖学
+efficient	(直接)生效的
+injury		伤害
+heal up		愈合
+neural		神经系统的
+seal		封铅, 封条
+
+damp	湿气
+proof	证据,
+whatsoever	无论什么
+affirmative	肯定的
+chill	寒意
+routine	例行公事, 常规
+slaughter	屠宰
+revolutionary	革命的
+geometric	几何的
+panic	惊慌
+plug	堵, 塞, 插上
+Jesus	耶稣(基督教
+conduct 行为, 操行引导,
+pilot	飞行员, 
+torque	扭矩, 转矩
+wrench	扳钳
+bolt	门闩, 螺钉
+insane	患精神病的,
+sane	健全的
+tactical	战术的
+anticipate	预期
+hydrogen	氢
+radically	根本上
+vault	地下室; 银行的金库
+bitch	母狗, 
+uncharted	海图上未标明的, 未知的
+concern		涉及, 关系到
+simultaneous	同时的
+neutralize	压制
+vicinity	邻近
+suspect		嫌疑犯
+adios		再见, 一路平安
+
+
+=========全民情敌
+nonverbal	不用动词的, 不用语言的
+broom		扫帚,
+hitch		猛拉
+outgoing	外出, 开支,对人友好的
+blown		blow的过去分词
+fluid		流动性, 
+narrate		叙述,
+career	(原意：道路, 轨道)事业, 生涯
+ain't		不是
+linger		逗留
+club		俱乐部
+naked		裸体的
+medal		奖章
+stake		树桩
+awesome		引起敬畏的, 可怕的
+fabulous	寓言中的
+aristo		<英口>(一个)贵族
+brat		乳臭未干的小孩, 小子
+gorgeous	华丽的, 灿烂的
+cheat		欺骗, 骗子
+dumb		哑的
+yoga		瑜珈, 瑜珈术
+flirt		调情
+scuba		水中呼吸器
+handy		手边的, 
+cynic		愤世嫉俗者
+masquerade	化妆舞会
+optimist	乐天派, 乐观者
+workaholic	工作第一的人, 专心工作的人
+lunatic		精神错乱的, 疯狂的, 
+overwrought	过度紧张的
+busty		(妇女)大胸脯的, 乳房丰满
+brunette	浅黑肤色的女人
+Jesus		耶稣
+dirt		污垢, 泥土
+snowstorm	暴风雪
+kiddo		老兄, 老姐
+cheat		欺骗
+column		专栏,
+sip		吸吮
+freak		反常的
+shot		开枪	
+sweaty		出汗的, 吃力的
+unconditional	无条件的
+openness	宽阔, 公开
+grace		优美
+chase		追赶, 追击
+ridiculous	荒谬的, 可笑的
+vaguely		含糊地, 暧昧地
+pathetic	可怜的, 悲惨的
+thong		皮带
+lingerie	妇女贴身内衣
+robe		长袍, 罩衣
+liar		(惯于)说谎者
+urban		城市的
+pal		<口>好朋友, 伙伴,
+lime		酸橙,
+wedge		楔,楔入
+asshole		屁眼儿;〈俗〉肛门；令人讨厌的人
+paramedic	伞兵军医, 护理人员
+opposite	相对的,
+grasp		抓住
+peer		同等的人, 贵族
+intuitive	直觉的
+bloomer		挫折, 失败,完全成熟的人--
+retrospect	回顾
+dude		花花公子,
+guile		狡诈, 诡计
+referral	提名, 推举, 被推举的人
+radar		雷达
+orchestrate	 和谐地安排;精心策划
+desperate	令人绝望的,不顾一切的, 拚死的, 
+consultant	顾问,
+junior		年少者, 晚辈, 下级, 
+shoot		射击
+bum		游荡者, 游民, 
+invest		投(资),
+concentrate	集中, 
+shock		打击, 震动,
+awful		可怕的, 威严的, <口>极度的, 糟糕的
+buddy		<美口>密友, 伙伴
+publicity	公开
+yell		大叫, 
+scream		尖声叫,
+marinate	(做色拉时将肉鱼等在调味汁中)浸泡
+rephrase	改述, 改撰
+scary		引起惊慌的
+afford		提供, 给予, 供
+tipper		(=tipper truck,=tipper lorry)给小费的人
+goose鹅, 
+liberty		自由
+courage		勇气, 
+compliment	称赞, 恭维
+cab		出租汽车, 计程车, (机车, 卡车, 起重机的)司机室, 驾驶室
+earring		耳环, 
+heel		脚后跟, 
+hell		地狱, 苦境, 
+stamp		邮票, 印花, 印
+agenda		议程, 把…列入议事日程
+virtual	 实质的, [物]有效的, 事实上的
+gossip		闲话
+penetrate	穿透, 
+sincerely	真诚地
+atypical	非典型的
+charming	迷人的
+refreshing	提神的
+original	独创的, 新颖的
+pajamas		睡衣, 宽
+dull		感觉或理解迟钝的, 无趣的
+snap		猛地吸住
+rabbi		 先生
+bang		重击
+steer		驾驶, 掌舵
+wince		退缩
+metaphor	[修辞]隐喻, 暗喻,
+literal		文字的,
+pumpkin		南瓜
+invasive	入侵的
+perseverance	坚定不移
+obnoxious	不愉快的, 讨厌的
+discouragement	气馁, 挫折
+barely		仅仅,几乎不能
+awful		可怕的,
+suck		吸,
+hop		单脚跳
+scoot		疾走, 迅速跑开
+hitch		猛拉,
+ego		自我, 利已主义
+shove		<口>推, 挤
+tour		旅行, 
+inspector	检查员,
+ledger		[会计]分类帐,
+resident	居民
+ethnic		人种的, 种族的
+enclave		被包围的领土
+plaque		纪念匾
+horrible	可怕的, 
+legacy		遗赠(物
+wreck		失事船
+hickey		器械, 唇印
+flair		才能, 本领
+trait		显著的特点
+weird		怪异的
+slam		砰地关上, 砰地放下, 猛力抨击, 冲击
+meditate	想, 考虑,
+sleazy		质地薄的, 
+lean		s倾斜, 倾斜度, 倚靠,
+celebrity	名声, 名人
+classy		(尤指风、举止、仪表等)上等的
+shake hands	握手
+escort		护卫(队), 护送,
+disgust		厌恶
+fake		假货, 欺骗
+inspiration	灵感
+astound		使惊骇,
+gay		欢迎的, <美俚>同性恋的,
+deejay		播放音乐的人, DJ
+stickler	坚持己见的人
+thorough	十分的, 彻底的
+pizza		比萨饼
+elbow		肘
+waist		腰部, 
+bite		咬, 咬伤, 
+bunch		串, 束
+bodyguard	保镖, 
+irritate	激怒,
+monument	纪念碑
+fiddle		小提琴, 无意识而不停地拨弄
+robber		强盗, 盗贼
+beard		胡须
+limpid		清澈的
+overeager	过于热切的，过于渴望的
+cute		可爱的,
+adorable	可崇拜的, 可爱的
+glutton		暴食者,
+chef		厨师
+venue		犯罪地点, 审判地, 集合地点, 会
+heat		热, 热度, 
+psychiatrist	精神病医师, 精神病学家
+odd		奇怪的; 古怪的
+lemon		柠檬
+reduction	减少,
+compliment	称赞,
+itchy		使人发痒的
+dish		碟, 盘装菜,提出
+endearing	引起爱情的, 可爱的, 令
+stressful	.产生压力的
+commitment	委托事项, 许诺, 承担义务
+awkward		难使用的, 笨拙的
+allergy		[医]敏感症,
+heiress		女性继承人
+fort		堡垒, 边
+sibling		兄弟, 姐妹
+innate		先天的, 天生的
+skate		冰鞋, 溜冰
+mouth-to-mouth (人工呼吸)嘴对嘴的
+glide		滑行, 悄悄地走, (时间)消逝, 滑翔
+precipitation	仓促,某地区降雨等的量
+scar		伤痕,疤痕
+idiot		白痴, 愚人,
+moron		<口>低能者, 笨人
+affectionate	亲爱的,
+intimate	亲密的
+ass		驴, 笨人
+gossip		闲谈
+columnist	专栏作家
+
+DA [军] Direct Attack, 直接攻击
+   [军] Department of the Army, 陆军部
+
+boldface	[印刷]黑体字
+proof		证据,
+lousy		<俚>污秽的, 恶心的
+satisfy		满足
+situp		仰卧起坐
+pharmaceutical	药物
+intervention	干涉
+moral		道德(上)的
+jealous		妒忌的,
+lion		狮子,
+bit		咬
+thoughtful
+toast		 干杯
+nifty		俏皮的, 极好的
+thrive		兴旺, 繁荣,
+snarl		缠结, 
+despicable	可鄙的, 卑
+seafood		海产食品,
+cleaver		切肉刀
+butcher		屠夫, 
+partner		 伴侣
+anniversary	周年纪念
+coach		教练
+buzzer		s嗡嗡作声的东西, 蜂鸣器, 
+testimonial	证明书,
+triumph		胜利, 成功
+lame		不完全的,
+composer	作家,
+conscience	良心, 道德心
+mutual		相互的, 共有的
+despite		不管, 尽管
+piss		小便
+badge		徽章, 证章
+sincere		诚挚的, 真实的, 
+spontaneous	自发的, 自然产生的
+stoned		 醉酒的
+distract	转移
+hook		钩
+titty		(=teat)乳头
+buddy		<美口>密友, 伙伴
+bury		埋葬,
+scam		诡计,故事
+jerk		性情古怪的人
+relief		(痛苦等的)减轻, (债务等的)免除, 
+dive		潜水,
+miserable	痛苦的, 悲惨的
+adapt		使适应
+chute		降落伞
+coward		懦弱的人, 胆小的人
+devil		魔鬼
+deceive		欺骗, 
+tease		取笑
+whistle		口哨,
+buffoon		小丑
+mustard		芥菜
+chuck		抚弄,
+choke		窒息,
+leap		跳, 跳
+SOS=Save Our Ship
+
+
+
+FYI	For Your Information 供参考
+
+
+tilde (~) character
+
+
+
+
+-----SALt film 
+petroleum	石油
+sabotage	阴谋破坏
+ambition	野心
+petition	请求,
+senate		参议院, 上院
+pancake		薄烤饼
+anniversary	周年纪念
+majesty		最高权威, 王权, 雄伟
+passable	可通过的
+distraction	分心, 
+defector	背叛者
+soviet		苏联的
+wrestler	摔跤选手
+gymnast		体操运动员
+Soviet Union	苏联
+idiom		成语,
+idiosyncrasy	特质, 特性
+ideology	意识形态
+rigorous	严格的,
+bogey		妖怪
+godspeed	(祝愿)成功
+comrade		朋友,
+interrogate	审问
+goddamn		(受)诅咒的, 讨厌的
+jurisdiction	权限
+
+
+caorridor 走廊
+paralysis	麻痹
+bullshit	胡说
+stairwell	楼梯间
+tactical	战术的	
+interrogation	审问
+diplomatic	外交的, 
+
+
+---
+participate   参与
+maternity leave	产假
+
+
+crematorium	火葬场
+
+
+
+leopard	豹
+lion	狮子
+
+
+
+Gambling		赌博
+frown upon	表示不赞成
+frown		皱眉
+jack 		插口
+convey 		恳求, 请求, 乞求
+stakeholder 	参与人，参与方
+cornerstone		1. 奠基石2. 基础
+engagement		订婚	2. 约会, 约定 雇用，聘用6. 债务
+enroll			记入名,登记，
+inevitably		.不可避免地；必然地
+shard		(陶器等)碎片，破片
+domiciliary     adj.住处的,住家的
+
+
+
+---------- 
+
+bachelor_ 文理学士
+
+senate
+anniversary
+pancake
+majesty
+scandal 丑闻,
+paralysis 瘫痪
+toxin 毒素
+rookie 新手
+
+routine  日常事务, 
+surrender 放弃
+bullshit	胡说
+
+--
+ vista 狭长的景色, 街景, 展望, 回想
+adios 再见, 一路平安
+
+
+hasta la vista baby
+
+---
+sturdy 强健的
+
+charming 迷人的
+
+pest 有害物
+mice 老鼠
+
+dragon 龙, 凶暴的人
+
+stubborn  顽固的, 固执的
+hideous 
+骇人听闻的, 可怕的
+adj.
+丑恶的
+
+gnome  格言, 
+troll 旋转, 合
+
+Viking 海盗,北欧海盗,
+demeanor 行为, 风度
+
+envy   嫉妒
+
+===== 
+exclamation point	[计] 感叹号
+dash			破折号
+bracket			括弧
+
+
+DMZ  demilitarized zone  隔离区
+

@@ -1,0 +1,122 @@
+﻿
+https://www.owasp.org/index.php/Main_Page
+
+<script>写在用用户输入区
+可以写js document.cookie写到其它服务器
+类似的可以删贴，删角色（管理员登录时）
+
+登录前后换sessionID, sessionID中要包含  手机唯一码 或 PC 的IP,
+问题如果别人(未登录)发一个带sessionID的链接给你 ,你打开后登录后,别人刷新后就登录了
+
+
+垂直权限 ,A用户不可以仿问B用户的内容 ,如A用户浏览自己的简历时把URL中的id的值修改就可看其它人的
+
+strust2.3 的执行命令
+jQuery 1.3 不安全
+
+
+增加数据库压力,如频繁分页,使用Memcache,CDN
+大不响应的网络连接数,
+
+刷活动赠送,如注册一个用户送1元,注册一万次,就一万块
+
+通过多台代理可以让服务端无法检测一个IP的请求频率
+
+OAuth 2    没有绑定token，token 没有绑定用户 ，抓其它人包中的token的值，   自己的包中的token值换为其它人的就使用了其它的登录了
+OAuth 强制 授权访问 ，在像 大众点评网 使用 QQ登录时 ，正常是会有框弹出提示大众网可以访问QQ的什么权限，如联系人等，但这个框不提示后台选中所有的
+
+/x  /u 编码
+Cross-Site Scripting (XSS)
+Universal  XSS(UXSS)
+CSRF
+
+http://labs.securitycompass.com/exploit-me/  有工具 用来检测XSS，SQL Inject和Access缺陷
+
+-----beef 工具 是EXTJS的UI工具 ，有很多种DB
+安装 下载安装ruby, windows  下载安装 RubyInstaller 
+C:\Ruby21-x64\bin 下把sqlite.dll复制过来，执行  gem install bundler
+C:\Ruby21-x64\bin\gem install therubyracer_for_windows-master\therubyracer-0.11.0beta1-x86-mingw32.gem
+
+
+C:\Ruby21-x64\bin\ 放PATH 中
+
+cd 源码包
+bundle install 安装必要的  提示 gem install do_sqlite3  
+ruby  beef 
+-------
+pangolin  SQL 注入工具
+sqlmap  命令行工具
+havj
+
+SQL 注入 不同数据库的执行系统命令,系统目录的仿问
+
+http://beefproject.com/
+https://github.com/beefproject/
+https://github.com/beefproject/beef/zipball/beef-0.4.3.5
+
+http://html5sec.org/
+<iframe sandbox="" 表示应用所有的限制，也可配置多个用空格分隔
+llow-same-origin 	Allows the iframe content to be treated as being from the same origin as the containing document
+allow-top-navigation 	Allows the iframe content to navigate (load) content from the containing document
+allow-forms 	Allows form submission
+allow-scripts 	Allows script execution
+
+
+
+norefer
+
+图片防盗链功能，都是通过判断 referer 来实现的
+  request.getHeader("referer");//获取请求头  是否从本站发的
+
+
+Upload Attack Framework 
+MD5 加盐  salt
+
+彩虹表  
+cmd5.com
+
+drozer android安全工具
+
+http://www.wooyun.org/    上有很多不安全的网站
+http://parsec.me/
+
+copy /b a.jpg b.html c.jpg  就可在浏览器浏览c.jpg时执行b.html中的代码  ，解决方法是做压缩，或做专门的图片服务器不可执行代码
+
+
+
+人机识别除了加验证码,外,可以让浏览器做JS运算,不过可以开发浏览器插件做攻击
+
+
+innerHTML  的安全问题
+
+
+
+
+
+
+
+
+
+
+-------------身份证规则
+地址码(前六位数）+  出生日期码（第七位至十四位）+ 顺序码（第十五位至十七位）+ 校验码（第十八位数）
+ 
+顺序码（第十五位至十七位）
+     * 表示在同一地址码所标识的区域范围内，对同年、同月、同日出生的人编定的顺序号， 顺序码的奇数分配给男性，偶数分配给女性。
+校验码生成方法 
+	 * （1）十七位数字本体码加权求和公式 S = Sum(Ai * Wi), i = 0, ... , 16 ，先对前17位数字的权求和
+     * Ai:表示第i位置上的身份证号码数字值 Wi:表示第i位置上的加权因子 Wi: 7 9 10 5 8 4 2 1 6 3 7 9 10 5 8 4 2 
+     * （2）计算模 Y = mod(S, 11) （3）通过模得到对应的校验码 Y: 0 1 2 3 4 5 6 7 8 9 10 校验码: 1 0 X 9 8 7 6 5 4 3 2
+	
+	
+	
+ 2*7 + 3*9 + 0*10 +1* 5+0* 8 +3* 4+1* 2 +9*1+8* 6+5* 3+0* 7 +3*9 +2*10+4* 5+4* 8+8* 4 +1*2   ＝265
+
+
+265/11
+22
+ 45
+ 44
+   1 -> 0
+   
+-------------

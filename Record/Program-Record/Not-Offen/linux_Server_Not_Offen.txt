@@ -1,0 +1,537 @@
+
+服务器telnet　配置如下：  
+  service   telnet  
+  {    
+  disable　　　　   =   no  
+  only_from   　　　=   219.140.78.{17,19}  
+  access_times　　=   8:00-12:00   20:00-23:59  
+  }  
+  工作站ping   服务器　ok
+
+===============================CVS
+光盘中的rpm可以直接安装 (最好关闭seLinux)
+安装xinetd软件包(rel5盘中有的)可以直接安装
+
+./configure --prefix=/opt/cvs --with-cvs-admin-group=cvs
+
+groupadd cvs 
+useradd -g cvs -G cvs -d /home/cvsroot cvsroot 
+passwd cvsroot 
+chmod 775 /home/cvsroot 
+
+export CVSROOT /home/cvsroot
+cvs -d /home/cvsroot init    
+生成目录/home/cvsroot/CVSROOT,其下为一些初始化文件
+
+cvs import -m "comment" project_name vendor_tag release_tag 
+##会将当目录下的所有文件,加入到目录/var/cvs/project_name中,/var/cvs/目录必须cvsroot用户可以写
+				
+
+vi /etc/xinet.d/cvs 修改disable=no 或者加enable=yes   (cvsserver)
+suse-11 rpm 包 xinet.d/cvs 的内容
+service cvspserver
+{
+        disable         = yes
+	socket_type     = stream
+	protocol        = tcp
+	wait            = no
+	user            = root  
+	server          = /usr/bin/cvs
+	server_args     = -f --allow-root=/home/cvsroot pserver
+}
+redhatEL5 cvs-1.11.22-5.el5.rpm 包 xinet.d/cvs 的内容
+service cvspserver
+{
+        disable                 = no
+        port                    = 2401
+        socket_type             = stream
+        protocol                = tcp
+        wait                    = no
+        user                    = root
+        passenv                 = PATH
+        server                  = /usr/bin/cvs
+        env                     = HOME=/var/cvs
+        server_args             = -f --allow-root=/var/cvs pserver
+#       bind                    = 127.0.0.1
+}
+server_args的值可有多个--allow-root= 即多个仓库,每个仓库可有很多项目
+
+cat /etc/service | grep cvs 应该有cvspserver 2401 ,  cvs的2401端口
+netstat -l | grep cvsserver
+
+cvs -d :pserver:zhaojin@localhost:/var/cvs login    
+###-d覆盖CVSROOT环境变量,/var/cvs是配置文件中的
+工具生成的CVSROOT是  :pserver;username=zhaojin;password=lizhaojin;hostname=192.168.1.29:/var/cvs
+
+export CVSROOT=:pserver:zhaojin@localhost:/var/cvs
+cvs login
+cvs import -m "comment" project_name vendor_tag release_tag  
+##会将当目录下的所有文件,加入到目录/var/cvs/project_name中,/var/cvs/目录必须cvsroot用户可以写
+
+cvs  checkout project_name
+cvs  add -m "no message"  file1.txt
+cvs  commit -m "no message"  file1.txt
+cvs  update  file1.txt  不会把自己改的冲了
+
+
+
+
+CVSROOT目录内读取三个文件,passwd、readers和writers ,要手工建立 
+readers只读用户和writers读写用户,每个用户名占一行
+passwd文件格式为： username:password:cvsroot 中间的密码是加密的密码 使用apache的一个工具 htpasswd ./passwd zhaojin(第一次使用时要加-c参数)
+cvsroot是操作系统用户
+
+
+CVS 是依赖于xinetd的,可以使用cvsd
+
+---cvsd---
+CVSROOT/config添加下面行(也可不加)
+	SystemAuth=no
+	PamAuth=no
+	LockDir=/tmp/cvsroot  ####的/tmp/myrepos是指相对于RootJail的路,要mkdir 
+
+cvsd-passwd 命令
+	[+]USER[:SUSER]
+		      Add or update the user to the CVSROOT/passwd file. 
+	-USER  Remove the user from the CVSROOT/passwd file.
+	如cvsd-passwd /var/cvsd/test +anoncvs
+
+/etc/cvsd/cvsd.conf配置文件
+	Uid cvsd	###对应cvsd-passwd生成的口令文件的第三列
+	RootJail /var/cvsd　
+	Listen * 2401
+	Log /var/log/cvsd.log debug
+	Repos <path> #The value is passed as a  --allow-root=<path>
+	Repos /test  ##/var/cvs/test仓库init后的有CVSROOT　，此处的路径也是相对于RootJail的
+
+	删　Limit coredumpsize 0出错时不生成coredump 
+
+cvsd-buildroot (RootJail的值)
+cvsd-buildroot  /var/cvs 会在目录生成bin,lib,tmp,usr等目录,有bin/cvs命令,也就是说项目名不能为tmp,usr
+
+export CVSROOT=:pserver:zhaojin@localhost:/test
+
+改过配置要重启的
+
+OK
+
+---cvsd---
+
+CVS日志在/var/log/message中有的
+
+
+winCVS的使用
+remote->checkout module (下载)要与服务上的模型名同
+remote ->import module (上传)
+
+eclipse右击项目->share project->cvs->  (要手工建文件夹在/var/cvs/project01,如有包也要创建    注意权限和用户主)
+
+linux 图形gcvs
+gzip -cd gtk+-2.16.4.tar.gz | tar xvf -  也可以解压文件的 ,c是输出stdout
+unxz -cd MPlayer-1.1.tar.xz | tar -xvf -
+bzcat SunStudio12u1-OS-platform-pkgs-ML.tar.bz2 | tar -xf -
+
+===============上 CVS=====================
+===================sendMail =============
+小心iptables,selinux
+
+不要安装sendmail,或postfix
+如果不能启动sendmail ,在/etc/hosts文件中本机对的域名尾加点(.),(日志和hosts 文件有关)
+
+mailq查看队列
+
+
+sendmail.cf文件中
+# SMTP daemon options
+　　O DaemonPortOptions=Port=smtp，Addr=127.0.0.1， Name=MTA
+
+ 
+里的Addr可改为本机IP，　这样netstat -an | grep 25 显示的本机ＩＰ,就不是127.0.0.1
+
+#O Timeout.ident=5s　　　　5秒后发出一个超时信号
+
+rpm -e --nodeps sendmail  不要依赖检查
+
+/etc/mail/trusted-users文件
+
+要安装 cyrus-sasl-plain,cyrus-sasl,cyrus-sasl-devel
+	cyrus-sasl#./configure --prefix=/usr/local/sasl2 --enable-login   
+	一定要加--enable-login，因为SASL2默认不支持login这种验证方式，而OUTLOOK是通过login来进行SMTP验证的。 
+# cd /usr/lib
+# ln -s /usr/local/sasl2/lib/* .
+# mkdir  -p /var/state/saslauthd   ##这个要的
+/usr/lib/sasl2目录中，也就是/usr/local/sasl2/lib/sasl2这个目录  Sendmail.conf（注意是大写的S）
+
+# echo 'pwcheck_method: saslauthd' > /usr/lib/sasl2/Sendmail.conf (S大写)
+#/usr/local/sasl2/sbin/saslauthd -a shadow 
+#/usr/local/sasl2/sbin/testsaslauthd -u zhaojin -p lizhaojin
+
+#useradd smmsp -d /var/spool/mqueue  -s /dev/null  
+#mkdir /etc/mail 
+
+sendmail.mc记得要使以下两个条语句有效，它的意思是如果access.db访问控制没有设置，则启用以下验证方式进行smtp验证。
+TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+
+　5．编辑sendmail.mc，加入你需要的FEATURE.
+　　TRUST_AUTH_MECH(`LOGIN PLAIN DIGEST-MD5')dnl
+　　define(`confAUTH_MECHANISMS', `LOGIN PLAIN DIGEST-MD5')dnl
+　　*dnl define(`confDEF_AUTH_INFO', `/etc/mail/auth/auth-info')
+　　FEATURE(`no_default_msa')dnl
+　　DAEMON_OPTIONS(`Port=25, Name=MSA, M=Ea')dnl
+　　注意：FEATURE要加在MAILER语句的前面。
+　说明：
+　　"TRUST_AUTH_MECH"的作用是使sendmail不管access文件中如何设置，都能relay那些通过LOGIN，
+　　PLAIN或DIGEST-MD5方式验证的邮件。
+　　"confAUTH_MECHANISMS"的作用是确定系统的认证方式。
+　　"confDEF_AUTH_INFO"的作用是当你的计算机作为客户机时，
+　　向另外一台有smtp认证功能的主机进行认证，用户和密码存放在auth-info文件中，在这个例子中并不需要这个功能，所以注释掉了
+
+
+在源码目录树的saslauthd子目录中运行 # make testsaslauthd命令生成
+
+pop3(密码,认证)接收时要把用户名写成　全名（user@company.com）
+
+
+root@192.168.1.30's password:
+telnet localhost 25  入命令 localhost 显示250-AUTH DIGEST-MD5 LOGIN PLAIN
+
+
+host -t MX chinaitlab.com
+
+
+---所依赖的
+Berkeley DB的安装（oracle公司的）
+
+到 build_unix文件夹,, 执行
+../dist/configure  ##--prefix=/usr/local/bdb/
+make
+make install
+
+# ln -s /usr/local/bdb/lib/* /usr/lib/
+-----
+
+解压后，新建devtools/Site/site.config.m4文件,中增加 
+
+APPENDDEF(`confENVDEF',`-DSASL=2')
+APPENDDEF(`conf_sendmail_LIBS',`-lsasl2')
+APPENDDEF(`confINCDIRS', `-I/usr/local/sasl2/include') ##如sasl2指定了--prefix ,ln -s /usr/local/sasl2/lib/* /usr/lib/
+
+注意要安装db-4.6.21.tar.gz(Berkeley DB 前缀可是bdb)
+
+
+
+APPENDDEF(`confMAPDEF',`-DNEWDB')
+APPENDDEF(`confLIBS',`-ldb')
+APPENDDEF(`confINCDIRS', `-I/usr/local/BerkeleyDB.4.6/include')##多加这一个 ,db的安装目录 (### vi BuildTools/Site/site.config.m4) 
+APPENDDEF(`confLIBDIRS',`-L/usr/local/BerkeleyDB.4.6/lib')##多加这一个
+
+
+
+sh Build -c
+###sh Build install (后/etc/mail 下有文件生成)
+
+## mkdir /usr/man/man8 /usr/man/man1 /usr/man/man5
+会有类似的  cc -O2 -I. -I../../include   -DNEWDB(##) -DSASL=2（####）      -c -o deliver.o deliver.c
+ 复制 cf目录的所有内容
+mkdir /usr/share/sendmail
+cp -r cf  /usr/share/sendamail
+cp -a
+复制 cf/cf/generic-linux.mc cf/cf/sendmail.mc
+要安装 m4宏 （dnl表示注释）  空格不可有
+
+
+cd cf/cf
+cp generic-linux.mc sendmail.mc
+mkdir /etc/mail
+make install-cf  [cf/cf] (用 m4 在/etc/mail/下生成sendmail.cf文件)
+cp sendmail.mc /etc/mail/ (就可以每次改/etc/mail/下的sendmail.mc文件,就不用进源码目录了)
+
+cd /etc/mail
+touch aliases access   ####sendmail.mc 文件中  define(`ALIAS_FILE',`/etc/aliases')
+echo "chinaitlib.com">/etc/mail/local-host-names   sendmail是为哪个域服务的（判断一封信是不是自己域）
+echo "mail.chinaitlib.com">>/etc/mail/local-host-names  (也为mail这个主机)
+###sh Build install   
+makemap hash access<access      # accesss.db db 可省,编译时要-DNEWDB  充许谁发信
+makemap hash aliases<aliases   #/etc/aliases(生成.db文件)
+
+mkdir /var/spool/mqueue   邮件并不一马上发出去
+/usr/sbin/sendmail -db(守护运行) -q1h(队列1小时处理一次，可m,s)
+man sendmail
+
+netstat -tnl | grep :25   #### SMTP 服务器  看日志文件/var/log/maillog
+
+
+
+useradd redhat(root不能发信，收信，不能用IMAP,pop3远程连接)
+echo "root: redhat" >>/etc/mail/aliases 表示把有的发给root的信转给redhat账户 
+newaliases #更新 db文件
+测试在同一域中的
+Telnet 192.168.1.104 25
+mail from: root@xx.com
+rcpt to: zhaojin@xx.com
+data
+输入内容以 .结束
+.
+quit
+
+测试时也可以用sendmail zhao1jin4@sina.com的方式来测试发信,(成功的)
+
+日志在/var/log/maillog
+
+mail:来收信
+
+ imap软件包
+ chkconfig ipop3 on  
+ chkconfig imap on
+service xinetd restart
+
+
+
+
+compress 软件包来解压  .Z文件   用compress   (-d 解)
+
+vi /etc/mail/sendmail.mc
+加入
+include(`/usr/share/sendmail/cf/m4/cf.m4')dnl   ##是先前复制的
+FEATURE(`access_db')dnl
+加入用户验证
+echo " define(`confAUTH_OPTIONS',`A y')dnl " >> /etc/mail/sendmail.mc
+echo " TRUST_AUTH_MECH(`LOGIN PLAIN')dnl " >> /etc/mail/sendmail.mc             #### LOGIN PLAIN
+echo " define(`confAUTH_MECHANISMS',`LOGIN PLAIN')dnl " >> /etc/mail/sendmail.mc     
+
+---
+define(`confCONNECTION_RATE_THROTTLE',`3')  限每秒连接次数    throttle扼杀
+define(`confMAX_DAEMON_CHILDREN',`20') 最大20个子进程,同时连接数目
+
+FEATURE(`accept_unresolable_domains')   不推荐
+MASQUERADE_AS(`localhost.localdomain')  伪装
+
+
+LOCAL_DOMAIN(`localhost.localdomain')  与local-host-names  文件区别
+define(`SMART_HOST',`localhost.localdomain')
+
+DAEMON_OPTIONS(`Port=smtp,Addr=127.0.0.1,Name=MTA') 改Addr
+
+imitest -m login -a userid -p port  host  测试IMAP
+/var/spool/imap/t/user
+su cyrus
+cyradm
+	authenticate login auth
+	chdir cd
+	createmailbox	create	cm
+	deleteaclmailbox  deleteacl   dam
+	deletemailbox     delete      am
+	disconnect      dis
+	exit		quit
+	info
+	help 	?
+	listadd   lam  listaddmailbox
+	listmailbox	lm
+	listquota lq
+	listquotaroot lqr lqm
+	mboxcfg		mboxconfig
+	reconstruct
+	renamemailbox	rename	renm
+	server	servername connect
+	setaclmailbox	sam	setacl
+	setinfo
+	setquota sq
+	subscribe sub 订阅
+	unsubscribe unsub
+	xfermailbox xfer   将信箱传其它服务器上
+创建用户后(test)
+cm user.test 后在/var/spool/imap/t/user下有用户
+
+
+
+
+sam share test(用户) lrwsip
+	l  list 
+	r   read
+	w   write
+	i   insert	
+	p   可以发送邮件给文件夹	  
+	c  create
+	d  delete
+	a  admin
+	s  seen
+
+
+
+/etc/sysconfig/iptables/
+thunderbird mail客户端工具
+Qpopper  pop服务
+squirrelmail 的conf.pl 交互配置文件(./configure)
+		conf_local.php会覆盖config.php
+
+
+
+MTA 不区分用户名大小写(邮箱用户名)
+
+/etc/host.allow有sendmail :ALL
+		 pops:ALL
+		imap:ALL
+
+<Directory ~ "正则表达式">
+	AllowOverride NONE 禁用.htaccess文件
+</Directory>
+Qpopper 是一个pop服务
+---
+m4 sendmail.mc -> sendmeail.cf (/etc/mail)
+
+echo "10.0.0	RELAY">>access  ##来自10.0.0 段的IP可以RELAY
+makemap hash access<accesss
+
+
+
+重启
+要测试DNS  host -t MX redhat.org.cn   ,,host -t MX chinaitlib.com
+
+加用户验证(sasl)
+>access 建一个空的access文件
+makeamp hash <accesss
+
+在sendmail.mc文件中增加
+include(`/usr/share/sendmail/cf/m4/cf.m4')dnl   ##前有过 是先前复制的
+define(`confAUTH_OPTIONS',`A y')dnl   必须用户验证才可以出去
+TRUSTAUTH_MECH(`LOGIN PLAIN')dnl      
+define(`confAUTH_MECHANISMS',`LOGIN PLAIN')dnl
+
+返译
+m4 sendmail.mc > sendmail.cf
+
+chkconfig saslauthd on   (通过sasl来验证)
+service saslauthd restart　　　启动sasl
+
+
+echo "pwcheck_method:saslauthd">/usr/lib/sasl2/Sendmail.conf
+重启 sendmail -db -q1h
+
+telnet localhost 25  (可以是pop3,imap,smtp对启动的)
+ehlo localhost  如果看到  AUTH LOGIN　PLAIN说明成功　，在outlook中账户里打开我的服务器要求验证
+>mail from: root@zhaojin.com
+>rcpt to: redhat@zhaojin.com
+data
+输入内容以.结尾
+.
+quit
+
+su - redhat 到自己的目录
+
+
+在aliases中加入
+一般是500以下的uid
+postmaster：root   邮件服务器出现问题　　newaliases
+安全要 chkconfig imaps on
+outlook中要　　选中些服务器要求安全连接(SSL)
+
+如果本地用户:~/.forward文件配置一些用户(单列,和 aliases做用同,只对本用户可以编辑) 
+
+access文件
+  　Ok--远程主机可以向你的邮件服务器发送邮件；
+　　RELAY--允许中转；
+　　REJECT--不能向你的邮件服务器发邮件和不能中转；
+　　DISCARD--发来的邮件将被丢弃，同时并不向发送者返回错误信息。
+　　nnn text-- 发来的邮件将被丢弃，但sendmail将会向发送者返回nnn确定的smtp代码和text变量确定的文本描述。 
+
+默认组smmsp
+/etc/mail/submit.cf
+
+
+sendmail.mc文件
+	FEATURE(access_db). 该参数指定利用哈希数据库/etc/mail/access来决定是否允许某个主机通过本地进行邮件转发。
+
+　　	FEATURE(blacklist_recipients).若该参数被设置，则在决定是否允许某个主机转发邮件时同时察看邮件发送着地址和邮件接受者地址。 
+	FEATURE(accept_unresolvable_domains).通常来讲，sendmail拒绝接受发送者邮件地址指定的主机通过DNS不能解析的邮件，而该参数允许接收这种邮件。 
+	FEATURE(relay_based_on_MX).该参数允许转发邮件接受者地址的MX记录指向本地的的邮件，例如，本地接收到一个发送目的地址为user@b.com的邮件，而b.com域名的MX记录指向了本地机器，则本地机器就允许转发该邮件。
+
+
+
+关于cyrus-imapd 
+define(`confLOCAL_MAILER',`cyrus2')
+define(`CYRUSV2_MAILER_ARGS',`FILE /var/lib/imap/socket/lmtp')
+MAILER(cyrusv2)
+
+  
+
+==========================CentOS-5.2安装Oracle11g=========================
+
+cat >> /etc/pam.d/login <<EOF 
+session required /lib/security/pam_limits.so
+session required pam_limits.so
+EOF
+
+进程数量和打开文件的数量设置限制
+cat >> /etc/security/limits.conf <<EOF 
+oracle soft nproc 2047
+oracle hard nproc 16384
+oracle soft nofile 1024
+oracle hard nofile 65536
+EOF
+
+编辑 /etc/security/limits.conf 行末添加以下内容
+
+#use for oracle
+* soft nproc 2047
+* hard nproc 16384
+* soft nofile 1024
+* hard nofile 65536
+
+编辑 /etc/pam.d/login 行末添加以下内容
+　     session required pam_limits.so
+
+编辑 /etc/selinux/config 确保以下内容
+
+　　SELINUX=disabled
+
+　　关闭SELIINUX
+
+ 因为默认centos5.1不支持10.2,0.1,修改安装文件
+编辑 /10201_database_linux32/database/install/oraparam.ini
+
+### #[Certified Versions]
+
+Linux=redhat-3,SuSE-9,redhat-4,centos-5,UnitedLinux-1.0,asianux-1,asianux-2
+
+再添加
+[Linux-centos-5.1-optional]
+TEMP_SPACE=80
+SWAP_SPACE=150
+MIN_DISPLAY_COLORS=256
+
+
+
+/etc/oratable配置文件，solaris 是/var/opt/oracle/oratab文件
+文件格式
+$ORACLE_SID:$ORACLE_HOME:<N|Y>:
+于是打开这个文件，将最后一行的最后一个字符由 “N” 改为 “Y”，如下：
+orcl: /u01/app/oracle/product/10.2.0.1:Y
+
+dbstart也会自动启动监听 ,如果名字不是默认的 LICENER 要修改脚本 
+编辑 dbstart
+应该是在88行，将其改为：
+$ORACLE_HOME_LISTNER/bin/lsnrctl start 后加监听名字
+
+
+--开机启动Oracle 的脚本看 dbstart
+sqlplus /nolog <<EOF
+conn / as sysdba
+startup
+EOF
+
+
+配置自动启动oracle的脚本
+编辑etc/rc.d/rc.local
+
+echo "Starting ORACLE 10g:"
+su - oracle -c "/u01/app/oracle/product/10.2.0.1/bin/lsnrctl start"
+su - oracle -c "/u01/app/oracle/product/10.2.0.1/bin/dbstart"
+-------------------------------------
+------------硬盘安装linux Fedora-10
+和Redhat一样,但在选择时
+输入install.img文件的位置,默认是/images/install.img,否则要输入地址,可以用/开头
+一定要在 /下 images 前不可加文件夹,要和ISO放在同一个分区,否则会找不到ISO文件(最好先find确定)
+------------
+
+

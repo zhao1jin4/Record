@@ -1,0 +1,1998 @@
+=======问题?======================
+  
+  最大的UID定义在sys/param.h
+solaris 光盘文件名不能正常显示
+安装 wine,
+自带的realplayer 10 可以正常rmvb ，但不可以rm,少application/x-pn-imagemap
+
+wine源码安装 ./tools/winesinstall    ./configure   ->make depend  -> make  ->{patch-file ./configure -> make depend -> make} make install 
+
+###没有这个admintool是solaris图形管理工具
+
+solaris 10 下
+	anjuta 要glib>=2.8 ,gobject >=2.8
+	filezilla 要wxWidgets >=2.8.6 ,wx-config 在path,wx-config --libs在LD_LIBRARY_PATH中
+	mplayer ./configure -enable-gui 成不可以 make (默认 /usr/local/lib/codecs  --codecsdir 看--help)
+
+=======================================
+
+在线文档
+http://docs.sun.com/
+
+ http://www.sun.com/bigadmin/hcl/ 有solaris 的Hardware Compatibility List (HCL).
+
+
+http://www.blastwave.org/packages.php 上有solaris 的eclipse-3.3.2,anjuta-1.2.2(新版本2.26.2.2),glade,mplayer-1.0,unrar,samba,vsftpd
+http://www.sunfreepacks.com/	      上有Wine, Mplayer
+
+solaris 的 pkg-get的网址   /opt/csw/bin/pkg-get -i anjuta 
+默认下载到/var/pkg-get/downloads目录下
+
+/opt/csw/etc/pkg-get.conf文件中有
+#default downloading to /var/pkg-get/downloads
+#PKGGET_DOWLOAD_DIR=...
+url=http://ibiblio.org/pub/packages/solaris/csw/unstable
+	http://www.ibiblio.org/pub/packages/solaris/csw/unstable/i386/5.10/
+
+
+http://sunfreeware.com
+http://www.blastwave.org/
+
+Solaris10 (SunOS 5.10)在vmware中安装如　　提示legible (清晰的, 易读的)时，　不要按回车，用界面安装死的
+安装时如不可以用DHCP取IP ,就不要用DHCP,因为是一直卡到,如永永远没有IP,则一直卡下去
+overlap 分区,几乎是硬盘的大小
+
+solaris 10 中自带stardict (只可英->汉),pidgin,firefox,thunderbird,sun的邮件管理器(evolution) ,realplayer 10 ,pdf查看器,
+办公软件有starsuit 8 办公,是openoffice的变体
+自带glade-2.6
+虚拟机可调分辨率,不像FreeBSD
+
+
+
+solaris 下安装 vim-7.2 的语法加亮,vim 也可撤消多步了
+	用户主目录的.vimrc配置文件中，添加set term=sun-color 
+
+	在vim中用 :syntax on 或者用　:syntax enable
+	也可在　.vimrc　中加入　　syntax enable
+
+vi文件时提示 Line too long
+fold -w 200 console.log  >short_console.log
+
+
+
+ls高亮主要使用coreutil这个GNU的集成包
+#pkgadd -d coreutils-8.5-sol10-sparc-local
+源码安装也可
+/usr/local/bin/ls --color 就 OK
+
+
+
+
+solaris一次性解压.tar.gz文件
+
+gzip -cd xxx.tar.gz | tar xvf -   (-c --stdout)
+bzcat xxx.tar.bz2 | tar -xf -
+gunzip <mysql-5.1.46-solaris10-sparc-64bit.tar.gz  | tar -xvf -
+
+
+# /etc/init.d/volmgt stop   再start/restart 来重新刷新光驱
+# mount -F hsfs -o ro /dev/dsk/c0t6d0s0 /cdrom   //-r
+fstyp /dev/dsk/c1t0d0s0 显示hsfs
+iostat -En ## 这个命令将会显示当前挂载的硬盘， s2整个硬盘
+
+
+ifconfig -a
+man xxx 后要用d,和b 来翻页
+
+
+
+pkgadd -d 文件名
+pkgrm  mysql
+pkginfo mysql
+pkgparam mysql
+pkgchk mysql  检查
+
+软件包会改文件/var/sadm/install/contents文件
+# pkgchk -lp /usr/lib/sendmail	查找一个文件所从属的包
+	-l list -p path
+/sbin/shutdown -y -g 0 -i 0   关机  不会关闭电源(提示reboot)
+-y非交互 
+-g  多少秒后
+-i 关闭后进入的运行状态 S
+
+reboot/poweroff/halt  不执行 stop脚本
+
+halt 进入{0}ok模式下(sparc)
+poweroff (x86和sparc)会关闭电源
+
+	
+	
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/sfw/bin:/usr/sfw/sbin:/usr/ccs/bin:/usr/ucb:/usr/openwin/bin:/usr/X11/bin
+export PATH=$PATH:/usr/local/bin:/usr/local/sbin
+export LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib:/usr/dt/lib:/usr/sfw/lib
+export MANPATH=/usr/man:/usr/share/man:/usr/local/man:/usr/local/share/man:/usr/sfw/man:/usr/X11/man:/usr/X11/share/man:/usr/openwin/man
+
+export C_INCLUDE_PATH=/usr/include:/usr/local/include:/usr/sfw/include:/usr/openwin/include:/usr/X11/include
+export CPLUS_INCLUDE_PATH=/usr/include:/usr/local/include:/usr/sfw/include:/usr/openwin/include:/usr/X11/include
+
+
+/usr/ccs/bin		有make
+/usr/ucb		有ps
+/usr/sfw/bin		有gcc ,smbclient
+/usr/sfw/lib/目录下有libusb.so ,gnupg要的
+
+VNC用PATH的/usr/openwin/bin:/usr/X11/bin
+solaris默认是安装vnc的--OK
+
+
+solaris也有gnome-session 的,是JDS的界面
+
+
+/etc/inet/netmasks
+/etc/netmasks是一个链接,./inet/netmasks
+/etc/resolv.conf
+more /etc/defaultrouter
+192.168.224.1  注：/etc/defaultrouter里面只能有一条路由!!!
+
+/etc/inet/defultrouter
+
+
+traceroute 命令
+
+
+route add default 192.168.1.1
+route add net 192.168.0.0 -netmask 255.255.255.0 192.168.2.254
+route add 192.168.1.0/24  192.168.2.254
+route delete default 192.168.1.1
+route -p show
+
+
+vmware下solaris 10网卡不能正常配
+在虚拟机的配置文件后添加如下行：
+Ethernet0.virtualDev = "e1000"
+
+并将/etc/hostname.pcn0改名为/etc/hostname.e1000g0
+重新启动机器后可以正确识别网卡，
+
+
+bunzip2  bz2
+
+
+wine安装 在 /opt/cfw/wine
+
+prodreg 有界面可以卸载软件,相当于pkgrm
+
+可以win+r 显示运行　（把终端加入运行中去）
+
+
+
+
+
+vi /etc/ssh/sshd_conf 文件中的PermitRootLogin no/yes
+
+(service admin 的)
+svcadm enbale -rt ssh    服务的开启方法 (r recursive ,t temporay 重启无效)
+相当于执行/lib/svc/method/sshd start
+
+svccfg  /etc/svc目录下
+svccfg交互式命令
+svcs |grep ssh 后显示svc:/network/ssh,
+svcs ssh 后显示svc:/network/ssh:default
+
+svcadm restart svc:/network/ssh 也可简写
+svcadm restart ssh	重新启动SSH服务
+svcs -l /network/ssh   服务状态
+日志在/var/svc/log/network-ssh\:default.log中
+svcs -x 日志
+svcs -vx ssh 可以看到由于其它服务失败(如vfstab文件错误,网络配置错误),而没有启动ssh
+	查看filesystem/local状态是maintenance    
+	查看rpc/gss状态是uninitialized
+svcadm disable svc:/network/telnet
+重新启用该服务，使用命令：
+svcadm enable svc:/network/telnet
+重启inetd进程
+kill –HUP <inetd>
+
+
+
+/lib/svc/method/sshd -c 会创建rsa,dsa public/private key pair,再重启ssh,就不会报Couldn't agree a key exchange algorithm错误了
+
+/etc/init.d/sendmail stop,后25号端口无监听
+
+/etc/syslog.conf  系统日志  /var/adm/message
+
+nslookup
+
+
+ifconfig pcn0 inet 192.168.1.27 netmask 255.255.255.0
+ifconfig pcn0 inet 192.168.1.27/24
+route add default 192.168.1.1   
+/etc/defaultrouter  ##目录下无defaultrouter文件，则自己在该目录下创建,写IP
+
+改/etc/nsswitch.conf 文件中的 host :files dns (原先为hosts: files)**********加dns****************
+
+vi /etc/resolv.conf 中加入nameserver 192.168.1.1
+
+
+/etc/hostname.pcn0  (pcn0是网上接口)  里存主机名  zhaojin和/etc/inet/ipnodes对应
+
+/etc/inet/netmasks	中有本机IP 192.168.1.0 255.255.255.0  
+
+/etc/hosts指向/etc/inet/ipnodes 	中有本机IP 192.168.1.27 zhaojin  loghost
+
+
+# svcadm disable physical
+# svcadm enable physical
+ 
+ /etc/rc2.d/S88sendmail 删除
+
+重新激活rh0，
+# ifconfig rh0 unplumb down
+# ifconfig rh0 plumb up
+如使用命令修改了IP ,不要用unplumb,要用down/up
+
+通过dhcp方式获得IP和子网掩码，
+# ifconfig rh0 dhcp
+ifconfig interface [inet6] dhcp start  命令行DHCP
+ifconfig hme0 dhcp status
+
+创建/etc/dhcp.hme0 每次开机就是DHCP
+# touch /etc/dhcp.rh0
+需要的话还可以在该文件中填入超时时间（秒），比如：30
+
+
+
+# sys-unconfig 并系统还原为"空白" 重启后，系统会提示对网卡进行设置，最好不要DHCP
+
+
+将驱动程序文件复制到/kernel/drv或/usr/kernel/drv目录下，再执行# /usr/sbin/add_drv -n -v -i , 。其中的","可在# prtconf -pv的结果中找到。
+dladm show-link  显示网卡 (data-link admin)
+
+
+ netstat -r  ###查看缺省网关   
+
+
+软件包会改文件/var/sadm/install/contents文件
+
+
+
+/usr/java 这个目录链接指向自己的目录就可以了
+who /var/adm/wtmpx 来查看文件内容  记录last的信息 ,删除该文件就可以清除了
+
+
+
+oracle 10g 的安装
+==================
+man useradd 可以按　ctrl+y来suspend man程序
+useradd  -g （已存在的主组ＩＤ或者组名） -u(UID)　-d /var/home/redhat -s /bin/bash redhat　-g　组　-m (建主目录)　-c ＂注释＂ 　-k /etc/skel (复制.profile 到主目录)
+
+如删一个用户oracle ,再建同一用户oracle时要把/var/tmp/*oracle* 的文件夹删除  才可以正常登录界面
+
+useradd  -g oinstall -G dba -d /export/home/oracle -m oracle (就可以登录)
+passwd oracle
+oracle 的安装程序不能在 window下解压,只能在solaris上解压,才可以运行
+
+
+# pkginfo -i SUNWarc SUNWbtool SUNWhea SUNWlibm SUNWlibms SUNWsprot   SUNWtoo SUNWi1of SUNWi1cs SUNWi15cs SUNWxwfnt
+
+
+要 SUNWi1cs,SUNWi15cs包
+到光盘目录SUNWi1cs的上一级
+ pkgadd -d . SUNWi1cs 可以成功安装光盘上的软件包
+ pkgadd –d . 安装所有的软件
+
+当前目录下只一个SUNWi1cs目录
+pkgtrans -s `pwd` /tmp/SUNWi1cs.pkg  来生成pkg包
+
+
+~/local.cshrc   C SHELL的模板
+~/local.profile   Bourne shell的模板	
+
+ORACLE_SID=orcl
+ORACLE_BASE=/u01/app/oracle
+ORACLE_HOME=/u01/app/oracle/product/10
+export ORACLE_SID  ORACLE_BASE ORACLE_HOME
+
+
+看内存
+#/usr/sbin/prtconf | grep "Memory size"
+
+echo ::memstat |mdb -k
+
+看swap分区 
+# /usr/sbin/swap -s   (summary)
+
+RAM 				Swap Space
+Between 1024 MB and 2048 MB 	1.5 times the size of RAM
+Between 2049 MB and 8192 MB 	Equal to the size of RAM
+
+11g Enterprise Edition 要有硬盘空间	4.68G
+
+/etc/system 尾加入
+
+set noexec_user_stack=1
+set semsys:seminfo_semmni=100
+set semsys:seminfo_semmns=1024
+set semsys:seminfo_semmsl=256
+set semsys:seminfo_semvmx=32767
+set shmsys:shminfo_shmmax=4294967296   4GB
+set shmsys:shminfo_shmmni=100
+
+sysdef |grep sem
+sysdef |grep shm
+
+重新启动 
+
+####set shmsys:shminfo_shmmax=6400000000（服务器8G内存的情况下，不同情况按比例增减）
+
+
+
+vi dbstart 文件 修改ORACLE_HOME_LISTNER=$ORACLE_HOME
+		修改ORATAB=/var/opt/oracle/oratab
+
+=========================
+Product Registry  (prodreg)
+光盘根目录下有一个 INSTALLER 可以prodreg里运行
+
+
+
+--------------
+如Solaris 读文件乱码 /etc/default/init文件修改后，重启
+-bash-3.00# locale
+LANG=zh_CN.GBK
+LC_CTYPE="zh_CN.GBK"
+LC_NUMERIC="zh_CN.GBK"
+LC_TIME="zh_CN.GBK"
+LC_COLLATE="zh_CN.GBK"
+LC_MONETARY="zh_CN.GBK"
+LC_MESSAGES="zh_CN.GBK"
+LC_ALL=
+-bash-3.00#
+
+LANG	是最低级别的设置，
+LC_ALL	它是一个宏，如果该值设置了，则该值会覆盖所有LC_*的设置值。注意，LANG的值不受该宏影响。
+
+----------
+
+locale 来显示当前语言
+locale -a 显示所有的 
+LANG=zh_CN.UTF-8
+/etc/default/init 环境变量 , 设LANG 可以改系统的语言=C或者zh_CN.UTF-8要重启才行
+	TZ=PRC  指定系统所在的时区RPC表示中国东部时间, 也就是北京时间
+	/etc/TIMEZONE是指向/etc/default/init的链接
+
+/etc/.login是对csh的
+
+
+
+如果cc命令不可用(可以是自己新安装的gcc)
+man cc
+ln -s /usr/sfw/bin/gcc /usr/ccs/bin/ucbcc
+
+cc -P 仅完成对.c文件的预处理工作，而后面的编译，汇编，优化，链接则都不作,生成 *.i 文件
+	预编译处理后，缺省情况下，预处理程序将把源程序中的注释删除 ,对/*  sdf/* xx*/这样的注释
+	.i文件，我们还能够对条件编译和宏扩展后的结果进行检查。
+-C选项可以在预编译后的文件中保留源文件中的注释
+-S 选项，可以使cc只调用预处理程序和编译程序以生成与源程序相应的汇编代码。与每一个C源文件相应的汇编程序被放到相应的.s文件中
+
+-c仅生成目标文件
+#include“” 先在源目录中找,如找不到,再去/usr/include
+#include<> 到/usr/include下找
+-I 指定 include文件的目录,(.h文件)
+-g选,调试用的信息
+-O选项可以使编译系统对代码进行优化
+
+
+
+pkgtrans -s `pwd` /tmp/SUNWi1cs.pkg  来生成pkg包
+============pkgmk -r `pwd`   (root path)============
+prototype文件中
+# 是注解符号
+# !开始的是个命令param=value
+!PREJECTDIR=/usr/local# 表示设置一个环境变量PREJECTDIR
+!search /usr/local/bin  #表示加入path的命令搜索路径
+!default 644 root other #表示创建文件时的属主，权限等设置
+# include 包含其他proto文件
+  d 目录
+  f 标准的文件
+  i 安装信息文件
+	i pkginfo=./pkginfo  ##是一个文件路径
+
+	copyright：定义发布软件包时的版权声明
+	depend：定义安装该package之前所需安装的package
+	checkinstall：在安装package前对环境变量及package是否已安装进行确认
+	request：定义在安装时需要输入的变量
+	preinstall：定义在package将文件安装至系统前所需执行的命令
+	postinstall：定义在package将文件安装至系统之后所需执行的命令
+	preremove：定义在删除package的文件之前所需执行的命令
+	postremove：定义在删除package的文件之后所需执行的命令
+
+	d none bin 0755 bin bin 
+	f none bin/prog 0755 bin bin 
+pkginfo 文件
+	PKG= 你所选择 package 的目录名称 
+	NAME= 程式名称 
+	ARCH= 作业系统的版本 
+	VERSION= 程式的版本编号 
+	CATEGORY= 这个程式是一个 application 
+	VENDOR= 写这个程式的公司 
+	EMAIL= e-mail 的内容 
+	PSTAMP= 是谁作这个软体 
+	BASEDIR= /usr/local 是档案安装的地方 
+	CLASSES= 只要写 none 就好了 
+
+
+pkgmk -o -d /tmp -f proto      
+其中  -o 表示覆盖已有的包
+ -d 路径或设备(/def/fd0)
+ -f proto的文件名
+
+
+
+复制光盘中的SUNWi1cs,SUNWi15cs目录到本地
+pkg-config  pkgadm      pkgchk      pkginfo     pkgparam    pkgrm
+pkgadd      pkgask      pkgcond     pkgmk       pkgproto    pkgtrans
+
+
+	(make install后进入安装目录/usr/local  /opt/software)
+	$find . -print | pkgproto > prototype 
+	$vi prototype 在开始处加入	i pkginfo=./pkginfo 
+	把下面内容的每行后两项 user group 改成bin
+	$pkgmk -r `pwd`  会在 /var/spool/pkg
+	$cd /var/spool/pkg
+	$pkgtrans -s `pwd` /tmp/prog-1.00 转成datastream的格
+	$pkagdd -d prog-1.00 
+
+
+
+
+/var/spool/pkg/
+
+
+---------------SUN T5120  
+
+波特率:9600
+serial协议 ,连接像网线的SER MGT接口,COM数 看设备管理器中
+可以使用windows 自带的超级终端,选择对应COM口,在9600页面中要点［默认设置］
+
+USBl转串口 连接网线,可以把SUN机器的终端在笔记本中SecureCRT显示,驱动,连接后看设备管理器的COM端口是几,如COM3
+在SecureCRT的配置中选择 Serial 协议,可能要修改Baud(波特) rate (如9600),对应的Port是COM几
+Putty中也有Serial协议
+也就是只可以用命令行
+
+
+ILOM 服务处理器		->
+ALOM 兼容 shell		sc>
+OpenBoot PROM 固件	ok
+
+
+说明书上的说明
+通电
+１.登录 SP(提示符->) 使用root用户　在出厂默认密码 changeme
+２.->create /SP/users/admin role=Administrator cli_mode=alom
+	建立admin用户，
+	要输入密码
+     delete /SP/users/admin
+开机
+3. start /SYS    提示y
+4. start /SP/console 提示y  如有系统，就会启动操作系统
+sc>usershow 显示所有的用户
+admin登录sc>下(ALOM) 执行bootmode bootscript="setenv auto-boot? false"　才能进入ok
+sc>break   再 console 会进入openBoot PROM提示符 {0}ok
+在用硬盘刚刚启动系统时可以按ctrl+break, 会进入openBoot PROM提示符 {0}ok  
+如按ctrl+C,ctrl+D 提示sync,reset,continue
+sc>logout退出
+
+如忘记admin密码,重建
+delete /SP/users/admin
+SP(Service Processer)的admin用户提示符sc>  help后的命令比root登录的命令多很多,退出使用logout
+
+root退出使用exit,show /SP,show /SYS 显示power_state = Off
+
+
+通电后admin登录,conosle命令提示Enter #. to return to ALOM,如有系统不能进入openBoot直接启动,再按开机power键，会有信息
+如果已装系统会动启动系统,用halt进入openBoot
+{0}ok 下使用   setenv auto-boot? true   
+printenv auto-boot? 默认值是true
+
+
+通电后(SP开如启动),要等几分钟后,启动过程中按电源没用的，一绿灯慢闪表示通电完成(SP启动完成)，可以按电源开机，一绿灯快闪表示正在启动,如不闪表示启动完成。
+
+另一白灯像是心跳线，按闪白光，通尾部，再按关闭
+一般情况下可以正常启动,　
+异常情况是ssh服务出了问题 ,可以用串口admin登录，console命令后(或者root/chnageme用start /SP/console )，就可root登录Solaris系统，查原因
+
+修改 SP 的 root密码不是changeme
+-> set /SP/user/root password 会提示输入密码
+
+如SP的root密码忘记
+-------
+Login : default      Password : defaultpassword.
+
+关机,拔电源线,打开机箱,在1 &2 面板上插入跳线PGA 601 ,位于TIX 20主板上,在Sender Real  mother board附近,
+插电源线,按开机按钮,跳线 PGA 601阻止CPU运行,SP的root密码还原为changeme,登录修改root密码,
+关机,拔电源线,打开机箱,拔掉跳线
+
+ PJ6801 jumper
+http://sunsolve.sun.com/richmedia/system-jumper_1/
+打开机箱发现有J6801　的几根直立针，机箱后方可以看到
+
+iLOM (Integrated Lights Out Manager)  默认登陆用户root/changeme,
+ILOM (Service Processor) ,ILOM 就是SP,ALOM是SC
+
+也可以在进入Solaris 系统时 使用eeprom 查看所有,  eeprom auto-boot? , eeprom auto-boot?=true,
+
+安装Solaris系统时 terminal type ->选择　DEC VT100
+Secure CRT 选项 -> 终端 -> 仿真 的真是VT100
+			
+系统启动日志除了在启动时的屏幕上显示，还会在/var/adm/messages (/etc/syslog.conf) 文件中记录
+SSH 会向/var/svc/log/network-ssh\:default.log中写日志
+
+openBoot之前的模式也有showlog命令
+showrev 显示主机名和架构　　-a 显示安装的patch
+
+10000 RPM(rotate per minite) 硬盘转速
+
+(ALOM)sc>闪灯命令可能是 setlocator on 再 setlocator off ,测试OK
+
+vi 文件显示不正常，export TERM=VT100后，正常,还有的是xterm,sun,sun-color
+
+start /SYS后
+show /SYS
+show /HOST
+cd SP
+show config
+show diag
+show network
+
+sync 命令把内存数据与数据数据同步
+
+cfgadm -al  
+cfgadm -c unconfigure c1::dsk/c1t2d0  可以开机换硬盘，就可以卸下硬盘,硬盘上有一个书，亮蓝灯
+cfgadm -c configure c1::dsk/c1t2d0 插件上后再做这个
+
+
+---------------上 SUN T5120  
+
+----------------openBoot 命令
+devalias 看看是否有别名为cdrom的设备
+show-devs 看看别名为cdrom的设备是否存在且确实是CDROM设备
+printenv 显示所有的
+printenv autp-boot?
+setenv auto-boot? true
+printenv boot-device
+setenv boot-device disk[n]
+
+boot -s (single)
+
+#####boot -a 交互式
+boot disk0:a -ai  ,devalias查看
+resset-all 重置系统配置
+banner显示机器信息,有内存大小
+
+boot cdrom
+
+help power
+power-off
+
+
+stop+a
+
+sync
+eject cdrom0 ##弹出cd
+
+
+
+PROM状态下的命令
+banner(显示系统信息)
+show-devs
+boot  	-r 重启
+boot cdrom -s 改密用
+help
+printenv
+setenv
+set-defaults
+probe-scs(probe-scsi-all/probe-ide)
+
+
+reset
+who -r 显示是 run-level 3
+isainfo -v -b 看是32位机,还是64位机
+
+eeprom	查看所有的值
+eerpm boot-device 查看指定值　
+eeprom boot-device=disk2
+
+eeprom "auto-boot?"=true
+
+/etc/system 文件可以修改内核参数,最好先备份 
+who -r  查看运行级别
+
+pg 
+dmesg　系统 diagnostic messages　日志
+prtconf 显示系统配置信息
+sysdef  显示系统配置信息(包括加载的模型,内核参数)
+
+c#t#d#s#
+c controller
+t target
+d disk
+s slice
+
+UNIX  ufs文件系统
+CDROM　　hsfs 文件系统
+
+
+format 命令 (可以看当前机器有几个硬盘,和cxtxdx  ,s2 是整个硬盘)
+	 wm/wu 权限标志
+	 write/mountable
+	 write/unmountable
+	 read/mounttable   rm
+	 read-only/unmountable ru
+
+	backup 是全部容量
+	(x86)overlap
+
+	lable 来保存,select 来调出
+	/etc/format.dat
+
+newfs 可以对dsk目录(rdsk)
+mount 只可是dsk
+
+rdsk raw device
+dsk  block device
+
+prtvtoc /dev/rdsk/c0t1d0s0   看分区信息   man s2是
+	
+	512 bytes/sector
+		xx sector/track	
+		yy track/cylinder
+	zz sector/cylinder  ## zz=xx*yy 
+	tt cylinders   
+
+	硬盘容量= tt* zz   * 512 byte
+		  tt* yy*xx*512 byte
+
+df 显示blocks 单位，1 block=512Byte  
+
+df -k　显示分区信息,可看到/  挂载到c0d0s0
+
+fuser -c /home(是一个被mount) 显示被使用的进程号  才可以umount
+	-u 对应的用户
+	-k kill
+devnm /usr   显示/usr对应的磁盘(df -h)
+
+ fstyp /dev/dsk/c0t1d0s0  显示文件系统类型,ufs还是hsfs
+/etc/default/fs 本地默认文件系统类型
+/etc/dfs/fstypes 系统默远程文件系统类型
+fsck 对   rdsk
+
+id 显示当前用户
+passwd -l username 封锁用户账号
+passwd -d username 解除锁定
+
+logins -p 显示没有口令的用户
+logins -x 显示所有的用户及一些信息
+logins -l username 显示指定用户的UID,GID　组名
+
+
+source 加脚本 可以执行对没有执行权限的文件也可以
+
+
+pawconv 来更新 /etc/passwd /etc/shadow文件内容   
+
+su usernamer 不会执行用户的初始化脚本
+su - username 会执行用户的初始化脚本
+whoami 显示当前用户 (用 su 的)
+
+who am i  显示最初的用户
+
+umask 可查,可设
+
+/usr/ucb/ps auxw
+/usr/ucb/ps -axww  显示完整的启动命令
+
+at在 /var/spool/cron/atjobs
+/etc/cron.d/at.deny
+crontab
+	/var/spool/cron/crontabs
+	/etc/cron.d/cron.deny
+at 1050 today/tomorrow   #也可以用10:50
+
+atrm username
+
+lp  打印
+设置环境变量 EDITOR=vi 默认的编辑器   crontab -e
+
+
+/dev/rmt  磁带 tar -cvf /dev/rmt/0  file1
+ufsdump -u  更新/etc/dumpdates文件   备份
+0  级全备份,1-9 增量备份
+
+ufsrestore 恢复
+ufsdump 0cuf /dev/rmt/0n /dev/rdsk/c0t0d0s1
+ufsdump 0cuf /dev/rmt/0 /  (把/备份到rmt上)
+ufsrestore tf /dev/rmt/0   (恢复)
+ufsrestore rvf /dev/rmt/0  r全部 x 加文件名,指定文件名来恢复
+i 交互恢复 add    delete extract 恢复 quit  看/var/tmp/  /tmp
+ 
+mt( magnetic)
+priocntl
+probe-scsi 看设备
+syslog.conf
+/var/log/syslog
+/var/adm/messages
+/var/log/logs
+
+/var/adm/sulog 记录所的有su 命令　　+成功　-失败
+
+logger 手工写日志 -f 指定文件
+
+
+
+用户成功登录后/etc/utmp(/var/adm/utmp)记录当前谁在使用系统
+/var/adm/wtmp记录login,logout,shudown和reboot 的历史记录
+/var/adm/lastlog
+w (当前登录的用户信息),who(谁在用),last来读文件
+last reboot 看重启历史
+
+
+prtconf | grep hem   (le,qfe )来看网卡 instance 0/1
+(print system config)
+
+ifconfig hme0:0 unplumb 0  只去子网
+
+ndd -set /dev/hme instance 0  (get/set driver configuration parameters)
+ndd  /dev/hme link_speed
+ndd /dev/hme link_mode
+
+netstat -in 显示接口状态
+         -r  route
+	-a  
+snoop  捕获和洞查数网络据包
+snoop -d pcn0 (device)
+	-o 文件名 输出到文件
+	-i  文件名 显示文件内容
+	-p 7 -v 第7个包
+	-v IP
+###tcpdump -w 文件名
+# lsof -i :22  查找监听端口 22的进程
+Linux的 netstat -anp 可显示监听端口号对应PID
+
+# lsof /var/run/sendmail.pid  可显示进程号
+# lsof -i @192.168.1.10  与主机的活动连接
+sunfreeware下载 lsof 老版本
+
+
+inetadm 查看系统服务的默认启动状态
+man rpc.rstatd 获得性能测试数据
+
+inetadm | grep rstat  
+rpcinfo -p | grep rstatd  , -p protocol 可以查看到系统服务的运行状态。
+
+svcadm disable -st rstat   -s states 等到启动状态,t Temporary 重启无效
+svcadm enable -rst rstat   -r recursively
+
+
+/etc/inet/inetd.conf 禁止不必要的网络服务
+man inetd.conf
+服务名    endpoint-type    协议    wait-status   uid(用户)   服务    参数
+inetd
+远程命令
+rlogin  login
+rsh
+rcp
+rusers
+/etc/default/login文件把CONSOLE=/dev/console注释就可以用telnet 来登录,也是启用XDMCP 的root登录
+/etc/default/passwd
+/etc/default/su   #CONSOLE=/dev/console 如有人用 root 登录,显示在控制台上
+		   #SYSLOG=YES
+
+
+#tcpwrapper  
+
+NFS
+Server:
+进程:mountd,statd,lockd
+/etc/dfs/dfstab
+命令:
+share,unshare,shareall,unshareall
+
+CLient:
+/etc/vfstab
+/etc/mnttab
+命令:mount ,umount,mountall,umountall
+
+mountall -l (本地文件vfstab中mount on boot 为yes的)
+	-r (远程文件vfstab中mount on boot 为yes的)
+	-F ufs (所有ufs类型的vfstab中mount on boot 为yes的)
+
+share -F nfs -o rw(ro)=root:zhaojin /user/local  只对两个用户可以读写
+
+也可以写入/etc/dfs/dfstab文件中 (shareall/unshareall 也会读这个文件)  /etc/init.d/nfs.server
+
+mount -F nfs hostname:/usr/local /mnt/share
+dfshares 列出所有已经share有效的资源
+dfmounts 列出所有已经的mount资源信息
+
+showmount -a hostname
+showmount -e hostname  远程主机的可以资源
+fdformat 格式化软盘和内存卡
+volcheck -v (Verbose) 检查媒体盘,默认全部
+newfs -v /...
+
+
+patchadd 安装补丁
+/usr/sbin/patchadd -p | grep 查已经安装补丁
+http://sunsolve.sun.com
+
+
+patchrm 
+showrev -p 列出已安装的patch
+http://sunsove.sun.com
+http://sunsite.unc.deu/pub/patches
+
+pkginfo | grep firefox
+再
+pkgrm xxx
+
+cpio -idmv < solaris64_9.2.0.1.0.Disk1.cpio
+
+gzip -cd 10gr2_db_sol.cpio.gz | cpio -idmv
+
+
+ufsdump S /export/home显示备份时要用的空间为 xx bytes
+ufsdump 0ucf /dev/other(备份的目标 可 hostname:/dev/xxx)  /(要备份的)  (全备份)
+ufsrestore tf hostname:/dev/xx
+ufsrestore rf /dev/
+
+swap -l(有哪些文件)
+swap -l -s(大小)
+mkfile 20m /files/makefiles
+swap -a /files/makefiles  ###-a add  -d  delete 
+
+/etc/vfstab文件中加入
+/files/makefiles - - swap - no -  
+
+
+ 挂载(ISO镜像)
+bash-3.00# lofiadm -a /export/home/root/software/iso/slax-6.0.0pre3.iso /dev/lofi/1  (目录可能要先建立 lofiadm看到)
+应该可以不加/dev/lofi/1参数自动创建
+bash-3.00# mount -F hsfs /dev/lofi/1 /mnt/iso
+2. 卸载
+umount /mnt
+lofiadm -d /dev/lofi/1
+3. 查看状态
+ lofiadm
+
+ctrl +d 可以logout
+
+
+
+
+lofs  (loopback filesystem)
+mount -F lofs
+	s5fs 在(/etc/default/fs,/etc/dfs/fstypes)
+mount-F	pcfs(DOS) -o rw /dev/dsk/c0t0d0p0:c /pcfs/c
+
+cfsadmin -c /local/mycache (创建一个cache  目录/local要已经存在,而mycache用来建立的,里面有lost+found目录)
+mount -F cachefs -o backfstype=nfs,cachedir=/local/mycache  merline:/docs /docs
+mount -F cachefs -o backfstype=nfs,cachedir=/local/mycache,demandconst  merline:/docs /docs
+mount -F cachefs -o backfstype=hsfs,cachedir=/local/mycache,ro,backpath=/cdrom/cdrom0  /cdrom/cdrom0 /docs
+
+cachefsstat /docs
+cfsadmin -d merlin:docs /docs /local/mycahce
+cfsadmin -d all /local/mycache
+cfsasmin -l /local/mycache
+fsck -F cachefs
+
+cachefslog -f /var/tmp/samlog(日志文件) /home/sam(挂载点) 
+cachefslog  /home/sam(挂载点) 来查看这个挂载点对应的日志文件  (-h 停止)
+cachefswssize /var/tmp/samlog(日志文件) (working set)
+cachefsstat /home/sam(挂载点)  (statistics)  
+cfsadmin -o maxblocks=60 (改默认值)
+
+
+fsck -m  /dev/rdsk/xx 检查是否要check  (不要挂载)
+newfs -N /dev/rdsk/xx  显示所有superblock的块号
+fsck -F ufs -o b=521(块号) /dev/rdks/c0t0d0s0    改c0t0d0s0的superblock为521(上一命令查出)
+
+
+用 view 来代替vi 
+
+
+安装主引导块
+/usr/sbin/installboot /usr/platform/`uname -i`/lib/fs/ufs/pboot /usr/platform/`uanme -i`/lib/fs/ufs/bootblk /dev/rdsk/c0t0d0s0
+
+pboot 分区boot 文件,  bootblk 块 boot 文件
+touch /reconfigure,当开机时solaris会自动检查是否有这个文件,对新的外围设备(对新加了一个硬盘时,重启时会自动重新配置)
+eject cdrom 来弹出ＣＤ
+
+
+
+/etc/mnttab 文件时时查看用
+/etc/vfstab  (virtual file system)  会在开机时自动挂载
+swap分区中 /tmp 下是 tmpfs 文件系统
+/proc 是proc 文件系统
+/proc/[进程ID]/as	#进程地址空间，即struct proc结构中p_as成员
+
+
+devnm / 显示/目录 挂载在哪个设备下
+fstyp /dev/rdsk/c0t0d0s0 显示设备的文件系统类型
+prtvtoc /dev/rdsk/c0t0d0s0 显示文件系统挂载在什么分区上
+(print volume table of contents)
+fsck /dev/rdsk/c0t0d0s0 检查
+mount -F tmpfs swap [mountpoint] 把swap 分区挂载到一个目录
+
+ldd /bin/ls 命令打印现所依赖的共享库
+
+unrar x hello.rar ./test (如有密码会提示的)
+
+(mplayer 默认 /usr/local/lib/codecs  --codecsdir 看--help)
+
+solaris 10默认是有wget,pkg-config,GTK+-2.0(可以直接写程序) 
+sunfreeware 上有GTK+-2.12 (filezilla已经依赖了)
+
+solaris 10默认有没有inetd
+
+/usr/openwin/bin/xman 显示界面的man手册
+		xcalc 计算器
+		xclipboard 剪贴板
+命令行bash
+Ctrl + a        光标移动到行首（Ahead of line），相当于通常的Home键
+Ctrl + e        光标移动到行尾（End of line）
+Ctrl + d        删除一个字符，相当于通常的Delete键
+ctrl + K	删当前到行尾
+
+echo $LANG 结果是 zh
+
+kdmconfig选xsun 调分辨率。
+
+关闭自动启动图形		# /usr/dt/bin/dtconfig -d
+
+允许自动启动图形		# /usr/dt/bin/dtconfig -e
+
+由字符终端进入图形界面登陆窗口	# /usr/dt/bin/dt/login;exit
+
+
+命令行进入CDE：
+#/usr/dt/bin/dtlogin -daemon;exit   
+#/usr/dt/bin/dtsession
+
+dtlogin -daemon 从命令行启动注册窗口
+dtlogin -e 使系统自动启动注册窗口
+dtlogin -d 取消自动启动
+
+/etc/init.d/
+
+注意solaris的 make 错误 可能是使用的是SUN 的/usr/ccs/bin/make 
+用了GNU的C,就好也用GNU的make
+
+prstat -s cpu 按CPU排序, 命令和linux的top很像
+prstat -s size   大小 比ssi要大
+prstat -s ssi (resident set size) 大小
+prstat -s pri  优先级排序
+prstat -p 进程PID  
+
+prstat -p 13092 -L 显示JAVA 的每个线程占CPU大小
+
+prstat -mLp 12384	显示进程的线程状态 ,USR,SYS,LCK	
+pstack 12384/41		
+
+metastat   显示硬盘raid状态
+
+who -r 看运行级别
+
+
+ mount -F pcfs -o rw /dev/dsk/c0d0p0:1 /windows/E  
+ ./mount_ntfs.0.9.1.opensol-x86-binary  -o ro  /dev/rdsk/c0d0p0 /windows/C
+ ./mount_ntfs.0.9.1.opensol-x86-binary -o ro /dev/rdsk/c0d0p2 /windows/D
+
+
+
+
+
+--------------------硬盘安装solaris-10---------OK--------
+
+1.一定要主分区,扩展分区中的逻辑分区不可以再生成主分区,建系统时最好两个主分区,solaris把的所有一个扩展分区看是一个分区
+
+2.可以引导windows系统,可能要安装时不能显示图形界面(公司DELL),选中文是乱码的,安装后也不能显示图形界面
+
+find /solaris/multiboot
+  会显示hd(0,6)，
+
+将里面boot目录下的multiboot和x86.miniroot这两个文件提取出来，
+放在solaris文件夹中，然后把sol-10-u2-ga-x86-dvd.iso镜像文件也放在solaris文件夹中。（其实这三个文件放在任何地方都可以，但必须是在FAT32分区中）
+
+
+在C:\boot\grub\menu.lst 加入
+
+title install Solaris 10
+root (hd0,6)
+kernel /solaris/multiboot kernel/unix -B install_media=dsk
+module /solaris/x86.miniroot
+boot
+
+
+！！！注意不可用 (hd0,6)/solaris/multiboot 的方式 
+
+cd /dev/dsk
+c0d0p1,c0d0p2等等很多，d0表示第一个硬盘，p1表示主逻辑区，p2表示扩展分区，p2:1表示第一个逻辑驱动器(E盘) p2:2就是第2个驱动器(F盘
+
+表示硬盘中的FAT32分区：c1d0p0:x，这儿x的取值为：1,2,3...，
+分别表示硬盘中的第1个、第2个、第3个FAT32分区
+
+mount -F pcfs /dev/dsk/c1d0p0:1 /mnt
+lofiadm -a /mnt/solaris/Solaris-10.iso  默认是在/dev/lofi/1
+mount -F hsfs /dev/lofi/1 /cdrom （必须mount在/cdrom目录中）
+
+如有CD2
+lofiadm -a /mnt/solaris/Solaris-10-CD2.iso
+mount /dev/lofi/1 /cdrom
+
+然后键入 exit 
+---------------------------------------
+
+安装solaris 10u8 时建立了/boot分区,不能启动进入grub, 不要建立/boot分区吗?????,
+要做下面 OK
+grub>find /multiboot 这里是(hd0,0,h)  ,因为/boot分区有multiboot文件,最好用
+grub>find /platform/i86pc/multiboot 这里是(hd0,0,a) ,/boot分区没有,在/分区中
+
+grub>root (hd0,0,a)
+grub>kernel /platform/i86pc/multiboot 
+grub>module /platform/i86pc/boot_archive
+grub>boot   ########上面的每一步有信息OK
+
+
+/boot/grub/menu.lst
+/boot/grub/stage1
+
+grub> find /grub/stage1 ##返回h,是/boot分区
+grub>root (hd0,0,h)
+grub>setup (hd0,0)  ##OK
+
+
+Xmanage不可Root用户登录图形界面
+
+通过修改 /etc/default/login 文件可以解决这个问题
+注释CONSOLE=/dev/console(在前面添加#)即可。 
+
+
+建立用户时,最好不要把主目录放在 /export 目录下(/home目录在solaris 中一直是不行的),启动时没有登录界面
+/export/home下有安装时建立的用户
+
+
+grub中kernel ...后加
+	init 1 (Unused)
+	single (Unused)
+	-s (对) 要root密码才行,如用ctrl+d 则跳出单例用户
+rolemod -K type=normal root   来启用root用户
+/etc/user_attr
+
+
+自动的pidgin不能用QQ(现在lumQQ,和老版本的pidgin也不行了)
+
+光盘中的文件可以显示全部的文件名了
+
+有 gedit,evolution,firefox,thunderbird,pidgin,evince文档查看器,输入法只有拼音,视频会议(ekiga)
+
+可以安装solaris 10 的gcc,libiconv软件包
+
+
+但在英文环境下,调用中文输入法
+#cp /usr/dt/config/zh_CN.UTF-8/0020.dtims /usr/dt/config/C
+#cp -r /usr/openwin/lib/locale/zh_CN.UTF-8/imsscript/ /usr/openwin/lib/locale/C/
+注销，重新登陆  按“Ctrl+空格”
+
+
+
+
+------------solaris自带的FTP
+/usr/sfw/lib/webmin/wuftpd
+ls  /etc/ftpd/ftp* solaris自带的FTP ，Wu-ftp
+
+/etc/ftpd/ftpusers   #中的用户不能仿问FTP
+
+操作系统用户名如是ftp，不能使用,目录登录用户的主目录
+
+usermod -s /bin/false  asb 
+vi /etc/shells 加入 /bin/false 才可以FTP登录
+
+/etc/ftpd/ftpaccess配置文件
+restricted-uid  *
+这一句好重要，限制了guest用户在自己的目录里。 
+
+svcadm restart ftp
+svcadm enable -rt svc:/network/ftp:default  最好这样启动
+svcs -a | grep ftp
+
+
+ftp命令quote stat来看 solaris自带的FTP的信息
+
+vi /etc/ftpd/ftpaccess配置文件
+开始三行 格式为class [类名] [real/guest/anonymous] [有权利访问的IP地址]
+wu-ftp对访问者定义了三种类型，分别是real,guest和anonymous
+real      在FTP服务器中有帐号的用户；
+guest     有记录的匿名用户；
+anonymous 权限最低的匿名用户 
+
+loginfails 3
+指用户输入3次用户名和密码都错误后，会断开ftp服务器与用户的连接,
+
+/etc/ftpd/shutdown.msg内容
+2010 04 04 20 55 0030 0020
+hello the server will
+格式为 年 月 日 时 分 拒绝新连接的时间 拒绝连接的时间 
+月份是从0-11,时0-23 ,分0-59 
+20:55关闭FTP服务
+在20：25(55-30)分以前可登陆，以后新的连接将会被拒绝
+在20：35分拒绝所有的连接，包括已经登陆的用户
+
+ftpshut -l 30 -d 20 2055 "hello the server will shutdown"  定时关闭会生成/etc/ftpd/shutdown.msg
+-l 新连接
+-d 已连接，断开
+
+ftprestart 开启
+
+b.	限制用户可使用FTP不能用Telnet，假如用户为ftpxll
+创建一个/etc/shells文件, 添加一行 /bin/true;
+修改/etc/passwd文件，ftpxll:x:119:1::/home/ftpxll:/bin/true
+注：还需要把真实存在的shell目录加入/etc/shells文件，否则没有用户能够登录ftp
+c.	限制ftp用户登陆后在自己当前目录下活动
+编辑ftpaccess，加入如下一行restricted-uid *(限制所有)，
+restricted-uid username（特定用户） 
+ftpaccess文件与ftpusers文件在同一目录
+    d. 设置ftp用户登录后对文件目录的存取权限，可编辑/etc/ftpd/ftpaccess。
+chmod      no guest,anonymous 
+delete     no guest,anonymous 
+overwrite  no guest,anonymous 
+rename     no guest,anonymous 
+umask      no anonymous
+
+2、补充操作说明
+查看# cat ftpusers
+说明:  在这个列表里边的用户名是不允许ftp登陆的。
+root
+daemon
+bin
+sys
+adm
+lp
+uucp
+nuucp
+listen
+nobody
+noaccess
+nobody4
+
+
+/usr/sbin/ftpconfig -d /export/home/asb 会生成bin,dev,lib,usr等目录
+
+
+
+-----------上 solaris自带的FTP
+
+----solaris vsftpd
+
+make 后　生成vsftpd文件
+cp vsftpd	/usr/local/sbin
+cp vsftpd.conf /etc/
+
+solaris 的 /etc/inetd.conf 加vsftpd
+ftp stream tcp nowait root /usr/sfw/sbin/tcpd /usr/local/sbin/vsftpd
+
+
+/usr/sbin/inetd -s 后只使用SMF管理
+用 svcadm enable svc:/network/inetd:default  启动inetd
+
+
+配置 listen=YES 可独立启动
+/usr/local/sbin/vsftpd & 启动,会读/etc/vsftpd.conf
+
+local_enable=YES	#要用目录/usr/share/empty
+chroot_local_user=YES	#将本地用户锁定在主目录中，不允许切换到上一级目录中
+
+
+anonymous_enable=YES  要用系统的ftp用户,有主目录
+
+local_umask=022
+
+
+/var/log/vsftpd.log  登录日志
+
+#chroot_list_enable=YES
+#chroot_list_file=/etc/vsftpd.chroot_list
+#该文件用于控制哪些用户可以切换到用户家目录的上级目录。
+
+
+如何加FTP虚拟用户 ??????????????
+
+kill -HUP 1234 可以重启vsftpd
+
+----vsftpd
+
+
+proftpd是一款开放源码的ftp服务器软件
+	./configure --prefix=/usr/local/proftpd 
+cp contrib/dist/rpm/proftpd.init.d /etc/rc.d/init.d/proftpd 
+	把 PATH="$PATH:/usr/local/sbin" 改为 PATH="$PATH:/usr/local/proftpd/sbin" 
+
+
+###修改/usr/local/proftpd/etc/proftpd.conf把Group nogroup 改为 Group nobody
+
+
+再添加两行，使支持续传（默认是不支持的）
+AllowRetrieveRestart on
+AllowStoreRestart on 
+
+
+TCP Wrappers (/etc/hosts.deny(allow)) 
+启动:/usr/local/sbin/proftp -c /usr/local/etc/proftpd.conf (pkg包,OK)
+和SFTP一样不能传太大的文件(110M....)
+
+
+
+
+nwamd (network auto-magic daemon) 不可以打开　network窗口
+svcs 命令(Reprt serViCe Status )
+svcs svc:/network/physical  //查看
+svcadm disable svc:/network/physical:nwam  //禁用 //svcadm enable svc:/network/physical:default
+
+
+/etc/defaultrouter 没有就手工建一个,只写一个路由IP
+/etc/hostname.pcn0 没有手工建 里只写一个本机IP
+
+如果有多块网卡,hostname.xx和hostname.yy的值不能相同，defaultrouter 只能写一个
+
+/etc/inet/netmasks
+/etc/netmasks是一个链接,./inet/netmask    写192.168.1.0 	255.255.255.0
+
+uname -S yourhostname  来改主机名,和hostname 一样,重启无效
+如要重启也生效,建立/etc/nodename 文件写主机名,/etc/inet/hosts 和 /etc/hostname.e1000g0文件也要改,
+
+对DHCP才有效
+
+查看 svcs svc:/network/physical:default 
+#svcadm enable svc:/network/physical:default
+就可以开机时自动激活网卡了
+
+显示路由 ,netstat -r 
+
+ifconfig pnc0 dhcp //使用dhcp来获得IP, 建立 /etc/dhcp.pcno 文件 //pcn0 是网络接口,如有些文件表示使用DHCP
+ifconfig pnc0 dhcp status
+
+1.交换分区的大小:	swap -s 命令的结果
+2.内存的信息:		prtconf |grep Memory
+3.CPU的信息:		psrinfo -v 0
+
+prtdiag -v
+	内存插糟　BR0-BR3(Branch)每个下有4个插糟，ch0/d0  ch0/d1  ch1/d0  ch1/d1
+
+
+bash 中ls-> 按esc 3 ->再按a  ,就会出现3个a (aaa)
+
+Solaris　自带Java的软件包 SUNWJ3rt , SUNWJ3cfg , SUNWJ3dev,SUNWJ3man,SUNWJ3dmo,SUNWJ3dvx,
+
+看机器可以用内存页数(不是真实的可用内存) sar -r 1 3 /usr/sbin/sar
+用vmstat 1 是对的,top也是对的
+
+ sar -u 1 3 ### 每一秒，共三次 CPU
+/usr/ucb/ps aux 可看每个进程的内存，CPU
+/usr/ucb/ps aux | sort -k 4 -r
+
+
+/usr/sbin/mount /dev/dsk/c0t1d0s7 /u01
+/usr/sbin/mount /dev/dsk/c0t1d0s2 /u01  第2个 (backup Tag) s2 整个硬盘，第7个是OK的
+通过format命令分区表，是这样的
+
+/dev/dsk/c1t1d0s2 
+t1是第二块硬盘，t0是第一块硬盘　(SPARC c1开头)
+
+telent 默认root用户不能登录(solaris8)
+一般在/etc/default/login文件中有 "CONSOLE=/dev/console" ，则表明root不能直接登陆，只需亚注释掉该行
+
+
+有在 solaris 系统上的可以动态改变分区的大小？？？？
+
+
+
+如何查看哪个进程使用网络  tcpview  iptraf(rpm包) netstat iftop 
+
+
+----solaris 源码安装 VNC--OK
+#cd unix
+#./configure --prefix=/usr/local/vnc
+#make
+#./vncinstall  /usr/local/bin/
+
+#vncserver 生成~/.vnc目录，生成xstartup文件
+vncpasswd 修改密码
+
+监听5900以后的端口，5901
+
+界面是Java 的
+
+#vncserver -kill :3
+
+默认VNC用PATH的/usr/openwin/bin:/usr/X11/bin
+
+--------------------solaris 配置 xmanager  XDMCP服务
+X 显示器管理器协议=X Display Manager Control Protocol(XDMCP) 1.0
+
+/usr/sbin/svcadm enable -rt cde-login 默认是online的 如是maintenance不行的
+
+svcs -xv cde-login 看这个服务依赖的服务去启动
+
+
+vi /etc/X11/gdm/gdm.conf文件
+	[xdmcp]字段. 
+         默认Enable=flase
+         默认Port=177前是注释的      走177端口
+
+启动gdm服务
+# svcs -a|grep gdm				如是maintenance 也OK 要kill dtlogin进程 再enalbe
+
+# svcadm enable svc:/application/gdm2-login:default  //disable 应该没有dtlogin进程
+
+
+
+/usr/dt/bin/dtconfig -reset	录服务器重新读取Xservers：
+/usr/dt/bin/dtlogin -daemon    
+
+ps -ef | grep dtlogin  如有-udpPort 0 参数是错的 
+
+
+/usr/dt/bin/dtconfig -d        (disable auto-start)
+/usr/dt/bin/dtconfig -e        (enable auto-start)
+/usr/dt/bin/dtconfig -kill     (kill dtlogin)
+/usr/dt/bin/dtconfig -reset    (reset dtlogin)
+/usr/dt/bin/dtconfig -p        (printer action update)
+/usr/dt/bin/dtconfig -inetd    (inetd.conf /usr/dt daemons)
+/usr/dt/bin/dtconfig -inetd.ow (inetd.conf /usr/openwin daemons) 
+
+
+启用root登录(telnet登录)
+/etc/default/login文件把CONSOLE=/dev/console注释 
+
+
+在Xmanager 打开 Xbrowser
+            新建 XDMCP,          
+	   xdmcp Conection Method : XDM Query  默认
+           xdmcp Host: 输入 
+           xdmcp Port:177	默认
+	   X Server profile: Auto Select默认
+           
+
+
+--------------------
+stty erase ^h 
+
+solaris 修改时间 date mmddHHMMYYYY.ss   月日时分年.秒
+格式化显示 date '+DATE: %m/%d/%y%nTIME:%H:%M:%S'
+	DATE: 04/07/10
+	TIME:17:02:21
+
+#date '+%Y-%m-%d'
+
+如使用普通用户安装weblogic,提示不能写文件 
+*sys-package-mgr*: can't write cache file for 'xxx'
+原因是 Solaris it is /var/tmp/wlstTemp ，这个目录普通用户没有权限
+
+nohup   ./startWeblogic & 会在关闭shell时 退出server  
+immune to hangups
+
+
+
+
+Solaris 10 需要锁定的用户：listen,gdm,webservd,nobody,nobody4、noaccess
+Solaris 10禁用Telnet的命令：svcadm disable telnet
+
+只允许root进行电源管理
+编辑/etc/default/sys-suspend: 
+将 PERMS=console-owner 
+改为 PERMS=- 
+并做 #/bin/chmod 0755 /usr/openwin/bin/sys-suspend 
+此项配置防止SYN Flood攻击
+
+showrev -p显示当前安装到系统中补丁
+1.从http://sunsolve.sun.com/获取Sun安全补丁
+2、国内教育网：http://www.ccert.edu.cn
+
+用chmod -R g-w /etc命令来移去组用户对/etc的写权限
+
+某用户的目录下存在.rhosts文件的话，任何用户都可以通过rlogin不需要口令以该用户的身份登录到系统。
+/usr/bin/touch /.rhosts /.netrc /etc/hosts.equiv 
+/usr/bin/chmod 0 /.rhosts /.netrc /etc/hosts.equiv 
+
+# find –name “.rhosts” –print
+
+
+/etc/release 有更新信息 
+showrev 看solaris系统信息 版本
+uname -a
+
+$ isainfo -b //看是32位,还是64位
+64
+
+
+如何做连接时间限制-----无效果
+	1.你在/etc/profile中加入TIMEOUT=时间(单位为秒)
+
+	2.vi /etc/ssh/sshd_config
+	修改LoginGraceTime 参数默认600秒，改为0（不限制时间）
+	再该文件中手工加入下面一行
+	ClientAliveInterval=60;		加大
+	ClientAliveCountMax
+
+
+---------------solaris 配置防火墙，阻止端口访问
+查看svcs -a |grep network |egrep "pfil|ipf＂
+
+网络接口卡 (network interface card, NIC)
+/etc/ipf/ipf.conf
+
+#svcadm enable svc:/network/ipfilter:default (启动服务) 
+svcs -a |grep -i ipf	(再次查看服务是否启动) 
+
+autopush -f xxx.file
+
+#vi /etc/ipf/ipf.conf
+block in log proto tcp from 10.4.128.0/24 to any port = ftp
+block in log proto tcp from 10.4.128.0/24 to any port = telnet
+
+/24是子网掩码
+禁止就是block
+通过就是pass
+进来就是in
+出去就是out 
+on 后面是　网卡名
+all 所有的包
+协议有(icmp、tcp、udp、tcp/udp)
+
+quick的作用是当包符合这条规则以后，就不再向下进行遍历了（不用再看下面的规则），不会产生日志
+
+
+
+block in on pcn0 proto icmp from any to any 
+block out quick proto icmp from any to 10.4.128.163/32 icmp-type 0 
+
+ICMP                     Type               Value Keyword
+Echo reply                 0                  echorep
+Echo request               8                  echo
+Router advertisement       9                 routerad
+Router solicitation       10                 routersol 
+
+
+#ipf -Fa -f /etc/ipf/ipf.conf　　（-Fa =flush all,-Fi=flush in , -f激活包过虑）
+#ipfstat -io　(filter statistic in ,out)
+#ipfstat
+#ipmon  监控/dev/ipl的日志包
+
+
+#ipf -E 启用ipfilter
+
+man ipf　有示例文件 /usr/share/ipfilter/examples/
+
+----- Kerberos 安全
+
+==============Ghost  solaris
+grub>find /platform/i86pc/multiboot
+
+(hd0,2,a)
+
+grub>root (hd0,2,a)
+	Filesystem type is ufs, partition type 0x000000bf
+grub>kernel$ /platform/i86pc/kernel/unix
+grub>module$ /platform/i86pc/boot_archive
+grub>boot
+
+#cd /usr/sbin
+#installgrub -m /boot/grub/stage1 /boot/grub/stage2 /dev/rdsk/c0d0s0 （重新安装grub）
+Grub在安装的时候并没有写入到 MBR里面去
+
+
+grub>root (hd0,2,a)
+grub>setup (hd0)
+grub>install /boot/grub/stage1 (hd0) /boot/grub/stage2 /boot/grub/menu.lst
+grub>setup (hd0,2,a)
+
+
+
+
+--------------Zone
+
+dladm show-dev
+
+chmod 700 /zone1/
+zonecfg -z zone1  
+
+zonecfg:zone1> create
+zonecfg:zone1> set zonepath=/zone1
+zonecfg:zone1> add net
+zonecfg:zone1:net> set address=192.168.10.23
+zonecfg:zone1:net> set physical=e1000g0  ##e1000g0 必须是已经存在的
+		>set defrouter=10.0.0.1
+		>remove defrouter 10.0.0.1
+zonecfg:zone1:net> end
+zonecfg:zone1>verify
+zonecfg:zone1>commit
+zonecfg:zone1>exit
+
+zoneadm -z zone1 install
+
+zoneadm -z zone1 boot  #启动
+zlogin -C zone1  #登录　,初次配置，会配置语言...
+
+
+zoneadm list -v 查所有的zone  -c可查到configured
+
+zonecfg -z zone1 info　查zone的配置
+zonecfg -z zone1 //安装后修改
+	>set autoboot=true
+	>commit
+	>remove net address=135.251.208.134
+	>select net address=135.251.208.144
+	>set physical=e1000g0
+	>end
+	>commit
+
+/etc/nsswitch.conf中的netmask
+
+zoneadm -z zone1 reboot 重启生效
+	
+/zone1/root/var/sadm/system/logs/install_log 安装日志
+
+退出 ~.  输入要快,不要等显示~后再输入.
+
+如区中空间不够，
+mkfile 10m /usr/tmp/fsfile
+lofi -a /usr/tmp/fsfile  会产生/dev/lofi/1 目录
+zonecfg -z zone1
+>add deviece
+>set match=/dev/rlofi/1
+>end
+>add deviece
+>set match=/dev/lofi/1
+>end
+重启zone ,zone中会有/dev/lofi/1，可newfs ,fsck -F ufs /dev/lofi/1 再mount
+
+zoneadm -z zone3 uninstall ##可加-F
+zonecfg -z zone1 
+>remove net	#删全部网络设置
+
+# prctl $$  显示当前所有的值 有zone.cpu-shares
+
+prctl　-n zone.cpu-shares 动态变值,
+
+只在全局区安装软件包加 -G 
+
+限制内存大小后 zonecfg -z zonex info显示下面
+		pool: pool_dafult
+		inherit-pkg-dir:
+			 dir: /usr/sfw
+		capped-memory:
+			physical: 3G
+
+prstat -Z	附加显示每个zone的信息
+------------
+
+
+过solaris的默认运行级别是3,/etc下有rc[0-6].d  开机启动
+
+
+
+solaris 抓包命令
+snoop -o fileName.cap -d ce0 -v 192.168.10.4 and port 7001 &
+-o输出文件名
+-d 网卡
+-v 进入/出去IP 和 端口
+
+
+export PS1=['\u@`uname -n`':${PWD}]		 修改命令行头
+export PS1=['\u@'`uname -n`:'./${PWD##*/}']	 PWD显示最后一个部分 
+
+export PS1='[\u@\h $PWD]\$'		
+export PS1='[\u@\h './${PWD##*/}']\$'  
+export PS1='[\u@\h ./\W]\$'		 PWD显示最后一个部分 
+
+
+
+prtdiag ，prtdiag -v,显示硬件信息
+cfgadm 显示USB信息
+
+dladm show-link 显示所有网卡名，包括没有用的　
+more /etc/path_to_inst | grep network
+
+prtconf -v		Displays the size of the system memory andreports information about peripheral devices
+psrinfo -v		Displays information about processors
+showrev -p		Reports which patches are installed
+prtdiag -v		Displays system diagnostic information
+/usr/cluster/bin/scinstall -pv	Displays Sun Cluster release and package verson information
+vmstat		 report virtual memory statistics
+mpstat		 report per-processor or  per-processor-set  statistics
+	[间隔] [总数]  
+
+psrinfo -vp              系统cpu数和速度
+uptime                   cpu平均负载
+
+ulimit -a　显示内核参数
+modinfo
+
+dmesg
+
+iostat -E     -E Display all device error statistics. 有硬盘型号和大小
+prtvtoc //dev/rdsk/c1t1d0s2	查看磁盘的几何参数和分区信息
+df -F ufs -o i			已经使用和未使用的i-node数目
+ps -eo pid,pcpu,args | sort +1n    显示cpu使用率最高的进程 
+ps –eo pid,vsz,args | sort +1n   显示内存占用率最高的进程
+	e每个CPU,o 输出格式
+
+isainfo –v ,isainfo –b 看是否是64位支持
+isalist
+
+{ok} boot kernel/sparcv9/unix	启动64位内核模式
+{ok} boot kernel/unix		启动32位模式
+# showrev –w			查看当前的OpenWindows版本
+# /usr/ccs/bin/what /usr/dt/bin/dtmail	查看当前CDE的版本
+
+prtconf –D 
+showrev –p			当前系统中已经应用的补丁
+# who –rH			显示当前的运行级别
+# pkgchk -lp /usr/lib/sendmail	查找一个文件所从属的包
+
+# nslookup -class=chaos -q=txt version.bind	查看当前的bind版本信息   DNS??
+
+trash://回收站
+
+开启/home目录使用
+vi /etc/auto_master  注释 /etc/auto_master 开头的行 
+然后运行命令	/usr/sbin/automount  
+
+
+/usr/bin/file-roller  是打开压缩文件的图形工具 为 Gnome,
+solaris 不能像WinRAR那样修改压缩包中的文件会自动更新,但可以拖动其它文件到压缩包来更新
+
+dos2unix  
+
+pwdx  进程号　　　查进程启动文件所在的目录
+
+/usr/dt/bin/sdtperfmeter   CDE
+gnome-perfmeter  
+
+
+nroff 工具和 man  ,linux 是gnu 的groff 
+安装groff, autogen
+man2html ./xxx.1 > xxx.html
+groff -Thtml -mandoc ld.1 > ld.html
+
+kill -l 列出所有的信号
+
+-----------solaris samba
+cp /etc/sfw/smb.conf-example /etc/sfw/smb.conf
+svcadm enable samba
+smbpasswd -a oracle #首先是系统用户,设置不同的密码
+
+
+findsmb 查找samba服务器
+
+使用Sharity 挂载
+解压 ./setup安装 要记住密码
+/usr/local/sharity3/var/user.cfg 修改
+
+/CIFS/
+# /usr/local/sharity3/sbin/sharity.init start	启动 Sharity	
+# /usr/local/sharity3/sbin/sharity.init stop	停止 Sharity
+
+/usr/local/sharity3/bin/sharity login smb://HOSTNAME   -U administrator
+/usr/local/sharity3/bin/sharity  -h
+/usr/local/sharity3/bin/sharity  mount  smb://HOSTNAME  /share /mnt
+/usr/local/sharity3/bin/sharity umount  /mnt
+
+Sharity-Light 工具
+一定要把IP 或者hostname 写入 /etc/hosts文件中
+# shlight //somename/share /path/to/mount -U username -P password
+# unshlight /path/to/mount    不行
+
+----------
+
+-------Net-SNMP
+/usr/sfw/bin/snmpconf
+/etc/sma/snmp/snmpd.conf
+SNMP工作于UDP端口161，
+------------
+
+
+--------性能测试修改参数
+命令	
+ndd -set /dev/tcp tcp_time_wait_interval 60000
+ndd -set /dev/tcp tcp_conn_req_max_q 16384
+ndd -set /dev/tcp tcp_conn_req_max_q0 16384
+ndd -set /dev/tcp tcp_ip_abort_interval 60000
+ndd -set /dev/tcp tcp_keepalive_interval 7200000
+ndd -set /dev/tcp tcp_rexmit_interval_initial 4000
+ndd -set /dev/tcp tcp_rexmit_interval_max 10000
+ndd -set /dev/tcp tcp_rexmit_interval_min 3000
+ndd -set /dev/tcp tcp_smallest_anon_port 32768
+ndd -set /dev/tcp tcp_xmit_hiwat 131072
+ndd -set /dev/tcp tcp_recv_hiwat 131072
+ndd -set /dev/tcp tcp_naglim_def 1
+
+
+/etc/system
+
+set rlim_fd_max=260000
+set rlim_fd_cur=260000
+set tcp:tcp_conn_hash_size=32768    #####ERROR
+set shmsys:shminfo_shmmax=8589934591 
+set autoup=900
+set tune_t_fsflushr=1
+set sq_max_size=0
+set ip:ip_squeue_fanout=1
+forceload: sys/shmsys
+forceload: sys/semsys
+forceload: sys/msgsys
+--------
+
+--------------Solaris 技术支持
+Please run "<explorer_install_directory>/bin/explorer -g" to create explorer defaults file.
+要问很的问题
+配置目录默认是/etc/opt/SUNWexplo/default/explorer
+# cd /opt/SUNWexplo/bin
+#./explorer -v 
+cd /opt/SUNWexplo/output 
+会生成一个  .gz 文件
+---
+
+==================Sun Cluster 如apache=====???????
+
+Network-Attached Storage(NAS)
+Serial Advanced Technology  Attachment (SATA)
+
+cd /cdrom/cdrom0Solaris_x86
+./installer 安装	 命令行交互
+
+PATH=$PATH:/usr/cluster/bin
+MANPATH=$MANPATH:/usr/cluster/man
+
+如不想使用IP,就写入/etc/hosts
+
+多节点配置可以ssh 不要密码的通讯
+多节点建立 /globaldevices目录，是单独分区，加入/etc/vfstab文件
+
+qurom分区只要format label 就OK，不用newfs ,不用format
+共享分区
+
+多节点要有两个专用的网卡，用网线连接
+
+多节点 解压目录./installer 命令行交互安装
+
+主节点, scinstall 后，所有的节点都要重启 ，重启后 /globaldevices 消失，
+重挂 /dev/did/dsk/d3s2   /global/.devices/node@1
+次节点,也要scinstall 选择 3 join a cluster   
+sccheck 
+主节点,scsetup ->quorum   要输入的仲裁硬盘dx, 是 scdidadm -L 查看硬盘对应的 dx 
+
+cldevice show 显示dx
+
+scconf -a -q globaldev=dx ##加仲裁自动输出命令
+scconf -c -q reset	##reset intallmode自动输出命令
+scconf -a -T node=.	##reset intallmode自动输出命令
+
+scdidadm -l 本机
+scdidadm -L 全部
+
+安装sun cluster完成后https://localhost:6789 后有Oracle Solaris Cluster Manager项去管理
+geoadm start 就可以使用  Oracle Solaris Cluster Geographic Edition
+
+
+scrgadm (sun cluster registration) -y Scalable=True 负载平衡
+	-y Scalable=False 故障转移
+
+/etc/scqsd/scqsd.conf　　(Sun Cluster Quorum Server daemons)
+
+clsetup
+
+scstat 
+cluster list 显示建立的cluster输入的名字
+scstat -q
+scconf -p s可以看到中载使用的 did 号
+
+clnode status
+clinfo -n  看cluster有几个节点
+
+scinstall -pv 显示Sun Cluster 发行版本和软件所有的包版本信息
+
+scrgadm -a -t SUNW.apache
+
+
+/opt/SUNWcluster/bin/ccp & 有界面的　　cconsole、cssh、crlogin或ctelnet按钮
+也可以真接用ctelnet
+
+/opt/SUNWcluster/bin/cconsole <clustername> 打开界面，输入内容发送到每个控制台
+
+/usr/sbin/stmsboot -e		StorEdge Traffic Manager (STMS)
+
+metadb  -af c1t0d0s0  c0t0d0s0 (attache ,f=initial)　建立镜像
+metset
+
+每个节点运行devfsadm 
+cldevice populate
+
+/etc/lvm/mddb.cf  (meta device database)
+/etc/lvm/md.tab
+
+/etc/inet/ntp.conf.cluster
+
+
+
+
+
+
+6789端口界面输出命令
+scrgadm -a -L -g myFailoverGrp -l smpdb	##加资源
+scswitch -o -g myFailoverGrp		##改状态Unmanaged->managed
+scswitch -u -g myFailoverGrp		##改状态->Unmanaged
+scswitch -Z -g myFailoverGrp		##改状态->online
+scswitch -z -g myFailoverGrp -h smpdb	##改主机
+scswitch -F -g myFailoverGrp		##离线所有结点
+
+
+scinstall -r    卸载 
+# /var/sadm/prod/SUNWentsys<ver>/uninstall   #Java界面
+ clquorum list -v 查看仲裁
+ # clquorum status
+
+
+cluster 安装后会多一块虚拟网卡clprivnet0，
+
+
+==================Raid 5 ,0+1
+=================LVM
+(1)Sun volume manager SVM  自带的 ,命令都以meta开头
+(2)Veritas Volume manager (VxVM)
+
+Solaris VolumeManager中，虚拟磁盘称为卷。出于历史原因，某些命令行实用程序也将卷称为元设备
+
+
+/etc/init.d/init.wbem status ,stop无效果,要用svcadm 
+svcadm enable wbem  (web base EM) 是看SMC服务的,start 监听898端口,是服务端
+ 
+/usr/sadm/bin/smc & 来启动Solaris Management Console 界面工具,是客户端
+/usr/sbin/smc 是软链接
+
+
+Solaris VolumeManager核心命令以meta开头
+请不要尝试同时使用命令行和GUI来管理SolarisVolumeManager
+
+
+------------------JumpStart 网络安装服务器中安装Solaris软件
+
+
+-------------------ZFS  Zetta 
+
+1 Bit		=	Binary Digit		b
+8 Bits		=	1 Byte			B
+1024 Bytes	=	1 Kilobyte		KB
+1024 Kilobytes	=	1 Megabyte		MB	百万
+1024 Megabytes	=	1 Gigabyte		GB	十亿
+1024 Gigabytes	=	1 Terabyte		TB	万亿   10兆
+1024 Terabytes	=	1 Petabyte		PB
+1024 Petabytes	=	1 Exabyte		EB	千兆兆(10的18次方)
+1024 Exabytes	=	1 Zettabyte		ZB
+1024 Zettabytes =	1 Yottabyte		YB
+1024 Yottabytes =	1 Brontobyte		BB
+
+
+
+存储池　　不用使用　卷管理器
+
+登录Solaris系统，https://127.0.0.1:6789/  　是 https　
+会有Oracle Java Web Cosonle,ZFS Administrator 管理界面
+
+smcwebserver  start/stop   (smc=Sun Web Console)
+smcwebserver enable 开机自动引导
+
+
+
+zpool create mypool c1t0d0	#建存储池   使用/dev/dsk/c1t0d0,也可使用一个分区 ,会自动挂载到/my　目录下
+zpool create mypool mirror c1t0d0 c1t1d0 #多个设备,不能在使用
+	
+zpool create mypool raidz c0t0d0s0 c0t0d1s0 c0t0d2s0  不推荐用盘片来做
+zpool create mypoo mirror c0t0d0s0 c0t0d1s0 mirror c1t0d0s0 c1t0d1s0 两个镜像
+
+mkfile 80M /export/ZFS1
+mkfile 80M /export/ZFS2
+zpool create -m /opt/myfs/ mypool  /export/ZFS1 /export/ZFS2   ##-m  mount 修改挂载目录
+zpool export mypool
+zpool import -d /export [mypool]  ##/export下不能有其它文件
+
+zpool list 查看已有的
+zpool list -o name,size
+zpool list -Ho name	#-H hide不显示标题
+zpool iostat mypool 1 10 #-v virtual
+zpool status -x		 #-x  exhibit 只显示有错误的
+zpool destory mypool
+
+zpool add mypool mirror c1t0d0 c1t1d0
+zpool offline/online
+zpool replace mypool <old> <new>
+
+zfs create mypool/myfs	#在池中创建 ,会自动挂载到/opt/myfs/myfs
+zfs destroy  mypool/myfs
+zfs create mypool/myfs/myfs01
+zfs destroy  -R mypool/myfs
+	　　
+
+zfs rename /myfs/myfs01　/myfs/myfs1 修改名字或者位置
+
+zfs list -r mypool
+zfs list -t filesystem -o name
+zfs get  -s local all mypool  #-s source列 ,-s temporary
+
+ ZFS 在启动时被 svcs -a |grep filesystem/local 自动mount
+
+zfs set mountpoint=/export/myfs  mypool/myfs  #修改默认桂载
+zfs set sharenfs=on	mypool/myfs
+zfs set compression=on  mypool/myfs
+zfs get compression	mypool/myfs
+
+zfs create my/fs/test  #承继父级属性
+不用修改 /etc/vfstab和/etc/dfs/dfstab(NFS)
+zfs set quota=10G my/fs/test
+
+df -g 
+zfs set mountpoint=legacy mypool  ##在vfstab文件中增加  ,zfs不能使用fsck命令
+mount -F zfs mypool /opt/myfs/
+zfs mount ##显示所有的ZFS
+zfs mount -a ##all
+zfs mount -O mypool    ##对mypool是非空目录 加-O
+zfs umount mypool  ##或者/mnt
+
+zfs snapshot mypool@second
+zfs list -t snapshot
+zfs rollback -r mypool@first
+
+zfs clone
+
+==============
+ls -l 最后有+号 ,ACL 与Linux不同
+setfacl -s user::rw-,group::r--,other:---,mask:rw-,user:oracle:rw- hello
+setfacl -m user:oracle:r-- hello
+getfacl hello
+#getfacl hello | setfacl -f - hello2
+setfacl -d user:oracle hello
+
+普通用户来监听1024以下端口，可以用命令
+#usermod -K defaultpriv=basic,net_privaddr nobody   会修改文件/etc/user_attr
+#usermod -K defaultpriv=none nobody
+
+ 
+
+
+ 
+---------------------opensolaris 
+su 切换到 root 权限下，执行如下命令：
+# rolemod -K type=normal root   (usermod)
+查看已有用户、角色和类型：
+# cat /etc/user_attr
+
+------------------- Oracle Solaris 11.3
+企业级
+OpenStack 
+
+不再需要 MANPATH 变量
+
+pkg 命令、软件包管理器、更新管理器
+beadm 实用程序用于管理引导环境
+
+
+网络配置
+手动：dladm 和 ipadm
+自动：netcfg
+
+ 	
+sysconfig 
+
+
+------------

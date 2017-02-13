@@ -1,0 +1,127 @@
+注释单行 ## XXX
+注释多行
+#* xxx
+xxxx
+xxxxxxxxxxxx*#
+
+变量以 "$" 开头 ,第一个字符必须为字母
+
+
+找不到username的时候，$username返回字符串"$username"，而$!username返回空字符串"" 
+
+#set ($user="csy"}
+${user}name 
+
+#set ($var="helo")
+test"$var" 返回testhello
+test'$var' 返回test'$var'
+
+#if( $var )
+<strong>Velocity!</strong>
+#end
+
+#if($foo)
+	<strong>foo!</strong>
+#elseif($var)
+	<strong>var!</strong>
+#else
+	<strong>no!</strong>
+#end
+
+
+#foreach( $key in $allProducts.keySet() )
+<li>Key: $key -> Value: $allProducts.get($key)</li>
+#end
+
+
+12、包含文件
+#include( "one.gif","two.txt","three.htm" )
+
+
+导入脚本
+#parse("me.vm" )
+
+#set( $monkey = $bill ) ## variable reference
+#set( $monkey.Blame = $whitehouse.Leak ) ## property reference
+#set( $monkey.Plan = $spindoctor.weave($web) ) ## method reference
+#set( $monkey.Say = ["Not", $my, "fault"] ) ## ArrayList
+#set( $monkey.Map = {"banana" : "good", "roast beef" : "bad"}) ## Map
+
+
+
+ #[[don't parse me!]]# 
+ #[[
+#foreach ($woogie in $boogie)
+  nothing will happen to $woogie
+#end
+]]#
+
+##没效果 ???????????
+
+
+#macro( d )
+<tr><td></td></tr>
+#end
+定义好后就可以用 #d()
+ 
+ 
+ 
+ #macro( d )
+<tr><td>$!bodyContent</td></tr>
+#end
+带传内容体的宏
+#@d()Hello!#end
+
+
+
+带传多部分参数的宏
+#macro( tablerows $color $somelist )
+#foreach( $something in $somelist )
+    <tr><td bgcolor=$color>$something</td></tr>
+#end
+#end
+
+调用
+#set( $greatlakes = ["Superior","Michigan","Huron","Erie","Ontario"] )
+#set( $color = "blue" )
+<table>
+    #tablerows( $color $greatlakes )
+</table>
+
+
+#set( $D = '$' )
+${D}{my:invalid:non:reference}
+
+#foreach( $foo in [1..5] )
+$foo
+#end
+
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+
+
+Properties p = new Properties();
+p.setProperty("file.resource.loader.path", "D:/Program/eclipse_java_workspace/J_JavaThirdLib/src/apache_velocity/");
+Velocity.init(p);
+VelocityContext context = new VelocityContext();
+context.put( "name", new String("Velocity") );
+Template  template = Velocity.getTemplate("mytemplate.vm","UTF-8");
+StringWriter sw = new StringWriter();
+template.merge( context, sw );
+System.out.println(sw);
+
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	</head>
+	<body>
+		Hello $name  <br/>
+		你好  $name  <br/>
+	</body>
+</html>
+
+
+
+
+

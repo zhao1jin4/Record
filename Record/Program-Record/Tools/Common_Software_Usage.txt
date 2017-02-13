@@ -1,0 +1,462 @@
+﻿ 
+智能ABC 输入特殊符号  v1 空格
+极点五笔-7.1.3 (win10 的edge 不能用)
+	简繁转换ctrl+J
+	输入法转换ctrl+返斜线,
+	状态栏如消失,在输入法属性中选中极点->properties->常规选项->取消  标点符号配对输出
+	ctrl+M 打开生僻字模式,可以打出 滘 ipwk   ,丼 FJYI 
+	输入zz 可以选择特殊符号
+	ctrl+/ 打开 类似中文词典的功能
+	如果多接一个显示器,在另一屏幕中打字时,交互提示还是在还原屏幕上
+
+百度五笔
+	输入繁体字,右击 ->切换为繁体
+	输入时的提示栏, 右击 -> 显示状态栏 , 也可切换输入法 
+	右击栏->输入法设置->词库设置->单选GBK汉字(含生僻字)  滘 ipwk   ,丼 FJYI  
+	ctrl+ . 可切换中英文标点， shift+space 可切换全半角
+	
+	每次切换其它输入法后又变回初始的全半角和标点状态，不会记住上次选择,???只能按shift切换到英文模式下
+搜狗五笔 (卸载要重启,安装后有时影响其它输入法的调出)
+	输入繁体字,右击->快速切换->繁体   也可 右击 ->设置属性->高级->选择繁体 或者  上次状态
+	输入时的提示栏, 右击 -> 恢复状态栏 , 也可切换输入法 
+	设置属性->快捷键 -> 显示GBK生僻字 ctrl+shift+L , 滘 ipwk   ,丼 FJYI
+	
+	ctrl+. 和shift+space 切换无效果   ???
+	每次切换其它输入法后又变回初始的全半角和标点状态，不会记住上次选择,???只能按shift切换到英文模式下
+
+win10 微软五笔 
+	有时根本打不出字 ???
+	问题 ??? 中英文标点不能切换,只能按shift切换到英文模式下
+	生僻字打不出 ???  滘 ipwk   ,丼 FJYI   
+	
+bing,baidu.com 搜索引擎支持  site:xxx.com   要搜索的内容     的格式来搜索
+
+--------Office  2010
+Office-2016  没有Office-2010 好用,两个版本可以时存在,world 2016 和 excel 2016 有的文件打不开,而2010版本的则可以打开,
+word 2016安装在win7上还会出现内存不断增大,导致系统卡死 ??????
+
+删打开文件历史记录,右击->clear unpined document
+或者修改 file->options->advanced->Display组中 show this number of recent documents的值,只是改显示,但记录还是在的
+
+-----Word 2010
+可以比较两个文档，Totoris SVN diff 修改world文件时会自动打开word来比较
+Review -> Compare 
+ 
+File->optoins->Customize Ribbon-> 右则组中复选 Developer ,就会多生成的Developer菜单 -> 可以增加一个日期组件
+生成目录  References-> Table of Contents 中选择一个样式
+
+Review-> Tracking组中 打开 Track Chnages  如删,加文字可以记录,可以点 new Comment 写说明  ,有Accept按钮
+
+-----excel 2010 
+excel 中可以在单元格用  ='Name List'!D8  表示引用Name List的工作表中的D8 内容,
+excel 中的单元格可以选择下拉
+	选中一列,数据->Data Tools->数据有效性->在允许中选择[序列]->在来源中输入以,分隔的字符
+excel 中在滚动条时可在头几行,几列锁定
+	选择单元格,视图->冻结窗口->冻结拆分空格
+excel 去网格   视图->取消选择网格线
+excel =MAX($B$4,$C$4) 前加表示绝对引用,如复制单元时,不会改变公式
+
+excel 中ctrl+;输入当前日期,4.50E+10,ctrl+下键可以到最底
+
+excel 中以某一列不能有相同的值,如有背景色变,
+		选中列Home标签->style 部分->Condiation format(条件格式化)->manage rules...->new rule...->
+		选择 format only unique or duplicate values,单击format按钮设置背景色
+excel   选数据区,Insert->PivotTable->PivotChart(数据透视 图/表),选择existing worksheet->选数生成区,
+		生成一个单独的区域放图表,不会影响其它的行,像是浮在上面一样,(有+/-可以展开收缩 ,2007没有这个)
+ 
+execl 的一个工作溥中最多可有225个工作表, excel-2007 最多的列数到 (16384,2^14),行最多到 1048576 (2^20) 
+
+Excel 生成批量手机号码,先输入两个,选择中列,开始->编辑,填充下拉菜单中选择 系列,输入终止值 ,就可以一次性生成大量手机号
+Excel 展开与折叠 ,选数据区->goup,ungroup,subtotal ,选数据区->Data->Sort->先排序表->按列->分类汇总
+excel 选择数据区，数据->记录单，可以下一条
+
+excel 取消科学计数法,丢失精度,  数据(data)->Data Tools组中的 Text on Columns->next->next->单选Text 再Finish
+
+
+字符数字 变 真正的数字 选中一列, 数据(data)->Data Tools组中的 Text on Columns -> ->next->next-> 再Finish
+
+PMT函数计算等额本息还款
+每月还款额  = -pmt(月利率,总期数(月数),总金额)
+		或者 =pmt(月利率,总期数(月数),-总金额)
+
+当前期还的本金  =PPMT(月利率,当前期数(月),总期数(月),-总金额) 	 #####  应还利息 可用剩余本金*月利率 ,应还本金可用  每月还款额-应还利息
+第一期还的利息  =PRODUCT(总金额,月利率) 						 #####  这个函数是把所有参数做乘法
+第n期还的利息  = 每期还款额 - 当期本金
+
+=VLOOKUP 函数
+VLOOKUP(要查找的单元格,要查找的矩形区,如果找到显示矩形区的第几列,FALSE)   -- false表示精确匹配,true表示模糊
+
+principal  本金
+
+点链接进入其它标签页时,如要返回 按 alt + 左键
+
+第一个sheet连接到第二个sheet指定单元格,
+1.先选中第二个sheet的指定单元格,如D10
+2.在上方的区显示的D10,删除D10,起个新名字,如myAnthor
+3.在第一个sheet 的单元格写文本后 右击->hyperlink->place in this document->可以在Defined Names中看到刚刚建立的myAnthor
+
+=IF($F$2="T",18*D2,0)
+round(14.5,1) 四舍五入函数
+roundup(14.3,0) 向上舍入函数
+--------PowerPoint
+制作播放菜单
+	1.选中"菜单项"->自定义动画->进入-淡出,右击效果->计时...->选 单击下列对象时启动效果 ,并选"菜单"
+	2.再加 自定义动画->退出-消失,
+	进入动画放在退出动画前面
+
+office 2007 “<程序名> 选项”，然后依次单击“信任中心”、“信任中心设置”。
+如果宏安全性设置为“禁用所有宏，并且不通知”，将自动禁用所有宏。
+
+shilft+del =copy
+shilft+insert=paste
+ 
+----LibreOffice
+Writer 
+
+插入->目录和索引
+编辑->追踪修订->开始记录更改   接受
+
+
+Calc 问题
+如果过滤一列中的值,选择其它的列复制时会把过虑的也复制上
+
+
+
+----OneNote-2010
+C:\Users\zhaojin.li\Documents\OneNote Notebooks\Personal
+可对Section 做 Section Group 会建立一个文件夹
+
+File->Save as ->page只是当前书的当前页(.one)　,section是当前书(.one) ,　Notebook是所有的书,会解压的(.onepkg)
+OneNote在运行,任何时候可以使用 windows+s  截图
+在通知区打开的OneNote要View->Normal View
+按tab键制作表格
+
+windows+shift+n 打开 OneNote
+
+
+----outlook
+
+打开outlook-2016 要.pst文件 ，如没有,打开outlook-2016不会自动创建，要选择目录，点击打开按钮自动创建，再次选择.pst文件 
+
+Outlook 数据文件  .pst 和 .ost
+数据文件存放在  C:\Users\zhaojin\Documents\Outlook Files\ 
+ C:\Users\zhaojin\AppData\Local\Microsoft\Outlook
+
+帐户配置不知道在哪？？？
+ 
+控制面板中有一个"mail"中(小图标查看),可以管理outlook配置文件(profile), 像是为outlook-2010的
+
+建立帐户时无论是pop3还是imap, 
+
+More setting...按钮->outgoing Server 复选Myoutgoing server(SMTP) requires authenticatoin,默认单选use same setting as my incoming mail server
+如选择的是pop3  还在Advanced标签中复选  Leave a copy of message on the server ,取消复选Remove from server after 14 days
+
+
+联系人: tools->address book->输入 li zhaojin
+会议:Calendar中->new appointment
+
+外出:可能要使用Exchange Server才行
+邮件保存设置: 文件->信息->Account Settings->Data Files->
+outlook 2010 自动回复Out of Office, File->Info-> Automatic Replies
+			在邮件列表按邮件标题排序,可以按相同标题显示在一起,像Mac的iMail
+建立邮件时->Options->Use Voting Button->custome...多个选项以;分隔,收到人选择发送后,可在邮件中单击"sender repond:xx"->view voting respond,查看投票结果
+
+撤回发送的邮件
+在已发送箱中双击邮件->action->recall this message->弹出对话框,如对方未读可以撤回,也可通知撤回成功的和失败的,等收件箱
+
+在日历视图中->如没有选中,空白处则有share Calendar按钮,如选中已有的活动有 private 按钮,可以看别人的日程安排,在左侧中MyCalener中右击->add calendar ->from address book增加联系人,选中就可看
+
+日历中建立一个约会,可以点ReCurrence可以按天,按周重复进行
+
+options->mail->signatures...修改签名 
+options->calendar中修改工作时间
+options->advance->AutoArchive Settings
+
+按标题分组,视图->视图设置->分组依据...->第一个选择主题,       但问题是不会把新收到的邮件放在最上方,按时间排序没用的
+
+Office 2016 的Word 在win7 上运行,打开一个文件,内存增长很快?????
+
+
+------------- windows 10 Mail
+配置完成后不能看是pop3还是imap 收件
+
+如果发送的附件很大(并不提示附件过大,Outlook2016会提示的),在发件箱就找不到这个邮件,就丢失了?????
+ 
+Settings -> Automatic Replies
+
+-------------FireFox--------
+firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下载
+	显示加载的插件	about:plugins
+	可修改配置	about:config 
+	help->TroubleShooting Information 即		about:support
+
+firefox27可用的插件
+	FireBug-1.12.7 (加大字体,tools ->web developer->Firebug->text size->increase text size)
+	DownThemAll-2.0.16,ColorZilla-2.8
+	FireFTP-2.0.18(Connection标签选择SFTP)
+	FireSSH-0.94.4(在Tools->Web Developer下,ls --color 才变色,ls 中文是根据系统字符集自动匹配view->character encoding来查看,手工设置LANG无效)
+	chmfox-2.9(file->open)
+	cacheviewer-0.7.6(Tools->Web Developer->CacheViewer)
+	HttpRequester 
+	EPUBReader  用于读epub文件 mongodb doc   
+	
+	--黑客工具
+	Poster-3.1 发POST请求 	有Base64 编码	tools->poster  (可以设置HTTP头,注意RefControl可以覆盖poster),必须在单独界面发起
+	Modify Headers-0.7.1.1 		可以个性Http头, tools->web developer->Modify Headers,设置后start
+		RefControl 	设置http请求头referer的值tools-> RefControl options..    
+		User Agent Switcher 个性本地浏览器	tools -> default user agent     手机开发
+	Cookies Manager-1.5.2 在 tools->Cookies Manager
+	修改内容体用firebug就OK
+	
+	--安全工具		
+	Self-Destructing Cookies-0.4.6  关闭tab时删cookie,localstorage 安装后在工具栏上
+	开发使用 Exploit-Me  工具集  XSS-Me, SQL Inject Me
+	
+要当前没有打开Firefox,
+firefox.exe" -profilemanager  或者用 -p  会打开［选择用户配置文件］对话框，来［创建配置文件］
+	取消选择 [启动时不询问]
+
+ctrl+shift+k 打开高度控制台(替代firebug)
+
+Developer toolbar(shift+f2)的命令,提示功能很好,子命令可按回车提示
+	screenshot xx 截屏png格式保存到Downloads目录(win7)
+	screenshot --clipboard
+	dbg list  		
+	pagemod replace group goups123   true    修改页,把Group替换为group123 ,忽略大小写
+	pagemod remove element h3
+ 
+禁用JS 地址栏输入 about:config  ->  搜索 javascript.enabled 双击 把这个true修改为false
+
+不记录历史 ,先清历史记录 preferences->privacy->History中选择Never remeber history 
+
+Firefox中，强制刷新快捷键是CTLR+SHIFT+R.
+
+导入证书 tools->options->advance->certificates->vivew certificates->import...
+
+http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/   是 zip的
+about:support 查看有 browser.newtab.url 有值 ,在about:config 中删除其值
+
+主页被修改 
+		开始菜单 
+	1. 查看桌面快捷方式属性是否有设置,可以去除
+	2. about:support 中查有 browser.startup.homepage  的设置 ,如有值使用about:config把配置移除
+		也可点Show Fold按钮打开文件夹中把user.js中的和prefs.js配置删除  
+	任务栏的参数也要去除   C:\Users\zhaojin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
+
+	检查浏览器插件
+	
+ctrl+shift+P 以隐身(Private)模式上网,不会保留浏览历史和Cookie
+
+
+-------------Chrome
+下载URL
+
+https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg  mac最新版本
+https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm  linux 最新版本
+
+https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B8CBF8931-A5A5-3DF2-204C-0834AED5FC82%7D%26lang%3Den%26browser%3D3%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3Dx64-stable-statsdef_1%26installdataindex%3Ddefaultbrowser/update2/installers/ChromeStandaloneSetup64.exe
+ 
+
+C:\Users\Administrator\AppData\Local\Google
+ win7下的Google目录
+
+插件 Proxy Switchy 代理设置 ,不会记住密码
+
+ 
+修改界面语言在tools->options->Under the Hood(高级选项)->Web Content中有一个铵钮 Langages and spell-checker settings...->选中语言后
+(如修改Local可以拖动修改顺序)->再点击Display Google Chrome in this language,重启Chrome生效
+
+自带flash player最新版本(不是IE的),firefox portble 版本就不带
+
+ctrl+shift+J 是调试窗口 (工具->开发人员工具   JavaScript控制台)
+
+Chrome查看版本的方法  chrome://version
+的URL中输入 about:inspect  (也可 工具->检查设备),要可以看到自己的手机(android手机打开  USB Debugging 模式,windows下安装USB Driver,都装Chrome)
+
+ctrl+shift+N 以隐身模式上网,不会保留浏览历史和Cookie
+
+插件   应用组的 Postman   https://www.getpostman.com/  安装后是一个单独的程序
+
+-------------IE --------
+IE中 强制刷新快捷键是CTLR+F5.
+###在有iFrame的网页中,在iframe区域 右击->查看源 可以只看iFrame中的源码(Firefox和Chrome)
+
+主页被修改 
+桌面快捷方式 后的参数去除
+开始菜单 
+任务栏的参数也要去除  C:\Users\zhaojin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
+		
+		
+检查浏览器插件
+
+----------UltraEdit
+
+UltraEdit  显示打开文件标签栏  视图->视力/列表->打开文件标签
+UltraEdit  高级->配置->编辑器->自动换行/制表符->字体...
+UltraEdit  格式化显示  视图->查看方式(加亮文件类型)->XML
+		选中单行的XMl文本 右击->格式->XML转换成 回车/换行符 ,就可以格式化显示XML
+UltraEdit  编辑->十六进制函数 ctrl+H   (以二进制查看文本)
+	支持ctrl+拖动滑轮 放大缩小字体 
+
+UltraEdit中 高级->配置->文件处理->文件改变检测-> 选中 当文件更改时提示更新
+UltraEdit中 高级->配置->文件处理->备份 选择 不备份
+UltraEdit中 高级->配置->文件处理->加载->取消 [重新载入先前在启动时打开的文件]
+
+UltraEdit 把GBK编码的文件认为是UTF-8,	高级-->配置-->文件处理-->Unicode/UTF-8检测，把 "自动检测UTF-8文件"  取消选中
+查找替换中     ^r^n    匹配一个换行符
+
+
+---------Editplus
+打开大文件速度快,但选择速度慢,如果一行过长，通过水平滚动条不能拖动最后一个字符，要用end键才行，BUG
+Editplus  中 ctrl+F11 (search->function list)可显示 函数列表窗口(java文件)
+Editplus  中 view->code folding->use code folding (ctrl+shif+F)
+Editplus 可FTP 文件 file->open remote
+Editplus   格式化显示 document ->file type->change file type...->XML
+Editplus  代码折叠 view->code foding->	use code foding (ctrl+shift+f)
+Editplus 中 tool->preference->Files->选中check file modification when actived,
+Editplus 中 tool->preference->Files->取消Create backup file when saving
+Editplus 中 tool->preference->General->取消复选->Reload working files on startup
+Document->Auto Wrap自动换行
+
+---------Notepad++
+Notepad++  ->setting->Gerneral->Tab Bar 中->选中 show close button on each tab
+Notepad++  ->setting->backup ->取消 Remeber current session for next lanuch
+Notepad++ 在windows  下替换换行符 , 查找\r\n  , 单选Extended(\n,\t,\r)
+Notepad++ 对字体大小可以按ctrl+拖动滑轮来设置
+Notepad++ 工具栏中的 Function List按钮,Spell Check 按钮
+编辑->转换视图->转换为小写/大写  (ctrl+u,ctrl+shift+u)
+
+取消打字时的自动提示功能,preferences->auto-complete->单选 Function completion
+取消()字符的自动配对, preferences->auto-complete-> 取消复选 [,{,",'
+
+使用notepad++ 新建文件并保存生成的是UTF-8编码 
+(如使用记事本打开GBK的另存为UTF-8,开头有一个错误字符,UTF8的BOM头,windows重定符> 会改变已有文件的字符集)
+
+---插件
+Notepad++ 有文件比较器，是对打开的文件，Plugins->compare->compare  ,之后用clear results 取消比较
+ctrl+enter 可以自动完成单词
+外部如修改文件,Notepad++不提示??
+---------
+TextWrangler  中 view->Hide/Show File   ,打开文件时要把文件拖到左边的(File)窗口中
+TextWrangler  中 preferences->Application标签->取消 Reopen Documents that were open at last quit
+TextWrangler  中 File->Reopen with encoding->Chinese GBK 可以对打开的文件是乱码做修改 （保存时可选择文件编码）
+Komodo-Edit   中 Edit->Current File Setting...->设置文件编码
+
+Mac UltraEdit 3.3  "文件" ->"比较文件...", 自带UltraCompare Lite 2.3.0.3
+---------
+
+打开IE-->工具-->Internet选项-->高级   
+  将（显示每个脚本错误的通知）一项的勾去掉  
+
+IE 8工具栏有一个兼容按钮,效果是使用IE6来打开
+	右击工具栏->兼容视图按钮
+
+IE ->internet 选项->程序->管理加载项 ->可能把番茄花园的插件禁用
+
+IE ->internet 选项->高级->禁用脚本调试(Internet Explorer)
+			  禁用脚本调试(其它)
+取消选择就可以 Antechinus 9,10 来调试javascript 了
+但语法检查9 做的要好一点
+
+
+IE tools->inPrivate Browsing 不会存 Cookie 和 临时数据
+
+IE8 查看历史
+右则的Tools->Explorer Bars-> History (ctrl+shift+H)
+或者View->Explorer Bars-> History (ctrl+shift+H)
+
+------------lotus Notes 
+配置联系人服务器IP,Contacts->Advanced->Connections->点击new的下拉菜单->Server Connection
+	复选 TCPIP,Server name:输入SGSINM02/TCS,Advanced标签中->Destination server address:172.17.10.185(sgsinm02.tcs.com)
+
+联系人:在Calender中的工具栏上->Browse for Contact,Directory  中选择TCS's Directory ,View By中选择List By name,  Find names Starting中输入li , zhaojin,注意的是不区分大小写,逗号两边各一个空格
+
+外出:在Mail工具栏上有一个more->out of office...
+会议:Calendar中的工具栏上->new ->meeting/appointment
+签名:在Mail工具栏上有一个more->preferences->Mail->Signature  
+	(Web中设置签名:preference按钮->Mail->Signature ,如果两都设置可能会重复的)
+归案 邮件/联系人/日历:
+------------
+
+gvim -R 只读方式
+gvim -y 简易方式
+新建HTML模板
+
+----Dexpot-1.5 windows 7 虚拟桌面工具 ,支持 windows 64 bit
+Dexpot中windows + F2 可以全屏切换桌面,plugins中只选择 Taskbar pager ,并取消其它的选项
+alt+1 ,alt+2来切换时间切换桌面
+右击通知区图标->DesktopManager			,在时间区的上方多一个工具栏
+右击通知区图标->Setting->Plugin and Extra->在Plugins中选择 Taskbar Pager  ,效果像linux
+右击通知区图标->Window Catalogue->右击任务->Move->可以把一个桌面的任务移动另一个桌面上
+ 
+	
+----Fences 2  桌面图标分组
+	安装不要选择ObjectDock
+	双击桌面 显示/隐藏  分组图标,不能像手机一样的分组
+	可右击文件夹->show this fold on desktop
+	可在桌面拖出一个区域->create fence here
+	
+	如果拖一个fecen到左边界,或右边界会把当前fencen 移动另一个新的空的桌面图标组(Desktop Pages)
+	目前不知道当前在哪个方向,哪几个桌面,可以在Desktop Pages中取消 Enable,来禁用这个功能
+ 
+ZIP/RAR分卷压缩->选择文件右击->添加到压缩文件...->分卷压缩,字节->输入大小
+只有NTFS文件系统才支持大于4GB 的文件,FAT32不可以用
+
+unlocker
+netlimiter 
+
+
+UltraISO 工具->格式转换 可dmg 转  iso
+UltraISO 打开可启动的iso文件后(如winPE,win7,一键Ghost光盘版) ,启动->写入硬盘映像->选择U盘,写入方式USB-HDD+,就可使用U盘启动(有的电脑要使用USB-ZIP+)
+	UltraISO以管理员安装,写ISO到U盘也要以管理员运行
+
+大白菜制件U盘启winPE,会所U盘空间变显示变小,"界面有还原U盘空间"会格式化
+
+Adobe Reader 如点链接后,想返回,按alt+左键
+-------------GIMP
+工具箱 m 移动工具
+工具箱 shift + t 变形
+编辑->以前景色填充
+编辑->勾画选区
+移动图层,如只移动选择的图层,按shift+拖动
+铅笔按shift画直线
+tab键隐藏两边的工具栏,或者 窗口->单窗口模式
+绽放工具 ,按ctrl缩小,空格移动
+克隆工具 ,按ctrl 选择要复制图像的位置,再松开ctrl,在目录位置拖动
+-------------
+google 的站内搜索功能  site:www.eimhe.com ccna
+
+Alexa排名和网站流量信息
+http://www.alexa.com/
+
+
+有安装 winRar , 如有两个.zip文件都有加密码,并且相同,可以把一个zip拖动复制到另一个zip包中,并不提示要密码,注意!!!
+
+
+-----------------------Camtasia 8 
+录制时可以拖一个屏幕区域
+
+保存图标 下拉箭头 -> Produce and share ... ->  格式 选择 MP4 only (up to 720p)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

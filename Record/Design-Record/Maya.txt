@@ -1,0 +1,13 @@
+网页菜单 Support & Learing -> Maya (2015)->  
+	Downloads 标签-> 找 Download & Install Maya Product Help (文档下载,注不是developer-help)
+	Getting Started 标签-> 找  Maya Documentation  在线文档 
+
+ 
+
+windows 7中文系统 , 默认安装后是中文，设置环境变量 MAYA_UI_LANGUAGE 为 en_US 就OK
+
+
+
+
+
+

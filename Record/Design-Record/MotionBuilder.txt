@@ -1,0 +1,29 @@
+ctrl+1 一个视图
+
+alter +enter 全屏
+a  
+f
+
+ctrl +拖= zoon
+ctrl+shilft+拖= 转
+shift+拖= 移动
+
+ctrl+a 选择模式切换
+
+
+ctrl+e =perspective
+ctrl+w =schematic
+双击空白处,取消选择
+
+右击asset Brower的树 ->add Favoriate Path
+
+character Control面板的groups 创建选择集
+
+
+对齐   alter +拖一个到另一个出现菜单->
+
+
+
+
+
+

@@ -1,0 +1,117 @@
+﻿
+
+CMMI = Capablity Maturity Model Integration for Developement
+
+-------------------------Project 2010
+手动模式 在start 开始日期 处可以写文字注解, 如为自动模式不可以
+
+
+.mpp文件
+File -> save as ->tools->general option 可以设置文件密码,和 推荐只读
+File -> options -> save -> 复选 auto save every <> miniutes 
+File -> options ->   trust center ->trust center setting->privacy option -> 复选 remove personal information from file properties on save
+File -> options -> advanced -> general组中复选  prompt for project info for new project
+File -> options -> Schedule-> Calendar options for this project 选择已经有项目
+
+
+右击列->插入列时->可选择WBS, 大纲数字
+项目->WBS->定义编码->
+在Duration中输入 1w 表示一周,11d 工作日,11ed 天
+视图->工具栏->分析  有 PERT分析
+选中两 工具栏上有一个链接任务  即前置任务  (一定要前一个任务完成,才可以进行下一个)
+
+可以在线 从模块建立项目
+
+Project -> Project Infomation 输入项目开始,结束日期
+双击行(或Task->informatoin),弹出对话框,可输入任务 名,开始结束时间,设置完成%,inactive是以灰色显示
+
+ 可以拖动来移动行,也可双击列名,下拉选择其它的数据类型,
+ 可以修改列名字,右击列标题->field setting,在Title中修改
+ File->Info->右侧 project information 下拉->advance properties,可写作者,公司,标题等
+
+Options中shedule可以设置,每周的第一天是星期向,默认早几点开始,到晚几点
+Project-> change working time ,对当前的,可以也新建,可以设置哪天工作,几点上下班,exceptions设置节假日,加班,请假
+	建立好,就可以在Project -> Project Infomation 中选择建立的calendar
+	
+File->info -> Orgnaizer -> calendar  可以把当前项目中的建立的calendar复制到全局中,供以后使用
+
+右击行->hyperlink
+右击行-> notes...
+右击行->scroll to task
+右击行->indent
+
+复制按钮下拉->copy picture ,Paster-> paste special(只能贴到视图区)
+
+在视图向下 拖动甘特进度项 出现连接图标 到下面的甘特进度项,表示下面的task依赖上面的task
+(或者选择两行,Task->link Task按钮)
+
+
+View-> Resource Shee ,输入名字(增加人力资源),双击行->cost中 ,即人的每小时花费
+返回Ganntt视图,选择行,Resource->Assign Resource->选择刚建立的resource,
+	View-> Other Views->Resource Graph 查看资源分配置情况
+
+选中一行任务->Task->insert组中milestone ,duration变为0 day,图中在开始日期和当前交差,显示一点
+Project->Schedule组的set baseline
+
+表格标题的下拉三角有filter功能,View  ->  Data 组有filter功能
+
+右击标题->customer field..->type中选择Number,选择一个,rename 为velocity 点Formular... 弹出框中-> 
+	点Function->general->if
+	选中expres为了改它-> 点Field->Flag->customer Flag 也可用 点Field->Number->% complete
+	在summary rows中单选Rollup ,汇总行可总和sum ,测试公式可以右击表格的左上角->Summary
+	
+	
+	
+	
+Format ribbon区是根据选择不同,而动态变化的菜单	
+	
+	
+	
+	
+	
+------------PMBook
+
+PMBOK 指南( 项目管理知识体系指南) (第五版)
+PMI (Project Management Institute) 
+PMP(Project Management Professional) 
+
+项目集管理专业人士认证（Program Management Professional，PMP） 
+PMI敏捷从业者认证（PMI Agile Certified Practitioner，PMI-ACP） 
+PMI风险管理专业人士认证（PMI Risk Management Professional，PMI-RMP）  
+PMI进度规划专业人士认证（PMI Scheduling Professional，PMI-SP）
+
+《PMI道德与专业行为规范》（Project Managment Institute Code of Ethics and Professional Conduct）全球通用，是基本要求
+
+WBS(Work Breakdown Structure)
+
+StakeHolder   干系人
+Ethics  		道德规范
+lexicon   辞典, 词典
+
+项目组合,项目集,项目的关系 
+项目组合 -> 由  (项目、项目集、子项目) 组成
+	项目集	->由 (子项目集、项目)	 组成
+	也就是说项目可以在 任何一种里面
+	
+	
+	
+	
+-----------Agile(敏捷的)  Scrum
+
+适应改变需求
+可以一个spint(iteration)周期为2-12周,每个spint时间相同
+关注交付,不是文档(面对面交流,或者交流工具),类似user.guid 这种是交付的
+Point
+----waterfall 瀑布
+
+
+
+
+
+
+=========
+Jira 		是 项目管理(有敏捷的小贴纸)
+弹道  		是 项目管理(有甘特图) 和 Bug跟踪工具
+Mantis 		是一个Bug跟踪工具
+Jenkins 	界面打包部署工具
+

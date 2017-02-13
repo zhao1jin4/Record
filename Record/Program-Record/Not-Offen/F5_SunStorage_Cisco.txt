@@ -1,0 +1,241 @@
+
+-------------------Sun StorageTek 2540  ---OK
+和连接Sun的串口相同,最后的接口不是网络口而是圆形像键盘口
+ctrl+break 再按大写S 进入，Sun StorageTek 2540  密码:kra16wen，，有display IP菜单
+
+sscs 命令同 CAM 界面
+
+安装CAM(Common Array Manager) https://localhost:6789/ 用户名密码是本机windows用户,windows不能加入域
+注册 输入存储A或者B的 IP
+A只能修改B的IP,不能修改自己的IP，有了A就不能B，
+
+面对，存储背面左边A，右边B，界面中有修改IP，默认是192.168.128.100/101
+界面中建立配置文件，建立池，建立卷(第一次自动生成虚拟磁盘)，映射卷后就可在Solaris中format看到了,newfs,mount
+
+如卷不能删修改控制器为当前使用的
+
+电池的做用是缓存数据，提高性能，如果断电，使用电池写入存储
+
+SAS(Serial Attached SCSI)硬盘
+
+
+
+HBA (Host Bus Adapter) 主机总线适配器  光纤卡
+FC (Fibre Channel) ,fibre 纤维,   
+SAN (Storage Area Network)
+iSCSI(Internet Small Computer System Interface)
+
+
+dladm show-link		solaris 连接　
+dladm show-aggr 
+
+vi /etc/drv/fp.conf  fiber chinnel
+
+OS # reboot  space space -r 
+ok{}boot space -r
+
+ok{}prob-scsi-all
+
+iostat -en
+iostat -En
+disks
+
+
+devfsadm -Cv
+
+luxadm -e port	显示一块光卡
+luxadm insert_device
+luxadm probe
+
+
+metastat
+raidctl
+raidctl -c -r 1 c1t0d0 c1t1d0  (create,raid)
+raidctl -l c1t0d0  
+
+
+
+
+------计算机网络技术 专
+CRC cycle redundancy code 最广泛的
+事先约定G(x),
+T(X)=X的r次方 * k(x) + r(X)
+
+r是G(x)的最高次方
+r(x)=X的r次方 * k(x)/g(x) 的余  ,除的时候减不开也下,无论加减都是异或运算
+
+
+t(x)CRC编码后的结果,kx(要编码的),
+----------------CCNA
+画Cisico图
+集线器:层1设备
+交换机:层2设备
+
+-------------------Cisico 2590
+
+
+1.断电源，按Moe 键不放，接电源,会提示命令的
+2.flash_init
+3.load_helper
+	Boot Sector Filesystem (bs:) 
+	Parameter Block Filesystem (pb:)
+4.rename flash:config.text flash:text.old
+5.no
+6. Switch>enable
+7.Switch# copy flash:text.old system:running-config
+8.config t 进入全局模式
+9.CISCO-2950_1#config t				#####(terminal)
+	Enter configuration commands, one per line.  End with CNTL/Z.
+10.CISCO-2950_1(config)#enable password abc123
+11.CISCO-2950_1(config)#enable secret abc12　　　###密码不推荐一样的
+12.CISCO-2950_1(config)#exit
+13.CISCO-2950_1#write memory
+14.reload 重启
+
+
+
+
+(server mode):默认设置,1个VTP域里必须至少要有1个服务器用来传播VLAN信息,对VTP信息的改变必须在服务器模式下操作
+client mode):从VTP服务器接受信息,而且它们也发送和接收更新
+transparent mode):因为它们保持的有自己的数据库,不和其他的共享.
+
+
+
+思科2950交换机相关配置
+基本操作
+2950(config)#int vlan1
+2950(config-if)#ip address 192.168.1.100 255.255.255.0 （VLAN1里面设置IP地址）
+2950(config)#ip default-gateway 192.168.1.1           (设置默认网关)
+2950(config)#ip name-server 192.168.1.1              （设置域名服务器）
+2950(config)#ip domain-name wqs.com                （设置域名）
+端口配置
+2950(config)#int f0/1       (进入接口)
+2950(config-if)#speed 100  （设置该接口速率为100Mb/s）
+2950(config-if)#duplex ?   
+auto                    Enable AUTO duplex configuration
+full                    Force full duplex operation
+half                    Force half-duplex operation2950(config-if)#descrīption to_router1
+2950(config-if)#descrīption to_router1      （设置端口描述）
+2950#show interfaces fastethernet1 [status] （查看端口配置结果和状态）
+MAC地址表相关命令
+2950(config)#mac-address-table aging-time 100                    (设置超时时间为100S)
+2950(config)#mac-address-table permanent 000.0c01.bbcc f0/3           (加入永久地址)
+2950(config)#mac-address-table restricted static 0000.0c02.bbcc f0/6 f0/7   (加入静态地址)
+2950#show mac-address-table                                 （查看整个MAC地址表）
+2950#clear mac-address-table restricted static                 （清除限制性MAC址表）
+ VTP的配置
+2950#vlan database                           （进入VLAN配置模式）
+2950(vlan)#vtp ?                              （查看VTP的子命令）
+domain                  Set the name of the VTP administrative domain.
+client                  Set the device to client mode.
+server                  Set the device to server mode.
+transparent             Set the device to transparent mode.
+password                Set the password for the VTP administrative domain.
+2950(vlan)#vtp domain server  （设置本交换机为SEVER模式）
+2950(vlan)#vtp domain wqs    （设置域名）
+2950(vlan)#vtp pruning         (启动修剪模式)
+2950#show vtp status          （查看VTP设置信息）
+配置VLAN TRUNK端口
+2950(config)#int f0/11             （进入F端口）
+2950(config-if)#switchport mode trunk （设置该端口为TRUNK模式）
+2950(config-if)#switchport trunk encapsulation {dot1q | isl | negotiate }（设置TRUNK封装）
+创建VLAN
+2950#vlan database                   （进入VLAN配置模式）
+2950(vlan)#vlan 2                     （创建VLAN 2）
+VLAN 2 added:
+    Name:VLAN0002                  （系统默认名）
+2950(vlan)#vlan 3 name wg_bisheng       （创建VLAN 3，名为网工必胜）
+VLAN 3 added:
+    Name:wg_bisheng
+2950(config)#int f0/9                     （进入接口配置模式）
+2950(config-if)#switchport mode access       （设置该接口为ACCESS模式）
+2950(config-if)#switchport access vlan 2   （把端口9分配给VLAN2）
+2950(config-if)#int f0/8
+2950(config-if)#switchport mode access
+2950(config-if)#switchport access vlan 3
+2950(config-if)#
+生成树协议的配置
+生成树负载均衡实现方法（感谢黑客天使提醒）
+1，  使用STP端口权值实现。
+2，  使用STP路径值实现
+2950(config)#int f0/11
+2950(config-if)#spanning-tree vlan 2 port-priority 10 (将VLAN2的端口权值设为10)
+2950(config-if)#spanning-tree vlan 2 cost 30     （设置VLAN2生成树路径值为30）
+路由器的一些设置
+静态路由：
+Router(config)#ip route destination-network network-mask  {next-hop-ip | interface } [distance]
+Router(config)#ip route 192.168.1.0 255.255.255.0 10.1.1.1
+其中：192。168。1。0代表目标网络。
+      255．255．255．0代表目标网络的子网掩码；
+      10．1．1．1代表下一跳地址。
+       next-hop-ip:到达目的网络所经由的下一跳路由器接口的IP地址。
+      Interface：到达目标网络的本机接口（仅限P2P线路）
+      Distance：为该路由人工指定管理距离
+默认路由：
+Router(config)#ip route 0.0.0.0 0.0.0.0 {next-hop-ip | interface } [distance]
+Router(config)#ip route 0.0.0.0 0.0.0.0 172.16.3.1
+其中：0。0。0。0  0。0。0。0代表任意地址和任意掩码，即所有网络，其它参数同静态路由。
+选择性通告路由：
+如在RIP设置中，让S0端口只收不发RIP通告。
+Router(config)#router rip
+Router(config-router)#passive-interface serial 0
+常见路由协议的管理距离：
+TABLE 5 . 2 Default Administrative Distances
+Route Source                     Default AD
+Connected interface                      0
+Static route                              1
+EIGRP                                 90
+IGRP                                  100
+OSPF                                 110
+RIP                                   120
+External EIGRP                         170
+Unknown                             255 (this route will never be used) 
+
+
+---------F5
+
+
+
+
+---------------Radware
+
+console连接Radware 
+1.login命令登录用户名密码都是  radware/radware
+2.reboot命令
+按任意键进入
+3.q0 命令
+4.q1 命令  清配置
+? 命令帮助
+@重启
+
+就可以配置IP/netmask
+Enable web access ,yes 
+用户名密码默认配置是 radware/radware,  
+其它全部默认
+
+配置后启动系统
+login命令登录
+
+
+
+http://[配置IP]/  来配置 
+
+Router->IP Router->Interface Parameter->Create 配置口对应的IP/netmask
+		要加一个Radware本身一个IP,外部IP ,无用
+AppDirector->Farms->Form table  建立名字,Sessss Mode: Entery Session
+			Connectivy Check Mothod :选择TCP port , 输入号 
+
+
+AppDirector->Servers->application Server->Table   ,Create  ,内部服务器起名字,Farm Name刚才建的
+		Server Port: 中输入端口号
+		Server Address:
+	可以看状态是Active才对
+
+
+AppDirector->Layer 4 Traffic Redirection->Lay 4 Polices 
+	起名
+	Virtual IP: 面向用户提供服务的  
+	L4 Port: 80
+	Farm Name :选择上次创建的
+
+ 

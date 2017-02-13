@@ -1,0 +1,728 @@
+
+Based on BSD UNIX FreeBSD  最新版本 7.0 三张CD(必须的) 一张bootonly,一张docs 和一张livefs,共6张CD    有中国的镜像站点
+支持gnome ,kde,也有DVD版本 http://it.toolbox.com/blogs/bsd-guru/creating-your-own-freebsd-70-dvd-22791  创建DVD方法
+
+
+
+http://portsmon.freebsd.org/portoverview.py?category=java&portname=eclipse&wildcard=   点  maintainer
+http://portsmon.freebsd.org/portsconcordanceformaintainer.py?maintainer=freebsd-eclipse%40FreeBSD.org  java/eclipse-webtools
+http://portsmon.freebsd.org/portoverview.py?category=java&portname=eclipse   FreeBSD eclipse
+ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-stable/All/
+
+http://www.freebsd.org/ports/java.html   有eclipse二进制包，有其它的
+
+
+ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-7.0-release/Latest/   scim输入法
+ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-7-stable/All/   zh-scim
+
+http://www.freebsdfoundation.org/downloads/java.shtml  下载FreeBSD 的JDK 
+
+http://www.freebsd.org/ports/java.html     下载 javavmwrapper-2.3.2
+
+
+
+http://www.freebsd.org/ports/archivers.htm   二进制包
+
+pkg_add -r xxx (-r 在线安装)
+ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-7-stable/All/
+ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-7.0-release/Latest/   javavmwrapper,links,anjuta,glade3,glade2,ja-scim-tables.tbz,ko-scim-tables.tbz
+
+ftp://ftp.freebsd.org/pub/FreeBSD/ports/i386/packages-stable/All/  是最新的可能要全部更新系统
+
+http://home.sdcangyuan.com/FreeBSD7_Release.iso　　　FreeBSD １.７Ｇ　ＤＶＤ
+
+http://www.freebsd.org/doc/zh_CN.GB2312/books/handbook/index.html 中文教程
+http://www.freebsd.org/doc/zh_CN.GB2312/books/handbook/desktop-productivity.html  openoffice 中文
+ftp://ooopackages.good-day.net/pub/OpenOffice.org/FreeBSD/2.4.1/i386/     OpenOffice for FreeBSD7
+# pkg_add -r gimp  
+# pkg_add -r openoffice.org   http://porting.openoffice.org/freebsd/
+
+
+安装时有选择Developer,X-Developer(X window ),是否安装ports collections?http://freebsd.org/ports
+
+/bin/sh 没有bash  ,安装了Xorg,gnome 在/usr/local/bin/bash
+adduser 来加用户
+
+pw usermod zhaojin -s /usr/local/bin/bash  (修改用户)
+
+安装时有linux 二进制兼容
+
+ee 文本编辑器
+ esc+enter 后提示是否要保存
+ esc有菜单
+=================================gnome
+/usr/sbin/sysinstall 重新安装系统  Configure->Packages->CD/DVD->All->xorg-7.3.1  /usr/ports/x11/xorg  (CD1中)
+
+/usr/bin/X11R6/bin/Xorg 
+Xorg 命令 黑灰的格子和一个X形的鼠标指针，那么Xorg就配置成功了，同时键入Ctrl+Alt+Backspace退出。
+当前目录下就多了一个xorg.conf.new的文件 
+
+如果用Xorg -configure 不可操作,再重新启动后才有文件
+
+cp xorg.conf.new /etc/X11/xorg.conf
+后可以用startx　　　
+###要选的,默认是没有安装的
+Configure->Packages->CD/DVD->All->gnome2-2.20.1.   在CD2上的	(FreeBSD-8 选择gnome是安装在/usr/ports/x11/gnome2下)
+	(gnome2,starx)安装后有了一个 /root/xorg.conf.new的文件,再startx就可以用了，但鼠标认不出(VMware中)
+	(界面全英文的,一登录时有选择language,zh_CN.UTF-8,但选择后在firefox 中的字母显示变大)
+
+/stand/sysinstall ->configure ->; Mouse ->; enable,选择合适的模式。(/etc/rc.conf中加了 moused_enable="YES")
+
+startx 后可以用ctrl +alt +fn ，初始是f1，　
+
+
+
+% echo "/usr/X11R6/bin/gnome-session" > ~/.xinitrc (没有这个文件也这样做,即创建)  ##输入exec gnome-session
+或者
+在/etc/rc.conf中加入gdm_enable="YES" , 可以让FreeBSD缺省进入桌面环境，而不是缺省的终端( 就做这一行就可以启动桌面)
+
+##有hostname=myFree.com##com 是域,可用hostname -s
+
+
+
+/usr/bin/X11R6/bin/Xorg (FreeBSD 8 在VM中不显示界面,但最开始的startx显示只有终端的界面)
+DISPLAY=:0 ;xterm 要已经运行Xorg
+
+把xterm后台,再gnome-wm 窗口管理器
+===============================KDE
+
+xorgcfg –textmode
+
+因此启动KDE的移动存储设备即插即用功能，需要做如下配置：
+    1、在 /etc/rc.conf文件中加入下面的配置
+    hald_enable="YES"
+    dbus_enable="YES"
+    polkitd_enable="YES"
+
+安装kdm   (dke display manager)
+
+/etc/ttys 这个文件
+修改 ttyv8 行，如下：
+ttyv8    "/usr/local/bin/kdm -nodaemon"   xterm   on   secure
+
+
+KDM默认不允许root登陆,修改其权限:
+K菜单->设置->系统管理->登陆管理器，进行权限设置，并且要修改关机命令
+关闭系统命令：/sbin/shoutdown -p now
+
+================================
+(gnome)有firefox,evolution，web Brower 2.20.1(浏览器),Evince (PDF 浏览器)
+安装时两步骤都按a 自动配置
+
+
+
+ifconfig rl0 192.168.1.50 netmask 255.255.255.0 
+route   add   default 192.168.1.1 
+/etc/rc.conf  中要有sshd_enable="YES" 才可以启动
+/etc/ssh/sshd_config   
+	PermitRootLogin改成yes，
+	PasswordAuthentication就是把no改为yes
+/etc/rc.d/sshd restart
+
+cd /usr/ports/emulators/wine/ && make install clean
+pkg_add -r wine
+
+
+挂接光驱
+mount -t cd9660 /dev/acd0 /cdrom
+
+挂接ISO
+mdconfig -a -t vnode -f abc.iso -u 1    ###(-u 1 md1)
+mount -t cd9660 /dev/md1 /cdrom 
+
+ifconfig le0  192.168.1.27/24 up (虚拟机上的)
+
+
+ee /etc/rc.conf  修改文件
+
+defaultrouter="192.168.1.1"          
+
+gateway_enable="YES"
+
+ifconfig_le0="inet 218.107.216.132 netmask 255.255.255.0 up"  
+
+#/etc/netstart  生新启动网络服务
+
+
+
+
+
+*.tbz 软件包
+pkg_info
+pkg_add
+pkg_delete
+pkg_version
+pkg_config
+pkg_check
+pkg_create
+pkg_sign
+ cd /var/db/pkg/
+
+pkg_add javavmwrapper-2.3.2.tbz
+pkg_add diablo-jdk-freebsd7.i386.1.6.0.07.02.tbz
+
+pkg_info -W /usr/local/bin/bash 检查文件是哪个包中的
+pkg_info -L /var/db/pkg/bash    检查这个软件包所有的安装文件
+
+
+
+ 改分辨率时，有错，文件路径有两个　//
+ 声音不能　No volume control GStreamer plugins and /or devices found
+
+su - root 不可以
+
+pw usermod zhaojin -g wheel
+可以使用如下命令给普通用户su - root的权力：
+
+
+hostname -s 不要域名信息
+
+
+
+
+有时文件系统错误进入会进入 单列用户 / 目录是只读的,要fsck ,reboot
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+支持多个用户界面(gnome)同时使用
+
+sqldeveloper (other 版本可以在FreeBSD,windowsXP上运行) 
+$cd sqldeveloper
+$sh sqldeveloper.sh
+	/usr/local/diablo-jdk1.6.0 (存入 ~/.sqldeveloper/jdk 文件中)
+
+
+
+windows 下中文字体文件都 以sim开头,显示都有(TrueType)
+	simhei.ttf 黑体
+	simkai.ttf 楷体  (也可以)
+	simfang.ttf 仿宋
+	simsun.ttc 宋体 & 新宋体
+可以把windows 下的simhei.ttf 文件复制到 /usr/local/lib/X11/fonts/TTF/  ,重新开gedit有效果,注销后gnome字体也正常了,firefox...全部正常了
+
+可以netbeans ,中文界面字体不行(gonme英文正常)
+ cp /usr/local/lib/X11/fonts/TTF/simhei.ttf	$JAVA_HOME/jre/lib/fonts/fallback/   (fallback目录要新建立)
+ 运行时有一个UnkowHostException   InetAddress.getLocalHost(); 不影响运行,是由hostname 的值空造成的
+windows/freeBSD做示例不错误!!	
+
+netbeans-javaee-6.1 要用./bin/netbeans --jdkhome /usr/local/diablo-jdk1.6.0 来运行,找不到JDKHOME/lib/tools.jar
+	自己的tomcat 要一个"管理员"(manager) 角色的用户 ,我是 manager01
+	tools->server->来改密码
+	<tomcat-users>
+	  <role rolename="manager"/>
+	  <user username="manager01" password="manager01" roles="manager"/>
+	</tomcat-users>
+netbeans-javaee-6.1正常运行示例
+
+
+linux	cp /usr/share/fonts/zh_CN/TrueType/zysong.ttf 	$JAVA_HOME/jre/lib/fonts/fallback/ (手工建立fallback目录)
+	用命令 locate .ttf来显示
+	cp /usr/share/fonts/chinese/TrueType/xxxx.ttf    ~/.mplayer/subfont.ttf
+
+可以用pkg_add *.tbz的方式安装
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+守护进程对不常用的服务可以减少资源,没有请求时处于休眠状态
+
+ad ATA Disk
+acd ide cdrom
+cd scsi cdrom
+fd floppy disk
+
+ad0s1a 第一个IDE硬盘的第一个unix块(kslice)的第一个分区
+ad1s3b 第二个IDE硬盘的第三个unix块(kslice)的第二个分区
+
+a 限制使用,root所在分区
+b 限制,swap
+
+
+ls -G 来高亮显示
+
+/usr/local/etc/  放一些服务的配置文件
+rc.local启动时执行
+
+ee rc.conf
+有一个hostname=""
+defaultrouter=""
+ifconfig_xx="net 192.168.1.20 netmask 255.255.255.0"
+inetd_enable="YES"   //守护进程
+sshd_enable="YES"
+
+/modules 存内核的模块
+
+ee  ~/.cshrc 文件 (sh)
+alias ls ls -G
+在if($?prompt) then 中的set prompt改为,可是root用户不会显示为#
+set prompt="%B%n@%m[%/]" 
+%B粗体
+%n用户名
+%m机器名
+%/当前路径
+
+
+启动时,在Booting [kernel] in x seconds...（新版本中在启动菜单中近按4）
+按空格出现ok提示符
+ok    boot -s   //单例用户启动机器
+
+fsck -y 
+mount -a
+
+
+FTP 服务 /etc/inetd.conf文件
+-------------wu-ftpd
+
+第一行取消注释
+killall -HUP inetd
+ftp 0 //用登录当前机器
+
+wu-ftpd-2.6.2.tgz (老 和 sendmail)
+
+
+ports 在线安装
+tbz包是可以 用rar打开的里面多个以 "+" 开头的文件
+
+cd /usr/ports/ftp/wu-ftpd/
+make install  //在线安装
+
+
+pkg_add wu-ftpd-2.6.2.tgz
+装在/usr/local/libexec/ 目录下 ftpd
+
+/usr/local/etc/下
+ftpaccess
+ftpgroups
+ftpusers
+ftpconversions
+ftphosts
+
+ftpaccess中
+加入  restricted-uid *  //表示登录用户只可以在用户主目录操作
+
+在/etc/inetd.conf 文件中最后的参数多加 -a
+
+-l 记录目录 syslog
+-o 记录下载
+-a 强制wu-ftpd 读配置文件
+-A 不强制wu-ftpd 读配置文件
+-d 错误日志记录
+-i 记录上传
+
+/usr/local/bin/ftpwho 显示当前FTP 有多少用户
+/usr/local/bin/ftpcount
+
+ftpaccess中
+
+class	all	real,guest,anonymous	*
+组名	任意地址	用户
+
+limit	all	10	Any	/etc/msgs/msg.dead
+//任何时间只可以10个用户同时用,超过显示文件内容
+
+message		/welcom.msg	login 
+//显示欢迎信息  %T当前时间 %F 当前目录可用空间  %C 当前目录 %e 维护者信箱 %r 远程机器名字
+%m 用户最大连接数 %n 当前用户数
+
+
+
+shutdonw   shutmsg   //退出信息
+
+
+logibfails 5   //最大密码错误数
+-------------------- 内核编译
+内核源文件 /usr/src/sys/
+
+ ls /usr/src/sys/i386/conf
+
+GENERIC  内核配置文件
+LINT	内核配置文件解释
+
+备份 cp GENERIC chu888
+
+注释I386_CPU,I486_CPU,I586_CPU
+
+ident GENERIC//改自己的文件名
+
+maxusers 0 //开启最大进程数=20+16*maxusers   ,0没有限制
+
+一般不要# options MATH_EMULATE
+
+#options INET6  //不要IPV6
+
+#options NFS
+#options NFS_ROOT 不建议用NFS
+options MSDOSFS
+ 
+/proc  内存的 process
+
+SCSI_DELAY=15000  //开机时有的
+
+
+##options UCONSOLE
+#options USERCONFIG ##boot -c   可用
+#	KTRACE   //kernel trace
+#	KDBD_INSTALL_CDEV   //键盘
+#	AHC_REG_PRETTY_PRINT //主板	
+
+加入options QUOTA   //磁盘限额
+
+/usr/bin/config  chu888 (内核配置文件)  //检测是否
+
+根据提示 cd ../../comile/chu888
+make denpend ;make ;make install;reboot
+
+
+ee /etc/fstab 在/usr/的options 加rw,userquota,groupquota
+
+ee /etc/rc.conf  加入 enable_quotas="YES"
+
+ee ~/.cshrc  改EDITOR vi 为ee
+
+edquota -u chu888  //用ee  打开文件
+edquota -g  组名
+repquota -a  //显示所有的状态
+
+edquota -u -p chu888   user1 user2 //把用户chu888,复制到其它用户,可1000-2000 (UID 从1000-2000)
+
+------------------samba----
+ee /etc/inetd.conf  最后三行 SAMBA 去掉
+
+netsttat -a 多了一下netbios-ssn 
+
+smbclient -L //192.168.1.20
+
+smb.cnf 改 
+display charset=GBK
+unix charset=GBK
+dos charset=GBK
+
+smbpasswd -a chu88   //到文件
+
+
+smb.cnf 加 client code page=936//描述信息中文 不会乱码
+
+min passwd length=5 
+null passwds=no
+
+[public]  取消;
+;public =yes //是否共享
+witeable=yes //只读
+printable = no
+write list = @staff
+
+
+valid users=   // 这个目录只对指定的用户显示
+
+
+mysqladmin variables  显示所有的变量
+
+mysqladmin shutdwon
+
+
+
+oracle 没有 FreeBSD版本的
+
+cdcontrol -f /dev/acd0c eject   //  /dev/cd0c  SCSI cdroms 弹出CD
+
+2号CD 有mysql-client,samb-libclient,subversion,
+3号CD 自带samba 要autoconf  ,postifx,apache,php,unzip
+
+
+ md5 mysql-6.0.6-alpha.tar.gz  (linux  用md5sum) 来验证
+--------------源码安装mysql-6.0.6-alpha 
+FreeBSD 7上可以成功安装
+
+./configure --prefix=/usr/local/mysql --with-plugins=innobase --with-charset=utf8 #gbk 
+#默认--datadir=PREFIX/share
+#默认--localstatedir=PREFIX/var
+
+
+make #20分钟
+makeinstall
+
+pw groupadd mysql		#建立mysql组
+pw useradd mysql -g mysql	#建立mysql用户并且加入到mysql组中 
+
+cd /usr/local/mysql
+
+
+chown -R mysql .
+chgrp -R mysql .
+
+##cp share/mysql/my-medium.cnf /etc/my.cnf
+##没有var目录 ,也没有 data目录, install 后有var 目录
+
+./bin/mysql_install_db --user= mysql  
+
+##后提示/usr/local/mysql/bin/mysql_secure_installation //removing the test databases and anonymous user created by default
+##/usr/local/mysql/bin/mysqld_safe & //可以成功启动  ,/usr/local/mysql/bin/mysqladmin shutdown -uroot -proot
+##/usr/local/mysql/mysql-test ; perl mysql-test-run.pl
+
+cp ./share/mysql/mysql.server /etc/rc.d/mysql  ##可以正常使用
+
+##./bin/mysqld_safe --defaults-file=/etc/my.conf --user=Mysql  &
+
+
+## [mysqld]
+##datadir=/usr/local/mysql/data
+
+default-storage-engine=INNODB
+default-character-set=utf8
+
+有字符集UTF8的
+建数据库默认也是UTF8的
+SHOW CREATE DATABASE bugs
+
+
+日志：vi /usr/local/mysql/var/[hostname].err
+
+SHOW [STORAGE] ENGINES //显示没有innodb 
+./bin/mysqladmin variables -uroot -proot >variables.txt  //没有innodb ,
+
+没有innodb  6.0.6要 ./configure --with-plugins=innobase,就可以了,
+再 cp ./share/mysql/my-medium.cnf /etc/my.cnf //改文件内容为
+[mysqld]
+default-storage-engine=INNODB ##加这行
+#skip-federated ##注释这行
+
+---------------------测试结果默认是MyISAM , 匿名用户问题
+
+
+###（make install后，mysql_install_db前）或是去掉/etc/my.cnf文件中的以innodb_开头的# ，注释skip-federated
+
+（5.1.3,5.1.9也有--with-innodb）mysql-5.0.67编译安装 ... configure --prefix=/usr/local/mysql --with-innodb ， 支持innodb引擎.
+--------------mysql 上-
+
+
+
+
+
+pkg_add -f xx.tbz (会检查有错也安装)
+
+pkg_info -dL xx 找一个软件包的安装目录/文件
+-L 列出安装目录/文件
+
+pkg_info -W /usr/xxx ［文件名］ ##查看文件是哪个软件包的
+
+ /var/db/pkg/<pkg-name>  下记录以"+" 开头的文件
+
+
+
+
+没有unzip 命令
+
+
+
+FreeBSD 7 如果非法关机,下次启动时,会很长时间去 fsck
+
+gmake 光盘中有的
+
+
+
+xorg.conf 是由 xserver 读的， 和gnome没有关系。 你应该运行
+startx `which twm`   只显示格子
+
+
+
+
+openoffice ,vmware,ORACLE,PDF,scim,stardict,mlayer,wine,anjuta,(glade),,无线,刻盘,,chm,pidgin
+
+
+
+fTP 一个IP 多两个用户在线下载???
+GFTP 连接windows 服务器欢迎信息是中文不行的啊
+
+界面改辨率出错,两个//出错,可能是hostname  的值返返回空,只能不报错,但不可以改
+/etc/rc.conf中添加
+hostname="freebsd.fixend.org"  ##要用FQDN  user.company.com
+
+要改/etc/X11/xrog.conf文件中___VM中OK
+Section "Screen"  ####在最后面
+        Identifier "Screen0"
+        Device     "Card0"
+        Monitor    "Monitor0"
+
+	DefaultDepth 24			###加入的
+
+        SubSection "Display"
+                Viewport   0 0
+                Depth     24
+		Modes "1024x768"	###加入的
+        EndSubSection
+EndSection
+
+
+http://www.freebsd.org/ports/deskutils.html#xchm-1.14_1   xchm   少LIBCHM
+
+
+filezilla-----------------
+要  wxWidgets,在CHM 中有的
+	idna.h not found which is part of GNU libidn (光盘中有的)  安装在/usr/local/include 下 
+ln -s /usr/local/include/idna.h /usr/include/  不行啊,安装源码还是找不到,要
+ export CPPFLAGS=-I/usr/local/include
+
+mkdir compile
+cd compile 
+../configure --with-idn-lib=/usr/local/lib
+
+make 出错
+-----------------
+
+
+
+mysql-gui(要编译,要先有mysql-client-5.045 光盘中有的 二号,postgreSQL-client-8.1.10,openldap,db4)
+	make 出错啊
+
+linux/unix 如何在控制台用中文输入法呢?
+	不是远程登录,也不是在图形界面,就像在纯DOS中用输入一样
+
+
+---------------------no------------硬盘安装FreeBSD
+2. 文件准备
+    a. 解压顺序 3->2->1
+    b.把\packages的INDEX文件用写字板打开,查找替换目标"||1"替换成"|"查找"||2"替换成"|"等,之后保存.
+    c.以上文件放到C盘根目录下（试过放\freebsd不行）
+
+3. 修改menu.lst
+title install FreeBSD 7
+find --set-root /7.0-RELEASE-i386-bootonly.iso
+map --mem /7.0-RELEASE-i386-bootonly.iso (hd32)
+map --hook
+chainloader (hd32)
+boot
+---------------------------
+
+会在开机时执行文件　/etc/rc.local 的脚本  (如没有该文件可，要新建)
+
+/etc/rc.d/目录的启动脚本
+
+/etc/rc.conf 文件中加入 mysql_enable="YES"
+
+
+halt -p和shutdown -p now .这两个命令可以直接关掉电源.
+
+halt 会提示按回车reboot
+shutdown now 不会关机
+
+
+
+tbz软件包安装apache-2.2.6_2.tbz 会提示 在/etc/rc.conf 中加入 apache22_enable="YES"
+
+
+
+
+
+
+
+------------------------
+ FreeBSD CD转成DVD
+
+ Creating Your Own FreeBSD 7.0 DVD
+Dru (SysAdmin, Technical Writer, Technical Trainer) posted 2/28/2008 | Comments (35)
+If you're in the FreeBSD world, you've probably already downloaded or csup'd FreeBSD 7.0 or are in the process of doing so now. As yes, after what seemed like waiting forever, the announcement of 7.0 went out last night.
+
+I spent this morning making a DVD ISO of FreeBSD 7.0 to be included in the upcoming BSD magazine. Creating a DVD is easy and my instructions follow.
+
+Start by downloading the following four files from your closest FreeBSD mirror; you'll find these files in the ISO-IMAGES-i386/7.0/ directory:
+
+7.0-RELEASE-i386-disc1.iso
+7.0-RELEASE-i386-disc2.iso
+7.0-RELEASE-i386-disc3.iso
+7.0-RELEASE-i386-docs.iso
+
+Note: all of the mirrors are extremely busy today so you may have to try a few before you find one close to you that has some connections left. I saved mine to the download subdirectory of my home directory. I created a staging area, became the superuser and ran the following commands to mount and untar the contents of the 4 files:
+
+cd ~dru/downloads/dvd-freebsd7/
+mdconfig -a -t vnode -f ../7.0-RELEASE-i386-disc1.iso -u 0
+mount -t cd9660 /dev/md0 /mnt
+tar -C /mnt -cf - . | tar -xf -
+umount /mnt
+
+mdconfig -a -t vnode -f ../7.0-RELEASE-i386-disc2.iso -u 1
+mount -t cd9660 /dev/md1 /mnt
+tar -C /mnt -cf - . | tar -xf -
+umount /mnt
+
+mdconfig -a -t vnode -f ../7.0-RELEASE-i386-disc3.iso -u 2
+mount -t cd9660 /dev/md2 /mnt
+tar -C /mnt -cf - . | tar -xf -
+umount /mnt
+
+mdconfig -a -t vnode -f ../7.0-RELEASE-i386-docs.iso -u 3
+mount -t cd9660 /dev/md3 /mnt
+tar -C /mnt -cf - . | tar -xf -
+umount /mnt
+
+
+Next, use sed or the replace function of your favourite text editor to remove all incidences of ||1 and ||2 and ||3 from the file packages/INDEX.
+
+Add these lines to cdrom.inf:
+
+CD_VOLUME = 0
+CD_VOLUME = 1
+CD_VOLUME = 2
+CD_VOLUME = 3
+
+Then, remove this directory:
+
+rm -Rf rr_moved
+
+or you will get this error when you try to create your DVD:
+
+mkisofs: Error: './rr_moved' and '(NULL POINTER)' have the same Rock Ridge name 'rr_moved'.
+mki/usr/home/dlavigne6/sofs: Unable to sort directory
+:-( write failed: Input/output error
+
+This command (type all on one line) will burn your DVD on the fly; note that it will NOT save a copy of the ISO to your hard disc:
+
+growisofs -Z /dev/cd0 -J -R -no-emul-boot -b boot/cdboot -iso-level 3 .
+
+To instead create an ISO which you can then burn at your leisure, use this command (typed all on one line):
+
+mkisofs -V FreeBSD7 -J -R -b boot/cdboot -no-emul-boot -o freebsd7.iso .
+
+and to burn the ISO:
+
+growisofs -dvd-compat -Z /dev/cd0=freebsd7.iso
+
+That's it. Have fun! 

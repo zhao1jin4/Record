@@ -1,0 +1,203 @@
+MEL
+
+关键字 on ,off ,yes ,no
+matrix $temp[2][3]<<4.5,1.0,0.2;-13,9916,0.007>>  可不指定变量类型赋值,不指定数组大小
+
+Vector $L =<<7,-4,9>>//单独赋值方法
+$L=<<$L.x,$L,y,3>>  //仿问时必须圆括号
+size($变量数据) //返回大小 ,size($String变量)
+
+
+---------
+建函数不给默认参数值如,proc int a (int b=3) 是错误的
+
+函数同名将覆盖,执行时如无(),则不用,号
+maya 内部用脚本 与 用户脚本 重复时用户首先执行(名称相同)
+
+getAttr attrFieldSliderGrp -min xx -max xx -at "spere.ty" -q 查询 -e 编辑 -c 创建
+
+CheckBox -lable "xx" -onCommand -offCammand -ChangeCommand
+
+editSelected 打开属性编辑器
+
+paneLayout -e -cn right3 $gMainPane  //改变视图布局
+
+Command Echo -state (!`commandEcho -q -state`);
+
+
+setSelfVisible(!`isSelfVisible`);
+setKeyFrame -at translate;
+toolPropertyWindow // 显示工具设置视窗
+trubulence -name .. -maynitude 5 -frequency 0.4
+
+showHidden ;
+select -all;
+在文档 \maya\.\prefs下的文件每启动maya时,文件会执行,
+			场景中所有物体删
+djs 是JointDisplayScale  的缩写 1.5 ;
+-------
+	ramp.position 0.5    //第3种色
+setAttr "texture名.colorEntryList[3].color"  -type double3 1 0 0 ; //共3个 ,红色
+
+setAttr texture名.type 8 ;//即tartan
+
+选物
+PickWall -d  down ;//(-d 是direction ,子节点),up或者left,right
+
+sets -edit -foreceElement shadingGrp的名  物体名//为物体赋材质组
+
+setAttr "shader名.color" -type double3 0.4 0.2 0.1
+int/float $R=`rand -10 10 `  //取随机数
+
+whatIs ls ;
+help ls;
+ls -type nurbsSurface
+获取命令的返回值,用左上角单引号,或者 eval
+`particle -p 5 05 -name sun`
+eval 中可包含字符串变量
+----
+FreezeTransformations ; 通道中的值变0
+ResetTransformations ; 物体中心到0,0,0
+duplicate ;复制在原位置,后可rotate
+parent $子物  $父物
+
+rename "新名" ; 对选择的生命名,前方指旧名
+`ls -mat `
+
+switch($x)
+{
+case 0:....break;
+
+}
+
+shadingNode -asShader lambert -n "名字" //创建lamber  的材质球
+
+shadingNoe -asTexture ramp -n "名"
+
+sets -renderable true -noSurfaceShader true (当-renderable打开时有意义)
+	-empty -n xx //名字不要""
+
+创建shadingGroup在材质的shadingGroup栏中显示
+
+connectAttr -f (-force) shader名字.outColor  组.surfaceShader 
+connectAttr texture名.outColor   shader名.color
+
+---
+
+window -rtf true -title "标题" 窗口名
+	(resize to fit	)
+columLayout ;
+rowLayout -nc 3 //每行几列
+intSliderGrp -label "xx" -field true 名字
+floatSliderGrp 与上同,也可-minValue -maxValue
+
+buttion -c (command 的缩写) "命令" -lable " ";
+showWindow 窗口名
+
+proc 函数名
+int $ball =`initSliderGrp -q (query )-value "名字"`;
+
+String $a[]=`ls -sl` (list selection 的缩写)
+
+for($N in $a数组)
+	$N.sx 
+
+Sphere -ax 0 1 0 ;//y 轴向上 axis 
+
+select("物.cv[3][7]") //选择cv点 (3,7)
+
+move -r 相对
+
+
+-----
+
+Sphere -n ball //(-n name )
+setAttr ball.ty
+		 显示的名字
+addAttr -longName spinBox -defaultValue 0 -maxValue  100 -minValue 0  -keyable true //可关键贞,在通道中显示
+									(-K 是缩写)
+
+
+connectAttr [属性1] [属性2] //用 [属性1] 来控制 [属性2]
+
+aliasAttr [别名] [物.属性]  //给  [物.属性] 起一个 [别名]
+aliasAttr -rm [物.属性] //删除别名
+
+int ,float ,string ,int [] ,变量名用$ ,Vector<<1,1,1>>
+
+String $a ={"a","b"};
+matrix<<3.3,5.4,02.,3,3>>    //matrix矩阵
+
+print "my\n";
+print $a
+
+while () 
+
+for( ; ; )
+
+if( )
+
+global proc myname(filename) (int $... ,float $)
+{
+
+}
+ 文件放在项目名下的script(MEL)目录(或8.0\script下) ,set...到本项目
+
+ source 名字; //把mel文件导入内存,后键入名字回车执行,如有参数值加上,如 ball 5;
+
+
+
+
+
+
+
+-------------------------
+maya
+
+
+材质中ambient  周围环境  是未照到光的的亮度,加大会影响全部(自发光)
+incadescence 自发光
+
+右击dump ->break connect
+diffuse 散播,
+translucence    半透明
+
+eccentricity   [数]离心率  高光大小
+
+Render Global Setting->Raytracing Quality 有开关对光线跟踪
+
+
+
+返射不是周围环境是一个看不见的球
+blin 材质->Reflect Color ->选EnvBall ->加图   (假反射)
+
+材质->文件下有color balance 调图片亮度 ,color gain ,color offset
+
+filter 对动画可以减少闪烁,静止图片可以减少值
+
+
+物体 Render Stats 中可设不可渲染 Primary Visiblity,Visible in Reflections
+
+hyperShader窗口,上按钮 把选择中物体的材质导入工作区
+
+
+
+as stencil  模版, 蜡纸  可以有边模糊效果edge blend
+ 
+tessellation 镶嵌成小方格, 棋盘形布置
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

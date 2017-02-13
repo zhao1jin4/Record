@@ -1,0 +1,468 @@
+
+============== Redis-3.0
+REmote DIctionary Server(Redis) 
+
+源码安装
+cd src
+make 或  make MALLOC=libc   (默认在/usr/local/bin) 或  make PREFIX=/some/other/directory 
+
+make test 提示要 tcl  ruby ,RubyGems
+	安装tcl,cd tcl8.6.6/unix    执行./configure && 	make &&	make install  就有/usr/local/bin/tclsh8.6
+
+	 redis-trib.rb 用的是ruby脚本 源码安装ruby-2.3.3 就有/usr/local/bin/ruby
+	./configure && make && make install
+	运行依赖于 RubyGems-2.6.8 安装 /usr/local/bin/ruby setup.rb
+	ruby的redis 模块 在线安装 /usr/local/bin/gem install redis   
+
+	报 NOREPLICAS Not enough good slaves to write   先忽略 
+#make install 如不install  在./src下有命令
+redis-server -v 看版本
+ 
+源码目录有redis.conf可用于复制
+cp redis.conf  /usr/local/etc/
+redis-server /usr/local/etc/redis.conf
+
+./redis-server ( 默认监听 6379 端口)
+	提示 加 vm.overcommit_memory = 1 到  /etc/sysctl.conf ,用命令 sysctl vm.overcommit_memory=1立即生效
+	cat /proc/sys/vm/overcommit_memory
+	0 表示内核将检查是否有足够的可用内存供应用进程使用:如果有足够的可用内存,内存申请允许. 否则,内存申请失败,并把错误返回给应用进程。
+	1 表示内核允许分配所有的物理内存，而不管当前的内存状态如何。
+
+./redis-server --port 9999 --slaveof 127.0.0.1 6379  自己做从,--slaveof 后的是masterIP masterport
+./redis-server /etc/redis/6379.conf --loglevel debug
+
+./redis-cli -p <port> 有交互命令如ping
+>help 再按tab有命令组的提示,如@string
+ help brpop
+>bgsave  保存到磁盘  使用LASTSAVE 命令判断 BGSAVE 命令是否执行成功
+>save   保存到文件(默认 dump.rdb 可以在线保存导出给另一个redis,failover是这样实现的)
+	append only file 以aof结尾(appendonly.aof) 配置文件中加 　appendonly yes
+
+	
+>shutdown 关闭服务端
+>exit 退出本客户端
+
+>set <var> <val>
+>get <var>
+>set name "john doe"
+> append name " mr."
+> strlen name 
+> substr name 0 3 
+>mset age 30 sex "male"
+msetnx age 30 sex "male"
+>mget age sex
+
+set greet helo
+setrange greet 2 x   #返回 hexlo  ,格式 setrange key offeset value 
+setrange greet 2 LL  #返回heLLo 
+
+getrange greet 2 3 #格式 getrange key  start end
+getrange greet 2 -1
+
+>set counter 10
+>incr counter      	加1  原子操作
+>incrby counter 10  加10
+incrbyfloat counter 0.5
+>decr counter     	减1
+>decrby counter 10  减10
+>getset counter 45  先返回再设置
+
+大小写 
+ A 的ASCII 是 65   0100  0001
+ a 的ASCII 是 97   0110  0001
+ 区别就是第3位0或者1的区别
+ 
+ set char 'A'
+ setbit char 2 1  #第3位设置为1,变小写,格式setbit key offset value
+ 
+ set v 2
+ bitop  or res char v 
+ bitop  and res char v
+ 
+ 
+---list
+lpush message " -- " 
+lpop message
+rpush message "hello"   #也有 lpush从左边加
+rpush message "world"
+rpoplpush message dest #格式 rpoplpush  source dest
+lrange message 0 2		开始索引,结束索引,-1表示最后一个元素，-2表示list中的倒数第二个元素
+lrange message 0 -1
+llen message 
+lrem message 1 "hello"     从左删1个hello
+linsert message before "world" "hello"   ##在 world前加hello
+ltrim message 1 2     #从左开始索引 结束索引 ,删总数1个
+brpop message 2 #超时时间2秒 相应的有blpop
+lset message 0  val0
+lindex message 0
+
+---set
+sadd myset 'one'  
+sadd myset2  'one'  
+sadd myset2 'three' 
+
+smembers myset
+sismember myset 'one'    是否存在元素  
+sdiff myset1 myset2
+sinter myset2 myset 取交集
+sunion myset2 myset 
+sdiff myset2 myset
+sort myset2 alpha  desc
+srem myset2 'one'   
+spop myset2   随机取一个
+srandmember myset2 随机取一个,不删
+scard myset2  集合个数
+smove myset2 destSet 'three'  
+ 
+sinterstore res myset1 myset2 
+sdiffstore
+ 
+
+---有序set
+zadd myscore 80 'math'  #score 是80
+zadd myscore 77 'english'
+zadd myscore 78 'chinese' 79 'hisotory'
+zrank myscore 'hisotory'  #得到排名,以0开始的
+zrevrank myscore 'hisotory'
+
+zcard myscore 		#总数
+zscore myscore 'math' 
+zcount myscore 70 80 
+zrange myscore 0 -1  #根据分数的名次
+zrange myscore 0 -1  withscores  
+zrevrange  myscore 0 -1
+zrangebyscore myscore -inf 80  #根据分数  负无穷
+zrangebyscore myscore -inf 80 limit 1 2  # limi后是 offset count
+zrangebyscore myscore  77 78
+
+zincrby myscore 2 'hisotory'
+zrem myscore 'hisotory'
+zremrangebyscore myscore 77 78  #包括办界的范围内
+zremrangebyrank myscore 1 2  #根据排名删，包括办界的范围内
+
+zadd zset2 68 'chinese' 69 'hisotory'
+
+zinterstore zres 2 myscore zset2   #2是相同的,必须是对的
+zrange zres 0 -1  withscores 得到的是分数相加
+zinterstore zres 2 myscore zset2 aggregate max
+zinterstore res 2   myscore zset2 weights 1 2 aggregate max  #对zset2的集合分数做*2
+类似的有 zunionstore
+ 
+
+
+--hash
+hmset kid name Akshi age 2 sex Female 
+hset kid  brothers 2
+hsetnx kid name 'wang'
+hkeys kid
+hvals kid 
+hget kid name
+hmget kid name age sex 
+hgetall kid 
+hdel kid sex 
+hlen kid 
+hexists kid name
+hincrby kid age 3
+hincrbyfloat kid age 0.5
+
+
+---
+
+一个终端 客户端订阅 会阻塞
+> subscribe mychannel_1  mychannel_2 	
+> psubscribe mychannel_*   通配式pattern	
+##unsubscribe 
+也可再开一个终端 subscribe mychannel_1 
+
+另一个终端
+> publish mychannel_1 hello   #会返回2,表示2个被接收
+> publish mychannel_2 world
+
+pubsub 命令
+
+
+----管理
+select 0  多个DB切换    #最多数据库配置项 databases 16,即最多select 15
+select 1 
+MOVE name 0		DB移动 
+DBSIZE  当前库的key的个数
+info		显示所有配置
+FLUSHDB    清当前DB
+FLUSHALL 
+type dest 集合是什么类型的
+
+TTL 命令可以获取某个key值的过期时间(-1表示永不过期)
+
+set name "john doe"
+ttl name
+
+exists name
+expire name 5 			5秒
+expireat name 1316805000  (seconds since January 1, 1970) 在某个时间点过期
+persist name 移除过期时间
+
+keys * 显示所有的key
+del name
+
+randomkey
+rename name new_name
+ping  测试连接是否存活的
+config get dir 也可用  config get *
+用config set 可以不用重启,修改配置
+time 返回服务器时间
+
+-----事务，严格上不能算事务
+NX结尾命令都是判断在这个值没有时才进行某个命令
+SET name "John Doe"
+SETNX name "Dexter Morgan"  因已有值,所以未改变
+setex name 10 'lisi'  #10秒过期
+
+GETSET name "Dexter Morgan"
+GET name 
+
+SET inAcc 10 
+SET outAcc 20
+MULTI 			#事务开始
+INCR inAcc 	#提示QUEUED 排队
+decr outAcc 
+#incr name   #这里失败不会导致前面的回滚,只有这里输入了语法错误的命才回滚
+DISCARD 		#回滚
+
+EXEC 			#事务结束
+
+---- 乐观锁
+
+set ticket 1
+watch ticket
+multi
+incr ticket
+exec  #这里如果另一个session也修改了这个，这里再执行会返回nil 表示执行失败
+
+#执行exec ,discard,unwatch 时会自动取消watch
+
+
+---分布式锁 Java 实现  Redisson 
+
+---Lua 
+eval "return redis.call('set','foo','bar')" 0 
+
+call  如有错误则,返回给调用者
+pcall 如有错误会 trap一个表
+
+EVALSHA 同eval 但参数是SHA1 加密的
+
+
+>eval "return {KEYS[1],KEYS[2],ARGV[1],ARGV[2]}" 2 key1 key2 first second
+1) "key1"
+2) "key2"
+3) "first"
+4) "second"
+
+中的2表示有两组key ,下标从1一始(全局变量 KEYS,ARGV,是接受后面的参数)
+ 
+>eval "return redis.call('set',KEYS[1],'bar')" 1 foo
+>get foo 显示 bar
+
+
+
+查看错误信息
+redis.error_reply(error_string)
+redis.status_reply(status_string)
+
+
+
+--redis.conf
+include /x/y.conf
+
+port 6379
+timeout 0    客户端空闲几秒后关闭连接 0禁用
+
+
+daemonize yes
+loglevel warning  (还有notice,verbose,debug)
+logfile	/tmp/redis.log	#log文件位置,默认"",输出到控制台,如后台就不输出
+
+databases 16  #从０开始
+
+slave-serve-stale-data 	no 		当从不能连接主时，不允许返回过期数据，返回错误
+repl-ping-slave-period 10		slave从向发ping的时间期隔10　秒
+repl-timeout 60					要大于repl-ping-slave-period
+
+##### 持久化.rdb
+dbfilename	dump.rdb 	#数据快照文件名
+dir	 /tmp  				#数据快照的保存目录
+
+#save  <seconds> <changes> #保存快照到文件的频率
+#after 900 sec (15 min) if at least 1 key changed
+save 900 1
+
+#after 300 sec (5 min) if at least 10 keys changed
+save 300 10
+
+stop-writes-on-bgsave-error yes   当后台save报错时,停止接收写操作
+rdbcompression yes
+rdbchecksum yes
+可以手动执行save 命令
+#####  持久化.aof  ,aof和rdb两个可以同时启用,优先用aof
+
+appendonly no  #默认no,设置yes 会生成.aof文件,存的是明文的命令
+appendfilename "appendonly.aof"
+# appendfsync always
+appendfsync everysec
+# appendfsync no
+ 
+auto-aof-rewrite-percentage 100   因aof文件存的命令,如果多次修改就会生成过大的文件,可以重写为一个set
+auto-aof-rewrite-min-size 64mb
+
+requirepass   <thepass>   连接要密码
+
+连接后要用 auth <thepass> 　后才可执行命令
+也可以 redis-cli -a <thepass>登录
+> config get requirepass 查密码
+bgrewriteaof  手工执行重写aof 文件 
+
+如果开启aof,刚执行flushall,可以 shutdown save 防止aof文件被重写,手工修改aof文件的最后三行
+
+redis-benchmark -n 1000   -a pass # 性能测试工具  -n <requests>
+
+---- 手动 failover
+配置主master
+pidfile /var/run/redis.pid
+port 6379
+dbfilename dump.rdb
+requirepass rpass
+appendonly no
+
+配置2个slave
+pidfile /var/run/redis6380.pid
+port 6380
+dbfilename dump6380.rdb
+slaveof    127.0.0.1 6379
+masterauth   rpass 		#在从上时设置 主的密码,主用 requirepass   <masterpass> 设置
+slave-read-only yes
+appendonly no
+
+启动测试set master值,slave中看
+查 info Replication
+
+如从显示
+role:slave
+master_host:127.0.0.1
+master_port:6379
+master_link_status:up
+slave_read_only:1
+如主显示
+role:master
+connected_slaves:2
+slave0:ip=127.0.0.1,port=6380,state=online,offset=718,lag=0
+slave1:ip=127.0.0.1,port=6381,state=online,offset=718,lag=0
+
+
+停master ,手动做failover
+
+连接一个从6380
+slaveof no one  
+config set slave-read-only  no  #也可以不配置
+
+连接另一个从6381
+slaveof   127.0.0.1 6380 
+config set masterauth ''   ,可先用 config get master* 
+
+----Sentinel (岗哨，哨兵) 是分布式的, 可以监控服务,如有问题可以通知外部,自动failover
+
+redis-sentinel -v
+源码目录有 sentinel.conf 可用于复制
+
+./redis-sentinel ../sentinel.conf  必须指定配置文件(对重启使用),并且文件是可写的(自动发现slave并更新配置)
+或
+redis-server ../sentinel.conf --sentinel
+
+port 26379   默认值 
+
+#配置格式为 sentinel <option_name> <master_name> <option_value>
+#sentinel monitor <master-name> <ip> <redis-port> <quorum>  监控这个master,
+sentinel monitor mymaster 127.0.0.1 6379 1  #如果有1台发现master挂了才有反应,一共3台，要设置为1
+sentinel auth-pass mymaster rpass  #如使用密码,要所有的主从也使用相同的密码
+
+sentinel down-after-milliseconds mymaster 30000   ##默认30秒,如果 ping不通或返回错误,认为master是down的
+sentinel failover-timeout mymaster 180000   #如果failover操作在3分钟内未完成,认为失败
+
+#sentinel parallel-syncs <master-name> <numslaves>  #当一个slave做failvoer到新master时,多少个salve可以和新master 做reconfig(这时不可query),可能做.rdb文件传输
+sentinel parallel-syncs mymaster 1
+
+有WARNING级的日志可以做通知
+sentinel notification-script mymaster /var/redis/notify.sh
+
+连接sentinel
+redis-cli  -p 26379
+> sentinel masters  显示所有监控的master和状态
+> sentinel master mymaster
+> SENTINEL get-master-addr-by-name mymaster 返回mymaster的主服务器的 IP 地址和端口号
+不能调用get,set
+
+连redis  6379,6380,6381, 测试
+
+
+------redis  cluster  自动分片数据到多个节点上(shard)
+
+port 7000			 
+cluster-enabled yes
+cluster-config-file nodes0.conf		#文件自动生成,不需要手工修改,配置文件中不要中文
+cluster-node-timeout 5000			#毫秒 如时间内不能连接节点,认为节点失败
+appendonly yes 		
+
+
+---学习到的
+slave-serve-stale-data yes  	#表示当 从与主断开 或者 复制正在进行 回复客户端,如为no则报错 
+slave-priority 100   			#如果master 不能正常工作选择从的优先级
+min-slaves-to-write 3          如果slave小于3个,主就不能写,最多10秒
+min-slaves-max-lag 10
+---
+
+启动时可以看到 node id,每次都是同一个
+最少3个  master 节点,建义3个master 节点+3个slave 节点(6个配置文件)
+
+示例建立目录 mkdir 7000 7001 7002 7003 7004 7005  每个目录中放相同的配置,并修改端口,config-file名,并启动
+
+如报最大打文件数
+	cat /proc/sys/fs/file-max
+	vi /etc/sysctl.conf  中加  fs.file-max = 10032
+	sysctl -p
+
+redis-cli -c -p 7000 (-c cluster,-p port)
+> cluster nodes 以看到 node id
+> cluster info  看 cluster_state  是 fail
+> ping 
+
+
+
+./redis-trib.rb create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
+	提示哪三台做M,哪三台做S,  输入yes
+	其中 --replicas 1 表示 每个主节点要一个子节点
+	
+> cluster info 显示 cluster_state:ok
+			cluster_slots_ok:16384
+			cluster_known_nodes:6 (不一定都是成功状态)
+			cluster_size:3
+
+> cluster nodes 可看出slave的master是谁
+
+如果master做shutdown 那么它原来的slave变为master,自己fail
+如果slove 做shutdown ,只自己fail
+
+./redis-trib.rb reshard 127.0.0.1:7000   (shard碎片)提示输入移动slot数量->接收的node id(要为master)->输入几个源节点后done或用all
+检查用
+./redis-trib.rb check 127.0.0.1:7000
+
+2的15 次方=16384 所有的slots
+自己不负责的Slot的请求时，会将负责请求Key所在Slot的Redis Instance地址返回给客户端，客户端收到后自动将原请求重新发往这个地址
+
+redis-cli -p 7000 cluster nodes | grep myself
+redis-cli -p 7000 cluster nodes | grep master
+redis-cli -p 7002 debug segfault 表示 让7002端口的应用掉电
+
+./redis-trib.rb add-node (--slave) 127.0.0.1:7006 127.0.0.1:7000     第一个参数是新启动独立的,第二个是已经存在的
+	一个主可以有多个从
+./redis-trib.rb del-node 127.0.0.1:7006 <node-id>    也会停止这个节点的服务,删了的节点不能再加????
+
+

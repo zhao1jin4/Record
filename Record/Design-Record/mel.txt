@@ -1,0 +1,196 @@
+最近因为工作要用到maya，又因为我的mel很差，临时抱抱佛脚，看看书，所以写一些mel的教程，希望精于此道的兄弟看到问题多提出来，也帮我进步进步，谢谢
+
+mel的强大自不必多说了，因为他是maya的底层语言，maya界面菜单上的每一个命令其实都是在执行mel命令，可以说mel是无所不能的，用它来编程的话，有什么做不到的呢？
+
+先来看看从哪里可以手工输入mel 
+ 
+
+eagle0691 2006-04-06 21:33 
+常用的就是script editor,因为直观，command shell那里也很好用，但对很多段的程序，不够直观。不过对于一句的mel，它的好处就在于能用上下箭头调出以前的命令。
+在script editor中，点击edit→echo all commands，这样的话，你在maya里执行每一个菜单命令，你都能从se中看到那个命令是怎样写的，这个可以自己看一下。 
+ 
+
+eagle0691 2006-04-06 21:55 
+来说说表达式，表达式其实也是mel，本质上一样，但是表达方式不太一样，一个明显的区别就是mel中获取或者设置属性值是不能用等号（＝）的而是要用setAttr这个命令。表达式一般运行较慢，最好就是能用约束或其它命令，就不要用它。
+我们现在来写一个简单的表达式。
+创建一个球体，然后在它的属性页中(ctrl+a)选择 attribute → add atrribute
+属性名称(attribute name)输入revolutons，数据类型(data type)选择float（浮点，就是精确到小数点的数），点ok
+这时在右边的通道栏下边就可以看到revolutons了
+
+我们想要这个数字控制球体在y轴旋转，所以在rotate Y上按住右键选择Expressions打开表达式编辑器，在它里面输入我们的表达式。（maya的强大真是随处可见啊，几乎所有属性都可以被key和编辑表达式）
+      (这表示y轴的旋转属性)                   （这里即是乘以360）
+nurbsSphere1.rotateY ＝ nurbsSphere1.revolutions*360；
+（这是那个球体的名字）   （这是我们刚才建立的属性）
+
+输入完毕，点击create建立。
+这时我们在通道栏点revolutions，按住中键在视图内左右拖动，就发现球体随这个数值的变化在角度上乘以360在转动了 
+ 
+
+eagle0691 2006-04-06 22:04 
+那么接下来，说说操作符优先
+
+在一个长长地长长地mel语句中，可以需要复杂的关系式，比如 int $ui = ($maya+$ff*ere)++，这样的话，就需要知道哪个符号是先被执行的，就好比数学式中乘除先于加减，括号内的先运算，等等，maya中的数学操作符是这样的顺序。
+
+()   []
+! ++   --
+* / % ^
++   -
+< <=   >   >=（这行就是小于，小于等于，大于，大于等于） 
+== !=
+&&
+| |
+? :
+= += -=   *=   /=
+
+
+一个好的表达式应该有三部分：
+1，变量的定义
+2，属性值的计算
+3，把表达式计算的结果赋值给属性
+
+表达式脚本的第一部分是在什么地方定义那些存储中间结果的变量(variables)，或容器，通过计算，把表达式计算的值存储在这些变量或容器里。 
+
+float $xval = time;
+float $yval;
+
+第二部分是使用属性值和变量的值来计算表达式想要控制的属性的值
+
+$yval = sin ($xval);
+
+第三部分就是把值赋给属性
+
+translateX = $xval;
+translateY = $yval; 
+ 
+
+eagle0691 2006-04-06 22:29 
+一、定义变量
+变量分为整型int，就是整数的，比如1，2，3
+        浮点fllat，就是小数那样的，1.23 , 2.334
+        字符串string ， 就是普通字符，比如"hello, world" "how are you"等等，要用" "引号括起来
+    向量vector,向量用<< >>括起来，它表示像一点的x、y、z方向，加速度，或者颜色r、g、b这样的数值，写法是vector $maen = <<1,2,3>>，就像这样。
+所有的变量在书写的时候前边都要加一个$
+
+二、计算属性值
+
+像刚才写的那个变量$yval =sin ($xval);   sin就是一个函数，mel包含很多函数(functions)，具体可以查帮助
+
+三、赋值
+
+translateX =$xval;
+translateY =$yval;
+
+这是表达式的写法，在mel中不能直接给变量赋值，应该写成这样
+
+setAttr nurbsShpere1.translateX     $xval;
+setAttr nurbsShpere1.translateX     $yval;
+
+
+float $xval = time;
+这句也应该写成
+$xval = 'getAttr expresion1.time'
+
+其实大体上就是加需要用getAttr或者是setAttr来取、赋值，而不能直接取、赋值 
+ 
+
+eagle0691 2006-04-06 22:31 
+哎，也没人看，写的没劲了
+
+明天晚上继续 
+ 
+
+吾人 2006-04-07 09:32 
+呵呵,强烈支持! 还是很羡慕你们有基础的人,!学MEL也方便!
+有个问题,请教一下
+就是老外写的一个CharacterControl "C3"么?就和XSI的角色控制视图原理差不多!
+C3的原理是先截屏作为背景,然后加入控制按纽和本身角色控制物体建立连接,最后形成最终的控制视图.但是里面的代码我还是看不明白.
+我希望能做到的是可以只定义背景角色图片,然后加入CONTROLS,视图下面有相应的控制属性和FinalRig有一定的相似之出. 我想这涉及到不仅仅是写界面的问题,也相关了很多其他方面的! 
+ 
+
+eagle0691 2006-04-07 12:36 
+好，晚上我就写写窗口的写法 
+ 
+
+eagle0691 2006-04-07 19:11 
+先讲讲mel的一些基础。
+mel中相对于节点操作有3个常用的命令，即是-c -q   -e,分别就是-creat 创建 ，-query查询（返回值）,和-edit 编辑。
+
+在mel中添加、设置和获取值：
+添加属性
+attAttr -attributeType "float" -longName "rotateY" -defaulValue 2 polySphere1;
+
+以上可以简写为
+
+addAttr -at "float" -ln "rotateY" -dv 2 polySphere;
+
+设置属性
+
+setAttr nurbsSphere1.rotateY 10;
+
+查询属性
+
+getAttr nurbsSphere1.rotate;
+
+如果要将此返回值存入一个变量，可以这样
+
+float $rotateY = `getAttr nurbsSphere1.rotate`
+
+连接属性
+
+connectAttr nurbsSphere1.translateX nurbsSphere2.translateY;
+
+这就是将nurbsSphere1(为物体名称，通常为第一个nurbs球体的名称)的tanslateX（x方向的位移），与球体2的y方向的位移连接起来了 
+ 
+
+eagle0691 2006-04-07 19:32 
+突然发现这部分基础需要说的太多，所以应观众要求直接跳到窗口的编写部分。其它基础如声明变量、全局变量、数据类型、执行流程等等以后有机会再写了。
+
+构造窗口这部分其实应该是有可视化软件构造的，我想应该有，只是不知道，好在用mel编写的窗口不会太复杂，要是够复杂，都会用cpp写了
+
+这部分内容其实非常非常多，我就简单讲讲怎样构造窗口和怎么连接属性和命令吧
+
+一个简单的例子
+
+string $myWindow =`window`; 
+
+      rowLayout;
+        button -label "Make a Sphere" -command "sphere";
+        \\构建一个按钮，并连接一个命令 (- command) ，命令为sphere
+        showWindow $myWindow;
+      \\显示窗口 名称为变量$myWindow
+
+需要注意的是，中文是不能有的。
+
+2.点选框 checkbox
+
+string $myWindow=`window`;
+rowLayout;
+string $myCheckbox=`checkBox -lable "On of Off"`;
+
+  这里可以加一些命令，比如
+
+-onCommand (选中的情况下)
+-offCommand(再关闭的情况下)
+-changeCommand
+最后
+
+showWindow $myWindow;
+
+3.floatSliderGrp
+这个控件是常用的，就是来回拖动以改变数值的那个带滑块的东西
+
+string $myWindow =`window`;
+rowLayout;
+string $myFSG = `floatSliderGrp -min 0
+                                  -max 10
+                                  -label
+                                  "Drag it"
+                                  -field true`;
+
+
+这只是简单的例子，我觉得有心学的，只要多看看帮助就都懂了，我也没必要写这个了，算是让有心人入入门吧。工作太累了，有心转向lw，做做自己的东西，但几个同事都觉得lw现在太繁琐了，简单说是落伍，用起来太累，想想算了吧，lw9出来后再看看吧
+
+The end
+
+regards 
+ 

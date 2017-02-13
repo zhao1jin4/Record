@@ -1,0 +1,473 @@
+http://metalink.oracle.com         
+http://support.oracle.com  改了
+
+username/password: zhanggl@shtel.com.cn/shanghaitel
+
+
+http://edelivery.oracle.com	 E-Delivery  递送
+
+http://www.oracle.com/technology/documentation/applications.html  在线文档
+
+http://www.oracle.com/technology/software/index.html   N多软件
+
+--------Redhat------EBS-12.0.4 安装要求
+
+Update 1 or higher of Oracle Enterprise Linux (OEL) 5 is required (5.1 or higher).
+
+Update 1 or higher Red Hat Enterprise Linux (RHEL) 5 is required (5.1 or higher).
+
+The following i386 packages are not part of the OS distribution media and must be downloaded separately (from http://oss.oracle.com/projects/compat-oracle/files/Enterprise_Linux for both OEL 5 and RHEL 5) and installed manually:
+
+    * openmotif21-2.1.30-11.EL5.i3861
+    * xorg-x11-libs-compat-6.8.2-1.EL.33.0.1.i386
+    * binutils-2.17.50.0.6-6.0.1.i3862
+
+The following i386 packages must be installed from the OEL 5 or RHEL 5 distribution media:
+
+    * compat-glibc-2.3.4-2.26
+    * gcc-4.1.2-14.el5
+    * gcc-c++-4.1.2-14.el5
+    * glibc-2.5-12
+    * glibc-common-2.5-12
+    * glibc-devel-2.5-12
+    * libgcc-4.1.2-14.el5
+    * libstdc++-devel-4.1.2-14.el5
+    * libstdc++-4.1.2-14.el5
+    * make-3.81-1.1
+    * gdbm-1.8.0-26.2.1
+    * libXp-1.0.0-8.1.el5
+    * libaio-0.3.106-3.2
+    * libgomp-4.1.2-14.el5
+    * sysstat-7.0.0-3.el5
+    * compat-libstdc++-296-2.96-138
+    * compat-libstdc++-33-3.2.3-61
+
+Note:
+    1: The openmotif package version must be 2.1.30 (for example, openmotif-2.2.3-10.RHEL4.5 is not supported).
+    2: This GNU linker (ld) version 2.17 provided by Oracle is required for relinking the modules in Advanced Planning & Scheduling (MSC, MSO, MSR)
+
+openmotif必须是2.1.30
+#------------------------------------------------
+
+kernel.shmall = 2097152
+kernel.shmmax = 2147483648
+kernel.shmmni = 4096
+kernel.sem = 250 32000 100 128
+fs.file-max = 65536
+net.ipv4.ip_local_port_range = 1024 65000
+
+net.core.rmem_default = 262144
+net.core.rmem_max = 262144
+net.core.wmem_default  = 262144
+net.core.wmem_max=262144
+
+#=======================
+kernel.msgmax = 8192
+kernel.msgmnb = 65535
+kernel.msgmni = 2878
+fs.file-max =   65536
+
+
+---EBS-12.1.1支持的系统-----VC 2008不支持--不支持SUSE-11-------windows只32位--只Solaris-sparc-64
+
+Windows Server 2008  	SP1* or higher	
+Server 2008  (Enterprise/Standard/Datacenter/Web Server/...)
+
+最新的支持 Visual Studio 2008 and Visual C+ 2008 Express 
+Windows Server 2008 R2 现在不持
+
+
+MKS Toolkit	Versions 9.0 (Patch 3 or higher)	http://www.mkssoftware.com/support/patches.asp
+GNU Make (Shareware)	Version 3.81 
+---
+Solaris-sparc-64
+
+
+Linux x86-64 (64-bit)和32位同 
+
+Linux x86 (32-bit)  内核是最小的
+SUSE Linux Enterprise Server 10	 	10 - GA, SP1 or higher (32-bit) 	2.6.16.21-0.8
+Red Hat Enterprise Linux 5	 	5 - Update 1 or hgiher (32-bit) 	2.6.18-8.el5PAE
+Oracle Enterprise Linux 5	 	5 - Update 1 or higher (32-bit) 	2.6.18-8.el5PAE		
+
+安装要求见下载网页  405565.1
+
+
+==============================================
+
+
+rapidwiz -techstack
+
+rapidwiz -restart
+
+
+
+APPL_TOP="/opt/oracle/VIS/apps/apps_st/appl"  
+
+context file		<INST_TOP>				/appl/admin/<CONTEXT_NAME>.xml
+Using Context file	/opt/oracle/VIS/inst/apps/VIS_redhat-ebs/appl/admin/VIS_redhat-ebs.xml                                                                             ppl/admin/VIS_redhat-ebs.xml
+
+
+
+配置文件　	/d01/oracle/VIS/inst/apps/VIS_redhat-ebs/conf_VIS.txt
+		/d01/oracle/VIS/db/tech_st/10.2.0/appsutil/conf_VIS.txt
+
+
+
+日志文件/d01/oracle/VIS/db/tech_st/10.2.0/appsutil/log/VIS_redhat-ebs/03021202.log　(时间)
+日志位置/opt/oracle/PROD/inst/apps/PROD_redhat-ebs/logs/[日期].log
+Database tier log files <APPS_BASE>/db/tech_st/10.2.0/appsutil/log/<CONTEXT_NAME>/<timestamp>.log
+Applications tier log files <APPS_BASE>/inst/apps/<CONTEXT_NAME>/logs/<timestamp>.log
+
+---------------
+source /opt/oracle/VIS/apps/apps_st/appl/APPSVIS_redhat-ebs.env
+source /opt/oracle/VIS/db/tech_st/10.2.0/VIS_redhat-ebs.env
+
+把.bash_profile提制为.ora文件尾加	. /opt/oracle/PROD/db/tech_st/10.2.0/PROD_redhat-ebs.env
+把.bash_profile提制为.app文件尾加	. /opt/oracle/PROD/apps/apps_st/appl/APPSPROD_redhat-ebs.env
+
+
+export TNS_ADMIN=/d01/oracle/VIS/db/tech_st/10.2.0/network/admin/VIS_redhat-ebs
+export ORACLE_HOME=/d01/oracle/VIS/db/tech_st/10.2.0
+export ORACLE_SID=VIS
+/d01/oracle/VIS/db/tech_st/10.2.0/bin/sqlplus / as sysdba  =====OK  
+可能要再startup
+
+/opt/oracle/PROD/db/tech_st/10.2.0/PROD_redhat-ebs.env  再sqlplus 
+
+
+
+启动数据库监听	/d01/oracle/VIS/db/tech_st/10.2.0/appsutil/scripts/VIS_redhat-ebs/addlnctl.sh start VIS (stop VIS)
+启动数据库	/d01/oracle/VIS/db/tech_st/10.2.0/appsutil/scripts/VIS_redhat-ebs/addbctl.sh start  VIS
+停止数据库	/d01/oracle/VIS/db/tech_st/10.2.0/appsutil/scripts/VIS_redhat-ebs/addbctl.sh stop
+		
+会来调用 /adstrtdb.sql 或者/adstopdb.sql
+
+		  
+启动所有服务器  /d01/oracle/VIS/inst/apps/VIS_redhat-ebs/admin/scripts/adstrtal.sh apps/apps
+停止所有服务器  /d01/oracle/VIS/inst/apps/VIS_redhat-ebs/admin/scripts/adstpall.sh apps/apps
+默认用户apps/apps
+停止日志	      vi /d01/oracle/VIS/inst/apps/VIS_redhat-ebs/logs/appl/admin/log/adstpall.log
+启动日志	      vi /d01/oracle/VIS/inst/apps/VIS_redhat-ebs/logs/appl/admin/log/adsrtal.log
+
+
+
+
+ORACLE_HOME=/d01/oracle/VIS/apps/tech_st/10.1.3;   下有Apache服务器，Apache目录 里有fastcgi ,php
+Apache 配置文件	/d01/oracle/VIS/inst/apps/VIS_redhat-ebs/ora/10.1.3/Apache/Apache/conf/httpd.conf
+		8000端口
+
+		/opt/oracle/VIS/inst/apps/VIS_redhat-ebs/ora/10.1.3/Apache/Apache/conf/mod_oc4j.conf
+
+
+httpd -v  和 apachetcl -v  不能用????
+
+opmn启动Apache日志  /d01/oracle/VIS/inst/apps/VIS_redhat-ebs/logs/ora/10.1.3/opmn/HTTP_Server~1
+opmn日志	/d01/oracle/VIS/inst/apps/VIS_redhat-ebs/logs/ora/10.1.3/opmn/opmn.log
+
+
+
+数据库用户
+system/manager
+sys/change_on_install
+
+Vision Demo的sys,system用户的密码是manager
+
+
+
+
+默认端口
+DataBase Port :1521
+Web Listener Port 8000
+Forms Port :9000
+
+
+
+默认安装目录
+DataBase =>Base Directory:/d01/oracle/VIS
+	   DataBase SID:VIS
+
+
+Primary Applications=>Base Directory: /d01/oracle/VIS
+       		Instance Directory: /d01/oracle/VIS/inst
+
+
+
+
+Oracle Process Manager and Notification Server (OPMN) 
+
+
+
+Oracle EBS 几个默认登录名及密码
+sysadmin/sysadmin
+mfg/welcome
+operations/welcome
+services/welcome
+mrc/welcome
+hrms/welocme
+
+
+
+
+
+
+把Oracle 放在其它机器上,如Orace 11g,
+Metalink ID 735276.1
+
+====================汉化
+System Administration=>Oracle Applications Manager =>Workflow=>点击上面的 SiteMap=>
+默认是[Administrator]下的[System Configuration]下的[License Manager]=>[Languages]=>
+=>选择Simpled Chinese 
+
+
+
+执行adadmin了  (/opt/oracle/PROD/apps/apps_st/appl/ad/12.0.0/bin/adadmin)
+默认就可以->system 密码manager,apps密码apps->[5. Change Maintenance Mode] ->[1. Enable Maintenance Mode]->回主菜单->
+[4. Maintain Applications Database Entities menu]->[3. Maintain Muti-Lingual Tables]->退出
+
+到汉化包目录 执行adpatch命令->输入密码后->要输入目录名 ,文件名是u6394500.drv  (要解压缩的)_>并发数 :2->
+
+								     
+
+
+
+
+http://redhat-ebs.ape-domain:8000/OA_HTML/oaj2se.exe  就是J2SE 5.0u13  就对IE有效
+http://redhat-ebs.ape-domain:8000/OA_HTML/AppsLogin
+NPX_PLUGIN_PATH 为netscape浏览器
+
+
+
+
+
+
+
+
+
+Oracle Process Manager (OPMN)
+apache 来监听,
+OC4J 来Servlet
+
+Business Components for Java (BC4J)  JDevelop 中已有
+----
+http://redhat-ebs.ape-domain:8000/forms/frmservlet  报 Form Server 连接失失败时,http://oss.oracle.com/projects/compat-oracle/files/Enterprise_Linux/  下载安装 openmotif21-2.1.30-11.EL5.i386.rpm
+-------
+如不能登录
+cd /opt/oracle/VIS/apps/apps_st/appl/fnd/12.0.0/secure
+cp template.dbc VIS.dbc
+	改 VIS.dbc
+	DB_HOST=redhat-ebs
+	DB_PORT=1521 
+	DB_NAME=VIS
+. /opt/oracle/VIS/apps/apps_st/appl/APPSVIS_redhat-ebs.env
+java oracle.apps.fnd.security.AdminAppServer apps/apps STATUS DBC=VIS.dbc
+应出现
+	DATABASE_ID: PROD AUTHENTICATION: SECURE  //SECURE是主要的
+
+java oracle.apps.fnd.security.AdminAppServer apps/apps AUTHENTICATION OFF DBC=VIS.dbc
+
+再次执行 java oracle.apps.fnd.security.AdminAppServer apps/apps STATUS DBC=VIS.dbc 确认是OFF的
+-------
+
+linux 下firefox 加jre插件
+[root@localhost plugins]# cd /usr/lib/firefox-1.0.6/plugins/
+[root@localhost plugins]# ln -s /usr/lib/jre154/plugin/i386/ns7/libjavaplugin_oji.so .
+
+linux 中文字体 ,
+可以把windows 下的simhei.ttf 文件复制到 /usr/local/lib/X11/fonts/TTF/  ,重新开gedit有效果,注销后gnome字体也正常了,firefox...全部正常了
+可以netbeans ,中文界面字体不行(gonme英文正常)
+ cp /usr/local/lib/X11/fonts/TTF/simhei.ttf	$JAVA_HOME/jre/lib/fonts/fallback/   (fallback目录要新建立)
+	
+
+
+
+
+
+
+修改应用系统用户名密码
+login as apps,in the pl/sql developer run the following sql:
+SLECT fnd_web_sec.change_password('SYSADMIN','N123456') FROM DUAL
+
+
+系统管理员职责-->配置文件-->系统　Profile中查找"ICX：表单启动程序(ICX: Forms Launcher)"
+显示值为 http://redhat-ebs.ape-domain:8010/forms/frmservlet
+
+
+系统管理员(System Administrator)>应用(Application)>菜单(Menu)
+系统管理员(System Administrator)>安全性(Security)>职责(responsibility)>定义(define)
+
+
+Application Developer>Application>Menu
+
+File -> Swith Responsibility
+
+
+
+
+
+
+
+--form开发
+
+修改注册表：Local Machine/Software/Oracle/NLS_LANG  改为 AMERICAN_AMERICA.ZHS16GBK
+set FORMS60_PATH=一个目录
+
+echo $AU_TOP　
+/opt/oracle/VIS/apps/apps_st/appl/au/12.0.0
+
+从$AU_TOP/forms/US下载TEMPLATE.fmb到　FORMS60_PATH　环境变量对应的目录下。
+
+
+PL/SQL library后面就是就是pll  
+从$AU_TOP/forms/US下载缺失的fmb文件。
+从$AU_TOP/resource下载缺失的pll文件。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------2009-05-05    五一刚过后,EBS-12.1.1 就发布了 
+linux系统/分区的10G-12G
+安装文件47G ,
+Fresh(PROD,安装时suit license)要55G+35G 
+VIS要208G+35G,
+200多G的ext3格式化后，大概少10G(像ext3文件系统占用), 为了以后升级占空间更大，或安装其它组件最好分300G的分区
+
+(500G硬盘空间，64bit笔记本4GB内存,USB3.0)
+
+找硬盘动态分区工具,gparted
+
+Oracle Application Server 10g (10.1.2.0.2) for Linux x86
+使用的是Oracle 11gR1(11.1.0.7.0),JDK6,浏览器插件1.6.0_07,还是要求SUSE-10,RedhatEL5
+
+http://www.oracle.com/technology/documentation/applications.html  在线文档
+
+
+
+
+
+
+
+==================OC4J===============
+
+   设置环境变量
+    JAVA_HOME=/java/j2se15
+    ORACLE_HOME=/java/oc4j-10131    (OC4J的解压目录)
+
+    初始化
+    > cd <install_dir>/bin
+    > oc4j -start
+	　-shutdown -port <ORMI port> -password <password>
+　　如＞oc4j -shutdown -port 23791 -password myadmin　　　(23791是默认ORMI端口)
+默认管理员用户"oc4jadmin".会提示输入密码
+
+
+直接启动
+   > cd <install_dir>/j2ee/home
+   > java -jar oc4j.jar
+
+ -config /mypath/server.xml
+C:\temp\j2ee\home\config\server.xml　　中　　 <java-compiler .../> tag
+<ORACLE_HOME>/j2ee/<OC4J实例名默认home>/
+
+
+启动用
+http://localhost:8888/  有文档的
+改端口用 config/default-web-site.xml 中<web-site> 元素 "port" 属性 
+
+
+http://localhost:8888/em/  有企业管理器,默认要oc4jadmin密码
+
+
+admin_client.jar   必须在OC4j开启,才能使用,可以去to restart and stop OC4J, deploy applications, and configure various resources.
+
+java -jar admin_client.jar  deployer:oc4j:localhost:23791		oc4jadmin	[密码]	[命令]
+java -jar admin_client.jar  deployer:oc4j:opmn://localhost:6003/home	oc4jadmin	[密码]	[命令]
+			    deployer:cluster:opmn://opmn_host:opmn_port/groupName
+23791是默认的ORMI端口
+6003是默认的opmn_port
+home是oc4jInstanceName
+
+ java -jar admin_client.jar -usage deploy  显示deploy使用方法
+
+
+命令有 -restart, -shutdown
+
+
+
+以下这些是可以在/em中的 [应用程序]中有界面的
+
+(这个不行的,使用界面是可以测试的,[根上下文]有/xx)
+部署一个war包:
+    >java -jar admin_client.jar deployer:oc4j:localhost oc4jadmin <admin_pwd>
+     -deploy			重新部署用 -redeploy  ,删除部署 -undeploy <name>,停止  -stop <name>, 停止 -start <name>
+     -file <path-to-war-file>
+     -deploymentName <name>
+     -contextRoot </context-root>   如是ear包用    -bindAllWebApps
+(-contextRoot web_one) 
+
+加连接池
+     -addDataSourceConnectionPool
+     -applicationName default
+     -name ScottCP
+     -factoryClass "oracle.jdbc.pool.OracleDataSource"
+     -dbUser scott
+     -dbPassword tiger
+     -url "jdbc:oracle:thin:@localhost:1521:XE"
+
+测试连接池
+     -testDataSourceConnectionPool -name ScottCP
+     -sqlStatement "select sysdate from dual"
+
+加数据源
+    -addManagedDataSource
+     -applicationName default
+     -name ScottDS
+     -jndiLocation "jdbc/ScottDS"
+     -connectionPoolName ScottCP
+
+测试数据源
+     -testDataSource
+     -datasourceName ScottDS
+     -sqlStatement "select sysdate from dual?
+
+
+
+
+
+OPMN(Oracle Process Manager and Notification Server)
+
+==================上OC4J===============
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

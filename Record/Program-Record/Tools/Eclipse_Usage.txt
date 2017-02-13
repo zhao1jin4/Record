@@ -1,0 +1,670 @@
+﻿=======================================eclipse==========================
+快捷键
+alt +/
+ctrl+alt+/  自动完单词  
+for ,main ,try ,switch 按alt +/
+
+ctrl+3 window->navigation->Quick Access （可以打开视图．．．）
+ctrl +shift+x 把选择变大写
+ctrl +shift+y 把选择变小写
+ctrl+alt+space 在方法参数上
+
+ctrl+f6切换文件
+xml文件中ctrl+shift+c多个单行注释
+control+shift+o 组织导入
+control+shift+m 增加导入，光标要在类上
+ctrl+shift+h 查找当前文件的关键字，
+
+ctrl+h 查找
+ctrl+shift+l显示所有的快捷键
+
+ctrl+k查找下一个光标选中的，
+ctrl+shift+k;
+
+alt + 上/下方向键,可以移动代码,
+	左/右 方向键,   上次编辑/下次编辑
+
+
+ctrl+shift+t 打开按类名，open type（工具栏上有一个按钮）
+ctrl+shift+r 打开按资源名,如jsp
+ctrl+l = navigator-> go to line  
+
+选中接口方法　ctrl+t　打开实现类　同右击->Quick type Hierachy
+
+
+-------教程
+preferences->Keys->点Catergory标签来排序,在Edit组中找 ctrl+space的快捷键(Content Assist)->修改为 ctrl+alt+/ ,如alt+ ->有冲突
+
+XML->XML Catalog->Use Specified Entries->Add...按钮->在location中选择 .xsd文件路径,Key Type中选择Public ID,Key中复制 "-//"开头的部分,复选Alternative Web Address ,复制http://xxx.xsd的路径
+会生成eclipse_java_workspace\.metadata\.plugins\org.eclipse.wst.xml.core\user_catalog.xml 可备份
+
+建立JSP时,默认是使用UTF-8
+Preferences->web->JSP files->在Encoding中按I键,选中ISO (UTF-8)
+
+项目字符编码默认是继承工作区的字符编码
+preferences->General->workspace->设置Text file encoding 为UTF-8,这个也影响console和浏览器中输出JSP错误的编码
+
+<项目>\.settings\org.eclipse.core.resources.prefs   文件中记录了,项目的字符编码,单独的文件字符编码
+eclipse.preferences.version=1
+encoding/<project>=UTF-8
+encoding//src/mypacke/MyClass.java=UTF-8
+
+preferences->validation->disable all 取消所有文件内容验证
+
+取消eclipse自动更新
+preferences->install/update ->Automatic Update->取消选择 Automatically find new updates and notify me 
+preferences->install/update ->available software site ->取消选择所有的
+preferences->General->Network Connections->cache->disable caching ,子级可以把下载的DTD,Schema缓存 
+preferences->General->Network Connections->把Native修改为Direct,或Manule来取消所有选择的
+
+-----
+debug时，右击－watch ,  在breakpoint 视图中可clear all  ,skip all
+在类中右击->resource->generator constructor by fields
+
+右击方法名——》open call hierarchy  再修改后就可从栈中双击
+
+edit-> content assist->template
+preferences->editor->templates 要先写几个字母 alt+/
+prefereneces->general->editors->file Associations; *.java/*.用什么来编辑
+			.xml ,html 如果安装一些插件不想使用,可以在这里修改
+
+
+spring 插件 右击项目-remove/add spring project nature 会在spring Explorer中显示项目
+
+右击文件名->copy Qulified Name 全部文件名字包括包名和.java
+
+source->external string会把java文件中的字符串放到properties 文件,可生成java文件,自动完成类似国际化的工作
+
+
+project->clean..可以重新build项目
+
+debug中选中变量名，右击=>watch	
+expression视图中右击=》add watch express 输入list.size()  ==.是时无提示，在display视图中有提示在.时，选中右击=>inspet显示值
+
+Debug时在Variables标签中右击变量->Change Value...,可以在运行修改变量的值
+
+右击断点->breakpoint property->在对话框(或Breakpoints视图中)中选中condition,可输入断点停止的表达式,对循环中很有用
+
+在debug中对RuntimeException会自动停住
+在debug 中的breakpoint 视图中，有一个按钮是add  java exception breakpoint ,输入一个Exception,有时不加，也能自动停止
+
+选中代码=》右击=》refactor=>extract method，输入方法名，可view, 会把选中的代码放一个方法，
+
+选中方法名字（声明）右击=》refactor=>inline..  会把所用调用些方法的地方替换为方法中的代码，（对方法中的代码很少时）
+
+选中字符客串（数字，可以view），右击=》refactor=> extract contraint 变为常量，输入常量名字；
+=>extract local variant  (只对局部变量)
+
+选择属性名=> refactor => encapsulate field.. 会把public  属性变为private  并生成getter 和setter方法 ，被引用的属性被替换为setter,getter方法 
+
+选择方法名：extract Interface  ，会把类的方法放入的接口，自己实现它（会此类没有实现想要接口）
+
+
+在jar包上右击=》properties=>java source attachement添加源代码
+				2.双击class文件，attach source
+	
+navigat->open type->输入类名(支持*)，会在所有的jar包中文件中找并打开它（ctontrol+shift+t）				
+
+方法左侧的栏目上如有向上的箭头表示，父类的方法
+
+要查看哪些类继承自我，双击我（类名）-> open type hirarchy 可查看  ，，，，open call hierarchy
+
+search=>search...=>可以选择，java search只对java文件，=>输入文件中的文本，可以scope =>working  set是对部分项目的部分文件，
+
+远程调试
+java虚拟机启动参数  -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8787(随便),server=y,suspend=n
+									默认是8453
+JDBMonitor第三方工具 
+
+tomcate 5的calina.bat文件中加入 
+		set JPDA_TRANSPORT=dt_socket
+		set JPDA_ADDRESS=8787
+在eclipse中打开debug对话框，对Remote java Application=>new =>在port 中输入8787与前相同
+要保证java源码和jar包中的代码一致，
+
+
+如要重配置eclipse（如工作区要每次手工选择），只要把eclipse安装目录下的configration文件夹下的所有文件夹删除只留一个config.ini文件
+删除工作区下的.metadata文件（存所有配置信息，如j2me的import device....）即可实现eclipse的重新安装功能，即在pereference->的所有的配置恢复为默认的
+
+
+因为eclipse里默认的一个程序的jvm配置为:点击菜单‘run->run...’，选择(x)=Argument标签页下的vm arguments框里输入 -Xmx512m, 保存运行就ok了 
+
+1.可以在windows 更改系统环境变量
+加上JAVA_OPTS=-Xms64m -Xmx512m
+
+
+其初始空间(即-Xms)是物理内存的1/64，最大空间(-Xmx)是物理内存的1/4。
+例如：java -jar -Xmn16m -Xms64m -Xmx128m MyApp.jar
+
+-----------up 教程
+
+request.getSession().getServletContext().getRealPath("/");得到
+tomcat插件的项目目录eclipse_workspace\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\xxx
+
+字体大小 preferences->general->Colors and Fonts->右边展开Java->选中Java Editor Text Font,再点Edit...
+字体大小 preferences->general->Colors and Fonts->右边展开Basic->选中Text and Font 可对XML文件有效
+
+
+window->preference->web ->html files->editor->把line with:加大到150 (也对jsp有效)
+window->preference->xml ->xml files->editor->把line with:加大到150
+window->preference->java->code style->Formatter->New...一个,
+	在Braces标签中全选next line , Line Wraping标签中设置 Maximum line width 为150
+	Comments 中Maximum line width for comments 为150
+
+eclipse 中显示tab 符号,空格,回车符号(在工具条上有一个按钮),，如不能保存字符可以放在notpad 中显示出来
+
+preferences->Genel->Editors -> Text Editors->复选 insert spaces for tabs ,就会把tab 替换为空格
+											Dispaled tab with :默认是设置为4
+											
+preferences->Java->Code Style->Formater建立自己的　Indendatoin标签->tab policy中下选择space only
+
+eclipse的console设计缓冲区大小，preference->Run/Debug->Console->Console buffer size(characters),默认最多显示80000个字符
+
+eclipse 3.x 对插件的删除,在help->about eclipse->installion detail->选中->uninstall...
+
+Java Build Path->Library->Add Library...->选择Web App Libraries可选择自己的Web项目
+在可WEB-INF/下建立src目录 右击目录->build path->use as source  folder
+
+
+General->Editors->Text Editors->中 取消 Enable drag and drop of text
+
+
+
+Tasks->有Syncronize with repositories every 20minutes 对CVS,SVN会自动更新
+Validateion->中可以取消所有的文件语法的验证,如JSP,WSDL,
+
+Java->Editor->Hovers->Combinded Hover可以把它取消,就不会在鼠标滑过,提示javadoc了,可设置按一键提示
+
+XML->XML Files->Editor-> line width 设置行长72
+
+
+修改默认的浏览器 windows->preferences->General->web browser->单选 use external web browser,选择firefox
+
+打开文件,在编辑器左边右击->show line number 显示行号
+打开文件,在编辑器左边右击->add bookmark... 加书签,上方的下拉按钮选择bookmark,方便文件跳转
+
+取消 JSP 的验证
+Eclilpse中的preferences->Validate标签中取消 JSP Content Validator 和 JSP Syntax Validator
+
+
+
+
+最近打开文件列表数
+preference ->General->Editor->size of recently opened files list :4 加大这个值
+
+
+eclipse中的文件比较器
+选取 file1.txt 和 file2.txt,右击->「Compare With」->「Each Other」
+
+
+选中代码->surround with->try catch
+
+
+preferences->general->复选 show heap status, 显示eclipse内存使用柱状图表
+
+preferences->startup and shutdown->workspace->选中 prompt for workspace on startup
+
+Eclipse插件Tomcat启动时间设置
+ 	修改 workspace\.metadata\.plugins\org.eclipse.wst.server.core\servers.xml文件。 把 start-timeout="45" 加大,
+	这个方法有时没有用的,可能哪里缓存了,在servers view里，双击你要设置的server，会打开该server的设置窗口，在右上部有Timeouts的设置部分，设置timeout, 这样就可以修改workspace\.metadata\.plugins\org.eclipse.wst.server.core\servers.xml文件 
+
+Eclipse插件Tomcat 部署位置,
+	双击你要设置的server,在Server Locations中选择use Tomcat installation,单击broswer...->选择webapps目录
+
+Preferences->Debug->TCP/IP Monitor 可增加仿问网络主机的IP及端口,
+在TCP/IP Monitor 视图中可以看到程序仿问网络的请求/响应数据(类似于tcpMon)
+
+eclipse-4.2.2的debug按钮是在Visusalizer视图中了
+
+eclipse 中设置 @ 即annotation的高亮色,preferences->java->editor->Syntax Coloring->展开java->Annotations选择颜色,如橙色
+
+.metadata\.plugins\org.eclipse.core.resources\.projects 有所有导入工作区中的项目 临时目录
+
+eclipse.ini文件 在-vmargs的上方加如下两行
+-vm
+C:\Program Files\Java\jdk1.7.0_25\bin\javaw.exe
+
+如在mac版本在STS.app或者eclipse.app 即可以双击启动的,右击它->show package content->Contents->Mac OS->就有STS.ini
+
+项目属性->Project Facets 可修改类型
+项目属性->Targeted Runtimes 可修改建立项目时使用的Server
+
+eclipse debug是总是 在ThreadPoolExecutor的processWorkerExit 处停止(没有断点),原是有try没有catch但有了异常
+preferences->java->debug->取消复选 suspend execution on uncaught exceptions 
+
+ 
+eclipse -clean 参数启动以清除之前的插件缓存,删除eclipse目录里的 configuration目录下的org.eclipse.update
+
+JavaSE perspectiev->点三角->configuring working set /  select working set...->new...->建立 resource 的working set
+JavaSE perspectiev->点三角->top level elements->working set
+
+误删文件 , 右击项目-> restore from local history....
+如找文件修改历史 右击文件-> compare with ->local history...  ,如长时间未修改,是找不到的
+
+ctrl+2,L  补全方法返回值
+
+
+=======================================up eclipse==========================
+------(RSA) Rational Software Architect for WebSphere Software V9.1.1 是 eclipse-4.2.2 
+------(RSA) Rational Software Architect for WebSphere Software V9.0 是 eclipse-4.2.2 
+安装文件最好不要放在有空格的目录中,RSA4WS_SETUP\InstallerImage_win32_win32_x86_64\中的userinst.exe安装,全选中RSA-9
+带  CDT,Maven,BPMN2,UML2.2
+无  SpringToolSuite,SVN,Git,Mylyn,PropEdit(links),Data Tools Platorm(links)
+
+安装目录在 C:\Program Files\IBM\SDP  (Software Delivery Platform)
+修改界面语言 eclipse.ini 文件中尾添加参数： -Duser.language=en
+ 
+开始->IBM Installation Manager
+单独安装完 WebSphere后,再启动RSA会自动安装插件,要先建立web项目,才会激活web工作区 (但在 C:\Users\zhaojin\IBM\SDP 下 , 这个目录再破解)
+
+------
+插件安装方式1
+	复制对应目录到eclipse解压目录下的plugins,features目录
+插件安装方式2(会所文件复制到eclipse自身的plugins,features目录)
+	eclipse解压目录下建links目录->建文本文件件(文件名无所谓的)->中写path= 指向一个插件目录,要求目录中有eclipse目录(下有plugins,features目录) ,路径用/ 或者 \\ 分隔目录,一个文件中只能有一个path,可用#注释
+	如 eclipse-3.7.2/links/spring-tool-suite-3.1.txt文件内容为
+		path=D:/Program/eclipse_plugin/spring-tool-suite-3.1
+插件安装方式3
+	help->install new software...->Add...->Archive...选择zip包,   Local...选择本地目录->
+	安装插件时不要更新,取消复选contact all update sites druing intsall to find required software
+
+	或者输入http://xx  在线安装 ,也可help->eclipse marketplace->输入关键字来搜索 
+插件安装方式4
+	eclipse目录下的dropins目录,好处是不会复制插件到eclipse自己的plugins和features目录中
+	1 测试OK)也可以放自己的插件名目录(子目录要求有eclipse/plugins,eclipse/features目录)
+	2 测试OK)也可以放 link 的文本文件
+	3 未测试????)也可以放eclipse目录(要求有plugins,features目录)
+	4 未测试????)中可以直接放.jar包
+ 
+ 
+eclipse自带CXF插件
+
+
+-------------CDT与MinGW集成----------------------------
+PATH=  D:\program\MinGW\bin
+
+LIBRARY_PATH 	= 	D:\program\MinGW\lib
+C_INCLUDEDE_PATH = 	D:\program\MinGW\include
+CPLUS_INCLUDE_PATH =D:\program\MinGW\lib\gcc\mingw32\4.6.1\include;D:\program\MinGW\include
+
+include目录 ,如是C项目CDT自动加
+	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include-fixed
+include目录 ,如是CPP项目CDT自动加
+	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include-fixed
+	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include\c++
+	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include\c++\backward
+	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include\c++\mingw32
+	
+Cygwin可以和Mingw同时在PATH中,而MinGW不能和Cygwin同时在PATH中(在不能编译时)
+右击项目->properties->C++ Build->Enviroment->发现PATH中的值在建立CygWin 和  MinGW 时,第一个值和最后一个值,应该删除最后一个
+
+
+--SET LD_LIBRARY_PATH = c:\MinGW\lib
+--CLASSPATH=.;
+
+-----------------CDT与Cygwin集成
+下载的 Cygwin_x64 , 2016-09-14时cygcheck -c cygwin  显示为  2.6.0-1 
+	64位的 gcc-5.4.0-2  ,gcc-g++ , gcc-objc (ObjectiveC) ,gdb-7.10.1-1 (记得这个是单独选的)  nasm-2.10.07-1(编译汇编语言)
+	make-4.2.1-1
+	openssh-7.3p1-2  记得连接oracle时会用到
+	vim-7.4.2181 (不要选择gvim可能会下载很多东西) 可选	automake ,	autoconf 
+
+
+Cygwin 必须安装，如恢复系统后必须重新安装，否则CDT不能识别到有Cygwin
+CDT与CygWin集成	  PATH=C:/cygwin64/bin
+
+
+------------cygwin 使用
+PATH=D:\Program\cygwin\bin
+
+cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make
+cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make
+cygcheck -c cygwin  显示当前Cygwin 安装的版本	
+
+eclipse-3.7.2 CDT-8.0.2 使用Cygwin  测试时,Debug默认是不能显示源码的,报错,/cygdrive/d/Program/
+要设置 Window -> Preferences -> C/C++ -> Debug->Source Lookup Path -> Add->Path Mapping->Add->
+输入 \cygdrive\d	对应 d:\,就OK了
+
+eclipse打开已有项目就OK,这些文件放在eclipse工作区的项目中,要使用工作区相对路径
+
+eclipse新建立项目,如引用其它的头文件,库文件,使用工作区的项目也不行????,编译就报错,找不到头文件???
+ 
+Debug时记得要把.dll 文件放入PATH中
+
+32位机安装时不用选择64位的东西
+可以把lib_include放在其它盘下,注意配置gcc,g++的include 
+Cygwin和MinGW可以共存使用,但有些Cygwin在windows不能编译,MinGW还是要的
+
+------------------
+----------------- CDT 与 VC 集成
+
+建立C++项目时可选 Microsoft Visual C++  ,
+但报C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\crtdefs.h(10): fatal error C1083: Cannot open include file: 'corecrt.h': No such file or directory 
+
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.10150.0\ucrt\corecrt.h
+
+
+-----------------
+Debug时显示源码
+Window -> Preferences -> C/C++ -> Debug-> Common Source Lookup Path -> Add. 
+cygdrive/c	对应 c:\
+
+eclipse代码 显示变宽  windows-preferences->C++->Code Style-> 新建自己的->edit->line wraping标签中 修改上方的Maximun line width
+
+linux eclipse不变色解决方案  window ->preference->c/C++->indexer->选中index all files
+如果有使用宏定处,鼠标指向它,待出现提示,再指向大标题,就出现宏展开的
+
+
+=======================================eclipse-4.4.2(Luna) 插件  WTP-3.6.3
+下载界面选择  Other Platforms   http://download.eclipse.org/eclipse/downloads/  下载文件中有SDK
+
+eclipse-4.4.2(Luna) 自带Git,Maven(m2e),Mylyn,使用WTP-3.6.3的 XML Eitors,  
+但SDK文件名的版本中都没有,只有CVS,Plugin,Java
+
+Eclipse SDK v4.4.2 
+EMF and XSD SDK Combined EMF and EMF-XSD SDK					emf-xsd-SDK-2.10.2.zip 			可 links和dropins 安装,(这个名字最好和官方名一样,因与下面transaction,validation一起用)
+GEF SDK 3.9.101 (GEF Code and Source)							GEF-ALL-3.9.101.zip				可 links和dropins 安装,(用的是ALL, 因spring 要 zest)
+DTP SDK v1.12.0 (Code and Source)								dtp-sdk_1.12.0.zip				可 links和dropins 安装 (依赖于 EMF + XSD 和  GEF)
+
+也可安装wtp4x-repo时 不选择 (Dali Java Persistence Tools - JPA Diagram Editor)下面的就不用安装了
+EMF Transaction v1.8.0 (Required for JPA Diagram Editor)		emf-transaction-runtime-1.8.0.zip 可 links和dropins 安装
+EMF Validation v1.8.0 (Required for JPA Diagram Editor)			emf-validation-runtime-1.8.0.zip  可 links和dropins 安装
+Graphiti v0.11.0 (Required for JPA Diagram Editor)				org.eclipse.graphiti.site_0.11.1.201409031228.zip 要 help->install 安装 ->  只选择Graphiti 一项
+
+help->install   选择 wtp4x-repo-R-3.6.3-20150216091848.zip   ->  可不选择(Dali Java Persistence Tools - JPA Diagram Editor)
+
+
+=======================================eclipse-4.5.2(MARS) 插件  WTP-3.7.2
+不能dropins安装  emf-xsd-SDK-2.11.2RC3 , dtp-sdk_1.12
+
+=======================================eclipse-4.6.2(Neon) 插件  WTP-3.8.1
+
+
+=======================================eclipse-4.4.2(Luna) 插件  CDT-8.6 
+依赖于 RSE-runtime-3.5-GA  要links 或 dropins  安装才行
+TM=Target Management 
+http://www.eclipse.org/tm/
+http://download.eclipse.org/tm/downloads/index.php
+ 
+CDT 插件 help->install安装选择zip  ,  取消选择optional下的  C/C++ Autotools support 和 Remote CDT Services
+		 都依赖于 org.eclipse.remote.core 1.0.0
+		 
+======================================= Eclipse Mars 4.5.2 插件 CDT 8.8.1 
+ 
+CDT 插件 help->install安装选择zip
+		取消选择optional下的  C/C++ Autotools support 和 Remote CDT Services  都依赖于 org.eclipse.remote.core 1.0.0
+		取消选择 Preview 下的 Arduino C++ Tools  
+		取消选择 optional 下  C/C++ Docker Container Launch Support  依赖于 linuxtools  http://www.eclipse.org/linuxtools/downloads.php
+					可使用Jboss Tools中的Docker Tooling  但是依赖于org.glassfish.hk2.locator 2.3.0 
+	
+	
+=======================================eclipse 其它插件
+-----dropins 目录安装 ,好处是不会复制插件到eclipse自己的plugins和features目录中
+也可以放自己的插件名目录(要求有eclipse/plugins,eclipse/features目录)
+也可以放 link 的文本文件
+
+Android 的 ADT-23.0.4 取消选择Native Development Tools (依赖CDT)
+
+propEdit-6.0.3 	可links安装 (dropins目录)
+
+Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna  
+	选择 GlassFish Tools 和 Oracle Weblogic Server Tools
+	--Oracle Maven Tools
+	--Oracle Database Tools(依赖DTP)
+	--Oracle JavaEE Tools,JavaEE 7 doc
+	
+
+安装JBOSS Tools-4.2.2 的eclipse-4.4  luna 插件
+	jBoss Web and Java EE Developement -> JBossAS Tools  就有启动停止的JBOSS AS-7.1的工具了
+			依赖于 Plug-in Development Environment (PDE),要下载带SDK的eclipse,如eclipse-SDK-4.4.2-win32-x86_64.zip
+	jBoss Application Development 
+			freemarker IDE 
+			Hibernate Tools 依赖于 eclipse.com 提供的 SLF4J API ,org.slf4j.api-1.7.2 
+				从springToolSuite中复制org.slf4j.api_1.7.2.jar,org.slf4j.impl.log4j12_1.7.2.jar 放dropsin目录
+	--jBoss Maven support  依赖于Maven的
+	--jBoss Mobile Development(要jetty) -> Cordova Simulator , Mobile Browser Simulator
+	
+
+安装JBOSS Tools-4.3.1 的eclipse-4.5  Mars   插件 
+	jBoss Web and Java EE Developement -> JBoss AS,WildFly&EAP Server Tool (可以搜索wildfly) ,就可以启动WildFly 8 ,10 了
+		 	依赖于 org.eclipse.tm.terminal.view.ui.rse 4.0.0    TM=Target Management(CDT有时也用)  
+					http://www.eclipse.org/tm/   org.eclipse.tm.terminal-4.0.0.zip help选择TM Terminal View所有的
+					
+			依赖于  org.eclipse.rse.subsystems.terminals.core 0.0.0
+					http://www.eclipse.org/tm/ 		点 Remote System Explorer (RSE) ，不能下载？？？ ，用以前的RSE-runtime-3.5-GA.zip 要links 或 dropins  安装才行
+		
+	jBoss Application Development 
+			freemarker IDE 
+			Hibernate Tools  	
+			
+安装 Drools-6.4 插件 
+		取消 JBoss Runtime Drools Detector Developer  依赖于 org.jboss.tools.common.core      在JBOSS Tools-4.3.1中没有????
+		
+			
+SpringToolSuite-3.6.3  (要下sts,不要下ggts 即不要groovy和grails)
+	取消 Fabric tc Server , Integeration , Extensions
+	只选Spring IDE Core 
+		依赖于 eclipse.org 提供的 org.json 0.0.0 ,从springToolSuite中复制 org.json_1.0.0.jar , org.jsoup_1.7.2.jar放dropsin目录
+		依赖于 com.google.gson  ,从springToolSuite中复制 com.google.gson_2.1.0.jar 放dropsin目录
+ 
+----SVN插件subclipse
+ 不能用links安装,也不能用复制到eclipse目录,只能install new stall...->local
+ 使用client为  JavaHL(JNI) 和 SVNKit(Java)只在根目录下有.svn
+ 用TortoiseSVN 也有只在根目录才有.svn的(好的方法 ,对复制不会复制无用的文件 )
+
+ 建立分支, SVN 资源库视图中 -> 右击要打分支的版本 -> 分支/标志 -> 重新命为新branch版本(不要建立目录) next -> 默认是HEAD修订版 -> 写注释 
+ 
+ 比较选择两个branch版本,要选择目录不同名,右击->创建单一差异文件
+ 
+ 合并分支,下载分支,(把所有的修改提交,更新)右击项目->team->合并(把其它分支合并到本地,先不提交上去)->默认是 Merge a range of revisions ->select...按钮选择要合并到这个版本的版本
+
+----eclipse-4.4.2  Mylyn-3.14 插件
+	help->install 安装时 (  取消 SDK and frameworks 组 )
+			Integeration组选 加 Mylyn Context Connector:Team Support(Git依赖) , Connector: Java (Spring依赖)
+
+----eclipse-4.4.2 Git-3.7 插件  依赖于 mylyn
+----eclipse Grale插件  buildship 使用marketplace 下载
+
+
+---- eclipse_4.4 插件 MarketPlace Client (MPC)-1.3.1
+	依赖于  org.eclipse.equinox.p2.discovery.feature.feature.group [1.0.0. 
+	 equinox-SDK-LunaSR2  dropsin安装无效,help->install没有可选择的, 手工复制也不行(feature标签中没有????,只能在线安装了)
+
+----Maven插件m2e-1.5  可把文件下载本地,help->install->local选择下载目录,只选择maven integration 
+		依赖于 org.slf4j.api 1.6.2 (1.7.2)  从springToolSuite中复制org.slf4j.api_1.7.2.jar,org.slf4j.impl.log4j12_1.7.2.jar 放dropsin目录
+		依赖于 org.eclipse.equinox.p2.ui.discovery  ???
+		
+		只右击maven项目->update project ...
+		preferences->maven->Installations 和 User settings
+		
+---Eclipse Jetty 3.8.0  在线 marketPlace 安装, 右击web项目->run configure ... 设置context path 为  /<project-name>
+---RunJettyRun  google.com不能仿问了
+
+----反编译插件
+jd-gui 的 eclipse 版  JD-Eclipse 
+	http://jd.benow.ca/  (jdeclipse_update_site.zip  大小4.54M)
+	help ->install new .. 安装, 不依赖于任何命令
+	help->about eclipse 可看到图标 也可点 installation details 有 JD-Eclipse plugin
+	
+sourceforge 的 JodeEclipse
+	http://sourceforge.net/projects/jodeeclipse/	 	2008-03-18
+	复制net.sourceforge.jode_1.0.6.jar  到  eclilpse目录的plugins   ,preferences有jode,不依赖于任何命令
+
+sourceforge 的 JadClipse
+	http://sourceforge.net/projects/jadclipse/    jadclipse3.3 	2007-04-11
+	可 links和dropins 安装jadclipse,目录要自己建立 jadclipse3.3\eclipse\plugins,放  net.sf.jadclipse_3.3.0.jar
+	references有jad,但报Cannot run program "jad",依赖于jad命令
+
+---Shell 编辑器插件
+	ShellEd   help->install->选net.sourceforge.shelled-site-2.0.3.zip,在线安装依赖,.sh显示为$图标,open with -> shell editor
+ 
+	
+---liferay help->install 可选择 liferayIDE,不选择mobile,maven
+
+--Hadoop 插件 
+https://github.com/winghc/hadoop2x-eclipse-plugin 是源码,插件版本是2.2,编译也要hadoop-2.2版本
+现成的jar包可以放在dropsin目录,
+
+
+MemoryAnalyzer-1.5 分析jmap导出文件,插件认.hprof格式文件 
+	修改.ini文件中 -vmargs 加大 -Xmx数值
+	有 MemeoryAnalyzer 视图 
+	
+	shallow size 对象本身占用内存的大小 , 不包含对其他对象的引用,也就是对象头加成员变量
+		String的shallow size是 对象头占用8字节 + hash int类型占用4字节 + serialVersionUID long类型占用8字节 + char value[] 1*4字节=24
+	Retained size是该对象自己的shallow size，加上从该对象能直接或间接访问到对象的shallow size之和
+	
+	
+	Histogram 显示类的实例数(Objects列),占用空间,java.lang.String的shallow size=24*Objects
+	Thread_overview 
+	
+	
+	Dominiator 可以搜索自己的类占用人空间
+	
+TPTP 性能测试插件 停止更新 
+findbugs-3.0.1	(eclipse插件和单独版本) 
+	edu.umd.cs.findbugs.plugin.eclipse_3.0.1.20150226-2a951fb.zip
+	放入自己建立目录  dropins\findbugs-3.0.1\eclipse\plugins\edu.umd.cs.findbugs.plugin.eclipse_3.0.1.20150226-2a951fb
+	右击项目->findbugs,findbus工作区
+	file->export->java->bug counts
+
+SonarQube (要建立服务器端,可以看web页式的单元测试覆盖率)
+	preferences->sonarQube->server 配置URL,username,password
+	右击项目->configure-> associate SonarQube->在SonarQube Project 中输入对自动弹出下拉提示,对应sonar-project.properties的sonar.projectName项
+	右击项目->configure-> analyze 也可找出代码bug问题,也可找代码规范问题
+	
+sonarqube-5.2 服务器 bin/windows-x86-64/StartSonar.bat启动监听9000端口	,  http://localhost:9000  -> login -> admin/admin 多了Administration 菜单
+	默认使用嵌入式DB ,H2, 
+	也可以配置 MySQL ,在conf/sonar.properties 一条配置
+	#sonar.jdbc.url=jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance
+	#sonar.jdbc.username=sonar
+	#sonar.jdbc.password=sonar
+	#sonar.web.port=9000
+可选操作 加配置 sonar.jdbc.driver=com.mysql.jdbc.Driver 在extensions\jdbc-driver\目录中建立mysql目录放mysql-connector.jar
+	#sonar.web.context=
+	
+	CREATE DATABASE sonar  CHARACTER SET utf8 COLLATE utf8_general_ci; 
+	CREATE USER 'sonar 'IDENTIFIED BY 'sonar' ; 
+	GRANT ALL ON sonar.* TO 'sonar'@'%' IDENTIFIED BY 'sonar'; 
+	GRANT ALL ON sonar.* TO 'sonar'@'localhost' IDENTIFIED BY 'sonar';
+	FLUSH PRIVILEGES;
+
+	
+	
+	SonarQube Runner分析源码 
+		可多种编程语言 插件放在sonarqube-5.2 服务器 \extensions\plugins目录
+		sonar-runner.properties 打开配置
+	
+		到自己项目源码根目录,增加 sonar-project.properties文件, 执行命令 sonar-runner
+		sonar.projectKey=my-project
+		sonar.projectName=Myproject
+		sonar.projectVersion=1.0
+		sonar.sources=.
+		sonar.sourceEncoding=UTF-8
+	如sonar-project.properties不能被建立,可以
+	sonar-runner -Dsonar.projectKey=my-project -Dsonar.sources=src
+	sonar-runner -Dproject.settings=../myproject.properties
+
+	
+eclemma-2.3.zip  JUnit代码覆盖率  (eclipse插件 ,dropins 安装无效)
+	help->install 安装 ,在debug按钮边多了一个按钮,Coverage视图可删所有提示(红色未覆盖,青色已覆盖)
+	file->export->java->Coverage Report,选择目录生成HTML
+	
+Checkstyle 代码规范检查,作用不大  (eclipse-PMD 较老)
+	eclispe-cs-5.7 ,复制到eclipse目录OK, (dropins 安装无效 )
+	右击项目->Checkstyle->check code with checkstyle/clear checkstyle violation,
+	有chcekstyle violations视图(像problems视图),chcekstyle violations chart视图(饼图)
+	preferences->Checkstyle
+	每次修改都会生成,可deactive项目
+	
+cobertura ,JUnit代码覆盖率(使用Ant,可以和jenkins,mavne一起用)
+Confluence 是一个Wiki工具
+Jira , Mantis BT
+
+TODO  FIXME   XXX 注释的代码会被task 视图收集
+
+
+----Toad Extension for Eclipse Community  2.4.4 有MongoDB
+可用 eclipse marketplace在线安装
+ 带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
+Toad for Eclipse-2.4.4 可以支持mongo-3.2版本, 到3.4版本打开js文件连接不成功 ???
+
+-- eclipse Scala 插件 Scala IDE-4.4.1   
+eclipse_4.5 可以dropsin安装  
+
+-- eclipse Python 插件 PyDev
+marketplace安装  Python 插件 PyDev-5.4 ,安装时不会提示版本兼容,当使用时提示要eclipse-4.6 才行
+
+官方看版本对应关系(Eclipse 4.5, Java 8: PyDev 5.2.0)
+下载PyDev离线安装包
+https://sourceforge.net/projects/pydev/files/pydev/    可以dropsin安装
+
+可以debug
+
+代码提示很好,ctrl+1有很多功能
+shift+enter 自动换行缩进
+
+----问题
+eclipse-4.6.2版本,为class指定源码,如以目录方式的源码无效果???  IntelliJ可以的
+
+
+---------IntelliJ IDEA  2016.3 要JDK1.8 才能启动64位版本
+
+
+File->Settings-> Build ,Execution,Deployemnt->Maven 中设置 maven home directory
+Run->Run...->建立运行maven时在command line中加 clean package -Dmaven.test.skip=true
+
+File->project stucture ->project -> 配置JDK
+File -> Setting -> Version Control -> Subversion 配置 svn 命令所在路径
+ 
+VCS -> Enable Version Control Integeration..->选择SubVersion
+VCS -> Checkout from version control ->Subversoin
+VCS -> Browse VCS Repository->Browse Subversion Repository ,可以右击->打tag
+
+
+像word 同时只能打开一个项目
+File->project stucture ->选择Modules标签 可以Import或者Add 多个,默认目录是在本项目的子目录，可以修改为同级,多个web项目可独立运行
+或者File ->new ->new Module...
+
+View->tool windows->Application Server 
+View->tool windows->project 显示项目视图
+
+
+设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts -> Font 
+设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font
+
+Code -> reformat code 格式化代码
+Code -> Generate...生成getter,setter  ( alter+insert )
+code -> completation -> smart type   (   ctrl+shift+空格 代码提示  )
+view -> parameter info      		 ( ctrl+p 参数提示  )
+
+File->Settings->Key Map 可以选择与eclipse一样的快捷键
+
+Edit -> find in path
+
+File->Settings->Editor->File Encodings  默认UTF-8  , 但建立的文件不是UTF-8的????
+File->Settings->Editor->Code Style  设置 line separator 换行符为windows \r\n
+
+没有MarketPlace ,插件安装有局限性,第一次启动有选择插件,File->settings->plugins -> 点 install JetBrains plugin...按钮
+光标放在没有导入的类上, 按 alter + enter  提示import
+
+ Navigator-> implments (ctrl+T ,开源版ctrl+alt+B) 打开实现类,
+ 右击方法-> Find Usages 
+ 如ctrl+点方法 默认是usage 也可点旁边的小设置按钮,修改为implmenting mehtod
+---------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,809 @@
+﻿
+==========================Mac OS Finder
+
+安装完成后,注意取消自动更新
+系统偏好设置->(App Store)软件更新->取消 "检查更新"   安全性与隐私->通用标签->取消 自动更新安全下载列表
+Yosemite 中在系统偏好设置->app Store->取消automatically check for updates
+===================快捷键
+连续多选文件使用shift键,不连续使用command键
+
+command + 单击dock上图标,打开文件所在位置
+
+ctrl+space  激活右上角的搜索图标 
+command + 空格 ,只和先前使用的输入法两个切换,可长按一会弹出界面,可鼠标或者上下键选择
+command + option+空格 ,循环切换输入法
+command+option+拖动, 可创建替身(快捷方式)
+可把文件拖到左边"位置栏中",command+option再拖是删除
+可把文件拖到左边"工具栏中",command+再拖是删除,也可修改位置
+
+Apple->强制退出程序 按option＋command＋esc
+command+backspace 把选择的文件放入废纸篓
+
+command+Q退出
+command+W 关闭当前窗口
+command+M 最小化
+command+上下键 到文件的第一行 / 最后一行
+command+左右键 到行首/尾 相当于Home/end
+
+option +上下键  翻页
+option + 左/右 向前后移动一个单词
+
+所有文本编译器,如Xcode中使用ctrl+a 做home键,使用ctrl+e 做end 键，同vim 
+
+系统偏好设置->键盘中有很多的快捷键,
+command+shift+3 是全屏截图,会自动把文件保存到桌面
+command+shift+4 可以拖动一个区域来截图,也是保存在桌面上
+command+shift+` 循环切换一个程序中的多个窗口(如safari),功能类似ctrl+ 下键
+
+command+tab切换程序
+ctrl+下键 (可按tab切换,也可鼠标点),当前程序的多个窗口,Mac 10.8中
+ctrl+上键 Mission Control (Multi-Touch上,三指上推打开,三指上拉关闭)
+ctrl+左/右键 切换每个桌面(Multi-Touch上三指拖动)
+fn+F11返回桌面   (Multi-Touch上,四指向外)
+fn+F12显示DashBoard(Multi-Touch上,三指向右拖)
+LaunchPad(Multi-Touch上,四指向右内)
+(Multi-Touch上,双指点击,相当于右键),也可ctrl+单击,如在Dock上也可多点一会
+(Multi-Touch上,双指上下拖动,滚动条)
+(Multi-Touch上,两指向外/向内,放大/缩小图,两指旋转,旋转图,两指左右拖,浏览图)
+
+系统设置->触控板中有视频教程
+(Multi-Touch上,双指从右边外侧拖到内侧,显示通知面板)
+(Multi-Touch上,双指在浏览器中左右滑,是后退,前进)
+
+(Multi-Touch上,在Safari中 两指放大/缩小，如缩小是正常下再缩小就变成多个标签页)
+
+ctrl+双击文件		#打开后关闭当前Finder
+
+
+开机时按shift 进入安全模式,第一次进入很慢
+可以把Find中的文件拖入终端,在终端上显示全路径
+文件是没有剪切功能的,可以直接拖过去(按option键是复制)
+
+Finder 的显示->显示路径栏,只是显示,不能进入目录
+使用command上下键,进上下级目录
+
+上下键移动到文件上按回车是重命名,不是打开,也不是进入目录
+Mac 慢速点击文件两次 重命名
+option+command+D 显示隐藏  Dock
+
+打开 Mission control 后右上角有一个"+" ,可以增加桌面,
+系统设置中，键盘－>Mission Control,设置快捷键 切换桌面ctrl+1,ctrl+2...
+把一个窗口从一个桌面移动另一个桌面,点住窗标题栏,按ctrl+1,ctrl+2
+
+fn+delete 删光标后面的内容
+ 
+切换最大化窗口（在不同的桌面中，command+tab）
+=================== Finder的使用
+
+加中文输入法
+系统偏好设置->语言与文本->输入源标签->选择 中文简体的输入法,option(alt)+command+space直接切换(注意option的表示符号)
+输入法有五笔笔画,五笔笔型,应该选择 五笔笔型 
+
+Finder的偏好设置->通用->把"开启新Finder窗口时打开"中修改为用户主目录,边栏标签中 取消"我的所有文件"
+
+Finder->偏好设置...->高级->选中显示所有文件扩展名
+ 
+apple->dock->放在左边
+dock上不同的图标,右键,菜单是不同的
+dock上的分隔文件夹的分隔线可以拖动,修改图标的大小
+dock 偏好设置,有一个复选"将窗口最小化为程序图标"
+dock图标下面有一个亮点,表示这个程序进在运行
+
+
+系统偏好设置->Mission control (有显示快捷键)->触发角... 按钮->可以设置四个角落的鼠标事件
+
+
+root用户默认是被禁用的
+系统偏好设置->用户与群组, 登录项标签可以设置登录后启动的程序,锁图标可以点开
+	下拉->设置主密码(root密码),管理员可以使用主密码重置任何用户的密码,
+
+	sudo -i
+	
+Macintosh安装后分区的四个目录,资源库(/Library),用户(/Users),系统(下只有一个资源库,/System/Library),应用程序 (显示为.app,/Applications)
+
+安装.dmg文件,只要双击,会被解压pkg或mpkg,删除dmg文件前,要在Finder中设置栏,挂载的镜像弹出才可删
+
+
+自带有打开pdf的工具
+
+/应用程序/实用工具/控制台   显示系统日志
+
+终端的 偏好设置 可以设置字体大小 
+
+打开"字体册",把自己的字体拖入到"字体册"中
+
+
+Finder偏好设置->边栏->把硬盘选上
+跳格多选择文件,按command
+
+
+启用root用户
+系统偏好设置->用户与群组->左侧 登录选项 ->网络帐户服务器 旁边的 加入... 按钮->点 "打开目录实用工具" 按钮
+选取 "编辑" 菜单>"启用 Root 用户" ,输入新的root密码,后就可以使用su - root
+
+开机启动 ,在用户帐户中，选择用户后，在登录项标签中可以增加登录后自动打开的程序
+
+/应用程序/实用工具/磁盘工具   也有其它的工具  如 活动监视器,终端
+	文件->新建->文件夹的磁盘映像
+	"刻录"按钮可以刻录光盘镜像文件
+
+Mac切换为英文
+系统偏好设置->语言与文本->语言标签下,把English拖到简体中文的上方,注销重新登录就OK
+
+磁盘工具,中有可以恢复工具 ,可以选择镜像用来恢复系统
+
+/资源库/Desktop Pictrue 下有全部的自带桌面图片
+
+
+禁用修改扩展名的提示  defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+
+在Finder中显示隐藏目录 ,defaults write com.apple.finder AppleShowAllFiles -bool true 注销后生效,
+要显示用户主目录的 ~/Library/ 用命令	chflags nohidden ~/Library/  
+
+
+也可强制退出中选择Finder ->restart
+有文件 ~/Library/Preferences/com.apple.finder.AppleShowAllFiles.plist
+
+前往(Go)->前往文件夹->输入~/Library
+
+defaults read com.apple.finder
+ 
+Mac 安装字体使用/Applications/Font Books.app,也可以双击安装, 会存放在/Libraray/Fonts目录
+
+
+文本编译器,如Xcode中使用ctrl+a 做home键,使用ctrl+e 做end 键，同shell console 
+
+在屏保恢复后加密码,系统偏好设置->安全性和隐私->选中 "进入睡眠或开始屏幕保护程序后"要求输入密码
+
+系统偏好设置->安全性与隐私->解锁后,在 允许从以下位置下载的应用程序中选择 "任何来源"
+
+选中文件 ,按空格可预览文件内容,再按空格关闭预览
+
+如果文件是从windows复制过来的,如当时设置为只读,在Mac中是locked,不能改名,移动位置,必须右击文件->get info->取消locked
+
+View->Show path bar  可双击下面状态栏进入目录 ,如command+双击打开一个新的Finder窗口
+使用 Toast 打开bin格式的光盘镜像文件,选Convert标签->双击image file,把bin文件 拖入,点mount按钮
+
+
+Finder 中 view->hide/show view options->选中Date Add,增加日期,对于复制文件,这个是复制过来的时间
+
+/Application/Utilites/Network utility 有端口扫描功能
+
+/Library/Documentation/Help/MacHelp.help  是帮助手册,会根据当前系统的语言，显示不同的语言的帮助，（中，英文都可），但要在线
+点所有应用程序帮助，链接有些应用的文档是可以不在线的
+
+
+网络设置代理，在ByPass中设置不走代理，要用英文的","分隔多个，最好不要有*符号，示例*.local, 169.254/16, 127.0.0.1, 0.0.0.0, 192.168.1.108
+
+系统偏好设置->用户中可以设置登录启动程序
+如是开机就启动，使用root用户建立 /etc/rc.local 文件(BSD内核)
+
+右击mpkg包->show package content  ,可以查看包内容 在Contents/Packages里有其它的pkg包
+.pkg包(10.10 版本)没有这个菜单项了,使用 Suspicious Package 工具查看pkg包内容 ,安装后右击.pkg->Quick Look "xxx.pkg"
+也可下载xip压缩包,解压后为.qlgenerator文件到~/Library/QuickLook(新建)目录,执行 qlmanage -r
+
+重新安装pkg并不会覆盖原文件,使用 pacifist,右击包->install to Default location,提示选replace
+
+
+打开/保存对框中,显示隐藏文件夹快捷键,command+shift+点(.),command+i打开info,也可用Finder中的comannd+shift+G 来粘贴路径,Command+shfit+n建立文件夹
+
+如使用command+c,command+v复制, Source目录中有文件夹A,Dest目录中也有文件夹A,两A的内容不同,如把source中A复制Dest目录中A, 选择replace按钮不能合并, Dest目录的A文件变为与Source目录中相同，原来的在Dest目录多出的文件被删除 !!!(有时会有merge按钮,有时没有)
+使用UltraCopier会提示merge,提示override同名文件, 使用 cp -r 是自动merge override同名文件, 不会删Dest中多的文件
+
+如选择多个文件(没有文件夹),复制到另一个目录中,如有同名文件,有时只提示 stop(如第一个同名,第二个文件就不会被复制,没有skip按钮),keep both(多加一个_2的文件),replace  三项
+cp 命令默认也会覆盖同名文件,要加-n 就不会覆盖同名文件
+
+Finder 左侧栏中的 AirDrop 相当于windows 的网上邻居,也可在quick look 中有一个按钮下拉选择AirDrop
+
+
+Dock中的任务右击后 ,再按option,出现一个新的菜单项 force quit
+
+
+---Mac 连接 windows 打印机
+Preferences ->Print & Scan -> "+" -> 
+方式一 windows标签自动显示出有工作组的电脑
+方式二 IP 标签 Protocol:选择 Line Printer Daemon(lpd://PCName/PrinterShareName)
+
+方式三 Advance
+右键单击工具栏->Custom Tool bar ...把Advance 拖入到工具栏
+->Advance -> type中选择Widows printer via spoolss-> URL:中的格式为
+	smb://server/SharePrintName
+	smb://workgroup/server/PrintShareName
+	smb://user:pass@server/PrintShareName
+	smb://ADDomain\user:pass@server/PrintShareName
+	这也要求密码中不能有@字符
+use选择 PostScript(Adobe收费的) 或 PCL(HP的Print Command Language),
+		select a print software ...列表中选择(一般选择这个,要单独下载打印机驱动安装,会有设置对话框的,)
+Name:中自己起个名字
+但打印时提示 Hold for Authentication ,但没有弹出输入密码,点刷新按钮,重新输入密码,可以发出,打印机有点声音但没有打出???
+
+Share中有print share
+---CUPS
+/etc/cups/cupsd.conf
+cupsctl WebInterface=yes 来启用 http://127.0.0.1:631 界面
+
+Administration->Add Printer输入操作系统的用户(sudo)
+
+---
+=================== 命令
+
+chflags hidden ~/Desktop/a  把文件变为隐藏
+ls -l 最后一组最后一个显示为@
+chflags nohidden  ~/Desktop/a  把隐藏的文件变为显示
+
+cal命令显示日历,
+
+终端中使用
+Ctrl + a        光标移动到行首（Ahead of line），相当于通常的Home键
+Ctrl + e        光标移动到行尾（End of line）
+
+/etc/profile
+export PS1='[\u@\h ./\W]\$'
+
+alias ls='ls -Gahl'
+
+vi 中彩色 :syntax on
+终端中彩色 ls -G  
+
+建立 ~/.vimrc 文件写  syntax on
+
+ 
+Mac 仿问windows 用safari 的地址栏输入 smb://ServerName/ShareName
+或者在Finder中 前往->连接到服务器, command + K ,输入smb://ip
+
+mount_smbfs
+mount -t smbfs //guest:@myserver/PUBLIC /smb/public
+
+
+/private/etc/hosts 文件 
+dmg挂载到/Volumns目录
+
+/etc/rc.common文件是启动执行的
+ifconfig en0 down /up	启用/禁用网卡
+
+installer -pkg VNC-5.0.2-MacOSX.pkg -target /opt  ，如目录有空格加“” ,可能不行，双击pkg就OK,安装日志在/var/log/install.log
+卸载一般安装到/Applications目录下
+
+pkgutil --expand macx.pkg ~/new_dir/  解压pkg包
+
+
+禁用虚拟内存
+sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist
+
+禁用以后，磁盘上还保留着这些交换文件，它们已经没用了，也可以删掉：
+sudo rm /private/var/vm/swapfile*
+
+如果要重新启用虚拟内存的话，可以执行这条命令：
+sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist
+
+如果要临时释放不活跃内存，可以执行这条命令（需要安装Xcode)
+purge
+
+有 top 命令 ,vm_stat 和 vmmap 虚拟
+
+修改主机名命令 sudo scutil --set HostName <新的主机名>,  偏好设置->共享 中修改共享时显示的主机名
+
+ifconfig -a  真机上的无线网卡显示是en0
+
+
+open -n /Applications/My_App/Eclipse-3.7.2.app  #开启多个相同应用
+
+
+system_profiler  |grep  "System Version"  #命令查看系统版本号
+
+find  ./  -name *.class  -print -exec rm -f {} \;
+
+groups 列出当前用户的所归属的所有组
+id -Gn 列出当前使用的用户
+
+uuidgen命令 生成一个UUID
+
+把ISO以可启动方式写入U盘
+diskutil unmount /dev/disk1s4 
+dd if=BT4_LT.iso of=/dev/disk1s4 bs=8192
+
+dmg转成iso   ,hdiutil是Disk Utility的命令行
+hdiutil convert  -format UDTO -o mac-10.8.iso mac-10.8.dmg   
+后缀是.iso.cdr，选择这个文件修改后缀把.cdr去掉。
+
+---制作U盘安装系统
+1.把iso转成dmg格式
+hdiutil convert -format UDRW -o en_windows_xp_.dmg en_windows_xp_.iso
+
+2.查找USB有设备盘符
+diskutil list 
+显示为  /dev/disk1
+
+3.把USB unmount
+diskutil unmountDisk /dev/disk1
+N是查找到u盘 可能是1，2这样的数字
+
+4. 把dmg复制到u盘
+sudo dd if=en_windows_xp.dmg of=/dev/rdisk1 bs=1m
+
+5. 弹出U盘
+diskutil eject /dev/disk1
+ 
+6. 重启时按住Option键，选择usb启动。我测试中测试不到USB ????
+
+磁盘工具中->Restore标签,选择挂载的MacOS.Dmg后,在Source显示路径,从左侧把U盘拖到Destination(是被删除的)中
+最好再把dmg扫描一下,image->scan image for restore... 
+也可用于系统的备份/恢复
+
+
+开机按shift 进入安全模式
+开机按command + S 进入单例用户模式
+开机按command + V 显示启动的日志
+
+Option + Command + P + R 重置PRA  ，要一直到两次黑屏和声音
+D 按这个键会让Mac进行硬件自检
+N 从网络服务器启动，这个按键非常有用，它可以以目标盘模式启动，当你用火线把两台Mac电脑连结在一起时，按住这个键启动后你的电脑就成了一块大硬盘，通过另一台电脑可以对其进行数据恢复、硬盘对拷、重整分区等操作，有时候，当你的Mac无法通过光盘进行安装的时候（比如安装盘版本不对），通过另一台电脑进行系统安装会成为你的救命稻草。 
+
+---
+
+=================== 自带工具
+--自带专业工具
+iPhoto 制作相册
+DVDPlayer
+iMove 视频处理工具
+GarageBrand 音乐制作工具  ,Audio MIDI Setup 
+--
+
+应用程序/automator.app 工具使用,(示例把所有的jpg图片变小,并修改为png格式)
+	打开时选择 "文件和文件夹",在左侧也是,子级中把"获得指定的Finder项目"拖入工作区,"添加"按钮选择目录
+	再拖"获得文件夹内容"到工作区最下面,与刚才的连接起来
+	再选择根级的"照片"->把"更改图像类型"拖入工作区最下面,提示"添加"按钮后会复制一份再修改,在工作区中增加了一个"拷贝Finder项目"
+			"缩放图像"   ->再点 "运行"  ,也可以录制操作,在播放时也是真实的播,其它是记录鼠标,键盘,时间是一样的,环境应该是一样的,要不然就会出错
+
+iTunes 中 右击播放列表->刻录(可能要有歌曲才行)
+iTunes 应用会下载到 /Users/zhaojin/Music/iTunes/iTunes Media/Mobile Applications/下的.ipa文件
+
+右击safari打开的网页,->在dash board中打开,选择网页的区域,会多一个在dashboard中
+
+Safari 打开debug JS功能
+	方式1."偏好设置"->高级标签,打开"显示开发菜单在菜单栏",支持WebGL,HTML5
+	方式2.在终端输入 defaults write com.apple.Safari IncludeDebugMenu 1  命令后重启Safari就会多一个"开发"菜单,有"启用webGL"的菜单项,"停用JavaScript"菜单项
+
+	command + option + i 显示窗口 ,在选择为"Dom树"时,不能打断点,选择"源代码"就可以了,调试时,没有地方可以手工输入变量
+	
+	插件目录 /Library/Internet\ Plug-Ins/ ,~ /Library/Internet\ Plug-Ins/ ,如果卸载只要删除就OK
+	
+磁盘工具->File->New->Blank Disk Image... 可以制件DMG镜像文件
+
+Uitities->Key chain access->System或Login->中有无线的密码历史记录
+
+iPhoto 可“import”到Mac,右击~/Pictures/“iPhoto图库.photolibrary"->Show Package Contents ,导入的图片在Masters目录中,import后可以删除iPad中图片
+=================== 服务
+-------SSH
+Mac  下su - root
+/usr/sbin/sshd ,要绝对路径 后就有22端口监听 netstat -an | grep .22
+Mac 共享中打开 “远程登录“,会提示使用ssh lizhaojin@192.168.100.128 ，注意用户名是全名，点锁应用修改，也会自动sshd
+
+scp ./xxx lizhaojin@192.168.100.128:~/Downloads
+
+------VNC
+共享中打开 “屏幕共享“ 就是VNC,可以设置VNC密码，提示使用vnc://＜IP＞
+共享中打开 Screen Sharing,客户端 Finder ->go->connect to server 输入vnc://<ip>
+
+如使用vncview  输入＜IP＞:0就可以仿问了，测试OK	
+有5900端口监听,netstat -an | grep .5900,可能会过一会才能查到
+-------SMB
+系统偏好设置->共享->选中 文件共享->选项...按钮->选择SMB ,选择系统用户,会把用户的所有目录都共享的,危险!!!,应该只增加自己的目录
+提示afp://ip,smb://ip
+
+如果是上次开机就打开的，这次使用要关闭“文件共享”后打开“文件共享”，才可用
+
+右击文件夹->显示简介->可以看"共享的文件夹"是被复选的
+
+-------NFS
+防火墙关闭测试
+
+NFS Manager工具收费，不可试用
+/etc/exports文件格式
+/Users/lizhaojin/Downloads -ro
+nfsd enable 启动服务后netstat -an | grep .2049就有监听了
+
+showmount -e 后就可看到本机的设置
+mount -t nfs 127.0.0.1:/Users/lizhaojin/Downloads /mymnt 是可用的
+----蓝牙 bluetooth
+共享中打开 蓝牙
+
+
+===================外部工具
+----------mac JDK eclipse CDT 
+apple下载Java for OSX 2012-006 是/Library/Java/JavaVirtualMachines/1.6.0_37-b06-434.jdk,生成好多其它目录
+Oracle 官方的JDK 7u17 是pkg包,安装包内容只一个Home目录,安装后系统偏好设置 中有Java
+
+/System/Library/Frameworks/JavaVM.framework 目录中的文件大多数是是link
+/usr/libexec/java_home -> /Library/Java/JavaVirtualMachines/jdk1.7.0_17.jdk/Contents/Home
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_17.jdk/Contents/Home
+export PATH=$JAVA_HOME/bin:$PATH
+export CLASSPATH=.
+
+看 /usr/bin/java ->
+
+建立~/.bash_profile 或 /etc/profile 中设置环境变量
+
+man java_home 查看
+
+---apple JDK 6
+export JAVA_HOME=`/usr/libexec/java_home` 
+选择不同版本的JDK  
+/usr/libexec/java_home -v 1.6.0_37 -exec javac -version
+---
+
+默认的/Library/Java/Home -> /System/Library/Frameworks/JavaVM.framework/Home
+$rm /Library/Java/Home
+$ln -s /Library/Java/JavaVirtualMachines/1.6.0_37-b06-434.jdk/Contents/Home /Library/Java/Home 
+---卸载JDK 
+手工删 
+rm -rf /Library/Java/Home
+rm -rf /System/Library/Frameworks/JavaVM.framework
+---
+Mac 使用eclipse CDT的C/C++的开发,要下载安装Command Line Tools(cltools) for Xcode(有编译器,make),建立项目时选MacOSX GCC,测试OK
+
+
+---------Oracle 10gR2
+1.
+java.lang.UnsatisfiedLinkError: /private/tmp/OraInstall /oui/lib/mac_osx/liboraInstaller.dylib: no suitable image found. Did find: /private/tmp/OraInstall /oui/lib/mac_osx
+这可以通过：
+runInstaller -J-d32
+强制启动32位JAVA环境来解决
+
+2.
+Error in invoking target 'all_no_orcl ipc_g ihsodbc32 error during linking then edit file $ORACLE_HOME/rdbms/lib/ins_rdbms.mk 
+此时可以修改 ins_rdbms.mk 注视 $(HSODBC_LINKLINE) 这一行。重试即可通过安装。
+
+3.
+修改 $ORACLE_HOME/jdk/jre/bin/java 文件中引作正确的java路径    ,为java  加 -d32 表示使用32位
+
+netca 错误
+The "/opt/oracle/product/cfgtoollogs/configToolFailedCommands" script contains all commands that failed, 
+
+以下两个java 对netca crash  (oracle.net.ca.NetCA quit using the libnjni10.jnilib plugin-in),对dbca 界面可以显示
+/System/Library/Frameworks/JavaVM.framework/Versions/A/Commands/java
+/Library/Java/JavaVirtualMachines/1.6.0_37-b06-434.jdk/Contents/Home/bin/java
+
+只安装软件 OK ,运行dbca到最后一步只可保存脚本,但不能运行,sqlplus 用不了
+
+dscl -- Directory Service command line
+
+修改改root的默认SHELL 为bash ??
+
+自带的doc/x.html 也有Mac 说明的
+ 
+ 要有Xcode,gcc,Java
+ 
+# sysctl -a 显示所有的
+# system_profiler SPHardwareDataType | grep Memory
+# uname -p  显示i386
+# sw_vers 显示系统版本
+# dscacheutil -configuration  查当前DNS解析方法，必须有/BSD/local即/etc/hosts
+# domainname  显示主机域名,主机名 hostname
+# cat /etc/hosts | grep `eval hostname`
+
+
+dba,oper组,oinstall,oracle用户
+# more /var/opt/oracle/oraInst.loc
+
+
+查所有组
+#dscl . -list /groups gid
+
+# dscl . -create /groups/oinstall
+# dscl . -append /groups/oinstall gid 5100
+# dscl . -append /groups/oinstall passwd "*"
+
+# dscl . -create /groups/dba
+# dscl . -append /groups/dba gid 5200
+# dscl . -append /groups/dba passwd "*"
+
+# dscl . -create /groups/oper
+# dscl . -append /groups/oper gid 5300
+# dscl . -append /groups/oper passwd "*"
+
+查所有用户
+# dscl . -list /users uid
+
+# dscl . -create /users/oracle
+# dscl . -append /users/oracle uid 6100
+# dscl . -append /users/oracle gid 5100
+# dscl . -append /users/oracle shell /bin/bash
+# dscl . -append /users/oracle home /Users/oracle
+# dscl . -append /users/oracle realname "Oracle software owner"
+
+# mkdir /Users/oracle
+# chown oracle:oinstall /Users/oracle
+
+# passwd oracle
+
+# dscl . -list /groups/oinstall gid name
+方便的命令
+# dscl . -delete /users/oracle gid
+# dscl . -append /users/oracle gid 4100
+
+#dscl . -append /Groups/dba GroupMembership oracle					大写的Groups
+#defaults write /Library/Preferences/com.apple.loginwindow HiddenUsersList -array-add oracle
+
+
+
+格式 sysctl -w parameter_name=parameter_value
+
+/etc/sysctl.conf
+#kern.sysv.shmmax 	Half the size of physical memory (in bytes)
+
+kern.sysv.semmsl=87381
+kern.sysv.semmns=87381
+kern.sysv.semmni=87381
+kern.sysv.semmnu=87381
+kern.sysv.semume=10
+kernel.shmall=2097152
+kernel.sys.shmmax=2147483648
+kernel.sys.shmmni=4096
+kern.maxfiles=65536
+kern.maxfilesperproc=65536
+net.inet.ip.portrange.first=1024
+net.inet.ip.portrange.last=65000
+kern.corefile=core
+kern.maxproc=2068
+kern.maxprocperuid=2068
+
+重启系统，检查参数
+
+# sysctl -a 
+
+# more /etc/oratab 如安装多个Oracle,指定不同的ORACLE_HOME 的值
+*:/opt/oracle/product:N
+*:/opt/instantclient-12:Y
+
+#mkdir -P /opt/oracle
+#chown -R oracle:oinstall  /opt/oracle
+#chmod -R 775  /opt/oracle
+
+
+/etc/profile中加
+ulimit -Hn 65536
+ulimit -Sn 65536
+
+export ORACLE_SID=orcl
+export ORACLE_BASE=/opt/oracle
+export ORACLE_HOME=$ORACLE_BASE/product/
+export PATH=$PATH:$ORACLE_HOME/bin
+export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:$ORACLE_HOME/lib
+export NLS_LANG="SIMPLIFIED CHINESE_CHINA.UTF8"
+
+#umask 022
+export DISPLAY=:0.0    ---为 su  - oracle 显示界面使用
+#export ORACLE_HOSTNAME=qisnow.local   #对一个机器有多网卡,多IP
+
+
+$ ps -ef | grep tnslsnr
+$ tnslsnr LISTENER -inherit
+$ lsnrctl status listenername
+
+
+brew install mongodb 在线下载安装
+----------
+TextWrangler  中 view->Hide/Show File   ,打开文件时要把文件拖到左边的(File)窗口中
+TextWrangler  中 preferences->Application标签->取消 Reopen Documents that were open at last quit
+TextWrangler  中 File->Reopen with encoding->Chinese GBK 可以对打开的文件是乱码做修改 （保存时可选择文件编码）
+TextWrangler  中 option + 上/下键 翻页
+
+Komodo-Edit   中 Edit->Current File Setting...->设置文件编码
+
+Mac UltraEdit 3.3  "文件" ->"比较文件...", 自带UltraCompare Lite 2.3.0.3
+
+VMware Fusion 右击Dock上图标->Vitual Machine Library 显示主窗口
+
+MplayerX 取消播放时在最前端 ,preferences->general->keep window on top中下拉选择Never
+
+Office 2011 Word 中 视图->侧栏->文档结构窗格
+Office 2011 Powerpoint 使用 上/下键 翻页 (不要选中元素)
+
+
+Office 2011 for Mac 自带MSN,没有我的分组信息,没有人名,对离线人,双击后提示是否邮件后,MSN就自动注销了
+还有一个用于Mac的连接windows的远程桌面工具,是可以用的,注意win7中要打开远程,防火墙设置,
+不要在VM中连接真实的win7,会屏,而且不能退出到VM中的Mac
+
+cltools是mpkg包,如已经安装过,再安装不会提示卸载,是不知道的)
+
+不在菜单栏右边的工具栏中显示Adobe Application Manager图标
+sudo rm -rf /Applications/Utilities/Adobe Application Manager
+
+
+
+Boot Camp  可以在Mac上安装Windows8.1 和 Visual Studio 2013
+http://msdn.microsoft.com/en-US/library/windows/apps/jj945423
+http://www.apple.com/cn/support/bootcamp/
+
+
+
+
+======================================mac soft list
+------mac专用
+--开发
+Xcode
+Command Line Tools 是gcc工具链
+iPhoneConfigUtility
+XQuartz  X11  安装在/Application/Utilites下，使用pacifist查看的
+--
+Roxio Toast Titanium 11 刻录工具
+	Rixio自带播放器,位置:Toast 11 Tianium目录/ToastTitanium.app图标/Contents/Resources/Roxio Video Player
+	View->normal size,View->aspect ratio->wide
+MplayeX 播放器Quicktime应该不支持wmv,播放.mov文件不显示画面
+
+SafariCacheExplorer	Safari缓存导出工具
+WBIM		万寿果五笔
+FIT			五笔输入法
+mac 百度五笔
+
+iCHM 读.chm文件
+ScreenFlow 录像工具
+WineBottler-1.4.1
+VMWare Fusion  必须建立VM时指定光盘镜像文件
+Parallels Desktop-10 虚拟机 
+
+TextWrangler  文本编辑器,语法高亮,右击文件->Services->open file in TextWrangle
+Komodo-Edit  (多平台)	  
+
+DMGCanvas 制件.dmg格式文件,可加背景
+FreeDMG 制件.dmg格式文件,Images->create from folder...
+
+BetterZip	压缩工具,如多个rar包解压,少包是提示有密码的bug,右击文件->Services->compress with BetterZip
+MiniCopier	复制工具,是jar包
+UltraCopier	复制工具,复制相同目录时,会提示merge,提示override同名文件,Add Transfer->add files选多文件时,如有同名会提示skip还是override
+
+Versions 收费SVN
+SCPlugin	SVN 要把app文件放在工具栏上_选择文件夹后点它
+SVNX 	google免费SVN
+
+SmartGit 	收费Git工具,Xcode带Git工具,Windows版本带一个Git-GUI小工具
+GitKraken    免费Git工具,使用必须注册登录??(windows,linux)
+SourceTree 	 免费Git工具,使用必须注册登录??(windows )
+git-cola	免费Git工具,是Python写的要pythonw命令(windows,linux)
+
+
+VisualDiffer  文件比较器，Xcode自带FileMerge
+
+Paragon NTFS
+Texera NTFS  以前的NTFS-3g
+
+使用 Suspicious Package 工具查看pkg包内容 ,安装后右击.pkg->Quick Look "xxx.pkg"
+Pacifist	查看mpkg包工具,也可以右击->show package content,打开pkg安装可以覆盖原文件
+speed download 下载工具,也可用Firefox插件DownThemAll
+
+FileSavage 恢删除文件
+SuperDuper 系统备份工具
+CleanApp	清缓存/语言/.app包,并不是pkg生成的,看不到安装的JDK(可试用)
+CleanMyMac	清缓存/语言/.app包,并不是pkg生成的(免费)
+
+appDelete   卸载软件,拖入app后可看到其它关联的文件，准备删除的(如Notes-9)
+
+gfxCardStatus 手工切换显卡
+
+
+OmniGraffle 	UML工具, Pro版本可打开Microsoft的viso,只有Mac,iOS版
+OmniPlan		项目管理工具,可以打开Microsft的Project,只有Mac,iOS版
+smartdraw 
+
+2-plan项目管理	基于eclipse
+Astash	UML工具基于Jude
+Visual Paradigm-11.1 for UML  
+TeamViewer
+
+easyMule
+
+XMeeting 局域网会议(也可使用局域网的GateKeeper Sever,手动指定主机,可以连但不能在VM中测试)
+Lock My Mac ,不知道如何设置快捷键,或者放在输入法旁边????
+
+MacPorts 在线下载源码编译安装
+data rescue 数据恢复
+
+Stellar Partition Manager 目前找不到key????
+PackageMarker 制作pkg,mpkg 包,没有找到哪,或者下载位置????
+
+魔方手机助手   用于在Mac OS下连接Android真机,真机要打开Debug,如不打开,只能打开手机的部分目录
+
+------all mac
+
+
+RealPlayer SP
+DivX 解码器
+Blender
+iTools  读iPhone,iPad设备(有windows的)
+camtasia2.2.2 录像
+Inkscape  矢量图
+GIMP
+Paintbrush  类似windows画图
+IBM Notes , $HOME/Library/Application Support/IBM Notes Data 
+			$Home/Library/Preferences/Notes Preferences
+
+Wireshark
+conceptdraw Office, 带project项目管理工具
+LibreOffice
+Office 2011 	带 MSN,连接windows的远程桌面
+Lync 2011
+SilverLight 为 Lync使用
+----常用的
+QQ		聊天记录在	~/Library/Containers/com.tencent.qq/Data/Library/Application\ Support/QQ/
+飞信2012
+飞鸽传书
+Skype
+
+Firefox
+Chrome
+ThunderBird
+Thunder 
+金山词霸 
+有道词典
+五笔自带
+UltraEdit  自带 UlraCompare Lite
+Komodo Edit
+
+--------Java
+eclipse
+Android
+JDK
+SQLDeveloper 不要使用mac , 使用通用的OK
+soapUI
+jd-gui		java反编译器
+
+NetBeans,Weblogic
+
+--------开发或服务器
+VNC viewer/VNC Server收费使用Mac自带的 
+FileZilla
+SecureCRT + SecureFX
+VirtualBox
+
+Sqlite
+MySQL
+MySQL WorkBench
+apache,vfstp,postfix,bind(dhcp)
+InstantClient
+MacOS 的绝种Oracle10gR2  ,安装时使用 runInstaller -J-d32强制启动32位JAVA环境来解决
+Navicat for SQL Server
+Navicat for SQLite
+--------Adobe  AutoDesk
+.pdf文件,Mac有自带的"预览"(Preview)工具
+FlashPlayer
+Photoshop
+Illustrator
+Maya
+AutoCAD
+calibre 查看epub格式(mongodb doc) 点右上角可以切换翻页和滚页模式
+
+========windows 仿问mac
+Mac(区分大小写)的文件系统是  ,HFSXJ(MacDrive查看),HFS+(DiskGenius查看)
+---MacDrive 9
+windows 下仿问mac 文件系统使用 MacDrive  9可以读写,可双击dmg模拟硬盘,安装/卸载要重新启动
+安装MacDrive 后不能删除分区,被MacDrive 保护
+---HFSExplorer-0.21  可以打开UlraISO转换后iso
+---TransMac 9.1_可读Mac分区
+---win的PartitionMangaer-11可操作mac分区
+
+
+----------有问题的部分 ???????????????
+.pkg,mpkg的安装包,如JDK,Command Line Tool,mac JDK6,oracle JDK7,如何删除? 
+
+PackageMarker 制作pkg,mpkg 包,没有找到哪,或者下载位置????
+
+LibreOffice Write输入中文速度很慢
+
+Lock My Mac ,不知道如何设置快捷键,或者放在输入法旁边????
+
+限速软件，对使用safari,Adobe download
+
+清历史（如右击打开TextEditor,Preview，在Dock中最近打开的文件)
+
+五笔快捷键和TextWrangler 冲突,不可以在其它应用中使用Finder快捷键 
+不能很好的切换 多个JDK 版本??
+
+打印 , 要求用户名/密码  没有地方输
+
+一个用户安装notes-9.mpkg提示数字签名无效，同一包另一个用户安装OK，哪里可以清记录
+
+Notes9 日志报eclipse[9074]: Cannot find executable for CFBundle ，names.nsf删了就不会再生成了.
+
+--------- 
+

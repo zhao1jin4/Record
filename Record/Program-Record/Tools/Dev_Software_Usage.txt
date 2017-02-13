@@ -1,0 +1,645 @@
+﻿
+============================Netbeans-8.1===============================
+
+------------ 
+在FreeBSD上运行正常，如果gnome 界面语言是english,那么 netbeans也是英语 ,	运行时有一个UnkowHostException   InetAddress.getLocalHost();不影响运行,是由hostname 的值空造成的
+	
+windows 下中文字体文件都 以sim开头,显示都有(TrueType)
+	simhei.ttf 黑体
+	simkai.ttf 楷体
+	simfang.ttf 仿宋
+	simsun.ttc 宋体 & 新宋体
+可以把windows 下的simhei.ttf 文件复制到 /usr/local/lib/X11/fonts/TTF/  ,重新开gedit有效果,注销后gnome字体也正常了,firefox...全部正常了
+
+可以netbeans ,中文界面字体不行(gonme英文正常)
+ cp /usr/local/lib/X11/fonts/TTF/simhei.ttf	$JAVA_HOME/jre/lib/fonts/fallback/   (fallback目录要新建立)
+	
+linux  是	/usr/share/fonts/truetype/
+
+
+如tomcat6启动时,总是说server.xml损坏,可能是普通用户启动netbeans,无权修改文件　	
+------------
+
+netbeans-javaee 要用./bin/netbeans --jdkhome /usr/local/diablo-jdk1.6.0 来运行
+ 
+Tools -> Server 配置 Tomcat  ,配置后这里来改密码
+ 
+自己的tomcat 配置tomcat-users.xml ,要一个"管理员"(manager-gui) 角色的用户 ,我是 manager01
+  <tomcat-users>
+	  <role rolename="manager-gui"/>
+	  <user username="manager01" password="manager01" roles="manager-gui"/>
+	</tomcat-users>
+  
+部署方法是在 apache-tomcat-8.0.23\conf\Catalina\localhost\建立 [项目].xml文件 指向maven的target中的目录
+
+netbeans 帮助手册中-> Working with NetBeans IDE [IDE 启动参数]  [  找netbeans.conf]
+
+https://docs.oracle.com/netbeans/nb81/netbeans/develop/toc.htm
+ 找 Working with NetBeans IDE 下的 Setting Startup Parameters
+https://docs.oracle.com/netbeans/nb81/netbeans/develop/working_nbeans.htm#NBDAG162
+
+
+可以使用 IDE-HOME/etc/netbeans.conf 文件将启动参数传递给 IDE 启动程序
+	--fontsize size
+		设置 IDE 用户界面中的字体大小，以磅为单位。如果未使用此选项，则字体大小为 11 磅。 
+
+	--locale language[:country[:variant]]
+		激活指定的语言环境。 
+
+>netbeans.exe --fontsize 15 --locale en:US  英文界面（多语言版）
+>netbeans.exe --fontsize 15  --locale zh:CN 中文界面
+
+点开.class自动打开UTF-8源码时的字符集windows默认为GBK,乱码  -J-Dfile.encoding=UTF-8  ,但output日志输出进会乱码
+ netbeans.conf  配置文件中的 netbeans_default_options 项后加 --fontsize 15 --locale en:US  -J-Dfile.encoding=UTF-8
+ 
+ 
+输出中文乱码 
+打开项目下nbproject/project.properties文件 修改source.encoding=GBK   (如是导入的Maven项目,没有nbproject目录)
+
+
+
+命令行下可以编译  javac -encoding UTF-8 Hello.java  对UTF-8的文件
+
+
+
+Run->Set Project Configuration->Custom...->  是对主项目的配置
+
+alt + 滑动滚轮,可调整代码区的字体大小
+
+
+括号换行 Options->Formatting->Language->java 后再Category->Braces
+alter+shift+f   source->format
+
+
+
+代码格式化 "{" 放单独一行
+tools->options->editors按钮->formation标签->language选择java->category选择braces-> 改为next line
+				Java -> Maven配置根目录,即使用配置
+				
+Run->Set Project Configuration->Custom...->  是对主项目的配置
+
+在错误处 alt+enter 会给出解决方法
+
+netbeans支持代码折叠  ，打开调试工具栏，变量窗口
+ctrl+f5调试主项目就可以了
+
+source -> code complete (ctrl+space)
+ctrl+p 显示参数(Source->show method parameter)
+alter+shift+f  格式化代码(source->format)   
+
+Tools->Options->Java->Maven->修改Maven_Home 
+如果 java Maven 项目 打开时,不对加载依赖中再依赖的jar包,  右击项目-> 使用依赖关系构建   就可以了
+选中Skip Test,要保证每个子项目可以build成功 ，才能运行
+
+导航 -> 转至类型 -> 输入类名 ,如想知道在哪目录中,右击标签->在项目中选择
+导航 -> 转至文件 -> 输入文件名
+
+右击代码 insert code ... -> Getter...或者Setter...
+
+ 也可以用ctrl + alt  鼠标点击方法名,可以进入接口实现类
+ 
+ 大小写转换没有菜单项,快捷键无效
+ 
+常用窗口 
+Window->Debuging->debugging 
+Window->Debuging->breakpoints 
+window->IDE Tools->Test Result
+
+ Navigate->inspect->memebers 可以看类的所有方法的大纲 (ctrl+shift+F12),打开Navigate视图就可以了
+ Edit->find in project ...  (ctrl+shift+f) 可搜索文件中包含的字符
+ 
+拉SVN ,Team 菜单 -> check out.. 
+
+建立SVN 分支,右击项目-> subversion-> copy    -> copy to ...-> Source 中 默认选中的是Local Folder 修改为Remote Folder  ,Destination中选择放置目录如branch ,tag中
+ 
+右击项目-> subversion-> copy  -> switch to copy   ...
+右击项目-> subversion-> copy  -> merge change  ...
+右击项目-> subversion-> working copy -> 
+
+右击项目 ->Custom-> Goal...
+或者右击pom.xml-> Run Maven->Goal...  建立maven任务后可以起名记住,会生成nbactions.xml,以后就可在右击项目 ->Custom-> 出现自己的任务名,如要修改也只能编辑XML文件
+
+
+debug代码时 F7 进入函数,如这行代码有多个函数,会提示让选择进入哪个函数,比eclipse智能 
+	如修改了代码,保存后不能立即生效,要点工具栏上的Apply Code Change按钮,而eclipse是自动的
+
+NetBeans 默认一个tab键占8个空格,而eclipse则是4个,
+修改 Tools->options->Formating ,Language确认为Java,取消复选 Use All Languages Settings (也取消Expand Tabs to Space)设置Tab Size为4
+windows下的notepad和linux的vi一个tab是8个,但notpead++是4个
+
+ ,Navigate菜单-> go to Line (ctrl+G )   同eclipse ctrl+L
+
+ 
+-- 自带功能
+swing 设计功能 
+JSF,JavaFx
+Gradle,Maven
+Groovy
+Cordova ,Node.js
+新建文件时自带Hibernate Mapping 等文件
+
+ ----同 eclipse区 
+ 也可以用ctrl + 鼠标点击的方式来打开头文件,#include <xx> 
+ ctrl + /  单选注释 java代码
+ alt + 左/右键  返回上次的位置
+ 右击文件 -> history ->show history
+ Source -> organize import 
+ 
+ 修改项目的JDK版本 右击项目->properties->Build ->compile->Java Platform
+ 
+ --- 问题区
+ 如控制台出错,没办法像eclipse一样点击链接查看源码 ???? 
+ 
+ 
+============= NetBeans  C++
+http://netbeans.org/kb/trails/cnd.html  
+
+要安装gcc ,gcc-g++ 依赖于make,gdb,(libiconv)
+
+设环境变量PATH 可找到
+
+工具->选项->C/C++ 设置编译器 只改基目录为/usr/local/bin就可以了
+		代码帮助栏加C++  /usr/local/include/c++/3.4.6/
+
+LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/ucb/bin  ## (ps aux命令)
+
+export PATH LD_LIBRARY_PATH
+ 
+Netbeans默认使用UTF-8来打开文件,如是GBK要修改C++项目目录\nbproject\project.xml
+<!--<sourceEncoding>UTF-8</sourceEncoding>-->
+<sourceEncoding>GBK</sourceEncoding>
+修改后要重新启动Netbeans才生效
+
+--------MSYS2 MinGW-w64  测试 OK
+
+官方文档是 MSYS2 & MinGW-w64 
+
+MSYS2 是 起源于 cygwin
+直接下载.exe,安装后有一个基本的系统
+ 
+运行 msys2_shell.cmd 
+
+pacman -Sy pacman 更新包数据库,只运行一次
+ 
+pacman -S base-devel  
+在线下载安装常用软件包组
+
+再安装MingGw的软件包组 (安装之前把C:\msys64\下的所有mingw开头的文件移走,因为建立目录mingw时报错,不能安装,安装后再移回来)
+pacman -S mingw-w64-x86_64-toolchain
+
+
+查看可用的安装包
+pacman -Sl | grep gcc 
+ 
+
+设置环境变量 
+MSYS_HOME=C:\msys64\usr
+MINGW_HOME=C:\msys64\mingw64
+
+PATH=C:\msys64\usr\bin;C:\msys64\mingw64\bin
+
+as 命令可配置在 assembler 中
+
+NetBeans 配置时MSys & MinGw 
+Tools -> Options -> C++ ->Build Tools -> Add... ->选择目录C:\msys64\mingw64 ,Tool Collection Family 选择 GNU MinGW
+
+make使用  C:\msys64\usr\bin\make.exe
+
+Build时 总是使用cygwin的rm命令，去环境变量也一样，只能删Cygwin
+Run 时 ，删Cygwin了也使用cygwin的bash 命令(删注册表后使用msys2的)
+	用工具还是运行不了 
+	右击项目->Propertis-> Run->Console Type 选择  Standard Output 或 External Terminal   就可以了
+	.exe 生成在dist\Debug\<工具链名>-Windows.exe 
+
+------- cygwin  测试 OK
+
+把 C:\cygwin64\bin放在PATH中再启netbeans也不能识别,可能是找不到g++ ,因文件名是 x86_64-w64-mingw32-g++.exe
+
+Tools -> Options -> C++ ->Build Tools -> Add... ->选择目录 C:\cygwin64 ,Tool Collection Family 选择 GNU Cygwin
+指定gcc,g++,自动指定了 make 和 gdb (是配置PATH的作用) 还要 assembler (编译汇编语言 nasm) C:\cygwin64\usr\x86_64-w64-mingw32\bin\as.exe
+在Code Assistance 标签中自动,自动配置了include目录
+
+LD_LIBRARY_PATH=C:/cygwin64/lib
+
+报错  error while loading shared libraries: libstdc++-6.dll: cannot open shared object file: No such file or directory ???  
+但cygwin是有安装的 libstdc++6 ,但文件名是 cygstdc++-6.dll ,
+使用find命令找到在 /usr/x86_64-w64-mingw32/sys-root/mingw/bin/ 下,
+C:\cygwin64\usr\x86_64-w64-mingw32\sys-root\mingw\bin 设置到PATH中 ,重启NetBeans,再试就可以了
+
+--卸载Cygwin
+去PATH环境变量,
+
+删除注册表 
+HKEY_LOCAL_MACHINE\SOFTWARE\Cygwin
+HKEY_CURRENT_USER\Software\Cygwin
+
+----- VC 2015
+VC 2015 编译器配置在path 环境变量中,NetBeans也检查不到  ,而eclispe CDT 是有Microsoft Visual C++ 可选的
+
+============= NetBeans 8.1 安装  NBAndroid 插件/模块  
+ 
+在线安装  Tools->plugins 在Settings 标签中Add 一个起名为NBAndroid,地址为 http://nbandroid.org/release81/updates/updates.xml 
+		并复选有效,就可在Avaliable Plugin 标签中显示这个地址可以安装的插件,选中Android(也有Gradle support) ->install按钮
+		(有一个 Plugin Install Location 默认选择 Default)
+离线安装  下载 nbandroid-15-11-01-171517.zip  Tools->plugins -> downloaded ->解压,选择所有的.nbm文件  (没有提示选择安装位置) 
+
+如果把解压的netbeans文件全删,再重新解压,再启动netbeans已经安装的 NBAndroid 还在，说明模块安装在外部,看netbeans.conf说明
+windows在  C:\Users\zhaojin\AppData\Roaming\NetBeans\8.1\modules  (在线安装和离线安装都在这)
+
+Tools->options -> Miscellaneous -> 多了一个 Adroid 标签
+
+main.xml 没有可视的设计功能,只能手工写XML
+
+换SDK位置，项目也要重新建立来测试，可以用JDK8
+右击项目运行 才会生成 R 类,会启动已经建立好的模拟器
+
+用 nbandroid-15-11-01-171517.zip 
+java.lang.UnsupportedClassVersionError: com/android/dx/command/Main : Unsupported major.minor version 52.0  
+因buildToolsVersion 太高了,buildTools为23.0.1是可以的(即现在的5.1.1),
+
+日志在 Window ->output->ADB Log
+buildTools为23.0.3  的 Android 6  ,测试 NBAndroid 和ADT 都有日志
+
+buildTools为23.0.3(24就不行了) 的 Android 7 NBAndroid 启动时logcat,也没有但报连不上 ????,  ADT-23.0.7 没有logcat ?????? 
+
+
+右击项目->Properties -> Run-> Target Device 选择 Manual 
+
+真机打开调试 Settings > About phone 点 Build number 七次
+手机插入USB 选择 PC Suite(HiSuite) 或者 Media device (MTP),
+不是Charge Only 就可以打开 Bebug 模式,就可以在真机上开发测试了
+
+============= NetBeans 8.1 安装  nbscala-1.8.1.2  插件/模块  
+http://plugins.netbeans.org/   下载文件 1465275768_nbscala-1.8.1.2.zip
+https://github.com/dcaoyuan/nbscala
+
+解压.zip -> Tools -> Plugins -> Downloaded -> Add Plugins... 选择所有解压的.nbm (netbeansModel)文件 
+netbeans解压目录下会产生  nbscala\modules 目录 (离线安装)
+建立.scala文件 ,测试成功
+
+============= NetBeans 8.1 安装  FreeMarker support for NetBeans   插件/模块  
+下载 1459926032_org-netbeans-freemarker.nbm  文件,安装后,新建文件的other组中
+
+============= NetBeans 8.2     nbmongo-8.2.3  插件/模块   
+安装 Tools -> Plugins -> Downloaded -> Add Plugins... 选择 .nbm 
+会在Services  视图中多一个 MongoDB,右击->New Connection,可以按数据库的行显示,但没有地方写脚本
+
+
+=============  DbVisualizer(所有平台) 使用JDBC all DB  ============= 
+在软件目录的jdbc目录自带一些JDBC(所在目录,最好不要有中文,空格)
+
+如第一次打开软件后,又把软件目录移动了,就会找不到自带的dirver 
+Tools->Driver Manager, 子窗口Drvier菜单->JDB Driver Finder (点start 再次配置driver)->点链接Configure search path
+(或 Tools->tool properties->driver manager)
+
+表的列有remark,可以移动数据表格的列
+如同时显示多个表的查询,右击标签->pin tab(也可单击标签的图标来开关),也可右击表->open in new tab
+
+界面中文显示方块(乱码)的解决方式
+在Tools->tool Properties->General->Appearance->Fonts->SQL Editor/Text Editor 选择PMingLiU 或者宋体 字体, 同时把Grid也选择PMingLiU,也可选择宋体
+	(如果打开文件只能正常显示GBK的,UTF8的不行,Toad也是一样的)
+
+右击数据表格中行-> edit row in window,打开一个窗口看,也可双击表格行左边的号
+
+右击数据表格中几行->export selection...->output Format  可以选择SQL,CSV 
+
+Tools->SQL History
+
+写SQL提示只在pro版本中才有(破解要用winrar,7zip不行的)
+tools -> tool properties -> SQL Editor-> Auto Completion (pro版本) ->复选 Display Automatically
+Edit->show Auto Complete 没用???,但绑定快捷键是可以的
+Tools Properties->Key Binding->默认选中Default->Make Copy->Action中选Edit下的show Auto Complete ->Add Key Binding->设置快捷键
+
+
+右击写SQL处->format sql (pro版本才可用)-> format buffer ,  unforamt 效果也不错,insert 一行,values一行
+
+有最大行数的限制1000行,写SQL的右上角修改,行数,右下角显示
+
+提交SQL Commander->Turn On/Off Auto Commit
+
+双击树中的表名->有Native DLL标签
+
+如果查询结果为   0.0000000  显示科数法 ??????  
+
+--问题
+
+如果SQL很长,点鼠标,光标不能定位正确位置,必须删除~/.dbvis文件夹,再重新配置就可以了
+
+不能很好的显示 db2 错误信息 ??? (Toad是好的)
+不能修改comment ???
+---DB2 (自带driver)要求输入 IP,端口的测试OK
+如使用  describe table myTable命令是不行的,要用 Toad for DB2
+如有语法错误,不能显示出错误的原因 , 用Toad For DB2就有
+
+=============  Navicat Premium (linux,mac)可MySQL,PostGreSQL,Oracle,SQLServer,SQLite ============= 
+	 右下角有一个form view按钮
+	 输入SQL时会有相关提示,如表名,字段名(有时无效)
+	 mysqldump导出的脚本有时会有中文错误,在导入中会中断,使用 Navicat for MySQL导入,有错误也可继续,但速度慢 ,不如mysql 中使用source快
+	 在写函数时也会提示, 而DbVisualizer 没有
+	 右击表->design table 可以修改comment,查看只能选一个看一个, 看indexes 列没有显示, 不对 ?????
+	 右击表->Object information 可以查看SQL,可用这种方式看comment
+	 Tools->Console
+	
+=============  SqlDbx free  使用ODBC all DB   ============= 
+--IBM DB2 LUW  (linux unix windows)
+	安装db2 express 10.5客户端,连接OK,可输入schema 与用户名相同
+
+--MySQL
+Tools->Options->MySQL  在 "Driver Load Order" 中增加 myodbc5a.dll  
+示例 myodbc5a.dll;myodbc5.dll;MySQL ODBC
+
+因为sqldbx是32位的(任务管理器中可看进程名)要使用32位的MySQL ODBC ,mysql-connector-odbc-noinstall-5.3.4-win32
+把myodbc5a.dll文件复制到 sqldbx.exe 所在目录
+
+右击表(会显示行数,大表显示的值要小)->select * -> 查询时会查所有的, 
+	Tool->options->Results->下方的复选Rows Limit on选中,设置行数为1000
+	对大表也可以右击->generate-> select 手工加 limit <begin> <rows>
+右击表->table properties->有Column和DLL,但没有comment???
+
+---
+Tools->SQL History
+输入SQL提示效果很好
+右击数据行 transPose可行转列查看,类似card view,如想看某一行,可在transPose前,右击数据的主键格->filter->第一项key=value
+加删表后,要在工具栏上 点击 刷新按钮
+
+要同时显示多个表的查询,右击标签->new result tab (免费Personal 版只可2个 ,要用Professional)
+
+表字段没有显示comment ??? 
+如MySQL 用
+SHOW FULL COLUMNS FROM MyTable
+SHOW  CREATE TABLE MyTable
+
+一种数据库可以保存多个连接
+
+
+=============  PL/SQL Developer ============= 
+在登录界面中数据选择中支持输入  127.0.0.1/xe  或 127.0.0.1:1521/xe  
+可以没有Oracle客户端 , 如有64位的InstantClient而不支持
+
+PL/SQL Developer 的调试方法 新建一个test　windows　,最左是书签，点放大镜start debug(F9),最后不用加/
+dba权限OK（必须有 DEBUG CONNECT SESSION权限，可仿问V$session,V$sesstat,V$statname）
+
+Tools->Object Explorer
+
+切换连接,在SQL window/Command window 在下方显示连接处点击->Recent->
+
+preference...->data/time
+
+ctrl+E 打开最近执行的SQL
+
+PL/SQL Develpoer设置
+edit->PL/SQL Beatutifier 格式化
+preference->font->editor中改字体
+F6 代码助手,但在参数中只会出parameter_name=>    ???????????
+
+tool->windows list管理窗口
+可以日历界面修改date类型
+
+用Sql window的全选结果集，右击－>copy to excel..
+
+F5 执行计划
+
+
+sql语句时候 输入的关键字自动转换为大写
+tools -> Preferences -> User Interface - Editor - Keyword case  选择 Uppercase
+ 
+=============  SQL Developer-3.1 ============= 
+可以没有Oracle客户端
+
+SQL Developer 调试好像必须是放在function或者procedure中才行,建立好function或者procedure后在左树中打开，
+	点edit按钮，再comipler for debug按钮,打断点，点debug按钮,修改传入参数，下方debugging面板来step over
+	
+ctrl+space 来提示(source->complete code)  
+修改快捷键  options->keyMap ->Show Code Completion ，修改为alt+/
+
+格式化代码 ctrl+F7
+
+sqldeveloper 中文乱码   export LANG=en_US
+windows 下中文字体文件都 以sim开头,显示都有(TrueType)
+	simhei.ttf 黑体
+	simkai.ttf 楷体
+	simfang.ttf 仿宋
+	simsun.ttc 宋体 & 新宋体	
+cp /usr/share/fonts/truetype/　$JAVA_HOME/jre/lib/fonts/fallback/   (fallback目录要新建立)
+SUSE 用cp /usr/share/fonts/truetype/FZHeiTi.ttf  /usr/local/jdk1.6/jre/lib/fonts/fallback/
+1.sqldeveloper 修改界面语言为英语
+	D:\Program\sqldeveloper\sqldeveloper\bin\目录下的sqldeveloper.conf中加入
+	AddVMOption -Duser.language=en
+	AddVMOption -Duser.country=US
+2.点钉(FreezeView)后,可同时打开多个表的数据
+
+SQL Developer Data Modeler工具用来设计表的,查看现有表关系,文件->导入->数据字典->建立连接,选择用户,选择表
+
+sqldeveloper-4.0.0.13.80-no-jre\sqldeveloper\bin\sqldeveloper.conf  有 SetJavaHome
+
+=============  TOAD for Oracle ============= 
+64位的Toad 只能用64位的客户端,可用InstantClient
+session->new session
+standard工具栏->第二个按钮schema browser->可选择类型table
+
+写SQL时如要提示,按ctrl+. 来提示 
+ctrl+t 可以调出提示(edit->pick-list dropdown ) 
+
+VIEW->OPTIONS ->Editor ->Code Assist ->Toad Insight->复选show object types as text in  picklist,在有.时自动提示,可有延迟时间的设置
+
+View->Query View 可以看SQL执行时间
+
+TOAD 的调试方法
+	 确保(toggle compile with debug)按钮打开,就可以加断点了,就可以点Execute with Debugger
+
+	要有SYS.DBMS_DEBUG包
+	只可procedure,function,tigger....不可块
+
+TOAD设置
+	改字体大小 Editor->Display->Editor..按钮来改
+	设置按 . 后的提示时间 Editor->Code Assist组中的Delay pop-ups 到500 millseconds 只对 . 有效,
+	
+	ctrl+y 删当前行
+	ctrl+shift+f 格式化代码,也可检查语法
+
+	Toad中DBA->databse monitor  性能测试
+-------------dbForge Studio for Oracle
+
+-------------MySQL Front
+
+-------------TOAD for MySQL Freeware-7.3 只有freeware的
+	右击procedure有debug  ,但是总是卡死,不能用
+	显示输入提示,如表名,字段名
+
+-------------MySQL Workbench 6.3 CE 
+----???问题
+	安装时选customer->要过滤downloaded
+ 没有事务提示
+ load data local infile 如路径中有中文不支持
+ 不支持调试
+ select  * from xx procedure analyse() 表格中显示blob其实是字符
+---- 
+
+
+Output视图 有SQL错误提示,写SQL时也会有线波浪线的语法错误提示
+字体大小,可ctrl+滚轮,editor->preferences->font & Colors 中设置字体为 12
+工具栏上有格式化SQL按钮(Beautify/reformat)
+
+delete,update where时没有主键,报错,preferences...->SQL Editor->取消复选 下面的 Safe updates,重新登录
+
+
+Mysql官方的开发工具安装在/usr/bin/mysql-query-browser
+
+database->manage connections...
+database->Reverse engineer ...->有向导会把数据库表转换成ER图
+edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好用
+
+表格右侧有 Form Editor  
+
+-------------MyFront 5.3 免费
+-------------dbForge Studio for MySQL-6.3 Express  免费
+-------------dbForge Studio for MySQL-6.3  Professional Trial
+可以debug 存储过程 ,有debug菜单	 
+	展开procedure->选中右击->Debug->Compile for Debugging完成后,双击procedure打开程序,双击打断点,点Start Debugging按钮,会提示输入存储in参数 
+	会建立cr_debug数据库,MySQL 5.6测试OK
+
+数据表格的上方工具栏有一个 switch to card view 
+=============Mongodb工具    Toad Extension for Eclipse  好用,带语法提示的
+ 
+
+------------Tortoise SVN工具
+
+建立Tag
+	右击trunk->Tortoise SVN->Branch/Tag...->在to path中/tag/<named tag>  ,默认选中是的Specific version in repository ,写说明->OK后有提示
+	到/tag/<named tag>,右击->Tortoise SVN->Update 
+	在tag上做提交删除操作要切换,右击->Tortoise SVN->Switch...->选择要切换
+	
+	TortoiseSVN—Repo-browser  选择一个版本做为比较的基础（单击右键—选择mark for comparison）
+	再选择另外一个版本（单击右键—选择show difference as unified diff），然后就会生成一个两个版本的不同之处的文本,是在一个窗口中显示所有的
+
+
+	
+------------Fiddler 
+
+对IE 11 有效,也可在工具栏上修改为Firefox
+
+CA＝Certifcation Authority
+
+状态栏当有黄色条时表示当前没有capture,点击后变为红色capuing,在浏览器访问URL,就会被记录
+
+--打开https
+Tools > Fiddler Options > HTTPS ->复选Decrypt HTTPS Traffic  -> Yes 安装证书
+	也可点 Export Root Certifcation to Desktop ,在桌面上,双击导入.cer文件导入到浏览器
+
+Inspector视图中上方区是请求区,下方区是响应区
+
+---断点
+Rules-> Automatic Breakpoint  ->Before Requests(这种方法会中断所有的会话)
+##取消 Rules-> Automatic Breakpoint  ->Disabled
+命令  bpu www.baidu.com (这种方法只会中断www.baidu.com)  ,bpu=BreakPoint for URI
+##取消 bpu
+左边视图区有红色表示在断点暂停,Inspectors 标签上方的请求区的webform按钮组中可以修改表单请求参数,点rule completion继续
+---修改响应
+选中capture中要修改的文件,在AutoResponder标签中,addRule按钮,复选Enable Automatic reponse,复选Unmacthced request passthrough
+最下方区下拉选择find a file ...->选择替换响应的文件->save,再次请求并capture
+
+
+------------ Hemes JMS
+启动后会在C:\下生成一个 C:\Users\zhaojin\.hermes 目录 所有的配置存在那里
+
+Options->Configuration->下方的Providers标签->右击 add group->输入名如weblogic group
+	右击->Library按钮->add Jars->选择weblogic.jar  ->因包大 选择Don't scan(如ActiveMQ activemq-all-5.11.1.jar 可scan)->OK
+
+右击sessions目录->new->new Sessions->在session:中输入名字,在ConnnectoinFactory组的loader:中选择刚才建立的group,在Class:中就有对应 
+Plug In:中选择 BEA Weblogic
+	属性jmsServer		的值是 weblogic中建立的JMS Modules的名字
+	属性weblogicDomain	的值是 weblogic建立的域名
+	属性weblogicServer	的值是 AdminServer
+Class:中选择hermes.JNDIConnectionFactory 
+	属性binding		的值是 weblogic中配置的ConnectionFactory的JNDI名字
+	属性initialContextFactory 的值是weblogic.jndi.WLInitialConextFactory
+	属性providerURL		的值是t3://127.0.0.1:7001
+	属性securityPrincipal	的值是weblogic登录界面的 用户名,这里不写
+	属性securityCredentials 的值是weblogic登录界面的 密码 ,这里不写
+	
+如是ActiveMQ 是 ActiveMQConnectionFactory 右击->add property ,加brokerURL
+	
+	
+右击stores目录->new->new message store 后, 才可以建立queue, Name的值是 weblogic中配置的NDI的值 
+双击queue的JNDI后就可以看到消息了   
+
+Hermes JMS 对Queue　只是　QueueBrowser　　，并不取消息
+
+可以右击session名字->edit...->在destination中右击->Add ...->也可以新建Queue (输入值时要按两次Enter)
+	也可选中session,在工具栏里点按钮,建立topic
+
+注意状态栏的状态
+
+topic	      : 会阻塞，这中要请求时,再TopicPublisher发送，才可以收到
+Durable topic : 没有成功 ???????
+
+
+ActiveMQ 的org.apache.activemq.ActiveMQConnectionFactory 有一个brokeUrl参数 ,tcp://localhost:61616
+
+Plug In的属性可选的对(Queue)
+属性 brokerName:localhost
+属性  serviceURL:service:jmx:rmi:///jndi/rmi://localhost:1616/jmxrmi
+
+加provider时选择jar 包为 activemq-core-5.4.2.jar  新版本多了一个org.apache.activemq.ActiveMQXAConnectionFactory
+建立 Queue 的Name输入TEST.FOO 
+
+示例中D:\Program\apache-activemq-5.4.2\example下 
+ant producer 后,双击TEST.FOO显示很多消息
+ant consumer 后,点刷新按钮,查看无消息
+
+打开后建立topictest.messages的topic后，ant topic-publisher 后就可看到
+(ant topic-listener)
+
+Durable topic : 未试
+
+------------ wireshark
+不可监听本机IP,只可外部IP
+
+tcp.dstport == 8888
+http.request.uri == "http://192.168.0.100:8080"
+ip.addr == 192.168.0.1 包括源和目标
+
+
+------------ Bitvise tunnelier
+
+------------Xmanager
+Xmanager 5版本中, 没有xshell  可选择xterm的终端类型
+XShell 或者 putty都 username中可以这样写  <firstUser>@<SecondUser>@<secondIP>  表示连接每一台后再跑到第二台上 (可能是服务器上做的配置,手工测试用户名如无@直接断开)
+XShell  工具-> 发送键到所有会话,可以实现同时打开多个窗口,在一个窗口写的任务命令都可能同步到其它窗口中
+XShell 工具-> 如已经连接上一个服务器 , 右击标签-> duplicate SSH  ,自动建立新窗口并连接
+
+File->log->start...->选择文件保存路径 , 可以把屏幕的输出保存到文件,完成后stop
+View->Quick Command下方出现的栏中双击增加命令
+View->Compose Bar 下方的栏中写命令,回车发送命令
+字体变大 file0->properties -> apprearance -> font size 修改为12
+
+
+rz  从本地选择文件上传到服务器(receive)
+sz  file.txt 将选定的文件发送（send）到本地机器
+------------ Putty 
+对服务器只开放22端口的情况时
+
+输出中文 
+右击标题栏->change settings->Window 组下的Transalation->下拉选择 UTF-8
+ 
+日志输出到文件  
+右击标题栏->change settings->Session组下的Logging 选择 All session output(才能输出中文) ,再选择输出文件,apply
+
+连接到远程机器后,右击标题栏->change settings->Connection->SSH->Tunnels 中 
+source port 中写本地端口如8888 ,Destination写远程如192.168.190.134:8080 ->add ->apply
+就可以 http://127.0.0.1:8888/testWeb/index.jsp -> http://192.168.190.134:8080/testWeb/index.jsp ,
+ 
+Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到文本中不会换行如mysql一行数据较长
+当然缺点是不能用sz ,rz 不能建立常用命令快捷方式
+
+----------firebug
+	可以动态内firefox中增加,删除,修改,DOM内容  (注意自己的网站安全)
+	如MySQL使用了 google的jQuery,因不能下载js,导致表单不能提交
+	先手工复制html 如 <input type="submit" value="submit"/> 
+	Inspect按 选择选择要修改的元素,如<form> (切换到HTML组下)   右击它 ->past HTML->as  last child
+
+	字体变大 , 点图标 -> Text Size-> increse text Size
+	
+---------zabbix 性能监视工具
+

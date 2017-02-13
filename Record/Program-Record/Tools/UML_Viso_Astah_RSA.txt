@@ -1,0 +1,137 @@
+----------------------UML
+
+全面的软件工程，企业信息化（ERP，SCM，CRM等）方面的技能和知识
+
+自然语言
+系统分析师/员   架构
+
+瀑布模型,需求分析(User Case)->设计->开发->测试
+
+UML 2.0
+ 
+OOAD
+面向对象的分析与设计
+
+
+1.Use Case Diagram 用法的通用描述  
+2.Class Diagram    (是在Logical View的树下 的Class 右击->new Attribute)
+3.Component Diagram
+4.Deployment Diagram  (Deloyment View) 不同的机器用什么通讯
+
+静态
+-----
+动态
+5.Sequence diagram  (时序图 通常用MVC,时间角度) 右击Use Case->new ->Sequence Diagram   (按F5)brows->go to Collaboration Diagram 到协作图(同构图,同一图的不同的表现形式)
+6.Collaboration Diagram   协作图(空间,角度) 
+7.Sate Diagram   对主要的类有多种状态 右键 xxx图->Sub Diagrams->new Sate Diagram )
+8.Activity Diagram 对不同的情况进行分支(decision 结果 ,(菱形) 可双击线Y ,N  右键Use Case图->Sub Diagrams->new Activity Diagram )
+			swimlane
+UP 统一过程
+
+第一个图是User Case,  有几个参与者
+
+在类图中可以从树中拖入Actor ,为角色增加属性
+在类图中undirection Association 右击该线一端(关系的线 )->取消navigable
+					->mulipilicity->n 出现一个* 多对多的关系
+
+
+活动图中如多种情况 用   横线Horizontal Synchronization
+ 
+
+双击有箭头的线,Role A detail标签中 取消navigable 的复选框
+
+建类时可在stereotype 选为bounry(边界类),entity(实体类),control (控制类)
+
+ 
+
+ctrl +del 同时删两个图（左则的和工作区的）
+
+sequence
+
+顺序图和
+
+
+brower ->create selibration diagram(最后一个)
+ 
+
+tools->oracle8i->analyze Schema->输入schema ->输入连接数据用户
+tools->layout diagram
+
+---------------Viso-2010
+UML class图中的Attribute,如要设置  "性质串"如frozen,点properties...按钮->changeable选择frozen
+UML class图中的Attribute 默认不显示"多重性",右击class图->shap display options->复选Attribute multiplicity
+
+UML class图中的Operation ,如要设置"性质串",在call concurrency中选择sequentail(线程不安全)/guarded(线程安
+
+全)/concurrent()/
+
+
+
+
+Viso2010 在最顶级的显示UML System 2 ,为何有的时候会是1???
+
+	UML class (Static Structure)图中的Attribute,如要设置scope,点properties...按钮->OwnerScope可选择instance/classifier ,属性是类的还是对象的
+
+	单一职责原则(SRP)
+	对象约束语言(OCL)
+
+
+	UML class (Static Structure)图中,拖Binary Association,在一端的"Aggregation"列中选择"shared",显示为空心菱形 ,表示集合,空心菱形放在Company端并写1,另一端在Department写* 
+											选择"composite",显示为实心菱形,
+
+	UML class (Static Structure)图中,方法参数也要可为in ,out,inout,Operations中选择一个方法->properties->
+
+
+右击top package ->new Static Structure Diagram  才是建立类图,不要直接单击标签旁边的新建
+
+状态图必须建立在类的下面,即右击top package->new ->class.. 在右击建立的class->new ->statechart Diagram
+
+
+
+
+cohesion (内聚)	凝聚力
+coupling( 耦合)	连接；连接器; (尤指列车等的)车钩, 挂钩	
+
+
+聚合,如汽车,轮胎
+组合,如内部对象不存,外部对象也不存在,如显示器和电视机
+
+
+
+-UML
+类图的属性如是斜体字,表示类是抽象类,
++public ,-private ,#protected,方法上有道下划线,表明是一个静态的方法
+一般化(Generalization) 指继承,即Java中的extends和implements关键字,(使用实线的空心的三角形)
+关联关系(Association) ,如Teacher可以有多个Student,(0..*,0..1,1,1..*),(实线的单/双向箭头),两个类在同一层次
+聚合关系(Aggregation)是关联关系的一种,两个类不在同一层次,一个代表整体,另一个代表部分,如Car有Engine,(实线的,整体端用空心棱形,部分端用箭头)
+合成关系(Composition)是关联关系的一种,比聚合关系强的关系,部分对象的生命周期由整体对象来负责,部分对象只能与一个对象发生合成关系(实线的,整体端用实心棱形,部分端用箭头)
+依赖关系(Dependency),总是单向的,方法的参数中用到了另一个类,或者局域变量,或另一个类的静态方法,不是类的属性,单向虚线箭头
+
+状态图的过渡连线的标签通常分为两部分,由一个斜线分开,第一部分是引起的过渡事件,第二部分是事件所引起的操作
+
+------------Astah 
+tool->export image-> ... 保存UML为图片
+时序图
+	有一个Combinded Fragement,默认operator是alt类型的,可右击Combinded图->add operand增加条件
+	也有opt类型
+	同步请求消息,实线+实心三角
+	异步请求消息,实线+大于三角(->)
+	返回消息,虚线+小于三角
+
+
+============================Rational  Software Architect (RSA)
+Project Explorer视图中 右击建立的package或Diagrams->add diagram->sequence diagram 来增加时序图
+state machine diagram 是状态图
+
+右击 工作区的图->File->save as image file
+
+类图可以转换成Java , 如实现接口用 Realization (虚线,空心实线三角)
+拖包,拖类到包中,在propterties视图中为类增加属性(attributes)和方法(operation),右击->包->Transform->new Configration,复选show all transalation,展开java translataion->UML to Java->source中选择UML的包,target选择Java项目的src目录
+
+
+------------Visual Paradigm 
+11
+12.1
+
+
+ 

@@ -1,0 +1,231 @@
+--------------- ubuntu-8.04.1   DVD-------------- debian ----
+Ubuntu 新一些，Debian 太老了
+
+apt-get install gcc
+apt-get install g++
+
+dpkg -i package_file.deb   ##install
+	-R|--recursive <目录>
+dpkg -r package_name	   ##remove
+dpkg -l 所有软件包
+dpkg -l [包名]
+
+dpkg -c pkg.deb
+列出软件包的内容
+
+dpkg -S filename
+显示哪个包包含这个文件 
+dpkg -L <package>         rpm -ql <package>       列出由一个软件包所安装的文件
+apt-cache depends package-names
+列出指定包的所有依赖包 
+
+apt-get remove package-names
+删除软件包, 及其所有依赖它的包 
+
+
+
+/var/cache/apt/archives/  *.deb文件
+
+/etc/pts/source.list有URL
+
+
+
+
+有Remote Desktop View 0.5.1 (gnome)
+oowriter
+
+
+为了启用 root 帐号 (也就是 设置一个口令) 使用:
+sudo passwd root
+
+当你使用完毕后屏蔽 root 帐号 使用:
+sudo passwd -l root
+这个将锁住 root 帐号. 
+
+要用vim 替换vi  (alias vi=vim)
+(DVD光盘中有的)
+
+要先安装openssh-client ,openssh-server 依赖于openssh-blacklist
+
+要安装g++-4.2 -> libstdc++6-4.2-dev ->libc6-dev(glibc目录中)->linux-libc-dev(linux目录)
+dpkg -i ./g/gcc-4.2/g++-4.2_4.2.3-2ubuntu7_i386.deb 
+	./g/gcc-4.2/libstdc++6-4.2-dev_4.2.3-2ubuntu7_i386.deb  
+	./g/glibc/libc6-dev_2.7-10ubuntu3_i386.deb
+	./l/linux/linux-libc-dev_2.6.24-19.34_i386.deb
+命令 g++-4.2  改为g++
+
+RealVNC要用libstdc++2.10-glibc2.2_2.95.4-24_i386.deb 才行
+但是vncserver :1 不能启动?????????????????
+
+apt-get install libapache2*-svn    支持这种写法
+
+-------------硬盘安装Ubuntu-8.04.1-DVD-----------OK
+title Install Ubuntu
+kernel (hd0,6)/Ubuntu_boot/vmlinuz 
+initrd (hd0,6)/Ubuntu_boot/initrd.gz
+
+当出现[xx再次尝试挂载光盘吗?]->否->
+ctrl+alt+f2 运行下面命令把iso文件 挂到/cdrom 下
+insmod  /lib/modules/2.6.24-19-generic/kernel/drivers/block/loop.ko
+mount  -t vfat /dev/sda7 /mnt
+mount -t iso9660 -o loop /mnt/ubuntu-8.04.1-i386.iso /cdrom
+
+ctrl+alt +f1 
+从主菜单选择[从光盘加载安装组件程序]->[iso-scan :scan hard driver for an installer ISO image]->
+否(不要查找ISO)->后不要选择 
+
+ctrl+alt+f2 
+umonut /cdrom
+umount /mnt
+
+再按ctrl+alt+F
+[扫描硬盘,寻找安装程序的ISO映像文件]->找到ISO后继续->
+
+
+-------------参考----------
+title Install Ubuntu_net
+find --set-root /Ubuntu-8.04.1.iso
+kernel (hd0,6)/Ubuntu_boot/vmlinuz boot=casper find_iso=/Ubuntu-8.04.1.iso
+initrd (hd0,6)/Ubuntu_boot/initrd.gz
+
+
+－－－－－－－－－网络－eth0
+vi /etc/network/interfaces中加入
+	auto eth0
+	iface eth0 inet dhcp   //指定为dhcp
+
+重新启动你的网络设备：
+sudo /etc/init.d/networking restart
+
+为网卡配置静态IP
+	auto eth0
+	iface eth0 inet static   //指定为static
+	address 192.168.3.90   //IP地址
+	gateway 192.168.3.1   //网关
+	netmask 255.255.255.0   //子网掩码
+	network 192.168.3.0   //这个网络？
+	broadcast 192.168.3.255   //广播
+
+在输入这几行后，你需要通过以下命令重新启动你的网络设备：
+sudo /etc/init.d/networking restart
+
+----------------------无线
+ASCII，nm-applet 要加密时，可以选择禁止
+
+ iwconfig wlan0 ap  00:19:5B:CE:FE:F6  公司DELL
+改AP ， Access Point (ap) ,改了就上不了网了
+
+ 可以在拖动窗口到边缘时，会自动切换到另一个工作区的
+ 
+
+iwlist wlan0 scan
+iwconfig wlan0 iessid "apetech2" key restricted s:56383   ／／也是OK的
+iwconfig wlan0 iessid "apetech2" key  s:56383    ／／OK的
+
+#iwconfig wlan0 essid -- "ANY" 设置ESSID为"ANY" 
+
+ESSID字符串，或者是any/on/off，如果ESSID字符串中包含any/no/off，则需要在前面加"--"。 
+
+
+iwconfig wlan0 nickname "My Linux Node" 
+
+iwconfig wlan0 mode Managed 
+
+#iwconfig wlan0 freq 2.437 GHz
+ 
+#iwconfig wlan0 channel 3 (auto)
+
+iwconfig wlan0 rate 11M（auto） 
+iwconfig eth0 rate 5.5M auto //自动选择5.5M以下的速率 
+
+iwconfig eth0 power off 
+
+iwconfig ath0 txpower on
+iwconfig ath0 essid "TP-LINK" key 1234-5678-9  ####密码需要四位一组用”-“分开。
+
+dhclient wlan0  ###DHCP方式 
+ifconfig wlan0 up
+
+dmesg
+----------------------------------
+
+ vi /boot/grub/menu.lst  来修改grub 
+
+
+
+
+
+如果日后想更改用GDM还是KDM的话，可以用dpkg-reconfig
+
+sudo dpkg-reconfigure kdm
+or
+sudo dpkg-reconfigure gdm
+
+apt-get install vnc4server  
+
+ 
+
+
+---
+以下是已有的
+#!/bin/sh
+
+# Uncomment the following two lines for normal desktop:
+ unset SESSION_MANAGER
+ exec /etc/X11/xinit/xinitrc
+
+[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+xsetroot -solid grey
+vncconfig -iconic &
+xterm -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+#twm &
+startkde &
+---
+
+
+
+
+=================Ubuntu 中KDE ，输入法问题scim
+
+只要在/etc目录里面建立一个叫environment的文件，并写入：
+LANGUAGE=en_US
+LANG=zh_CN
+
+LANGUAGE=en_US这句是为了在命令行模式下使用英文的提示语言，如果不要这句或改为LANGUAGE=zh_CN，那么当你输入
+cd dasfjkajf(即一个错误的命令)后就会出现一句乱码。
+
+apt-get install scim-tables-zh
+apt-get install scim-chinese
+
+
+----kde
+ To  use scim in XIM mode, execute the following commands in an X termi-
+       nal (assuming Bourne style shell):
+              XMODIFIERS="@im=SCIM"
+              export XMODIFIERS
+              GTK_IM_MODULE="xim"
+              export GTK_IM_MODULE
+              scim -d
+----gnome
+ GTK IM module (again assuming Bourne style shell):
+              GTK_IM_MODULE="scim"
+              export GTK_IM_MODULE
+
+/etc/scim/gloable 中改 /SupportedUnicodeLocales = en_US.UTF-8,zh_CN.UTF-8    
+##加一个zh_CN.UTF-8
+
+重启机器就可以了
+
+
+
+======== Ubuntu 中开机启动KDE的方法
+在/etc/X11/Xsession.d/目录下的所有配置文件在X启动时都会被自动执行。
+
+ 
+ ---- 加开机启动
+sudo ln -s $SONAR_HOME/bin/linux-x86-32/sonar.sh /usr/bin/sonar
+sudo chmod 755 /etc/init.d/sonar
+sudo update-rc.d sonar defaults
+
+

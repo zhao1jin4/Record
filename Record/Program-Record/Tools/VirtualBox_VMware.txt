@@ -1,0 +1,328 @@
+  
+----------------VirtualBox 要硬件BIOS打开Virtualization Technology(VT) 是Enabled
+
+FreeNAS工具  NAS (Network Attached Storage),支持iSCSI protocols
+
+主机环境
+来宾环境
+
+可命令行,和远程桌面(VRDP协议,RDP服务器)连接 VirtualBox
+
+安装时只为当前用户安装 msiexec /i VirtualBox.msi ALLUSERS=2
+
+
+安装目录有一个 VBoxGuestAdditions.iso 增强物理机与虚拟机功能,提高性能
+
+启动 VirtualBox ,设备->安装增强功能,就会把ISO文件,放入虚拟操作的光驱中,安装后重启,
+时间变同步,鼠标不用按右ctrl
+修改窗口大小时,会自动填满,可以传剪贴板
+
+共享文件,虚拟机可以仿问物理机的目录,设置->数据空间->增加 ,选择目录,输名称,可选中只读
+在虚拟系统中就可以在网上邻居中仿问,不要用自动安装XP
+
+按右ctrl+L 切换到无缝模式，VirtualBox 的一些菜单被隐藏
+
+选择VM,快照修复标签，点生成快照,就是保存当前状态
+控制->发送ctrl+alt+del
+
+
+可以新增 SCSI,SATA,SAS,控制器
+SATA不支持老的操作系统，Vista之前
+IDE控制器 最多4个接口
+
+动态扩展硬盘，在虚拟机中的硬盘大小始终大小是一样
+
+Normal	磁盘镜像 同一时间只可以一个VM
+Immuable磁盘镜像 多虚拟机可以同时使用一个镜像,操作会保存在其它文件中，当前关闭虚拟机,所有修改都会被丢弃
+
+不能把一个虚拟镜像文件复制成另一个虚拟机，会给磁盘分配UUID，存在磁盘镜像中
+使用VBoxManage clonevdi命令
+
+
+把Normal磁盘转换为Immutable磁盘
+1.先删除系统使用的硬盘
+2.VBoxManage　unregisterimage disk c:\sss.vdi 
+3.VBoxManage　registerimage disk c:\sss.vdi -type immutable
+4.再所硬盘加系统
+ 
+
+
+可能没有办法做Cluster的共享硬盘????
+
+NAT 网络 ,相当于物理机是一个路由器,ping 无法使用,VirtualBox 有一个DHCP 服务器,外部不能仿问VM,
+
+本机应该可以仿问VM吧,可以使用端口映射
+ 
+VirtualBox ,Immutable 的虚拟文件是只读的,可以多个virtual box 同时仿问,所有修改在关闭装被删除,
+而Visual PC使用undo disk 来保存
+
+先把加的虚拟硬盘从virtualbox 卸下  
+vboxmanage unregister d:\xxx.vdi
+vboxmanage register d:\xxx.vdi -type immutable
+
+
+Virtual Box 不支持支虚拟文件的复制,因为文件中有一个UUID
+
+
+Visual PC 对Solaris ,openSolaris支持不太好
+但多台相同系统,并行服务,可以不用复制,新一个difrencing硬盘,新建虚拟机时选择difrencingd硬盘
+
+
+
+NAT
+要想例Virtual Box让本机来仿问它,必须用
+vboxmanage setextradata Windows2008 "VBoxInternal/Devices/pcnet/0/LUN#0/Config/mytestname/Protocol" TCP
+vboxmanage setextradata Windows2008 "VBoxInternal/Devices/pcnet/0/LUN#0/Config/mytestname/GuestPort" 80
+vboxmanage setextradata Windows2008 "VBoxInternal/Devices/pcnet/0/LUN#0/Config/mytestname/HostPort" 9000
+
+
+Windows2008 是虚拟机名称,大小写敏感
+mytestname自己起的
+本机的9000端口对虚拟机的80端口
+是在windows2008.xml文件中内容
+
+
+netstat -ano  会显示进程号
+
+
+Virtual Box 的ping 只通10.0.2.2和自己IP,和127.0.0.1
+
+
+Host Interface Networking会加一个虚拟的网卡(桥接)
+
+Internal networking 只可多个虚拟机内部仿问,不可和本机通讯
+
+
+VirtulBox 调整 进入系统前的分辩率
+VBoxManage setextradata "VM name" VBoxInternal2/EfiGopMode 2
+
+0,1,2,3,4 referring to the 640x480, 800x600, 1024x768, 1280x1024, 1440x900
+
+
+--------------VMWare Workstation
+网卡可限制下传下载速度
+
+鼠标不用时,按ctrl+alt
+
+VMWare Workstation 10 默认安装后全部服务启动
+VMware Authorization Service
+VMware DHCP Service
+VMware NAT Service
+VMware Workstation Server
+
+###   主机仅使用wifi网络时,openSUSE客户机不能上网????,  ###　编辑->虚拟网络编辑器->VMnet0默认是桥接模式 在下拉中选择可以用络的网卡
+
+
+vmware 禁用声音
+更改VMware的配置文件config.ini，如果是在windows上安装的，可以在路径：
+“C:\Documents and Settings\All Users\Application Data\VMware\VMware Workstation”下找到，并加入如下行：
+mks.noBeep = "TRUE"
+重启Vmware 6.5workstation安装版后,立即生效
+
+-----使用VMware 9/10 安装 Mac OS 10.8 Mountain Lion 测试OK
+必须使用intel的cpu才能安装
+1.使用 SecurAble 检测你的CPU是否支持硬件级虚拟模式
+2.ultraiso转换DMG格式为ISO格式（工具-格式转换）
+3.安装VMware 9/10,再安装VMware 9/10的补丁 unlock_all-v120.zip/windows/install.cmd
+4.建立虚拟机 选择Custome->兼容性默认->选择转换的ISO文件->安装完补丁建立系统就有Apple Mac OS X(M),选择版本10.8->
+选择VM保存位置->CPU设置为1个处理器2核->内存默认2048->网络默认NAT->默认是 LSI Logic(L)()推荐)->磁盘类型修改为选择SCSI->建立新的磁盘->默认大小40G,选择 将虚拟磁盘存储为单个文件->
+->保存位置默认->自定义硬件...->选中光驱->高级->修改为SCSI 0:1->OK->再把网卡的 启动时连接 取消选择(如有软区删)->Done
+
+5.(可直接启动)菜单"虚拟机"->电源->启动时进入BOIS->在BOIS菜单中选择Boot Manager->选择 EFI VMware Virtual SCSI CDROM Driver(1.0)->回车后再Continue启动
+进入界面选择语言
+磁盘工具->选择VMware的硬盘->Erease标签->erease...按钮->关闭
+重新安装Mac OS X
+刚安装后就使用10G空间
+--------
+网络不连接,光驱修改为SCSI,删软区,硬盘默认就是SCSI的,Single文件40G,CPU为一个CPU2核
+我没有设置处理器的数目,默认是1个,
+启动时使用 vm>power>power on to bios,可以看到选择语言的界面,我自己测试安装成功
+
+安装VMware Tools后 屏幕会自动缩放(VMware 9 上用下载的OK)
+
+VMware 10中不行???,用下面的也不行???
+C:\Program Files (x86)\VMware\VMware Workstation\darwin.iso  
+
+第一次使用记得关闭自动更新,点锁应用修改
+
+
+----------使用VMware 11 安装 Mac OS 10.10.1  Yosemite 测试成功
+Python 2.7.10  (不安装则会在装“VMware Unlocker for OS X V2.0.3” 时报错：vmxsmc.exe已停止工作) 我是直接安装了python没遇到错误
+Yosemite Install(14B25).cdr  使用这个文件,测试成功 
+VMsvga2_v1.2.5_OS_10.9.pkg
+
+固件类型为 EFI 
+CPU设置为1个处理器2核
+磁盘类型修改为选择SCSI  ,将虚拟磁盘存储为单个文件
+光驱->高级->修改为SCSI 其它空闲的
+网络不连接
+
+启动虚拟机前
+vmware-unlocker203 中的readme提示 打开 OS X 10.10.vmx 文件在已有的smc项尾增加   smc.version = "0" 
+
+提示硬盘不够用 格式化,Utility->Disk Utility->选择VMware的硬盘->Erease标签->erease...按钮->关闭 
+
+可以安装Xcode-6.4
+
+标题栏有时会花屏 , unlocker203 带的vmware tools(drawin.iso) 和 VMsvga2_v1.2.5_OS_10.9.pkg 好像有用
+屏幕侧面有黑区不能使用,unlocker203 带的vmware tools(drawin.iso) 和 VMsvga2_v1.2.5_OS_10.9.pkg 都没用的???
+不知道哪个安装后,可以手动在Mac调整分辩率,可以得到文本到虚拟机中,也可拖文件
+
+----------使用VMware 12 安装 Mac OS 10.11.6   EI Captian 测试成功
+vmware-unlocker208.zip  右击win-install.cmd-> 以管理员运行,会自动下载VMware tools
+
+固件类型为 EFI 
+CPU设置为1个处理器2核
+磁盘类型修改为选择SCSI  ,将虚拟磁盘存储为单个文件
+光驱->高级->修改为SCSI 其它空闲的
+网络不连接
+
+
+
+启动虚拟机前
+vmware-unlocker203 中的readme提示 打开 .vmx 文件在已有的smc项尾增加   smc.version = "0" 
+
+OS X El 10.11.6(15G31)(MD5-200178E66502141638CE8E1E79BA6737).cdr  大小 7.15 GB (7,680,032,768 字节)可以安装 ,测试成功
+
+右击虚拟机 -> 安装 VMWare Tools后,会自动调整分辩率
+
+最好关闭Mac的 自动更新
+
+
+
+-----PC机 安装 Mac OS 10.8
+
+建立一个未格式化的分区超过5G(分配盘符)用于放安装镜像
+建立一个未格式化的分区超过20G(分配盘符)用于放Mac系统
+
+--1 使用 MacDrive 
+安装Mac Drive 9 (MacDrive打开MacOS-10.8.dmg,后多了一个硬盘,复制其中的 BaseSystem.dmg 到其它盘)
+安装HFS Explorer 0.21 ,
+用UltraISO打开 mac-10.8.mg 解压出的BaseSystem.dmg 
+用HFS Explorer打开 BaseSystem.dmg(或者是转换后的mac-10.8.iso文件,可能这里使用MacDrive)  ,弹出对话框选择默认的 disk_image(Apple HFS)
+tools->create disk image...->选择位置保存为OS.dmg文件
+
+1. 以管理员运行 硬盘助手v0.3->打开OS.dmg, [ "取消下面三个所有复选"],选择一个未格式化的分区(分配盘符),再复选写入,开始按钮
+	(如已经写入过,再写要 format mac disk 或者 卸载MacDrive)
+
+##重启后mac drive 才能识别这个新mac 区
+2. 使用Partition Manager 11 右击分区->更新分区ID...>手动输入ID中 写 AF (是按钮点不了,选单选上面的原来的选项,再单选下面的就可以了),分区后不能加盘符也没关系,变色龙也能识别
+
+安装变色龙 Chameleon Install 2281,活动分区如是100M的盘,又没加盘符不行的,如加盘符(要使用C盘后面),又找到不到引导文件,因为.bin文件复制到了C盘,
+	如活动分区修改C盘,可以找到bin但找不到iso,因找(hd0,0),又没地修改
+	解决方法是,活动分区如是100M的盘,把Avldr.bin,wowpc.iso,mach_kernel(可选,共10M左右)文件复制过来,就可以引导了,可以引导已有的win7
+ 
+3. 启动时选择新的AF标识区的 Mac OS X Install ESD
+
+###下载Mac-10.8.3.cdr 就不用使用 MacDrive ,硬盘安装助手可以写入cdr
+安装变色龙 启动时可以进入Mac 安装界面,可以抹掉分区,但自动重启后,不能进入系统,
+使用U盘引导进入PE,把windows的100M引导分区(如没有就是系统所在区),设置为活动分区就可进入windows
+
+
+
+-----------PC真机安装 Mac OSX-10.10  Yosemite 
+ 
+UEFI 是替代BOIS的
+UEFI 支持硬盘是 GPT  (Guid partition table)  不支持xp 等32位系统
+BOIS 支持  MBR 分区表 限制4个主分区,2T多点的硬盘容量
+
+查看是 GPT 还是 MBR ,在磁盘管理中->右击硬盘->属性->卷->可以看到 硬盘分区形式 (Mac在硬盘第一次建立分区时有提示,windows 安装应该是根据启动引导方式)
+ 
+BIOS + MBR  使用 变色龙 
+UEFI + GPT  使用 Clover  (黑DELL没有UEFI,是SANDY 的CPU)
+
+------
+下载 Clover EFI bootloader  http://sourceforge.net/projects/cloverefiboot/files/?source=navbar
+ 	使用7zip解压 CloverISO-2953.tar.lzma\CloverISO-2953.tar\Users\slice\src\edk2\Clover\CloverPackage\sym\CloverISO-2953\Clover2k-2953-X64.iso 
+				 CloverISO-2976.tar.lzma\CloverISO-2976.tar\Users\slice\src\edk2\Clover\CloverPackage\sym\CloverISO-2976\Clover2k-2976-X64.iso
+	
+	使用UltraISO 以HDD+的方式写U盘,是fat32格式,有/EFI/BOOT/BOOTX64.efi , PC机BOIS设置启动功能带UEFI的(黑DELL没有UEFI),就可以引导
+	(是在BOIS 引导之前,如果开机按BIOS引导键修改使用U盘引导则不停的刷,不对的,但表示也可以通过次级BOIS引导,为以后Clover安装硬盘中这样可以引导windows)
+	进入Mac只是卡住,没错误提示 ,但不能引导已有的win7 ???
+
+--网上说   (Mac 下安装Clover 到硬盘中)
+
+	UEFI只认FAT格式。也就是说在每一块硬盘的EFI分区只能有一个/efi/boot，CLOVER占用了，WIN8就没有了。还好CLOVER启动后，会搜索所有分区根目录/efi/boot并添加到引导界面中。
+	CLOVER中应当保留NTFS.EFI驱动以使CLOVER能识别NTFS   , BCDBOOT命令限制小分区必须为NTFS格式
+
+
+	OS X在UEFI模式，WIN使用传统模式。或者是在开机时按F12调出   过于麻烦 可以  全部在纯UEFI模式下由CLOVER引导
+	
+	使用UEFI 引导安装windows 8 , 会自动划分出三个分区 分别是EFI、MSR和系统主分区 , (EFI区有 MICROSOFT文件夹,也有efi/boot目录)
+	OS X下 使用EFI TOOLS CLOVER装载硬盘上的EFI分区, COPY出MICROSOFT文件夹备份
+	win7/8有 bcdboot命令
+	bcdboot.exe C:\windows /s y: (Y为前面格式化后的MSR分区为NTFS）  引导移到划分出来的小分区  (也就有了efi/boot)
+	
+	只有遵循UEFI规范的主板才能按照efi/boot/bootx64.efi路径启动Windows安装程序
+------变色龙安装
+
+1. 以管理员运行 硬盘助手v0.3->打开 Install OS X Yosemite Lazy.cdr , [ "取消下面三个所有复选"],选择一个未格式化的分区(分配盘符),再复选写入,开始按钮
+	(如已经写入过,再写要 format mac disk 或者 卸载MacDrive)
+
+2. 使用Partition Manager 11 右击分区->更新分区ID...>手动输入ID中 写 AF (是按钮点不了,选单选上面的原来的选项,再单选下面的就可以了),分区后不能加盘符也没关系,变色龙也能识别
+
+安装变色龙 Chameleon Install 2281,活动分区如是100M的盘,又没加盘符不行的,如加盘符(要使用C盘后面),又找到不到引导文件,因为.bin文件复制到了C盘,
+	如活动分区修改C盘,可以找到bin但找不到iso,因找(hd0,0),又没地修改
+	解决方法是,活动分区如是100M的盘,把Avldr.bin,wowpc.iso,mach_kernel(可选,共10M左右)文件复制过来,就可以引导了,可以引导已有的win7
+ 
+3. 启动时选择新的AF标识区(苹果图标)
+
+进入Mac会有错误提示?????
+	
+	
+	
+	
+OS X 10.10 制作USB启动盘的方法, 与以前版本不同 
+ 
+Install OS X Yosemite.dmg  UltraISO 转换iso , 7zip打开  /Install OS X Yosemite.app/Contents/SharedSupport/InstallESD.dmg 解压出,在压缩包中不到1G,解出后约有5G,
+	 UltraISO打开 InstallESD.dmg,里面有 BaseSystem.dmg ,写到U盘中
+	 win7下如何写到U盘中(HFS Explorer 打不开,插入U盘打开TransMac->右击U盘项->restore with disk image也没用,UltraISO和7zip打不开)  
+	
+	
+	
+---linux下
+/var/lib/vmware/Shared VMs
+HTTPS:443
+要安装kernel-devel
+
+su - root
+chmod755 install.sh
+chmod755 Unlocker.Linux64
+
+
+-----VMWare Server 2.0
+
+只有VMWare Server 可以做cluster用的磁盘,Workstation不可
+
+不能和VMWare Workstation同存,不能打开VMWare Workstation生成的虚拟系统
+
+安时输入的SN不定下有效,只有建立虚拟系统,并启动时才知道SN是否有效
+记住安装时指定的Virtual Machines目录,默认http端口8222,默认https端口8333
+http://localhost:8222/ui/   输入操作系统的用户名(带有administrator组中),密码
+https://localhost:8333/ui/
+
+Firefox中左侧的菜单和console不能显示,用IE8是可以正常显示,但也要安装自带的IE插件VMWare Remote Console Plug-in,启动后在IE中单击会在本地打开一个应用
+
+Host Only方式的网卡与本机通信,右击本地连接->属性->共享->打开共享选择VMNet1,就可通信 
+
+
+修改VMWare Server的*.vmx文件加入
+disk.locking = "FALSE"
+diskLib.dataCacheMaxSize = "0"
+scsi1.sharedBus = "virtual"
+#
+scsi1:0.deviceType = "disk"
+scsi1:1.deviceType = "disk"
+
+
+VM->install VM tools,VMware-tools.rpm在安装目录下,加入光驱中
+如果tar包解压运行vmware-install.pl来安装,安装后运行 vmware-toolbox-cmd timesync enable (status)
+##如是rpm安装后运行vmware-config-tools.pl,安装后 vmware-toolbox 工具 , 选中Synchronize Time between virtural machine and your host 
+就是在.vmx配置中加 tools.syncTime = "TRUE"	
+
+
+选择 Time synchronization between the virtual machine and the host operating system。
+“vmware-toolbox”以显示 VMware Tools Properties 窗口。在 Options 选项卡下，选择 发现 tools.syncTime = "TRUE" 
+
+(Redhat)安装VMware Tools 后, 可以在windows中拖一个文件到VM中的Redhat系统的桌面或文件浏览器(Nautilus),可以实现文件传入功能
+

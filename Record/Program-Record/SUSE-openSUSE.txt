@@ -1,0 +1,694 @@
+
+http://doc.opensuse.org/
+
+http://download.opensuse.org/distribution/13.2/repo/oss/suse/x86_64/
+	scim-tables,scim-tables-zh,scim-pinying,scim-bridge,scim-bridge-gtk
+	stardict-3
+	mysql-workbench-6.1.7-3.2.7.x86_64.rpm  
+	lsb-4(chrome依赖)-> libqt4,qt3 
+ 
+http://download.opensuse.org/distribution/13.2/repo/oss/suse/noarch/
+--lsb-4依赖
+	glibc-i18ndata 
+	qt3
+
+http://download.opensuse.org/distribution/13.2/repo/non-oss/suse/x86_64/
+	unrar
+
+/etc/SuSE-release 版本信息
+------------------------硬盘安装SUSE-Desktop-10-DVD
+(用isoemu,硬盘安装SUE不行,要用grub4dos)
+SUSE.iso\boot\i386\loader 目录下的文件linux,initrd  
+
+title Install SUSE-10
+kernel (hd0,6)/SUSE_boot/linux
+initrd (hd0,6)/SUSE_boot/initrd
+
+
+find /SUSE_boot/initrd
+
+
+SUSE-11可以使用ISO文件,也可是解压的(FAT32分区OK，NTFS分区也可见)，输入路径一定要加 /  ，如/SUSE-11.iso ，
+不会显示未使用空间，要添加分区才行，不要选择[客户中心],主机名自动配置,默认不带C++开发，可以选择,
+
+
+安装SUSE-10时,不要用默认的分区,会把windows 删除的, [专家]按钮->[重读分区表] ,出现windows 分区,再修改
+
+------------------------
+
+安装oracle 时界面乱码,必须export LANG=en_US.UTF-8 可以显示英文(默认是zh_CN.UTF-8)
+
+scim 五笔可以删除一些其它语言，［scim 设置］－＞全局设置－＞取消不用语言－＞重启计算机生效
+
+
+------------SSH
+/etc/ssh/sshd_config   
+PermitRootLogin改成yes，
+PasswordAuthentication就是把no改为yes
+service sshd start
+service -staus-all显示所有服务状态
+chkconfig sshd on
+
+
+有防火墙的
+
+iptables -L
+iptables -F
+iptables -P INPUT  ACCEPT
+iptables -P OUTPUT  ACCEPT
+iptables -P FORWARD  ACCEPT
+
+iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT 
+iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
+也不能sftp传文件 
+
+yast 显示界面  停止防火墙(有图形界面来停止,启动时是否停止)
+
+#chkconfig --list 有SuSEfirewall2_init  SuSEfirewall2_setup  
+#chkconfig --level 5  SuSEfirewall2_setup  off
+#chkconfig --level 5  SuSEfirewall2_init  off
+chkconfig SuSEfirewall2 off
+
+SuSEfirewall2  start/stop
+ 
+ /etc/sysconfig/SuSEfirewall2 配置文件
+
+看 /etc/hosts.deny 中的的注释  man tcpd ,man hosts_access
+
+-----------------
+/etc/init.d/network restart 提示 systemctl restart network.service
+
+SuSE Linux防火墙配置
+yast图形界面配置, 或 vi /etc/sysconfig/SuSEfirewall2
+
+  
+
+按print 或者alt+print 生出现 Save Screenhot 对话框
+
+
+SuSE Linux配置网关
+/etc/sysconfig/network/routes #  只有在route add default gw 192.168.1.1 ,可能才会自动出现这个文件
+	加入default 192.168.1.1 - -    ##,第一列目标,第三列netmask ,第四列 网卡,
+route -n 可以看,netstat -rn 相同 (前三列,和最后一列 是network/routes 文件结构)
+
+可以route add default gw 192.168.1.1 netmask 255.255.255.0
+ ifroute-<config> 和routes 文件 内容
+	[default]  10.10.0.0/16   #is valid
+	”－“ 表示忽略
+
+/etc/sysconfig/network/ifcfg-[网络类型]/-id-[网卡mac地址] ,#如ifcfg-wlan-id-00:16:6f:25:73:1f
+
+ip route list
+ip route show
+ip link show 
+ip link set eth0 address aa:aa:aa:aa:aa:aa
+//改MAC ,要先关闭网卡
+
+ ip address show
+
+iwlist、iwconfig
+这两个命令需要你有无线网卡才能够进行使用
+
+SUSE 修改grub 让 windows 默认启动
+改/boot/grub/menu.lst  ###中有 default 后加一数字 从0开始是每一个
+
+dhclient eth0  #DHCP网络
+
+lynx  和links都没有
+
+文件浏览器可以ctrl + 拖动滑轮来放大，缩小 图标
+
+SUSE有ReiserFS 文件系统,也可以用EXT3
+
+cat /etc/issue 显示操作系统
+echo password|passwd --stdin oracle  改密码
+
+
+vim -u vimrc文件
+SUSE vim 文档路径 /usr/share/vim/vim64/doc/starting.txt
+	/etc/vimrc文件，中把" syntax on 前的" 去掉
+
+进入 Ex 模式. 输入 "visua" 以回到正常模式
+
+-----------------------------------安装oracle 11g
+ORACLE 11g SUSE-10 redhat-4 ,redhat-4
+
+net.core.rmem_max =4194304
+net.core.rmem_default=  4194304
+net.core.wmem_max =262144
+net.core.wmem_default = 262144
+kernel.sem = 250 32000 100 128
+net.ipv4.ip_local_port_range = 1024 65000
+
+
+
+root 运行 /opt/oracle/oraInventory/orainstRoot.sh
+	/opt/oracle/product/root.sh
+https://zhaojin.com:1158/em  是enterprise manager
+
+
+不用安装java  ,用自带java 命令
+
+sqlplus 下不能ctrl+z
+
+oracle 用户 不能dbshut   ???????
+ORACLE_HOME_LISTNER is not SET, unable to auto-stop Oracle Net Listener
+Usage: /opt/oracle/product/bin/dbshut ORACLE_HOME
+
+
+
+
+---------SUSE-10  安装oracle 11g response-------OK------------------
+
+net.core.rmem_max =4194304
+net.core.rmem_default=  4194304
+net.core.wmem_max =262144
+net.core.wmem_default =        262144
+kernel.sem = 250 32000 100 128
+net.ipv4.ip_local_port_range = 1024 65000
+
+
+有/opt/oracle/oradata 
+
+把install/response/ee.rsp文件中<V 的所有都设置好
+
+只安装软件,不安装数据库，有dbca的
+
+/etc/oraInst.loc中记录内容是
+inventory_loc=/opt/oracle/oraInventory  ###目录最好不存在,也可以为空，/opt/oracle/product 也要为空
+inst_group=oinstall
+
+./runInstaller -silent  -responseFile /home/oracle/database-11g/install/response/ee.rsp
+
+###responseFile 一定要用绝对路径,(不要用-responseFile=/xxx)否则会报resp文件找不到参数
+	DEP_MODE(InstallType),
+	TLDepModes(TopLevelInstallType)
+
+也会打印出检查结果，但有错误他不会停止，要自己看，可以root用户su oracle 来安装
+
+.........等待
+提示root 用户运行脚本：
+	/opt/oracle/product/root.sh
+	###还有一个呢？？？？	
+
+
+还要复制init.ora 到initSID.ora文件，
+改db_name=SID
+改control_files=('','')
+才能启动
+按提示改share pool大小
+没有建立控件文件
+ORA-00205: error in identifying control file, check alert log for more info
+卸载ORACLE时，/etc/oratab文件记录SID
+
+10g response安装－－－－－－－－－－－－－
+$./runInstaller -record -destinationFile /tmp/install_database.rsp
+10g会生这个文件，11g 不会生成的
+SUSE-10 可以安装oracle 10g ,但是如果用了rsp 文件检查平台时失败(要SUSE－9)
+
+------------------ 
+
+===================SUSE-11-Desktop
+如果是安装在VMware 7.1 中　，要先按fn,再按ctrl+alt
+SUSE-Enterprise-Desktop-11-SP1 是kernel-2.6.32.12-0.7
+				是gnome-desktop-2.28.2-0.3.22
+
+Planner项目管理，Gnome-Sound-recoder录音机，Banshee音乐播放器，Totem播放机，MoonShine WMV播放器，Cheese摄像头，
+Dia图表(简单的Viso),GNU Cash财物管理，InkScape矢量图软件(可保存为illustrator ai格式)，Gftp
+SUSE 11的桌面特效 系统->观感->Desktop effect->特效标签中可以取消 ［启动震颤］，也可把切换方式改成Cylinder,预设中的Advance来恢复正方体,［切换工具］里选择是为alter +tab 用的，在桌面标签－＞可以使用［桌面立方体］和［桌面墙壁］,
+
+SUSE 11 ctrl+alt+拖鼠标3D桌面
+===================OpenSuse
+--------openSUSE 在win7  硬盘安装
+openSUSE也可以用DeamonTool加载ISO,双击运行openSUSE12_2_LOCAL.exe,就不用使用grub4dos了,
+
+opensuse 在硬盘安装时 输入入正确的/suse-d.iso(ISO文件可以放在D盘中使用的) 提示repository not found.
+使用ALT+F3查看信息，发现其实是安装脚本中的一句mount出错了，因为找不到/bin/mount。
+在/usr/bin/目录下。拷贝mount到/bin目录下
+
+openSUSE-<version>-DVD-x86_64.iso也放在C盘下修改名为openSUSE.iso,
+openSUSE-<version>-DVD-x86_64.iso\boot\x86_64\loader 目录下的文件linux,initrd  解压放在C:\openSUSE_boot目录下
+grub4dos-0.4.4中的grldr.mbr,grldr,menu.lst文件入在C盘中,C:\下
+	
+	C盘是NTFS分区
+
+在menu.lst尾加入
+
+title Install openSUSE
+find --set-root /openSUSE.iso
+kernel /openSUSE_boot/linux	        devfs=mount,dall ramdisk_size=65536  lang=en splash=silent vga=0x31A
+initrd /openSUSE_boot/initrd
+
+
+或者是
+title Install openSUSE
+kernel (hd0,6)/openSUSE_boot/linux
+initrd (hd0,6)/openSUSE_boot/initrd
+
+find /openSUSE_boot/initrd 知道是(hd0,?)
+
+
+
+bcdedit /create /d "Grub4Dos" /application bootsector   此时会得到一个字符串，下面用id代替上一命令得到的字符串
+bcdedit /set {id} device partition=C:
+bcdedit /set {id} path \grldr.mbr				
+bcdedit /displayorder {id} /addlast
+
+ 
+
+bcdedit 显示所有启动项和对应{id}字符串
+后可以 bcdedit /delete xxx-xxxx-xxx
+
+
+提示输入时,输入路径一定要加 /  ，如/openSUSE-12.1.iso     也可以是把ISO文件解压 ,
+
+ 
+还要用EasyBCD创建windows启动项,选择左边的Add New Entry，右边选择NeoGrub，点击Install 会自动添加neogrub 启动项
+点击“Configure”，会打开NeoGrub 的menu.lst 文件，
+把C:\menu.lst 文件里面的内容复制到NeoGrub 的menu.lst 文件中
+“Save Settings"
+重启后会自动出现卸载
+
+
+C:\menu.lst的内容为
+hiddenmenu 
+timeout 0 
+title openSUSE <version> installer (LOCAL) 
+find --set-root /openSUSE_hitme.txt
+kernel /openSUSE/linux devfs=mount,dall ramdisk_size=65536  lang=en splash=silent vga=0x31A
+initrd /openSUSE/initrd
+
+
+可能出现不能识别的31a,等一会,就会出现界面,
+安装时Booting中有红色提示 ,boot 什么不是在 135G 下面,如果BOIS只持XX可能会报XX错误,忽略它
+
+显示安装界面时提示 0x31a无效 ,安装后把kernel vga=0x31a 修改为vag=0x318 (看提示是318=1024*768*32)
+
+
+bcdedit时提示：“无法打开启动配置数据存储，系统找不到指定的文件”
+因我装了Linux，用PartitionManager.9.0 或者 计算机管理->磁盘 只需将win7创建的100M主分区(不是C盘)设置为活动分区即可(linux的grub引导界面没有了)
+1. 在"运行"里，输入"cmd"; 
+2. 接着输入"diskpart";
+3. 接着输入"list disk";
+4. 接着输入"select disk 0"比如我们现在要将第1硬盘的第1分区做为活动的;
+5. 接着输入"list partition";
+6. 接着输入"select partition 1";
+7. 最后输入"active"。 
+
+linux的grub引导界面没有了
+----grub2
+光盘启动->选择rescue system	
+fdisk -l
+swap 分区不需要挂载。要先挂在根分区，然后把其他的分区相应的挂在到根分区下
+#示例 
+mount /dev/sda5 /mnt
+mount /dev/sda7 /mnt/boot
+mount --bind /dev /mnt/dev
+mount --bind /proc /mnt/proc 
+mount --bind /sys /mnt/sys
+chroot /mnt
+
+然后是重装grub2
+update-bootloader --add
+update-bootloader --refresh
+cp /boot/grub2/grub.cfg /boot/grub2/grub.cfg.bak
+grub2-mkconfig -o /boot/grub2/grub.cfg  ###有错误,windows引导项会丢失,进入linux再执行没有错误也没有????
+grub2-install /dev/sda   ###注意是grub2-install
+
+exit
+reboot
+
+分区有一个UUID,使用 　ls -l /dev/disk/by-uuid 查看
+
+/etc/grub.d/40_custom 加入
+ 
+menuentry "Windows 7" {
+insmod part_msdos
+insmod ntfs
+set root='(hd0,msdos2)'
+search --no-floppy --fs-uuid --set 3038D76238D7261E
+chainloader +1
+}
+menuentry "Windows loader" {
+insmod ntfs
+set root=(hd0,2)
+drivemap -s (hd0) ${root}
+chainloader +1
+}
+menuentry "Windows 7 search" {
+  insmod ntfs
+  search --set -f /bootmgr               
+  chainloader +1
+}
+##search -f /bootmgr 返回 hd0,msdos2  hd0,msdos2
+有项,但不能引导???
+--如果是LVM的做法
+
+---解决方法 使用grub4dos进入CommandLine下
+1. grub>find /grub/stage1 结果是hd0,x
+2. grub>root (hd0,x)
+3. grub>setup (hd0)      
+###要小心,如果多次失败很有可能硬盘分区表损坏,VMware测试时
+##命令提示成功后,结果只进入了grub>  不能引导linux????(可能grub4dos是grub1.0而系统是grub2.0)
+如要引导 windows 
+grub>rootnoverify (hd0,0)
+grub>chainloader +1
+grub>boot
+
+光盘启动->选择rescue system	->用户名使用root 执行
+###### grub-install /dev/sda 提示使用 yast2 bootloader
+#####进入 grub 模式(linux rescue)	grub>setup (hd0,0);
+--------上openSUSE  在win7  硬盘安装
+
+
+---------openSUSE 使用
+使用yast2安装软件包,会自动解决依赖关系,
+菜单configuraitons->repositories->Add->local ISO image 再选择openSUSE-12.1x64.iso或者 Local Directory->输入rpm包名,像gucharmap-devel,
+可能要取消Active其它在线repository，它会自动也把依赖的包选择上
+ 
+SuSE中在/etc/init.d/boot.local文件中添加命令  ,Red Hat系统的对应文件是/etc/rc.d/rc.local。
+
+ 
+chkconfig sshd on
+
+
+mount FAT32分区时,中文文件名显示??
+mount -t vfat -o iocharset=utf8 /dev/sda7 /media/F/
+
+
+cnf gconf-editor	#  command will display need install gconf-editor	
+zypper install gconf-editor #
+rpm -ivh gconf-editor-3.0.0-5.1.2.x86_64.rpm
+cnf 和 zypper /etc/zypp/repos.d/xx.repo(类似于yum)命令
+ 
+ 
+
+
+/etc/init.d/boot.local文件中添加命令(openSUSE-13.2不用了)
+echo OFF >/sys/kernel/debug/vgaswitcheroo/switch
+
+---配置打印机
+Print Setting应用 -> Add按钮 ->NetWork Printer->Windows Printer via SAMBA
+输入地址形式 smb://[workgroup/]server:port/printer
+
+---CUPS  (Common UNIX Printing System)
+ 'Internet Printing Protocol' (IPP) 
+ Line Printer Daemon (LPD) Service
+ 
+/etc/init.d/cups start 监听 631端口
+
+即目录 /usr/lib/systemd/system  也可 systemctl start  sshd.service
+ systemd-analyze plot > system.svg 生成系统启动时各服务花的时间
+systemctl | grep cups   相当于redhat的service命令
+systemctl stop cups.service 
+systemctl stop cups.path 
+systemctl stop cups.socket 
+
+systemctl start cups.service 
+
+/etc/cups/cupsd.conf 服务端
+
+/etc/cups/client.conf 客户端
+ServerName server
+
+http://127.0.0.1:631 有界面,可生成配置文件,如要仿问admin页面,要修改/etc/cups/cupsd.conf中的权限设置
+
+---scim输入法 支持日文ja,韩文ko
+默认显示在右下角浮动的输入法栏
+GTK3的Activies搜索中按backspce变多黑块 ??? 
+
+/etc/profile
+
+export LANG=en_US.UTF-8
+export QT_IM_SWITCHER=imsw-multi
+
+export XMODIFIERS=@im=SCIM
+export QT_IM_MODULE=scim  
+export GTK_IM_MODULE=scim:xim
+
+ 
+env | grep im 来查看
+
+自带安装 gtk3-immodule-xim,scim-1.4 软件包后,就可以在gedit,vim 右击->input method 
+下载安装 scim-pinyin, scim-tables,scim-tables-zh
+再gedit中生效,但在firefox,libreOffice无效,还要安装scim-bridge,scim-bridge-gtk   
+
+重启生效  ctrl+space切换中英文 ,ctrl+shift切换中文
+
+---ibus输入法  支持日文anthy,韩文hangul
+在GTK3中会出现右上角的工具栏中 , 删无用的rpm ,输入文字时显示的文字中有引出的三角
+	 输入法栏切换只对google拼音有用,  其它的输入法 无效果??? 可能是对GTK3没做好???(Firefox和GTK面板) ??? 
+
+Redhat(gnome-2) 系统->首选项->输入法->复选 启用输入法特征
+
+安装ibus-table-chinese-wubi-jidian 包 , 极点五笔  
+Redhat 下载安装 http://mirrors.fedoraproject.org/publiclist
+http://mirror.bjtu.edu.cn/fedora-epel/6/x86_64/ibus-table-chinese-1.4.6-1.el6.noarch.rpm
+http://mirror.bjtu.edu.cn/fedora-epel/6/x86_64/ibus-table-chinese-wubi-jidian-1.4.6-1.el6.noarch.rpm
+
+安装ibus-pinyin
+/etc/profile
+
+export QT_IM_SWITCHER=imsw-multi
+
+export XMODIFIERS=@im=ibus
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+
+killall ibus-daemon
+ibus-daemon -d
+
+进入面板的ibus preferences->Input Method->Add->下拉选择chinese->Pinyin和Wubi-jidian,在最上面的为当前输入法( 这里增加，删除输入法无用)
+
+
+进入面板的 language -> 修改主语言为简体中文,detail 有说明修改 /etc/sysconfig/language  文件
+进入面板的 Setting -> region & language -> 修改主语言为简体中文, 增加,删除输入法在右上角的栏才有效果,有提示重启  
+
+/etc/sysconfig/language 中修改 INPUT_METHOD="ibus" 
+
+
+
+---fcitx 输入法 
+Free Chinese Input Tool for X   没有二进制的 日语, 韩语
+GTK3的Activies 搜索中输入中文没有弹出提示 ??? 
+
+按住ctrl+shift 切换输入法,会有弹出的提示当前是什么输入法,ctrl+space切换中英文 
+
+/etc/sysconfig/language 中修改 INPUT_METHOD=""为空时
+(Gedit中一直使用的是fcitx ,而在Firefox和GTK面板使用的是环境变量的配置 )
+
+进入面板的 fcitx settings->可以删不用的输入法, 无用的rpm
+
+/etc/profile
+export QT_IM_SWITCHER=imsw-multi
+
+export XMODIFIERS=@im=fcitx
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+
+---
+（注销后无线网络，就不对了，要按fn键禁用再启用）
+
+/etc/vfstab 中
+/home/zhaojin/Documents/openSUSE-12.2.iso       /mnt/iso        iso9660 ro,loop 0       0
+
+
+----Grub2
+view /boot/grub2/grub.cfg  是用grub2-mkconfig工具通过/etc/grub.d和 /etc/default/grub的设置
+view  /etc/sysconfig/bootloader  配置使用grub2
+
+vi /etc/default/grub
+修改GRUB_DEFAULT＝saved为GRUB_DEFAULT＝2,按从到下顺序从0开始 ,
+后使用 grub2-mkconfig -o /boot/grub2/grub.cfg ,看menuentry项
+
+在选择项目
+按c 进入新的
+按e 编译
+----
+mount -t ntfs-3g /dev/sdb1 /mnt/usb
+自带ntfs-3g, mount命令查看 NTFS格式显示为fuseblk类型,自动挂载也是显示fuseblk,
+
+
+chkconfig 也可在yast中有System Servcies配置
+
+Ctrl+L => 输入 ' smb://[IP地址] '
+-----带freeglut,安装测试OK
+rpm -ivh /mnt/iso/suse/x86_64/freeglut-devel-2.8.0-3.1.2.x86_64.rpm 
+rpm -ivh /mnt/iso/suse/x86_64/libglut3-2.8.0-3.1.2.x86_64.rpm
+rpm -ivh /mnt/iso/suse/noarch/xorg-x11-devel-7.6-37.1.1.noarch.rpm  有太多的依赖关系，使用yast2
+
+#include <GL/glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h> 
+
+gcc -o helloOpenGL helloOpenGL.c -lglut -lGL -lGLU
+
+注意和windows不同的是GL是大写的
+
+
+openSUSE-12.3自带的软件
+	anjuta,libreOffice,evolution,evince,gimp,inkscape,cyrus,git,
+	Mesa,freeglut,Mono,Firefox,thunderbird,wine,ibus,fcitx,wireshark,flashplayer,
+	rdesktop命令和界面,tsclient远程桌面,cheese摄像,gstreammer,Totem播放器,pidgin(可MSN,GTalk都测试过的)
+	Brasero DVD工具,
+===================要手工下载安装的软件
+---stardict 安装 运行OK，但取词 取不到，要安装库
+要点左下角的退出，才是真的退出
+
+---unrar安装OK ,未测试解压
+rpm -ivh unrar-4.0.4-10.1.7.x86_64.rpm
+yast2 安装 gparted
+   
+
+gnome3 没有最小化按钮，复制地址栏，go->location（ctrl+L）,按esc返回
+gnome3 桌面上不能放文件 ，gnome-tweak-tool -> Desktop ->把 把所有的都打开,就可以在桌面上放文件了
+
+
+linux Firefox 14 安装 flashplayer 11---测试OK
+mkdir ~/.mozilla/plugins/
+cp ~/libflashplayer.so ~/.mozilla/plugins
+
+----pidgin 自带skype,openfetion
+  -下载 QQ plugin 基于webQQ-
+ 
+----UltraEdit-3.3  压缩包 安装运行OK   带自己的Compare
+----UltraCompareX -14 压缩包 安装运行OK  
+----Beyond Compare 3 (可能32位的不能运行在64位上)
+-----diffuse 文件比较器,依赖于scrollkeeper,光盘中有的
+-----Komodo-Edit-8  运行install.sh提示安装位置,运行OK
+----FileZilla-3.6 运行OK
+
+====node.js源码安装
+./configure
+make
+make install
+
+---Mplayer-1.1 安装 ,测试OK
+unxz -cd MPlayer-1.1.tar.xz | tar -xvf -
+
+默认./configure时，成功，并提示
+  Install prefix: /usr/local
+  Data directory: /usr/local/share/mplayer
+  Config direct.: /usr/local/etc/mplayer
+
+/usr/local/bin/mplayer 
+
+mpalyer 1.1 可以播放avi视频，但没有声音，打开后提示audio_setup: Can't open audio device /dev/dsp: No such file or directory
+解决方法是安装snd_pcm_oss，执行 modprobe snd_pcm_oss   测试OK ，以root执行
+
+pageup,pagedown是快进10分，上下键快进1分
+＊增大音量  ／减小音量
+
+----chmsee 运行OK 做用不大
+rpm -ivh chmsee-1.99.08-2.1.2.x86_64.rpm
+error: Failed dependencies:
+	libchm.so.0()(64bit) is needed by chmsee-1.99.08-2.1.2.x86_64
+	libmozalloc.so()(64bit) is needed by chmsee-1.99.08-2.1.2.x86_64
+	libxpcom.so()(64bit) is needed by chmsee-1.99.08-2.1.2.x86_64
+	xulrunner >= 13.0.1 is needed by chmsee-1.99.08-2.1.2.x86_64
+
+rpm -ivh /mnt/iso/suse/x86_64/libchm0-0.40-15.1.3.x86_64.rpm
+rpm -ivh xulrunner-14.0.1-2.5.1.x86_64.rpm
+error: Failed dependencies:
+	mozilla-js = 14.0.1 is needed by xulrunner-14.0.1-2.5.1.x86_64
+	libmozjs.so()(64bit) is needed by xulrunner-14.0.1-2.5.1.x86_64
+rpm -ivh mozilla-js-14.0.1-2.5.1.x86_64.rpm
+rpm -ivh chmsee-1.99.08-2.1.2.x86_64.rpm   安装OK
+
+
+面板中找 chmsee
+
+
+xchm  做用不大 ->chmlib-devel, 后面DVD中stl版本的,安装失败 libwx_baseu_net,libwx_gtk2u_html,libwx_gtk2u_aui
+
+-----chrome 26 运行OK
+依赖于 lsb>=4.0
+# rpm -ivh lsb-4.0-20.1.1.x86_64.rpm
+error: Failed dependencies:
+	glibc-i18ndata is needed by lsb-4.0-20.1.1.x86_64
+	qt3 >= 3.3.5 is needed by lsb-4.0-20.1.1.x86_64
+	xorg-x11-libs is needed by lsb-4.0-20.1.1.x86_64
+
+面板中找 chrome 自带flashplayer-11.6
+	
+
+---------openSUEE-12.3 SMB Client
+
+smbclient -L [主机]  -U user%pass  ##显示列表,以$结尾的在windows中看不到的
+
+smbclient //host/share  -U user%pass  ##后像ftp工具 help,
+	可ls,
+	get xxx 
+	mget xxx #可以目录但每个文件都要提示
+	put 本机文件 (远程的重命名)   ##如不加第二参数,和第一参数一样 
+	rm xxx ,
+	!pwd 	##使用一机命令,
+	lcd  xxx 	##切换本机目录
+
+有时要"/"要转义,也可不转
+smbclient \/\/192.168.253.1\/share -U administrator%pass   ,用户必须要设置密码才行
+
+
+mount -t cifs -o username=xxx,password=xxx //IP/temp /mnt 
+//Common Internet File Systemcifs(cifs)来代替原来的smbfs  
+mount -t cifs -o username=xxx,password=xxx  \/\/192.168.253.1\/share /mnt/smb   
+openSUSE-12.3 报错????
+ 
+----------openSUSE 12.2  TightVNC启动VNC server ------未成功
+alt+左右键，上键
+
+要使用fn＋F2 来禁用网络，如使用gnome3的界面 到OFF就不能再ON了，除非重启机器
+
+
+vncserver :1
+有界面，但是简单的那种
+vncserver -kill :1
+
+
+
+以下未成功
+vi ~/.vnc/xstartup把所有行都注释,加/usr/bin/gnome &
+dbus-launch vncserver :1 来启动 
+
+ctrl+alt +f2命令行，使用 gnome-session &是不行的
+
+
+---------openSUEE-12.2 NFS
+防火墙关闭测试
+要安装nfs-doc,nfs-kernel-server,yast2-conf-server
+su - root
+
+/etc/exports 配置文件格式
+/本机要共享的目录		可仿问的客户机IP或*(ro,rw)
+/opt/exports            127.0.0.1(rw)
+
+先启动rpcbind,再启动nfs
+systemctl start  rpcbind.service 
+/etc/init.d/nfs start 是客户端 , 有nfs进程
+
+cat /var/log/messages有日志
+
+cat /etc/services | grep rpcbind 查到是111 
+cat /etc/services | grep nfs 查到是2049
+
+rpcinfo 查看信息
+
+showmount -a localhost  ( --all)
+showmount -e localhost  (--export) 查看(远程)提供的服务
+
+mount -t nfs 192.168.0.1:/opt/exports  /mnt/localshare 把远端的目录挂到本地
+也可写入 /etc/fstab文件
+
+yast中有nfsclient的界面配置，可测试到服务端提供哪些目录共享 , 会把配置写到/etc/fstab文件中
+mount.nfs
+-----------取消自动登录
+Yast2 -> Security and User -> User and Group  Management -> Expert Options -> Login Settings 取消 Auto login
+
+-----------未解决的
+vim 和gedit 打开windows下的有中文GBK文件时,显示其它的怪字符
+
+---SUSE cluster 
+
+
+
+

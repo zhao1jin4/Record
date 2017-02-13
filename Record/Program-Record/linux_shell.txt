@@ -1,0 +1,1005 @@
+windows下的command.com
+rmmod pcspkr 不出声音
+ /etc/shells  存所有的SHELL
+echo $SHELL
+可运行子shell    exit
+help 显示所有的命令
+ll命令 
+	b 块文件 /dev/
+	c 字符文件 /dev
+	p 命名管道文件
+	s soket文件
+
+info chmod 显示帮助 man
+
+chmod 人 a(all) 权限 s(suid,gid  替x)   t(缓存运行目录上有,只有owner可以删)
+
+grep '^..s'   支持正则
+
+umask 显示 ,修改默认新建文件的权限  777- 要设的值
+
+设置umask在/etc/profile中
+
+
+shell的第一行必须有 #!/bin/bash
+# 注释
+
+alias ll='ls -l' 定义别名  #####  在=左右不要有空格
+
+$HOME/.bashrc 中定义别名
+
+``中的字串当命令
+
+& 后台运行 或用 nohup 命令也可以
+jobs -l
+ls | sort 
+
+ 一行运行多个命令用;分隔,  \ 来变多行
+
+
+set 显示本地变量,重新登录会消失
+
+readonly 变量名     这个变量不可改变	
+readonly (-p) 显示所有的变量
+
+环境变量 设置export,显示env,export,也可用readonly
+
+${xxx}  与$xxx同,如在""中就要用${}
+echo ${Vname:+value}如果Vanme有过设置,显示value的值,否则空
+echo ${Vname:?value}如果Vanme没有设置,显示错误的value的信息,		否则显示Vname 的值
+echo ${Vname:-value}如果Vanme没有设置,显示value的值,			否则显示Vname 的值
+echo ${Vname:=value}如果Vanme没有设置,设置Vanme的值value,并显示,	否则显示Vname 的值
+
+echo ${#Vname}  Vname的长度
+echo ${Vname%value}  从Vnam尾删与value匹配最小
+echo ${Vname%%value} 从Vnam尾删与value匹配最大
+echo ${Vname#value}  从Vnam头删与value匹配最小
+echo ${Vname##value} 从Vnam头删与value匹配最大
+
+${varible##*string} 从左向右截取最后一个string后的字符串
+${varible#*string}  从左向右截取第一个string后的字符串
+${varible%%string*} 从右向左截取最后一个string后的字符串
+${varible%string*}  从右向左截取第一个string后的字符串
+"*"只是一个通配符可以不要
+
+unset 变量名,来清除变量.readonly  不可重设
+
+$0(脚本的名字),$1...$9     ./file.sh 1 2 3
+
+MAIL 邮件存放目录
+MAILCHECK 多长时间来检查邮件
+PS1  提示符的格式[\u@\h \W]\$
+export PS1='[\u@\h \W]\$'
+PS2 >   表示在多行命令时 左则的提示符
+
+linux shell字符串操作 
+${varible##*string} 从左向右截取最后一个string后的字符串
+${varible#*string}从左向右截取第一个string后的字符串
+${varible%%string*}从右向左截取最后一个string后的字符串
+${varible%string*}从右向左截取第一个string后的字符串
+
+${string:position:length}截取变量varible从position位置开始(0是第一个),长度为length的字符串。
+echo ${var:7} 其中的 7 表示左边第8个字符开始，一直到结束。
+echo ${var:0-7} 表示从右边第七个字符开始，从左到右,一直到结束。
+
+${string/substring/replacement} 	使用$replacement, 来代替第一个匹配的$substring
+${string//substring/replacement} 	使用$replacement, 代替所有匹配的$substring 
+
+test='c:/windows/boot.ini'
+echo ${test/\//\\}			c:\windows/boot.ini
+echo ${test//\//\\}      c:\windows\boot.ini
+
+
+ 
+ 
+
+#!/bin/bash
+file=Info.plist
+key=CFBundleIconFile
+
+keyRowNo=`cat ${file}  | grep -n ${key} |cut -d : -f1`
+valueRow=`sed -n "$((keyRowNo+1))"p ${file}`
+noHeader=${valueRow#*<string>}
+value=${noHeader%%<*}
+echo $value >anotherfile
+
+
+
+set
+
+$# 表示传递到脚本的参数个数
+$* 表示传递到脚本的参数列表  (使用IFS环境变量字符('A')来分)
+$? 命令执行后的状态 0 成功 1 失败
+$$ 当前进程号
+$0 当前执行的进程名  (文件名)
+$1 传递的第一个参数,
+$@(使用时要加双引号,和S* 区别在 不会使用环境变量IFS)
+
+$! 最后一个进程号
+$-   与set命令同  
+$_ 是
+
+dirname /usr/local 返回/usr
+dirname /tmp/file  返回/tmp
+dirname $0  当前执行的脚本所在目录
+
+
+
+declare  -r 只读变量  -i 整数  可用+改变含义(除-r)  export 来看
+
+
+shift  n 把变量列表$0..9  向前移动n 位
+typeset  与declare同义
+unset -f 对只卖的
+单引号可以引所有的字符,双引号除\ ` $
+
+$[2+8]  对[]中进行求值$[2^8] 异域  只可以整数
+let  赋值
+$((2+4)) 与 $[2+4]同 只可以整数
+
+$[10#8+1] ８是基数(2-36)即８进制
+
+echo -e 解析＼的含义
+　　　-n 回车不换行　，默认是回车换行
+＼c回车不换行后面的值不显示,\f禁止,\t,\n
+
+read向用户读字符
+read v1 v2 v3  最后一个变量会把所有的剩余的字符读入，包括空格
+
+cat  -v  显示DOS,window的文本　　可多个文件同时显示
+cat -n  （显示行号）
+mtype 显示DOS文件内容
+grep -v 不显示的字符   -l 打印文件名   默认是文件:行号
+
+who
+tee -a（append） 文件名，　　用于管道后，标准输出和文件中都有
+find ./ -name '*.txt' -type f -print| tee -a find.txt| xargs  cat -n  | grep   payType=\'00\' 
+
+#!/bin/bash
+if [ "${1}" = "" ] ;then
+	echo "please pass the find parameter"
+	exit 0
+fi
+echo "begin to find ${1}" 
+echo "">~/find.txt
+today=`date +"%Y-%m-%d %H:%M:%S" `
+for file in `find ~/ -name "service-${today}.*.zip" -type f` ;do
+	echo $file
+	echo "begin searching file :${file} " >> find.txt
+	## cat -n  $file | grep  $1  >> ~/find.txt  ## cat 如文件过大也不行的
+	zgrep -n $1  $file   >> ~/find.txt
+done
+
+
+
+可以使用    zless file.zip    ,   zgrep keyword file*.zip     
+
+date -d"-1 day" "+%Y%m%d"  是昨天
+
+echo $(($(date -d '2004-12-11' +%j)-$(date -d '2004-11-05' +%j)))  两日期相差多少天,只可对当年的
+%j     day of year 
+%s     seconds since 1970-01-01 00:00:00 UTC
+
+expr "scale=2;5000/3600"|bc    #只保留两个小数,后面的丢
+1.38
+
+function calcDiffDay(){
+        first=`date --date="$1" +%s`
+		second=`date --date="$2" +%s`
+        plusRes=`expr $first - $second`
+        diff=`expr "scale=0;$plusRes / 3600 / 24"|bc`
+        #echo $diff
+		return $diff
+}
+calcDiffDay  2016-01-10 2015-12-20
+echo $?
+
+15天前的并且不是周底的文件删除
+current_date=`date +"%Y-%m-%d"`
+for filePath in `ls ${rootDir}/accounting-full_*.sql.gz` ;do
+	fileItem=${filePath##*/}
+   	dateStr=${fileItem:16:10}
+    day=${dateStr##*-}
+    calcDiffDay $current_date $dateStr
+    diffDay=$?
+    if [ $day -lt 28 -a  $diffDay -gt 15 ]; then
+           echo " delete file ${filePath} ready"
+           rm   ${filePath}
+           echo " delete file ${filePath} done"
+    fi
+done
+
+
+标准输入０
+标准输出１
+标准错误２
+
+我们可以使用的是3-9文件描述符
+
+comand 1>filename 把标准输出(1可以省)重定向一个文件中
+command >filename 2 >&1 把标准输出和标准错误一起重定向文件中############
+
+command >>filename 2 >&1 把标准输出和标准错误一起重定向文件中(追加)############
+
+command <<delimiter 直至到delimiter 中止
+command <＆-关闭标准输入
+
+
+＆３ 表示引用３代表的
+
+cat >>res.txt<<EOF
+
+grep "xx" filename 2>/dev/null
+如果grep命令出现错误重定向，即不管了
+
+cat xx.txt yy.txt 1>n.txt 2>error.txt
+cat xx.txt yy.txt如果正常输出n ,如果错误输出error
+grep "stand" stand.txt >grep.out 2>&1  如果错误(2)重定向到１所代表的(标准输出),1又输出到文件
+
+
+exec ./xx.file 运行后启动新的shell,会环境变量恢复默认
+
+
+exec 3<&0 0<name.txt     #打开3的打描述来自0 0来自文件  , 不会关闭当前的shell
+read line1  #从3中读取
+read line2
+exec 0<&3  #3又重定向到0 ,关闭3
+echo $line1
+echo $line2
+exec 与 文件描述符结合使用不会关闭当前的SHELL
+
+结果是输出namt.txt 的两行内容
+==========================================================
+
+
+
+\a响铃
+
+man test
+
+1. test EXP
+2. [EXP]
+3.test OPTION
+
+if test -f  myfile.txt
+if [-f myfile.txt]
+
+-a (and)   -o (or)
+-n 字符长度非0
+-z 字符长度是0
+-eq是对整数   = 是对字符
+-ne 不等
+=字符串是否相等
+
+if [ "$a" -eq 1 ]; then 	(then写在上面一定要加;  , [前后都要有空格,]前要有空格) 
+fi
+
+if [ "$name" = "" ]; then  (在$name要加""因为如空的就错误, =前后要么都有空格,要么都没有)
+else
+fi
+
+
+if cp myfile myfile.bak ;then  #不要[] ,man test
+elif []||[] ;then          #### 注:[]  中一定要有空格
+elif []  ;then ...
+else...
+fi
+
+basename 文件目录,会去掉前部分的目录,只显示文件名
+
+
+case $xx in 
+1)
+	echo "1"
+;;
+*)                                      #可以用?,只是一个符,*所有字符
+	ehco "other"
+;;					##########最后一个  ;; 可有可无
+esac
+
+---------------
+for var in 1 2 3   #red orange  如加"red orange"认为一个 (以空白做为分隔,如空格,换行)
+do
+ echo 	$var
+done
+
+
+for file in $(ls *.sh);do
+done
+
+for file in `ls *.sh` ;do
+done
+
+至少一次
+until []
+do 
+...	
+done
+
+
+
+while read LINE
+do
+....
+done <filename.txt   
+
+
+
+echo " sdf" | mail root
+
+sleep  秒数
+wc 文件 ,打印,-l 行数,-m 字符数,-c 字节数,
+
+
+expr 3 + 5  # 要有空格
+echo $((3+5))
+
+test -w /root/xx  #可写吗? 
+     -d 目录文件吗
+     -e 文件存在吗
+     -f 通通文件吗
+     -g 有SGID
+     -r 可读
+     -s 长度为0 ，是真
+    -u UID
+    -x 可执行吗
+	
+if [ ! -e  "${readDir}/today.done"  ] ; then    ##文件存在吗
+	 echo "not found the file .done"
+else
+	echo "found the file .done"
+fi
+
+echo $?  上一次的结果 0成功,1失败
+
+break 2 #跳出2层循环
+有continue
+
+while : #表示永远循环要有空格 while [ true ]
+
+function myfun()  #function  可省,declare -i x=1;let x=4
+{
+	echo "";
+}
+myfun #来调用不要()
+
+
+exit 1
+^&匹配空行
+正则   \{\}  对{}转义
+
+find -print -exec 命令 -ok 命令(会提示是否执行)
+
+find 目录 -name '*.txt' -print
+find 目录 -perm 755 -print
+find 目录 -nouser
+find /var -mtime -5 -print  修改时间 5天以内的
+find /var -newer "myfile" 比myfile新的    !-newer   要旧的
+
+-size +10M(K)  大于
+
+find /var -type -f -exec ls -l {} \;  ##{} \;必须要用当用-exec时,{}后要有空格 
+
+
+xars 命令   经常与find命令一起用,当参数列溢出
+find ./ -perm -7 -print | xargs chomd o-w
+-perm -7是-777,可-007  0表示忽略,   也可 /007  ,/u+x
+
+ 
+find ./ -name '*.txt' -type f -print|  xargs  cat -n  | grep   payType=\'00\'
+
+grep "2008-20:5[0-9]" file1 #[0-9]正则
+fgrep  快迅  -n显示内容和行号,-i不区分大小写,-v xx 不显示xx,
+egrep 正则
+
+^[^201] 开头不是201的
+[[:upper:]]===[A-Z]
+[[:alnum:]]===[0-9a-zA-Z]
+[[:lower:]]===[a-z]
+[[:space:]]=== 空格或TAB
+[[:digit:]]===[0-9]
+[[:alpha:]]===[a-zA-Z]
+
+
+
+awk -F: '{print $1,$6}' /etc/passwd
+awk -F: '{print $1"\t"$6}' /etc/passwd
+以 :分隔的(-F\t),第1列,第6列,$0所有列
+
+awk -f 脚本文件 输入文件
+awk -F: 'BEGIN {print "页头"}{print $1"\t"$4} END {print "页脚"}' /etc/passwd
+
++,?, ~匹配,!~不匹配
+cat sore.txt | awk '$0 ~/192.168.1.1/'  所有匹配为192.168.1.1 的记录
+awk '$0 ~/192.168.1.1/' sore.txt
+ 
+awk '{if($1=="192.168.1.1") print $0}' file.txt   ###!=
+awk -F',' '{if($3>="2015-05-01") print $0}' csv.txt  所有匹配第3例为 大于等于2015-05-01的记录
+
+---------
+
+sed -n '20p'     /var/log/messages    显示20行
+sed -n '1,4p'    /var/log/messages     1-4行
+sed -n '/log/p'  /var/log/messages     匹配log
+sed -n '2,/log/p'  /var/log/messages  从第二行开始到 匹配log 时结束
+sed -n '/^$/='  /var/log/messages     显示空行的行号
+sed -n -e '/^$/=' -e '/^$/p' /var/log/messages     显示空行的行号,和内容
+sed -n '1,2d'  /var/log/messages    不显示第一行,第二行
+
+sed -n '/log/p'  /var/log/messages     匹配log
+    支持 [5-9]
+
+
+sed -n '/^2011-01-06 11:[0-9]/p'  console.log   | more
+
+
+
+
+
+
+显示第20行  $p最后一行
+-n 不打印未匹配的
+p 打印
+= 文件行号
+
+
+
+
+
+
+
+
+
+
+
+sort  
+-t  健全符
+-r 返排
+sort -t "/" +2n mfyile  以 /分隔,第三列当数字来排序
+
+
+uniq   -u 显示不重复,-d只显示重复的一行,-c重复的行数只相邻的(sort后),-f n ,前n个域忽略
+join  命令
+cut 命令
+	-d 分隔符(默认是tab),-f3 第3列,可以-f2-5(第2-5列)
+paste 命令
+
+head 文件 ,显示文件头部
+cd -
+
+============================
+
+
+函数传参
+myfun()
+{
+	ehcho $1
+	return 2
+}
+myfun 11
+. 文件名   #点后有空格,表示包含文件
+
+set 可以查看变量和函数的信息
+unset 函数名  
+$? 获得上一次函数的返回值,不可以赋值  
+
+
+==========
+
+shift  实现传参数多于9个
+
+#!/bin/bash
+usage()
+{
+        echo "usage: `basename $0` filename"
+}
+totalline=0
+if [ $# -lt 2 ];then
+        usage
+	exit            ##退出
+fi
+while [ $# -ne 0 ]
+do
+        line=`cat $1 | wc -l`
+        echo "$1 :${line}"
+        totalline=$[ $totalline+$line  ]
+        shift
+done
+echo "-----------"
+echo "total: ${totalline}"
+
+
+
+
+getopts
+
+while getopts ahfvc: OPTION   ###-a -h  或者-ah ,(:表示有值的-c 123,如-c=33,值是=33)
+do
+	case $OPTION in
+		a)
+			echo "a"
+		;;
+		h)
+			echo "h"
+		;;
+		c)
+			x=$OPTARG        ##得到参数的值
+			echo "$x"
+		;;
+		\?)			##对没有给值的处理
+			echo "没有得到值 -c "
+		;;
+	esac
+done
+
+*) 匹配所有的
+a | b) #可以用 |,还可以用[]正则
+
+{...} 语句块
+=================
+
+echo "12  ..的访问量是:`awk '{if($1 ~/^12[0-9]/) print $0}' www.log | wc -l`"  ##!~不匹配      www.log文件中第一列如果匹配以12开头加一数字,那么全部显示所有的列
+
+awk内置变量
+ARGC 命令行参数个数
+ARGV 命令行参数排列
+ENVIRON 支持队列中系统环境变量的使用
+FILENAME awk浏览的文件名
+FNR 浏览文件的记录数    对每个文件记录行数
+FS 弃置输入域分隔符,等价于命令行 -F 选项
+NF 浏览记录的域个数
+NR  已读的记录数
+OFS 输出域分隔符    (一般是空格)
+ORS 输出记录分隔符  (一般是换行)
+RS  控制记录分隔符 
+
+
+awk -F '#' '${print NF ,NR,ENVIRON[''USER],$0,FILENAME,ARGC,ARGV["0"]}' filename.txt
+
+awk的函数
+
+gsub(r,s)  在整个$0中用s,代替r
+gsub(r,s,t)  在整个t（如$2）中用s,代替r
+index(s,t) 返回S字符串的T的第一位置
+length(s) 求长度
+match(s,r)   与index类似
+split(s,a,fs)  用fs 将s  分成数组给a
+sprint(fmt,exp)
+sub(r,s)
+substr(s,p) 返回字符串s中从p开始的部分
+substr(s,p,n)返回字符串s中从p开始长度为n的部分
+
+echo 'CBS_PUBTRANDEF_201213.dat'  | cut -d "_" -f3  | cut -d . -f1 
+expr substr 'CBS_PUBTRANDEF_201213.dat' 16 6
+
+echo ${str:3:(3)}  格式 ${str:begin:len}
+
+awk -F "#" '{if(gsub("#","||")) print $0}'
+
+＼b　退格
+＼f　翻页
+\t
+\n　
+\r回车
+
+printf "%d" ,$1 
+%c  ASCii
+%s 字符串
+%d　整
+%f  浮点数
+%e　科学计数法
+
+
+
+ awk -F# '{printf "%d\t%f\n",$1,$1}' test.txt
+
+awk 'BEGIN {split("aa#bb#cc",arr,"#");print arr[1]}'   #显示aa,１是第一位,或用
+awk 'BEGIN {{split("aa#bb#cc",arr,"#")}{print arr[1]}}' 
+
+
+#!/bin/awk -f
+#文件(awktest.txt)格式为　	45#senior
+#				64#junior
+# 运行方式为　./awktest.sh awktest.txt　因为有！声明
+BEGIN{			#在{前不要有空格
+	FS="#"		 #分隔符
+	score["0-60"]=0  #score数组
+	score["60-70"]=0 
+	student["junior"]=0
+	student["senior"]=0
+}
+{
+	{
+	if($1<60)
+	score["0-60"]++
+	}
+	{
+	if(S1>60 && $1<70)
+	score["60-70"]++
+	}
+	
+}
+{
+	for(var in student)
+	{
+		if($2==var)
+		student[var]++
+	}
+}
+
+END{　				#在{前不要有空格
+{for (number in score) print "分数在" ,number,"范围的有",score[number],"个学生"}
+{for (var in student) print "班里有",student[var],"个",var,"学生"}
+}
+
+currentdate=`date %Y-%m-%d`
+cat <<EOF
+	date: $currentdate
+	======welcom======
+	1.do something
+	2.exit
+	==================
+EOF
+
+
+
+clear　清屏
+
+date %T 同(Date %H:%M:%S)
+
+date +"%Y-%m-%d %H:%M:%S" 
+ 
+if [! -f $logfile]  如果文件不存在
+
+
+
+kill -l 列出所有的信号
+1) SIGHUP ##1是值,SIGHUP名称
+2) SIGINT  #ctrl +C
+3) SIGQUIT
+9) SIGKILL
+11)SIGSEGV
+15)SIGTERM
+
+exit 发送0信号,ctrl+D
+
+
+kill -s SIGKILL (PID)
+kill -s SIGHUP (PID)
+
+kill -1 (PID)会杀子进程 
+
+
+trap 'fun' 2 3 ##捕获2 3 信号,如捕获到做 fun所定义的函数,#如发出信号 4 系统处理
+
+exit 1 退出
+
+trap -l 显示信号关系名称,使用时要省略SIG前缀,如SIGHUP要使用HUP
+
+
+myfile="cat cmd.txt";`eval $myfile`  # cmd.txt 里有一个ls命令
+syslog  服务,写日志
+logger 向 /var/log/message 发送信息
+logger -p 优先级    信息  
+
+
+
+runlevel   
+ctrl +alt+FN
+
+find -type d #全部的目录
+sed "s/^${srcdir}/${destdir}/g"  filename.txt  #正则
+
+diff  文件22　文件2　##   比较差别
+
+
+
+
+. 文件名##导入文件，点后要有空格
+stty -echo 不显示输入的符，像输入密码
+stty echo 取消不显设置
+
+stty `stty -g`
+savestty=`stty -g`
+stty $savestty
+
+
+
+su - zhaojin 会使用zhaojin用户的环境变量,而不是使用当前用户
+
+ls -t 是按修改时排序 -r 反向
+ls -rlth *.zip | awk '{ printf "unzip -d ./all_unzip %s\n",$8;}' | head -n 10 | /bin/bash
+
+
+xargs 将管道前面的东西变成参数 扔给后面的unzip
+
+declare -a name  这样就声明了一个name数组
+数组
+name=([0]=BeiJing [1]=GuangZhou [2]=ShenZhen)
+或
+name=(BeiJing GuangZhou ShenZhen)
+echo ${name[0]}
+echo ${name[*]},echo ${name[@]} #代指所有数组元素
+echo ${#name[@]}  #数组长度
+
+
+
+
+
+#/bin/bash
+declare -a zipfile
+zipfile=(`ls -t  *.zip`) #-t  按修改时间排序
+len=${#zipfile[@]}
+#echo ${len};  #40
+#for i in ${zipfile[@]}  
+# do
+#    echo $i
+#done
+#或者用
+i=11
+for((;i<21;i++))  #要两(( 可能对<符号
+do
+#       echo ${zipfile[i]}
+        unzip  ${zipfile[${i}]} -d ./all_unzip/
+done
+
+提示时A是覆盖所有的
+
+
+
+eval 
+printf
+
+$(ls *.rpm)
+
+expr 相当于$(( ))
+`` 相当于$()
+: 相当于 true
+[ ] 相当于 test
+语句块 {}
+exec xxx "yy"
+exec  3<file 向文件描述符输
+
+ 
+grep -E [a-z]\{10\} xx.txt    -E 扩展的有？，* ，+ {n},{n,},{n,m}
+grep a[[:blank]] yy.txt
+
+
+ed 文件名<<EOF
+>vi命令
+
+sh -n xxx 或者　set -o  noexec set -n 只检查错误，不执行
+sh -v xxx 或者　set -o  verbose set -v 执行之前显
+sh -x xxx 或者　set -o  xtrace set -x 处理后之后显示
+	
+		set -o nounset set -u 如使用未定义变量，就错误
+
+		+o　取消设置
+		set -o xtrace 打开
+		set +o xtrace 关闭　　　echo $PS4
+
+dialog --msgbox "hello" 9 18  ##(高，宽)
+dialog --title "confirm" --yesno "Are you willing to take part ?" 9 18
+if [ $? != 0 ] ; then
+        dialog --infobox "OK" 5 20
+        sleep 2
+        dialog --clear
+        exit 0
+fi
+
+
+
+
+
+----------Shell的调试
+
+使用debug开关
+	if [ "$DEBUG" = "true" ]; then
+	echo "debugging"  #此处可以输出调试信息
+	fi
+
+ 
+-c 选项使shell解释器从一个字符串中而不是从一个文件中读取并执行shell命令。
+sh -c 'a=1;b=2;let c=$a+$b;echo "c=$c"' 
+
+-x 进入跟踪方式，显示所执行的每一条命令 前面有“+”号的行是shell脚本实际执行的命令,前面有“++”号的行是执行trap机制中指定的命令
+sh -x xx.sh 
+在脚本中可  "set -参数"表示启用某选项，"set +参数"表示关闭某选项
+set -x　　#启动"-x"选项 
+set +x　　#关闭"-x"选项
+
+
+
+trap 'command' signal  ##当signal信号发生时,执行command
+
+shell脚本在执行时,会产生三个伪信号(是由shell产生的)
+EXIT	从一个函数中退出或整个脚本执行完毕
+ERR	当一条命令返回非零状态时(代表命令执行不成功)
+DEBUG	脚本中每一条命令执行之前
+
+trap 'command' EXIT　或　trap 'command' 0
+
+
+$LINENO是一个shell的内置变量，代表shell脚本的当前行号,类似于C语言中的内置宏__LINE__ 
+--示例
+ERRTRAP()
+{
+	echo "file: $0 [LINE:$1] Error: Command or function exited with status $?"
+}
+trap 'ERRTRAP $LINENO' ERR
+ 
+---- 示例
+trap 'echo “before execute line:$LINENO, a=$a,b=$b,c=$c”' DEBUG  	跟踪变量
+a=1
+if [ "$a" -eq 1 ]
+then
+  b=2
+else
+  b=1
+fi
+c=3
+echo "end"
+---
+
+tee 命令
+
+ipaddr=`/sbin/ifconfig | grep 'inet addr:' | grep -v '127.0.0.1'| cut -d : -f3 | awk '{print $1}'` 
+ipaddr=`/sbin/ifconfig | grep 'inet addr:' | grep -v '127.0.0.1'| tee temp.txt | cut -d : -f3 | awk '{print $1}'`
+
+ipaddr=`/sbin/ifconfig -a| grep 'inet' | grep -v '127.0.0.1'| cut -d \  -f2`   ##solaris
+
+echo aa:bb:cc:dd |cut -d : -f3 ##输出cc
+echo aa bb cc dd |cut -d \  -f3 ##输出cc 空格用\加一空格
+
+tar -tf bashdb-0.8.tbz | xargs rm -f
+
+$FUNCNAME    它是一个数组变量，其中包含了整个调用链上所有的函数的名字,类似于C语言中的内置宏__func__ 只能代表当前所在的函数名,
+${FUNCNAME[0]} 代表shell脚本当前正在执行的函数的名字，而变量${FUNCNAME[1]}则代表调用函数${FUNCNAME[0]}的函数的名字
+calc()
+{
+	echo  $FUNCNAME
+	echo ${FUNCNAME[0]}
+	echo ${FUNCNAME[1]}
+	echo ${FUNCNAME[2]}
+}
+test123()
+{
+  calc
+}
+test456()
+{
+	test123
+}
+test456
+
+执行结果显示 
+calc
+calc
+test123
+test456
+
+
+
+
+$PS4 的值将被显示在“-x”选项输出的每一条命令的前面 , 在Bash Shell中，缺省的$PS4的值是"+"号
+export PS4='+{$LINENO:${FUNCNAME[0]}}',
+
+
+echo "BASH_SOURCE=${BASH_SOURCE}"    执行的.sh文件名,
+echo "BASH_SUBSHELL=${BASH_SUBSHELL}"   是0,子级shell的层次	
+( echo "BASH_SUBSHELL=${BASH_SUBSHELL}" ) 是1,
+
+
+-----bashdb-4.2-0.8 工具调试 
+http://bashdb.sourceforge.net/
+./configure 
+make 
+make install
+
+bashdb xx.sh
+>help 帮助
+>help list
+>l 	(list) 列出下10行的脚本
+>list . 	显示当前执行脚本
+>list 30 	显示第30行附近的脚本
+>n 			(next)执行下一条
+>kill -QUIT	发送QUI信号, kill -l 所有可用的信号 
+>n 3		(next)执行3条,
+>s 			(step)进入执行
+>q 			(quit)退出
+>b 11		(break)在11行处设置断点,可看到断点号
+>break abc	在方法abc处设置断点
+>del 3  	(delete)删断点号为3的断点
+>del 		(delete)删断所有断点
+>print $a 	看变量a的值
+>c 			一直执行到下一个断点
+>c 11 		一直执行到11行处
+>R 			 重新启动
+>x  a b		(examine) 是否变量a和b有声明,值是多少
+>skip  		一次的next不运行
+>skip  2 	2次的next不运行
+>watch a 	监控变量a的值,如有变化,显示
+>watch		提示删所有监控变量
+>watche a	查看变量a,eval方式
+>finish 	执行到程序最后
+>return
+#>cond n expr 条件断点
+
+
+#如何跳出?,
+
+----------
+
+--开机启动Oracle 的脚本看 dbstart
+--使用了 <<EOF 在后面就不能函数方式
+sqlplus /nolog <<EOF
+conn / as sysdba
+startup
+EOF
+
+
+-----FTP下载文件示例
+#/usr/bin/bash
+
+ftpIP=10.1.2.88
+ftpUser=zh
+ftpPass=abs
+ftpRootDir=/
+downloadDir=/zh
+
+cd $downloadDir
+
+echo "begin connect FTP ${ftpIP}"
+/usr/bin/ftp -n $ftpIP <<EOF
+user $ftpUser $ftpPass
+!echo "connect FTP ${ftpIP} done"
+
+cd $ftpRootDir
+!echo "change dir ${ftpRootDir}"
+
+!today=`date +"%Y%m%d"`
+!echo "today is ${today}"   ####  取不到值 怎么办呢
+
+get "CBS_PUBTRANDEF_${today}.dat"
+!echo "ftp download file ${ftpRootDir}/CBS_PUBTRANDEF_${today}.dat to dir ${downloadDir} completed "
+
+get "CBS_PUBTRANDEF_${today}.ind"
+!echo "ftp download file ${ftpRootDir}/CBS_PUBTRANDEF_${today}.ind to dir ${downloadDir} completed "
+
+EOF
+----- #这样可以取到???
+ftp -n 10.1.2.88  <<EOF
+user zh abs
+!today=`date +"%Y%m%d"`
+!echo "today is ${today} "
+EOF
+ 
+------------
+
+<<EOF的形式,不能输入密码,像scp命令必须手工输密码,批量脚本写密码是不行的
+
+echo "abcABC" | tr "[:lower:]" "[:upper:]"  把小写转大写
+
+cat db.sql  | tr a-z A-Z > DB.SQL
+cat db.sql  | tr [:lower:] [:upper:] > DB.SQL
+
+
+
+
+# 批量文件重命名,*.txt -> *.log
+find . -name "*.txt"  -type f |while  read file
+do
+	mv $file $(echo $file|sed s/txt$/log/g)
+done
+
+# 批量替换所有文件中的内容
+sed -i "s/1030/1031/g" `grep 1030 -rl ./*.log`
+
+
+
+
+
+
+
+
+

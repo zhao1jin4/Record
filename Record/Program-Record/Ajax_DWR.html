@@ -1,0 +1,429 @@
+
+<SCRIPT LANGUAGE="JavaScript">
+
+属性
+	onreadystatechange//属性为只写,其它属性为只读
+	readState		
+		0未初始化
+		1初始化
+		2发送数据
+		3数据传送中
+		4传送完成
+	responseBody    //将回应信息正文以unsinged byte 数组形式返回
+	responseStream
+	responseText
+	responseXML
+	status			//404 ,500,503
+	statusText
+方法
+	abort   取消当前请求
+	getAllResponseHeaders
+	getResponseHeader
+	open("GET","test.jsp",false);
+	send(null);
+	setRequestHeader
+
+POST 方式
+	open("POST","test.jsp",false);//要用send加参数 ,第三参数是否异步,false同步
+	setRequestHeader("Content-Type","application/x-www-form-urlencoded")//open方法后 调用   
+	send("key1=value1&key2=value2");
+
+//示例1
+if(window.XMLHttpRequest) //Mozilla,firefox,opera,safari,IE7,IE8 浏览器
+{ 
+	http_request = new XMLHttpRequest();
+	if (http_request.overrideMimeType)
+	{
+		http_request.overrideMimeType('text/xml');//设置MiME类别
+	}
+}
+else if (window.ActiveXObject) // IE浏览器
+{ 
+	try 
+	{
+		http_request = new ActiveXObject("Msxml2.XMLHTTP");//IE6.0
+			//new ActiveXObject("Msxml2.XMLHTTP");//慎用
+	} catch (e) 
+	{
+		try 
+		{
+			http_request = new ActiveXObject("Microsoft.XMLHTTP"); //IE5.5
+		} catch (e) {}
+	}
+}
+//示例2
+function createXmlHttp()
+{
+	if (window.XMLHttpRequest)
+	{
+	  xmlHttp=new XMLHttpRequest();// code for IE7, Firefox, Opera, etc.
+	}
+	else if (window.ActiveXObject)
+	{
+	  xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");// code for IE6, IE5
+	}
+	if (xmlHttp==null)
+	{
+		  alert("Your browser does not support XMLHTTP.");
+	}
+	return xmlHttp;
+}
+function ajaxJSONRequest()//OK
+{
+	var xmlHttp=createXmlHttp();
+	xmlHttp.onreadystatechange=function()
+	{
+		if(xmlHttp.readyState!=4) 
+			return;
+		if(xmlHttp.status!=200)
+		{
+			alert("error:"+xmlHttp.statusText);
+		 	return;
+		}
+		alert("success:"+xmlHttp.responseText);
+	}
+	xmlHttp.open("POST", root+"/json/queryEmployeeVO.mvc", false);//是否异步,true 异步,false同步
+	xmlHttp.setRequestHeader("Content-Type","application/json;charset=UTF-8");//请求是JSON 
+	xmlHttp.send('{"employee_id":123,"first_name":"李四"}');
+}
+
+function getXML()
+{
+	var xmlHttp=createXmlHttp();
+	xmlHttp.onreadystatechange=function() //在send之前
+	{
+			if(xmlHttp.readyState!=4) return;
+			if(xmlHttp.status!=200)
+			{
+				alert("Problem retrieving XML data");
+			 	return;
+			}
+
+			/*
+			//---firefox OK， <?xml　和　response.setContentType("text/xml;charset=UTF-8");　　都可有可无
+			var doc=xmlHttp.responseXML.documentElement;//IE 一定不能有<?xml，也 OK
+			var status=doc.getElementsByTagName("status");
+			alert(status[0].textContent);//firefox是textContent
+			*/
+
+
+
+			//----IE 测试OK  一定不能有<?xml . 要服务端一定要有　response.setContentType("text/xml;charset=UTF-8");
+			var objXml=xmlHttp.responseXML;
+			//objXml.childNodes[0].firstChild.textContent;//firefox 是的结果是OK
+			//objXml.getElementsByTagName("status")[0].textContent;//firefox 是的结果是OK
+			//objXml.childNodes[0].firstChild.text;//IE的结果是OK
+			//objXml.getElementsByTagName("status")[0].text;//IE的结果是OK
+
+
+			var xmlDoc;
+			if (window.ActiveXObject)
+			  xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+			else if (document.implementation.createDocument)
+			  xmlDoc=document.implementation.createDocument("","",null);
+			else
+			  alert('Your browser cannot handle this script');
+			xmlDoc.async=false;
+			xmlDoc.load(objXml); //xmlDoc有一个parseError.reason属性
+			alert(xmlDoc.getElementsByTagName("status")[0]);
+			//.getAttribute("id");
+			var status=xmlDoc.getElementsByTagName("status")[0].text;//IE 是text属性
+						
+	};	
+
+
+	/*
+	//firefox true is OK,false not work
+	//IE true,false OK,
+	xmlHttp.open("GET", "xmlServlet?username="+encodeURI(encodeURI('李')), true);//是否异步,true 异步,false同步
+	xmlHttp.send(null);//GET 用null  发送
+	*/
+	
+	xmlHttp.open("POST", "xmlServlet", true);//是否异步,true 异步,false同步
+	xmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded");//open方法后 调用
+	xmlHttp.send("username="+encodeURI(encodeURI('李')));
+}
+//如果返回的XML文件中属性，JS使用 getAttribute("id")
+
+//-------java  DOM4j
+String username=req.getParameter("username");
+System.out.println("username:"+URLDecoder.decode(username,"UTF-8"));
+
+Document document = DocumentHelper.createDocument();
+Element root = document.addElement("root");
+Element status=root.addElement("status");
+Element desc=root.addElement("description");
+status.addText("OK");
+desc.addText(URLEncoder.encode("中文","UTF-8"));
+//desc.addAttribute("id","1");
+OutputFormat xmlFormat = new OutputFormat();  
+xmlFormat.setEncoding("UTF-8");  
+XMLWriter xmlWriter;
+xmlWriter = new XMLWriter(resp.getWriter(),xmlFormat);
+xmlWriter.write(document);  
+xmlWriter.close(); 
+//-------java
+
+//中文OK
+<root><status>OK</status><description>%E4%B8%AD%E6%96%87</description></root>
+
+
+
+
+
+//请求后
+xmlhttp.getResponseHeader('Last-Modified');
+
+JS解析XML  ,看JavaScript笔记中
+// java 代码 response.setContentType("text/xml;charset=utf-8")
+
+nodeType == 1 是ELEMENT
+（节点1）parNode.insertBefore(tbody（要加的节点）,parNode（哪个的节点的前面）.firstChild); 
+
+
+</SCRIPT>
+
+
+
+var text = (new XMLSerializer()).serializeToString(element)
+XML 文档或 Node 对象转化或“序列化”为未解析的 XML 标记的一个字符串。
+IE 不支持 XMLSerializer 对象
+
+
+-------------------------DWR
+	<servlet>
+		<servlet-name>DWRServlet</servlet-name>
+		<servlet-class>org.directwebremoting.servlet.DwrServlet</servlet-class>
+		<init-param> 
+		   <param-name>debug</param-name> 
+		   <param-value>true</param-value> 
+		 </init-param> 
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>DWRServlet</servlet-name>
+		<url-pattern>/dwr/*</url-pattern>
+	</servlet-mapping>
+
+默认会读/WEB-INF/dwr.xml
+http://127.0.0.1:8080/<project>/dwr/  会有测试界面,复制类似下面的代码
+  <script type='text/javascript' src='/[project]/dwr/interface/[javascript=].js'></script>
+  <script type='text/javascript' src='/[project]/dwr/engine.js'></script>
+
+In addition there is an optional utility script:
+
+  <script type='text/javascript' src='/EXTdwrSpring/dwr/util.js'></script>
+
+dwr.util.setValue("id","value",escapeHtml:true});防止用户在表单中输入HTML标签
+
+
+$("myid") 和document.getElementById("myid") 相同
+
+
+<allow>
+	<create creator="new" javascript="JS">
+	<param name="class" value=   "com.dwr.TestClass"   />
+		<exclude method="..." />
+		<include method="..." />
+
+	<convert match="com.nine.vo.Sales" converter="bean">
+		<!-- 
+		<param name="include" value="id"/>
+		<param name="include" value="name"/>
+		 -->
+	</convert>
+
+<create javascript="jsuser" creator="new"> 
+	 <filter class="org.zhaojin.dwr.MyDWRFilter">
+   		 	<param name="myValue" value="Filter值 "></param>
+	 </filter>
+	<!-- 实现 org.directwebremoting.AjaxFilter 接口的类,creator="new/spring" 都可以的
+		对类的一次方法调用,只会执行一次 Filter(只去,无回),myValue有 getter/setter
+	-->
+
+
+<signatures>  标签是用来声明  java  方法中  List  、  Set  或者  Map  参数所包含的确切类
+  <signatures>
+<![CDATA[
+import java.util.List;
+import com.dwr.TestClass;
+import com.dwr.TestBean;
+TestClass.testMethod7(List<TestBean>);
+]]>
+</signatures> 
+
+
+----DWR与spring 
+ <create javascript="springUser" creator="spring">  
+      <param name="beanName" value="user"></param>  
+      <!-- 指定Spring配置文件的位置，如果没设置DWR会根据web.xml找到主配置文件，配置了只在classpath中找 -->  
+      <param name="location" value="applicationContext.xml"></param>  
+ </create> 
+
+ <bean id="user"  />
+
+
+
+
+
+
+DWR @ 要在web.xml 中初始化---OK
+
+<init-param>
+	<param-name>classes</param-name>
+	<param-value>org.zhaojin.service.DWRService,org.zhaojin.vo.Student</param-value>
+</init-param>
+内部类使用$ ,如java.util.Map$Entry
+这样的话项目中的dwr.xml对于这个例子就没有作用了 
+
+
+org.directremoting.dwr.xml 中有"bean" 对应的类名	org.directwebremoting.convert.BeanConverter
+								"new"				org.directwebremoting.create.NewCreator
+								"spring"			org.directwebremoting.spring.SpringCreator
+
+
+@RemoteProxy(creator=SpringCreator.class, name="dwrService" ,
+			creatorParams = {@Param(name = "beanName", value = "dwrService"),
+							@Param(name="location",value="applicationContext.xml")//classpath 中找
+							}
+			)
+
+业务方法中
+@RemoteMethod //没有被@RemoteMethod标注的方法不能被远程访问
+--
+@DataTransferObject
+实体中
+ @RemoteProperty 可放在属性前,方法前
+
+--OK
+// 有myValue set/getter 方法
+@GlobalFilter(params={@Param(name = "myValue", value = "helloFilter值")}) 
+public class MyDWRFilter implements AjaxFilter
+
+
+
+
+Remote.method(params,
+	{ callback:function(data) { alert("it worked"); },
+	  errorHandler:function(message) { alert("it broke"); }, 
+	 timeout:1000 
+	});
+
+
+
+
+DWREngine.beginBatch(); 
+Remote.methodInBatch1(params, callback1); 
+Remote.methodInBatch2(params, callback2); 
+DWREngine.endBatch({ timeout:3000 });
+//-------对调用顺序有要求的
+DWREngine.setOrdered(boolean)
+
+DWR调用之前出现一个提示
+些按钮在调用期间变灰来防止被再次使
+DWREngine.setPreHook(before) ;
+DWREngine.setPostHook(after);
+
+也可加再回调中
+errorHandler:inError,
+preHook:before,
+postHook:after
+
+
+
+
+
+?????????????????????????????????????????????????????????????
+org.directwebremoting.fluent.FluentConfigurator 是抽像类有 configure()方法
+也不用写dwr.xml文件了
+
+		withConverterType("bean", "	org.directwebremoting.convert.BeanConverter");
+		withCreatorType("new", "org.directwebremoting.create.NewCreator");
+		withCreatorType("spring", "rg.directwebremoting.spring.SpringCreator");
+		 
+		   withCreator("new", "ApartmentDAO")
+		       .addParam("scope", session)
+		       .addParam("class", "com.yourcompany.dao.ApartmentDAO")
+		       .exclude("saveApartment")
+		       .withAuth("method", "role");//<auth method="" role="" /> 
+		 
+		   withCreator("spring", "DogDAO")
+		       .addParam("clas", "com.yourcompany.dao.DogDAO")
+		       .include("getDog")
+		       .include("getColor");
+		   withConverter("dog", "*.Dog")
+		       .addParam("name", "value");
+		   withSignature()
+		       .addLine("import java.util.List;")
+		       .addLine("import com.example.Check;")
+		       .addLine("Check.setLotteryResults(List nos);");
+
+
+<auth method="" role="" />   有了,好像就不用include了
+The auth element allows you to specify a J2EE role level for further access control checking:
+像是和web.xml 中	
+<security-role>
+	<description>test</description>
+	<role-name>mytestrole</role-name>
+</security-role>
+
+
+
+
+-----DWR　reverse ajax ,反向ajax,服务器推的方式
+import org.directwebremoting.ServerContext;
+import org.directwebremoting.ServerContextFactory;
+import org.directwebremoting.WebContextFactory;
+import org.directwebremoting.proxy.dwr.Util;
+
+
+ServletContext servletContext = WebContextFactory.get().getServletContext();
+ServerContext  sctx = ServerContextFactory.get(servletContext);
+Collection<?> sessions = sctx.getScriptSessionsByPage("/reverse/");   //项目名
+Util pages = new Util(sessions);
+pages.addFunctionCall("changeOptions", getAllTickets()); //JavaScript方法changeOptions,第二个是参数
+
+
+  <body onload="dwr.engine.setActiveReverseAjax(true);">
+
+可以实例DWR reverse Ajax,一个客户端向服务器发改变数据,服务器向所有的客户端发改变数据,并调用JS方法来更新
+
+------
+
+DWR 同步传输　JS页面中加入
+DWREngine.setAsync(false); 
+
+-----------------------------上DWR
+
+MicroSoft script debug
+工具->internet选项->高级->禁用脚本调试  生启IE，后查看菜单多一个项
+
+使用IE 8 在JS中写debugger; F12  start debugging	  按钮就可以了
+
+苹果机中用   DWR
+defaults write com.apple.Safari IncludeDebugMenu 1
+可以显示 safari的debug菜单->打开"Log Javascript Exceptions" 
+
+window.onerror=function()
+		{
+		alert("error");
+		}
+
+try
+{
+}catch(exception)
+{
+	var str="";
+	for (var i in exception)
+		str+=i+":"+exception[i]+"\n";
+	alert(str);
+
+}
+
+
+在浏览器中的返回铵钮中加地地址,返回时页面不刷新
+history.pushState({}, "页面标题", "xxx.html");
+
+history.pushState
+history.replaceState

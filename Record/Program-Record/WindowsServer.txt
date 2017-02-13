@@ -1,0 +1,407 @@
+
+server 2008 doc URL
+http://www.microsoft.com/downloadS/details.aspx?familyid=518D870C-FA3E-4F6A-97F5-ACAF31DE6DCE&displaylang=en
+
+------------------------Windows Server 2008
+Software Licensing这个服务，停止它  (会级连SL UI)
+
+安装界面
+启动"Themes”,“Windows Audio”,“Windows Audio Endpoint Builder”并设置为自动
+开始->服务器管理器”命令，单击左侧的“功能”一项之后，在右部区域中单击“添加功能”->勾选“桌面体验”一项
+
+Windows Server 2008 Enterpriese 中安装IIS
+管理工具－＞服务器管理器(或者运行servermanager.msc) ->角色->添加角色->IIS  (里面也有FTP服务)
+user 使用用户登录
+binary 二进制传输
+bype 显示是binary 还是 ascii
+literal pasv 进入被动模式
+
+
+WINDOWS SERVER 2008开启桌面主题不同于WINDOWS SERVER 2003只是开启服务里面的THEMES服务即可，它还需要另外一个设置。具体方法：
+
+1.开启THEMES服务：运行－services.msc －找到Themes服务项，默认是禁用，改为自动。
+
+2.运行服务器管理器：左窗口选择功能－右边点“添加功能”在弹出的“添加功能向导”窗口中拖到最下面，倒数第二项“桌面体验”勾选即进行安装。
+
+3.等安装完毕重启后进入控制面板－个性化－WINDOWS颜色和外观－选择AREO或者WINDOWS VISTA 基本颜色方案即可。
+
+
+
+启用vista主题及areo界面特效
+
+3、关闭IE增强的安全体验
+服务器管理”（”Server Manager”）界面中，打开“配置IE增强的安全设置”（Configure IE ESC）对话框，将针对管理员组和普通用户组的配置都设置成“关闭”（Off）
+
+
+4、去掉登陆密码复杂性限制
+运行"secpol.msc”，打开“本地安全策略”（Local Security Policy）。在窗口的左边部分，选择“账户策略” （Account Policies）> “密码策略”（Password Policy），在右边窗口双击“密码符合复杂性要求”（Password must meet complexity requirements）
+
+5、免除登录时按Ctrl+Alt+Del的限制
+“ 运行”（Run），键入“secpol.msc”，打开“本地安全策略”（Local Security Policy）。在窗口的左边部分，选择“本地策略” （Local Policies）> “安全选项”（Security Options），在右边窗口双击“交互式登录：不需要按Ctrl+Alt+Del”（Interactive logon:Do not require Ctrl+Alt+Del），在弹出的对话框中选择“已启用”（Enabled）
+
+
+6、关闭关机事件跟踪程序
+“gpedit.msc”，打开“组策略编辑器”（Local Group Policy Editor）。在窗口的左边部分，选择“计算机配置”（Computer Configuration） > “管理模板”（Administrative Templates） > “系统”（System），在右边窗口双击“显示关闭事件跟踪程序”（Display Shutdown Event Tracker），在出现的对话框中选择“已禁用”（Disabled），
+
+
+10、如何开启资源管理器中的图片预览功能
+控制面板”（Control Panel），“系统”（System），“高级”（Advanced system settings），选“高级”（Advanced）选项卡，在“性能”（Performance）中点“设置”（Settings），可以看到一项“显示缩略图，而不是图标”（Show thumbnails instead of icons）
+
+
+
+拖动时显示窗口内容　（不是边框）　　右击桌面-》个性化-》windows 颜色和外观-》选择项-》效果...-》打开　拖动时显示窗口内容
+
+----------OK
+
+数据执行保护 (DEP)
+单击打开“系统”->“高级系统设置”->“性能”->“设置”->“数据执行保护”选项卡，
+然后单击“为除下列选定程序之外的所有程序和服务启用 DEP”。
+
+windows server 2008远程桌面->系统属性->远程-> 要选择[只允许带网络身份验证的远程桌面],
+
+仿问windows server2008的远程桌面,xp 端提示    远程计算机需要网络级身份验证,而您的计算机不支持该验证
+定位到以下注册表键值：HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Lsa，双击右侧Security Packages，打开编辑多字符串对话框，在列表中添加 tspkg 。
+
+定位到以下注册表键值：
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders，双击右侧的SecurityProviders，打开编辑字符串对话框，在数值数据框中添加 , credssp.dll ，注意逗号后有一个英文的空格。
+
+
+注意:xp仿问远程server2008远程桌面时,用户名中不要输入主机名，直接使用用户名
+
+
+server2008企业版30天试用版只可一个administrator 登录,不可同进两人用，
+制面板 ->管理工具 -> 终端服务（Terminal Services）-> 终端服务配置->RDP-tcp 点右键-> 属性-> 网络适配器（Network Adapter）标签 -> 修改 最大连接数 
+制面板 ->管理工具 -> 终端服务（Terminal Services）-> 终端服务配置->编辑设置栏中->可双击[限制每个用户只能进行一个会话]->取消选择它
+
+
+ping 不通server2008/server2003，是因为防火墙的原因
+
+--------------------上---windows Server 2008做桌面
+windows 安装中文,控制面板->Regional and language Options ->Languages标签,选中Install file for East Asian languages ,要使用第一张光盘
+Advance 标签选China RPC,选中Apply all setting to the current user account and to the default user profile  ,可以只选择Big5和GB2312其它的可不要,
+
+全装太大空间  
+Japanese ,Korean,Greek,MAC Cyrillic,..Romania,UKraine,Latin II ,MAC Turkish,Croatia,IBM Turkish 
+IBM Cyrillic,另一 UKraine,Central Europe,Baltic,Nordic,Icelandic,portuguese
+
+
+Region Option标签选Chain RPC ,Location 选择China,
+在加输入法时也是CHina RPC
+
+
+=====================DHCP	winServer 2003
+
+服务器不可提供IP时　，返回NAK包   
+B网中 169.254.0.0 微软买掉的IP,如分配IP失败时  每5分钟重试一次
+服务器端口号是67和68
+
+
+添加/删除windows组件->选网络服务->有DHCP,DNS
+
+DHCP安装后要先[授权],F5后,新建作用域 ,配置IP范围,子网掩码,
+可配置DNS,路由
+再[激活] 刚建的作用域
+
+
+ipconfig /renew 发discover包
+右击->[服务器选项]->配置选项..->选择 路由器,添加IP
+
+
+授权 是一个服务器不可有多个DHCP Server
+
+
+刚新建的 作用域的下一级 ，右击 ->[作用域选项]-> 配置的DNS,Route 只对这个作用域用效，服务器选项是对全部作用域
+
+
+如有两个网段(子网掩码),多个作用域,根据配置的路由器
+
+c:\windows\system32\dhcp\dhcp.mdb文件 是记录分配历史，文件会长时间增长
+关闭服务器，如不能删文件时，用
+jetpack c:\windows\system32\dhcp\dhcp.mdb  c:\windows\system32\dhcp\renamexxxx.mdb  
+好像没改文件名，看大小
+
+其它文件 J50.log 日志文件 ,Dhcp.tmp临时文件 ,J50.chk检查点文件 
+
+备份...->只是备份配置而已,停服务器,也停止服务(net stop),为了防止再分配IP,
+
+
+
+=====================集群	winServer 2003
+要先有DNS
+
+添加/删除windows组件->有DNS
+
+
+安装集群   本地连接->属性中选择->网络负载平衡->安装
+NLB (Network Load Balance),可以 
+
+
+
+有一个集群IP,每台机器有一个IP,可选还有一个管理IP(即双网卡)   
+DNS中新建一个主机记录,为集群IP 加域名, cq   192.168.1.10
+
+nlbmgr 命令打开 [网络负载平衡管理器] ,右击 网络负载平衡群集->新建群集->输入集群IP(192.168.1.10) ,
+完整Internet名字 cq.xxx.com,群集操作模式中 可选单播,多播和路由器有关->[连接] 对话框[主机]栏 输入自己的IP ->连接成员 中 加机器
+IIS 中配置IP时只能选择 (全部未分配),(列表中应该可以看到集群IP)
+
+在另一台机器上nlbmgr ,使用->连接到现存的->输入集群IP->连接->完成
+右击建立的域名->添加主机到集群->[连接] 对话框[主机]栏 输入自己的IP->连接 
+IIS 也是选择 (全部未分配)
+
+
+如集群配置OK 本地连接->属性中选择->网络负载平衡 会自动选中,
+可以 属性查看,最好在nlbmgr中改,如没这项可以 安装...->服务->
+
+
+从机没有DNS解析 ,DNS 右击 SQL(DNS下的)->属性->转发器中,添加IP,是另一台机器的IP
+
+ipconfig /flushdns 清DNS的缓存
+
+上面是NLB群集
+(服务器群集,一定要scsi硬盘 )cluadmin 是群集管理器
+
+
+=====================DNS	winServer 2003
+WINS 是老系统中使用的,将NetBIOS名称解析为IP
+在正向查找区中 已有的域中  右击空白  [新建主机记录]
+
+本地域名服务器->要域名服务器 ->本地域名服务器->xxx.com 域名服务器->本地域名服务器->.... 
+
+1.主要区域
+2.辅助区域,如主区域加主机,辅助区域也加主机
+3.
+
+
+DNS 记录 ,53号端口
+1.SOA(起始授权机构) 定义域中 的哪个名称服务器是授权的名称服务器
+2.NS(名称服务器)
+3.A(主机)  FQDN 到IP的映射
+4.PTR(指针) IP到FQDN
+5.SRV(服务位置) 定位DC 域控制器
+6.MX (邮件)
+
+
+右击域名->属性->区域复制->复选 允许区域复制 ,单选 只允许到下列服务器->加IP(这里有配置域),另一机器IP,(另一方只装DNS)
+右击机器名->属性->两DNS,都加转发器为对方地址,
+就可以ping 通test.com   ,就可以 新建辅助区域  , 这个IP是前面 允许区域复制
+
+
+ 可以新建子域,委派(与子域不同的是可以指定与父域不同的权威服务器) 右击域名->根提示
+
+ipconfig /displaydns
+ipconfig /flushdns
+ipconfig /registerdns
+nslookup
+>set q=mx
+>163.com
+>set q=a
+
+===========域控制器DC   server2003
+要DNS,静态IP 支持,配置正确本机DNS, xx.com要可以ping能才行,
+
+
+dcpromo命令 Active Directory 域服务安装->新的域控制器->在新林中新建域 ->xx.com    
+c:\windows\NTDS目录
+c:\windows\SYSVOL
+目录服务还原模式的密码
+
+安装完成后,会在开始->管理工具->Active Directory用户和计算机
+
+建用户时有 创建Exchange邮箱 的复选 ,在账户标签有[登录时间...]可以拖选
+
+用户配置文件
+	每个用户登录会在c:\Documents and Settings\username目录下生成 用户名文件名,Default User是模板
+	1.本地用户配置文件   存放本机地,如换了机器,以前的个性修改被还原
+	2.漫游用户配置文件	个性修改保存在服务器上
+	3.强制用户配置文件	可以修改,但不保存在服务器上,也不保存本机
+	4.临时用户配置文件	
+
+权限配置时,安全标签->组或者用户->添加..-> 可输入everyone组
+
+系统属性->高级->用户配置文件中的 设置->选择本地用户->复制到->\\hostname\dir\username (username要不存在的目录),点 更改 加用户
+Active Directory 用户和计算机->配置文件 标签->输入\\hostname\dir\username
+管理工具->域控制器安全策略->本地安全策略->用户权限分配->允许本地登录->加用户 
+
+域控制器安全策略　只对本机的域控制器生效
+域安全策略　对整个域生效
+
+
+安全组
+通讯组　邮件使用的
+
+本地域组
+全局组
+通用组
+
+Active Directory用户和计算机　右击->新建->组织单位(OU) 
+可以把Users里的用户直接拖到 组织单位 中
+
+右击 域名->属性->组策略
+建立的组织单位->属性->组策略
+建立的组织单位->委派 ,给其它用户权限
+
+用户加到本地域组,可以使用Active Directory,也可用安装光盘中的win2003\ENT_RTL\I386\ADMINPAK.MSI  
+查看->高级功能
+建立的组织单位->属性->安全->高级->可以删权限
+
+
+
+=============winServer 2003 Exchange Server 2003
+
+Cluster Continuous Replication (CCR) 
+http://cnshgsmbs02.ad4.ad.alcatel.com/exchange/　主机后加exchange　公司的是只可内网登录
+http://cnshgsmbs02.ad4.ad.alcatel.com/public  有的，公用的文件夹
+
+
+
+http://cnshgsmbs02.ad4.ad.alcatel.com/certsrv 没用的
+Outlook Web Access 网页版的Outlook ,使用时internet选项->安全，把安全级别调成中
+http://www.msexchange.org/tutorials/Installing-Configuring-Testing-Exchange-2007-Cluster-Continuous-Replication-Based-Mailbox-Server-Part1.html
+
+
+RFC822 规范
+IMAP4
+DDN专线
+VPN
+文件系统是NTFS
+
+安装,建立域
+安装DNS
+添加组件->应用服务程序->ASP.NET和IIS,IIS中选中NNTP和SMTP
+
+
+本机安装office outlook后,控制面板中会有　[邮件]->[显示配置文件]，可添加... 另一个邮件帐户(必须这里加,弹出帐户设置,才可加第二个exchange帐户,要单选 提示要使用配置文件)
+
+安装exchange 后,域用户属性会多了exchange相关的标签
+创建Active Diretory 用户时，可选　创建exchange邮箱
+
+右击域用户->exchange 任务->创建邮箱
+右击域中的users->新建->联系人 (不是本服务中的)->选中 创建exchange电子邮件地址  
+可以建组
+
+exchange系统管理器中 右击 邮件传递->属性->默认设置->发送邮件大小,收件箱大小,收件人数量 的最大值 
+
+用户属性->exchange 常规->传递限制 (针对某一用户),默认使用全局设置
+
+管理看某用户的邮件,右击用户->属性->exchange高级->邮箱权力,新加一其它用户(本身可没有邮箱),加权限,
+
+[显示配置文件]，可添加...->配置用户名为要看的用户,检查时要输入用户密码,使用新加的来登录
+
+
+新建收件人策略->选中 电子邮件地址->常规标签 输名,可修改...->可按部门查询用户
+	电子邮件(策略)标签->新建一个SMPT 的@xx.com
+把查询用户的 电子邮件地址的SMTP设置为 @xxx.com,还是使用自己的用户
+
+公用文件下,新建一个,右击 建立的文件夹->管理设置->修改权限->加/删用户
+右击新建的文件夹->夹启用邮件,
+
+outlook中 前往->文件夹列表,后显示 公用的文件夹,,可以邮件移至公用文件夹中
+
+
+右击 所有地址列表 ->创建地址列表  ,即outlook通讯溥的 部门,组
+
+SMTP 端口 25
+IMAP4 端口 143  SSL端口 993
+POP3 端口 110  SSL端口 995
+
+
+启动POP3服务,POP3-默认->右击属性->访问 标签->连接... 配置可仿问用户/ 禁止用户 
+
+DNS的MX记录,SMTP
+nslookup命令
+>set type=mx
+
+
+
+====================server2008 DHCP,群集
+512MB minimum for the quorum disk
+
+dcpromo卸载DC时用的,要改系统新的密码
+
+在storage 2003上配置iSCSI	\StorageServer\iSCSI Target\iscsitarget90-x86-3412.exe
+
+HP1安装DNS 
+ 
+HP1,HP2的主机上安装Active Directory域服务 之前要已经安装DNS  (dcpromo依赖于DNS)
+HP1,HP2都安装DHCP -> 依赖于DC -> 依赖于DNS
+
+HP1安装Cluster	 -> 依赖于DC (机器不在域中不能创建cluster)
+
+
+
+
+初始配置任务->自定义此服务器 下的 添加角色 来安装DNS,DHCP
+初始配置任务->自定义此服务器 下的 添加功能->故障转移群集  (有网络负载平衡),两边的机器都要安装
+后就多了一个   开始->管理工具中->故障转移群集管理   HP2机器必须在域中,以域用户登录才有权限 test.com\administrator做用户名
+
+
+
+iSCSI initiator 后设备管理器中的磁盘会多出磁盘(iSCSI software 建立的个数),就可右击磁盘->联机->初始化->格式化(加卷标)，在另一机器只配IP,登录就OK不用初始化....
+
+故障转移群集管理 ->右击建立的cluster->更多操作->配置群集仲裁设置->选择节点和磁盘多数->
+(选择多数节点和文件共享  时没法给机器用户密码??????????)
+
+
+
+不要直接删功能把 [故障转移群集],删了,要先把之前配置的cluster 破坏,但名字还是被占用,管理群集时可以查到,在Active Directory域服务中的computers 把计算机删除
+
+
+如关闭群集,或者断开网线时间长点,不没办法管理群集
+要两边都启动cluster service 的服务(services.msc)才可管理管理群集
+
+
+要在hP2上也dcpromo  ->[选择现有林] 下的  [向现有域添加域控制器]->已有的test.com,安装后HP2上也有DNS服务
+但是这样后就不能用VMware了,因为VMware是不安装在DC的机器上的
+
+
+如两机器都dcpromo,再用dcpromo就无法删除,只能用 强制性的域控降级方法去做，命令为：dcpromo /forceremoval
+
+
+
+仲裁->[选择节点和磁盘多数] 和[多数节点和文件共享] 是可以一半机器坏了,也可以继续,如果磁盘坏了只可一半减一台机器可继续(一半指四舍五入)
+
+1.在见证磁盘保持联机时可以承受的故障节点数为节点数的一半（四舍五入）。例如，在见证磁盘联机时，六个节点的群集可以承受有三个节点出现故障。
+2.在见证磁盘脱机或出现故障时可以承受的故障节点数为节点数的一半（四舍五入）减去一。例如，见证磁盘有故障的六个节点的群集可以承受两 (3-1=2) 个节点故障。
+
+
+
+Storage Area Networks (SANs).
+Serial Attached SCSI (SAS),
+Fibre Channel (FC)
+iSNS (网络存储名称服务　cluster加服务时有) 在iSCSI initiator中
+
+witness		[律]证人	见证
+quorum		法定人数	仲裁
+
+==========windows server 2008 Load Balance
+
+http://technet.microsoft.com/zh-cn/library/cc771300%28WS.10%29.aspx  终端服务网络负载平衡
+必须是域成员
+
+
+“添加角色”->“终端服务”->“下一步”->选中 TS Session Broker 复选框
+
+
+“计算机管理”->“本地用户和组”->“组”->右键单击 Session Directory Computers 组->“属性”->“添加”->“对象类型”->选中“计算机”复选框
+
+“管理工具”->“终端服务”->“终端服务配置”。
+
+
+“添加功能”->“Windows 网络负载平衡”
+
+
+http://technet.microsoft.com/zh-cn/library/cc772418%28WS.10%29.aspx TS 会话 Broker 负载平衡
+
+==========windows server 2008 NFS
+
+控制面板->添加/删除程序->添加/删除windows组件-> Other Network File and Print Services-> Details->Services for NFS-> Details
+选择User Name Mapping, Server for NFS, or Client for NFS-> OK.
+
+
+
+==========windows NLB   做LoadBalance的
+
+
+
+
+

@@ -1,0 +1,139 @@
+
+
+------win 360手机助手
+短信,更新软件后的目录在 X:\360Downloads\Apk
+------win 魔方手机助手
+可以在电脑上升级,下载目录在 C:\Program Files (x86)\魔方工作室\Resources\download\app
+短信
+------
+豌豆荚
+91助手
+360一键Root
+
+=============Android
+华为商店在  老版本在 /HiSpace/application ,新版本在
+360手机助手在   /360downlaod
+firefox到  /download
+碗豆下载目录 /wandoujia/app
+沃商店下载目录 /wostore
+百度商店下载目录/baidu/AppSearch/downloads
+
+金山词霸注册同步到云
+
+备份联系人(android自带功能),NoteEverything
+时钟,日历重设,浏览器收藏夹
+
+QQ 微信 备份聊天记录(复制tencent 目录,再恢复时QQ可以恢复,但微信不行,MicroMsg生成了新的UID)
+
+
+截图  音量减小键和电源键同时按  <手机存储根>/Pictures/Screenhost  目录
+
+去拍照声音,进入/system/media/audio/ui目录,将里面的文件camera_click.ogg 改名或者删掉 ,VideoRecord.ogg 是录像开始,VideoRecordEnd.ogg是录像结束
+去对焦声音  
+------------Anroid app list
+---HuaWei自带 
+文件管理,
+电子邮件,
+日历,
+时钟,备忘录,天气
+音乐,收音机,录音机,搜孤视频播放器
+情景模式,人脸解锁,备份,华为锁屏,蓝牙共享,WLAN热点,
+QQSecurity 安全助手
+WPS Office 可读pdf
+压缩文件查看器(zip)
+---
+搜狗号码通，标记骚扰电话
+高德地图
+腾讯地图
+百度地图
+Google 地图
+丁丁地图生活版
+
+(可查看公交车开到哪了)
+上海公交 
+昆山时时公交
+车来了
+
+Bus365 ,订汽车票
+12306 火车票
+
+QQ
+微信
+易信
+飞信
+么么达
+陌陌
+
+
+床上   
+女人圈
+坏男孩
+
+
+Skype
+FaceBook
+Twitter
+Gtalk
+
+空气卫士
+360手机卫士,市场,二维码,禁用开机启动,禁止仿私有信息
+360云盘 ,下载保存在  yunpa/xxx/<盘上的目录名>
+
+百度五笔
+金山词霸  可离线,也可手机上下载词库
+有道
+
+ 
+WPS  可以打开 pdf,但如果是图片pdf显示不好
+Adobe Reader
+
+Firefox
+Chrome
+
+FlashPlayer-11.1
+SWF Player for Android
+mobo player 可以缩放，但不能平移 x86版 到全屏就不能放大了 http://www.moboplayer.com/
+VPlayer 可以缩放，但不能平移(支持flv,mp4),可播放wmv  没有新版本了
+MoliPlayer   可以缩放，可平移	 不支持android5.1.1
+MX Player (free)  可以缩放，官方介绍可选平移,Display->settings->Control组有复选video pan,Zoom and Pan 双手指平移  http://mx.j2inter.com/
+
+Zip  Droid 可以解压还密码的zip文件
+unrar Pro 
+RootExplorer
+ApkRenamer
+CodeViewer
+NoteEverything 记事
+Wifi万能钥匙,Wifi Master 
+花生地铁wifi
+
+Photoshop Express 3.x 无庶挡图片区域功能
+天天P图
+美颜相机
+美图秀秀
+
+android禁用专家
+快牙
+Bluetooth File Transfer 手机 -> 电脑(要打开共享)
+精简chm阅读器
+AndFTP
+ConnnectBot
+TeamViewer-11 远程桌面控制,公网上只要知道ID和密码就可连接
+CAD快速看图
+
+---在线
+我查查
+
+---
+WP8主题
+CpuInfo
+Increasing Ring
+
+----未知
+去通知声音,禁用通知,推送,闹铃开机,定时关机,禁止应用仿问网络,百度地图监听3G网络自动启动
+
+没有找到可以浏览apk时带软件名和版本,也没有找到win下自动重命名的apk的软件
+
+
+=============iOS
+
+

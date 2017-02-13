@@ -1,0 +1,40 @@
+
+
+Virtual工具栏 , 是理想的,没有阻值
+		Show Basic Family->place Virtual Resistor 电阻
+		show power source family->place DC power source 直流电源
+					>place AC power source 交流电源
+					->place Ground 接地,	任何一个电路都需要接地
+
+Componet工具栏 ,是真实的, Basic->Resistor是电阻,
+			PotentioMeter(电位计, 分压计) 可变电阻, m表示兆,可选择Tolerance误差 5%
+			capacitor是无极性电容,
+			Cap_electrolit 极性电容
+
+右侧的仪表工具中,MuliMeter 万用表, 可测直流,交流,电压,电流
+		Function Generator  信号发生器,
+		WattMeter  瓦特仪
+		Oscilloscope 双通道示波器
+		4 Chinnel Oscilloscope 4 通道示波器
+
+
+
+						
+
+
+
+diode	二极管
+analog  类似物, 相似体
+inductor 感应器
+
+
+
+
+
+
+
+
+
+
+
+

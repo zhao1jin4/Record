@@ -1,0 +1,961 @@
+
+美国代码1
+中国代码86
+印度代码91
+
+Greenwich mean time. 格林威治标准时间, 英国伦敦	
+Beijin 是GMT+8 
+
+UTC/GMT +5.5 印度首都新德里New Delhi	比中国早2小时30分	
+
+UTC/GMT - 5 东部时间(EST)	联合国纽约(New York)美国首都华盛顿(Washington)		
+UTC/GMT - 6 中部时间(CST)	芝加哥(Chicago)
+UTC/GMT - 7 山地时间(MST)	盐湖城(Salt Lake City)
+UTC/GMT - 8 西部时间,即太平洋时间(PST) 洛杉矶(Los Angeles)
+
+华侨是有中国国籍,但居住在外国或在国外长期生活的人 
+
+华裔是有中国血统 ,但是国籍不是中国的人 ,包括是华人的后代(后裔) 
+
+华人是指全世界的拥有中华民族血统的人的总称 , 而不论其目前所拥有的国籍
+ 
+I - 1
+II - 2
+III - 3
+IV - 4
+V - 5
+VI - 6
+VII - 7
+VIII - 8
+IX - 9
+X - 10
+XI - 11
+XII - 12
+
+1米=3市尺   (衣服)
+1市尺=10市寸  (1市尺=33.33厘米)
+1市寸=3.33cm
+
+1英寸=2.54cm (显示器)
+1英尺(ft,呎)=12英寸(in) = 12*2.54cm = 30.48 cm
+1米(m) = 3.2808399 英尺(ft)
+
+1平方 英尺 (呎) = 0.09290304 平方米
+1平方米 =   10.76391044943201 平方 英尺 (呎)
+
+华氏度 = 32 + 摄氏度 * 1.8
+摄氏度 =  ( 华氏度 - 32 ) /  1.8
+
+---会计
+是属于你的，不管在哪个的手上，它都是财产
+不属于你的，就算在你手上也是负债
+资产就是你所拥有得 
+负债就是你欠别人得
+
+资产类账户的			  借方登记增加额，贷方登记减少额  (应收利息)   
+负债类及所有者权益类账户的贷方登记增加额，借方登记减少额  (应付利息)   
+
+个人向银行贷款 ,贷记卡(信用卡),对银行来说是资产类,银行的钱, 银行减少为贷方(所以是贷记卡),个人增加为借方
+个人把钱存银行 ,借记卡,		  ,对银行来说是负债类,个人的钱, 银行增加为借方(所以是借记卡),个人减少为贷方
+
+红字 负数  表示冲销掉错误的
+蓝字 正数  表示更正为正确的
+---会计
+
+局域网段
+172.16.0.1~172.31.255.254
+255.255.0.0
+
+10.0.0.1
+255.0.0.0
+
+http://ip.cn/  查很多地的DNS
+
+上海 DNS
+202.96.199.133   OK
+202.96.209.5     OK
+202.96.209.133   OK
+ 
+------------
+
+windows 2000默认是没有远程连接的功能的
+	添加/删除 Windows 组件 -> 选中“终端服务” -> 详细信息 -> 勾选“启用终端服务”->单选Remote 
+
+录音机
+保为.mp3,在“另存为”对话框中单击“更改”按钮，弹出 “声音选定”对话框，在“格式”框中选择“MPEG Layer-3”即可。
+
+修改默认60秒到350秒 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Applets\Sound Recorder下新建“BufferDeltaSeconds”的“DWORD”值为350
+
+
+1.gpedit.msc(win10 家庭版 没有这个命令)->用户配置->管理模板->任务栏和[开始菜单] ->不保留最近打开的文档的记录(Do not keep history of recently open documents)
+C:\Documents and Settings\Administrator\Recent
+
+
+禁用任务管理器 
+在用户配置->管理模板->系统->CTRL+ALT+DELE选项，在左边找到“删除任务管理器
+
+
+[用户配置]-[管理模板]-[系统]，双击“禁用DOS提示符
+
+
+禁用 gpedit.msc的解决
+你将mmc.exe重新命名为mmc1.exe，然后打开mmc1.exe选择打开msc文件(system32目录下)，就会解锁
+
+
+windows 禁用声音
+禁用客户端发出噪音的设备,该设备在“设备管理器”->“非即插即用设备”里可以找到，不过还需要选择“显示隐藏设备”）。
+net stop beep  
+sc config beep start= disabled
+//把beep服务设置为禁用状态 
+要重启才能生效
+
+
+系统属性->高级->性能->设置->来改虚拟内存大小
+
+
+Wireless Zero Configuration  服务WZC启动才能用无线
+
+可以停止 windows 的服务
+Adobe Acrobat Service
+windows update
+net Limiter 3
+XLService	是Thunder
+VMWare
+
+
+如果要打印，必须启动 Print Spooler 服务
+
+C:\WINDOWS\system32\drivers\etc  里面有services,hosts文件
+
+
+@黑体     //这种以@开头字体的 中文是返向的
+
+
+任务管理器->查看->显示列.. ->PID,虚拟内存,I/O 读取,I/O 写入
+
+ 
+桌面属性->设置->[显示]栏有两个可选择 是对双显示器用的吧
+
+
+开启远程桌面功能：
+在我的电脑上右键，属性》远程选项卡，在启用这台计算机上的远程桌面打勾。
+
+
+
+(一个硬盘 主分区（包括扩展分区）的最大个数是四个)
+xp 只认一个主分区，重启无效的
+
+
+开始->附件->系统工具->任务计划->  ,一定要设置administrator的密码才行
+mmc命令 打开%windir%\system32\taskschd.msc。  是任务计划,
+	[任务计划程序库]安装了很多程序后就会很多,如GoogleUpdate,Adobe Flash Player Updater,可以删除它
+	自定义后[创建基本任务]->提示任务,建后默认状态是"准备就绪",如时间已过可右击->运行,可再运行一次时间过的任务,测试OK
+
+C:\Windows\system32\perfmon.msc 性能监视,默认是监视CPU,加点"+"号,有Memory下选择一些项,新增
+控制面板\系统和安全\管理工具
+
+mmc中的文件->保存,不能保存所有的配置,有些配置是存在dll文件中,如删了就不能恢复了
+
+运行中输入inetmgr就可看到 IIS 的版本
+http://localhost/iishelp 也可看到
+ 
+
+计算器中使用log 如log4(16)=2的过程是  按16->log->/->4->log->=   显示结果2   (4*4=16)
+		是49的0.5次方就是开根号了
+
+win7下单个文件名总长度只截取前230个字符,文件总径也有长度限制,解压时经常见
+
+
+删除windows 保存的用户名和密码,控制面板->用户帐户->高级标签->管理密码 按钮->删除保存的域
+
+pseudo	假的， 冒充的
+
+windows 7 英文版 增加中文的支持,默认是支持中文的文件名,但文件体不支持
+Control Panel\Clock, Language, and Region ->Region and Language-> Administrative 标签->Change System Local...按钮选择 Chinese (Simplified,RPC)
+
+
+
+C:\Users\Public 有测试用的图片,声音,视频
+
+sort->more...->Date created 创建日期(也是复制过来的日期)
+
+基于文件类型 type:  如 type:image,  C:\Windows\winsxs\*usertiles*\usertile*.bmp是用户图标
+基于文件名 name:
+基于文件内容 content:
+基于修改日期 datemodified:
+基于文件大小 size:
+可以在搜索栏中输入   type:"doc" content:"linq"  这里的content如果英文要是以空格分格的单词,中文不必用空格分隔
+
+
+
+win7 有一个 snippingtool 截图工具,StikyNot 便利贴,关闭后再次打开,会记住,但还要记住去打开
+ver 命令　看到windows 7 系统的版本是6.1
+
+
+windows 7 禁用自动播放
+地址栏上 粘贴 控制面板\硬件和声音\自动播放  取消复选[为所有媒体和设备使用自动播放],列表中全部选择[不执行操作]
+
+
+windows 7 对于休眠总是自动重启的情况
+控制面板\硬件和声音\电源选项，对于希望更改的计划单击"更改计划设置"->"更改高级电源设置"。
+展开"睡眠"，展开"允许唤醒计时器"，选择"禁用"（此选择在使用电池和外接电源运行计算机时均适用）
+
+windows 7 显示 休眠  (断电源)
+	控制面板->硬件和声音->电源选项->改变计划设置->更改高级电源设置->展开睡眠->允许混合睡眠 下的两个要全是关闭
+	
+windows 7 资源管理器中显示菜单
+
+1、打开运行，输入mmc，打开控制台；
+2、单击"文件"，然后单击"添加/删除管理单元"；
+3、单击"可用的管理单元"列表中的"组策略对象编辑器"，然后单击"添加"；
+4、在"选择组策略对象"对话框中，单击"浏览"。单击"用户"选项卡，找到你的用户账号，然后确定、完成再确定！
+5、最后在控制台找到 本地计算机\*** 策略，打开 用户配置/管理模块/Windows组件/Windows资源管理器，再看看右边靠下位置，  找到"在Windows资源管理器中显示菜"
+重启EXPLORER.EXE进程
+
+
+win7 控制面板->程序->打开或关闭windows功能,可以关闭IE,打开 Internet 信息服务器(IIS),也有.NetFramework
+
+win7 安装IIS,右击 我的电脑->管理->服务和应用程序 会多一个 IIS
+
+
+最近搜索历史
+gpedit.msc->用户配置→管理模板→Windows组件→Windows资源管理器”，双击“在Windows资源管理器搜索框中关闭最近搜索条目的显示”，选择“已启用(Turn off display of recent search entires in the WindowsExplorer search box)
+
+开始菜单历史
+右击开始菜单->properties->Start Menu->取消Store and display recent opened item in the start menue and the taskbar
+
+看显卡  附件->系统工具->系统信息->展开 组件->显示 第一个是集成的,第二个是独立显卡
+	也可在设备管理器在看到两个, dxdiag 名称栏中 看到的是显示名,是集成的显卡
+	
+附件->系统工具->资源监视器, 也可任务管理器->性能->资源监视器
+附件->系统工具->任务计划,也可右击计算机->管理 中删没用的,如Google ,Baidu update
+右击计算机->管理->事件查看器, 性能 ,任务计划
+
+gpedit.msc ->计算机配置->管理模板->Windows 组件->应用程序兼容性->删除程序兼容性属页,设置 为 已禁用
+
+windows XP 命令 gpupdate /force 对加入域的机器,组策略更新
+
+仿问远程机器的C盘用 \\192.168.0.1\\C$   来仿问C盘
+
+win7我的资料库移动到D盘
+双击桌面的Administrator->右击我的文档->属性->位置  中可以修改[我的文档]新的位置(同样 "收藏夹","桌面",也可)
+
+win7中选择文件按住SHIFT键的同时点击鼠标右键，选择"复制为路径"
+
+
+XP桌面墙纸保存的位置 
+C:\Documents and Settings\476425\Local Settings\Application Data\Microsoft
+
+win7 登陆界面背景修改
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\Background 中的 OEMBackground 修改为 1 
+C:\Windows\System32\oobe\info 下建立 backgrounds\backgroundDefault.jpg  文件大小可250KB以内 ,像素大小可为1280 x 1024 , 1024 x 768 ,注销后生效
+
+启用禁用声音
+打开设备管理器->右击 禁止的声音图标( 有红色的 X 图标)->Enable
+
+启用禁用光驱
+打开设备管理器->uninstall 重启后,就可启用禁用的光驱
+
+
+---开启共享，两机器要在同一网段，还要关闭windows的防火墙和其它防火墙软件,要在同一工作组，或同一域中,
+gpedit.msc->计算机配置->Windows设置->安全设置->本地策略->安全选项->网络访问：本地账号的共享和安全模式(Sharing and Security model for local accounts)， 默认设置“仅来宾—本地用户以来宾身份验证”，更改为“经典
+gpedit.msc->计算机配置->Windows设置->安全设置->本地策略->安全选项->账户：使用空白密码的本地账户只允许进行控制台登录(Limit local account use of blank passwords to console logon only)  默认是启用的
+
+--
+gpedit.msc->本地计算机策略->用户配置->管理模板->Windows 组件->网络共享->防止用户在其配置文件内共享文件
+
+下两个不用
+##gpedit.msc->计算机配置->Windows设置->安全设置->本地策略->用户权限指派->拒绝从网络访问这台计算机->删Guest
+###gpedit.msc->计算机配置->Windows设置->安全选项->本地策略->安全选项->账户:来宾账户状态,修改为启用
+
+---密码复杂度禁用
+gpedit.msc->computer configuration->Security Settings->Account Policies->Password Policy->
+
+
+====快捷键
+windows + tab 在windows 7 下是特效
+ctrl+tab 当前程序的多窗口切换 
+win+P	切换连接到投影仪的方式
+win+加号"+"按比例放大整个屏幕
+win+减号"-"按比例缩小整个屏幕
+
+win10  windowx + X 相当于右击开始菜单
+win10  win+空格键  切换输入法 
+win+数字键1~9 依次打开任务栏锁定程序
+ 
+win+T 预览第一个/下一个 任务栏中的项  win+shift+T 
+
+win10 win+tab  可切换多个桌面,可切换任务,要鼠标点
+win+ctrl+左/右 键头 切换桌面
+
+Win + Ctrl + D 创建新的虚拟桌面 
+Win + Ctrl + F4 关闭当前虚拟桌面
+
+Win + I   快速打开Win10设置栏
+Win + Q 快速打开搜索
+
+Win + 左键 使窗口占领左侧的一半屏幕
+Win + 右键 使窗口占领右侧的一半屏幕
+Win+ 上键 最大化窗口 
+Win+ 下键 最小化/还原 窗口 
+Win+ SHIFT + 上键    垂直拉伸窗口 
+
+Win+SHIFT+右键 将活动窗口移至右侧显示器 (当前桌面)
+Win+SHIFT+左键 将活动窗口移至左侧显示器 (当前桌面)
+
+ 
+win+space 切换输入法 不松手多次space来切换
+win + x 弹出菜单(相当右击开始图标)
+
+
+
+在文件打开,保存对话框中 使用 alt + 上方向键,向上级目录
+
+alt+space弹出菜单 ->按 M 移动 ,再按方向键 就可移动窗口(当窗口标题超出顶部)
+
+
+改变桌面图标大小  按ctrl+拖动滚轮
+
+ctrl+alter +方向键(驱动相关)   可以改变屏幕方向  ,上键是正常的,   头在上
+
+win7查看自己电脑共享了哪些东西,使用net share 命令,显示没有$结尾的
+
+accessories->system tools->system information 查看系统信息(同systeminfo命令),有
+			System Type: x64-based PC
+			Total Physical Memory,
+			Virtual Memory: In Use
+			Virtual Memory: Max Size
+
+
+wuauclt /detectnow 立即系统更新   
+gpedit.msc “计算机配置”-> “管理模板”->“Windows组件”->单击“Windows Update”展开窗口右边的“设置”部分
+“指定Intranet Microsoft更新服务位置”时，http://
+
+
+
+-----boot
+BCD=Boot Configuration Data
+
+对于英文版windows安装max dos 启动引导界面为方块,不可识别中文的解决方法
+bcdboot c:\windows /l  zh-CN
+
+
+win可以引导启动,但运行bcdedit提示,"无法打开启动配置数据存储.系统找不到指定的文件"
+-----原因1, 活动分区是100M的区,修改C盘为活动分区后,启动界面变为Vista风格,会有单独的bcdedit,配置独立的引导项并注意显示语言
+修改活动分区前,最好用大白菜制作U盘启动做灾备.
+
+win7初始安装后活动分区是100M,并且只这个分区有Boot目录,C盘没有
+其实修改活动分区为其它的,再修改回来应该也行的,无论怎么修改活动分区,bcdedit的值就是同一个地方
+ 
+-----原因2 ,也可能bcdedit中不是C盘系统区
+解决方法 ,U盘引导大白菜->硬盘启动->NTboot( 导业人士)->6.x HarDisk
+
+win8PE和大白菜引导启动后的盘符显示都是与真实的不一样的,可能只为了自己用,U盘引导大白菜进入windows后盘符又变回了 
+用大白菜U盘引导进入windows不能执行bcdedit,提示找不到文件,要bcdedit /store c:\Boot\BCD ,等修复后用硬盘引导就可以用bcdedit了
+大白菜 -Max Dos(G)->选一模式->其它工具-> 有 可绕过windows 密码的功能,但未测试 
+ 
+bcdedit /store B:\Boot\BCD  查看 发现在 {default} (有时也叫{current})组中即description 是 Windows 7的那组,  其中device 和 osdevice 是  unknown, 有问题
+bcdedit /store B:\boot\bcd   /set {default} device partition=C:
+bcdedit /store B:\boot\bcd   /set {default} osdevice partition=C:
+
+B:\boot\bcd  不能是管理员文件,加用户时输入 Users 再检查,有读取和执行权限
+
+提示windows副本原因是boot分区和C分区版本不导致
+使用Windows.7.Loader_xp911.com.rar修复,中有 Windows Loader.exe 和 Keys.ini 两个文件
+win7 loader 也是破解 win7  
+----
+
+也可以用easyBCD备份
+bcdedit /export d:\boot 备份
+bcdedit /import d:\boot  恢复
+
+bcdedit /create /d "windows XP" /application bootsector  
+bcdedit /set {id} device partition=C:
+bcdedit /set {id} path \ntldr				(ntldr这个文件在C:下来读boot.ini)
+bcdedit /displayorder {id} /addlast
+
+
+EasyBcd 软件要NetFramework 2.0
+	如果要用这个软件会把 linux引导给冲掉
+	要选择好了，可以引导Server2008,xp，否则也只能要么Vista,要么xp,
+
+----grub4dos
+解压后，把grldr、grldr.mbr、menu.lst(可选)都放到C盘根目录。 
+先建立一个菜单项 
+bcdedit /create /d "Grub4Dos" /application bootsector   此时会得到一个字符串,下面用id代替上一命令得到的字符串,现在用bcdedit还看不到
+bcdedit /set {id} device partition=C:
+bcdedit /set {id} path \grldr.mbr
+bcdedit /displayorder {id} /addlast
+
+bcdedit /default {id}     设Grub4Dos为默认
+
+bcdedit 显示已经有的
+
+后可以 bcdedit /delete xxx-xxxx-xxx
+
+bcdedit /export d:\mybcd 即可把当前的多系统引导菜单备份到磁盘分区中
+
+bcdedit /import d:\mybcd  还原备份的
+
+bcdedit /v  或者  bcdedit /enum 查看
+bcdedit /timeout 3 ##3秒超时
+
+
+启动 管理/加载 器
+系统->属性->高级->用户配置文件-> 可设置启动引导时间，引导系统
+
+
+==========注册表
+
+windows 7环境变量	
+	用户环境变量在 regedit 中位置是\HKEY_CURRENT_USER\Enviroment\ 	
+	系统环境变量在 regedit 中位置是\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Enviroment
+								ControlSet001,ControlSet002	
+	
+	Type是REG_EXPAND_SZ(会解释%XXX%),REG_SZ类型不会解释
+	
+	ControlSet001是系统默认的配置信息，但是为了避免序号混乱，windows启动时会从ControlSet001复制一份副本，作为操作系 统当前的配置信息，也就是CurrentControlSet。那么ControlSet002是什么呢？当操作系统每成功启动一次，都将 CurrentControlSet和ControlSet001中的配置信息复制到ControlSet002中，ControlSet002就成了 “最近一次成功启动的配置信息”，也就是启动时按F8之后，你所看到的选项“最后一次正常启动的配置”。
+
+
+	Windows Registry Editor Version 5.00
+
+	[HKEY_CURRENT_USER\Environment\test]
+	"JAVA_HOME"="C:\\Program Files\\Java\\jdk1.6.0_20";默认是REG_SZ类型
+	;第二行要有空格 ,第一行Windows Registry Editor Version 5.00 (win7) 或者是 REGEDIT4(XP)
+	;路径可以 / 或者\\ ,;为注释
+	;如值是带有%XX%的,类型要为REG_EXPAND_SZ,使用命令可以做到,手写注册表不行???????
+	;reg add HKCU\Environment\ /v PATH /t REG_EXPAND_SZ /d ^%JAVA_HOME^%/bin
+	;reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\" /v PATH /t REG_EXPAND_SZ /d ^%JAVA_HOME^%/bin
+
+Program Files 写时可用 PROGRA~1 来替代
+ 
+
+如果文件类型关联打开的程序错误,想清空
+\HKEY_CURRENT_USER\SOFTWARE\MICROSOFT\WINDOWS\currentversion\Explorer\FileExts\.myext 把对应的扩展名删除
+\HKEY_CLASS_ROOT\.myext 删除
+
+禁用注册表
+ [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\policies\system]  
+   "DisableRegistryTools"=dword:00000000  
+ 单击[开始]-[运行]，在对话框中输入gpedit.msc->单击[确定]打开组策略，定位到[用户配置]-[管理模板]-[系统]，双击“禁用注册表编辑工具”一行，选择[未配置]，单击[确定]。
+
+
+  开机自动运行
+操作注册表   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+
+
+window 键 +r =>msconfig 配置开机启动 (win10 在任务管理器中)
+msconfig中[启动中]项中有所的 注册表项CU=CURRENT_USER,LM=LOCAL_MACHINE,Wow6432Node应该是在64位机上为了兼容32位
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run
+
+----网上其它的
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run  有时没有Run
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run  有时没有Run
+HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows\Run		有时没有Run
+
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce   这个有一个OneDrive的删目录
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce  空的
+
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunServices	没有RunServices
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices 没有RunServices
+
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce  没有RunServicesOnce
+HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce 没有RunServicesOnce
+
+HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows  (Load键 开机运行并最小化) 这里有,不知是什么
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon 这里有,不知是什么
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+
+[HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\System\Shell]  没有System
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad] 有一个webCheck的名,删它
+[HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\SystemScripts]  没有SystemScripts
+[HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\SystemScripts] 没有SystemScripts
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run]  	没有Wow6432Node
+[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce 	没有Wow6432Node
+--
+
+
+ 开始菜单中有启动项
+win键+R 命令 shell:startup 进入(当前用户) C:\Users\zhaojin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup 目录
+			(所有用户)C:\Users\All Users\Microsoft\Windows\Start Menu\Programs\Startup
+远程桌面　默认端口　3389
+修改默认端口
+
+regedit回车，找到 HKEY_LOCAL_MACHINE>SYSTEM>CurrentControlSet>Control>Terminal Server>Wds>rdpwd>tds>tcp，在右边找到PortNumber，双击，选择“十进制”，将里面的3389 改为你想要改的数字，例如 2008。
+再找到 HKEY_LOCAL_MACHINE>SYSTEM>CurrentControlSet>Control>Terminal Server>WinStations>RDP-Tcp，在右边找到PortNumber，双击，选择“十进制”，将里面的3389改为你刚才改的数字。
+
+
+UltraEdit手工加右键菜单
+
+Windows Registry Editor Version 5.00
+[HKEY_CLASSES_ROOT\*\shell]
+[HKEY_CLASSES_ROOT\*\shell\UltraEdit]
+@="UltraEdit-32"
+[HKEY_CLASSES_ROOT\*\shell\UltraEdit\Command]
+@="C:\\Program Files (x86)\\IDM Computer Solutions\\UltraEdit\\Uedit32.exe %1" 
+
+
+
+windows 7  快捷箭头的显示/隐藏
+去快捷箭头
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons]
+"29"="C:\\Windows\\Empty.ico,0"
+
+加快捷箭头
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons]
+重启EXPLORER.EXE进程
+
+windows 7 任务栏中的图标 历史
+HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\TrayNotify，
+清空IconStreams的值，清空PastIconsStream的值，
+重启EXPLORER.EXE进程
+
+
+win7中删右击_管理员取得所有权_.reg
+Windows Registry Editor Version 5.00
+[-HKEY_CLASSES_ROOT\*\shell\runas]
+[-HKEY_CLASSES_ROOT\exefile\shell\runas2]
+[-HKEY_CLASSES_ROOT\Directory\shell\runas]
+
+win7 桌面IE图标删除不掉
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\  下删无用的
+
+
+任务栏里自定义通知里的过去的项目如何删除
+HEEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\TrayNotify
+
+
+运行历史清除
+打开注册表编辑器，定位到 HKEY_CURRENT_USER\Software\ Microsoft\Windows\CurrentVersion\Explorer\RunMRU 
+下删除所有的单个字母,立即生效
+
+控制面析中的卸载是读
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\
+
+---删除“自定义通知”中历史
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\TrayNotify，
+删除右侧窗口中的IconStreams和PastIconStreams两项。
+3. 任务管理器里结束进程Exploer.exe, 这时你的桌面应该找不到了。
+4. 任务管理器里 文件-新建任务(运行)，找到C:\WINDOWS\explorer.exe，确定后OK。 
+
+=========
+---启用禁止使用USB
+%SystemRoot%\Inf\Usbstor.pnf
+%SystemRoot%\Inf\Usbstor.inf
+这样，用户将无法在计算机上安装 USB 存储设备。 要向用户或组分配对 Usbstor.pnf 和 Usbstor.inf 文件的“拒绝”权限，请按照下列步骤操作：
+启动 Windows 资源管理器，然后找到 %SystemRoot%\Inf 文件夹。
+右键单击“Usbstor.pnf”文件，然后单击“属性”。
+单击“安全”选项卡。
+在“组或用户名称”列表中，添加要为其设置“拒绝”权限的用户或组。
+在“UserName or GroupName 的权限”列表中，单击以选中“完全控制”旁边的“拒绝”复选框。
+
+注意：此外，还需将系统帐户添加到“拒绝”列表中。
+在“组或用户名称”列表中，选择“系统”帐户。 
+在“UserName or GroupName 的权限”列表中，单击以选中“完全控制”旁边的“拒绝”复选框，然后单击“确定”。 
+右键单击“Usbstor.inf”文件，然后单击“属性”。
+单击“安全”选项卡。
+在“组或用户名称”列表中，添加要为其设置“拒绝”权限的用户或组。
+在“UserName or GroupName 的权限”列表中，单击以选中“完全控制”旁边的“拒绝”复选框。
+在“组或用户名称”列表中，选择“系统”帐户。 
+在“UserName or GroupName 的权限”列表中，单击以选中“完全控制”旁边的“拒绝”复选框，然后单击“确定”。
+
+
+注意：要想使用访问控制列表(ACL)，要采用NTFS文件系统。
+
+注意：此办法只对在本电脑未使用过的USB存储设备
+
+---启用禁止使用USB 修改注册表
+
+首先请到【开始】菜单中，按下【运行】。
+在「运行」对话盒中输入「regedit」，再按下〔确定〕。
+在左边窗格找到「HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\USBSTOR」机码，然后在右窗格的「Start」项目上按右键，选择【修改】。
+Note：此台计算机必须已安插过一次USB存储设备，才会出现如上的机码。
+在「编辑DWORD值」对话盒中，将「数值数据」改为「4」，「底数」要设为「十六进制」，再按下〔确定〕。此后插入USB存储设备时，计算机将不会有任何找到新硬件的反应了。
+
+把键值3修改成4 
+默认设置为“3”表示手动，“2”是表示自动，“4”是表示停用。 
+
+--- USB权限的设置  
+
+设置只可写不可读,即只能把U盘中的内容复制到电脑,不能把电脑中的内容复制到U盘,防止公司资料泄露,但可能有病
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\StorageDevicePolicies（没有请新建子项,目录）
+创建一个名为 "WriteProtect"  DWORD(32位)的子键 , 将键值 设置为1 
+
+
+HP电脑可以在 BOIS 中禁用U盘,对USB端口断电
+
+----禁用IE代理
+HKEY_LOCAL_MACHINE对所有用户生效
+
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyEnable  
+设0或者1,只是复选框是否选择, 对管理员用户有效, OK
+
+HKEY_CURRENT_USER\Software\Policies\Microsoft\Internet Explorer\Control Panel
+建一个dword值名称为Proxy设置为1，禁用，变灰 Proxy Server的设置
+如Internet Explorer\Control Panel没有就建立   OK
+
+windows 7  
+gpedit.msc 用户设置->管理模板->Windows 组件->Internet Explorer-> 找到右侧的禁止更改自动配置设置  ,禁止更改代理设置
+
+%USERPROFILE%\AppData\Local\XXX应用和 Temp
+%USERPROFILE%\AppData\Roaming\XXX应用
+
+---------------windows 批处理 bat
+
+FOR /L %variable IN (start,step,end) DO command [command-parameters] ##示例如下
+for /L %i IN (1,1,254) do ping 192.168.1.%i
+
+%i是变量名,是区分大小写的,如果是在批处理文件中(.cmd或.bat)使用%%i
+
+
+
+x.cmd文件中
+
+@echo off   	
+rem  rem是注释只可用于开始处,不打印出执行行的命令,也不会每次执行一次命令显示一次提示符
+echo hello
+pause		
+rem 会提示 Press any key to continue . . .
+
+cmd /c echo hello
+
+rem 选项/R 表示 递归遍历目录中的目录
+for /R . %%x in (*.txt) do  echo  "%%x"    
+rem  变量 %%后只可一个字母
+
+
+for /L %%i in (1,1,100) do (
+	:BEGIN
+	echo 现在是周五10:00 去会议室
+	set readMyInput=
+	rem 清存在全局变量中,总是有一次的缓存?????
+	set /p readMyInput=输入quit退出:
+	if /i "%readMyInput%" == "quit" goto END
+	goto BEGIN
+)
+:END
+pause
+rem pause 会提示 Press any key to continue . . .
+rem do 的前后 要有空格
+
+
+%1 返回批处理的第一个参数
+%2 返回批处理的第二个参数
+%*  一次返回全部参数
+SHIFT /2
+	would shift %3 to %2, %4 to %3, and so on, and leave %0 and %1
+
+echo %date:~6,4%-%date:~0,2%-%date:~3,2%_%time:~0,2%_%time:~3,2%_%time:~6,2%
+		##:~6,4是从返回的字串第6位开始长度4个
+echo %time%
+
+如果已经在一个中,直接调用另一个bat 会导致后面的命令不会被执行,必须使用 call xx.bat
+@echo on
+
+如在batch中使用%~dp0dir1,返回C:\temp\dir1
+扩充变量 %~dp0   返回当前执行文件所在目录以/结尾
+ %0代表批处理本身 
+ d既是扩充到分区号
+ p就是扩充到路径
+ 
+---常用命令
+where java  相当于linux which
+
+dir
+tree 可以树壮显示目录结构
+cd
+netstat -an | findstr \-\-complete
+netstat -an | find "8080"
+find /c /i "true"  C:/xx/yy.xml			##/C 计数   /I忽略大小写
+
+FINDSTR  /N /I /R "hello ther*"  D:/dir_name/fileName.txt    #查找内容可用则表达式 /R  , /I   指定搜索不分大小写   /N         在匹配的每行前打印行数。
+#/M         如果文件含有匹配项，只打印其文件名
+#找当前目录下的所有.txt文件的内容,
+for /R . %f in (*.txt) do FINDSTR /N /I acFlag=    "%f"   #加"号是防止路径有空格,变量名只可一个字母,如写cmd,bat文件中
+
+#写成批处理工具
+findStrInPath.cmd D:/dir_name/  "acFlag="
+for /R "%1"  %%f in (*) do FINDSTR /N /I /R  "%2"   "%%f"     ##%2会丢失=???,如何匹配文本文件
+
+type file.txt 显示文件内容
+fc file1.txt file2.txt 文件内容比较
+date /T 显示日期
+time /T 显示时间
+cls
+ver
+
+md dir1\dir2  建立目录
+rename dir1 dirx #也可对文件
+move 移动文件 
+rd /s /q abc  删目录及文件  /s 所有 /q quite 
+del /s /q dir  只删所有目录中的文件,目录还存在
+
+copy  /y /b  file1.txt file1.txt  #只复制文件/b binary /y 不提示overite
+xcopy /y /q /e /r /h dirx  diry  #把dirx目录下的所有文件复制到diry目录中(要已经存在) /e 子目及子目录(包括空目录) /h hidden /r overite readonly
+
+zip -r package.zip dirx  #把dirx目录也放入包中
+unzip package.zip -d dir #dir可以不存在
+ 
+
+ipconfig /release
+ipconfig /renew
+
+netstat -an | find "80"
+IPV6 命令 ping6,tracert6 
+tracert [IP]
+
+netstat -ano 后面即可显示出相应的PID号，
+任务管理器->查看相应的PID号进程
+也可用 netstat -anob
+
+netstat  -r  显示网卡号
+route print  显示路由
+route print 130*
+增加路由
+route add -p <destinationIP> MASK 255.0.0.0 <gatewayIP> if <网卡号>
+		-p (persisten) 表示不会开机失效 
+route ADD -p 157.0.0.0 MASK 255.0.0.0  157.55.80.1  IF 2
+route delete  <destinationIP>
+
+无效的 MASK 产生错误，即当 (DEST & MASK) != DEST 时。
+
+
+arp  协议 发广播 ,发IP地址,要Mac地址,把IP地址解析为 Mac地址,广播不能跨网段,代理arp(A网段有一台机器要B网段的Mac,路由器先返回自己的Mac,帮忙把消息转到B网段)
+arp -a  查看所有
+
+示例 
+route add -p 130.1.0.0  MASK 255.255.0.0  170.219.2.1 if 23   -- 这个是有线网卡的专用网
+route delete 0.0.0.0 							-- 因上一步会修改默认网关,要修改它,这里使用删除,再加的方式
+route add -p 0.0.0.0 MASK 0.0.0.0  10.1.2.1		-- 还有一个无线网卡的公网
+#route CHANGE  0.0.0.0  MASK 0.0.0.0  10.1.2.1  -- 也可以一次修改		
+ 
+ 
+attrib -H  -S c:/boot.ini
+attrib +H +S +R c:/boot.ini
+attrib  -s -h -r  c:\boot.ini (XP) 
+
+Windows下CD合成DVD最简单的方法
+$>copy /b CD1.iso+CD2.iso+……+CDn.iso DVD.iso
+
+linux下能是
+cat file1 file2 > file3
+ 
+
+sc   配置服务命令 (mongoDB官方文档上也有)
+sc query MySQL56
+sc start MySQL56
+sc stop  MySQL56
+
+
+##OK    ,type= own  ,要在=后有一个空格,建立删除如不行,不要在注册表中选中,关闭services.msc
+sc create MySQL56 binpath= "\"C:\Program Files\MySQL\MySQL Server 5.5\bin\mysqld\" --defaults-file=\"C:\ProgramData\MySQL\MySQL Server 5.5\my.ini\" MySQL56" type= own start= auto displayname= "MySQL56"
+
+sc delete MySQL56 删服务
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\MySQL55 中也很多键
+
+start命令是开一个新的CMD窗口,如 start startWeblogic.cmd 在CMD新窗口中运行
+把文件报入cmd,或者 运行... 对话框中,显示完整路径
+
+net start/stop MySQL
+net user 
+
+shutdown /a 取消 定时关机
+shutdown /t 120 /s  ,两分钟后关机
+-------------
+运行 cmd  /t:70  /k  cd \ ,以黑字白底显示,并执行 cd \
+运行 cmd/notepad/wordpad/mspaint/regedit/explorer 命令
+运行 gpedit.msc/services.msc 
+运行  msconfig 配置开机启动(windows 10在任务管理器)
+运行 mstsc 远程桌面  使用RDP协议
+运行 dxdiag 就可以看到显卡信息
+运行 wmic命令
+
+win7 关闭UAC (用户帐户控制,总是提示对计算机进行更改 要输入密码)
+msconfig ->工具->选中列表中的 "更改UAC设置"->启动 ->拖动滑块 到 从不通知
+
+
+------win7_Intel_Wifi驱动做路由器
+从托盘找到Intel My Wifi图标->选择  启用英特尔(R)My Wifi技术
+从托盘找到Intel My Wifi图标->打开 Wifi 实用程序
+配置式...按钮->建立一个Wifi,安全性类型为 WPA2-PSK,加密类型默认为AES-CCMP
+在高级标签中的默认信道数修改为2,表示可以同时支持两个客户端上网
+
+还要在 本地连接  属性->共享标签,复选,家庭网络连接中选择可用的无线连接,以Microsoft Virtual WiFi 为注的
+测试OK
+
+win7_win8_Connectify Pro4.3 -笔记本做路由器 在win7,win8上也OK,但要dotNetFramework4.5
+xp_win7_Connectify Pro3.7-笔记本做路由器,在win7上也OK,不用dotNet
+
+ ------------win7 wifi做路由器 ,测试OK
+以管理员身份运行 CMD
+1. netsh wlan set hostednetwork mode=allow ssid="DLink" key=WifiPass
+
+Mode改为disallow则为禁用
+Key：该密码用于对无线网进行安全的WPA2加密,至少8位
+
+多了一个无线网卡,备注中显示DLink 和 Microsoft Virtual Wifi MiniPor,修改IP 地址为192.168.168.1,netmask 255.255.255.0
+
+启用“Internet连接共享(ICS)”
+2. 右键单击已连接到Internet的网络连接(如本地连接)->属性->共享,复选"允许其它网络用户通过此计算机的Internet连接来连接",第一次可以选择wifi连接,应该
+
+3. netsh wlan start hostednetwork ,启动在"网络和共享中心多了一个DLink",重启机器要再次运行这个命令,也有stop
+
+
+手机连接时要手工设置IP为192.168.168.2,网关为192.168.168.1
+
+win10 启用FTP服务器
+在控制面板->程序 -> 启动关闭windows服务->Internet Information Service 中 要选择IIS管理控制台 和 FTP的全部服务
+在计算机管理->服务和应用程序->IIS 管理器->右侧展开 右击网站->增加FTP站点-> 起名,设置目录,无SSL->身份验证选择基本,授权选择所有用户,权限选读和写
+
+ftp 命令
+ftp <IP>
+ftp -n <IP> 不要自动提示输入用户名
+>user ###子命令登录 提示用户名,密码
+>user <ftpUser> <ftpPass> ###直接登录
+>rmdir
+>mdelete
+>binary
+>mput
+>mget    参数如带目录名 ,要求本地也要有相同的目录名
+>binary
+
+>prompt off
+
+
+------------如果做了下面的操作,上面的就不能start,重新启动就OK
+控制面板->网络和internet->查看网络状态和任务—>设置新的连接或网络->设置无线临时(计算机到计算机)网络->下一步->输入 网络名 和 密钥 
+控制面板->网络和internet->查看网络状态和任务—>设置新的连接或网络->"手动连接到无线网络"->下一步->输入 网络名 和 密钥
+
+
+如文件共享被禁用 445端口就没被监听,在services.msc启动"Serer"服务就OK
+
+win7中文版修改系统字符集为UTF8 控制面板->区域语言->管理 标签->更改系统区域设置...->选择英语(美国)->重启系统
+chcp 命令显示   活动代码页: 936 , 右击cmd窗口->属性->选项  标签->显示963 为简体中文GBK
+
+win7_unlimited 可安装界面语言,控制面板->更改显示语言->键盘和语言 标签->安装卸载语言按钮... 
+	但官方对基语言的是中文切换英文,和基语言的是英文切换中文没有语言包可以下载,只是用windows update
+	
+===========win8.1==========
+安装时会自动把FAT32分区修改为NTFS分区
+
+在win8上要引导一会才出现菜单,选择DOS后,还要再启动一次
+maxDos-9.3安装在windows8 可以可以正常使用,但没有鼠标
+装linux后MaxDOS就没有引导,重新安装后,在启动linux前,按F7进入maxDos-9.3
+
+
+win10 安装中文语言包,官方说要  控制面板 增加语言后->option->在线下载,也可看是否可用
+运行lpksetup 有界面-> install->中选择zh-cn/lp.cab (单独搜的)->等十几分后,
+开始->设置->时间和语言->区域和语言->make this the primary language ,提示log off,成功
+
+
+开启win8 administrator 
+以管理员运行cmd ,输入 net user administrator /active:yes 然后回车，就OK了。
+
+不能使用administrator用于操作开始菜单
+控制面板->系统和安全->管理工具→本地安全策略→本地策略→安全选项,将“用户帐户控制: 用于内置管理员帐户使用管理审批模式”的“已禁用”改为为“已启用”,然后注销administrator账户
+
+
+
+
+开始菜单,向下的箭头,展开所有,按ctrl+选中应用 出现菜单->固定到开始菜单
+
+开始菜单(win10不太准) 快捷方式位置 C:\Users\zhaojin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs
+任务栏   快捷方式位置 C:\Users\zhaojin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
+                      C:\Users\zhaojin\Desktop
+					  
+IE-11 自带Flash Player
+自带windows Defender 杀毒软件,设置中取消 [启用实时保护]
+android-4.4 (android-sdk_r22.3-windows) 在 win8.1 上不能运行.exe文件 是因没有安装JDK,可以JDK8u20
+
+拖动标题栏 晃动几下,所有的其它窗口最小化,再次晃动还原
+----
+win8RTM版本不能打开Hyper-V 不能启动WP8模拟器 ???
+
+===========上 win8==========
+=========== win 10 ==========
+如是win7升级到win10 可以一个月内再回退到win7的(设置->更新和安全->恢复 中)
+
+win10 任务管理器中CPU 使用图表, 多核显示一个图形,右击->将图表修改为->逻辑处理器
+
+
+桌面上显示我的电脑 ,在设置(平板风格)->个性化->主题->桌面图标设置 ,未激活不能用
+
+win10  清wifi的记住密码 , 设置 -> 网络和internet -> 管理wifi设置->下方有记住的,点开->忘记
+
+win10 桌面图标不能移动时,快按两次esc键就可以了
+商店下载安装的app应用在 C:\Program Files\WindowsApps 目录中,但是隐藏,不可访问的,
+	如要访问,文件夹属性->安全标签->高级按钮->审核标签->添加按钮->点链接 选择主机->输入用户名,或者Users是全部用户.
+		无效????(权限标签不能加用户???,当前用户是administrator组不是administrator用户,管理员cmd执行attrib  -s -h -r   WindowsApps)
+C:\Windows\SystemApps 是 win10 系统应用
+修改默认字体
+
+
+Windows Defender 总是占用磁盘100%  
+	关闭它 网上说用gpedit.msc (但家庭版没有)
+	HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services 下面的WinDefend 删除它 注册表项目
+	reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1
+ 任务计划删windwos Defender
+
+进程  本地系统（网络受限） 总是占用磁盘100%  
+ 打开计算机，任意磁盘右键打开属性->工具->优化->关闭优化计划
+禁止服务HomeGroup Listener，HomeGroup Provider
+
+
+
+阿里旺旺亮灯服务模块ww开头(删了文件,禁用服务后还会自动开启),
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\wwbizsrv 删除也不行，每次开机都会再启动
+任务计划 有 当任何用户登录时
+ 
+服务Windows FireWall,Security Center,Windows Search ,Office
+windows 商店 ，总是开机自启,停服务Appx  ,Cortana 一直在
+
+
+ 
+TASKLIST  命令显示进程
+TASKLIST | find /C ".exe"   ,/C 表示计数
+TASKLIST  /FI "SESSIONNAME eq Services"
+TASKLIST  /FI "SESSIONNAME eq Console"
+
+===========
+
+如网卡不能启用,netsh winsock reset 
+
+硬盘分区
+UEFI 是替代BOIS的
+UEFI 支持硬盘是 GPT  (Guid partition table)  不支持xp 等32位系统
+BOIS 支持  MBR 分区表 限制4个主分区,2T多点的硬盘容量
+
+查看是 GPT 还是 MBR ,在磁盘管理中->右击硬盘->属性->卷->可以看到 硬盘分区形式 
+ 
+查看.exe ,.dll是32位还是64位,如.exe可运行,可在任务管理器的进程名看
+Visual Studio 中的工具  dumpbin /headers my32bit.dll
+Visual Studio 中的命令提示符输入 corflags  my.dll
+
+systeminfo 命令 可以看系统信息,有 系统类型 可知是32位还64位
+
+=========问题 ???
+设置客户机不能修改自动更新设置,不能修改防火墙 ???
+
+--命令没有???
+fdisk /mbr  使用引导盘启动后,   这个命令来重写引导区可以启动windows系统
+ntsd -c q -p PID 杀进程命令
+--如何使用find递归查文件夹下的所有文件的内容 ???
+dir /b　显示文件夹或文件的名字
+dir /s  所有文件夹及子文件夹,也会显示.war中的内容
+dir /b /s D:\IBM\SDP\runtimes\base_v7\profiles\AppSrv01 | type | find /c /i "Xmx" 
+
+for /r D:\IBM\SDP\runtimes\base_v7\profiles\AppSrv01 %a  in (*) do echo %a
+ @type %a | find /c /i "Xmx" 
+--
+
+ 
+一键Ghost2013硬盘在Ghost界面中会死住不动的,装linux后再重新安装一键Ghost2013失败
+使用量产工具做CDROM,使用一键Ghost2013光盘版,全部试过,不行的
+一键Ghost2013 U盘在1G 红U盘 可以制作USB+HDD,在要有DELL图标时,插入U盘,但进入Ghost后死机,打U盘中的补丁后也无效
+
+
+========= 上 问题 ???

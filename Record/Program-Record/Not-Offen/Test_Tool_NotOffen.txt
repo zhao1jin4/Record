@@ -1,0 +1,263 @@
+﻿
+Bug Tracker 工具 Jira(Java),Mantis BT(PHP),BugZilla(Perl),HP QC(Quality Center)
+禅道 项目管理 和Bug (中英文)
+======================loadRunner tuxedo=============================
+
+在http://edelivery.oracle.com  上下载 oracle bea-> 有32bit linux
+
+WSL 只一个进程 ,验证成功后给一个WSH的端口
+WSH 多个进程
+
+建立BEA_HOME 把指向的文件夹,即安装文件夹
+
+./tuxedo100_32_Linux_01_x86.bin -i console     命令行安装,也可以图形
+
+
+看压缩包的Readme-Bea Tuxedo可知使用LIC-TX10-SDK-128 文件  ,一定要udataobj/lic.txt文件名
+ cp LIC-TX10-SDK-128.txt /opt/bea/tuxedo10.0/udataobj/lic.txt  
+
+运行   . tux.env 或者 . ./tux.env    环境变量
+
+tmadmin -v  来测试安装
+
+
+sample/atmi 的示例
+sample/atm/simpapp 小写变大写的示例
+
+复制./tux.env 文件 到示例目录,并新加
+export APPDIR=/opt/bea/tuxedo10.0/samples/atmi/simpapp;
+export TUXCONFIG=$APPDIR/tuxconfig;
+export LANG=C;
+
+simpserv.c是服务器程序
+simpcl.c 是客户端程序 
+改ubbsimple是配置文件,要和tux.env中的一致  
+	注IPCKEY,打开下的IPCKEY 123456
+	APPDIR=示例目录
+	TUXCONFIG=
+	TUXDIR=安装目录
+
+<machine-name>替换为本机名hostname的值(如有点,要加"localhost.localdomain"   ,/etc/hotsts有 <本机IP> <主机名>)
+
+
+tmbloadcf -y ubbsimple    编译配置文件
+buildserver -f simpserv.c -o simpserv -s TOUPPER     编译服务器端
+buildclient -f simpcl.c -o simpcl		     编译客户端
+
+要依赖于gcc的
+
+tmboot -y 会两个exec的进程 BBL,simpserv
+./simpcl hello 测试客户端,是使用IPC,不是TCP
+
+使用TCP/IP通信
+vi ubbsimple 在 <HOSTNAME> 下加一个 MAXWSCLIENTS=5
+		在simpserv下加 WSL	SRVGRP=GROUP1 SRVID=10			##增加一个进程WSL和上差不多
+					CLOPT="-A -- -n //<本机IP>:3200"        ##监听端口,这是服务端
+
+tmshutdown -y 停止服务
+rm tuxconfig
+tmbloadcf -y ubbsimple
+buildclient -f simpcl.c -o simpcl -o ws -w     ###-w使用 tcp
+vi tux.env中加 export  WSNADDR=//<本机IP>:3200;  ###ubbsimple对应的,这是客户端 
+. ./tux.env 
+tmboot-y	####显示多了一个进程WSL,ps -ef可见
+./ws hello  ####如有通讯就有WSH进程
+
+--------开发windows tuxedo的客户端,使用VC
+
+加wtuxws32.lib库，bin,include,lib目录都要加入VC中
+
+simplc.c 中源码　
+
+tmadmin 命令psr  显示进程名(Processor ),直接回车执行上次的命令
+
+simpserv 进程的RqDone 列(响应次数)
+
+
+--------LoadRunnder 使用Tuxedo 动态库来测试
+VC建一个动态链接库项目
+
+//头文件 
+extern "C" TUX2_API int myfunc(char * ,char * ,char* );
+//extern "C"让VC,使用C方式来编译,LoadRunner只支持纯C,
+//TUX2_API 是#defined,抄其它函数
+
+
+//c文件中
+#inlucde "atmi.h";
+
+TUX2_API int myfunc(char * a ,char * b,char* c ) 
+{
+	char env[1024]
+	sprintf(env,"WSNADDR=//129.168.1.100:3200");//赋值
+	
+	tuxputenv("WSNADDR=//129.168.1.100:3200");
+	tpinit((TPINIT *))
+	....
+	
+}
+
+LoadRunner中Virtual User的init ()中加入　　　
+	lr_load_dll("c:\\xx.dll"); //返回0成功,
+action中 就可以使用dll里的函数了,
+	lr_output_message("%d",sun);//就可以在VC中写测试脚本,可以LoadRunner10000的HTTP,来测Tuxedo,是否有加密了
+
+lr_error_message(); //是红色的错误信息
+lr_log_message(); //是红色的错误信息
+lr_eval_string("") //会防止有特殊字
+
+Java VUser协议 ,使用Java语言,init,action,end方法
+class类,jar 包放在CLASSPATH中,在LoadRunner中使用 MyClass.main("");来调用,
+也可以在LoadRunner中写Java程序
+要点编译按钮的
+
+
+Tools->create Controller Scenario...-> 就是进入Controller ->打开 Initialize all Vusers before Run,注意这里的RuntimeSetting要Action要一次
+Controller 中->Generators...->选中->Disconnect
+
+
+
+
+=========================nmon工具
+只linux版本
+nmon -f -s 2 -c 10 
+//-s seporator 每2秒, -c count 10次,-f file文件 ,默认是./HOSTNAME_DATE.nmon的文件
+
+ps -ef | grep nmon 直到进程结束
+
+c=CPU
+m=Memory
+d=Disk
+
+
+生成的文件,可以用analyser 的excel 来打开,可以用excel 来看曲线 
+,Office 2007简体版不行的
+
+
+
+
+
+
+=========================BadBoy
+防止输入网址后->回车开始录制->preference...->general ->取消 Enable Recording on startup
+
+在页面中选择文本框中的文本  Tools->Add Assertion for selection
+回放时就会自动入文本框中输入值 ,这是测试结果中有没有这个词
+右击TestSuit1->Clear Response
+
+网页传参可以用${key}
+
+Variable面板中可加入key=value,(可加多个值)在使用时,${key}
+右击Step1->可以设置重复次数,也可以选择参数key
+
+
+连接MySQL数据库来参数化   ODBC中选择MySQL ODBC
+Tool->DataSource->Attach Variable Source..->选择已经建立好的数据源->选择表->   会在Variable面板新加......
+	///我的不行啊....
+
+Tools面板->右击选择DataSource ->add to Script
+
+
+
+View ->DOM Window->选中image->右击->add to Script->navigator 就会出现左树中,可观察它的请求响应
+
+Tools->Run Background Threads...-> 线程数   stagger交错,
+
+View->report ->detail report
+
+右击step1的一项->Toggle Breake Point   打开断点,运行时可停止
+
+
+
+
+
+
+-------------------开源性能测试 Curl-Loader
+可以2500~100,000 的并发,看内存
+HTTP1.1    ,file upload
+要openssl-devel,openssl
+以root 来make
+../curl-loader -f config-examples/10k.conf  (修改它)
+
+CLIENTS_RAMPUP_INC=1 第一秒增加一个用户
+URL=http://
+
+===============Charles 代理工具
+
+===============Curl-Loader
+
+使用libcurl库 来发请求
+openssl,libevent
+iprouted2,netlink,netdev技术
+
+make 后,
+./curl-loader -f 配置文件  ###必须root用户执行
+
+要有openssl
+
+config-examples目录下 10.config配置文件
+
+BATCH_NAME=XXX
+CLIENT_NUM_MAX=10
+CLIENT_NUM_START=2
+CLIENT_RAMPUP_INC=1   //每秒加几个
+NETFACE=eth0
+NETMASK=24		//子网掩码,对多IP
+IP_ADDR_MIN=192.168.1.1
+IP_ADDR_Max=192.168.1.255
+CYCLES_NUM=-1	无限循环,ctrl+c 来停止
+URL=http://xxxx
+REQUEST_TYPE=GET
+
+
+
+
+有3秒一次的采样一次数据Interval,和全部的Summary
+Req:请求数
+1xx
+2xx 代表http响应状态码,如200表示OK     它/Req 是成功率
+D: 是响应时间,请求+响应(豪秒)
+D-2xx :2xx状态码的响应时
+Ti:Throuput-in 
+
+
+CAPS ( clent attempt per second)客户端每秒发出的请求数
+
+-v verbose  详细信息,每个Virtual client
+-u  
+
+
+-c 连接超时的秒数
+-d 细节日志 xx.log日志文件中
+-e 
+-i 采样时间,默认3秒
+-l 日志文件最大值
+-m
+-r 重新使用连接被关闭,默认是重用TCP连接
+-t 线程,适用多核
+
+配置文件
+
+ 
+
+
+==================QTP   QuickTest Professional 8.2
+在Flex Builder 3中带有为QTP自动化测试而提供的插件，运行Flex Builder安装目录下的\Installers\QTP_Plugin_Installer.exe进行安装。
+安装完成后启动QTP，在Add- ins Manager窗口中出现Flex 3.0.0的插件加载项
+
+
+是一种自动测试工具。用于回归测试 和 测试同一软件的新版本
+
+
+AUT (Application Under Test) 是被测试的系统
+可以有插件
+安装目录有一个help 目录
+
+SUT (System Under Test) 和AUT 是一个意思
+
+QTP录只录制界面(鼠标,键盘的消息),LoadRunner录制的是客户端与与服务器的交互
+
+
+
+
+

@@ -1,0 +1,283 @@
+﻿======================================DTD示例
+mydtd.dtd
+<!ELEMENT TVSCHEDULE (CHANNEL+)>
+<!ELEMENT CHANNEL (BANNER,DAY+)>
+<!ELEMENT BANNER (#PCDATA)>
+<!ELEMENT DAY (DATE,(HOLIDAY|PROGRAMSLOT+)+)>
+<!ELEMENT HOLIDAY (#PCDATA)>
+<!ELEMENT DATE (#PCDATA)>
+<!ELEMENT PROGRAMSLOT (TIME,TITLE,DESCRIPTION?)>
+<!ELEMENT TIME (#PCDATA)>
+<!ELEMENT TITLE (#PCDATA)> 
+<!ELEMENT DESCRIPTION (#PCDATA)>
+
+<!ATTLIST TVSCHEDULE NAME CDATA #REQUIRED>
+<!ATTLIST CHANNEL CHAN CDATA #REQUIRED>
+<!ATTLIST PROGRAMSLOT VTR CDATA #IMPLIED>
+<!ATTLIST TITLE RATING CDATA #IMPLIED>
+<!ATTLIST TITLE LANGUAGE CDATA #IMPLIED>
+
+mydtd.xml
+<?xml version="1.0"?>
+<!DOCTYPE TVSCHEDULE SYSTEM "mydtd.dtd">
+<TVSCHEDULE NAME="test">
+	<CHANNEL CHAN="11">
+		<BANNER></BANNER>
+		<DAY>
+			<DATE>2012</DATE>
+			<HOLIDAY></HOLIDAY>
+		</DAY>
+	</CHANNEL>
+</TVSCHEDULE>
+
+
+======================================Scheama示例
+dataType.xml
+<?xml version="1.0"?>
+<dataType xmlns="http://zhaojin.org/dataType" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://zhaojin.org/dataType   dataType.xsd"><!-- {namespace} {location} -->
+	<lastname>aa</lastname>
+	<families>5</families>
+	<dateborn>2012-02-20</dateborn>
+	<isGraduated>true</isGraduated>
+	<workBeginTime>17:02:39</workBeginTime>
+	<loginDateTime>2012-02-20T17:02:39</loginDateTime>
+	<salary>5000.3</salary>
+	<password>156456</password>
+	<age>23</age>
+	<email>asdf@aa.com</email>
+	<gender>male</gender>
+	
+	<product prodid="22" prodname="testname" />
+	
+	<letter>
+		adfsa<name>aaa</name>asdf
+		asdf<orderid>23</orderid>asdf
+		asdf<shipdate>2012-02-20</shipdate>asdf
+	</letter>
+	<person>
+		<lastname></lastname>
+		<firstname></firstname>
+	</person>
+	<personType>
+		<employee></employee>
+	</personType>
+
+	<workProject>
+		<project></project>
+		<project></project>
+		<project></project>
+	</workProject>
+</dataType>
+
+
+dataType.xsd
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://zhaojin.org/dataType" elementFormDefault="qualified">
+	<!--elementFormDefault="qualified" 指出任何 XML 实例文档所使用的且在此 schema 中声明过的元素必须被命名空间限定。 -->
+
+	<xs:element name="dataType">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="lastname" type="xs:string" />
+				<xs:element name="families" type="xs:integer" />
+				<xs:element name="dateborn" type="xs:date" />
+				<xs:element name="isGraduated" type="xs:boolean" />
+				<xs:element name="workBeginTime" type="xs:time" />
+				<xs:element name="loginDateTime" type="xs:dateTime" />
+				<xs:element name="salary" type="xs:decimal" />
+				<xs:element name="password">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="5" />
+							<xs:maxLength value="8" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="age">
+					<xs:simpleType>
+						<xs:restriction base="xs:integer">
+							<xs:minInclusive value="0" />
+							<xs:maxInclusive value="120" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="email">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="[a-zA-Z0-9]+@[a-zA-Z0-9]+.[a-zA-Z0-9]{2|3}" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="gender">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:pattern value="male|female" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="product">
+					<xs:complexType>
+						<xs:attribute name="prodid" type="xs:positiveInteger"
+							fixed="22" />
+						<xs:attribute name="prodname" type="xs:string" use="required" />
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="letter">
+					<xs:complexType mixed="true">
+						<xs:sequence>
+							<xs:element name="name" type="xs:string" />
+							<xs:element name="orderid" type="xs:positiveInteger" />
+							<xs:element name="shipdate" type="xs:date" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="person">
+					<xs:complexType>
+						<xs:all> <!-- <all> 指示器规定子元素可以按照任意顺序出现，且每个子元素必须只出现一次： -->
+							<xs:element name="firstname" type="xs:string" />
+							<xs:element name="lastname" type="xs:string" />
+						</xs:all>
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="personType">
+					<xs:complexType>
+						<xs:choice> <!-- <choice> 只可出现其中一种,并一次 -->
+							<xs:element name="employee" type="xs:string" />
+							<xs:element name="manager" type="xs:string" />
+						</xs:choice>
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="workProject">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="project" type="xs:string" minOccurs="1"
+								maxOccurs="3" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				
+				
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema> 
+
+======================================XSLT示例
+demo.xsl
+<?xml version="1.0" encoding="GBK"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+	<xsl:template match="/">
+		<html>
+			<head>
+				<title>学生成绩单</title>
+			</head>
+			<body>
+				<table border ="2">
+					<tr>
+						<th>id</th>
+						<th>姓名</th>
+						<th>性别</th>
+						<th>成绩</th>
+						<th>等级</th>
+						<th>技能</th>
+					</tr>
+					<xsl:apply-templates select="roster/student[position() &lt; 5 ]">
+						<xsl:sort select="score" order="descending"/>
+					</xsl:apply-templates>
+				</table>
+			</body>
+		</html>
+	</xsl:template>
+
+	<xsl:template match="roster/student">
+		<tr>
+			<td><xsl:value-of select="attribute::ID"/></td>
+			<td><xsl:value-of select="name"/></td>
+			<td><xsl:value-of select="sex"/></td>
+			<td><xsl:value-of select="score"/></td>
+			<td>
+				<xsl:choose>
+					<xsl:when test="score[. >= 90]">A
+					</xsl:when>
+					<xsl:when test="score[. >= 80]">B
+					</xsl:when>
+					<xsl:otherwise>C
+					</xsl:otherwise>
+				</xsl:choose>
+			</td>
+			<td>
+				<xsl:for-each select="skill">
+					<font color="red">
+						<xsl:value-of select="."/>
+						<xsl:if test="position() != last()">
+						,
+						</xsl:if>
+					</font>
+				</xsl:for-each>
+			</td>
+		</tr>
+	</xsl:template>
+</xsl:stylesheet>
+
+student.xml
+<?xml version="1.0" encoding="GBK"?>
+<?xml-stylesheet type="text/xsl" href="demo.xsl"?>
+<roster>
+	<student ID="101">
+		<name>李华</name>
+		<sex>男</sex>
+		<birthday>1978.9.12</birthday>
+		<score>92</score>
+		<skill>Java</skill>
+		<skill>Oracle</skill>
+		<skill>C Sharp</skill>
+		<skill>SQL Server</skill>
+	</student>
+	<student ID="102">
+		<name>倪冰</name>
+		<sex>女</sex>
+		<birthday>1979.1.12</birthday>
+		<score>89</score>
+		<skill>Visual Basic</skill>
+		<skill>SQL Server</skill>
+		<skill>ASP</skill>
+	</student>
+	<student ID="103">
+		<name>张君宝</name>
+		<sex>男</sex>
+		<birthday>1982.9.9</birthday>
+		<score>98</score>
+		<skill>C Sharp</skill>
+		<skill>SQL Server</skill>
+		<skill>UML</skill>
+	</student>
+	<student ID="104">
+		<name>杨惠</name>
+		<sex>女</sex>
+		<birthday>1980.5.16</birthday>
+		<score>75</score>
+		<skill>Visual C++</skill>
+		<skill>SQL Server</skill>
+		<skill>UML</skill>
+	</student>
+	<student ID="105">
+		<name>崔春晓</name>
+		<sex>男</sex>
+		<birthday>1981.4.19</birthday>
+		<score>79</score>
+		<skill>UML</skill>
+		<skill>C Sharp</skill>
+		<skill>XML</skill>
+		<skill>SQL Server</skill>
+	</student>
+</roster>
+
