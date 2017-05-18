@@ -1293,8 +1293,8 @@ git config --global alias st "status"  定义st 是status 的别名,就可以用
 git config --list 检查已有的配置信息, 会看到重复的变量名,来自不同的配置文件,实际采用的是最后一个
 git config user.name 查配置
 
-git help -a 查看一级帮助
-git config 查看二级帮助
+git help -a 查看一级帮助 
+git config 查看二级帮助  , git help commit 打开浏览器 C:/Program Files/Git/mingw64/share/doc/git-doc/git-commit.html
 
 cd project1
 git init  初始化Git,生成.git目录
@@ -1405,7 +1405,7 @@ git push -u origin master
 git remote add origin https://github.com/zhao1jin4/Record.git
 git push -u origin master
 
-网页上建立github的项目Record,自己的操作记录
+--网页上建立github的项目Record,自己的操作记录
 cd C:\temp\Record2017-01-24__14
 git init
 git add Record
@@ -1414,6 +1414,16 @@ git remote add origin https://github.com/zhao1jin4/Record.git
 git push -u origin master
 
 如果在空目录中取代码 git clone https://github.com/zhao1jin4/Record.git
+修改更新,加新文件
+git config --global user.email "zhao1jin4@sina.com"
+git config --global user.name "Li Zhaojin"
+git add *
+git commit  -m "2017-05-18 record version" 
+git push 弹出UI 要输入用户名密码
+
+删文件
+git rm Not-Offen/Struts-2.x.java
+
 
 ============== 上 Git 
 ============== MemCache  (memcached-1.4.17)

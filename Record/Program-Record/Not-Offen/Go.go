@@ -1,20 +1,20 @@
-Google ÔËÐÐÁËÊý°ÙÍòÐÐ Python ´úÂë£¬YouTube ¼°Æä API µÄÇ°¶Ë·þÎñÆ÷´úÂëÖ÷ÒªÊÇÓÃ Python ÓïÑÔ¿ª·¢µÄ£¬ÔËÐÐµÄÊÇ CPython 2.7¡£Google ¶àÄêÀ´Ò»Ö±ÓÅ»¯ Python ´úÂë£¬µ«Ê¼ÖÕÓÐÒ»¸öÎÊÌâÃ»ÓÐ½â¾ö£º²¢·¢¹¤×÷¸ººÉ¡£Google µ÷²éÁËÆäËü Python ÔËÐÐÊ±£¬µ«Ã¿Ò»ÖÖ¶¼ÓÐÀûÓÐ±×£¬ÔÚ½â¾ö²¢·¢ÐÔÄÜµÄÍ¬Ê±»áÒýÈëÐÂµÄÎÊÌâ¡£
+ï»¿Google è¿è¡Œäº†æ•°ç™¾ä¸‡è¡Œ Python ä»£ç ï¼ŒYouTube åŠå…¶ API çš„å‰ç«¯æœåŠ¡å™¨ä»£ç ä¸»è¦æ˜¯ç”¨ Python è¯­è¨€å¼€å‘çš„ï¼Œè¿è¡Œçš„æ˜¯ CPython 2.7ã€‚Google å¤šå¹´æ¥ä¸€ç›´ä¼˜åŒ– Python ä»£ç ï¼Œä½†å§‹ç»ˆæœ‰ä¸€ä¸ªé—®é¢˜æ²¡æœ‰è§£å†³ï¼šå¹¶å‘å·¥ä½œè´Ÿè·ã€‚Google è°ƒæŸ¥äº†å…¶å®ƒ Python è¿è¡Œæ—¶ï¼Œä½†æ¯ä¸€ç§éƒ½æœ‰åˆ©æœ‰å¼Šï¼Œåœ¨è§£å†³å¹¶å‘æ€§èƒ½çš„åŒæ—¶ä¼šå¼•å…¥æ–°çš„é—®é¢˜ã€‚
 
-Google Òò´Ë³¢ÊÔÓÃ Go ÓïÑÔÊµÏÖÁËÒ»¸öÌæ´úÔËÐÐÊ±ÓÅ»¯ÊµÊ±·þÎñ¡£Õâ¸öÏîÄ¿±»³ÆÎª Grumpy£¬½« Python ´úÂë×ªÒëµ½ Go ³ÌÐò£¬ÔÚ Go ÔËÐÐÊ±ÖÐÔËÐÐ£¬½á¹ûÏàµ±²»´í¡£
+Google å› æ­¤å°è¯•ç”¨ Go è¯­è¨€å®žçŽ°äº†ä¸€ä¸ªæ›¿ä»£è¿è¡Œæ—¶ä¼˜åŒ–å®žæ—¶æœåŠ¡ã€‚è¿™ä¸ªé¡¹ç›®è¢«ç§°ä¸º Grumpyï¼Œå°† Python ä»£ç è½¬è¯‘åˆ° Go ç¨‹åºï¼Œåœ¨ Go è¿è¡Œæ—¶ä¸­è¿è¡Œï¼Œç»“æžœç›¸å½“ä¸é”™ã€‚
 
-Grumpy ²»Ö§³ÖCÀ©Õ¹£¬Ã»ÓÐ CPython µÄÈ«¾Ö½âÊÍÆ÷Ëø¡ª¡ªËü±»ÈÏÎªÊÇÓ°Ïì²¢·¢ÐÔÄÜµÄÖ÷ÒªÆ¿¾±¡£                  
-
-
-
-µ«ÓÐÐ©ÈËÊÇ·ÅÆúGo ÓïÑÔµÄ   2009Äê,2010Äê·¢²¼µÄÓïÑÔ,Ò²Í¦¾ÃÁË,Î´»ðÆðÀ´ÁË
+Grumpy ä¸æ”¯æŒCæ‰©å±•ï¼Œæ²¡æœ‰ CPython çš„å…¨å±€è§£é‡Šå™¨é”â€”â€”å®ƒè¢«è®¤ä¸ºæ˜¯å½±å“å¹¶å‘æ€§èƒ½çš„ä¸»è¦ç“¶é¢ˆã€‚                  
 
 
 
-https://golang.org/  Òª·­Ç½²ÅÄÜ³öÈ¥(Google µÄÓïÑÔ), ×îÐÂ°æ±¾1.8(2017-02)
-Ö§³Ö¶à¸öÆ½Ì¨,windows ,linux(ÓÐlinux ARMv6),mac,freeBSD
+ä½†æœ‰äº›äººæ˜¯æ”¾å¼ƒGo è¯­è¨€çš„   2009å¹´,2010å¹´å‘å¸ƒçš„è¯­è¨€,ä¹ŸæŒºä¹…äº†,æœªç«èµ·æ¥äº†
 
 
-ÉèÖÃ»·¾³±äÁ¿  GOROOT=go1.8.windows-amd64\go 
+
+https://golang.org/  è¦ç¿»å¢™æ‰èƒ½å‡ºåŽ»(Google çš„è¯­è¨€), æœ€æ–°ç‰ˆæœ¬1.8(2017-02)
+æ”¯æŒå¤šä¸ªå¹³å°,windows ,linux(æœ‰linux ARMv6),mac,freeBSD
+
+
+è®¾ç½®çŽ¯å¢ƒå˜é‡  GOROOT=go1.8.windows-amd64\go 
 			  PATH=%GOROOT%\bin
 go version
 
@@ -30,17 +30,17 @@ func main() {
 
 
 
-go run hello.go  À´ÔËÐÐ
-go build hello.go  ¿ÉÉú³É.exeÎÄ¼þ
+go run hello.go  æ¥è¿è¡Œ
+go build hello.go  å¯ç”Ÿæˆ.exeæ–‡ä»¶
 
-eclispe²å¼þ goClipse   http://goclipse.github.io/
-https://github.com/GoClipse/goclipse/blob/latest/documentation/Installation.md   ÏÂÔØ
+eclispeæ’ä»¶ goClipse   http://goclipse.github.io/
+https://github.com/GoClipse/goclipse/blob/latest/documentation/Installation.md   ä¸‹è½½
 https://github.com/GoClipse/goclipse.github.io/archive/master.zip
 
 eclipse Marketplace
 
-Installation ÉèÖÃÄ¿Â¼(Í¬GOROOT)  go1.8.windows-amd64\go
-ÓÃgoClipse,ÈçÓÐ°üÔ´ÎÄ¼þÒª·ÅÏàÓ¦Ä¿Â¼ÏÂ,»áÔÚbinÄ¿Â¼ÏÂÉú³É.exeÀ´Ö´ÐÐ
+Installation è®¾ç½®ç›®å½•(åŒGOROOT)  go1.8.windows-amd64\go
+ç”¨goClipse,å¦‚æœ‰åŒ…æºæ–‡ä»¶è¦æ”¾ç›¸åº”ç›®å½•ä¸‹,ä¼šåœ¨binç›®å½•ä¸‹ç”Ÿæˆ.exeæ¥æ‰§è¡Œ
 
 
 
