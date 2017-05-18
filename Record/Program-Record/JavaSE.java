@@ -1,5 +1,8 @@
 C:\ProgramData\Oracle\Java\javapath  目录中有java,javaw,的快捷方式
 
+apt	(Annotation Processing Tool)工具
+extcheck 工具,检查jar的冲突
+
 javac -encoding GBK XX.java
 str.getBytes("GBK")  否则使用操作系统的默认编码,linux 优先使用echo $LANG , zh_CN.GBK 其次 /etc/sysconfig/i18n 
 如getBytes都没有指定字符集 linux 和 windows 则是UTF-8
@@ -41,15 +44,486 @@ jdb org.MainApp
 
 use 或 sourepath 查/设源码路径
 
+
+==========JVM 相关
+
+在线 Techonolgies->Java Virtual Machine ->HotSpot VM  进入->Documentation 下的 HotSpot VM Command Line Options  -> 看JDK8的windows,linux(JDK7是通用的)
+http://docs.oracle.com/javase/8/   -> Reference ->  Developer Guides -> 图中最低层的(本地也有) Java HotSpot Client and Server VM
+
+jdk-8-apidocs/docs/technotes/tools/index.html  有jstat  有含意, java 命令的 -XX 选项
+jdk-8u121-docs-all\docs\technotes\guides\vm\gctuning\index.html
+
+静态内存和动态内存
+编译时就能够确定的内存就是静态内存,如int类型
+
+----每个线程有自己的
+pc Register  线程轮流切换,保证线程切换回来后，还能恢复到原先状态(每条线程都有一个独立的程序计数器)
+JVM Stacks    有 栈帧（Stack Frame） (线程私有的)
+Native Method Stacks  
+
+---线程共享的 (动态内存)
+非堆区包括 Metaspace , Code cache 和 Compress Class Space
+ 
+方法区(所有线程共享)移至Metaspace，字符串常量移至Java Heap
+
+(PermanetGeneration jdk8中被删 以促进HotSpot JVM与 JRockit VM的融合) Metaspace,参数 -XX:MaxMetaspaceSize=256m 限制本地内存分配给类元数据的大小,默认无限制
+
+	
+Heap 堆区有
+
+1. new(young) Generation
+	一个Eden 空间,存放新生的对象,空间不足的时候，会把存活的对象转移到Survivor中
+	两个Survivor Spaces，存放每次垃圾回收后存活下来的对象 (FromSpace 和 ToSpace是对称的，没先后关系，from和to是相对的,Copying算法)
+	
+	Copying算法 ,存活的对象，并复制到一块新的完全未使用的空间中 对应于新生代，就是在Eden和  FromSpace或ToSpace之间  copyFromSpace或ToSpace之间copy 
+	新生代采用空闲指针的方式来控制GC触发，指针指向最后一个分配的对象的位置，当有新的对象要分配内存时，用于检查空间是否足够，不够就触发GC
+	minor GC后(非常频繁，一般回收速度也比较快)，Eden内存块会被清空, 活下来的对象首先由Eden拷贝到某个Survivor Space
+	
+2. old Generation(tenured) 生命周期长的内存对象 ,Mark算法来进行回收,回收后的空间要么进行合并，要么标记出来便于下次进行分配
+		老年代内存被占满时将会触发Full GC,回收整个堆内存
+		Major GC (一般会比 Minor GC慢10倍以上) / Full GC
+		
+Survivor Space空间满了后, 剩下的live对象就被直接拷贝到tenured Generation中去,old 满后就会有Full GC
+移动到 Survivor 空间中，并将对象年龄设为 1。对象在 Survivor 区中每熬过一次 Minor GC，年龄就增加 1 岁，当它的年龄增加到一定程度（默认为 15 岁）时，就会被晋升到老年代中。对象晋升老年代的年龄阈值，可以通过参数 -XX:MaxTenuringThreshold 来设置
+
+Concurrent Mark Sweep (CMS)  Collector 
+	使用 标记—清除
+	初始标记(STW initial mark) STW(Stop The Word),描到能够和"根对象"直接关联的对象,暂停了整个JVM，但是很快就完成了
+    并发标记(Concurrent marking)
+    并发预清理(Concurrent precleaning)
+    重新标记(STW remark)
+    并发清理(Concurrent sweeping)
+    并发重置(Concurrent reset) 
+		
+
+	
+	留一部分内存空间提供并发收集时的程序运作使用。在默认设置下，CMS收集器在老年代使用了x%的空间时就会被激活，
+	也可以通过参数-XX:CMSInitiatingOccupancyFraction 的值来提供触发百分比,默认-1 表示使用 -XX:CMSTriggerRatio,默认80%
+	MinHeapFreeRatio  默认40%
+
+
+
+jvm垃圾回收算法
+	引用计数法:两个对象A和B，互相引用无法回收,老的
+	
+	搜索方法  GC Roots  从这些节点开始往下搜索，搜索通过的路径成为引用链（Reference Chain），当一个对象没有被GC Roots的引用链连接的时候，说明这个对象是不可用
+		a) 虚拟机栈（栈帧中的本地变量表）中的引用的对象。局部变量
+		b) 方法区域中的类静态属性引用的对象。static
+		c) 方法区域中常量引用的对象。final
+		d) 本地方法栈中JNI（Native方法）的引用的对象。
+	标记—清除算法(Mark-Sweep)  产生大量的不连续空间
+	复制算法(Copying) 			内存分成大小相等的两块，每次使用其中一块,把存活的对象复制到另一块上，然后把这块内存整个清理掉。内存的利用率不高,收集新生代 
+	标记—整理算法(Mark-Compact) 是把存活对象往内存的一端移动，然后直接回收边界以外的内存。  内存的利用率，并且它适合在收集对象存活时间较长的老年代。
+	 
+ 
+ 
+G1收集器  JDK9的server默认
+	Eden空间中，每一个线程都有一个固定的分区用于分配对象,即一个 TLAB.分配对象时，线程之间不再需要进行任何的同步。
+	如果Eden空间无法容纳该对象，就只能在老年代中进行分配空间
+
+	Young GC和Mixed GC，两种都是Stop The World(STW)的
+	server-style,目标多处理器,大内存(超过6G或更大),有GC暂停(0.5秒以下),大吞吐量  ,将来替代CMS
+	新生代，老年代的物理空间划分取消了,heap被平均分成若干个相同大小的区域(region)，每块区域既有可能属于Old区、也有可能是yong区
+	
+	是压缩,紧凑,致密(Compact)的,有停顿,并行标记,会知道哪些区域最空,先回收这些(Garbage-First名字的来历),根据配置的暂停时间确定回收区域数,压缩从一个或多个区域复制另一个单个区域
+
+	CMS 不做整理,G1并发整理是对整个heap,
+	
+	一个对象大于regsion一半 ,认为是一个巨大对象,直接分配到老年代的巨大对象区,这些区是续的,StartsHumongous ,ContinuesHumongous ,回收时会整理空间
+	-XX:G1HeapRegionSize 
+	
+	
+逃逸分析   所有的对象都分配在堆上也渐渐变得不是那么“绝对”了。
+线程共享的Java堆中可能划分出多个线程私有的分配缓冲区 Thread Local Allocation Block=TLAB 
+	
+jconsole 命令可以查看JVM 的性能　监控
+
+
+set JAVA_OPTS=-Xss256K -Xms256m -Xmx1024m   -XX:NewSize=128m -XX:MaxNewSize=256m -XX:SurvivorRatio=8 -XX:NewRatio=2
+	
+
+ 
+===所有JVM标准实现选项
+-agentlib:hprof=help  ( Heap and CPU Profiling Agent (JVMTI Demonstration Code))
+-agentlib:hprof=cpu=samples,interval=20,depth=3   彩样CPU信息每20秒,栈深3,生成java.hprof.txt文件 ,参考java.lang.instrument 和 JVMTI
+
+-agentlib		-agentpath
+-Dproperty=value
+-d32   -d64 
+-disableassertions   -da
+-disablesystemassertions -dsa
+-enableassertions -ea
+-enablesystemassertions -esa
+-? -help
+-jar
+-javaagent:jarpath[=options]  参考java.lang.instrument 
+-jre-restrict-search | -no-jre-restrict-search  在-help中提示未来版本移除
+-server  64位JDK只持这个,-client 没用
+-version  -showversion
+-splash:imgname
+-verbose:class   显示每个加载类
+-verbose:gc	显示每个gc事件
+-verbose:jni  显示使用的jni
+
+===非标准 -X 用于 HotSpot  VM  对JDK8版本中有
+-X 显示所有非标准的help
+-Xbatch  同 -XX:-BackgroundCompilation 前台compilation,禁用后台compilation 默认是-XX:+BackgroundCompilation
+-Xbootclasspath:path  
+-Xbootclasspath/a:path    /a=append
+-Xbootclasspath/p:path	  /p=prepend
+-Xcheck:jni
+-Xcomp			-X没有,但doc上有 ,第一次调用也编译,默认是-server是解释执行1万次方法才编译的,使用-XX:CompileThreshold修改次数
+-Xdebug 没用,只为向前兼容
+-Xdiag
+-Xfuture 严格类文件检查,鼓励开启,未来默认开启
+-Xint 解释运行,Compilation 到本代码被禁用,just in time (JIT) 编译器不会参与,会对频繁的被执,编译字节码为本地更高效的机器码
+-Xinternalversion  -X没有,但doc上有
+-Xloggc:filename  写到文件内容同-verbose:gc,会覆盖-verbose:gc
+-Xmaxjitcodesize=size   -X没有,但doc上有,但测试不行, 为JTI编译指定最大 code cache size (in bytes),结尾可以有k,m,g,默认240 MB ,如配置-XX:-TieredCompilation,默认变为48 MB,同-XX:ReservedCodeCacheSize
+-Xmixed  混合执行,非热方法用解释执行,热方法用编译执行,默认的
+-Xnoclassgc       禁用类的GC,节省GC时间,有短的中止,容易出内存异常
+-Xprof  不应在生产上使用,在标准输出显示信息,有Interpreted 和 native 的执行次数,在哪个Method上
+-Xrs              减少 Java/VM 对操作系统信号的使用 ,没有thread dump产生 ,Shutdown hooks 
+-Xshare:off       不尝试使用共享类数据(class data sharing (CDS) mode,有档上说64位VM,off是默认的)
+-Xshare:auto      在可能的情况下使用共享类数据 (默认)
+-Xshare:on        要求使用共享类数据, 否则将失败。
+-Xshare:dump 	  文档上有dump,但java -X中没有,测试有,生成CDS归档
+-XshowSettings:all
+-XshowSettings:local
+-XshowSettings:properties
+-XshowSettings:vm
+-Xusealtsigs  JVM内部信号,使用内部信号代替 SIGUSR1 和 SIGUSR2 ,同  -XX:+UseAltSigs 默认禁用
+-Xverify:remote		验证class 字节,所有不被bootstrap 加载的字节,默认方式
+-Xverify:all		验证所有的字节
+-Xverify:none		不验证所有的字节
+
+
+-Xss1m 表示栈最大空间 (thread stack size)	StackOverflowError  递归的层次太深, 同-XX:ThreadStackSize
+-Xmx参数设置堆内存的最大值,字节, 要是1024的倍数,可用k,K,m,M,g,G  -XX:MaxHeapSize //Runtime.getRuntime().maxMemory(); 可取到
+-Xms参数设置堆内存的最初始,字节,要是1024的倍数
+-Xmn参数设置堆内存的 新生代大小 等同 -XX:NewSize 
+
+
+===运行时选项 -XX 控制HotSpot VM
+-XX: +Param表示启用,-Param表示禁用,Param=value表示修改值,如数值可用k,m,g
+-====== Behavioral  动作的组
+-XX:+AllowUserSignalHandlers  启用signal handlers ,可以程序中捕获信号,默认是禁用的
+-XX:-DisableExplicitGC		禁止在运行期显式地调用 System.gc(),默认是启用的
+-XX:+FailOverToOldVerifier	新的Class校验器检查失败，则使用老的校验器,默认禁用的
+-XX:-RelaxAccessControlCheck  默认是禁用的,如果用老版本字节码可以启用
+-XX:+ScavengeBeforeFullGC     默认启用,不建议禁用,在做full GC 前做yong generation GC   ,  scavenge打扫
+-XX:+UseBoundThreads		  只对Solaris有效,绑定用户级线程到内核线程
+-XX:+UseConcMarkSweepGC    	  默认禁用,为old generation 使用(CMS)收集,如-XX:+UseParallelGC 达不到效果使用这个,还可使用-XX:+UseG1GC,
+								如启用 -XX:+UseParNewGC 也自动设置,不要禁用UseParNewGC,
+-XX:+UseGCOverheadLimit		 限制GC的运行时间.如果GC耗时过长,就抛OutOfMemory,并行GC如果98%的时间在收集,少于2%的堆也抛OutOfMemory
+-XX:+UseLWPSynchronization   只对Solaris,LWP-based 代替线程的同步
+-XX:+UseParallelGC			 默认禁用,收集器是自动选择的,如启用-XX:+UseParallelOldGC 也会自动启用
+-XX:+UseSerialGC  			 默认禁用,收集器是自动选择的,用于小应用 
+-XX:+UseTLAB				默认启用在 young generation 区中启用线程本地分配块((TLABs=thread-local allocation blocks )
+-XX:+UseThreadPriorities    使用本地线程优先级
+-XX:+UseVMInterruptibleIO   只对Solaris
+
+
+
+---(G1)  Garbage First 
+-XX:+UseG1GC   					Garbage-First(G1) ,推荐堆6G或更大,暂停时间小于0.5秒
+-XX:MaxGCPauseMillis=n 			最大暂停时间,默认没有最大
+-XX:InitiatingHeapOccupancyPercent=n   默认45%,开始并发GC cycle
+-XX:NewRatio=n
+-XX:SurvivorRatio=n
+-XX:MaxTenuringThreshold=n 默认15,在Survivor中存活15次(age)后,进入old generation
+-XX:ParallelGCThreads=n
+-XX:ConcGCThreads=n
+-XX:G1ReservePercent=n    默认10 , 保留10%的空间,防止失败
+-XX:G1HeapRegionSize=n    默认区的大小(统一),最小1M ,最大32M
+
+
+
+---性能
+-XX:+AggressiveOpts				性能优化,建议打开,未来默认
+-XX:CompileThreshold=10000		调用多少次,编译成本地程序
+-XX:LargePageSizeInBytes=4m	    对Solaris
+-XX:MaxHeapFreeRatio=70			GC后，如果发现空闲堆内存占到整个预估上限值的70%，则收缩预估上限值。
+-XX:MinHeapFreeRatio=40			GC后，如果发现空闲堆内存占到整个预估上限值的40%，则增大上限值 回收后堆最小可用百分比
+-XX:MaxNewSize=size 			
+-XX:NewRatio=2					新生代和年老代的堆内存占用比例 Ratio of old/new generation size   (名是分母)
+-XX:NewSize=2m					同-Xmn
+-XX:ReservedCodeCacheSize=32m	设置代码缓存的最大值 同 -Xmaxjitcodesize=size
+-XX:SurvivorRatio=8  			Eden与Survivor的占用比例  Ratio of eden/survivor space size  (名是分母)
+-XX:TargetSurvivorRatio=50		期望使用的survivor空间大小占比。默认是50%(拉圾回收)
+-XX:ThreadStackSize=512			线程堆栈大小(KB) 同 -Xss (byte)
+-XX:+UseBiasedLocking			调优	偏向锁只能在单线程下起作用,它提高了单线程访问同步资源的性能。
+								标准的轻量级锁,默认开启
+-XX:+UseFastAccessorMethods		优化原始类型的getter方法性能
+-XX:+UseLargePages				默认禁用
+   
+-XX:AllocatePrefetchLines=5 	生成JIT 编码代码 默认1 只server VM
+-XX:AllocatePrefetchStyle=1 	0 不生成 2 使用thread-local allocation block (TLAB)
+-XX:+OptimizeStringConcat		sever VM 支持,默认启用,像是字串相加转为StringBuilder
+
+---调试
+
+
+-XX:-CITime						打印JIT编译器编译耗时
+-XX:ErrorFile=./hs_err_pid<pid>.log  默认文件名在当前目录,可用  %p 表示 process,如果由于空间权限问题就放在/tmp目录中
+-XX:-ExtendedDTraceProbes		只对Solaris 启用dtrace诊断,默认禁用
+-XX:HeapDumpPath=./java_pid<pid>.hprof 　　,默认是java进程启动位置(Heap PROFling)
+-XX:-HeapDumpOnOutOfMemoryError	 在OutOfMemory时，输出一个dump.core文件
+-XX:OnError="<cmd args>;<cmd args>"
+-XX:OnOutOfMemoryError="<cmd args>;<cmd args>"
+-XX:-PrintClassHistogram		同jmap -histo <pid> 工具,或者 jcmd <pid> GC.class_histogram 
+-XX:-PrintConcurrentLocks		同Jstack –l <pid>
+-XX:-PrintCommandLineFlags		显示这个JVM所有配置的-XX:+ 选项
+-XX:-PrintCompilation			当方法被编译就打印消息到控制台
+-XX:-PrintGC				跟踪参数 
+-XX:-PrintGCDetails
+-XX:-PrintGCTimeStamps
+-XX:-PrintTenuringDistribution		 打印对象的存活期限信息
+								age 1:是从eden 到 survivor 1
+								age 2:是从 survivor 1 到 survivor 2
+								上次MinorGC后还存活的对象在这次MinorGC年龄都增加了1
+
+-XX:-TraceClassLoading				打印class装载信息到stdout
+-XX:-TraceClassLoadingPreorder		按class的引用/依赖顺序打印类装载信息到stdout
+-XX:-TraceClassResolution			打印常量池,但结果显示很多
+-XX:-TraceClassUnloading
+-XX:-TraceLoaderConstraints
+-XX:+PerfDataSaveToFile				 hsperfdata_<pid>, (正常)退出时保存jstat 二进制数据, 用jstat -class  file:///c:/tmp/hsperfdata_15276 , jstat -gc file:///c:/tmp/hsperfdata_15276
+-XX:ParallelGCThreads=n
+-XX:+UseCompressedOops			默认启用,compressed pointers ,当堆区小32 GB时使用32位指针代替64位指针,性能提升
+								如果大于32GB也可能使用32位指针  
+
+-XX:ObjectAlignmentInBytes 		默认8 ,取值必须是2的次方,最大256,可能会压缩指针，堆内存大小限制为4GB * ObjectAlignmentInBytes,
+-XX:+AlwaysPreTouch				进入main方法前,在JVM初始化之前touch 每个页
+-XX:AllocatePrefetchDistance=size  (in bytes) 只sever ,默认-1
+
+-XX:+Inline  					默认启用
+-XX:InlineSmallCode=size		默认1000(byte) 最大的代码空间(对编译方法应该inlined,)
+-XX:MaxInlineSize=size			默认35(byte) ,不是编译方法
+-XX:FreqInlineSize=n			频繁执行的方法做inlined,最大byte空间
+
+-XX:LoopUnrollLimit=n
+-XX:InitialTenuringThreshold=7  并行年轻代收集器,在年轻代存活次数
+-Xloggc:gc.log    				输出到日志文件
+-XX:-UseGCLogFileRotation  		当 -Xloggc开启时,gc日志做旋转
+-XX:GCLogFileSize=8K			文件>=8K 时gc日志做旋转
+
+--------
+-verbose:gc  跟踪参数  使用jconsole等监视工具更直接
+
+-XX:+PrintHeapAtGC	文档没有,有-XX:+G1PrintHeapRegions
+-XX:+PrintGCApplicationStoppedTime
+ 
+ 
+-XX:+CheckEndorsedAndExtDirs    检查 java.ext.dirs 或者 java.endorsed.dirs 变量, 	lib/endorsed目录存在并不为空 , 	lib/ext 目录有jar包
+-XX:+DisableAttachMechanism   默认是禁用的,即能使用像jcmd,jstack,jmap,jinfo,设置后不能使用
+-XX:+UnlockCommercialFeatures 
+-XX:-FlightRecorder
+-XX:FlightRecorderOptions=parameter=value
+
+
+
+
+-XX:+UseParallelGC   是 -server 默认 (64位 JDK 只支持 -server,也是隐式)会自动打开-XX:+UseParallelOldGC 
+	 XX:MaxGCPauseMillis=<N>. 
+	 -XX:GCTimeRatio=<N>, which sets the ratio of garbage collection time to application time to 1 / (1 + <N>).
+	   默认 99, resulting in a goal of 1% of the time in garbage collection.
+	 -XX:ParallelGCThreads=<N>
+	 YoungGenerationSizeIncrement=<Y> for the young generation 
+	 -XX:TenuredGenerationSizeIncrement=<T>  for the tenured generation
+
+
+	 
+-XX:ParallelGCThreads=n
+-XX:-UseParallelOldGC  Enabling this option automatically sets -XX:+UseParallelGC
+-XX:-UseSerialGC		使用串行垃圾收集器
+-XX:+UseConcMarkSweepGC 老生代采用CMS收集器
+
+-XX:+UseSpinning    多线程安全Lock,较短的时间内又必须重新调度回原线程的,线程进入OS互斥前，自旋一定的次数来检测锁的释放
+-XX:PreBlockSpin=10
+ 
+-XX:+UseThreadPriorities	使用本地线程的优先级
+
+
+-XX:-RelaxAccessControlCheck  	Relax the access control checks in the verifier.
+ 
+-XX:CompileCommand=exclude,java/lang/String.indexOf  把指定的方法做编译
+-XX:+PrintCompilation 
+-XX:+UnlockDiagnosticVMOptions  -XX:+LogCompilation (必须打开UnlockDiagnosticVMOptions)  默认目前目录下文件名hotspot_pid<nnn>.log -XX:LogFile 来修改文件名
+
+Minor GC主要负责收集Young Generation
+	因为-Xmn=10M,默认-XX:SurvivorRatio=8 ，则eden的空间大小为8M，当eden所有对象总共大小超过8M的时候就会触发Minor gc.
+	如果一个对象eden大小,直接分配到了Old generation
+Minor GC会把Eden中的所有活的对象都移到Survivor区域中，如果Survivor区中放不下，那么剩下的活的对象就被移到Old generation 中。
+
+Full GC （或Major GC）对所有内存都做GC
+
+--------性能监视工具
+
+
+
+jvisualvm  界面工具
+
+JDK8 的jmc (Java Mission Control)->"飞行记录器"->提示对要监控的JVM要加参数  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder 
+记录器会在一段时间内做记录(一分钟),保存到 C:\Users\zhaojin\.jmc\5.3.0\xxx.jfr ,用于事后查看
+
+jps命令显示所有Java进程的ID号 和 类名 ,像ps
+jps 返回vmid。为了获得更好的效果，采用 -Dcom.sun.management.jmxremote 属性集启动 Java 进程(JDK 1.5 加, 1.6 )
+
+
+jps  有VMID号
+jps -v 输出虚似机进程启动时JVM参数
+jps -l 输出主类名
+jps -m 传给主类的参数
+
+jinfo  -sysprops VMID
+jinfo  -flags VMID  显示这个VM的所有非默认的-XX选项,及启动的-X选项
+jinfo -flag MaxNewSize VMID	 	单位是byte
+jinfo -flag NewSize VMID
+
+jinfo -flag MaxDirectMemorySize   [进程ID]     (HotSpot VM参数,对nio分配置内存缓冲区)
+
+jinfo -flag SurvivorRatio VMID
+	-XX:SurvivorRatio=8
+jinfo -flag NewRatio VMID
+	-XX:NewRatio=2
+ 
+ 
+ 
+jstat –gccapacity VMID 	单位是KB
+NGCMN    NGCMX		 OGCMN      OGCMX	 
+5440.0  87360.0	 10944.0   174784.0		 
+
+NGCMN Minimum new generation capacity (KB). 
+NGCMX Maximum new generation capacity (KB). 
+
+OGCMN Minimum old generation capacity (KB). 
+OGCMX Maximum old generation capacity (KB). 
+  
+
+jstat -options 显示所有可用选项 (可查API)
+	S=survivor
+	C=capacity
+	E=Eden
+	O=Old
+	Y=young
+	F=Full
+	GC
+	T=time
+	L=last 
+-t	加第一列显示自JVM启动后的时间
+-h3 每三行显示一下标题
+-J-Xms48m -J-Xmx64m  修改JVM加选项
+
+jstat -gc [进程ID] 250 10					//每250毫秒一次,共10次,读gc的信息
+	S0C Current survivor space 0 capacity (KB).
+	S1C
+    S0U : Survivor space 0 utilization (KB).
+	S1U
+	EC 	Current eden space capacity (KB).
+	EU 	Eden space utilization (KB).
+	OC 	Current old space capacity (KB).
+	OU 	Old space utilization (KB).
+	MC: Metaspace capacity (KB).
+	MU: Metacspace utilization (KB).
+	YGC Number of young generation GC Events.
+	YGCT Young generation garbage collection time.
+	FGC Number of full GC events.
+	FGCT Full garbage collection time.
+	GCT Total garbage collection time.
+
+jstat -gcutil [进程号]  间隔毫秒  总数
+	S0  — Heap上的 Survivor space 0 区已使用空间的百分比
+	S1  — Heap上的 Survivor space 1 区已使用空间的百分比
+	E   — Heap上的 Eden space 区已使用空间的百分比
+	O   — Heap上的 Old space 区已使用空间的百分比
+	M: Metaspace utilization as a percentage of the space's current capacity.
+	YGC — 从应用程序启动到采样时发生 Young GC 的次数
+	YGCT– 从应用程序启动到采样时 Young GC 所用的时间(单位秒)
+	FGC — 从应用程序启动到采样时发生 Full GC 的次数
+	FGCT– 从应用程序启动到采样时 Full GC 所用的时间(单位秒)
+	GCT — 从应用程序启动到采样时用于垃圾回收的总时间(单位秒)
+
+jstat -class  [进程号]  间隔毫秒  总数   //看这个Java进程产生的类数
+jstat -compiler pid:显示VM实时编译的数量等信息。
+jstat -gccapacity   对象的使用和占用大小，
+	MCMN: Minimum metaspace capacity (KB).
+	MCMX: Maximum metaspace capacity (KB).
+	MC: Metaspace capacity (KB).
+	OC 是old内纯的占用量。
+
+jstat -gcnew pid: new对象的信息
+jstat -gcnewcapacity pid: new对象的信息及其占用量
+jstat -gcold pid: old对象的信息。
+jstat -gcoldcapacity pid:old对象的信息及其占用量
+jstat -gcpermcapacity pid: perm对象的信息及其占用量。
+jstat -printcompilation pid:当前VM执行的信息
+jstat -gccause 
+
+jcmd <pid | main class> <command ...|PerfCounter.print|-f file>  
+对-f 每个命令必须写在单独的一行。以"#"开头的行会被忽略,	stop 命令
+jcmd <pid> GC.class_histogram 
+可以用help 查所有的命令
+解锁商业特性,可与 Java Flight Recorder (JFR)一起使用
+
+jstack -- 如果java程序崩溃生成core文件，jstack工具可以用来获得core文件的java stack和native stack的信息,只有Linux/Unix
+jstack -l 进程ID  //查看
+java.lang.Thread.State: RUNNABLE
+						WAITING
+						TIMED_WAITING
+
+Map<Thread, StackTraceElement[]> maps = Thread.getAllStackTraces();
+//      maps.keySet();
+Set<Map.Entry<Thread, StackTraceElement[]>> set=maps.entrySet();
+//      set.iterator();
+for(Map.Entry<Thread, StackTraceElement[]> entry: set)
+{
+	Thread thread=entry.getKey();
+	System.out.println("Thread id:"+thread.getId()+",name:"+thread.getName()+",status:"+thread.getState());
+	for(StackTraceElement ele: entry.getValue())
+		System.out.println("\t"+ele);
+}
+		
+jinfo -flag MaxNewSize 进程ID //可修改,查看进程的JVM参数
+显示-XX:MaxNewSize= 
+ 
+
+
+[+|-]<name>    to enable or disable the named VM flag
+jinfo 修改有错误
+
+
+jmap -histo 进程ID  //(histo=histogram柱状图)以文本的形式显示现在所有的类,的实例数,占用空间
+jmap -dump:format=b,file=java_pid.hprof <进程ID> //(b是binary的缩写)进程的内存heap输出到heap.bin文件中,二进制文件  
+
+//如文件过大,机器可用内存 可能 要大于文件大小
+jhat -J-mx768m -port <端口号:默认为7000> java_pid.hprof
+
+jhat java_pid.hprof 分析jmap导出的文件,启动服务 HTTP端口7000,http://localhost:7000/ ,界面中会按包名分类
+	使用eclipse插件 MemoryAnalyzer分析jmap导出文件,插件认.hprof格式文件
+eclipse性能测试插件 TPTP
+java进程异常终止进产生 JavaCore 文件是关于CPU的　和　HeapDump(.hprof)文件是关于内存的
+
+
+
+jstatd.all.policy文件内容	
+	grant codebase "file:${java.home}/../lib/tools.jar" {
+	 permission java.security.AllPermission;
+	}; 
+jstatd -J-Djava.security.policy=jstatd.all.policy    默认rmiregistry的1099端口 -p1099
+
+远程启动jstatd(rmi协议)后,才能使用jvisualvm来连接
+
 ------------------jad反编译器使用,jdk7新特性目录不能很好的反编译
-jad -o -r -sjava -dsrc tree/**/*.class
-
-
+  jad -o -r -sjava -dsrc tree/**/*.class
+UNIX要
+  jad -o -r -sjava -dsrc 'tree/**/*.class'
+  
  -s <ext> - output file extension (by default '.jad')
   -o       - overwrite output files without confirmation (default: off)
  -r       - restore package directory structrure
  -d <dir> - directory for output files (will be created when necessary)
- 
+  
 反编译器 JD-GUI 
 ------------------
 ------------------JDBC
@@ -101,12 +575,15 @@ Connection con=DriverManager.getConnection(remoteDB2Url,"db2instl","123");
 
 
 Connection conn;
-conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-TRANSACTION_READ_UNCOMMITTED
-TRANSACTION_SERIALIZABLE
+//MySQL 与 JDBC 支持的完全一致
+con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);//Oracle 默认
+con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);//MySQL 默认 
+con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+//Oracle 只支持  READ COMMITTED  和 SERIALIZABLE; 
 
 
-MANIFEST.MF文件中的Main函数不会找classpath环境变量要用Class-Path：
+META-INF/MANIFEST.MF 文件中的Main函数不会找classpath环境变量要用Class-Path：
 :后一定要有一个空格,:前不能有空格, 多个jar包用空格分隔,可以把jar包放在目录下也可以放在根下
 引用的第三方的jar包只能放在本jar包外面( eclipse copy 选项)
 
@@ -129,17 +606,16 @@ jar -m Manifest文件
 
 java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000 -jar test.jar 	启动后等待连接
 java -agentlib:jdwp=transport=dt_socket,server=y,address=8000 -jar test.jar  	要JDK5
+会加载 jdwp.so 动态库文件
+Java Debug Wire Protocol (JDWP) 
 
+	
 eclipse->debug configration...->可以建立 Remote Java Application, 
 	复选Allow termination of remote VM,表示可以在eclispe中停止服务端(-server)的
 	Connection Type: 选择Standard(Socket Attach)做客户端,连接Host(可远程IP),Port  ,要在eclipse中打断点
 	Connection Type: 选择Standard(Socket Listen)做服务端
-
-	
-JDWP (Java Debug Wire Protocol)
+ 
 JDI  (Java Debug Interface)
-
-
 
 StackTraceElement stackTraceElement = throwable.getStackTrace()[0];
 String className = stackTraceElement.getClassName();
@@ -153,11 +629,12 @@ window 目录 下的win.ini文件是map形式的
 ArrayList 的后台是ojbect []  动态增长
 		e有一个toArray方法返object[]
 Arrays 类的static asList(object[]) 返回一个List是一个固定心寸的list
-Iterator 的remove方法是删除前一个对象，List 的iterator未实现这个方法，抛出UnsupportedOperationException ，ArrayList实现了
+Iterator 当 ArrayList.iterator()时,不能增加,删除ArrayList的元素,iterator.remove方法是删除前一个对象， 
 Collections 的类全部方法是static sort(List ,Comparator接口)
 											Comparator reverseOrder() 返序排列
 											min(),max();
 											binarySearch(); 要已经排序后的List
+Collections.rotate(rotateList, 2);//把数组 最后2位 放在 最前面
 LindedList
 队列只能在队尾增加，队头删除
 经常增加，删除操作用LinkedList
@@ -169,8 +646,10 @@ TreeSet()或用Comparator 来构造
 对ArrayList 如要同步，Collections.synchronizedList(List) 相比较.Vector(要快一些,但要小心使用)
 								unmodifiableSet()
 HashMap不是同步的,可以为null，HashTable 是同步的，不可为null
+
 LinkedHashMap	 构造时可以设置仿问排序和插入排序,性能和数据有关,而HashMap性能和容量有关
-HashTable 比Collecitons.synchronizedMap(Map)要快一些，但要小心
+HashTable 方法加 synchronize,效果同Collections.synchronizedMap 所有方法用一个锁 
+
 Stack 实现了Vector 有一个elementAt()方法，不适用
 Properties 是对String类型 的键值对　load(InputStream)
 
@@ -270,380 +749,81 @@ rmiregistry 命令启动后,会监听1099 端口
 
 eclipse启动时读取环境变量JAVA_HOME
 
-==========JVM 相关
-在线 Techonolgies->Java Virtual Machine ->HotSpot VM (Core)进入->Documentation 下的 HotSpot VM Command Line Options  -> 看JDK8的windows,linux
-http://docs.oracle.com/javase/8/   -> Reference ->  Developer Guides -> 图中最低层的(本地也有) Java HotSpot Client and Server VM
+---------instrument 
 
-jdk-8-apidocs/docs/technotes/tools/index.html  有jstat  有含意, java 命令的 -XX 选项
- 
-静态内存和动态内存
-编译时就能够确定的内存就是静态内存,如int类型
+java.lang.instrument 
 
-----每个线程有自己的,栈帧
-pc Register  线程轮流切换,保证线程切换回来后，还能恢复到原先状态
-JVM Stacks  
-Native Method Stacks  
+jar包的META-INF/MANIFEST.MF 文件必须有Premain-Class, 如Premain-Class: instrument.MyClassFileTransformer
+用来监测和协助运行在 JVM 上的程序，甚至能够替换和修改某些类的定义, 可以虚拟机级别支持的 AOP 实现方式
 
----线程共享的 (动态内存)
-Method Area  (PermanetGeneration jdk8中被删) Metaspace,参数 -XX:MaxMetaspaceSize=256m 限制本地内存分配给类元数据的大小,默认无限制
-	Run-Time Constant Pool 
-Heap 堆 区有
-
-1. new(young) Generation
-	一个Eden 空间,存放新生的对象,空间不足的时候，会把存活的对象转移到Survivor中
-	两个Survivor Spaces，存放每次垃圾回收后存活下来的对象 (FromSpace 和 ToSpace是对称的，没先后关系，from和to是相对的,Copying算法)
-	
-	Copying算法 ,存活的对象，并复制到一块新的完全未使用的空间中 对应于新生代，就是在Eden和  FromSpace或ToSpace之间  copyFromSpace或ToSpace之间copy 
-	新生代采用空闲指针的方式来控制GC触发，指针指向最后一个分配的对象的位置，当有新的对象要分配内存时，用于检查空间是否足够，不够就触发GC
-	minor GC后(非常频繁，一般回收速度也比较快)，Eden内存块会被清空, 活下来的对象首先由Eden拷贝到某个Survivor Space
-	
-2. old Generation(tenured) 生命周期长的内存对象 ,Mark算法来进行回收,回收后的空间要么进行合并，要么标记出来便于下次进行分配
-		老年代内存被占满时将会触发Full GC,回收整个堆内存
-		Major GC (一般会比 Minor GC慢10倍以上) / Full GC
+在 main 函数运行之前执行
+先找 	 public static void premain(String agentArgs, Instrumentation inst); 
+如无再找 public static void premain(String agentArgs); 
 		
-Survivor Space空间满了后, 剩下的live对象就被直接拷贝到tenured Generation中去,old 满后就会有Full GC
-移动到 Survivor 空间中，并将对象年龄设为 1。对象在 Survivor 区中每熬过一次 Minor GC，年龄就增加 1 岁，当它的年龄增加到一定程度（默认为 15 岁）时，就会被晋升到老年代中。对象晋升老年代的年龄阈值，可以通过参数 -XX:MaxTenuringThreshold 来设置
-
-Concurrent Mark Sweep (CMS)  Collector 
-	标记—清除
-	初始标记(STW initial mark) STW(Stop The Word),描到能够和"根对象"直接关联的对象,暂停了整个JVM，但是很快就完成了
-    并发标记(Concurrent marking)
-    并发预清理(Concurrent precleaning)
-    重新标记(STW remark)
-    并发清理(Concurrent sweeping)
-    并发重置(Concurrent reset) 
-	
-	
-	
-	留一部分内存空间提供并发收集时的程序运作使用。在默认设置下，CMS收集器在老年代使用了x%的空间时就会被激活，
-	也可以通过参数-XX:CMSInitiatingOccupancyFraction 的值来提供触发百分比,默认-1 表示使用 -XX:CMSTriggerRatio,默认80%
-	MinHeapFreeRatio  默认40%
-	
-
--XX:+UseParallelGC   是 -server 默认
-	 XX:MaxGCPauseMillis=<N>. 
-	 -XX:GCTimeRatio=<N>, which sets the ratio of garbage collection time to application time to 1 / (1 + <N>).
-	   默认 99, resulting in a goal of 1% of the time in garbage collection.
-	 -XX:ParallelGCThreads=<N>
-	 YoungGenerationSizeIncrement=<Y> for the young generation 
-	 -XX:TenuredGenerationSizeIncrement=<T>  for the tenured generation
-	 
--XX:+UseSerialGC  小于100M的数据应用,单处理器
--XX:+UseConcMarkSweepGC  (CMS)
--XX:+UseG1GC   , Garbage-First(G1) , server-style  ,将来替代CMS
-	heap被平均分成若干个大小相等的区域(region)
-
-jvm垃圾回收算法
-	引用计数法:两个对象A和B，互相引用无法回收,老的
-	
-	搜索方法  GC Roots  从这些节点开始往下搜索，搜索通过的路径成为引用链（Reference Chain），当一个对象没有被GC Roots的引用链连接的时候，说明这个对象是不可用
-		a) 虚拟机栈（栈帧中的本地变量表）中的引用的对象。
-		b) 方法区域中的类静态属性引用的对象。
-		c) 方法区域中常量引用的对象。
-		d) 本地方法栈中JNI（Native方法）的引用的对象。
-	标记—清除算法(Mark-Sweep)  产生大量的不连续空间
-	复制算法(Copying) 			内存分成大小相等的两块，每次使用其中一块,把存活的对象复制到另一块上，然后把这块内存整个清理掉。内存的利用率不高,收集新生代 
-	标记—整理算法(Mark-Compact) 是把存活对象往内存的一端移动，然后直接回收边界以外的内存。  内存的利用率，并且它适合在收集对象存活时间较长的老年代。
-	 
-
-	 
-jconsole 命令可以查看JVM 的性能　监控
-
-Xss=256K表示栈空间最大为256K(Set thread stack size. )	StackOverflowError  递归的层次太深
-
--Xmx参数设置堆内存的最大值
--Xms参数设置堆内存的最初始 
--Xmn参数设置堆内存的最小值    设置新生代大小 等同 -XX:NewSize 
-Runtime.getRuntime().maxMemory(); //是-Xmx的值
-
-JVM参数 NewSize, MaxNewSize 
-
--XX:SurvivorRatio=8	Ratio of eden/survivor space size  (名是分母)
--XX:NewRatio=2		Ratio of old/new generation size   (名是分母)
--XX:MinHeapFreeRatio=40  回收后堆最小可用百分比
--XX:MaxHeapFreeRatio=70  
--XX:MaxNewSize      is computed as a function of NewRatio
-
-set JAVA_OPTS=-Xss256K -Xms256m -Xmx1024m   -XX:NewSize=128m -XX:MaxNewSize=256m -XX:SurvivorRatio=8 -XX:NewRatio=2
-	
-jps  有VMID号
-jinfo -flag MaxNewSize VMID	 	单位是byte
-jinfo -flag NewSize VMID
-
-jinfo -flag SurvivorRatio VMID
-	-XX:SurvivorRatio=8
-jinfo -flag NewRatio VMID
-	-XX:NewRatio=2
+	//每装载一个类，transform 方法就会执行一次
+	可以使用Apache Commons BCEL 项目操作class字了码
  
-jstat -gc VMID
- S0C    S1C        EC          OC        
-512.0  512.0     4480.0     10944.0     
-两个Survivor
-EC Current eden space capacity (KB). 
-S0C Current survivor space 0 capacity (KB).
-OC Current old space capacity (KB). 
- 
-jstat –gccapacity VMID 	单位是KB
-NGCMN    NGCMX		 OGCMN      OGCMX	 
-5440.0  87360.0	 10944.0   174784.0		 
-
-NGCMN Minimum new generation capacity (KB). 
-NGCMX Maximum new generation capacity (KB). 
-
-OGCMN Minimum old generation capacity (KB). 
-OGCMX Maximum old generation capacity (KB). 
- 
-OC是old内纯的占用量。
+ inst.addTransformer(new MyClassFileTransformer()); 
+//--- 方式2
+ byte[] bytes = 得到class的byte
+ClassDefinition def = new ClassDefinition(TransClass.class,bytes); 
+inst.redefineClasses(new ClassDefinition[] { def });
+		
+在 main 函数运行之后执行
+jar包的META-INF/MANIFEST.MF 文件 中 Agent-Class
+public static void agentmain(String agentArgs, Instrumentation inst); 
+public static void agentmain(String agentArgs); 
 
 
-
--XX:-AllowUserSignalHandlers  允许为java进程安装信号处理器(只支持solaris和linux)
-//对Linux,Solaris ,运行后使用 kill -s SIGUSR2 pid
-import sun.misc.Signal;
-import sun.misc.SignalHandler;
-@SuppressWarnings("restriction")
-public class TestSignal implements SignalHandler 
+//示例
+class MyClassFileTransformer implements ClassFileTransformer
 {
- 
-	private void signalCallback(Signal sn) {
-		System.out.println(sn.getName() + "is recevied.");
-	}
-	@Override
-	public void handle(Signal signalName) {
-		signalCallback(signalName);
-	}
- 	public static void main(String[] args) throws InterruptedException {
-		TestSignal testSignalHandler = new TestSignal();
-		Signal sig = new Signal("USR2");
-		Signal.handle(sig, testSignalHandler);
-		Thread.sleep(15000);
+	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) 
+			throws IllegalClassFormatException {
+	{
+		//System.out.println("className="+className);
+		if (!className.equals("instrument/TransClass")) {
+			return null;
+		}
+		//System.out.println("-- transform");
+		File file = new File("D:/eclipse_java_workspace/J_JavaSE/bin/instrument/TransClass.class.2");	// 修改TransClass返回2,保存.class文件为.class.2
+		InputStream is  = new FileInputStream(file);
+		long length = file.length();
+		byte[] bytes = new byte[(int) length];
+		is.close();
+		return bytes;
 	}
 }
 
-
--XX: +Param表示启用,-Param表示禁用,Param=value表示修改值
--X 参数不是JVM的标准,不能保证其它JVM也有用
-
-以下的加+/-表示默认
--XX:-DisableExplicitGC		禁止在运行期显式地调用 System.gc()
--XX:+FailOverToOldVerifier	新的Class校验器检查失败，则使用老的校验器,JDK6最高向下兼容到JDK1.2
--XX:+HandlePromotionFailure
-
--XX:-UseParallelGC
--XX:ParallelGCThreads=n
--XX:-UseParallelOldGC  Enabling this option automatically sets -XX:+UseParallelGC
--XX:-UseSerialGC		使用串行垃圾收集器
--XX:+UseConcMarkSweepGC 老生代采用CMS收集器
-
--XX:+UseSpinning    多线程安全Lock,较短的时间内又必须重新调度回原线程的,线程进入OS互斥前，自旋一定的次数来检测锁的释放
--XX:PreBlockSpin=10
-
--XX:+ScavengeBeforeFullGC		在Full GC前触发一次Minor GC
--XX:+UseGCOverheadLimit		限制GC的运行时间。如果GC耗时过长，就抛OutOfMemory。
--XX:+UseTLAB				启用线程本地缓存区
--XX:+UseThreadPriorities	使用本地线程的优先级
-
-
--XX:-RelaxAccessControlCheck  	Relax the access control checks in the verifier.
--XX:+UseSplitVerifier  	Use the new type checker with StackMapTable attributes.
-
----性能
--XX:+AggressiveOpts				调优
--XX:CompileThreshold=10000
--XX:LargePageSizeInBytes=4m
--XX:MaxHeapFreeRatio=70			GC后，如果发现空闲堆内存占到整个预估上限值的70%，则收缩预估上限值。
--XX:MinHeapFreeRatio=40			GC后，如果发现空闲堆内存占到整个预估上限值的40%，则增大上限值
--XX:NewRatio=2					新生代和年老代的堆内存占用比例
--XX:ReservedCodeCacheSize=32m	设置代码缓存的最大值
--XX:SurvivorRatio=8  			Eden与Survivor的占用比例
--XX:TargetSurvivorRatio=50		实际使用的survivor空间大小占比。默认是50%
--XX:ThreadStackSize=512			线程堆栈大小
--XX:+UseBiasedLocking			调优	偏向锁只能在单线程下起作用,它提高了单线程访问同步资源的性能。
-								标准的轻量级锁
--XX:+UseFastAccessorMethods		优化原始类型的getter方法性能
--XX:+UseLargePages
--XX:+UseStringCache				启用字符串缓存
-
----调试
--XX:-PrintClassHistogram		同jmap -histo <pid> 工具,或者 jcmd <pid> GC.class_histogram
--XX:-PrintConcurrentLocks		同Jstack –l <pid>
-
--XX:-CITime						打印JIT编译器编译耗时
--XX:ErrorFile=./hs_err_pid<pid>.log
--XX:-ExtendedDTraceProbes		启用dtrace诊断
--XX:HeapDumpPath=./java_pid<pid>.hprof 　　,默认是java进程启动位置(Heap PROFling)
--XX:-HeapDumpOnOutOfMemoryError	 在OutOfMemory时，输出一个dump.core文件，	
--XX:OnError="<cmd args>;<cmd args>"
--XX:OnOutOfMemoryError="<cmd args>;<cmd args>"
--XX:-PrintConcurrentLocks
--XX:-PrintCommandLineFlags
--XX:-PrintCompilation
--XX:-PrintGC				跟踪参数 
--XX:-PrintGCDetails
--XX:-PrintGCTimeStamps
--XX:-PrintTenuringDistribution		 打印对象的存活期限信息
--XX:-TraceClassLoading				打印class装载信息到stdout
--XX:-TraceClassLoadingPreorder		按class的引用/依赖顺序打印类装载信息到stdout
--XX:-TraceClassResolution			打印所有静态类，常量的代码引用位置
--XX:-TraceClassUnloading
--XX:-TraceLoaderConstraints
--XX:+PerfSaveDataToFile				与-XX:HeapDumpPath
-
-
-
-
-
--verbose:gc  跟踪参数  使用jconsole等监视工具更直接
--XX:+PrintGCTimeStamps
--XX:+PrintGCDetails 
--Xloggc:gc.log    输出到日志文件
--XX:PrintHeapAtGC	文档没有,有-XX:+G1PrintHeapRegions
--XX:+TraceClassLoading
-
-
-
-
-
-
-Minor GC主要负责收集Young Generation
-	因为-Xmn=10M,默认-XX:SurvivorRatio=8 ，则eden的空间大小为8M，当eden所有对象总共大小超过8M的时候就会触发Minor gc.
-	如果一个对象eden大小,直接分配到了Old generation
-Minor GC会把Eden中的所有活的对象都移到Survivor区域中，如果Survivor区中放不下，那么剩下的活的对象就被移到Old generation 中。
-
-Full GC （或Major GC）对所有内存都做GC
-
-jinfo -flag MaxDirectMemorySize   [进程ID]     (HotSpot VM参数,对nio分配置内存缓冲区)
-
-
-JDK8 的jmc (Java Mission Control)->"飞行记录器"->提示对要监控的JVM要加参数  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder 
-记录器会在一段时间内做记录(一分钟),保存到 C:\Users\zhaojin\.jmc\5.3.0\xxx.jfr ,用于事后查看
-
---------性能监视工具
-jdb 像gdb
-
-jps命令显示所有Java进程的ID号 和 类名 ,像ps
-jps 返回vmid。为了获得更好的效果，采用 -Dcom.sun.management.jmxremote 属性集启动 Java 进程
-
-jstat -options 显示所有可用选项 (可查API)
-	S=survivor
-	C=capacity
-	E=Eden
-	O=Old
-	Y=young
-	F=Full
-	GC
-	T=time
-	L=last 
--t	加第一列显示自JVM启动后的时间
--h3 每三行显示一下标题
--J-Xms48m -J-Xmx64m  修改JVM加选项
-
-jstat -gc [进程ID] 250 10					//每250毫秒一次,共10次,读gc的信息
-	S0C Current survivor space 0 capacity (KB).
-	S1C
-    S0U : Survivor space 0 utilization (KB).
-	S1U
-	EC 	Current eden space capacity (KB).
-	EU 	Eden space utilization (KB).
-	OC 	Current old space capacity (KB).
-	OU 	Old space utilization (KB).
-	MC: Metaspace capacity (KB).
-	MU: Metacspace utilization (KB).
-	YGC Number of young generation GC Events.
-	YGCT Young generation garbage collection time.
-	FGC Number of full GC events.
-	FGCT Full garbage collection time.
-	GCT Total garbage collection time.
-
-jstat -gcutil [进程号]  间隔毫秒  总数
-	S0  — Heap上的 Survivor space 0 区已使用空间的百分比
-	S1  — Heap上的 Survivor space 1 区已使用空间的百分比
-	E   — Heap上的 Eden space 区已使用空间的百分比
-	O   — Heap上的 Old space 区已使用空间的百分比
-	M: Metaspace utilization as a percentage of the space's current capacity.
-	YGC — 从应用程序启动到采样时发生 Young GC 的次数
-	YGCT– 从应用程序启动到采样时 Young GC 所用的时间(单位秒)
-	FGC — 从应用程序启动到采样时发生 Full GC 的次数
-	FGCT– 从应用程序启动到采样时 Full GC 所用的时间(单位秒)
-	GCT — 从应用程序启动到采样时用于垃圾回收的总时间(单位秒)
-
-jstat -class  [进程号]  间隔毫秒  总数   //看这个Java进程产生的类数
-jstat -compiler pid:显示VM实时编译的数量等信息。
-jstat -gccapacity   对象的使用和占用大小，
-	MCMN: Minimum metaspace capacity (KB).
-	MCMX: Maximum metaspace capacity (KB).
-	MC: Metaspace capacity (KB).
-	OC 是old内纯的占用量。
-
-jstat -gcnew pid: new对象的信息
-jstat -gcnewcapacity pid: new对象的信息及其占用量
-jstat -gcold pid: old对象的信息。
-jstat -gcoldcapacity pid:old对象的信息及其占用量
-jstat -gcpermcapacity pid: perm对象的信息及其占用量。
-jstat -printcompilation pid:当前VM执行的信息
-jstat -gccause 
-
-
-
-jstack -- 如果java程序崩溃生成core文件，jstack工具可以用来获得core文件的java stack和native stack的信息,只有Linux/Unix
-jstack -l 进程ID  //查看
-java.lang.Thread.State: RUNNABLE
-						WAITING
-						TIMED_WAITING
-
-Map<Thread, StackTraceElement[]> maps = Thread.getAllStackTraces();
-//      maps.keySet();
-Set<Map.Entry<Thread, StackTraceElement[]>> set=maps.entrySet();
-//      set.iterator();
-for(Map.Entry<Thread, StackTraceElement[]> entry: set)
-{
-	Thread thread=entry.getKey();
-	System.out.println("Thread id:"+thread.getId()+",name:"+thread.getName()+",status:"+thread.getState());
-	for(StackTraceElement ele: entry.getValue())
-		System.out.println("\t"+ele);
-}
-		
-jinfo -flag MaxNewSize 进程ID //可修改,查看进程的JVM参数
-显示-XX:MaxNewSize= 
+public class Premain 
+{ 
+    public static void premain(String agentArgs, Instrumentation inst)   { 
+    	System.out.println("enter premain"); 
+        //inst.addTransformer(new MyClassFileTransformer()); 
+		//-----------方式2
+	    byte[] bytes = 得到class的byte
+		ClassDefinition def = new ClassDefinition(TransClass.class,bytes); 
+        inst.redefineClasses(new ClassDefinition[] { def });
+    } 
+ }
  
+META-INF/MANIFEST.MF
+Premain-Class: instrument.Premain
+Main-Class: instrument.InstrumentMain
 
+//jar -cvfm myinsturment.jar META-INF/MANIFEST.MF  instrument   打包一定要加m
+//jar -cvfm myinsturment.jar instrument/META-INF/MANIFEST.MF  instrument
+// java -javaagent:myinsturment.jar  -jar myinsturment.jar   显示2
 
-[+|-]<name>    to enable or disable the named VM flag
-jinfo 修改有错误
+虚拟机启动之后来加载某些 jar 进入 bootclasspath,
+注意加入到 classpath 的 jar 文件中不应当带有任何和系统的 instrumentation 有关的系统同名类
+注意系统参数“java.class.path”，
 
+Instrumentation类的
+appendToBootstrapClassLoaderSearch(JarFile jarfile)  
+appendToSystemClassLoaderSearch(JarFile jarfile)  
 
-jmap -histo 进程ID  //(histo=histogram柱状图)以文本的形式显示现在所有的类,的实例数,占用空间
-jmap -dump:format=b,file=java_pid.hprof <进程ID> //(b是binary的缩写)进程的内存heap输出到heap.bin文件中,二进制文件  
-
-//如文件过大,机器可用内存 可能 要大于文件大小
-jhat -J-mx768m -port <端口号:默认为7000> java_pid.hprof
-
-jhat java_pid.hprof 分析jmap导出的文件,启动服务 HTTP端口7000,http://localhost:7000/ ,界面中会按包名分类
-	使用eclipse插件 MemoryAnalyzer分析jmap导出文件,插件认.hprof格式文件
-eclipse性能测试插件 TPTP
-java进程异常终止进产生 JavaCore 文件是关于CPU的　和　HeapDump(.hprof)文件是关于内存的
-
-
-jvisualvm  界面工具
-
-jstatd.all.policy文件内容	
-	grant codebase "file:${java.home}/../lib/tools.jar" {
-	 permission java.security.AllPermission;
-	}; 
-jstatd -J-Djava.security.policy=jstatd.all.policy    默认rmiregistry的1099端口 -p1099
-
-远程启动jstatd(rmi协议)后,才能使用jvisualvm来连接
-
-
-
-apt	(Annotation Processing Tool)工具
-extcheck 工具,检查jar的冲突
-
- jad -o -r -sjava -dsrc tree/**/*.class
-UNIX要
-  jad -o -r -sjava -dsrc 'tree/**/*.class'
-
-dwr.util.setValue("id","value",escapeHtml:true});防止用户在表单中输入HTML标签
+---------
 
 
 --------------------------JDK1.5新特性
@@ -787,13 +967,12 @@ InputStream  in=new FileInputStream("c:/temp/aa.txt"); //实现AutoCloseable接�
 int billion=1_000_000_000;//在数字中使用下划线
 int binary=0b1001_1001;  //0b是二进制
 
-switch("one")  //switch可用字串
+switch("one")  //switch可可char,byte ,int ,short,enum ,String是新版本,,不可用于long和小数
 
  Map<String, List<String>> myMap = new HashMap<>(); //可以简写
  
 ForkJoinPool pool = new ForkJoinPool(); //Fork/Join 模式 ,默认是runtime.availableProcessors();CPU多少核的
 pool.invoke(new MySortTask()); //会调用RecursiveAction 的 compute 方法
-
 class MySortTask extends RecursiveAction //如使用RecursiveTask的compute方法可带返回值
 {
 	protected void compute()
@@ -809,6 +988,19 @@ class MySortTask extends RecursiveAction //如使用RecursiveTask的compute方�
 		.join()//阻塞等待结果完成。
 	}
 }
+
+//第二种带返回值的
+RecursiveTask<Integer> task=new MyRecursiveTask (); 
+pool.execute(task);//变execute
+Integer result = task.get();
+
+class MyRecursiveTask extends RecursiveTask<Integer> {  //变RecursiveTask
+ public Integer compute() {
+	 //可调用fork/join/compute
+	return null;  
+ }
+}
+
 
 //---------JDBC 
 DatabaseMetaData dbMetaData= conn.getMetaData();
@@ -887,7 +1079,7 @@ PriorityBlockingQueue //按自然排序或者传Comparator
 CopyOnWriteArrayList,CopyOnWriteArraySet  ,	老的Set正在Iterator时,不能使用Collection的remove,add,但可以用Iterator的remove
 
 ConcurrentLinkedQueue 线安全的
-ConcurrentHashMap
+ConcurrentHashMap  key和value都不能为空
 ConcurrentSkipListMap 是一个SortedMap
 
 SynchronousQueue 是一个阻塞队列,每次的插入必须有取时才会插入,否则等有人来取,可以有多个来取
@@ -1462,7 +1654,7 @@ orb = org.omg.CORBA.ORB.init(args, props);
 ((com.ooc.CORBA.ORB)orb).destroy();
 
 
-启动Server时  java -Xbootclasspath/p:%CLASSPATH%  hello.Server
+启动Server时  java -Xbootclasspath/p:%CLASSPATH%  hello.Server   // /p=prepend 在开始处加 /a=append
 
 IDL 语法
 	数据类型
@@ -2610,7 +2802,7 @@ public static String getMD5String(byte[] bytes) {
 http://www.xmd5.org MD5解密,可数字和字母,但如特殊字符
 
 -----安全散列算法1 (SHA1),测试OK,API使用和MD5一样的
-MessageDigest.getInstance("SHA-1");
+MessageDigest.getInstance("SHA-1");//在JDK9中要禁用了
 MessageDigest.getInstance("sha-1");
 MessageDigest.getInstance("Sha-1"); 是一样的。
 
@@ -2903,7 +3095,7 @@ Math.pow(2,3)//2的3次方，或者3的2次幂
 # >>是带符号位的右移符号,x>>1就是x的内容右移一位,如果开头是1则补1,是0责补0,(x的内容并不改变).
 # >>>是不带符号位的右移,x>>>1就是x的内容右移一位,开头补0(x的内容并不改变)
 
-
+位异或( ^ ) 
 十六进制相关转换
 String   hexString   =   Integer.toHexString(1234567);
 String   str   =   Integer.toString(Integer.parseInt(hexString,16));
@@ -2939,12 +3131,13 @@ java.util.concurrent包
 ThreadPoolExecutor  中的doc
 	execute(Runnable )
 
-	ExecutorService exec =Executors.newCachedThreadPool() //如创建的线程60秒未使用，则从cache中删
+	ExecutorService exec =Executors.newCachedThreadPool(); //如创建的线程60秒未使用，则从cache中删
 	Semaphore semp = new Semaphore(5);// 只能5个线程同时访问,如超过阻塞       
 	exec.execute( Runnable )//没有返回结果
 	semp.availablePermits();//还有几个线程可进入
 	Future f =exec.submit(Callable )//Callable 可以得到执行结果
 	f=exec.submit(Runable ,T result )//Runnable只能转入执行完成后的返回结果
+	f=exec.submit(Runnable task);//如成功执行后,f.get()返回null
 	  exec.execute(Runable) //没有返回结果,当线程数小于corePoolSize进会建立线程
 							//当executor shutown,线程和队列达到饱和时,会调用 RejectedExecutionHandler.rejectedExecution
 	f.get()//阻塞,直到返回线程处理结果
@@ -3553,6 +3746,12 @@ do {
 } while (!head.compareAndSet(oldHead, newHead));
 
 
+Integer i3= 128; 
+Integer i4= 128;
+System.out.println(i3==i4);  //false ???  大坑
+//对于Integer var=?在-128至127之间的赋值，Integer对象是在IntegerCache.cache产生，会复用已有对象，这个区间内的Integer值可以直接使用==进行判断，但是这个区间之外的所有数据，都会在堆上产生
+
+
 
 //其它人写的线程，有异常，并没有try,我在main方法中如何try,
 //使用ThreadGroup类，重写uncaughtException方法，建立自己的线程时带入ThreadGroup
@@ -3950,43 +4149,6 @@ PropertyChangeSupport changes    = new PropertyChangeSupport(this);
 changes.addPropertyChangeListener(listener);
 changes.firePropertyChange("userName", oldName, userName);
 
------面试题
-public void myMethod(Object o){
-System.out.println("My Object");
-}
-public void myMethod(String s){
-System.out.println("My String");
-}
-
-myMethod(null);//调用的是String 参数
-
-System.out.println(5.00-4.90); //结果是0.09999999999999964
-BigDecimal b1 = new BigDecimal(5.00);
-BigDecimal b2 = new BigDecimal(4.90);
-float ss = b1.subtract(b2).floatValue(); //正确结果
-
-
-synchronized 做用于 static 方法上,是对类一级的锁,即两个线程对一个类的两个方法 synchronized static 同时只有一个可会被执行
-
-单例
-class Singleton
-{       
-  private static Singleton single;//或者 =new 
-  private Singleton(){} 
-		 
-  public static Singleton getSingle() //或加 synchronized
-  {        
-	if(single == null)
-	{          
-		synchronized (Singleton.class)   //(double check JDK7,8成立,老版本JDK可能有问题)
-		{        
-			if(single == null)            
-				 single = new Singleton();               
-		}       
-	}         
-	return single;
-  }
-}
 	/**
      * 等额本息
      * @param totalPrincipal 总货款额，全部本金
@@ -4011,15 +4173,12 @@ class Singleton
         return amt;
     }	
 	
-final abstract 不能同时定义
-工厂方法和抽像工厂
 常量池
-intern() String类的
+String类的 intern() 
 
 String a="abc";
 String b=new String ("abc");
 String i=b.intern();//i==a 是true;
-
 
 Thread shutdownHook = new Thread() {
 	@Override

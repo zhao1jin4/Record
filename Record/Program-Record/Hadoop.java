@@ -1124,6 +1124,11 @@ bin/spark-shell --master local[4] --jars use_for_classpath.jar,code.jar
 bin/pyspark --master local[4] --py-files code.py,code.zip
 
 
+------------------------- Spark MLIb 机器学习
+machine learning
+Mahout  使用 MapReduce 
+
+
 ---------------------------------hadoop 子项目 ambari 是一个web工具 用于,监控,管理
  
 只可对只定的64位linux 系统
@@ -1420,7 +1425,7 @@ $ bin/flume-ng avro-client -H localhost -p 44444 -F README   #把文件的内容
 一个Sink只能指定一个Channel
 
 ===========Storm   1.0.2
-
+Twitter的开源技术
 
 
 使用 thrift 技术 生成代码,可以使用其它语言如 Python 
@@ -1501,8 +1506,6 @@ cluster.submitTopology("word-count", conf, builder.createTopology());
 
 ===========Tez   替代 MapReduce 也是基于YARN
 
-===========Mahout  不使用 MapReduce
-	machine learning (Spark MLIb)
 
 ===========Oozie [u:zi] 驯象人
 	a workflow scheduler system to manage Apache Hadoop jobs
@@ -1512,15 +1515,22 @@ cluster.submitTopology("word-count", conf, builder.createTopology());
 
 ===========MRUnit  MapReduce 的单元测试
 ===========cloudStack
-	---jclouds  cloudStack(上层,首选) , openStack(底层,HP基于它,Solaris-11.2 使用它) 	
-	中国银联采用 SUSE 部署 OpenStack ,目前已是全球第二大开源软件项目，仅次于Linux。 OpenStack能支持所有的 x86架构服务器。
-	亚马逊 Amazon Web Services (AWS) Elastic Compute Cloud(EC2)
-	
-	MySQL ,iSCSI
+apache CloudStack的目标是提供高度可用的、高度可扩展的能够进行大规模虚拟机部署和管理的开放云平台
+用Java语言写的,支持MySQL 
+
+ 虚拟化技术 支持没有openStack的多
 	
 regions -> zone->Pod, secondary storage ->cluster->host, primary storage
-cloudStack 实现Infrastructure as a Service (IaaS) 层 , Hadoop是实现 PaaS (Platform as a service)层  ,SaaS(Software-as-a- Service)
 
+===========openStack
+cloudStack/openStack 实现  IaaS(Infrastructure as a Service ) 层 , 
+			Hadoop     实现	 PaaS (Platform as a service)层  ,
+							 SaaS(Software-as-a- Service)
+
+cloudStack(上层) , openStack(底层,HP基于它,Solaris-11.2 使用它)
+ 	
+中国银联采用 SUSE 部署 OpenStack ,目前已是全球第二大开源软件项目，仅次于Linux。 OpenStack能支持所有的 x86架构服务器
+社区活越度大,用python语言写的,未来支持Python 3 ,支持PostgreSQL,MySQL,SQLite 
 
 =============Greenplum  基于 PostgreSQL
 =============Nutch  搜索引擎   全文搜索和Web爬虫

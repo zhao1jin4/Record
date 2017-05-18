@@ -1,12 +1,13 @@
-
-hibernate-release-4.1.0.Final/documentation/quickstart/en-US/html_single/files/hibernate-tutorials.zip 
+hibernate-release-5.2.9.Final\documentation\quickstart\html_single\hibernate-tutorials.zip 
  有hibernate.cfg.xml,x.hbm.xml,x.java 复制
 hibernate-release-4.1.0.Final/documentation/manual/en-US/html_single/index.html  有.dtd示例
- 
 hibernate-release-4.1.0.Final\project\etc\hibernate.properties 文件中有可以配置的key
+
 Environment,AvailableSettings 类中有所有的hibernate.开头的属性
 
-hibernate.connection.isolation 同 JDBC 的隔离级别
+hibernate.connection.isolation 		对使用 java.sql.DriverManager 时,同 JDBC 的隔离级别,使用数字配置
+hibernate.connection.url 			对使用 java.sql.DriverManager
+hibernate.connection.pool_size 		对使用 java.sql.DriverManager
 
 <!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
 		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
@@ -39,7 +40,15 @@ hibernate.connection.isolation 同 JDBC 的隔离级别
 		<property name="hibernate.transaction.factory_class">org.hibernate.engine.transaction.internal.jta.JtaTransactionFactory</property>
 		<property name="jta.UserTransaction">jndi/xx</property>
 		 -->
+		
+		<!-- hibernate-5.2 没有这个类
 		<property name="hibernate.transaction.factory_class">org.hibernate.engine.transaction.internal.jdbc.JdbcTransactionFactory</property>
+		-->
+		
+		<!-- hibernate-5.2 新的 TransactionCoordinatorBuilder　取值jdbc/jta-->
+		<property name="hibernate.transaction.coordinator_class">jdbc</property>
+		
+		
 		<property name="hibernate.connection.provider_class">org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider</property>
 		<property name="hibernate.c3p0.max_size">15</property>
 		<property name="hibernate.c3p0.min_size">1</property>
@@ -354,12 +363,13 @@ session.merge();//保存,对象还是脱管的(脱离Session的管理)
 <id unsaved-value="-1" //saveOrUpdate来判断对象是临时,还是持久,游离,saveOrUpdate方法时
 
 Query query=session.createQuery("from Teacher t where t.name=:t_name");//字串参数
-query.setString("t_name" , "teacher1");
+query.setParameter("t_name" , "teacher1");
 //如已经在一级缓存中,但HQL不使用,直接查,如过多可能内存溢出,清用session.clear(),evict(x)
 Query.uniqueResult();
-query.setString(0, "lisi");//Hibernate从0  开始,JDBC从1开始
+query.setParameter(0, "lisi");//Hibernate从0  开始,JDBC从1开始,老的是setString从hibernate5.2使用 setParameter
 
-SQLQuery sqlQuery=session.createSQLQuery("");
+//SQLQuery sqlQuery=session.createSQLQuery(""); // 以前是createSQLQuery 从5.2起用createNativeQuery(String) 
+NativeQuery sqlQuery=session.createNativeQuery("");
 
 使用oracle <class name="User" table="`user`" //使用``来防oracle 关键字
 
@@ -381,7 +391,18 @@ Criteria dynamicCriteria=detach.getExecutableCriteria(session);
 List allResult=dynamicCriteria.list();
 
 query=session.createQuery("from Student where id>100");
-Iterator iter=query.iterate();//如没有缓存,这个方法会生成N+1条select,1条是查所有的ID,性能很低
+//Iterator iter=query.iterate();//如没有缓存,这个方法会生成N+1条select,1条是查所有的ID,性能很低  , 5.2时iterate过时
+query.list();
+Stream stream=	query.stream();
+query.uniqueResult();
+ScrollableResults  scroll=	query.scroll() ;
+//scroll.previous();
+//scroll.scroll(arg0);
+while(scroll.next())
+{
+	String name=scroll.getString(1);
+	System.out.println(name);
+}
 
 <property name="username" unique="true"  //唯一约束
 						   not-null="true"
@@ -1162,7 +1183,9 @@ META-INF/persitence.xml 文件
 			<property name="hibernate.ejb.cfgfile" value="hibernate.cfg.xml" /> 
 				日志文件中是有的,最好打开,并<hibernate-mapping auto-import="false">,
 			-->
+			<!-- hibernate-5.2 没有这个类
 			<property name="hibernate.transaction.factory_class" value="org.hibernate.engine.transaction.internal.jdbc.JdbcTransactionFactory"/>
+			-->
 			<property name="hibernate.connection.provider_class" value="org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider"/>
 			<property name="hibernate.c3p0.max_size" value="15"/>
 			<property name="hibernate.c3p0.min_size" value="1"/>

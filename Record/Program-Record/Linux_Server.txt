@@ -1254,6 +1254,16 @@ SmartGit界面UI
 Google Code项目 msysgit 中的Git 和 msysGit-fullinstall 有 GitGUI ,C:/Program Files (x86)/Git/doc/git/html
 GitStack 说是开源,30天后变为基本版本,网页形式的Server,http://localhost/gitstack/,可以建库,建用户,以http(s)的形式对外使用
 
+
+C:\Program Files\Git\mingw64\etc\gitconfig
+	[credential]
+		helper = manager
+C:\Users\zhaojin\.gitconfig
+	[gui]
+	
+C:\Program Files\Git\mingw64\share\doc\git-doc 下有文档
+ user-manual.html
+
 ---源码版本安装
 make configure
 ./configure 
@@ -1268,6 +1278,11 @@ http://git-scm.com/book/zh
 2. 用户主目录.gitconfig 文件,使用 git config --global 读写 
 3. 工作目录中.git/config 文件
 
+gitconfig 文件中  #或者;  是注释
+[user]
+	name = Li Zhaojin
+	email = zhao1jin4@sina.com
+	
 配置的是你个人的用户名称和电子邮件地址,提交时用
 $ git config --global user.name "Li Zhaojin"
 $ git config --global user.email zhaojin.li@example.com
@@ -1374,6 +1389,32 @@ git status
 git checkout origin/master
 git checkout master 切换到master
 git merge  <服务器git版本最后的id>
+
+----  github操作提示
+…or create a new repository on the command line
+
+echo "# Record" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/zhao1jin4/Record.git
+git push -u origin master
+
+…or push an existing repository from the command line
+
+git remote add origin https://github.com/zhao1jin4/Record.git
+git push -u origin master
+
+网页上建立github的项目Record,自己的操作记录
+cd C:\temp\Record2017-01-24__14
+git init
+git add Record
+git commit -m "2017-02-13 record version"
+git remote add origin https://github.com/zhao1jin4/Record.git
+git push -u origin master
+
+如果在空目录中取代码 git clone https://github.com/zhao1jin4/Record.git
+
 ============== 上 Git 
 ============== MemCache  (memcached-1.4.17)
 文档在google上
@@ -1791,6 +1832,11 @@ upstream http_server {
 　　 server 127.0.0.1:7070 backup;			--其它为down或者忙时候，请求backup机器
 　　}    
 
+nginx对静态资源 html静态页面缓存
+location ~* .(ico|gif|jpg|jpeg|png|js|css|mp3|mp4) {
+  root  /var/www/opkeep;
+  expires 30d;
+}
 
 --Memcached
 server {   

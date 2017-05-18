@@ -188,6 +188,7 @@ OS X El 10.11.6(15G31)(MD5-200178E66502141638CE8E1E79BA6737).cdr  大小 7.15 GB
 
 最好关闭Mac的 自动更新
 
+当连接真机ipad到VMware中,内部的Mac OSX iTunes 不能识别出,关闭VMware,把 的USB 控制器默认3.0修改为2.0,再启动VMware就可以了
 
 
 -----PC机 安装 Mac OS 10.8

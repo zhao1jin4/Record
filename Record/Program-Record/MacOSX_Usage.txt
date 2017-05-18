@@ -140,6 +140,9 @@ Mac切换为英文
 在Finder中显示隐藏目录 ,defaults write com.apple.finder AppleShowAllFiles -bool true 注销后生效,
 要显示用户主目录的 ~/Library/ 用命令	chflags nohidden ~/Library/  
 
+defaults write com.apple.appstore ShowDebugMenu -bool true 
+重启appStore可以发现菜单上多了一个Debug->show download folder  发现 有 pkg结尾的软件了当然你要在苹果安装这个app完成之前把它拷贝一份出来就可以了
+
 
 也可强制退出中选择Finder ->restart
 有文件 ~/Library/Preferences/com.apple.finder.AppleShowAllFiles.plist

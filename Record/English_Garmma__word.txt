@@ -1705,3 +1705,14 @@ bracket			括弧
 
 DMZ  demilitarized zone  隔离区
 
+contend   竞争  (锁)
+scavenge 清除污物
+tenure   占有（职位，不动产等）; 占有期; 终身职位;
+survive
+giga  十亿
+mega 一百万倍
+
+vice versa  反过来也一样; 反之亦然;
+
+
+

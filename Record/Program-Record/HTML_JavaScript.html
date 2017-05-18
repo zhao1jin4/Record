@@ -20,7 +20,7 @@ JS 格式化工具eclipse可做
 JS 代码变量压缩混肴, java -jar yuicompressor-2.4.8.jar my.js -o my-min.js --charset utf-8
 JS解压 eclispe有时不行的,用iBox在线工具http://tool.lu/js/    但变量名是a,b没办法了
 
-
+angular/bootstrap  前端框架
 
 -------Antechinus工具
 	ctrl+/  生成可折叠的块
@@ -292,6 +292,33 @@ Book.prototype.sayworld=function(){
 var book=new Book("hi","this is a book");
 book.sayhello();
 book.sayworld();
+
+
+//闭包    f2函数，就是闭包
+//f1中的局部变量n一直保存在内存中，并没有在f1调用后被自动清除。 f2被赋给了一个全局变量
+  function f1(){
+
+    var n=999;
+
+    nAdd=function(){n+=1}
+
+    function f2(){
+      alert(n);
+    }
+
+    return f2;
+
+  }
+
+  var result=f1();
+
+  result(); // 999
+
+  nAdd();//有全局变量,则可以直接调用
+
+  result(); // 1000
+  
+   
 
 </script>
 

@@ -245,11 +245,11 @@ ctrl+2,L  补全方法返回值
 
 
 =======================================up eclipse==========================
-------(RSA) Rational Software Architect for WebSphere Software V9.1.1 是 eclipse-4.2.2 
-------(RSA) Rational Software Architect for WebSphere Software V9.0 是 eclipse-4.2.2 
-安装文件最好不要放在有空格的目录中,RSA4WS_SETUP\InstallerImage_win32_win32_x86_64\中的userinst.exe安装,全选中RSA-9
-带  CDT,Maven,BPMN2,UML2.2
-无  SpringToolSuite,SVN,Git,Mylyn,PropEdit(links),Data Tools Platorm(links)
+------Rational Software Architect Designer V9.6 是 eclipse-4.6.1
+可下载for websphere的包
+
+带  CDT,BPMN2,UML2.2,Data Design(像power designer),Data Tools Platorm,Git
+无  SVN,SpringToolSuite,Mylyn,PropEdit(links),Maven
 
 安装目录在 C:\Program Files\IBM\SDP  (Software Delivery Platform)
 修改界面语言 eclipse.ini 文件中尾添加参数： -Duser.language=en
@@ -377,7 +377,7 @@ help->install   选择 wtp4x-repo-R-3.6.3-20150216091848.zip   ->  可不选择(
 =======================================eclipse-4.5.2(MARS) 插件  WTP-3.7.2
 不能dropins安装  emf-xsd-SDK-2.11.2RC3 , dtp-sdk_1.12
 
-=======================================eclipse-4.6.2(Neon) 插件  WTP-3.8.1
+=======================================eclipse-4.6.3(Neon) 插件  WTP-3.8.2
 
 
 =======================================eclipse-4.4.2(Luna) 插件  CDT-8.6 

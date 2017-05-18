@@ -31,13 +31,16 @@ win10 微软五笔
 	
 bing,baidu.com 搜索引擎支持  site:xxx.com   要搜索的内容     的格式来搜索
 
+下载地址	http://www.msdn.hk/
+Office 2016 安装目录 C:\Program Files\Microsoft Office\root\Office16  
 --------Office  2010
 Office-2016  没有Office-2010 好用,两个版本可以时存在,world 2016 和 excel 2016 有的文件打不开,而2010版本的则可以打开,
 word 2016安装在win7上还会出现内存不断增大,导致系统卡死 ??????
 
-删打开文件历史记录,右击->clear unpined document
+删打开文件历史记录,world 中 右击历史记录->clear unpined document  ,但下次打开一样的有新的记录
 或者修改 file->options->advanced->Display组中 show this number of recent documents的值,只是改显示,但记录还是在的
 
+win10任务栏中的图标历史清除,找不到???
 -----Word 2010
 可以比较两个文档，Totoris SVN diff 修改world文件时会自动打开word来比较
 Review -> Compare 
@@ -185,6 +188,10 @@ Office 2016 的Word 在win7 上运行,打开一个文件,内存增长很快?????
 Settings -> Automatic Replies
 
 -------------FireFox--------
+英文版本 , 独立安装版本下载地址
+
+https://www.mozilla.org/en-US/firefox/new/
+
 firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下载
 	显示加载的插件	about:plugins
 	可修改配置	about:config 
@@ -437,6 +444,12 @@ http://www.alexa.com/
 录制时可以拖一个屏幕区域
 
 保存图标 下拉箭头 -> Produce and share ... ->  格式 选择 MP4 only (up to 720p)
+
+---
+播放器解码 TSCC ,是和 Camtasia一家公司的产品
+DivX 有时作用也不大
+迅雷影音可以打开特殊的.avi
+
 
 
 

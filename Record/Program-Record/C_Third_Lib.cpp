@@ -599,11 +599,11 @@ front-end位于tools.jar
 
 
 
-JDK 1.6  的 JVMTM =JVM Tool Interface  
-JVMTM 前身JVM DI (debug)/JVM PI (profile)
+JDK 1.6  的 JVMTI =JVM Tool Interface  
+JVMTI 前身JVM DI (debug)/JVM PI (profile)
 
-C:\Program Files\Java\jdk1.6.0_14\demo\jvmti 示例
-
+jdk-8u121-windows-x64-demos\jdk1.8.0_121\demo\jvmti 示例
+-agentlib:hprof=help  ( Heap and CPU Profiling Agent (JVMTI Demonstration Code))
 java.lang.instrutment包
 
 一个JVM TI的客户端程序为Agent，Agent与JVM位于同一个进程内

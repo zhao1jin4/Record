@@ -51,6 +51,7 @@ mysqld  来启动
 mysqladmin -u用户名 -p旧密码 password 新密码  -h 主机
 mysqladmin -uroot  -p password root  
 
+create user root@'%' identified by 'root';  -- root用户可以用远程连接
 
 create database mydb; /* default char set utf8  */
 show variables like 'character_set_%'; 会显示客户端和服务端 不同 ,set names utf8 修改客户端
@@ -107,19 +108,32 @@ windows  还原 mysql的root密码
 	use mysql
 	update user set password=password("new_password") where user="root";
 	flush privileges; 
-linux 还原 mysql 的 root密码方法	 
-	bin/mysqld_safe --skip-grant-tables 来启动
-	bin/mysql mysql 登录mysql数据库
-	UPDATE user SET Password=PASSWORD('new_root')   WHERE Host='localhost' AND User='root';
-	关闭数据库,正常启动
+
 	
-net start(stop) mysql
-=========================================
+net start(stop) mysql 
 
 ==============linux MySQL  安装
 /usr/local/mysql/bin/mysql_config --libs --cflags
 
 ---------mysql 源码安装
+
+mysql-5.7.17 在 centOS-7.0
+依赖 CMake (可yum安装) 下载  cmake-3.8.0-rc2(https://cmake.org) 运行./bootstrap --prefix= ,再make ,再make install
+依赖 g++,make,gmake
+依赖 boost C++ libraries 对应官方要求版本 (http://www.boost.org/)  cmake . -DWITH_BOOST=/usr/local/boost_1_59_0
+#依赖 bison (如是development source tree)
+
+CMAKE_INSTALL_PREFIX, MYSQL_TCP_PORT, and MYSQL_UNIX_ADDR 
+
+cd mysql-5.7.17 
+../cmake-3.8.0-rc2/bin/cmake  . -DWITH_BOOST=/zh/mysql-src/boost_1_59_0 -DCMAKE_INSTALL_PREFIX=/opt/mysql -DMYSQL_TCP_PORT=3308 -DMYSQL_UNIX_ADDR=/opt/mysql-files/mysql.sock 
+如boost 版本不对应,会提示的
+又报没有安装curses,yum没有??  yum install  ncurses-devel 也不行??
+
+
+
+
+-------老版本 源码安装
 SUSE-11 提示checking for termcap functions library... configure: error: No curses/termcap library found
 rpm -ivh termcap-2.0.8-981.18.i586.rpm 没用的 ，只有ncurses-utils-5.6,要下载ncurses并安装OK
 
@@ -127,16 +141,16 @@ rpm -ivh termcap-2.0.8-981.18.i586.rpm 没用的 ，只有ncurses-utils-5.6,要�
 ./configure --prefix=/usr/local/mysql   --with-plugins=innobase --with-charset=utf8 #gbk 
 #默认--datadir=PREFIX/share
 #默认--localstatedir=PREFIX/var
-
+      --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
+ 
 
 make #20分钟
-makeinstall
+make install
 
 show plugins
 
-
-pw groupadd mysql		#freeBSD建立mysql组
-pw useradd mysql -g mysql	#freeBSD建立mysql用户并且加入到mysql组中 
+groupadd mysql	 
+useradd mysql -g mysql	 
 
 cd /usr/local/mysql
 
@@ -144,25 +158,16 @@ cd /usr/local/mysql
 chown -R mysql .			##--关键1
 chgrp -R mysql .
 
- --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
-##cp share/mysql/my-medium.cnf /etc/my.cnf    ##注意是cnf不是conf
-##没有var目录 ,也没有 data目录, make install 后有var 目录
 
 
-#修改/etc/my.cnf 打开innodb_开头 
-default-storage-engine=INNODB  
-
+##cp share/mysql/my-medium.cnf /etc/my.cnf     
+  
 ./bin/mysql_install_db --user= mysql     ##--关键2
-
-##后提示/usr/local/mysql/bin/mysql_secure_installation //removing the test databases and anonymous user created by default
-##/usr/local/mysql/bin/mysqld_safe & //可以成功启动  ,/usr/local/mysql/bin/mysqladmin shutdown -uroot -proot
-##(su mysql)/usr/local/mysql/mysql-test ; perl mysql-test-run.pl
-
+ 
 cp ./share/mysql/mysql.server /etc/rc.d/mysql  ##可以正常使用
 
-##./bin/mysqld_safe --defaults-file=/etc/my.conf --user=Mysql  &
-
-## [mysqld]
+ 
+[mysqld]
 ##datadir=/usr/local/mysql/data
 
 default-storage-engine=INNODB
@@ -172,94 +177,109 @@ default-character-set=utf8
 建数据库默认也是UTF8的
 SHOW CREATE DATABASE bugs
 
-
+SHOW [STORAGE] ENGINES //如没有innodb  编译时加--with-plugins=innobase
+mysqladmin variables -uroot -proot >variables.txt //如没有innodb ,
+show variables like 'storage_engine'  
+  
 日志：vi /usr/local/mysql/var/[hostname].err
+--- linux 二进制安装 mysql-5.7.17
 
-=======远程DB的连接,federated引擎
-SHOW ENGINES 有FEDERATED 默认不支持,要启用在启动mysql时加 --federated 或者 --federated=ON , 如是my.cnf中则是  federated=ON 
-SHOW  STORAGE  ENGINES
-
-CREATE TABLE federated_table (
-id INT(20) NOT NULL AUTO_INCREMENT,
-name VARCHAR(32),
- PRIMARY KEY (id)
-)ENGINE=FEDERATED
-DEFAULT CHARSET=utf8
-CONNECTION='mysql://user1:pass1@10.1.5.226:3306/test/t_innodb_table';
-
---方式二
-drop server dev;
-
-CREATE SERVER dev
-FOREIGN DATA WRAPPER mysql    
-OPTIONS (USER 'user1', PASSWORD 'pass1',HOST '10.1.5.226',PORT 3306, DATABASE 'test');  --WRAPPER后的mysql是wrapper_name,只能用mysql
-
-CREATE TABLE t (s1 INT) ENGINE=FEDERATED CONNECTION='dev';
-
-=======
-
-SHOW [STORAGE] ENGINES //如没有innodb ，编译时加--with-plugins=innobase
-./bin/mysqladmin variables -uroot -proot >variables.txt //如没有innodb ,
-
-
-mysql>show variables like 'storage_engine'  
-mysql>show variables like 'character_set_database'  
-mysql>show variables like 'character_set_client'  
-
-linux中mysql命令行可以用上，下键
-
-
-
-========== mysql-tar 二进制包 mysql-5.6.22-linux-glibc2.5-x86_64
+看doc
 shell> groupadd mysql
-shell> useradd -g mysql mysql
-shell> cd /usr/local/mysql56
+shell> useradd -r -g mysql -s /bin/false mysql   #-r表示系统帐户没有/etc/shadow记录
+shell> cd /usr/local
+shell> tar zxvf /path/to/mysql-VERSION-OS.tar.gz
+shell> ln -s full-path-to-mysql-VERSION-OS mysql
+shell> cd mysql
+shell> mkdir mysql-files
+shell> chmod 750 mysql-files
 shell> chown -R mysql .
 shell> chgrp -R mysql .
-shell> scripts/mysql_install_db --user=mysql
-		提示 bin/resolveip   <hostname> 不正确
+shell> bin/mysql_install_db --user=mysql # Before MySQL 5.7.6
+shell> bin/mysqld --initialize --user=mysql # MySQL 5.7.6 and up
+shell> bin/mysql_ssl_rsa_setup # MySQL 5.7.6 and up
 shell> chown -R root .
-shell> chown -R mysql data    
+shell> chown -R mysql data mysql-files
+shell> bin/mysqld_safe --user=mysql &
+# Next command is optional
+shell> cp support-files/mysql.server /etc/init.d/mysql.server
 
-data目录 有test和mysql两个空目录
 
-11. If  you would like to use mysqlaccess and have the MySQL
-       distribution in some non-standard location, you must change
-       the location where mysqlaccess expects to find the mysql
-       client. Edit the bin/mysqlaccess script at approximately line
-       18. Search for a line that looks like this:
-$MYSQL     = '/usr/local/bin/mysql';    # path to mysql executable
+建立用户
 
-cp ./suport-files/mysql.server /etc/init.d/mysql
-cp ./suport-files/my-default.cnf /etc/my.cnf   手工配置下面的
-	[mysql]
-	socket=/tmp/mysql_5622.socket
+cd mysql-5.7.17-linux-glibc2.5-x86_64
+cp support-files/my-default.cnf  /zh/mysql-files/my.cnf  #文件内容比较空
 
-	[mysqld]
-	character_set_client=utf8
-	character_set_server=utf8
-	default-storage-engine=INNODB
-	basedir=/usr/local/mysql56
-	datadir=/usr/local/mysql56/data
-	max_connections=100
-	port=3306
-	socket=/tmp/mysql_5622.socket
+bin/mysqld --verbose --help
+
+[mysqld]
+#log_bin=ON
+#server-id =1  			#变量是server_id(show variables like 'server_id'),命令行是 --server-id
+#default-storage-engine=INNODB
+#default-character-set=utf8
+
+#lc-messages-dir=/zh/mysql-files/share    
+	-- 不加正常默认值为<basedir>/share/(但目录中有很多文件,但没有errmsg.sys)
+	-- 加了报ERROR没有/zh/mysql-files/share/errmsg.sys文件,但能使用
+#log-error=/zh/mysql-files/mysql-error.log  #正常也写这,默认输出控制台
+#log-warnings=/zh/mysql-files/mysql-warnings.log
+#log-syslog=/zh/mysql-files/mysql-sys.log
+
+#skip-grant-tables=ON
+
+basedir =/zh/mysql-5.7.17-linux-glibc2.5-x86_64  --默认值是/usr/local/mysql/
+datadir =/zh/mysql-files/data
+port =3308
+socket =/zh/mysql-files/mysql.sock
+
+如一台机器有多个mysql 要设置如下参数
+ --port 
+ --socket 
+--shared-memory-base-name=name
+    This option is used only on Windows.
+
+--pid-file=file_name
+--general_log_file=file_name
+--log-bin[=file_name]
+--slow_query_log_file=file_name
+--log-error[=file_name] 
+--tmpdir=dir_name 
+
+ 
+bin/mysqld  --defaults-file=/zh/mysql-files/my.cnf   --initialize --user=mysql   #日志中会提示有root临时密码
+bin/mysql_ssl_rsa_setup  --datadir=/zh/mysql-files/data
 	
+--启动 mysql
+su - mysql
+bin/mysqld  --defaults-file=/zh/mysql-files/my.cnf 
 
---启动mysql 
-su mysql
-bin/mysqld  --defaults-file=/etc/my.cnf
-	提示  socket: '/tmp/mysql_5622.sock'  port: 3306  
-	启动日志在data/<hostname>.err 
-/etc/init.d/mysql  start ( 读/etc/my.cnf 的basedir目录)
+bin/mysql -u root   -P 3308  -h localhost -S /zh/mysql-files/mysql.sock  #临时密码,对不知道root密码不能登录
 
+linux 还原 mysql 的 root密码方法	 
+	bin/mysqld  启动时my.cnf中加 skip-grant-tables=ON
+	无密码登录 #
+	use mysql 
+
+	UPDATE user SET authentication_string=PASSWORD('new_root')   -- 如root密码过期,下面没用 , password_expired='N'
+	WHERE Host='localhost' AND User='root';
+	
+	SELECT User, Host, HEX(authentication_string) FROM mysql.user;
+	
+	停止数据库,再去skip-grant-tables 启动,测试OK
+	create user root@'%' identified by 'root'; 
+    grant all on mysql.* to root@'%';
+	
 --停止mysql
-bin/mysqladmin  -u root -S /tmp/mysql_5622.socket  shutdown  (my.cnf文件中[mysql] 中配置了socket这里就不必加参数了)
+bin/mysqladmin  -u root -p -P 3308 -S /zh/mysql-files/mysql.sock shutdown     提示密码过期,要修改,-h localhost 也要加-S ,除非-h 127.0.0.1(可能要能远程登录)
+	  ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';  -- password expire never
+	  SET PASSWORD FOR 'root'@'localhost' = PASSWORD('new_root');
+	
 /etc/init.d/mysql  stop
 
 ---修改root密码
+mysqladmin -uroot -p  password root   -S /zh/mysql-files/mysql.sock
 mysqladmin -u用户名 -p旧密码 password 新密码  -h 主机 -S socket文件路径
-mysqladmin -uroot  -p password root   -S /tmp/mysql_5622.socket
+mysqladmin -uroot  -p password root   -S /zh/mysql-files/mysql.sock
 
 
 ==========MySQL cluster   solaris----OK 
@@ -393,9 +413,112 @@ cp support-files/my-small.cnf  /etc/my.cnf
 
 JDBC连接SQL节点 OK,
 
-========= MySQL Utilities
-mysql开头的一些工具，群集复制等
- mysqluc 命令
+=========Replication 
+默认是异步的,不是持续连接,可以指定数据,指定表
+
+--主服务器的 my.ini
+
+log_bin=mysql-log-bin
+log_bin_index=/data/mysqld-bin.index  -- 默认是<datadir>/<log_bin>.index 
+server-id=1
+
+
+在主上建立用户(doc上的)
+CREATE USER 'repl'@'%.mydomain.com' IDENTIFIED BY 'slavepass';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%.mydomain.com';
+
+CREATE USER 'repl'@'%' IDENTIFIED BY 'slavepass';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
+
+show master status; 看log_bin文件名就是配置的
+主上用 show processlist 可以看到都有哪些从
+
+---从服务器的 my.ini 
+#log_bin=mysql-log-bin #正常不用打开,Auto-Failover功能用 MySQL Utilities  ,也可从加 mysqld --gtid-mode=ON
+server-id=2
+relay_log=<host_name>-relay-bin --默认值空
+relay_log_index=<host_name>-relay-bin.index  --默认值在data目录下
+
+
+
+mysql> change master to 
+->master_host='10.1.5.226',
+->master_port=3308,
+->master_user='repl',
+->master_password='slavepass';
+
+MASTER_LOG_FILE='recorded_log_file_name',
+MASTER_LOG_POS=recorded_log_position;
+
+start slave;  -- 主上有日志, stop slave;
+-- 从上也有了repl用户
+SHOW SLAVE STATUS;  -- 有权限执行, 可以看有错误日志,报错误可能是用户或者数据库已经存在
+Slave_IO_Running 和 Slave_SQL_Running 要为YES
+
+主从上用 show processlist  看
+开始在主上测试,建立库,表,测试OK,slave 两台测试OK
+
+
+备份master/salve 的做法
+FLUSH TABLES WITH READ LOCK;
+SET GLOBAL read_only = ON;
+mysqldump --all-databases --master-data > dbdump.db
+SET GLOBAL read_only = OFF;
+UNLOCK TABLES;
+
+
+--- Scale-Out
+
+========= MySQL Utilities-1.6.5
+ 包括 Fabric
+解压 依赖python-2.7
+cd mysql-utilities-1.6.5
+python ./setup.py build
+sudo python ./setup.py install  安装在/usr/local/bin下 mysql开头的一些工具
+
+mysqlfailover 命令
+	全局事务标识符(GTIDs) 
+	gtid_mode=ON 
+	--interval 设置间隔秒,使用ping来检查服务是否活(--ping),如果服务不可用 使用  --failover-mode 默认auto
+	如果为elect 而从--candidates 中来选择(而不是全部)做为master
+	--master-info-repository=TABLE
+ 要求所有的从设置 --report-host 和 --report-port  
+ --exec-before 和 --exec-after 指定脚本返回0表示成功
+ 
+ my.cnf 中加
+gtid_mode=on
+master_info_repository=TABLE
+ 
+mysqlfailover --master=root@localhost:3331 --discover-slaves-login=root --log=log.txt
+
+mysqlrplshow
+mysqluc 命令
+  
+
+========= MySQL Router
+
+
+=======远程DB的连接,federated引擎
+SHOW ENGINES 有FEDERATED 默认不支持,要启用在启动mysql时加 --federated 或者 --federated=ON , 如是my.cnf中则是  federated=ON 
+SHOW  STORAGE  ENGINES
+
+CREATE TABLE federated_table (
+id INT(20) NOT NULL AUTO_INCREMENT,
+name VARCHAR(32),
+ PRIMARY KEY (id)
+)ENGINE=FEDERATED
+DEFAULT CHARSET=utf8
+CONNECTION='mysql://user1:pass1@10.1.5.226:3306/test/t_innodb_table';
+
+--方式二
+drop server dev;
+
+CREATE SERVER dev
+FOREIGN DATA WRAPPER mysql    
+OPTIONS (USER 'user1', PASSWORD 'pass1',HOST '10.1.5.226',PORT 3306, DATABASE 'test');  --WRAPPER后的mysql是wrapper_name,只能用mysql
+
+CREATE TABLE t (s1 INT) ENGINE=FEDERATED CONNECTION='dev';
+
 
 ======= 备份 与 恢复
 load data local infile '/clientDir/xx.xls' into table 表名 CHARACTER SET utf8 FIELDS TERMINATED BY ',\t'
@@ -568,7 +691,8 @@ innodb引擎的文件 .ibd  ,可以create table 中使用 DATA DIRECTORY='/path/
 ====增量备份 
 启动服务时加 --log-bin  <可选路径默认和数据目录相同>   ,my.cnf中打开 log-bin
 show variables like 'log_bin%';
-
+log_bin	ON
+log_bin_index	/data/mysqld-bin.index
 
 FLUSH LOGS (rotate the binary log 就是切日志文件SHOW BINARY LOGS来看)  或者  mysqldump --flush-logs 
 
@@ -634,27 +758,33 @@ set global log_output='TABLE';  -- root 执行
 select * from mysql.slow_log   order by start_time desc
 select * from mysql.general_log order by event_time desc  --记录多
 
+truncate table mysql.general_log ;
+
 ======= 
-----------information_schema
+-----------performance_schema  ,MySQL workbench 有一个 PERFORMANCE 的分组有很多功能
+performance_schema.global_variables
+performance_schema.session_variables
+performance_schema.variables_by_thread
+performance_schema.global_status
+performance_schema.session_status
+performance_schema.status_by_thread
+performance_schema.status_by_account
+performance_schema.status_by_host
+performance_schema.status_by_user
 
-select table_name from information_schema.TABLES where table_schema='db_name'
-同 show tables
 
-select * from information_schema.CHARACTER_SETS  所有支持的字符集
-select * from information_schema.ENGINES  所有支持的引擎
-
-select * from information_schema.GLOBAL_STATUS where    VARIABLE_NAME='Max_used_connections'
+-- select * from information_schema.GLOBAL_STATUS where    VARIABLE_NAME='Max_used_connections'; -- 未来版本会去除,在5.7中已经禁用了  
+select * from performance_schema.global_status where    VARIABLE_NAME='Max_used_connections';
 show global status   where VARIABLE_NAME='Max_used_connections'
 
-select * from information_schema.GLOBAL_VARIABLES where VARIABLE_NAME='autocommit'
+
+-- select * from information_schema.GLOBAL_VARIABLES where VARIABLE_NAME='autocommit'; -- 未来版本会去除,在5.7中已经禁用了  
+select * from performance_schema.global_variables where VARIABLE_NAME='autocommit'
 show global variables where VARIABLE_NAME='autocommit' 
 
-select * from information_schema.SCHEMA_PRIVILEGES   -- 所有的权限
-select * from information_schema.SCHEMA_PRIVILEGES where SCHEMA_PRIVILEGES.GRANTEE like "'myuser1%"
 
 select * from mysql.db  显示每个数据库的,对应用户的权限 
 
------------performance_schema  ,MySQL workbench 有一个 PERFORMANCE 的分组有很多功能
 select * from performance_schema.events_waits_current
   
   performance_schema.event* 是被写入的
@@ -663,6 +793,16 @@ select * from performance_schema.events_waits_current
   performance_schema.event_wait_*
 
 SHOW STATUS LIKE 'perf%';
+
+----------information_schema 
+select table_name from information_schema.TABLES where table_schema='db_name'
+同 show tables
+
+select * from information_schema.CHARACTER_SETS  所有支持的字符集
+select * from information_schema.ENGINES  所有支持的引擎
+
+select * from information_schema.SCHEMA_PRIVILEGES   -- 所有的权限
+select * from information_schema.SCHEMA_PRIVILEGES where SCHEMA_PRIVILEGES.GRANTEE like "'myuser1%"
 
 ======= 
 SHOW STATUS LIKE 'com%'; //表示insert,update,select,delete语句执行次数， 默认是session的，可加 global

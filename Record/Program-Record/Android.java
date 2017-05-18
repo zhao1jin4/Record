@@ -5,8 +5,14 @@ www.openmobilealliance.org  ->TECHNICAL INFORMATION->Current Release->OMA Device
 Android 手机安全 , 禁用应用仿问网络 , 读通讯录 , 读短信 , 读文件系统 , 读位置 , 禁用注册3G网络启动／停止监听 , 禁用推送
 
 
-
 -------------Android 更新版本 下载,  
+
+Dalvik VM是Android平台的核心组成部分之一，它的名字来源于冰岛一个名为Dalvik的
+小渔村。Dalvik VM并不是一个Java虚拟机，它没有遵循Java虚拟机规范，不能直接执行Java
+的Class文件，使用的是寄存器架构而不是JVM中常见的栈架构。但是它与Java又有着千丝万
+缕的联系，它执行的dex（Dalvik Executable）文件可以通过Class文件转化而来
+
+
 
 windows/mac 下载多选  Intel x86 Emulator Accelerator(HAXM installer)( linux不用的)) 
 		HAXM=Hardware Accelerated Execution Manager
@@ -37,6 +43,7 @@ https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project
 ----- Android Studio
 
  2.2.2 版本 ,带SDK的大小1.6GB  默认安装目录 C:\Users\zhaojin\AppData\Local\Android\sdk 
+ 如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
  
 基于IntelliJ IDEA ,使用openJDK8 ,Gradle构建
 像Word一样的单文档,一个Studio只能打开一个项目,也可以建立Module,都是在gradel子目录中,都可以单独运行,使用同一个gradle构建,生成gradlew 等文件
@@ -83,7 +90,9 @@ task printVariantNames{
  android-sdk-windows\tools\monitor.bat 会启动界面 ,即老的ADT插件里的DDMS,有File Explorer
  
 tools\android.bat update sdk --no-ui
-  
+ 
+
+
 emulator: ERROR:This AVD's configuration is missing a kernel file!!
 是因为android所在路径太长了
 

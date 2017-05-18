@@ -1,8 +1,8 @@
 ﻿
 
 CMMI = Capablity Maturity Model Integration for Developement
-
--------------------------Project 2010
+http://www.msdn.hk/
+-------------------------Project 2010  只windows ,无Mac版可用OmniPlan
 手动模式 在start 开始日期 处可以写文字注解, 如为自动模式不可以
 
 
@@ -75,10 +75,10 @@ PMBOK 指南( 项目管理知识体系指南) (第五版)
 PMI (Project Management Institute) 
 PMP(Project Management Professional) 
 
-项目集管理专业人士认证（Program Management Professional，PMP） 
-PMI敏捷从业者认证（PMI Agile Certified Practitioner，PMI-ACP） 
-PMI风险管理专业人士认证（PMI Risk Management Professional，PMI-RMP）  
-PMI进度规划专业人士认证（PMI Scheduling Professional，PMI-SP）
+项目集管理专业人士认证（Program Management Professional , PMP） 
+PMI敏捷从业者认证（PMI Agile Certified Practitioner, PMI-ACP） 
+PMI风险管理专业人士认证（PMI Risk Management Professional, PMI-RMP）  
+PMI进度规划专业人士认证（PMI Scheduling Professional, MI-SP）
 
 《PMI道德与专业行为规范》（Project Managment Institute Code of Ethics and Professional Conduct）全球通用，是基本要求
 
@@ -102,6 +102,15 @@ lexicon   辞典, 词典
 可以一个spint(iteration)周期为2-12周,每个spint时间相同
 关注交付,不是文档(面对面交流,或者交流工具),类似user.guid 这种是交付的
 Point
+
+
+
+
+
+
+--- DevOps是 Agile 的延伸 
+			Ansible,Puppet, SaltStack 等自动化框架 
+
 ----waterfall 瀑布
 
 
@@ -114,4 +123,5 @@ Jira 		是 项目管理(有敏捷的小贴纸)
 弹道  		是 项目管理(有甘特图) 和 Bug跟踪工具
 Mantis 		是一个Bug跟踪工具
 Jenkins 	界面打包部署工具
+
 

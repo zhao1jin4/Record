@@ -97,9 +97,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 
 File->export ->plug-in development中的Deployable plugins and fragments ->选择导出目录,就可生成 plugins\myplugin_1.0.0.[时间].jar
 
-
-
-
+--
 ==================Apache Felix 是OSGI容器
 cd felix-framework-4.2.1  必须在这个目录中
 java -jar bin/felix.jar  默认会在当前目录建立felix-cache目录 ,也在参数中加目录名

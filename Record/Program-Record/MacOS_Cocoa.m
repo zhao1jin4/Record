@@ -3,7 +3,6 @@
 
 Mac openGL是使用的 GLUT,可以使用POSIX 的多线程
 
-https://developer.apple.com/downloads/
 
 //==============Xcode
 
@@ -11,32 +10,26 @@ Xcode -> 偏好设置 ->Components->Documentation  中可以下载的.docset手�
 
 在Mac上安装Charles 来得到下载URL, 就看不有用的东西了
 以.xar结尾的文件,Mac可以使用BetterZip解压,windows下可以使用7zip解
+ 
+--------	
+Xcode-8.2.1 页面提示只可在appstore在线安装
+https://developer.apple.com/download/more/ 可以下载离线xip压缩包
+Xcode_8.2.1.xip  大小 4.2GB ,解压后约10 GB  
 
---------XCode6.4 (6E35b)
-http://adcdownload.apple.com/Developer_Tools/Xcode_6.4/Xcode_6.4.dmg
+要求Xcode 8.2.1 requires a Mac running macOS 10.11.5 or later. 
+Xcode 8.2.1 includes SDKs for iOS 10.2, watchOS 3.1, macOS 10.12.2, and tvOS 10.1. 
 
-	(大小 2.61GB) (iOS simulator-8.4 ) 	可在Mac 10.10.1 上运行   iOS8.3 doc , OS X 10.10.3 doc 
-	https://developer.apple.com/library/downloads/docset-index.dvtdownloadableindex   ,下载时注意要在 XCode对应的版里
-	有对应的docset下载URL,是dmg文件,里面是.pkg,使用Pacifist查看默认安装在 / 下
-	
-	使用 installer -pkg  iOSDocset.pkg -target ~/Library/Developer/Shared/Documentation/DocSets/ 
-	
---------	Xcode-8.0 (8A218a)
-http://adcdownload.apple.com/Developer_Tools/Xcode_8/Xcode_8.xip
-xip文件 4.41GB ,解压后 12.1GB 超大
-
-要求Mac OS X El Capitan 10.11.5 (macOS Sierra 10.12) 及 以上才可运行 Xcode8.0
-含有SDK ,iOS 10.0, watchOS 3.0, macOS Sierra 10.12, tvOS 10.0
-Swift 2 (2.3) 
-
- .xip 文件解压 
-Mac 下双击解压,用Archive Utility来做,解压后就一个Xcode.app
+Mac 下双击.xip文件解压,用Archive Utility来做,解压后就一个Xcode.app,
+但是在当前目录直接解压,如想改变解压目录,就先单独打开Archive Utility->Preferences->save expand files 选保存目录
 Mac 命令 xattr -d Xcode_8.xip (无用的)
 windows下的 7-zip可以打开
 
 Xcode-8.0  自带OSX,iOS文档,可以离线打开,看树也有Swift和JavaScript,但没有示例文档,
 Preferences -> Component->Documentation-> 下只有 Guid and Sample Code
 ---Xcode-8.0 的 Guid and Sample Code 就一个文件
+https://developer.apple.com/library/downloads/docset-index.dvtdownloadableindex   ,下载时注意要在 XCode对应的版里
+有对应的docset下载URL,是dmg文件,里面是.pkg,使用Pacifist查看默认安装在 / 下
+
 https://devimages.apple.com.edgekey.net/docsets/20160913/031-77711-A.dmg
 大小 1.06 GB
 在线位置  https://developer.apple.com/library/content/navigation/

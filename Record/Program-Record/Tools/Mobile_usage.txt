@@ -133,7 +133,24 @@ Increasing Ring
 
 没有找到可以浏览apk时带软件名和版本,也没有找到win下自动重命名的apk的软件
 
-
+使用 UC 浏览器,Firefox(Chrome不行),自带的HTML Viwer(如果太大就不好用)  可以打开事先保存好的离线 .html文件
 =============iOS
+
+百度网盘下的东西,让其它应用去读,点向上箭头　左右移动看更多的应用,会复制到指定应用的缓存目录中
+
+电脑中iTunes中选择app , add file...
+
+暴风影音	可以缩放,但不能平移
+Code Viewer	下载github的Record,文件名字符集是UTF-8
+Sources 	下载github的Record(并没有存在本地，下次启动没了),文件名字符集是GBK
+iZip free版 可解带密码的包,有广告
+
+Adobe Reader 可以正常显示保存好的离线html文件
+
+
+
+
+
+
 
 

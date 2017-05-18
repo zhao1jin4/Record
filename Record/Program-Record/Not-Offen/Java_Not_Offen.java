@@ -881,3 +881,86 @@ fireVetoableChange(String propertyName, Object oldValue, Object newValue)
 javax.servlet.jsp.tagext.TagExtraInfo
 
 javax.servlet.jsp.tagext.VariableInfo
+
+
+
+
+
+==================================Rhino   JS可以运行在JAVA中
+D:\Program\java_lib>java -cp js.jar org.mozilla.javascript.tools.shell.Main
+Rhino 1.7 release 2 2009 03 22
+js>
+
+
+
+//对表示式求值 rhino 
+Context cx = Context.enter();   
+try  
+{   
+  Scriptable scope = cx.initStandardObjects();   
+  String str = "9*(1+2)";   
+  Object result = cx.evaluateString(scope, str, null, 1, null);   
+  double res = Context.toNumber(result);   
+  System.out.println(res);   
+}   
+finally  
+{   
+  Context.exit();   
+}   
+
+
+js>load('c:/temp/test.js');  
+js>load('c:\\temp\\test.js');
+js>add(1,2);
+function add (a,b)   
+{   
+ return a+b;
+}
+
+
+java -cp js.jar org.mozilla.javascript.tools.debugger.Main   就可以看到调试器的界面了。
+
+
+js文件运行的速度，可以把它编译为class文件：
+java -cp js.jar org.mozilla.javascript.tools.jsc.Main c:/temp/test.js
+
+
+var swingNames = JavaImporter();
+swingNames.importPackage(Packages.javax.swing);
+function createComponents() 
+{
+    with (swingNames) 
+	{
+		new JLabel("");
+//或者用完整java 包名
+
+System.getProperty("user.dir") //是当前目录
+
+
+Context cx = Context.enter()
+ Scriptable scope=cx.initStandardObjects();
+Object result = cx.evaluateString(scope, jsContent, filename, 1, null);//1 是 lineno,从第几行开始执行吗?
+
+
+Scriptable global=null;
+ContextFactory.getGlobal().call(new ContextAction()
+{
+	public Object run(Context cx)
+	{
+		global = new ImporterTopLevel(cx);
+		Scriptable wrapped = Context.toObject(beanObject, global);
+		global.put("DV", global, wrapped); //JS中用DV 来表示beanObject对象,即DV.getXX() 就是 beanObject.getXX()
+		return null;
+	}
+});
+
+
+ContextFactory.getGlobal().call(new ContextAction()
+{
+	public Object run(Context cx)
+	{
+		return cx.evaluateString(global, jsContent, null, 0, null);
+	}
+});
+
+

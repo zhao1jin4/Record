@@ -86,6 +86,8 @@ tablespace users
 storage(......) 
 pctfree 0; 
 
+默认是B-Tree索引
+
 创建唯一索引 
 create unique index emp_email on employees(email) 
 tablespace users; 

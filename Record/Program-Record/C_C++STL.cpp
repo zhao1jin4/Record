@@ -1660,7 +1660,7 @@ struct A
 https://gcc.gnu.org/projects/cxx1y.html
 -std=c++14
 
-========== boost   C++ 标准库
+========== boost   C++ 标准库,MySQL有使用这个库
 
 
 

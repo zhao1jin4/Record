@@ -79,7 +79,7 @@ select * from x \G   行转列
 
 ? contents  文档的根
 ? opt%   表达式形式的帮助
-
+mysql>prompt MySQL \u@\h [\d]>  登录后使用prompt来修改提示符,可也启动加--prompt="MySQL \u@\h [\d]>" 
 mysql> select * from myTable \G    -- 以卡片格式显示数据
 mysql> pager cat > /tmp/sql_out.txt  把执行输出重定位到文件中
 mysql> pager less  ; 执行后再 select 数据较多时就可翻页了
@@ -312,7 +312,7 @@ SET [SESSION | GLOBAL] group_concat_max_len = 3600000;	// 30万条短信
 set GLOBAL max_allowed_packet= 7200000;		
 SET GLOBAL group_concat_max_len = 7200000;
 
-
+show variables like 'storage_engine'  
  
  
 show variables like 'character_set_%';
@@ -323,7 +323,7 @@ set global  autocommit=off      有些是 readonly的
 set session  autocommit=off    
 
 
-START TRANSACTION;  或者用  BEGIN 
+START TRANSACTION;  或者用  BEGIN  END
 --
 COMMIT; -- rollback
 
@@ -481,6 +481,13 @@ SET GLOBAL group_concat_max_len = 3600000;
 /etc/my.cnf文件中[mysqld]中加入
 max_allowed_packet=1M
 
+fulltext 索引只用于 MyISAM
+unique 索引
+普通索引
+SPATIAL 索引(5.7新功能  空间数据类型如point和geometry等,列必须非NULL ) 在where 中  MBRContains() 或者 MBRWithin() 
+CREATE [UNIQUE|FULLTEXT|SPATIAL] INDEX  ,或者 alter table t1 add index ind (col)
+USING {BTREE | HASH}  //InnoDB 和 MyISAM 都是BTree
+
 MyISAM 引擎中 ft_min_word_len和ft_max_word_len 表示indicate  minimum and maximum word length for FULLTEXT indexes
 InnoDB 引擎中  innodb_ft_min_token_size 和 innodb_ft_max_token_size  
 
@@ -531,10 +538,16 @@ INSERT INTO myset (col) VALUES
 SHOW ERRORS;
 SHOW WARNINGS;
 
-select @@tx_isolation;　默认 repeatable read  
+select @@tx_isolation;　默认 REPEATABLE-READ
+可设置的值为
+READ-UNCOMMITTED
+READ-COMMITTED
+REPEATABLE-READ
+SERIALIZABLE
+
 show variables like 'tx_isolation%';　 同 session 
 
-set global/session transaction isolation level read committed
+set global/session transaction isolation level read committed   -- read uncommitted
 set global/session  transaction isolation level  repeatable read 　 --  SERIALIZABLE　
 
 

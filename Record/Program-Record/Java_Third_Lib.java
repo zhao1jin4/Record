@@ -1724,7 +1724,18 @@ isearcher.search(query,  1000);
 manager.release(isearcher);//finally中做
 
 ----Hibernate Search 基于 Lucene
+----Elastic Search  收费的，可下载(分布式，RESTful搜索引擎)  基于 Lucene
+更适用于新兴的实时搜索应用
 
+ 当单纯的对已有数据进行搜索时，Solr更快。
+ 实时建立索引时, Solr会产生io阻塞，查询性能较差, Elasticsearch具有明显的优势。
+ 数据量的增加，Solr的搜索效率会变得更低，而Elasticsearch却没有明显的变化。
+ 从Solr转到Elasticsearch以后的平均查询速度有了50倍的提升。
+ 
+ 只支持JSON
+ 
+bin\elasticsearch.bat   启动
+ http://localhost:9200/
 ================================Solr-6.4
 
 bin/solr start -e cloud -noprompt  ( SolrCloud example )启动两个节点,监听 8983 , 7574 端口 ,有zookeeper
@@ -2172,9 +2183,7 @@ liferay 62 不能在jsp中仿问session
 	 <version>5.7.0</version>
  </dependency>
 
-ActiveMQ是一个JMS Provider的实现,tomcat 使用JMS
-Spring AMQP 提供一个Template
-Apache Qpid 是 Advanced Message Queuing Protocol (AMQP)的一个实现
+ActiveMQ是一个JMS Provider的实现,tomcat 使用JMS 
 
 JMeter做性能测试的文档
 http://activemq.apache.org/jmeter-performance-tests.html
@@ -2340,12 +2349,13 @@ spring.xml
     <bean id="jmsConnectionFactory2" class="org.springframework.jms.connection.SingleConnectionFactory">
         <property name="targetConnectionFactory" >
 		    <bean  class="org.apache.activemq.ActiveMQConnectionFactory">
-		        <property name="brokerURL" value="tcp://localhost:61616" />
+				<property name="brokerURL" value="tcp://localhost:61616" />
+				<property name="userName" value="#{jms['mq.username']}" />
+				<property name="password" value="#{jms['mq.password']}" />
+				<property name="sendTimeout" value="10000" />  <!-- 如果不设置,会一直卡住好多个小时 -->
 		    </bean>
         </property>
-		 <property name="userName" value="#{jms['mq.username']}" />
-		  <property name="password" value="#{jms['mq.password']}" />
-		  <property name="sendTimeout" value="10000" />  <!-- 如果不设置,会一直卡住好多个小时 -->
+		
     </bean>
   -->  
 
@@ -2442,8 +2452,9 @@ public class MainApp
 		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
 		Connection connection = factory.createConnection();
 		connection.start();
-		
-		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		//在容器中,一个connection只能创建一个活的session,否则异常
+		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);//boolean transacted, int acknowledgeMode　
+		//对不在JTA事务中(如在JTA事务中,参数失效,commit,rollback,也失败,依赖于JTA事务),如transacted为true使用session.rollback();或 session.commit();   acknowledgeMode参数被忽略
 		Topic topic= new ActiveMQTopic("testTopic");//动态建立 , 也可使用new ActiveMQQueue("testQueue")
 		//Topic topic= session.createTopic("testTopic");
 		// queue=session.createQueue("testQueue");
@@ -2515,83 +2526,6 @@ activemq.xml
 </plugins>
 
 
-
-==================================Rhino   JS可以运行在JAVA中
-D:\Program\java_lib>java -cp js.jar org.mozilla.javascript.tools.shell.Main
-Rhino 1.7 release 2 2009 03 22
-js>
-
-
-
-//对表示式求值 rhino 
-Context cx = Context.enter();   
-try  
-{   
-  Scriptable scope = cx.initStandardObjects();   
-  String str = "9*(1+2)";   
-  Object result = cx.evaluateString(scope, str, null, 1, null);   
-  double res = Context.toNumber(result);   
-  System.out.println(res);   
-}   
-finally  
-{   
-  Context.exit();   
-}   
-
-
-js>load('c:/temp/test.js');  
-js>load('c:\\temp\\test.js');
-js>add(1,2);
-function add (a,b)   
-{   
- return a+b;
-}
-
-
-java -cp js.jar org.mozilla.javascript.tools.debugger.Main   就可以看到调试器的界面了。
-
-
-js文件运行的速度，可以把它编译为class文件：
-java -cp js.jar org.mozilla.javascript.tools.jsc.Main c:/temp/test.js
-
-
-var swingNames = JavaImporter();
-swingNames.importPackage(Packages.javax.swing);
-function createComponents() 
-{
-    with (swingNames) 
-	{
-		new JLabel("");
-//或者用完整java 包名
-
-System.getProperty("user.dir") //是当前目录
-
-
-Context cx = Context.enter()
- Scriptable scope=cx.initStandardObjects();
-Object result = cx.evaluateString(scope, jsContent, filename, 1, null);//1 是 lineno,从第几行开始执行吗?
-
-
-Scriptable global=null;
-ContextFactory.getGlobal().call(new ContextAction()
-{
-	public Object run(Context cx)
-	{
-		global = new ImporterTopLevel(cx);
-		Scriptable wrapped = Context.toObject(beanObject, global);
-		global.put("DV", global, wrapped); //JS中用DV 来表示beanObject对象,即DV.getXX() 就是 beanObject.getXX()
-		return null;
-	}
-});
-
-
-ContextFactory.getGlobal().call(new ContextAction()
-{
-	public Object run(Context cx)
-	{
-		return cx.evaluateString(global, jsContent, null, 0, null);
-	}
-});
 
 ---------------------------------POI xls,xlsxWorkbook webbook = null;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -3601,11 +3535,9 @@ public class SumUpProtocolCodecFactory extends DemuxingProtocolCodecFactory {
 ---------------------------------Netty
 JBoss的 NIO  很少类基于 java nio
 NioServerSocketChannel , NioSocketChannel 用了 java nio
-//---- Netty-4
-
-
-//---- Netty-5
-
+//---- Netty-4.1
+netty-all-4.1.8.Final-sources.jar 里有example
+ 
 
 ---------------------------------JSON
 import net.sf.json.JSONArray;
@@ -4286,7 +4218,7 @@ MemcachedClient client=(MemcachedClient)factoryBean.getObject();
 <dependency>
     <groupId>redis.clients</groupId>
     <artifactId>jedis</artifactId>
-    <version>2.6.2</version>
+     <version>2.9.0</version>
     <type>jar</type>
     <scope>compile</scope>
 </dependency>
@@ -4391,7 +4323,7 @@ JedisCluster jc = new JedisCluster(jedisClusterNodes);
 //jc.auth("123456");
 jc.set("foo", "bar"); 
 System.out.println(jc.get("foo"));
-
+ 
 
 ---------------------------------Redis client redisson	  分布式锁的实现 
 //redisson  依赖于netty,fasterxml的jackson

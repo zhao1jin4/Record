@@ -57,13 +57,13 @@ brower ->create selibration diagram(最后一个)
 tools->oracle8i->analyze Schema->输入schema ->输入连接数据用户
 tools->layout diagram
 
----------------Viso-2010
+---------------Viso-2010  只有windows,Mac无可用OmniGraffle
+http://www.msdn.hk/
+
 UML class图中的Attribute,如要设置  "性质串"如frozen,点properties...按钮->changeable选择frozen
 UML class图中的Attribute 默认不显示"多重性",右击class图->shap display options->复选Attribute multiplicity
 
-UML class图中的Operation ,如要设置"性质串",在call concurrency中选择sequentail(线程不安全)/guarded(线程安
-
-全)/concurrent()/
+UML class图中的Operation ,如要设置"性质串",在call concurrency中选择sequentail(线程不安全)/guarded(线程安全)/concurrent()/
 
 
 
@@ -101,15 +101,33 @@ coupling( 耦合)	连接；连接器; (尤指列车等的)车钩, 挂钩
 -UML
 类图的属性如是斜体字,表示类是抽象类,
 +public ,-private ,#protected,方法上有道下划线,表明是一个静态的方法
-一般化(Generalization) 指继承,即Java中的extends和implements关键字,(使用实线的空心的三角形)
-关联关系(Association) ,如Teacher可以有多个Student,(0..*,0..1,1,1..*),(实线的单/双向箭头),两个类在同一层次
-聚合关系(Aggregation)是关联关系的一种,两个类不在同一层次,一个代表整体,另一个代表部分,如Car有Engine,(实线的,整体端用空心棱形,部分端用箭头)
-合成关系(Composition)是关联关系的一种,比聚合关系强的关系,部分对象的生命周期由整体对象来负责,部分对象只能与一个对象发生合成关系(实线的,整体端用实心棱形,部分端用箭头)
-依赖关系(Dependency),总是单向的,方法的参数中用到了另一个类,或者局域变量,或另一个类的静态方法,不是类的属性,单向虚线箭头
+
+
+
+
+Viso和StarUML是相同的 
+
+一般化(Generalization)(实线空心三角形)		指继承,即Java中的extends和implements关键字,
+关联关系(Association)(实线单/双向箭头) 		如Teacher可以有多个Student,(0..*,0..1,1,1..*),,两个类在同一层次
+聚合关系(Aggregation)(实线,整体端用空心棱形)是关联关系的一种,两个类不在同一层次,一个代表整体,另一个代表部分,如Car有Engine
+合成关系(Composition)(实线,整体端用实心棱形)是关联关系的一种,比聚合关系强的关系,部分对象的生命周期由整体对象来负责,部分对象只能与一个对象发生合成关系
+依赖关系(Dependency)(虚线箭头)				总是单向的,方法的参数中用到了另一个类,或者局域变量,或另一个类的静态方法,不是类的属性
+Directed Associtaion (实线箭头)
+Interface Realiztion (虚线空心三角形)
+
+箭头是人字
+
+
+
 
 状态图的过渡连线的标签通常分为两部分,由一个斜线分开,第一部分是引起的过渡事件,第二部分是事件所引起的操作
 
-------------Astah 
+
+
+泳道图,一种UML活动图  (Viso 中的 Cross-Function Flowchart)
+
+
+------------Astah  community 免费,Professional收费 使用Java做的 有Liux,Mac版
 tool->export image-> ... 保存UML为图片
 时序图
 	有一个Combinded Fragement,默认operator是alt类型的,可右击Combinded图->add operand增加条件
@@ -119,7 +137,7 @@ tool->export image-> ... 保存UML为图片
 	返回消息,虚线+小于三角
 
 
-============================Rational  Software Architect (RSA)
+============================Rational Software Architect Designer 9.6 收费 使用Eclipse做的,有Liux,Mac版 
 Project Explorer视图中 右击建立的package或Diagrams->add diagram->sequence diagram 来增加时序图
 state machine diagram 是状态图
 
@@ -128,10 +146,18 @@ state machine diagram 是状态图
 类图可以转换成Java , 如实现接口用 Realization (虚线,空心实线三角)
 拖包,拖类到包中,在propterties视图中为类增加属性(attributes)和方法(operation),右击->包->Transform->new Configration,复选show all transalation,展开java translataion->UML to Java->source中选择UML的包,target选择Java项目的src目录
 
+建立 Data Design 项目(像power designer)
+建表,加主键点出键头拉线到另一张表,弹出菜单选关系, 右击工作区-> show implicit relationship 才能看到带线的关系
 
-------------Visual Paradigm 
-11
-12.1
+------------Visual Paradigm  14.1  有Mac,Linux版 收费  UML 工具
 
+
+----- Enterprise Architect 13 (EA) 只windows版  收费  UML 工具
+
+
+
+-----StarUML 2.8 (2016-11更新)  有Mac,Linux版 收费 UML 工具
+
+----- Mindjet MindManager 2016 分支图
 
  

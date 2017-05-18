@@ -195,7 +195,7 @@ public class MyServlet3 extends HttpServlet {}
 或者
 @WebServlet( asyncSupported=true
 
-AsyncContext ctx=request.startAsync();   //异步的
+AsyncContext ctx=request.startAsync();   //异步的,现在又报错了????
 ctx.addListener(new AsyncListener()
 				{
 					public void onComplete(AsyncEvent event) throws IOException 
@@ -2756,10 +2756,12 @@ DataSource ds=(DataSource)ctx.lookup("jndi_mysql");//不用加java:xxx
 Connection conn=ds.getConnection();
 
 
-=========================JBOSS 7.1.1 使用  (改名为 WildFly 8.1)
+=========================JBOSS 7.1.1 使用  (后面新版本 改名为 WildFly)
 LGPL 
 https://docs.jboss.org/author/dashboard.action 有很的Doc,如JBoss AS 7.1 ,JBoss OSGi,Portlet Bridge
 https://docs.jboss.org/author/display/JBASDOC/Home
+
+wildfly-10.1.0.Final\bin\client\jboss-client.jar
 
 安装JBOSS Tools 的eclipse插件时选择jBoss Web and Java EE Developement -> JBossAS Tools 就有启动停止的JBOSS AS-7.1的工具了
 		jBoss Application Development -> freemarker IDE,Hibernate Tools

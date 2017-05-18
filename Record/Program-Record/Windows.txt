@@ -1,4 +1,4 @@
-
+乙的五笔 nnll
 美国代码1
 中国代码86
 印度代码91
@@ -223,6 +223,7 @@ gpedit.msc->用户配置→管理模板→Windows组件→Windows资源管理器
 
 开始菜单历史
 右击开始菜单->properties->Start Menu->取消Store and display recent opened item in the start menue and the taskbar
+win10中 Setting->Personalization->Start->关闭 Show recently open items in Jump List on Start or the task bar ,任务栏的图标就不显示了,再打开也没了
 
 看显卡  附件->系统工具->系统信息->展开 组件->显示 第一个是集成的,第二个是独立显卡
 	也可在设备管理器在看到两个, dxdiag 名称栏中 看到的是显示名,是集成的显卡
@@ -511,9 +512,9 @@ windows 7  快捷箭头的显示/隐藏
 
 windows 7 任务栏中的图标 历史
 HKEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\TrayNotify，
-清空IconStreams的值，清空PastIconsStream的值，
+清空IconStreams的值, 清空PastIconsStream的值(win10无这个,但也没效果????)
 重启EXPLORER.EXE进程
-
+ 
 
 win7中删右击_管理员取得所有权_.reg
 Windows Registry Editor Version 5.00
@@ -525,22 +526,13 @@ win7 桌面IE图标删除不掉
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace\  下删无用的
 
 
-任务栏里自定义通知里的过去的项目如何删除
-HEEY_CLASSES_ROOT\Local Settings\Software\Microsoft\Windows\CurrentVersion\TrayNotify
 
-
-运行历史清除
+运行历史清除 (可在exporer地址栏,右击我的电脑->delete history,但下次运行继续有)
 打开注册表编辑器，定位到 HKEY_CURRENT_USER\Software\ Microsoft\Windows\CurrentVersion\Explorer\RunMRU 
-下删除所有的单个字母,立即生效
+下删除所有的单个字母,立即生效,MRUList也可删,但下次运行继续有
 
 控制面析中的卸载是读
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\
-
----删除“自定义通知”中历史
-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\TrayNotify，
-删除右侧窗口中的IconStreams和PastIconStreams两项。
-3. 任务管理器里结束进程Exploer.exe, 这时你的桌面应该找不到了。
-4. 任务管理器里 文件-新建任务(运行)，找到C:\WINDOWS\explorer.exe，确定后OK。 
 
 =========
 ---启用禁止使用USB
@@ -762,6 +754,7 @@ start命令是开一个新的CMD窗口,如 start startWeblogic.cmd 在CMD新窗�
 
 net start/stop MySQL
 net user 
+建立用户  net  user  theUser  thePass /add 
 
 shutdown /a 取消 定时关机
 shutdown /t 120 /s  ,两分钟后关机
@@ -873,7 +866,6 @@ android-4.4 (android-sdk_r22.3-windows) 在 win8.1 上不能运行.exe文件 是
 
 拖动标题栏 晃动几下,所有的其它窗口最小化,再次晃动还原
 ----
-win8RTM版本不能打开Hyper-V 不能启动WP8模拟器 ???
 
 ===========上 win8==========
 =========== win 10 ==========
@@ -937,6 +929,20 @@ Visual Studio 中的命令提示符输入 corflags  my.dll
 
 systeminfo 命令 可以看系统信息,有 系统类型 可知是32位还64位
 
+
+,win10 Explorer中键 功能目录向上, 浏览器返回
+
+
+--- win mac
+如ipad提示是否可以访问照片和视频,这个只是在我的电脑中出多的新存储是否可以读写
+
+win10 ipad不能识别ipad的问题解决(开始以为空是版本升级原因其实不是)
+右击  计算机->管理->设备管理器->  便携设备—右键点击Apple iPhone—更新驱动程序软件,如没有就用下面的
+								  通用串行总线控制器—>右键点击Apple Mobile Device USB Driver—更新驱动程序软件
+->浏览计算机以查找驱动程序软件 ->从计算机的设备驱动程序列表中选取->从磁盘安装->C:\Program Files\Common Files\Apple\Mobile Device Support\Drivers\usbaapl64.inf
+一次不行就做两次就可以了,itunes中出现了"谁谁的ipad",但展开表中没有显示App列表,要点工具栏上的手机按钮图标会进一个新的页面,那才有App列表,就可选择暴风影响上传视频了,直接使用iTools 这个好用
+
+
 =========问题 ???
 设置客户机不能修改自动更新设置,不能修改防火墙 ???
 
@@ -959,3 +965,4 @@ for /r D:\IBM\SDP\runtimes\base_v7\profiles\AppSrv01 %a  in (*) do echo %a
 
 
 ========= 上 问题 ???
+

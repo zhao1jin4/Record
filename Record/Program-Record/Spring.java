@@ -1,10 +1,14 @@
 下载   http://repo.spring.io/libs-release/
 
 <properties>
-	<spring.version>4.2.1.RELEASE</spring.version>
+	<spring.version>4.3.7.RELEASE</spring.version>
 	<spring-security.version>4.0.2.RELEASE</spring-security.version>
 </properties>
-
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>1.5.2.RELEASE</version>
+</parent>
 <dependencies>
 	<dependency>
 		<groupId>org.springframework</groupId>
@@ -89,6 +93,12 @@
 		<version>${spring-security.version}</version>
 	</dependency>
 	
+	<!-- boot  要parent-->
+	<dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    
 	
 	<!-- data -->
 	<dependency>
@@ -101,10 +111,10 @@
 		<artifactId>spring-data-mongodb</artifactId>
 		<version>1.7.0.RELEASE</version>
 	</dependency>
-	 <dependency>
+	<dependency>
 		<groupId>org.springframework.data</groupId>
 		<artifactId>spring-data-redis</artifactId>
-		<version>1.5.0.RELEASE</version>
+		<version>1.8.1.RELEASE</version>
 	</dependency>
 	
 	
@@ -123,7 +133,12 @@
 		<artifactId>spring-data-jpa</artifactId>
 		<version>1.7.2.RELEASE</version>
 	</dependency>
-
+	<dependency>
+	  <groupId>org.springframework.data</groupId>
+	  <artifactId>spring-data-keyvalue</artifactId>
+	  <version>1.2.1.RELEASE</version>
+	</dependency> 
+	
 	<!-- other -->
 	<dependency>
 		<groupId>org.springframework.batch</groupId>
@@ -142,6 +157,11 @@
         <groupId>org.springframework.hateoas</groupId>
         <artifactId>spring-hateoas</artifactId>
         <version>0.19.0.RELEASE</version>
+    </dependency>
+	<dependency>
+        <groupId>org.springframework.kafka</groupId>
+        <artifactId>spring-kafka</artifactId>
+        <version>1.1.2.RELEASE</version>
     </dependency>
 	
 </dependencies>
@@ -628,7 +648,7 @@ org.springframework.beans.factory.config.CustomEditorConfigurer 文档有列子 
 
 
  	<value>
- 	<idref local=""/>
+ 	<idref local=""/>　<!-- 新版本不能local ,可以用bean-->
  	
  	
  	<bean class="FactoryBean实现" 
@@ -906,7 +926,7 @@ setMappingDirectoryLocations(Resource[]  在指定文件夹下的文件自动加
 
 HibernateTemplate , setSessionFactory(SessionFactory)或用构造器注入，就可以得到一个HibernateTemplate
 HibernateCallback 中的方法时不用对Session进行事物 操作	，关闭操作
-HibernateDaoSupport .可注入，HiberanteTempalte或,SessionFactory
+
 
 继承自HiberanteDaoSupport ,可以getSession(boolean );不存在Session创建吗？
 
@@ -926,8 +946,9 @@ TransactionDefinition
 	6.PROPAGATION_SUPPORTS  如当前已经在事务中，加入这个事务,否则在没有事务中执行
 
 TransactionDefinition 的下些常量 的子接口 TransactionAttribute
+可取值同 JDBC,常量的值也相同,默认取决于数据库
 	ISOLATION_READ_COMMITTED
-	ISOLATION_SERIALIZABLE
+	ISOLATION_SERIALIZABLE  同 Connection.TRANSACTION_SERIALIZABLE
 	
 TransactionProxyFactoryBean
 	setTransactionAttributeSource(TransactionAttributeSource transactionAttributeSource) 
@@ -949,7 +970,7 @@ NameMatchTransactionAttributeSource   方法setProperties(Properties 中的key�
 可在TransactionProxyFactoryBean 中用transactionAttributes属性
 TransactionIntercepter 是MethodIntercepter (aopalliance) 的实现类
 			1.PlatformTransactionManager 
-			2.TransactionAttributeSource 或是一个Properties
+			2.TransactionAttributeSource 或是一个 Properties
 
 TransactionAttributeSourceAdvisor 实现了 Ordered
 			setTransactionInterceptor(TransactionInterceptor )，可能有空指针，用构造注入
@@ -1002,6 +1023,14 @@ transactionTemplate.execute(new TransactionCallback ()  //或者使用 Transacti
   <tx:advice id="txAdvice" transaction-manager="txManager">
     <tx:attributes>
       <tx:method name="get*" read-only="true"/>
+	  <tx:method name="update*" propagation="REQUIRED" isolation="REPEATABLE_READ"/>
+			<!-- 
+			READ_UNCOMMITTED
+			READ_COMMITTED
+			REPEATABLE_READ
+			SERIALIZABLE
+			 -->
+			 
       <tx:method name="*"/>
     </tx:attributes>
   </tx:advice>
@@ -1040,6 +1069,8 @@ public class DefaultFooService implements FooService
 如在接口上使用 @Transactional 注解，设置了基于接口的代理时它才生效 , 不推荐
 <tx:annotation-driven proxy-target-class="false"/>  proxy-target-class默认值false,JDK基于接口的代理 , 如true使用cglib代理
 
+
+//isolation默认依赖于数据, propagation默认是Propagation.REQUIRED.
 @Transactional(propagation = Propagation.REQUIRES_NEW ,isolation=Isolation.READ_COMMITTED,timeout=10,
 			rollbackFor=IOException.class,rollbackForClassName="FileNotFoundException",noRollbackFor=IOException.class)
 	 //timeout单位(秒)
@@ -1154,7 +1185,7 @@ public class MyValueCalculatorReplacer implements MethodReplacer{
 <!-- PropertyPathFactoryBean -->
 <bean id="readAge" class="org.springframework.beans.factory.config.PropertyPathFactoryBean">
 	<property name="targetBeanName" > 
-		<idref bean="beanParent"/><!-- 只是传字串 -->
+		<idref bean="beanParent"/><!-- 只是传字串  -->
 	</property>
 	<property name="propertyPath" value="user.age"/>
 </bean>
@@ -1269,7 +1300,7 @@ public class EmployeeDao
 	}
 	
 	this.getSessionFactory().getCurrentSession().save(employee);
-		
+}		
 <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 	<property name="sessionFactory" ref="mySessionFactory"/>
 </bean>
@@ -1369,8 +1400,8 @@ public EntityManager em; //JPA
 
     <!-- Create the pooled data source to actually use -->
     <bean id="dataSource" class="com.mchange.v2.c3p0.DataSources" factory-method="pooledDataSource" depends-on="unpooledDataSource">
-        <constructor-arg><ref local="unpooledDataSource"/></constructor-arg>
-        <constructor-arg><ref local="poolConfig"/></constructor-arg>
+        <constructor-arg><ref bean="unpooledDataSource"/></constructor-arg> <!-- ref,idref 新版本不能用local-->
+        <constructor-arg><ref bean="poolConfig"/></constructor-arg>
     </bean>
 
 ----示例c3p0配置
@@ -2371,9 +2402,14 @@ public interface CustomerRepository extends MongoRepository<String, String> {
 
 
 
-<mongo:mongo-client id="mongo"  host="127.0.0.1" port="27017" credentials="user:password@database" >
-    <mongo:client-options write-concern="NORMAL" />
-</mongo:mongo-client>
+<!-- 新版本无　mongo-client　标签　
+	  <mongo:mongo-client  id="mongo" host="127.0.0.1" port="47017" credentials="user:password@database"  >
+	    <mongo:client-options write-concern="NORMAL" />
+	</mongo:mongo-client>
+-->
+<mongo:mongo  id="mongo" host="127.0.0.1" port="47017" write-concern="NORMAL" ></mongo:mongo>
+	
+
   <!-- 二选一 
 <bean id="mongo" class="org.springframework.data.mongodb.core.MongoFactoryBean">
 	<property name="host" value="localhost" />
@@ -2661,6 +2697,90 @@ implements ItemWriter<Message>
 	}
 	return null;
 }  
+========================Spring Boot
+
+spring-boot-1.5.2.RELEASE.jar
+spring-boot-autoconfigure-1.5.2.RELEASE.jar
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+    @Bean
+    public CommandLineRunner commandLineRunner(ApplicationContext ctx) 
+    {
+        return args -> {//是CommandLineRunner 接口的一个run方法参数String[] 
+            System.out.println("Let's inspect the beans provided by Spring Boot:");
+            String[] beanNames = ctx.getBeanDefinitionNames();
+            Arrays.sort(beanNames);
+            for (String beanName : beanNames) {
+                System.out.println(beanName);
+            }
+        };
+    }
+}
+
+//-- web 
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+@Controller
+@EnableAutoConfiguration
+public class SampleController {
+    @RequestMapping("/")
+    @ResponseBody
+    String home() {
+        return "Hello World!";
+    }
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(SampleController.class, args);
+    }
+}
+========================Spring Cloud
+版本名是伦敦地铁站的名字，字母表的顺序
+最新的 Dalston  版本 
+
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>1.5.2.RELEASE</version>
+</parent>
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>Dalston.RELEASE</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-config</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-eureka</artifactId>
+    </dependency>
+</dependencies>
+
+
+
+
+
 
 ======================AspectJ
 .aj 文件

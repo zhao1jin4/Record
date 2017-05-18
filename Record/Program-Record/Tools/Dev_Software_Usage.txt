@@ -297,8 +297,9 @@ Tools->Driver Manager, 子窗口Drvier菜单->JDB Driver Finder (点start 再次
 如同时显示多个表的查询,右击标签->pin tab(也可单击标签的图标来开关),也可右击表->open in new tab
 
 界面中文显示方块(乱码)的解决方式
-在Tools->tool Properties->General->Appearance->Fonts->SQL Editor/Text Editor 选择PMingLiU 或者宋体 字体, 同时把Grid也选择PMingLiU,也可选择宋体
+在Tools->tool Properties->General->Appearance->Fonts->SQL Editor/Text Editor 选择PMingLiU , 宋体(SimSun), 同时把Grid,Other L&FS
 	(如果打开文件只能正常显示GBK的,UTF8的不行,Toad也是一样的)
+如重启脚本会变？ Tools->General->File Encoding->改为GBK
 
 右击数据表格中行-> edit row in window,打开一个窗口看,也可双击表格行左边的号
 
@@ -307,7 +308,7 @@ Tools->Driver Manager, 子窗口Drvier菜单->JDB Driver Finder (点start 再次
 Tools->SQL History
 
 写SQL提示只在pro版本中才有(破解要用winrar,7zip不行的)
-tools -> tool properties -> SQL Editor-> Auto Completion (pro版本) ->复选 Display Automatically
+tools -> tool properties -> SQL Commander-> Auto Completion (pro版本) ->复选 Display Automatically
 Edit->show Auto Complete 没用???,但绑定快捷键是可以的
 Tools Properties->Key Binding->默认选中Default->Make Copy->Action中选Edit下的show Auto Complete ->Add Key Binding->设置快捷键
 
@@ -514,7 +515,28 @@ edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好�
 	再选择另外一个版本（单击右键—选择show difference as unified diff），然后就会生成一个两个版本的不同之处的文本,是在一个窗口中显示所有的
 
 
-	
+------------TortoisHg 是 Mercurial(分布式版本控制)工具
+
+OpenJDK source下载用的
+hg clone  http://hg.openjdk.java.net/jdk8u/jdk8u/
+cd jdk8u  
+bash ./get_source.sh
+
+
+hg clone   http://hg.openjdk.java.net/jdk8u/jdk8u60/
+cd jdk8u60
+bash ./get_source.sh
+
+bash ./configure   依赖于X11  
+sudo yum install libXtst-devel libXt-devel libXrender-devel\
+sudo yum install cups-devel
+sudo yum install freetype-devel
+sudo yum install alsa-lib-devel
+make all 
+
+
+
+
 ------------Fiddler 
 
 对IE 11 有效,也可在工具栏上修改为Firefox
@@ -643,3 +665,4 @@ Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到�
 	
 ---------zabbix 性能监视工具
 
+Hudson是Jenkins的前身   都是持续集成(CI)
