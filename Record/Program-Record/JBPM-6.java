@@ -1,8 +1,10 @@
 http://www.omg.org/spec/BPMN/2.0/
 Business Process Model and Notation (BPMN) 		Version 2.0
 
-
+Activiti (2016年12月版本是5.22.0,可能要翻墙)是基于JBPM-4 , 引擎核心PVM（流程虚拟机）,  ORM 使用 MyBatis3
 ----------------------JBPM-6.4
+ORM 使用 Hibernate JPA，引擎核心 Drool
+
 drool	流口水
 guvnor	雇主,老板
 

@@ -1,37 +1,37 @@
-Active TCL
+ï»¿Active TCL
 
-ÈİÒ×Ç¶ÈëÆäËüÓ¦ÓÃ³ÌĞò
-¿ÉÒÔ´¦ÀíÒì³£
+å®¹æ˜“åµŒå…¥å…¶å®ƒåº”ç”¨ç¨‹åº
+å¯ä»¥å¤„ç†å¼‚å¸¸
 
 
 
-ÃüÁî·Ö¸ôÒÔ";" »òÕß¿Õ¸ñ
-\ ¿ÉÒÔ·ÖÀë³É¶àĞĞÃüÁî
-\x Ê®Áù½øÖÆ
+å‘½ä»¤åˆ†éš”ä»¥";" æˆ–è€…ç©ºæ ¼
+\ å¯ä»¥åˆ†ç¦»æˆå¤šè¡Œå‘½ä»¤
+\x åå…­è¿›åˆ¶
 
-\[ ×ªÒé
+\[ è½¬è®®
 
-´óĞ¡Ğ´ÊÇÃô¸ĞµÄ
-×¢ÊÍÊ¹ÓÃ #
+å¤§å°å†™æ˜¯æ•æ„Ÿçš„
+æ³¨é‡Šä½¿ç”¨ #
 
-Ê¹ÓÃ±äÁ¿Òª¼Ó$
+ä½¿ç”¨å˜é‡è¦åŠ $
 
 set iNum2 43; set iNum3 44  
 set sMyvar "Hard Disk"
 puts $sMyvar
-#½á¹û => Hard Disk
+#ç»“æœ => Hard Disk
 
 set sAreaCode (213)
 puts ${sAreaCode}555-1212
 #==> (213)555-1212
 
-[] ÖĞµÄtclµ¥¶ÀÖ´ĞĞ,·µ»Ø½á¹ûÀ´Ìæ´ú[]
+[] ä¸­çš„tclå•ç‹¬æ‰§è¡Œ,è¿”å›ç»“æœæ¥æ›¿ä»£[]
 set iResult [ expr 2 + 2 ]
 
 
 set iNum 99
 puts "The value of iNum is $iNum"    
-Òª×ö±äÁ¿½âÎö
+è¦åšå˜é‡è§£æ
 #==> The value of iNum is 99
 
 puts "Some text; and
@@ -41,7 +41,7 @@ more text"
 
 set iCount 99
 puts {The value of iCount is $iCount}   
-²»×ö±äÁ¿½âÎö
+ä¸åšå˜é‡è§£æ
 #==> The value of iCount is $iCount
 
 puts {hello \n hello; $more [text]}
@@ -91,26 +91,26 @@ string length "A test string"
  
 string index "Hello World" 4
 ==>o
-#µÚ4¸öµÄ×ÖÄ¸,0¿ªÊ¼
+#ç¬¬4ä¸ªçš„å­—æ¯,0å¼€å§‹
 
 string range "A test string" 7 end
 ==>string
-#´ÓµÚ7¸öµ½½áÎ²
+#ä»ç¬¬7ä¸ªåˆ°ç»“å°¾
 
 string first "!" "Help!Me!"
 ==>4
-#µÚÒ»¸ö!µÄÎ»ÖÃ
+#ç¬¬ä¸€ä¸ª!çš„ä½ç½®
 
 string last "!" "Help!Me!"
 ==>7
 
 string compare "First" "Second"
 ==>-1
-# -1, 0,  1 ·Ö±ğ±íÊ¾µÚÒ»¸öĞ¡ÓÚ,µÈÓÚ,´óÓÚµÚ¶ş¸ö
+# -1, 0,  1 åˆ†åˆ«è¡¨ç¤ºç¬¬ä¸€ä¸ªå°äº,ç­‰äº,å¤§äºç¬¬äºŒä¸ª
 
 string match "*test*" "A test string"
 ==>1
-#0±íÊ¾²»Æ¥Åä
+#0è¡¨ç¤ºä¸åŒ¹é…
 
 string tolower "A Test String"
 ==>a test string
@@ -120,7 +120,7 @@ string toupper "A Test String"
 
 string trim " A test string !!!!" " !"
 ==>A test string
-#É¾Ê×ºÍÎ²²¿µÄ !,Ä¬ÈÏÊÇ¿Õ¸ñ
+#åˆ é¦–å’Œå°¾éƒ¨çš„ !,é»˜è®¤æ˜¯ç©ºæ ¼
 
 string trimleft " A test string !!!!" " !"
 ==>A test string !!!!
@@ -130,7 +130,7 @@ string trimright " A test string !!!!" " !"
 
 regexp "does|match$" "Does this match"
 ==>1
-#0 ±íÊ¾²»Æ¥Åä
+#0 è¡¨ç¤ºä¸åŒ¹é…
 
 #regsub exp 	string 							substitute  	varName
 regsub "match$" "match test - Does this match"  "**replaced**" sStr
@@ -170,7 +170,7 @@ lrange $lComps 0 2
 linsert $lComps 2 RAM
 ==> Memory Mouse RAM {System Box} Monitor Keyboard
 
-#lreplace list first last ?value value ¡­?
+#lreplace list first last ?value value â€¦?
 lreplace $lComps 3 3
 ==> Memory Mouse RAM Monitor Keyboard
 #Item 3 of list lComps is replaced with nothing
@@ -182,8 +182,8 @@ lsearch -glob $lComps *r*
 #which is Memory, item 0
 
 #Options include -ascii, -integer, -real, -dictionary, -increasing, -decreasing, -index x, -command cmd .
-# -real°ÑÁĞ±íÔªËØ×ª»»³É¸¡µãÊı
-# -command Ê¹ÓÃcommand×÷ÎªÒ»¸ö±È½ÏÃüÁî£¬±È½ÏÁ½¸öÔªËØ¡£Õâ¸öÃüÁîĞèÒª·µ»ØÒ»¸öÕûÊı£¬±íÊ¾Ğ¡ÓÚ¡¢µÈÓÚ»ò´óÓÚ0£¬·Ö±ğ¶ÔÓ¦µÚÒ»¸öÔªËØÊÇĞ¡ÓÚ¡¢µÈÓÚ»¹ÊÇ´óÓÚµÚ¶ş¸öÔªËØ¡£ 
+# -realæŠŠåˆ—è¡¨å…ƒç´ è½¬æ¢æˆæµ®ç‚¹æ•°
+# -command ä½¿ç”¨commandä½œä¸ºä¸€ä¸ªæ¯”è¾ƒå‘½ä»¤ï¼Œæ¯”è¾ƒä¸¤ä¸ªå…ƒç´ ã€‚è¿™ä¸ªå‘½ä»¤éœ€è¦è¿”å›ä¸€ä¸ªæ•´æ•°ï¼Œè¡¨ç¤ºå°äºã€ç­‰äºæˆ–å¤§äº0ï¼Œåˆ†åˆ«å¯¹åº”ç¬¬ä¸€ä¸ªå…ƒç´ æ˜¯å°äºã€ç­‰äºè¿˜æ˜¯å¤§äºç¬¬äºŒä¸ªå…ƒç´ ã€‚ 
 	
 lsort -ascii $lComps
 ==> Keyboard Memory Monitor Mouse RAM
@@ -191,20 +191,20 @@ lsort -ascii $lComps
 lsort -integer -index 1 /
 		{{First 24} {Second 18} {Third 30}}
 
-·µ»Ø {Second 18} {First 24} {Third 30}, 
+è¿”å› {Second 18} {First 24} {Third 30}, 
 
 
 lsort -index end-1  {{a 1 e i} {b 2 3 f g} {c 4 5 6 d h}}
-·µ»Ø {c 4 5 6 d h} {a 1 e i} {b 2 3 f g},
+è¿”å› {c 4 5 6 d h} {a 1 e i} {b 2 3 f g},
 
 
-#±È½Ï¶şÎ¬ÖĞµÄ0,1 ,¼´i,e,o
+#æ¯”è¾ƒäºŒç»´ä¸­çš„0,1 ,å³i,e,o
 lsort -index {0 1} {
        {{b i g} 12345}
        {{d e m o} 34512}
        {{c o d e} 54321}
     }
-·µ»Ø {{d e m o} 34512} {{b i g} 12345} {{c o d e} 54321} 
+è¿”å› {{d e m o} 34512} {{b i g} 12345} {{c o d e} 54321} 
 
 split [list a b c] \n
 
@@ -212,7 +212,7 @@ join $lGroups "|"
 ==>HCC Corp|Sales|Manufacturing
 
 
-Êı×é,Ë÷Òı¿ÉÒÔÊÇ×Ö´®,ÏñMap
+æ•°ç»„,ç´¢å¼•å¯ä»¥æ˜¯å­—ä¸²,åƒMap
 set aPerson(firstname) Tom
 #The array aPerson is created
 
@@ -235,20 +235,20 @@ array size aPerson
 array names aPerson
 ==>firstname lastname
 
-#´Ólist´´½¨
+#ä»liståˆ›å»º
 array set aPerson {name Joe job Boss}
 #Creates array aPerson and associates name with Joe and job with Boss
 
 array get aPerson
 ==>name Joe job Boss
 
-#TCL ÄÚ²¿Êı×é±äÁ¿ env,
+#TCL å†…éƒ¨æ•°ç»„å˜é‡ env,
 array get env
 
-#TCL ÄÚ²¿Êı×é±äÁ¿ ¿Í»§¶Ë,ÒÔtcl_ ¿ªÍ·
+#TCL å†…éƒ¨æ•°ç»„å˜é‡ å®¢æˆ·ç«¯,ä»¥tcl_ å¼€å¤´
 array get tcl_platform
 
-#info keyword arg¡­
+#info keyword argâ€¦
 info vars s*
 info exists sPart
 info procs
@@ -262,7 +262,7 @@ if
 switch
 while
 
-# }{ ±ØĞëÔÚÒ»ĞĞÉÏ
+# }{ å¿…é¡»åœ¨ä¸€è¡Œä¸Š
 if { $sPart == "Memory" } {
 puts "Found Memory"
 } elseif {$sPart == "Mouse"} {
@@ -270,12 +270,12 @@ puts "Found Mouse"
 } else {
 puts "Not Found"
 }
-#×¢Òâ{µÄÎ»ÖÃ
+#æ³¨æ„{çš„ä½ç½®
 
 #Options include -exact, -glob, -regexp
 switch ?options? string {
 value body
-?default body ¡­?
+?default body â€¦?
 }
 
 switch -exact $sType {
@@ -301,7 +301,7 @@ puts \
 [mql print role $sRole select name person dump]
 }
 
-#eval ÃüÁî
+#eval å‘½ä»¤
 set sType "Monitor"
 set cmd {mql print bus $sType select policy}
 eval $cmd
@@ -316,7 +316,7 @@ puts $sMessage
 ==>Error: #1900068: print type failed
 
 
-errorInfoºÍerrorCodeÖ»ÔÚ´íÎóÒì³£ÖĞ±»ÉèÖÃ
+errorInfoå’ŒerrorCodeåªåœ¨é”™è¯¯å¼‚å¸¸ä¸­è¢«è®¾ç½®
 
 error message ?info? ?code?
 
@@ -326,28 +326,28 @@ code into the errorCode variable
 
 
 
-Procedures ¿ÉÒÔÓÃ»§×Ô¶¨ÒåÃüÁî
-Ê¹ÓÃ "proc" ´´½¨ ,µ÷ÓÃÖ»Òª Ãû×Ö
+Procedures å¯ä»¥ç”¨æˆ·è‡ªå®šä¹‰å‘½ä»¤
+ä½¿ç”¨ "proc" åˆ›å»º ,è°ƒç”¨åªè¦ åå­—
 global
 proc
 return
 upvar
 
 
-Óï·¨
+è¯­æ³•
 proc name argList body
 
 proc pMyprint { sText } { puts $sText }
 
 
-#¿É¶Ô²ÎÊıÉèÖÃÄ¬ÈÏÖµ
+#å¯å¯¹å‚æ•°è®¾ç½®é»˜è®¤å€¼
 proc pAddOrder { sType sName sRev { sPol "Order" } } {
 mql add bus $sType $sName $sRev \
 policy $sPol
 }
 
 
-#args ¿ÉÒÔµÃµ½²ÎÊı¸öÊı
+#args å¯ä»¥å¾—åˆ°å‚æ•°ä¸ªæ•°
 proc pNotify { sSubj sMsg args } {
 foreach sPerson $args {
 mql send mail to $sPerson subject $sSubj \
@@ -356,7 +356,7 @@ text $sMsg
 }
 
 
-µ÷ÓÃ
+è°ƒç”¨
 pNotify "Meeting" "Room B - 2:00 PM" Ni Joe
 
 
@@ -366,9 +366,9 @@ set lPersons \
 return $lPersons
 }
 
-proc ÖĞµÄ±äÁ¿ÊÇ¾Ö²¿±äÁ¿
+proc ä¸­çš„å˜é‡æ˜¯å±€éƒ¨å˜é‡
 
-global iPersons  È«¾Ö±äÁ¿
+global iPersons  å…¨å±€å˜é‡
 
 proc getListLength { sList } {
 global iPersons
@@ -381,10 +381,10 @@ getListLength "Joe Mary Ni"
 puts $iPersons
 ==>3
 
-upvar ´«µİÒıÓÃ,³£ÓÃÓÚÊı×é
+upvar ä¼ é€’å¼•ç”¨,å¸¸ç”¨äºæ•°ç»„
 
 upvar sVarName1 myVarName1
-?sVarName2 myVarName2 ¡­?
+?sVarName2 myVarName2 â€¦?
 
 
 set Memory(RAM) 100
@@ -396,11 +396,11 @@ puts $aLocalArray($sElement)
 PrintArrayElement Memory Price
 ==> 100
 
-#´ò¿ªÎÄ¼ş,ÒÔÖ»¶Á·½Ê½,·µ»ØÎÄ¼şID
+#æ‰“å¼€æ–‡ä»¶,ä»¥åªè¯»æ–¹å¼,è¿”å›æ–‡ä»¶ID
 set fInput [open "file.tcl" r]
 ==>file64
 
-#¶ÁÎÄ¼şÏÂÒ»ĞĞ(15 bytes)
+#è¯»æ–‡ä»¶ä¸‹ä¸€è¡Œ(15 bytes)
 gets $fInput sText
 ==>15
 
@@ -413,9 +413,9 @@ read $fInput 50
 
 
 read ?-nonewline? fileId 
-¶Á²¢·µ»ØfileId±êÊ¶µÄÎÄ¼şÖĞËùÓĞÊ£ÏÂµÄ×Ö½Ú¡£Èç¹ûÃ»ÓĞnonewline¿ª¹Ø£¬ÔòÔÚ»»ĞĞ·û´¦Í£Ö¹¡£ 
+è¯»å¹¶è¿”å›fileIdæ ‡è¯†çš„æ–‡ä»¶ä¸­æ‰€æœ‰å‰©ä¸‹çš„å­—èŠ‚ã€‚å¦‚æœæ²¡æœ‰nonewlineå¼€å…³ï¼Œåˆ™åœ¨æ¢è¡Œç¬¦å¤„åœæ­¢ã€‚ 
 
-eof fileId ,·µ»Ø1,0
+eof fileId ,è¿”å›1,0
 tell $fInput
 ==>199
 current access position is at byte 199
@@ -426,7 +426,7 @@ Origin may be start, current, or end, and defaults to start
 seek $fInput 50 start
 
 
-#ÏòÎÄ¼şÖĞĞ´
+#å‘æ–‡ä»¶ä¸­å†™
 puts $fOutput "This is a test"
 
 
@@ -468,7 +468,7 @@ nlink 1 mode -32320 type file
 ctime 853450007 uid 0 ino 0
 size 21932 dev 2
 
-¸ñÊ½»¯ÈÕÆÚ,Ê±¼ä
+æ ¼å¼åŒ–æ—¥æœŸ,æ—¶é—´
 clock format timevalue
 
 
@@ -476,7 +476,7 @@ glob pattern - Return a list of filenames
 glob *.bat
 
 
-µ÷ÓÃÍâ²¿³ÌĞò ,Ö§³ÖIO ÖØ¶¨Ïò
+è°ƒç”¨å¤–éƒ¨ç¨‹åº ,æ”¯æŒIO é‡å®šå‘
 
 exec
 exit

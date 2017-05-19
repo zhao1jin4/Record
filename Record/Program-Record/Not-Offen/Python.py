@@ -1,73 +1,73 @@
------
-eclipse marketplace°²×°  Python ²å¼þ PyDev-5.4 ,°²×°Ê±²»»áÌáÊ¾°æ±¾¼æÈÝ,µ±Ê¹ÓÃÊ±ÌáÊ¾Òªeclipse-4.6 ²ÅÐÐ
+ï»¿-----
+eclipse marketplaceå®‰è£…  Python æ’ä»¶ PyDev-5.4 ,å®‰è£…æ—¶ä¸ä¼šæç¤ºç‰ˆæœ¬å…¼å®¹,å½“ä½¿ç”¨æ—¶æç¤ºè¦eclipse-4.6 æ‰è¡Œ
 
-¹Ù·½¿´°æ±¾¶ÔÓ¦¹ØÏµ(Eclipse 4.5, Java 8: PyDev 5.2.0)
-ÏÂÔØPyDevÀëÏß°²×°°ü 
-https://sourceforge.net/projects/pydev/files/pydev/  ¿ÉÒÔdropsin°²×°
+å®˜æ–¹çœ‹ç‰ˆæœ¬å¯¹åº”å…³ç³»(Eclipse 4.5, Java 8: PyDev 5.2.0)
+ä¸‹è½½PyDevç¦»çº¿å®‰è£…åŒ… 
+https://sourceforge.net/projects/pydev/files/pydev/  å¯ä»¥dropsinå®‰è£…
 
-¿ÉÒÔdebug 
+å¯ä»¥debug 
 
-¿ÉÒÔ¿ª·¢Jython,IronPython
+å¯ä»¥å¼€å‘Jython,IronPython
 Jython : Python for the Java Platform
-IronPython:¿ªÔ´ÊµÏÖPythonÓïÑÔ.Net Framework
+IronPython:å¼€æºå®žçŽ°Pythonè¯­è¨€.Net Framework
 
-preferences->PyDev->Interpreters->Python Interpreter->Ñ¡Ôñpython.exeËùÔÚÂ·¾¶->ÌáÊ¾stdlib sourceÕÒ²»µ½
-´úÂëÌáÊ¾ºÜºÃ
-shift+enter ×Ô¶¯»»ÐÐËõ½ø ,ctrl+1ÓÐºÜ¶à¹¦ÄÜ
+preferences->PyDev->Interpreters->Python Interpreter->é€‰æ‹©python.exeæ‰€åœ¨è·¯å¾„->æç¤ºstdlib sourceæ‰¾ä¸åˆ°
+ä»£ç æç¤ºå¾ˆå¥½
+shift+enter è‡ªåŠ¨æ¢è¡Œç¼©è¿› ,ctrl+1æœ‰å¾ˆå¤šåŠŸèƒ½
 -----
 
 
-Python-3.5.2  ÏÂÔØwin .zip ½âÑ¹,·ÅPATH»·¾³±äÁ¿ÖÐ,Ã»ÓÐÔ´Âë,Ã»ÓÐDoc
+Python-3.5.2  ä¸‹è½½win .zip è§£åŽ‹,æ”¾PATHçŽ¯å¢ƒå˜é‡ä¸­,æ²¡æœ‰æºç ,æ²¡æœ‰Doc
 
-Èç¹ûÏÂÔØ.exe°²×°°æ,.pyÎÄ¼þ¿ÉÒÔË«»÷Ö´ÐÐ
-°²×°°æ±¾Ä¬ÈÏ°²×°ÔÚ C:\Users\zhaojin\AppData\Local\Programs\Python\Python35  ÓÐ.chmÎÄµµ,ÓÐLibÄ¿Â¼ÊÇÔ´Âë
+å¦‚æžœä¸‹è½½.exeå®‰è£…ç‰ˆ,.pyæ–‡ä»¶å¯ä»¥åŒå‡»æ‰§è¡Œ
+å®‰è£…ç‰ˆæœ¬é»˜è®¤å®‰è£…åœ¨ C:\Users\zhaojin\AppData\Local\Programs\Python\Python35  æœ‰.chmæ–‡æ¡£,æœ‰Libç›®å½•æ˜¯æºç 
 
 
-¿ÉÒÔ python test.py  µ«ÎÄ¼þÄÚÈÝÒªÎªUTF-8µÄ±àÂë²ÅÐÐ
+å¯ä»¥ python test.py  ä½†æ–‡ä»¶å†…å®¹è¦ä¸ºUTF-8çš„ç¼–ç æ‰è¡Œ
 
-±àÒë
-python -O -m py_compile test.py    »áÉú³É__pycache__Ä¿Â¼ÖÐÓÐ.pyc¶þ½øÖÆÎÄ¼þ,¿ÉÒÔ±£»¤´úÂë, python .pyc À´Ö´ÐÐ
+ç¼–è¯‘
+python -O -m py_compile test.py    ä¼šç”Ÿæˆ__pycache__ç›®å½•ä¸­æœ‰.pycäºŒè¿›åˆ¶æ–‡ä»¶,å¯ä»¥ä¿æŠ¤ä»£ç , python .pyc æ¥æ‰§è¡Œ
 -O    optimize
 
-Ò²¿ÉÐ´½Å±¾À´±àÒë comiple.py , Èç¹ûË«»÷.pyÎÄ¼þÖ´ÐÐÔòÖ»»áÔÚÏàÍ¬Ä¿Â¼Éú³Étest.pycÎÄ¼þ
+ä¹Ÿå¯å†™è„šæœ¬æ¥ç¼–è¯‘ comiple.py , å¦‚æžœåŒå‡».pyæ–‡ä»¶æ‰§è¡Œåˆ™åªä¼šåœ¨ç›¸åŒç›®å½•ç”Ÿæˆtest.pycæ–‡ä»¶
 import py_compile
 print('begin compile')
 py_compile.compile('c:/tmp/test.py')    
 print('end compile')
 
-ÅúÁ¿±àÒë ¶¼ÊÇÉú³É__pycache__Ä¿Â¼
+æ‰¹é‡ç¼–è¯‘ éƒ½æ˜¯ç”Ÿæˆ__pycache__ç›®å½•
 import compileall
 compileall.compile_dir(r'c:\tmp\pyDir')
 
-»òÕß  python -m compileall c:\tmp\pyDir
+æˆ–è€…  python -m compileall c:\tmp\pyDir
 
 
-±äÁ¿  _  ±íÊ¾ÉÏ´Î´òÓ¡µÄÊý×Ö
+å˜é‡  _  è¡¨ç¤ºä¸Šæ¬¡æ‰“å°çš„æ•°å­—
 
 >>>2*5
-ÏÔÊ¾ 10
+æ˜¾ç¤º 10
 >>>j=2
->>>j+_  #ÏÔÊ¾12,_ÊÇ10
->>> print(3)  #Õâ¸ö²»±£´æµ½ _ ÖÐ
+>>>j+_  #æ˜¾ç¤º12,_æ˜¯10
+>>> print(3)  #è¿™ä¸ªä¸ä¿å­˜åˆ° _ ä¸­
 
 
 >>> word = 'Python'
->>> word[0:2]   #×Ó×Ö´®
+>>> word[0:2]   #å­å­—ä¸²
 >>> word[:2] + word[2:]   # Py   thon
 >>> len(word)
->>> word[-2:]  #ÏÔÊ¾ on
+>>> word[-2:]  #æ˜¾ç¤º on
 
 
 
 >>> letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
->>> #Ìæ»»
+>>> #æ›¿æ¢
 >>> letters[2:5] = ['C', 'D', 'E']
 >>> letters
 >>> ['a', 'b', 'C', 'D', 'E', 'f', 'g']
->>> letters[2:5] = [] #É¾³ý,ÊÇList,²»»áÓÐÖÐ¼ä¿ÕµÄ
+>>> letters[2:5] = [] #åˆ é™¤,æ˜¯List,ä¸ä¼šæœ‰ä¸­é—´ç©ºçš„
 >>> letters
 ['a', 'b', 'f', 'g']
->>> letters[:]  #È«²¿µÄ
+>>> letters[:]  #å…¨éƒ¨çš„
 >>> a = ['a', 'b', 'c']
 >>> n = [1, 2, 3]
 >>> x = [a, n]
@@ -76,27 +76,27 @@ compileall.compile_dir(r'c:\tmp\pyDir')
 >>> i = 256*256
 >>> print('The value of i is', i)
 
->>>2**3   #±íÊ¾µÄ2µÄ3´Î·½
+>>>2**3   #è¡¨ç¤ºçš„2çš„3æ¬¡æ–¹
  
->>> a, b = 0, 1  #Í¬a=0 ºÍ b=1
->>>while b < 10: #²»ÄÜÓÐËõ½ø
-    print(b, end=',') #Ç°ÃæÒ»¶¨ÒªÓÐtab(µ«ÊÇ²»ÄÜ±»¸´ÖÆÉÏ)»òÕß¿Õ¸ñ,ºóÃæµÄ´úÂë¶¼ÒªºÍÕâÐÐµÄËõ½øÒ»Ñù
-    a, b = b, a+b   #aºÍb Í¬Ê±¸³Öµ= ºóÃæµÄ, ¼´Ïàµ±ÓÚa=b,ºóa»¹ÊÇÔ­À´µÄa,b=a+b
-#½áÊøÑ­»·Ò»¸ö»Ø³µ
+>>> a, b = 0, 1  #åŒa=0 å’Œ b=1
+>>>while b < 10: #ä¸èƒ½æœ‰ç¼©è¿›
+    print(b, end=',') #å‰é¢ä¸€å®šè¦æœ‰tab(ä½†æ˜¯ä¸èƒ½è¢«å¤åˆ¶ä¸Š)æˆ–è€…ç©ºæ ¼,åŽé¢çš„ä»£ç éƒ½è¦å’Œè¿™è¡Œçš„ç¼©è¿›ä¸€æ ·
+    a, b = b, a+b   #aå’Œb åŒæ—¶èµ‹å€¼= åŽé¢çš„, å³ç›¸å½“äºŽa=b,åŽaè¿˜æ˜¯åŽŸæ¥çš„a,b=a+b
+#ç»“æŸå¾ªçŽ¯ä¸€ä¸ªå›žè½¦
 
-#Êä³ö 1,1,2,3,5,8, 
+#è¾“å‡º 1,1,2,3,5,8, 
 
-#µÚ1´ÎÖ´ÐÐ
+#ç¬¬1æ¬¡æ‰§è¡Œ
 1
-#a=b=1    b=a+b=0+1=1    #¸øb¸³ÖµÊ±Ê¹ÓÃµÄa»¹ÊÇÀÏÖµ£¬ÕâÐÐ¸øaÐÂµÄÖµ²»»áÁ¢¼´±»Ê¹ÓÃ
+#a=b=1    b=a+b=0+1=1    #ç»™bèµ‹å€¼æ—¶ä½¿ç”¨çš„aè¿˜æ˜¯è€å€¼ï¼Œè¿™è¡Œç»™aæ–°çš„å€¼ä¸ä¼šç«‹å³è¢«ä½¿ç”¨
 
-#µÚ2´ÎÖ´ÐÐ
+#ç¬¬2æ¬¡æ‰§è¡Œ
 1
 #a=b=1   b=a+b=1+1=2
 
  
 x = int(input("Please enter an integer: "))
-»áÌáÊ¾ Please enter an integer: 42
+ä¼šæç¤º Please enter an integer: 42
 if x < 0:
   x = 0
   print('Negative changed to zero')
@@ -116,15 +116,15 @@ for w in words:
 for i in range(5): 
    print(i)
 
-range(5, 10)   ±íÊ¾´Ó 5 µ½ 9
-range(0, 10, 3) ±íÊ¾´Ó 0 µ½ 9 ²½³¤Îª3
-print(range(10))  #Í¬range(0,10)
+range(5, 10)   è¡¨ç¤ºä»Ž 5 åˆ° 9
+range(0, 10, 3) è¡¨ç¤ºä»Ž 0 åˆ° 9 æ­¥é•¿ä¸º3
+print(range(10))  #åŒrange(0,10)
 
 
 list(range(5))
 
 
-10//3 È¡Õû³ý·¨
+10//3 å–æ•´é™¤æ³•
 
 while True:
    pass  # Busy-wait for keyboard interrupt (Ctrl+C)
@@ -147,15 +147,15 @@ def ask_ok(prompt, retries=4, reminder='Please try again!'):
 print('\n')
 i = 5
 
-def f(arg=i): #ÈçÊ¹ÓÃÄ¬ÈÏÖµ,Ö»»áÊ¹ÓÃÇ°ÃæµÄ,²»»áÊ¹ÓÃºóÍ¬µÄ
+def f(arg=i): #å¦‚ä½¿ç”¨é»˜è®¤å€¼,åªä¼šä½¿ç”¨å‰é¢çš„,ä¸ä¼šä½¿ç”¨åŽåŒçš„
     print(arg)
 
 i = 6
-f()  #Êä³ö5
+f()  #è¾“å‡º5
 
 #-------------
-'''    #¶àÐÐ×¢ÊÍ
-def f(a, L=[]):  #Ä¬ÈÏÖµÖ»µÚÒ»´Î³õÊ¼»¯
+'''    #å¤šè¡Œæ³¨é‡Š
+def f(a, L=[]):  #é»˜è®¤å€¼åªç¬¬ä¸€æ¬¡åˆå§‹åŒ–
     L.append(a)
     return L
 

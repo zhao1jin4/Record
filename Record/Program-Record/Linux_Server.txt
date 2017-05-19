@@ -1423,7 +1423,7 @@ git push 弹出UI 要输入用户名密码
 
 删文件
 git rm Not-Offen/Struts-2.x.java
-
+git push
 
 ============== 上 Git 
 ============== MemCache  (memcached-1.4.17)
