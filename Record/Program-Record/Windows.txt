@@ -595,7 +595,7 @@ gpedit.msc 用户设置->管理模板->Windows 组件->Internet Explorer-> 找�
 
 %USERPROFILE%\AppData\Local\XXX应用和 Temp
 %USERPROFILE%\AppData\Roaming\XXX应用
-
+%APPDATA%=C:\Users\%USERNAME%\AppData\Roaming
 ---------------windows 批处理 bat
 
 FOR /L %variable IN (start,step,end) DO command [command-parameters] ##示例如下
@@ -911,6 +911,8 @@ TASKLIST  命令显示进程
 TASKLIST | find /C ".exe"   ,/C 表示计数
 TASKLIST  /FI "SESSIONNAME eq Services"
 TASKLIST  /FI "SESSIONNAME eq Console"
+
+win10自带Hyper-V 但要启用(像启用 IIS 一样,控制面板->添加删除程序->启用特性中),在开始-> windows Accessories->Administrative Tools->Hyper-V Manager
 
 ===========
 

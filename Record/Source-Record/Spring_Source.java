@@ -159,8 +159,6 @@ public class MyApplicationContextInitializer implements  ApplicationContextIniti
 }
 
 
-------portlet spring mvc 
-
 
 ------junit test  
 入口类 SpringJUnit4ClassRunner extends BlockJUnit4ClassRunner 调用顺序
@@ -192,3 +190,8 @@ public class MyApplicationContextInitializer implements  ApplicationContextIniti
 AnnotatedBeanDefinitionReader 的构造器中有 registerAnnotationConfigProcessors 注册了很多 PostProcessors
 	ConfigurationClassPostProcessor用来处理@Configuration标记的类
 
+ 
+
+------ spring boot 
+
+------ spring cloud

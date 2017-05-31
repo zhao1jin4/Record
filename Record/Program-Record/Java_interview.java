@@ -174,7 +174,7 @@ java 线程,入口还是主线程
 
 线程进入sleep 状态时,线程进入哪里去了
 埋点
-分布式
+分布式  事务JTA ，日志Flume
 主动
 加密 SHA-1(在JDK9中要禁用了) , DES
 高并发  导致的问题及解决,事务安全,锁,nginx 缓存静态页面,Redis缓存,读写分离,SQL优化,表优化索引,分表 , NIO类库,使用ThreadLocal, 有看书
@@ -200,7 +200,7 @@ proxy 实现  是 extends 或 implements 吗
 
 spring 配置事务方法,如果不是 pulic 的可以吗
 
-一致性hash  , 虚IP 
+一致性hash (和solr)  , 虚IP 
 PV 并发   单点 500  
 
  DevOps  开发运营  是 Agile 的延伸 
@@ -228,9 +228,9 @@ MySQL 性能优化
  like 如开头不是%_等是可以使用索引的 (BTree)
  !=使用索引的
  ,in , not in使用索引
-  BTree和hash索引 is not null ,is null 是使用索引的
+  BTree和hash索引 is not null ,is null 是使用索引的               对b-tree来说，where xx is null条件是不会利用索引的
 
- Oracle 和 MySQL 都是B-tree 索引
+ Oracle 和 MySQL 都是B-Tree 索引
  
  
  Oralce 索引 
@@ -261,11 +261,11 @@ JMeter 压测
  Compare And Swap         CAS    AtomicInteger   sun.misc.Unsafe　无源码反编译都是native的《Java并发编程实践》
   
  机器学习基本理论及悉常见数据挖掘及机器学习算法，如回归、分类、聚类等 
- 
+ Activiti(snake)
  nginx
  Kafka
- Solr
- openStack
+ Solr and  Cloud
+ openStack (optinal)
  spark MLib
  mysql replication,fabric,utility
  
@@ -342,14 +342,16 @@ Partition tolerance(分区容错性) 可靠性
 
 
  
- 索引怎么实现的  Btree   B+Tree  怎么存储的  
+ 索引怎么实现的  Btree  怎么存储的  
 http://www.aikaiyuan.com/1809.html
 
 spring cloud 
 
- 分布式  垂直 水平  ，就是一台机器提供多个服务 和 多台机器提供同一个服务
- 
- 
+
+
+
+ Mysql 将同一个表中的  数据按照某种条件拆分到多台数据库（主机）上面，这种切分称之为数据的水平（横向）切分
+		按照不同的表（或者Schema）来切分到不同的数据库（主机）之上，这种切可以称之为数据的垂直（纵向）切分
 自定义   序列化   Externalizable
  
  lucene  原理
@@ -385,13 +387,45 @@ System.out.println("理想".getBytes("UTF-8").length); //6
 System.out.println("理想".getBytes("GBK").length); //4
 
 
+ Kubernetes是Google开源的容器集群管理系统。它构建Docker技术之上  (云相关 Paas 层，使用GoLan开发)
+
+
+大数据做报表慢 ，主从的读写分离，分区，分表，
+限流 AtomicInteger 记录当前节点正在执行线程数（可能每个请求处理时间不一样），如分布式
+session/redis写mysql
+分布式事务 JTA ,千万不要说锁，事务是可以回滚的 , 用 Spring Nested 和 JTA 实现是依赖于数据库吗？？
+分布式日志  
+多模块的权限控制在一个系统  Spring Security
+工作流 Activiti
 
 
 
 
+垂直拆分：原来一个表的信息，拆分到两个或者多个表中， 通过主键来进行关联。 
+水平切分：把一个表的数据按照某种规则划分到不同表或数据库里。（水平拆分行，行数据拆分到不同表中）  mongodb 的 shard切片
 
 
 
+
+如果一个任务由10个子任务组成，每个子任务单独执行需1小时，则在一台服务器上执行改任务需10小时。
+
+采用分布式方案，提供10台服务器，每台服务器只负责处理一个子任务，不考虑子任务间的依赖关系，执行完这个任务只需一个小时。(这种工作模式的一个典型代表就是Hadoop的Map/Reduce分布式计算模型）
+（每个节点可再做集群，不同的代码 在不同的机器）
+
+而采用集群方案，同样提供10台服务器，每台服务器都能独立处理这个任务。假设有10个任务同时到达，10个服务器将同时工作，10小后，10个任务同时完成，这样，整身来看，还是1小时内完成一个任务！
+（相同的代码在不同的机器）
+
+取模机器数分隔不好，如加机器就难办了，一致性hash就是取模2的32次方
+
+分布式   垂直 水平  ，就是一台机器提供多个服务 和 多台机器提供同一个服务
+ 
+
+java.util.Date日期格式为：年月日时分秒
+java.sql.Date日期格式为：年月日[只存储日期数据不存储时间数据，是专门针对sql设计]
+java.sql.Time日期格式为：时分秒
+java.sql.Timestamp日期格式为：年月日时分秒纳秒（毫微秒） 
+
+cglib代理实现原理    //通过字节码技术动态创建子类实例  
 
 
 

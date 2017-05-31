@@ -18,7 +18,7 @@ windows/mac 下载多选  Intel x86 Emulator Accelerator(HAXM installer)( linux�
 		HAXM=Hardware Accelerated Execution Manager
 		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat  (也可intelhaxm-android.exe)
 	
-	下载多选 Android support Library
+	下载多选 Android support Library,Google Repository
 	
 	
 Android SDK Manager -> Settings ->HTTP Proxy Server 输入  mirrors.neusoft.edu.cn (yourid.repository.bugly.qq.com),在HTTP Proxy Port 80 
@@ -89,8 +89,10 @@ task printVariantNames{
 ----- 
  android-sdk-windows\tools\monitor.bat 会启动界面 ,即老的ADT插件里的DDMS,有File Explorer
  
-tools\android.bat update sdk --no-ui
+tools\android.bat update sdk --no-ui  新版本会调用 tools\bin\sdkmanager  --update
  
+tools\bin\sdkmanager --update --proxy=http  --proxy_host=mirrors.neusoft.edu.cn  --proxy_port=80 --no_https   还是找不到.xml文件
+Android Studio 配置成这个 http://mirrors.neusoft.edu.cn/android/repository/repository-12.xml
 
 
 emulator: ERROR:This AVD's configuration is missing a kernel file!!

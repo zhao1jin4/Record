@@ -1,16 +1,16 @@
-
-·şÎñÆ÷telnet¡¡ÅäÖÃÈçÏÂ£º  
+ï»¿
+æœåŠ¡å™¨telnetã€€é…ç½®å¦‚ä¸‹ï¼š  
   service   telnet  
   {    
-  disable¡¡¡¡¡¡¡¡   =   no  
-  only_from   ¡¡¡¡¡¡=   219.140.78.{17,19}  
-  access_times¡¡¡¡=   8:00-12:00   20:00-23:59  
+  disableã€€ã€€ã€€ã€€   =   no  
+  only_from   ã€€ã€€ã€€=   219.140.78.{17,19}  
+  access_timesã€€ã€€=   8:00-12:00   20:00-23:59  
   }  
-  ¹¤×÷Õ¾ping   ·şÎñÆ÷¡¡ok
+  å·¥ä½œç«™ping   æœåŠ¡å™¨ã€€ok
 
 ===============================CVS
-¹âÅÌÖĞµÄrpm¿ÉÒÔÖ±½Ó°²×° (×îºÃ¹Ø±ÕseLinux)
-°²×°xinetdÈí¼ş°ü(rel5ÅÌÖĞÓĞµÄ)¿ÉÒÔÖ±½Ó°²×°
+å…‰ç›˜ä¸­çš„rpmå¯ä»¥ç›´æ¥å®‰è£… (æœ€å¥½å…³é—­seLinux)
+å®‰è£…xinetdè½¯ä»¶åŒ…(rel5ç›˜ä¸­æœ‰çš„)å¯ä»¥ç›´æ¥å®‰è£…
 
 ./configure --prefix=/opt/cvs --with-cvs-admin-group=cvs
 
@@ -21,14 +21,14 @@ chmod 775 /home/cvsroot
 
 export CVSROOT /home/cvsroot
 cvs -d /home/cvsroot init    
-Éú³ÉÄ¿Â¼/home/cvsroot/CVSROOT,ÆäÏÂÎªÒ»Ğ©³õÊ¼»¯ÎÄ¼ş
+ç”Ÿæˆç›®å½•/home/cvsroot/CVSROOT,å…¶ä¸‹ä¸ºä¸€äº›åˆå§‹åŒ–æ–‡ä»¶
 
 cvs import -m "comment" project_name vendor_tag release_tag 
-##»á½«µ±Ä¿Â¼ÏÂµÄËùÓĞÎÄ¼ş,¼ÓÈëµ½Ä¿Â¼/var/cvs/project_nameÖĞ,/var/cvs/Ä¿Â¼±ØĞëcvsrootÓÃ»§¿ÉÒÔĞ´
+##ä¼šå°†å½“ç›®å½•ä¸‹çš„æ‰€æœ‰æ–‡ä»¶,åŠ å…¥åˆ°ç›®å½•/var/cvs/project_nameä¸­,/var/cvs/ç›®å½•å¿…é¡»cvsrootç”¨æˆ·å¯ä»¥å†™
 				
 
-vi /etc/xinet.d/cvs ĞŞ¸Ädisable=no »òÕß¼Óenable=yes   (cvsserver)
-suse-11 rpm °ü xinet.d/cvs µÄÄÚÈİ
+vi /etc/xinet.d/cvs ä¿®æ”¹disable=no æˆ–è€…åŠ enable=yes   (cvsserver)
+suse-11 rpm åŒ… xinet.d/cvs çš„å†…å®¹
 service cvspserver
 {
         disable         = yes
@@ -39,7 +39,7 @@ service cvspserver
 	server          = /usr/bin/cvs
 	server_args     = -f --allow-root=/home/cvsroot pserver
 }
-redhatEL5 cvs-1.11.22-5.el5.rpm °ü xinet.d/cvs µÄÄÚÈİ
+redhatEL5 cvs-1.11.22-5.el5.rpm åŒ… xinet.d/cvs çš„å†…å®¹
 service cvspserver
 {
         disable                 = no
@@ -54,156 +54,156 @@ service cvspserver
         server_args             = -f --allow-root=/var/cvs pserver
 #       bind                    = 127.0.0.1
 }
-server_argsµÄÖµ¿ÉÓĞ¶à¸ö--allow-root= ¼´¶à¸ö²Ö¿â,Ã¿¸ö²Ö¿â¿ÉÓĞºÜ¶àÏîÄ¿
+server_argsçš„å€¼å¯æœ‰å¤šä¸ª--allow-root= å³å¤šä¸ªä»“åº“,æ¯ä¸ªä»“åº“å¯æœ‰å¾ˆå¤šé¡¹ç›®
 
-cat /etc/service | grep cvs Ó¦¸ÃÓĞcvspserver 2401 ,  cvsµÄ2401¶Ë¿Ú
+cat /etc/service | grep cvs åº”è¯¥æœ‰cvspserver 2401 ,  cvsçš„2401ç«¯å£
 netstat -l | grep cvsserver
 
 cvs -d :pserver:zhaojin@localhost:/var/cvs login    
-###-d¸²¸ÇCVSROOT»·¾³±äÁ¿,/var/cvsÊÇÅäÖÃÎÄ¼şÖĞµÄ
-¹¤¾ßÉú³ÉµÄCVSROOTÊÇ  :pserver;username=zhaojin;password=lizhaojin;hostname=192.168.1.29:/var/cvs
+###-dè¦†ç›–CVSROOTç¯å¢ƒå˜é‡,/var/cvsæ˜¯é…ç½®æ–‡ä»¶ä¸­çš„
+å·¥å…·ç”Ÿæˆçš„CVSROOTæ˜¯  :pserver;username=zhaojin;password=lizhaojin;hostname=192.168.1.29:/var/cvs
 
 export CVSROOT=:pserver:zhaojin@localhost:/var/cvs
 cvs login
 cvs import -m "comment" project_name vendor_tag release_tag  
-##»á½«µ±Ä¿Â¼ÏÂµÄËùÓĞÎÄ¼ş,¼ÓÈëµ½Ä¿Â¼/var/cvs/project_nameÖĞ,/var/cvs/Ä¿Â¼±ØĞëcvsrootÓÃ»§¿ÉÒÔĞ´
+##ä¼šå°†å½“ç›®å½•ä¸‹çš„æ‰€æœ‰æ–‡ä»¶,åŠ å…¥åˆ°ç›®å½•/var/cvs/project_nameä¸­,/var/cvs/ç›®å½•å¿…é¡»cvsrootç”¨æˆ·å¯ä»¥å†™
 
 cvs  checkout project_name
 cvs  add -m "no message"  file1.txt
 cvs  commit -m "no message"  file1.txt
-cvs  update  file1.txt  ²»»á°Ñ×Ô¼º¸ÄµÄ³åÁË
+cvs  update  file1.txt  ä¸ä¼šæŠŠè‡ªå·±æ”¹çš„å†²äº†
 
 
 
 
-CVSROOTÄ¿Â¼ÄÚ¶ÁÈ¡Èı¸öÎÄ¼ş,passwd¡¢readersºÍwriters ,ÒªÊÖ¹¤½¨Á¢ 
-readersÖ»¶ÁÓÃ»§ºÍwriters¶ÁĞ´ÓÃ»§,Ã¿¸öÓÃ»§ÃûÕ¼Ò»ĞĞ
-passwdÎÄ¼ş¸ñÊ½Îª£º username:password:cvsroot ÖĞ¼äµÄÃÜÂëÊÇ¼ÓÃÜµÄÃÜÂë Ê¹ÓÃapacheµÄÒ»¸ö¹¤¾ß htpasswd ./passwd zhaojin(µÚÒ»´ÎÊ¹ÓÃÊ±Òª¼Ó-c²ÎÊı)
-cvsrootÊÇ²Ù×÷ÏµÍ³ÓÃ»§
+CVSROOTç›®å½•å†…è¯»å–ä¸‰ä¸ªæ–‡ä»¶,passwdã€readerså’Œwriters ,è¦æ‰‹å·¥å»ºç«‹ 
+readersåªè¯»ç”¨æˆ·å’Œwritersè¯»å†™ç”¨æˆ·,æ¯ä¸ªç”¨æˆ·åå ä¸€è¡Œ
+passwdæ–‡ä»¶æ ¼å¼ä¸ºï¼š username:password:cvsroot ä¸­é—´çš„å¯†ç æ˜¯åŠ å¯†çš„å¯†ç  ä½¿ç”¨apacheçš„ä¸€ä¸ªå·¥å…· htpasswd ./passwd zhaojin(ç¬¬ä¸€æ¬¡ä½¿ç”¨æ—¶è¦åŠ -cå‚æ•°)
+cvsrootæ˜¯æ“ä½œç³»ç»Ÿç”¨æˆ·
 
 
-CVS ÊÇÒÀÀµÓÚxinetdµÄ,¿ÉÒÔÊ¹ÓÃcvsd
+CVS æ˜¯ä¾èµ–äºxinetdçš„,å¯ä»¥ä½¿ç”¨cvsd
 
 ---cvsd---
-CVSROOT/configÌí¼ÓÏÂÃæĞĞ(Ò²¿É²»¼Ó)
+CVSROOT/configæ·»åŠ ä¸‹é¢è¡Œ(ä¹Ÿå¯ä¸åŠ )
 	SystemAuth=no
 	PamAuth=no
-	LockDir=/tmp/cvsroot  ####µÄ/tmp/myreposÊÇÖ¸Ïà¶ÔÓÚRootJailµÄÂ·,Òªmkdir 
+	LockDir=/tmp/cvsroot  ####çš„/tmp/myreposæ˜¯æŒ‡ç›¸å¯¹äºRootJailçš„è·¯,è¦mkdir 
 
-cvsd-passwd ÃüÁî
+cvsd-passwd å‘½ä»¤
 	[+]USER[:SUSER]
 		      Add or update the user to the CVSROOT/passwd file. 
 	-USER  Remove the user from the CVSROOT/passwd file.
-	Èçcvsd-passwd /var/cvsd/test +anoncvs
+	å¦‚cvsd-passwd /var/cvsd/test +anoncvs
 
-/etc/cvsd/cvsd.confÅäÖÃÎÄ¼ş
-	Uid cvsd	###¶ÔÓ¦cvsd-passwdÉú³ÉµÄ¿ÚÁîÎÄ¼şµÄµÚÈıÁĞ
-	RootJail /var/cvsd¡¡
+/etc/cvsd/cvsd.confé…ç½®æ–‡ä»¶
+	Uid cvsd	###å¯¹åº”cvsd-passwdç”Ÿæˆçš„å£ä»¤æ–‡ä»¶çš„ç¬¬ä¸‰åˆ—
+	RootJail /var/cvsdã€€
 	Listen * 2401
 	Log /var/log/cvsd.log debug
 	Repos <path> #The value is passed as a  --allow-root=<path>
-	Repos /test  ##/var/cvs/test²Ö¿âinitºóµÄÓĞCVSROOT¡¡£¬´Ë´¦µÄÂ·¾¶Ò²ÊÇÏà¶ÔÓÚRootJailµÄ
+	Repos /test  ##/var/cvs/testä»“åº“initåçš„æœ‰CVSROOTã€€ï¼Œæ­¤å¤„çš„è·¯å¾„ä¹Ÿæ˜¯ç›¸å¯¹äºRootJailçš„
 
-	É¾¡¡Limit coredumpsize 0³ö´íÊ±²»Éú³Écoredump 
+	åˆ ã€€Limit coredumpsize 0å‡ºé”™æ—¶ä¸ç”Ÿæˆcoredump 
 
-cvsd-buildroot (RootJailµÄÖµ)
-cvsd-buildroot  /var/cvs »áÔÚÄ¿Â¼Éú³Ébin,lib,tmp,usrµÈÄ¿Â¼,ÓĞbin/cvsÃüÁî,Ò²¾ÍÊÇËµÏîÄ¿Ãû²»ÄÜÎªtmp,usr
+cvsd-buildroot (RootJailçš„å€¼)
+cvsd-buildroot  /var/cvs ä¼šåœ¨ç›®å½•ç”Ÿæˆbin,lib,tmp,usrç­‰ç›®å½•,æœ‰bin/cvså‘½ä»¤,ä¹Ÿå°±æ˜¯è¯´é¡¹ç›®åä¸èƒ½ä¸ºtmp,usr
 
 export CVSROOT=:pserver:zhaojin@localhost:/test
 
-¸Ä¹ıÅäÖÃÒªÖØÆôµÄ
+æ”¹è¿‡é…ç½®è¦é‡å¯çš„
 
 OK
 
 ---cvsd---
 
-CVSÈÕÖ¾ÔÚ/var/log/messageÖĞÓĞµÄ
+CVSæ—¥å¿—åœ¨/var/log/messageä¸­æœ‰çš„
 
 
-winCVSµÄÊ¹ÓÃ
-remote->checkout module (ÏÂÔØ)ÒªÓë·şÎñÉÏµÄÄ£ĞÍÃûÍ¬
-remote ->import module (ÉÏ´«)
+winCVSçš„ä½¿ç”¨
+remote->checkout module (ä¸‹è½½)è¦ä¸æœåŠ¡ä¸Šçš„æ¨¡å‹ååŒ
+remote ->import module (ä¸Šä¼ )
 
-eclipseÓÒ»÷ÏîÄ¿->share project->cvs->  (ÒªÊÖ¹¤½¨ÎÄ¼ş¼ĞÔÚ/var/cvs/project01,ÈçÓĞ°üÒ²Òª´´½¨    ×¢ÒâÈ¨ÏŞºÍÓÃ»§Ö÷)
+eclipseå³å‡»é¡¹ç›®->share project->cvs->  (è¦æ‰‹å·¥å»ºæ–‡ä»¶å¤¹åœ¨/var/cvs/project01,å¦‚æœ‰åŒ…ä¹Ÿè¦åˆ›å»º    æ³¨æ„æƒé™å’Œç”¨æˆ·ä¸»)
 
-linux Í¼ĞÎgcvs
-gzip -cd gtk+-2.16.4.tar.gz | tar xvf -  Ò²¿ÉÒÔ½âÑ¹ÎÄ¼şµÄ ,cÊÇÊä³östdout
+linux å›¾å½¢gcvs
+gzip -cd gtk+-2.16.4.tar.gz | tar xvf -  ä¹Ÿå¯ä»¥è§£å‹æ–‡ä»¶çš„ ,cæ˜¯è¾“å‡ºstdout
 unxz -cd MPlayer-1.1.tar.xz | tar -xvf -
 bzcat SunStudio12u1-OS-platform-pkgs-ML.tar.bz2 | tar -xf -
 
-===============ÉÏ CVS=====================
+===============ä¸Š CVS=====================
 ===================sendMail =============
-Ğ¡ĞÄiptables,selinux
+å°å¿ƒiptables,selinux
 
-²»Òª°²×°sendmail,»òpostfix
-Èç¹û²»ÄÜÆô¶¯sendmail ,ÔÚ/etc/hostsÎÄ¼şÖĞ±¾»ú¶ÔµÄÓòÃûÎ²¼Óµã(.),(ÈÕÖ¾ºÍhosts ÎÄ¼şÓĞ¹Ø)
+ä¸è¦å®‰è£…sendmail,æˆ–postfix
+å¦‚æœä¸èƒ½å¯åŠ¨sendmail ,åœ¨/etc/hostsæ–‡ä»¶ä¸­æœ¬æœºå¯¹çš„åŸŸåå°¾åŠ ç‚¹(.),(æ—¥å¿—å’Œhosts æ–‡ä»¶æœ‰å…³)
 
-mailq²é¿´¶ÓÁĞ
+mailqæŸ¥çœ‹é˜Ÿåˆ—
 
 
-sendmail.cfÎÄ¼şÖĞ
+sendmail.cfæ–‡ä»¶ä¸­
 # SMTP daemon options
-¡¡¡¡O DaemonPortOptions=Port=smtp£¬Addr=127.0.0.1£¬ Name=MTA
+ã€€ã€€O DaemonPortOptions=Port=smtpï¼ŒAddr=127.0.0.1ï¼Œ Name=MTA
 
  
-ÀïµÄAddr¿É¸ÄÎª±¾»úIP£¬¡¡ÕâÑùnetstat -an | grep 25 ÏÔÊ¾µÄ±¾»ú£É£Ğ,¾Í²»ÊÇ127.0.0.1
+é‡Œçš„Addrå¯æ”¹ä¸ºæœ¬æœºIPï¼Œã€€è¿™æ ·netstat -an | grep 25 æ˜¾ç¤ºçš„æœ¬æœºï¼©ï¼°,å°±ä¸æ˜¯127.0.0.1
 
-#O Timeout.ident=5s¡¡¡¡¡¡¡¡5Ãëºó·¢³öÒ»¸ö³¬Ê±ĞÅºÅ
+#O Timeout.ident=5sã€€ã€€ã€€ã€€5ç§’åå‘å‡ºä¸€ä¸ªè¶…æ—¶ä¿¡å·
 
-rpm -e --nodeps sendmail  ²»ÒªÒÀÀµ¼ì²é
+rpm -e --nodeps sendmail  ä¸è¦ä¾èµ–æ£€æŸ¥
 
-/etc/mail/trusted-usersÎÄ¼ş
+/etc/mail/trusted-usersæ–‡ä»¶
 
-Òª°²×° cyrus-sasl-plain,cyrus-sasl,cyrus-sasl-devel
+è¦å®‰è£… cyrus-sasl-plain,cyrus-sasl,cyrus-sasl-devel
 	cyrus-sasl#./configure --prefix=/usr/local/sasl2 --enable-login   
-	Ò»¶¨Òª¼Ó--enable-login£¬ÒòÎªSASL2Ä¬ÈÏ²»Ö§³ÖloginÕâÖÖÑéÖ¤·½Ê½£¬¶øOUTLOOKÊÇÍ¨¹ıloginÀ´½øĞĞSMTPÑéÖ¤µÄ¡£ 
+	ä¸€å®šè¦åŠ --enable-loginï¼Œå› ä¸ºSASL2é»˜è®¤ä¸æ”¯æŒloginè¿™ç§éªŒè¯æ–¹å¼ï¼Œè€ŒOUTLOOKæ˜¯é€šè¿‡loginæ¥è¿›è¡ŒSMTPéªŒè¯çš„ã€‚ 
 # cd /usr/lib
 # ln -s /usr/local/sasl2/lib/* .
-# mkdir  -p /var/state/saslauthd   ##Õâ¸öÒªµÄ
-/usr/lib/sasl2Ä¿Â¼ÖĞ£¬Ò²¾ÍÊÇ/usr/local/sasl2/lib/sasl2Õâ¸öÄ¿Â¼  Sendmail.conf£¨×¢ÒâÊÇ´óĞ´µÄS£©
+# mkdir  -p /var/state/saslauthd   ##è¿™ä¸ªè¦çš„
+/usr/lib/sasl2ç›®å½•ä¸­ï¼Œä¹Ÿå°±æ˜¯/usr/local/sasl2/lib/sasl2è¿™ä¸ªç›®å½•  Sendmail.confï¼ˆæ³¨æ„æ˜¯å¤§å†™çš„Sï¼‰
 
-# echo 'pwcheck_method: saslauthd' > /usr/lib/sasl2/Sendmail.conf (S´óĞ´)
+# echo 'pwcheck_method: saslauthd' > /usr/lib/sasl2/Sendmail.conf (Så¤§å†™)
 #/usr/local/sasl2/sbin/saslauthd -a shadow 
 #/usr/local/sasl2/sbin/testsaslauthd -u zhaojin -p lizhaojin
 
 #useradd smmsp -d /var/spool/mqueue  -s /dev/null  
 #mkdir /etc/mail 
 
-sendmail.mc¼ÇµÃÒªÊ¹ÒÔÏÂÁ½¸öÌõÓï¾äÓĞĞ§£¬ËüµÄÒâË¼ÊÇÈç¹ûaccess.db·ÃÎÊ¿ØÖÆÃ»ÓĞÉèÖÃ£¬ÔòÆôÓÃÒÔÏÂÑéÖ¤·½Ê½½øĞĞsmtpÑéÖ¤¡£
+sendmail.mcè®°å¾—è¦ä½¿ä»¥ä¸‹ä¸¤ä¸ªæ¡è¯­å¥æœ‰æ•ˆï¼Œå®ƒçš„æ„æ€æ˜¯å¦‚æœaccess.dbè®¿é—®æ§åˆ¶æ²¡æœ‰è®¾ç½®ï¼Œåˆ™å¯ç”¨ä»¥ä¸‹éªŒè¯æ–¹å¼è¿›è¡ŒsmtpéªŒè¯ã€‚
 TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
 define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
 
-¡¡5£®±à¼­sendmail.mc£¬¼ÓÈëÄãĞèÒªµÄFEATURE.
-¡¡¡¡TRUST_AUTH_MECH(`LOGIN PLAIN DIGEST-MD5')dnl
-¡¡¡¡define(`confAUTH_MECHANISMS', `LOGIN PLAIN DIGEST-MD5')dnl
-¡¡¡¡*dnl define(`confDEF_AUTH_INFO', `/etc/mail/auth/auth-info')
-¡¡¡¡FEATURE(`no_default_msa')dnl
-¡¡¡¡DAEMON_OPTIONS(`Port=25, Name=MSA, M=Ea')dnl
-¡¡¡¡×¢Òâ£ºFEATUREÒª¼ÓÔÚMAILERÓï¾äµÄÇ°Ãæ¡£
-¡¡ËµÃ÷£º
-¡¡¡¡"TRUST_AUTH_MECH"µÄ×÷ÓÃÊÇÊ¹sendmail²»¹ÜaccessÎÄ¼şÖĞÈçºÎÉèÖÃ£¬¶¼ÄÜrelayÄÇĞ©Í¨¹ıLOGIN£¬
-¡¡¡¡PLAIN»òDIGEST-MD5·½Ê½ÑéÖ¤µÄÓÊ¼ş¡£
-¡¡¡¡"confAUTH_MECHANISMS"µÄ×÷ÓÃÊÇÈ·¶¨ÏµÍ³µÄÈÏÖ¤·½Ê½¡£
-¡¡¡¡"confDEF_AUTH_INFO"µÄ×÷ÓÃÊÇµ±ÄãµÄ¼ÆËã»ú×÷Îª¿Í»§»úÊ±£¬
-¡¡¡¡ÏòÁíÍâÒ»Ì¨ÓĞsmtpÈÏÖ¤¹¦ÄÜµÄÖ÷»ú½øĞĞÈÏÖ¤£¬ÓÃ»§ºÍÃÜÂë´æ·ÅÔÚauth-infoÎÄ¼şÖĞ£¬ÔÚÕâ¸öÀı×ÓÖĞ²¢²»ĞèÒªÕâ¸ö¹¦ÄÜ£¬ËùÒÔ×¢ÊÍµôÁË
+ã€€5ï¼ç¼–è¾‘sendmail.mcï¼ŒåŠ å…¥ä½ éœ€è¦çš„FEATURE.
+ã€€ã€€TRUST_AUTH_MECH(`LOGIN PLAIN DIGEST-MD5')dnl
+ã€€ã€€define(`confAUTH_MECHANISMS', `LOGIN PLAIN DIGEST-MD5')dnl
+ã€€ã€€*dnl define(`confDEF_AUTH_INFO', `/etc/mail/auth/auth-info')
+ã€€ã€€FEATURE(`no_default_msa')dnl
+ã€€ã€€DAEMON_OPTIONS(`Port=25, Name=MSA, M=Ea')dnl
+ã€€ã€€æ³¨æ„ï¼šFEATUREè¦åŠ åœ¨MAILERè¯­å¥çš„å‰é¢ã€‚
+ã€€è¯´æ˜ï¼š
+ã€€ã€€"TRUST_AUTH_MECH"çš„ä½œç”¨æ˜¯ä½¿sendmailä¸ç®¡accessæ–‡ä»¶ä¸­å¦‚ä½•è®¾ç½®ï¼Œéƒ½èƒ½relayé‚£äº›é€šè¿‡LOGINï¼Œ
+ã€€ã€€PLAINæˆ–DIGEST-MD5æ–¹å¼éªŒè¯çš„é‚®ä»¶ã€‚
+ã€€ã€€"confAUTH_MECHANISMS"çš„ä½œç”¨æ˜¯ç¡®å®šç³»ç»Ÿçš„è®¤è¯æ–¹å¼ã€‚
+ã€€ã€€"confDEF_AUTH_INFO"çš„ä½œç”¨æ˜¯å½“ä½ çš„è®¡ç®—æœºä½œä¸ºå®¢æˆ·æœºæ—¶ï¼Œ
+ã€€ã€€å‘å¦å¤–ä¸€å°æœ‰smtpè®¤è¯åŠŸèƒ½çš„ä¸»æœºè¿›è¡Œè®¤è¯ï¼Œç”¨æˆ·å’Œå¯†ç å­˜æ”¾åœ¨auth-infoæ–‡ä»¶ä¸­ï¼Œåœ¨è¿™ä¸ªä¾‹å­ä¸­å¹¶ä¸éœ€è¦è¿™ä¸ªåŠŸèƒ½ï¼Œæ‰€ä»¥æ³¨é‡Šæ‰äº†
 
 
-ÔÚÔ´ÂëÄ¿Â¼Ê÷µÄsaslauthd×ÓÄ¿Â¼ÖĞÔËĞĞ # make testsaslauthdÃüÁîÉú³É
+åœ¨æºç ç›®å½•æ ‘çš„saslauthdå­ç›®å½•ä¸­è¿è¡Œ # make testsaslauthdå‘½ä»¤ç”Ÿæˆ
 
-pop3(ÃÜÂë,ÈÏÖ¤)½ÓÊÕÊ±Òª°ÑÓÃ»§ÃûĞ´³É¡¡È«Ãû£¨user@company.com£©
+pop3(å¯†ç ,è®¤è¯)æ¥æ”¶æ—¶è¦æŠŠç”¨æˆ·åå†™æˆã€€å…¨åï¼ˆuser@company.comï¼‰
 
 
 root@192.168.1.30's password:
-telnet localhost 25  ÈëÃüÁî localhost ÏÔÊ¾250-AUTH DIGEST-MD5 LOGIN PLAIN
+telnet localhost 25  å…¥å‘½ä»¤ localhost æ˜¾ç¤º250-AUTH DIGEST-MD5 LOGIN PLAIN
 
 
 host -t MX chinaitlab.com
 
 
----ËùÒÀÀµµÄ
-Berkeley DBµÄ°²×°£¨oracle¹«Ë¾µÄ£©
+---æ‰€ä¾èµ–çš„
+Berkeley DBçš„å®‰è£…ï¼ˆoracleå…¬å¸çš„ï¼‰
 
-µ½ build_unixÎÄ¼ş¼Ğ,, Ö´ĞĞ
+åˆ° build_unixæ–‡ä»¶å¤¹,, æ‰§è¡Œ
 ../dist/configure  ##--prefix=/usr/local/bdb/
 make
 make install
@@ -211,77 +211,77 @@ make install
 # ln -s /usr/local/bdb/lib/* /usr/lib/
 -----
 
-½âÑ¹ºó£¬ĞÂ½¨devtools/Site/site.config.m4ÎÄ¼ş,ÖĞÔö¼Ó 
+è§£å‹åï¼Œæ–°å»ºdevtools/Site/site.config.m4æ–‡ä»¶,ä¸­å¢åŠ  
 
 APPENDDEF(`confENVDEF',`-DSASL=2')
 APPENDDEF(`conf_sendmail_LIBS',`-lsasl2')
-APPENDDEF(`confINCDIRS', `-I/usr/local/sasl2/include') ##Èçsasl2Ö¸¶¨ÁË--prefix ,ln -s /usr/local/sasl2/lib/* /usr/lib/
+APPENDDEF(`confINCDIRS', `-I/usr/local/sasl2/include') ##å¦‚sasl2æŒ‡å®šäº†--prefix ,ln -s /usr/local/sasl2/lib/* /usr/lib/
 
-×¢ÒâÒª°²×°db-4.6.21.tar.gz(Berkeley DB Ç°×º¿ÉÊÇbdb)
+æ³¨æ„è¦å®‰è£…db-4.6.21.tar.gz(Berkeley DB å‰ç¼€å¯æ˜¯bdb)
 
 
 
 APPENDDEF(`confMAPDEF',`-DNEWDB')
 APPENDDEF(`confLIBS',`-ldb')
-APPENDDEF(`confINCDIRS', `-I/usr/local/BerkeleyDB.4.6/include')##¶à¼ÓÕâÒ»¸ö ,dbµÄ°²×°Ä¿Â¼ (### vi BuildTools/Site/site.config.m4) 
-APPENDDEF(`confLIBDIRS',`-L/usr/local/BerkeleyDB.4.6/lib')##¶à¼ÓÕâÒ»¸ö
+APPENDDEF(`confINCDIRS', `-I/usr/local/BerkeleyDB.4.6/include')##å¤šåŠ è¿™ä¸€ä¸ª ,dbçš„å®‰è£…ç›®å½• (### vi BuildTools/Site/site.config.m4) 
+APPENDDEF(`confLIBDIRS',`-L/usr/local/BerkeleyDB.4.6/lib')##å¤šåŠ è¿™ä¸€ä¸ª
 
 
 
 sh Build -c
-###sh Build install (ºó/etc/mail ÏÂÓĞÎÄ¼şÉú³É)
+###sh Build install (å/etc/mail ä¸‹æœ‰æ–‡ä»¶ç”Ÿæˆ)
 
 ## mkdir /usr/man/man8 /usr/man/man1 /usr/man/man5
-»áÓĞÀàËÆµÄ  cc -O2 -I. -I../../include   -DNEWDB(##) -DSASL=2£¨####£©      -c -o deliver.o deliver.c
- ¸´ÖÆ cfÄ¿Â¼µÄËùÓĞÄÚÈİ
+ä¼šæœ‰ç±»ä¼¼çš„  cc -O2 -I. -I../../include   -DNEWDB(##) -DSASL=2ï¼ˆ####ï¼‰      -c -o deliver.o deliver.c
+ å¤åˆ¶ cfç›®å½•çš„æ‰€æœ‰å†…å®¹
 mkdir /usr/share/sendmail
 cp -r cf  /usr/share/sendamail
 cp -a
-¸´ÖÆ cf/cf/generic-linux.mc cf/cf/sendmail.mc
-Òª°²×° m4ºê £¨dnl±íÊ¾×¢ÊÍ£©  ¿Õ¸ñ²»¿ÉÓĞ
+å¤åˆ¶ cf/cf/generic-linux.mc cf/cf/sendmail.mc
+è¦å®‰è£… m4å® ï¼ˆdnlè¡¨ç¤ºæ³¨é‡Šï¼‰  ç©ºæ ¼ä¸å¯æœ‰
 
 
 cd cf/cf
 cp generic-linux.mc sendmail.mc
 mkdir /etc/mail
-make install-cf  [cf/cf] (ÓÃ m4 ÔÚ/etc/mail/ÏÂÉú³Ésendmail.cfÎÄ¼ş)
-cp sendmail.mc /etc/mail/ (¾Í¿ÉÒÔÃ¿´Î¸Ä/etc/mail/ÏÂµÄsendmail.mcÎÄ¼ş,¾Í²»ÓÃ½øÔ´ÂëÄ¿Â¼ÁË)
+make install-cf  [cf/cf] (ç”¨ m4 åœ¨/etc/mail/ä¸‹ç”Ÿæˆsendmail.cfæ–‡ä»¶)
+cp sendmail.mc /etc/mail/ (å°±å¯ä»¥æ¯æ¬¡æ”¹/etc/mail/ä¸‹çš„sendmail.mcæ–‡ä»¶,å°±ä¸ç”¨è¿›æºç ç›®å½•äº†)
 
 cd /etc/mail
-touch aliases access   ####sendmail.mc ÎÄ¼şÖĞ  define(`ALIAS_FILE',`/etc/aliases')
-echo "chinaitlib.com">/etc/mail/local-host-names   sendmailÊÇÎªÄÄ¸öÓò·şÎñµÄ£¨ÅĞ¶ÏÒ»·âĞÅÊÇ²»ÊÇ×Ô¼ºÓò£©
-echo "mail.chinaitlib.com">>/etc/mail/local-host-names  (Ò²ÎªmailÕâ¸öÖ÷»ú)
+touch aliases access   ####sendmail.mc æ–‡ä»¶ä¸­  define(`ALIAS_FILE',`/etc/aliases')
+echo "chinaitlib.com">/etc/mail/local-host-names   sendmailæ˜¯ä¸ºå“ªä¸ªåŸŸæœåŠ¡çš„ï¼ˆåˆ¤æ–­ä¸€å°ä¿¡æ˜¯ä¸æ˜¯è‡ªå·±åŸŸï¼‰
+echo "mail.chinaitlib.com">>/etc/mail/local-host-names  (ä¹Ÿä¸ºmailè¿™ä¸ªä¸»æœº)
 ###sh Build install   
-makemap hash access<access      # accesss.db db ¿ÉÊ¡,±àÒëÊ±Òª-DNEWDB  ³äĞíË­·¢ĞÅ
-makemap hash aliases<aliases   #/etc/aliases(Éú³É.dbÎÄ¼ş)
+makemap hash access<access      # accesss.db db å¯çœ,ç¼–è¯‘æ—¶è¦-DNEWDB  å……è®¸è°å‘ä¿¡
+makemap hash aliases<aliases   #/etc/aliases(ç”Ÿæˆ.dbæ–‡ä»¶)
 
-mkdir /var/spool/mqueue   ÓÊ¼ş²¢²»Ò»ÂíÉÏ·¢³öÈ¥
-/usr/sbin/sendmail -db(ÊØ»¤ÔËĞĞ) -q1h(¶ÓÁĞ1Ğ¡Ê±´¦ÀíÒ»´Î£¬¿Ém,s)
+mkdir /var/spool/mqueue   é‚®ä»¶å¹¶ä¸ä¸€é©¬ä¸Šå‘å‡ºå»
+/usr/sbin/sendmail -db(å®ˆæŠ¤è¿è¡Œ) -q1h(é˜Ÿåˆ—1å°æ—¶å¤„ç†ä¸€æ¬¡ï¼Œå¯m,s)
 man sendmail
 
-netstat -tnl | grep :25   #### SMTP ·şÎñÆ÷  ¿´ÈÕÖ¾ÎÄ¼ş/var/log/maillog
+netstat -tnl | grep :25   #### SMTP æœåŠ¡å™¨  çœ‹æ—¥å¿—æ–‡ä»¶/var/log/maillog
 
 
 
-useradd redhat(root²»ÄÜ·¢ĞÅ£¬ÊÕĞÅ£¬²»ÄÜÓÃIMAP,pop3Ô¶³ÌÁ¬½Ó)
-echo "root: redhat" >>/etc/mail/aliases ±íÊ¾°ÑÓĞµÄ·¢¸ørootµÄĞÅ×ª¸øredhatÕË»§ 
-newaliases #¸üĞÂ dbÎÄ¼ş
-²âÊÔÔÚÍ¬Ò»ÓòÖĞµÄ
+useradd redhat(rootä¸èƒ½å‘ä¿¡ï¼Œæ”¶ä¿¡ï¼Œä¸èƒ½ç”¨IMAP,pop3è¿œç¨‹è¿æ¥)
+echo "root: redhat" >>/etc/mail/aliases è¡¨ç¤ºæŠŠæœ‰çš„å‘ç»™rootçš„ä¿¡è½¬ç»™redhatè´¦æˆ· 
+newaliases #æ›´æ–° dbæ–‡ä»¶
+æµ‹è¯•åœ¨åŒä¸€åŸŸä¸­çš„
 Telnet 192.168.1.104 25
 mail from: root@xx.com
 rcpt to: zhaojin@xx.com
 data
-ÊäÈëÄÚÈİÒÔ .½áÊø
+è¾“å…¥å†…å®¹ä»¥ .ç»“æŸ
 .
 quit
 
-²âÊÔÊ±Ò²¿ÉÒÔÓÃsendmail zhao1jin4@sina.comµÄ·½Ê½À´²âÊÔ·¢ĞÅ,(³É¹¦µÄ)
+æµ‹è¯•æ—¶ä¹Ÿå¯ä»¥ç”¨sendmail zhao1jin4@sina.comçš„æ–¹å¼æ¥æµ‹è¯•å‘ä¿¡,(æˆåŠŸçš„)
 
-ÈÕÖ¾ÔÚ/var/log/maillog
+æ—¥å¿—åœ¨/var/log/maillog
 
-mail:À´ÊÕĞÅ
+mail:æ¥æ”¶ä¿¡
 
- imapÈí¼ş°ü
+ imapè½¯ä»¶åŒ…
  chkconfig ipop3 on  
  chkconfig imap on
 service xinetd restart
@@ -289,31 +289,31 @@ service xinetd restart
 
 
 
-compress Èí¼ş°üÀ´½âÑ¹  .ZÎÄ¼ş   ÓÃcompress   (-d ½â)
+compress è½¯ä»¶åŒ…æ¥è§£å‹  .Zæ–‡ä»¶   ç”¨compress   (-d è§£)
 
 vi /etc/mail/sendmail.mc
-¼ÓÈë
-include(`/usr/share/sendmail/cf/m4/cf.m4')dnl   ##ÊÇÏÈÇ°¸´ÖÆµÄ
+åŠ å…¥
+include(`/usr/share/sendmail/cf/m4/cf.m4')dnl   ##æ˜¯å…ˆå‰å¤åˆ¶çš„
 FEATURE(`access_db')dnl
-¼ÓÈëÓÃ»§ÑéÖ¤
+åŠ å…¥ç”¨æˆ·éªŒè¯
 echo " define(`confAUTH_OPTIONS',`A y')dnl " >> /etc/mail/sendmail.mc
 echo " TRUST_AUTH_MECH(`LOGIN PLAIN')dnl " >> /etc/mail/sendmail.mc             #### LOGIN PLAIN
 echo " define(`confAUTH_MECHANISMS',`LOGIN PLAIN')dnl " >> /etc/mail/sendmail.mc     
 
 ---
-define(`confCONNECTION_RATE_THROTTLE',`3')  ÏŞÃ¿ÃëÁ¬½Ó´ÎÊı    throttle¶óÉ±
-define(`confMAX_DAEMON_CHILDREN',`20') ×î´ó20¸ö×Ó½ø³Ì,Í¬Ê±Á¬½ÓÊıÄ¿
+define(`confCONNECTION_RATE_THROTTLE',`3')  é™æ¯ç§’è¿æ¥æ¬¡æ•°    throttleæ‰¼æ€
+define(`confMAX_DAEMON_CHILDREN',`20') æœ€å¤§20ä¸ªå­è¿›ç¨‹,åŒæ—¶è¿æ¥æ•°ç›®
 
-FEATURE(`accept_unresolable_domains')   ²»ÍÆ¼ö
-MASQUERADE_AS(`localhost.localdomain')  Î±×°
+FEATURE(`accept_unresolable_domains')   ä¸æ¨è
+MASQUERADE_AS(`localhost.localdomain')  ä¼ªè£…
 
 
-LOCAL_DOMAIN(`localhost.localdomain')  Óëlocal-host-names  ÎÄ¼şÇø±ğ
+LOCAL_DOMAIN(`localhost.localdomain')  ä¸local-host-names  æ–‡ä»¶åŒºåˆ«
 define(`SMART_HOST',`localhost.localdomain')
 
-DAEMON_OPTIONS(`Port=smtp,Addr=127.0.0.1,Name=MTA') ¸ÄAddr
+DAEMON_OPTIONS(`Port=smtp,Addr=127.0.0.1,Name=MTA') æ”¹Addr
 
-imitest -m login -a userid -p port  host  ²âÊÔIMAP
+imitest -m login -a userid -p port  host  æµ‹è¯•IMAP
 /var/spool/imap/t/user
 su cyrus
 cyradm
@@ -337,21 +337,21 @@ cyradm
 	setaclmailbox	sam	setacl
 	setinfo
 	setquota sq
-	subscribe sub ¶©ÔÄ
+	subscribe sub è®¢é˜…
 	unsubscribe unsub
-	xfermailbox xfer   ½«ĞÅÏä´«ÆäËü·şÎñÆ÷ÉÏ
-´´½¨ÓÃ»§ºó(test)
-cm user.test ºóÔÚ/var/spool/imap/t/userÏÂÓĞÓÃ»§
+	xfermailbox xfer   å°†ä¿¡ç®±ä¼ å…¶å®ƒæœåŠ¡å™¨ä¸Š
+åˆ›å»ºç”¨æˆ·å(test)
+cm user.test ååœ¨/var/spool/imap/t/userä¸‹æœ‰ç”¨æˆ·
 
 
 
 
-sam share test(ÓÃ»§) lrwsip
+sam share test(ç”¨æˆ·) lrwsip
 	l  list 
 	r   read
 	w   write
 	i   insert	
-	p   ¿ÉÒÔ·¢ËÍÓÊ¼ş¸øÎÄ¼ş¼Ğ	  
+	p   å¯ä»¥å‘é€é‚®ä»¶ç»™æ–‡ä»¶å¤¹	  
 	c  create
 	d  delete
 	a  admin
@@ -360,109 +360,109 @@ sam share test(ÓÃ»§) lrwsip
 
 
 /etc/sysconfig/iptables/
-thunderbird mail¿Í»§¶Ë¹¤¾ß
-Qpopper  pop·şÎñ
-squirrelmail µÄconf.pl ½»»¥ÅäÖÃÎÄ¼ş(./configure)
-		conf_local.php»á¸²¸Çconfig.php
+thunderbird mailå®¢æˆ·ç«¯å·¥å…·
+Qpopper  popæœåŠ¡
+squirrelmail çš„conf.pl äº¤äº’é…ç½®æ–‡ä»¶(./configure)
+		conf_local.phpä¼šè¦†ç›–config.php
 
 
 
-MTA ²»Çø·ÖÓÃ»§Ãû´óĞ¡Ğ´(ÓÊÏäÓÃ»§Ãû)
+MTA ä¸åŒºåˆ†ç”¨æˆ·åå¤§å°å†™(é‚®ç®±ç”¨æˆ·å)
 
-/etc/host.allowÓĞsendmail :ALL
+/etc/host.allowæœ‰sendmail :ALL
 		 pops:ALL
 		imap:ALL
 
-<Directory ~ "ÕıÔò±í´ïÊ½">
-	AllowOverride NONE ½ûÓÃ.htaccessÎÄ¼ş
+<Directory ~ "æ­£åˆ™è¡¨è¾¾å¼">
+	AllowOverride NONE ç¦ç”¨.htaccessæ–‡ä»¶
 </Directory>
-Qpopper ÊÇÒ»¸öpop·şÎñ
+Qpopper æ˜¯ä¸€ä¸ªpopæœåŠ¡
 ---
 m4 sendmail.mc -> sendmeail.cf (/etc/mail)
 
-echo "10.0.0	RELAY">>access  ##À´×Ô10.0.0 ¶ÎµÄIP¿ÉÒÔRELAY
+echo "10.0.0	RELAY">>access  ##æ¥è‡ª10.0.0 æ®µçš„IPå¯ä»¥RELAY
 makemap hash access<accesss
 
 
 
-ÖØÆô
-Òª²âÊÔDNS  host -t MX redhat.org.cn   ,,host -t MX chinaitlib.com
+é‡å¯
+è¦æµ‹è¯•DNS  host -t MX redhat.org.cn   ,,host -t MX chinaitlib.com
 
-¼ÓÓÃ»§ÑéÖ¤(sasl)
->access ½¨Ò»¸ö¿ÕµÄaccessÎÄ¼ş
+åŠ ç”¨æˆ·éªŒè¯(sasl)
+>access å»ºä¸€ä¸ªç©ºçš„accessæ–‡ä»¶
 makeamp hash <accesss
 
-ÔÚsendmail.mcÎÄ¼şÖĞÔö¼Ó
-include(`/usr/share/sendmail/cf/m4/cf.m4')dnl   ##Ç°ÓĞ¹ı ÊÇÏÈÇ°¸´ÖÆµÄ
-define(`confAUTH_OPTIONS',`A y')dnl   ±ØĞëÓÃ»§ÑéÖ¤²Å¿ÉÒÔ³öÈ¥
+åœ¨sendmail.mcæ–‡ä»¶ä¸­å¢åŠ 
+include(`/usr/share/sendmail/cf/m4/cf.m4')dnl   ##å‰æœ‰è¿‡ æ˜¯å…ˆå‰å¤åˆ¶çš„
+define(`confAUTH_OPTIONS',`A y')dnl   å¿…é¡»ç”¨æˆ·éªŒè¯æ‰å¯ä»¥å‡ºå»
 TRUSTAUTH_MECH(`LOGIN PLAIN')dnl      
 define(`confAUTH_MECHANISMS',`LOGIN PLAIN')dnl
 
-·µÒë
+è¿”è¯‘
 m4 sendmail.mc > sendmail.cf
 
-chkconfig saslauthd on   (Í¨¹ısaslÀ´ÑéÖ¤)
-service saslauthd restart¡¡¡¡¡¡Æô¶¯sasl
+chkconfig saslauthd on   (é€šè¿‡saslæ¥éªŒè¯)
+service saslauthd restartã€€ã€€ã€€å¯åŠ¨sasl
 
 
 echo "pwcheck_method:saslauthd">/usr/lib/sasl2/Sendmail.conf
-ÖØÆô sendmail -db -q1h
+é‡å¯ sendmail -db -q1h
 
-telnet localhost 25  (¿ÉÒÔÊÇpop3,imap,smtp¶ÔÆô¶¯µÄ)
-ehlo localhost  Èç¹û¿´µ½  AUTH LOGIN¡¡PLAINËµÃ÷³É¹¦¡¡£¬ÔÚoutlookÖĞÕË»§Àï´ò¿ªÎÒµÄ·şÎñÆ÷ÒªÇóÑéÖ¤
+telnet localhost 25  (å¯ä»¥æ˜¯pop3,imap,smtpå¯¹å¯åŠ¨çš„)
+ehlo localhost  å¦‚æœçœ‹åˆ°  AUTH LOGINã€€PLAINè¯´æ˜æˆåŠŸã€€ï¼Œåœ¨outlookä¸­è´¦æˆ·é‡Œæ‰“å¼€æˆ‘çš„æœåŠ¡å™¨è¦æ±‚éªŒè¯
 >mail from: root@zhaojin.com
 >rcpt to: redhat@zhaojin.com
 data
-ÊäÈëÄÚÈİÒÔ.½áÎ²
+è¾“å…¥å†…å®¹ä»¥.ç»“å°¾
 .
 quit
 
-su - redhat µ½×Ô¼ºµÄÄ¿Â¼
+su - redhat åˆ°è‡ªå·±çš„ç›®å½•
 
 
-ÔÚaliasesÖĞ¼ÓÈë
-Ò»°ãÊÇ500ÒÔÏÂµÄuid
-postmaster£ºroot   ÓÊ¼ş·şÎñÆ÷³öÏÖÎÊÌâ¡¡¡¡newaliases
-°²È«Òª chkconfig imaps on
-outlookÖĞÒª¡¡¡¡Ñ¡ÖĞĞ©·şÎñÆ÷ÒªÇó°²È«Á¬½Ó(SSL)
+åœ¨aliasesä¸­åŠ å…¥
+ä¸€èˆ¬æ˜¯500ä»¥ä¸‹çš„uid
+postmasterï¼šroot   é‚®ä»¶æœåŠ¡å™¨å‡ºç°é—®é¢˜ã€€ã€€newaliases
+å®‰å…¨è¦ chkconfig imaps on
+outlookä¸­è¦ã€€ã€€é€‰ä¸­äº›æœåŠ¡å™¨è¦æ±‚å®‰å…¨è¿æ¥(SSL)
 
-Èç¹û±¾µØÓÃ»§:~/.forwardÎÄ¼şÅäÖÃÒ»Ğ©ÓÃ»§(µ¥ÁĞ,ºÍ aliases×öÓÃÍ¬,Ö»¶Ô±¾ÓÃ»§¿ÉÒÔ±à¼­) 
+å¦‚æœæœ¬åœ°ç”¨æˆ·:~/.forwardæ–‡ä»¶é…ç½®ä¸€äº›ç”¨æˆ·(å•åˆ—,å’Œ aliasesåšç”¨åŒ,åªå¯¹æœ¬ç”¨æˆ·å¯ä»¥ç¼–è¾‘) 
 
-accessÎÄ¼ş
-  ¡¡Ok--Ô¶³ÌÖ÷»ú¿ÉÒÔÏòÄãµÄÓÊ¼ş·şÎñÆ÷·¢ËÍÓÊ¼ş£»
-¡¡¡¡RELAY--ÔÊĞíÖĞ×ª£»
-¡¡¡¡REJECT--²»ÄÜÏòÄãµÄÓÊ¼ş·şÎñÆ÷·¢ÓÊ¼şºÍ²»ÄÜÖĞ×ª£»
-¡¡¡¡DISCARD--·¢À´µÄÓÊ¼ş½«±»¶ªÆú£¬Í¬Ê±²¢²»Ïò·¢ËÍÕß·µ»Ø´íÎóĞÅÏ¢¡£
-¡¡¡¡nnn text-- ·¢À´µÄÓÊ¼ş½«±»¶ªÆú£¬µ«sendmail½«»áÏò·¢ËÍÕß·µ»ØnnnÈ·¶¨µÄsmtp´úÂëºÍtext±äÁ¿È·¶¨µÄÎÄ±¾ÃèÊö¡£ 
+accessæ–‡ä»¶
+  ã€€Ok--è¿œç¨‹ä¸»æœºå¯ä»¥å‘ä½ çš„é‚®ä»¶æœåŠ¡å™¨å‘é€é‚®ä»¶ï¼›
+ã€€ã€€RELAY--å…è®¸ä¸­è½¬ï¼›
+ã€€ã€€REJECT--ä¸èƒ½å‘ä½ çš„é‚®ä»¶æœåŠ¡å™¨å‘é‚®ä»¶å’Œä¸èƒ½ä¸­è½¬ï¼›
+ã€€ã€€DISCARD--å‘æ¥çš„é‚®ä»¶å°†è¢«ä¸¢å¼ƒï¼ŒåŒæ—¶å¹¶ä¸å‘å‘é€è€…è¿”å›é”™è¯¯ä¿¡æ¯ã€‚
+ã€€ã€€nnn text-- å‘æ¥çš„é‚®ä»¶å°†è¢«ä¸¢å¼ƒï¼Œä½†sendmailå°†ä¼šå‘å‘é€è€…è¿”å›nnnç¡®å®šçš„smtpä»£ç å’Œtextå˜é‡ç¡®å®šçš„æ–‡æœ¬æè¿°ã€‚ 
 
-Ä¬ÈÏ×ésmmsp
+é»˜è®¤ç»„smmsp
 /etc/mail/submit.cf
 
 
-sendmail.mcÎÄ¼ş
-	FEATURE(access_db). ¸Ã²ÎÊıÖ¸¶¨ÀûÓÃ¹şÏ£Êı¾İ¿â/etc/mail/accessÀ´¾ö¶¨ÊÇ·ñÔÊĞíÄ³¸öÖ÷»úÍ¨¹ı±¾µØ½øĞĞÓÊ¼ş×ª·¢¡£
+sendmail.mcæ–‡ä»¶
+	FEATURE(access_db). è¯¥å‚æ•°æŒ‡å®šåˆ©ç”¨å“ˆå¸Œæ•°æ®åº“/etc/mail/accessæ¥å†³å®šæ˜¯å¦å…è®¸æŸä¸ªä¸»æœºé€šè¿‡æœ¬åœ°è¿›è¡Œé‚®ä»¶è½¬å‘ã€‚
 
-¡¡¡¡	FEATURE(blacklist_recipients).Èô¸Ã²ÎÊı±»ÉèÖÃ£¬ÔòÔÚ¾ö¶¨ÊÇ·ñÔÊĞíÄ³¸öÖ÷»ú×ª·¢ÓÊ¼şÊ±Í¬Ê±²ì¿´ÓÊ¼ş·¢ËÍ×ÅµØÖ·ºÍÓÊ¼ş½ÓÊÜÕßµØÖ·¡£ 
-	FEATURE(accept_unresolvable_domains).Í¨³£À´½²£¬sendmail¾Ü¾ø½ÓÊÜ·¢ËÍÕßÓÊ¼şµØÖ·Ö¸¶¨µÄÖ÷»úÍ¨¹ıDNS²»ÄÜ½âÎöµÄÓÊ¼ş£¬¶ø¸Ã²ÎÊıÔÊĞí½ÓÊÕÕâÖÖÓÊ¼ş¡£ 
-	FEATURE(relay_based_on_MX).¸Ã²ÎÊıÔÊĞí×ª·¢ÓÊ¼ş½ÓÊÜÕßµØÖ·µÄMX¼ÇÂ¼Ö¸Ïò±¾µØµÄµÄÓÊ¼ş£¬ÀıÈç£¬±¾µØ½ÓÊÕµ½Ò»¸ö·¢ËÍÄ¿µÄµØÖ·Îªuser@b.comµÄÓÊ¼ş£¬¶øb.comÓòÃûµÄMX¼ÇÂ¼Ö¸ÏòÁË±¾µØ»úÆ÷£¬Ôò±¾µØ»úÆ÷¾ÍÔÊĞí×ª·¢¸ÃÓÊ¼ş¡£
+ã€€ã€€	FEATURE(blacklist_recipients).è‹¥è¯¥å‚æ•°è¢«è®¾ç½®ï¼Œåˆ™åœ¨å†³å®šæ˜¯å¦å…è®¸æŸä¸ªä¸»æœºè½¬å‘é‚®ä»¶æ—¶åŒæ—¶å¯Ÿçœ‹é‚®ä»¶å‘é€ç€åœ°å€å’Œé‚®ä»¶æ¥å—è€…åœ°å€ã€‚ 
+	FEATURE(accept_unresolvable_domains).é€šå¸¸æ¥è®²ï¼Œsendmailæ‹’ç»æ¥å—å‘é€è€…é‚®ä»¶åœ°å€æŒ‡å®šçš„ä¸»æœºé€šè¿‡DNSä¸èƒ½è§£æçš„é‚®ä»¶ï¼Œè€Œè¯¥å‚æ•°å…è®¸æ¥æ”¶è¿™ç§é‚®ä»¶ã€‚ 
+	FEATURE(relay_based_on_MX).è¯¥å‚æ•°å…è®¸è½¬å‘é‚®ä»¶æ¥å—è€…åœ°å€çš„MXè®°å½•æŒ‡å‘æœ¬åœ°çš„çš„é‚®ä»¶ï¼Œä¾‹å¦‚ï¼Œæœ¬åœ°æ¥æ”¶åˆ°ä¸€ä¸ªå‘é€ç›®çš„åœ°å€ä¸ºuser@b.comçš„é‚®ä»¶ï¼Œè€Œb.comåŸŸåçš„MXè®°å½•æŒ‡å‘äº†æœ¬åœ°æœºå™¨ï¼Œåˆ™æœ¬åœ°æœºå™¨å°±å…è®¸è½¬å‘è¯¥é‚®ä»¶ã€‚
 
 
 
-¹ØÓÚcyrus-imapd 
+å…³äºcyrus-imapd 
 define(`confLOCAL_MAILER',`cyrus2')
 define(`CYRUSV2_MAILER_ARGS',`FILE /var/lib/imap/socket/lmtp')
 MAILER(cyrusv2)
 
   
 
-==========================CentOS-5.2°²×°Oracle11g=========================
+==========================CentOS-5.2å®‰è£…Oracle11g=========================
 
 cat >> /etc/pam.d/login <<EOF 
 session required /lib/security/pam_limits.so
 session required pam_limits.so
 EOF
 
-½ø³ÌÊıÁ¿ºÍ´ò¿ªÎÄ¼şµÄÊıÁ¿ÉèÖÃÏŞÖÆ
+è¿›ç¨‹æ•°é‡å’Œæ‰“å¼€æ–‡ä»¶çš„æ•°é‡è®¾ç½®é™åˆ¶
 cat >> /etc/security/limits.conf <<EOF 
 oracle soft nproc 2047
 oracle hard nproc 16384
@@ -470,7 +470,7 @@ oracle soft nofile 1024
 oracle hard nofile 65536
 EOF
 
-±à¼­ /etc/security/limits.conf ĞĞÄ©Ìí¼ÓÒÔÏÂÄÚÈİ
+ç¼–è¾‘ /etc/security/limits.conf è¡Œæœ«æ·»åŠ ä»¥ä¸‹å†…å®¹
 
 #use for oracle
 * soft nproc 2047
@@ -478,23 +478,23 @@ EOF
 * soft nofile 1024
 * hard nofile 65536
 
-±à¼­ /etc/pam.d/login ĞĞÄ©Ìí¼ÓÒÔÏÂÄÚÈİ
-¡¡     session required pam_limits.so
+ç¼–è¾‘ /etc/pam.d/login è¡Œæœ«æ·»åŠ ä»¥ä¸‹å†…å®¹
+ã€€     session required pam_limits.so
 
-±à¼­ /etc/selinux/config È·±£ÒÔÏÂÄÚÈİ
+ç¼–è¾‘ /etc/selinux/config ç¡®ä¿ä»¥ä¸‹å†…å®¹
 
-¡¡¡¡SELINUX=disabled
+ã€€ã€€SELINUX=disabled
 
-¡¡¡¡¹Ø±ÕSELIINUX
+ã€€ã€€å…³é—­SELIINUX
 
- ÒòÎªÄ¬ÈÏcentos5.1²»Ö§³Ö10.2,0.1,ĞŞ¸Ä°²×°ÎÄ¼ş
-±à¼­ /10201_database_linux32/database/install/oraparam.ini
+ å› ä¸ºé»˜è®¤centos5.1ä¸æ”¯æŒ10.2,0.1,ä¿®æ”¹å®‰è£…æ–‡ä»¶
+ç¼–è¾‘ /10201_database_linux32/database/install/oraparam.ini
 
 ### #[Certified Versions]
 
 Linux=redhat-3,SuSE-9,redhat-4,centos-5,UnitedLinux-1.0,asianux-1,asianux-2
 
-ÔÙÌí¼Ó
+å†æ·»åŠ 
 [Linux-centos-5.1-optional]
 TEMP_SPACE=80
 SWAP_SPACE=150
@@ -502,36 +502,36 @@ MIN_DISPLAY_COLORS=256
 
 
 
-/etc/oratableÅäÖÃÎÄ¼ş£¬solaris ÊÇ/var/opt/oracle/oratabÎÄ¼ş
-ÎÄ¼ş¸ñÊ½
+/etc/oratableé…ç½®æ–‡ä»¶ï¼Œsolaris æ˜¯/var/opt/oracle/oratabæ–‡ä»¶
+æ–‡ä»¶æ ¼å¼
 $ORACLE_SID:$ORACLE_HOME:<N|Y>:
-ÓÚÊÇ´ò¿ªÕâ¸öÎÄ¼ş£¬½«×îºóÒ»ĞĞµÄ×îºóÒ»¸ö×Ö·ûÓÉ ¡°N¡± ¸ÄÎª ¡°Y¡±£¬ÈçÏÂ£º
+äºæ˜¯æ‰“å¼€è¿™ä¸ªæ–‡ä»¶ï¼Œå°†æœ€åä¸€è¡Œçš„æœ€åä¸€ä¸ªå­—ç¬¦ç”± â€œNâ€ æ”¹ä¸º â€œYâ€ï¼Œå¦‚ä¸‹ï¼š
 orcl: /u01/app/oracle/product/10.2.0.1:Y
 
-dbstartÒ²»á×Ô¶¯Æô¶¯¼àÌı ,Èç¹ûÃû×Ö²»ÊÇÄ¬ÈÏµÄ LICENER ÒªĞŞ¸Ä½Å±¾ 
-±à¼­ dbstart
-Ó¦¸ÃÊÇÔÚ88ĞĞ£¬½«Æä¸ÄÎª£º
-$ORACLE_HOME_LISTNER/bin/lsnrctl start ºó¼Ó¼àÌıÃû×Ö
+dbstartä¹Ÿä¼šè‡ªåŠ¨å¯åŠ¨ç›‘å¬ ,å¦‚æœåå­—ä¸æ˜¯é»˜è®¤çš„ LICENER è¦ä¿®æ”¹è„šæœ¬ 
+ç¼–è¾‘ dbstart
+åº”è¯¥æ˜¯åœ¨88è¡Œï¼Œå°†å…¶æ”¹ä¸ºï¼š
+$ORACLE_HOME_LISTNER/bin/lsnrctl start ååŠ ç›‘å¬åå­—
 
 
---¿ª»úÆô¶¯Oracle µÄ½Å±¾¿´ dbstart
+--å¼€æœºå¯åŠ¨Oracle çš„è„šæœ¬çœ‹ dbstart
 sqlplus /nolog <<EOF
 conn / as sysdba
 startup
 EOF
 
 
-ÅäÖÃ×Ô¶¯Æô¶¯oracleµÄ½Å±¾
-±à¼­etc/rc.d/rc.local
+é…ç½®è‡ªåŠ¨å¯åŠ¨oracleçš„è„šæœ¬
+ç¼–è¾‘etc/rc.d/rc.local
 
 echo "Starting ORACLE 10g:"
 su - oracle -c "/u01/app/oracle/product/10.2.0.1/bin/lsnrctl start"
 su - oracle -c "/u01/app/oracle/product/10.2.0.1/bin/dbstart"
 -------------------------------------
-------------Ó²ÅÌ°²×°linux Fedora-10
-ºÍRedhatÒ»Ñù,µ«ÔÚÑ¡ÔñÊ±
-ÊäÈëinstall.imgÎÄ¼şµÄÎ»ÖÃ,Ä¬ÈÏÊÇ/images/install.img,·ñÔòÒªÊäÈëµØÖ·,¿ÉÒÔÓÃ/¿ªÍ·
-Ò»¶¨ÒªÔÚ /ÏÂ images Ç°²»¿É¼ÓÎÄ¼ş¼Ğ,ÒªºÍISO·ÅÔÚÍ¬Ò»¸ö·ÖÇø,·ñÔò»áÕÒ²»µ½ISOÎÄ¼ş(×îºÃÏÈfindÈ·¶¨)
+------------ç¡¬ç›˜å®‰è£…linux Fedora-10
+å’ŒRedhatä¸€æ ·,ä½†åœ¨é€‰æ‹©æ—¶
+è¾“å…¥install.imgæ–‡ä»¶çš„ä½ç½®,é»˜è®¤æ˜¯/images/install.img,å¦åˆ™è¦è¾“å…¥åœ°å€,å¯ä»¥ç”¨/å¼€å¤´
+ä¸€å®šè¦åœ¨ /ä¸‹ images å‰ä¸å¯åŠ æ–‡ä»¶å¤¹,è¦å’ŒISOæ”¾åœ¨åŒä¸€ä¸ªåˆ†åŒº,å¦åˆ™ä¼šæ‰¾ä¸åˆ°ISOæ–‡ä»¶(æœ€å¥½å…ˆfindç¡®å®š)
 ------------
 
 

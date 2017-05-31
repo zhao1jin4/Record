@@ -114,7 +114,7 @@
 	<dependency>
 		<groupId>org.springframework.data</groupId>
 		<artifactId>spring-data-redis</artifactId>
-		<version>1.8.1.RELEASE</version>
+		<version>1.8.3.RELEASE</version>
 	</dependency>
 	
 	
@@ -769,7 +769,7 @@ RegexpMethodPointcutAdvisor
 org.springframework.aop.support.DefaultPointcutAdvisor
 
  接口 org.aopalliance.intercept.MethodInterceptor extends org.aopalliance.intercept.Interceptor
- 接口 org.aopalliance.intercept.Interceptor extends org.aopalliance.aop.Advice {
+ 接口 org.aopalliance.intercept.Interceptor extends org.aopalliance.aop.Advice {}
 
 NameMatchMethodPointcut()的 addMethodName(String name)和 setMappedName(String mappedName) 
 
@@ -1267,13 +1267,14 @@ public class MyValueCalculatorReplacer implements MethodReplacer{
 import org.springframework.orm.hibernate3.support.BlobByteArrayType;
 public class ImmutableBlobByteArrayType extends BlobByteArrayType {
 
-public Object deepCopy(Object value) 
-{
-        return value;
-}
-public boolean isMutable() 
-{
-	return false;
+	public Object deepCopy(Object value) 
+	{
+			return value;
+	}
+	public boolean isMutable() 
+	{
+		return false;
+	}
 }
 作为 	Hibernate 类型为Blob
 <property name="pkgBin"	column="pkg_bin" type="com.ci.domain.types.ImmutableBlobByteArrayType"/>	
@@ -2743,12 +2744,15 @@ public class SampleController {
         return "Hello World!";
     }
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(SampleController.class, args);
+        SpringApplication.run(SampleController.class, args); 
+		//new SpringApplicationBuilder(SampleController.class).web(true).run(args);
     }
 }
 ========================Spring Cloud
 版本名是伦敦地铁站的名字，字母表的顺序
 最新的 Dalston  版本 
+
+https://springcloud.cc/spring-cloud-dalston.html
 
 <parent>
     <groupId>org.springframework.boot</groupId>
@@ -2760,11 +2764,14 @@ public class SampleController {
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
-            <version>Dalston.RELEASE</version>
+            <version>Dalston.SR1</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
-    </dependencies>
+		
+ </dependencies>
+	 
+	
 </dependencyManagement>
 <dependencies>
     <dependency>
@@ -2773,9 +2780,632 @@ public class SampleController {
     </dependency>
     <dependency>
         <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-eureka</artifactId>
+        <artifactId>spring-cloud-starter-eureka</artifactId> <!-- 自动依赖 spring-cloud-starter-eureka-client  -->
     </dependency>
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-eureka-server</artifactId> <!--  自动依赖  spring-cloud-netflix-eureka-server  -->
+	</dependency>
+	
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-hystrix</artifactId>
+	</dependency> 
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-config-server</artifactId>
+	</dependency>
+	
+	
+	
 </dependencies>
+
+打包插件
+<build>
+	<plugins>
+		<plugin>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-maven-plugin</artifactId>
+		</plugin>
+	</plugins>
+</build>
+
+
+Spring Cloud Config
+Spring Cloud Netflix 		第三方的Netflix OSS 开源的 集成
+Spring Cloud Bus  			使用 RabbitMQ 或Kafka
+Spring Cloud for Cloud Foundry
+	Spring Cloud Cloud Foundry Service Broker
+Spring Cloud Cluster
+Spring Cloud Consul
+Spring Cloud Security		使用OAuth2
+Spring Cloud Sleuth			第三方的分布式跟踪解决方案
+Spring Cloud Stream		 	为Kafka和Rabbit MQ提供Binder实,基于 Spring Integration
+	Spring Cloud Stream App Starters
+Spring Cloud Task
+	Spring Cloud Task App Starters
+Spring Cloud Zookeeper
+Spring Cloud for Amazon Web Services
+Spring Cloud Connectors
+Spring Cloud CLI
+Spring Cloud Contract
+一共15个子项目   加单独的 Spring Cloud Data Flow
+
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;  
+
+@SpringBootApplication
+@EnableEurekaServer
+public class Application {
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
+	}
+}
+
+--文件application.yml  注释同properties用#,可行中
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+	  
+//通过eureka.client.registerWithEureka：false和fetchRegistry：false来表明自己是一个eureka server.	  
+运行后可以仿问 http://localhost:8761  有界面  ，是No instances available
+
+-- client(server)
+
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+@EnableEurekaClient
+@RestController
+public class ServiceHiApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ServiceHiApplication.class, args);
+	}
+
+	@Value("${server.port}")
+	String port;
+	@RequestMapping("/hi")
+	public String home(@RequestParam String name) {
+		return "hi "+name+",i am from port:" +port;
+	}
+
+}
+
+文件 bootstrap.yml
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8762
+spring:
+  application:
+    name: service-hi
+
+启动后	服务端localhost:8761  就有名为 service-hi 的Instances 
+测试
+http://localhost:8762/hi?name=forezp
+
+客户端(服务端) 改个端口到 8763 再启动一个  service-hi 就有两个服务了
+
+再建立一个客户端   Client Side Load Balancing (Ribbon)
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+@SpringBootApplication
+@EnableDiscoveryClient  // 向服务中心注册
+
+@EnableHystrix //断路器(如果几台中一台服务不可用,返回2次固定的字串后,就不仿问这台了,如都不可用返回固定串) Hystrix后加的
+@EnableHystrixDashboard // 就可以仿问 http://localhost:8764/hystrix 
+//maven加spring-boot-starter-actuator ,UI中输入 http://localhost:8764/hystrix.stream ,2000ms,Monitor Stream 会loading
+//在另一个窗口 http://localhost:8764/hi?name=forezp 时,上一个窗口有图表
+public class ServiceRibbonApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(ServiceRibbonApplication.class, args);
+	}
+	@Bean
+	@LoadBalanced
+	RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+}
+
+@Service
+public class HelloService {
+    @Autowired
+    RestTemplate restTemplate;
+	
+	 @HystrixCommand(fallbackMethod = "hiError")//Hystrix后加的
+    public String hiService(String name) {
+        return restTemplate.getForObject("http://SERVICE-HI/hi?name="+name,String.class);  //这里直接SERVICE-HI用名字来连
+    }
+	
+	//Hystrix后加的
+    public String hiError(String name) {
+        return "hi,"+name+",sorry,error!";
+    }
+}
+@RestController
+public class HelloControler {
+    @Autowired
+    HelloService helloService;
+    @RequestMapping(value = "/hi")
+    public String hi(@RequestParam String name){
+        return helloService.hiService(name);
+    }
+}
+--application.yml文件
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8764
+spring:
+  application:
+    name: service-ribbon
+	
+测试  http://localhost:8764/hi?name=forezp 	  发现间隔调用 8762 和 8763 ,因加了@LoadBalanced
+
+---feign   如不使用ribbon,就使用feign,其实Feign已经使用Ribbon
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableFeignClients //增加
+
+public class ServiceFeignApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ServiceFeignApplication.class, args);
+	}
+}
+
+@FeignClient(value = "service-hi"   //服务名在这里
+, fallback = SchedualServiceHiHystric.class )//Hystrix后加的,没用？？？
+public interface SchedualServiceHi {
+    @RequestMapping(value = "/hi",method = RequestMethod.GET)
+    String sayHiFromClientOne(@RequestParam(value = "name") String name);
+}
+
+@Component
+public class SchedualServiceHiHystric implements SchedualServiceHi { //Hystrix后加的,没用？？？
+    @Override
+    public String sayHiFromClientOne(String name) {
+        return "sorry "+name;
+    }
+}
+
+spring:
+  application:
+    name: service-feign
+
+-- Zuul  route and filter 
+@EnableZuulProxy  //新增加的
+@EnableEurekaClient
+@SpringBootApplication
+public class ServiceZuulApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(ServiceZuulApplication.class, args);
+	}
+}
+application.yml
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8769
+spring:
+  application:
+    name: service-zuul
+zuul:  //新增组
+  routes:
+    api-a:
+      path: /api-a/**
+      serviceId: service-ribbon
+    api-b:
+      path: /api-b/**
+      serviceId: service-feign
+	  
+	  
+--filter
+@Component
+public class MyFilter extends ZuulFilter{
+
+    private static Logger log = LoggerFactory.getLogger(MyFilter.class);
+    @Override
+    public String filterType() {
+        return "pre";
+    }
+//    	pre：路由之前
+//    	routing：路由之时
+//    	post： 路由之后
+//    	error：发送错误调用
+
+    @Override
+    public int filterOrder() {
+        return 0;
+    }
+
+    @Override
+    public boolean shouldFilter() {
+        return true;
+    }
+
+    @Override
+    public Object run() {
+        RequestContext ctx = RequestContext.getCurrentContext();
+        HttpServletRequest request = ctx.getRequest();
+        log.info(String.format("%s >>> %s", request.getMethod(), request.getRequestURL().toString()));
+        Object accessToken = request.getParameter("token");
+        if(accessToken == null) {
+            log.warn("token is empty");
+            ctx.setSendZuulResponse(false);
+            ctx.setResponseStatusCode(401);
+            try {
+                ctx.getResponse().getWriter().write("token is empty");
+            }catch (Exception e){}
+
+            return null;
+        }
+        log.info("ok");
+        return null;
+    }
+}
+
+--config
+-server
+import org.springframework.cloud.config.server.EnableConfigServer;
+
+@SpringBootApplication
+@EnableConfigServer
+public class ConfigServerApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigServerApplication.class, args);
+	}
+}
+
+-application.properties 
+spring.application.name=config-server
+server.port=8888
+spring.cloud.config.server.git.uri=https://github.com/forezp/SpringcloudConfig/
+spring.cloud.config.server.git.searchPaths=respo
+spring.cloud.config.label=master
+spring.cloud.config.server.git.username=
+spring.cloud.config.server.git.password=
+
+测试 http://localhost:8888/foo/dev 有返回JSON表示可以从客户端取   {name}/{profile}
+
+https://github.com/forezp/SpringcloudConfig/ 中又个文件config-client-dev.properties文件中有一个属性：
+foo = foo version 3
+
+文件名格式
+/{application}/{profile}[/{label}]    			// /]
+/{application}-{profile}.yml
+/{label}/{application}-{profile}.yml
+/{application}-{profile}.properties
+/{label}/{application}-{profile}.properties
+
+
+-client
+@SpringBootApplication
+@RestController
+public class ConfigClientApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigClientApplication.class, args);
+	}
+	@Value("${foo}")
+	String foo;
+	@RequestMapping(value = "/hi")
+	public String hi(){
+		return foo;
+	}
+}
+
+-bootstrap.properties
+spring.application.name=config-client
+spring.cloud.config.label=master
+spring.cloud.config.profile=dev
+spring.cloud.config.uri= http://localhost:8888/
+server.port=8881
+
+
+dev开发环境配置文件
+test测试环境
+pro正式环境
+
+
+http://localhost:8881/hi  返回  foo version 3
+
+
+
+---bus 
+在标有 @EnableEurekaClient 的类上再增加一个  @RefreshScope
+
+
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-bus-kafka</artifactId>
+</dependency>
+ 
+ 报 rabbit,kafka, and no default binder has been set 是因为同时配了两个, 如spring-cloud-stream-binder-rabbitmq.jar中有  META-INF/spring.binder
+用下面配置也不行
+#spring.cloud.stream.bindings.input.binder=kafka
+spring.cloud.stream.bindings.output.binder=rabbit
+只能去掉一个
+
+spring.rabbitmq.host=localhost
+spring.rabbitmq.port=5672
+# spring.rabbitmq.username=
+# spring.rabbitmq.password=
+
+多的配置
+spring.cloud.config.discovery.enabled=true
+spring.cloud.config.discovery.serviceId=config-server
+management.security.enabled=false
+
+
+
+POST 请求 (Firefox的HttpRequester)  http://localhost:8881/bus/refresh   如更改Git配置,不用重启服务这样也能刷新 (MQ 广播配置文件的更改)
+
+----Sleuth
+
+Twitter开源的Zipkin就是参考Google Dapper 论文而开发
+Dapper  一个请求在系统中会经过多个子系统的处理，而且这些处理是发生在不同机器甚至是不同集群上的，当请求处理发生异常时，需要快速发现问题，并准确定位到是哪个环节出了问题 
+
+	<dependency>
+		<groupId>io.zipkin.java</groupId>
+		<artifactId>zipkin-server</artifactId>
+	</dependency>
+
+	<dependency>
+		<groupId>io.zipkin.java</groupId>
+		<artifactId>zipkin-autoconfigure-ui</artifactId>
+	</dependency>
+	
+@SpringBootApplication
+@EnableZipkinServer
+public class ServerZipkinApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ServerZipkinApplication.class, args);
+	}
+}
+server.port=9411
+service-hi项目
+import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
+@Bean
+public AlwaysSampler defaultSampler(){
+	return new AlwaysSampler();
+}
+
+spring.zipkin.base-url=http://localhost:9411
+
+
+
+启动后 http://localhost:9411/ 有界面,但 Find Traces按钮无显示，Analyze Dependencies按钮无显示
+
+-----Docker 
+windows CE Stable 版本 要启用Hyper-V(win10自带,但要启用,像IIS一样启用),在开始-> windows Accessories->Administrative Tools->Hyper-V Manager
+自动建立了名为 MobyLinuxVM ,目录在 C:\Users\Public\Documents\Hyper-V\
+
+ docker --version  				Docker version 17.03.1-ce, build c6d412e
+ docker-compose --version		docker-compose version 1.11.2, build f963d76f
+ docker-machine --version  		docker-machine version 0.10.0, build 76ed2a6
+ 
+  
+命令 docker ps , docker version,   docker info
+
+右击右下角的图标->settings...->General 标签中 复选 Expose Deamon on tcp://localhost:2375 without TLS
+
+Dockerfile 文件
+
+FROM frolvlad/alpine-oraclejdk8:slim					//使用哪个镜像源	:后是个标签名 格式 FROM <image> 或  FROM <image>:<tag>,docker images可看到, 如不指定标签默认使用latest镜像
+VOLUME /tmp
+ADD eureka-server-0.0.1-SNAPSHOT.jar app.jar
+#RUN bash -c 'touch /app.jar'
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+EXPOSE 8761
+
+
+</build>中加
+	<plugin>
+		<groupId>com.spotify</groupId>
+		<artifactId>docker-maven-plugin</artifactId>
+		<version>0.4.3</version>
+		<configuration>
+			<imageName>forezp/${project.artifactId}</imageName>
+			<dockerDirectory>src/main/docker</dockerDirectory>
+			<resources>
+				<resource>
+					<targetPath>/</targetPath>
+					<directory>${project.build.directory}</directory>
+					<include>${project.build.finalName}.jar</include>
+				</resource>
+			</resources>
+		</configuration>
+	</plugin>
+mvn package docker:build  构建docker镜像,会仿问2375端, 要等一会才行
+
+
+docker run -p 8761:8761 --name my_name -t forezp/eureka-server   看  localhost:8761	//-p :前部分是主机端口,也可加IP,即 -t 127.0.0.1:8760:8761
+
+docker ps 		显示 0.0.0.0:8761 表示主机端口 ->8761/tcp 表示容器端口 ,  NAMES 列的值是容器名
+docker top  <NAMES/CONTAINER ID列的值>     能看到完整执行命令
+docker logs -f <NAMES/CONTAINER ID列的值>  	
+docker stop  <NAMES/CONTAINER ID列的值>
+docker ps -l  最近一次创建的容器(停止的也可看到)
+docker start <NAMES/CONTAINER ID列的值>
+docker restart <NAMES/CONTAINER ID列的值>
+docker rm  <NAMES/CONTAINER ID列的值>
+docker rm -f  <NAMES/CONTAINER ID列的值> 停止加删除
+docker port   <NAMES/CONTAINER ID列的值>   
+
+docker inspect <NAMES/CONTAINER ID列的值>     容器信息
+
+
+docker images  查看所有镜像 
+docker pull <镜像名>:<标签>   事先下载镜像,默认执行时没有才下载
+docker search httpd  在线搜索镜像名
+
+docker tag <image_id> <镜像源名(repository name) : 新的标签名(tag)>   //为image_id加一个新的标签,一个image_id可以有多个标签,image_id是 docker images中的
+
+docker port  <NAMES/列的值>  <内部端口8761>			//返回主机端口
+
+
+
+当前目录中有 docker-compose.yml , 
+version: '3'
+services:
+  eureka-server:
+    image: forezp/eureka-server
+    restart: always
+    ports:
+      - 8761:8761
+
+  service-hi:
+    image: forezp/service-hi
+    restart: always
+    ports:
+      - 8763:8763
+可用 docker-compose up 一次启动两个 ,直接ctrl+c两个全停了
+
+
+使用 Dockerfile 文件 和  docker build <Dockerfile所在目录> 命令 创建一个新的镜像
+
+更新镜像后
+ docker commit -m="描述信息" -a="作者" <容器ID> <要创建的目标镜像名>
+ 
+-----
+要想看这个系统的Hystrix Dashboard数据就需要用到Hystrix Turbine。
+
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-turbine</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-netflix-turbine</artifactId>
+</dependency>
+
+@EnableTurbine 注解包含了@EnableDiscoveryClient注解
+
+spring:
+  application.name: service-turbine
+server:
+  port: 8769
+security.basic.enabled: false
+turbine:
+  aggregator:
+    clusterConfig: default   # 指定聚合哪些集群，多个使用","分割，默认为default。可使用http://.../turbine.stream?cluster={clusterConfig之一}访问
+  appConfig: service-hi,service-lucy  ### 配置Eureka中的serviceId列表，表明监控哪些服务
+  clusterNameExpression: new String("default")
+  # 1. clusterNameExpression指定集群名称，默认表达式appName；
+  
+  //后面待确认真的对吗?
+  #此时：turbine.aggregator.clusterConfig需要配置想要监控的应用名称
+  # 2. 当clusterNameExpression: default时，turbine.aggregator.clusterConfig可以不写，因为默认就是default
+  # 3. 当clusterNameExpression: metadata['cluster']时，假设想要监控的应用配置了eureka.instance.metadata-map.cluster: ABC，则需要配置，同时turbine.aggregator.clusterConfig: ABC
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+	  
+http://localhost:8769/turbine.stream 做为monitor的地址
+
+
+---consul 
+下载 win zip包,就一个consul命令
+
+consul agent -dev
+http://localhost:8500
+
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-consul-discovery</artifactId>
+</dependency>
+ 
+
+---
+
+Spring Cloud提供为两个库 
+Spring Cloud Context
+Spring Cloud Commons  有不同的实现,如有 Netflix  , Consul
+
+如果使用openJDK可能要Java Cryptography Extension (JCE) local_policy.jar 和 US_export_policy.jar  放在JDK/jre/lib/security 目录中(Oracle JDK不用)
+
+两个上下文共享一个Environment
+Bootstrap属性的优先级高，因此默认情况下不能被本地配置覆盖
+
+bootstrap context  用 bootstrap.yml
+application context 用 application.yml  (或者 .properties)
+
+
+
+bootstrap.yml
+spring:
+  application:
+    name: foo
+  cloud:
+    config:
+      uri: ${SPRING_CONFIG_URI:http://localhost:8888
+	  }
+	  
+	  
+这样会更好,设置spring.application.name（在bootstrap.yml或application.yml）
+
+spring.cloud.bootstrap.enabled=false（例如在系统属性中）来完全禁用bootstrap 过程。
+
+SpringApplication 或者 SpringApplicationBuilder
+
+org.springframework.core.env.CompositePropertySource  优先级会高于  org.springframework.cloud.bootstrap.config.PropertySourceLocator
+
+
+
+import org.springframework.cloud.bootstrap.config.PropertySourceLocator;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.PropertySource;
+
+@Configuration
+public class CustomPropertySourceLocator implements PropertySourceLocator {
+	org.springframework.core.env.CompositePropertySource x; 
+	org.springframework.boot.builder.SpringApplicationBuilder x1;
+	org.springframework.cloud.bootstrap.BootstrapConfiguration i;
+    @Override
+    public PropertySource<?> locate(Environment environment) {
+        return new MapPropertySource("customProperty",
+                Collections.<String, Object>singletonMap("property.from.sample.custom.source", "worked as intended"));
+    }
+}
+
+.jar包/META-INF/spring.factories中加入
+org.springframework.cloud.bootstrap.BootstrapConfiguration=sample.custom.CustomPropertySourceLocator
+
+
 
 
 

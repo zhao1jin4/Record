@@ -612,7 +612,7 @@ eclipse-4.6.2版本,为class指定源码,如以目录方式的源码无效果???
 
 
 File->Settings-> Build ,Execution,Deployemnt->Maven 中设置 maven home directory
-Run->Run...->建立运行maven时在command line中加 clean package -Dmaven.test.skip=true
+Run->Run...->建立运行maven时在command line中加 clean package -Dmaven.test.skip=true   (笔记本运行窗口太大,不能调整,不能选择下面的)
 
 File->project stucture ->project -> 配置JDK
 File -> Setting -> Version Control -> Subversion 配置 svn 命令所在路径
@@ -626,12 +626,14 @@ VCS -> Browse VCS Repository->Browse Subversion Repository ,可以右击->打tag
 File->project stucture ->选择Modules标签 可以Import或者Add 多个,默认目录是在本项目的子目录，可以修改为同级,多个web项目可独立运行
 或者File ->new ->new Module...
 
-View->tool windows->Application Server 
+View->tool windows->Run 显示控制台
 View->tool windows->project 显示项目视图
 
 
-设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts -> Font 
-设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font
+设置菜单字体大小   File->Setting...->Appearance & Behavior-> Appearance -> Override defaul fonts by (not recommaned) 后面设置为14
+
+设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts -> Font   16
+设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font  16
 
 Code -> reformat code 格式化代码
 Code -> Generate...生成getter,setter  ( alter+insert )

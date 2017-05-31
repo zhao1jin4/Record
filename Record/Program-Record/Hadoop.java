@@ -1123,6 +1123,7 @@ bin/spark-submit --class "SimpleApp"   --master local[4] ~/simple-project-1.0.ja
 bin/spark-shell --master local[4] --jars use_for_classpath.jar,code.jar
 bin/pyspark --master local[4] --py-files code.py,code.zip
 
+还有其它方式来提交任务
 
 ------------------------- Spark MLIb 机器学习
 machine learning
@@ -1527,7 +1528,7 @@ cloudStack/openStack 实现  IaaS(Infrastructure as a Service ) 层 ,
 			Hadoop     实现	 PaaS (Platform as a service)层  ,
 							 SaaS(Software-as-a- Service)
 
-cloudStack(上层) , openStack(底层,HP基于它,Solaris-11.2 使用它)
+cloudStack(上层) , openStack(底层,HP基于它后来又退出,可能Kubernetes更好,Solaris-11.2 使用它)
  	
 中国银联采用 SUSE 部署 OpenStack ,目前已是全球第二大开源软件项目，仅次于Linux。 OpenStack能支持所有的 x86架构服务器
 社区活越度大,用python语言写的,未来支持Python 3 ,支持PostgreSQL,MySQL,SQLite 

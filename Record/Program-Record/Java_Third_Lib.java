@@ -517,6 +517,23 @@ artifactId 是自己的项目名
 			</configuration>
 		  </plugin>
 		  
+		  
+	官方文档
+	 <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.6.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>  
+	  或者 只加  <properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	
+	  
+		  
 		<!-- 如果为.jar 指定 Main-Class: com.   ,如使用了spring,运行的机器又不能上网要加AppendingTransformer  -->
 		<plugin> 
 			<groupId>org.apache.maven.plugins</groupId>
@@ -1799,7 +1816,7 @@ wt返回形式 json,xml,csv
 
 ---SolrJ
 
-
+---SolrCloud
 
 
 ----------------MongoDB 
@@ -2525,7 +2542,10 @@ activemq.xml
 	</simpleAuthenticationPlugin>
 </plugins>
 
-
+--------------------------------------------RabbitMQ 
+.exe安装版要 ERLang语言,启动停止只能在services.msc中做 ,开始菜单中的无效
+配置文件 是 C:\Users\zhaojin\AppData\Roaming\RabbitMQ\rabbitmq.config  ,可从rabbitmq.config.example复制修改
+默认端口  {tcp_listeners, [5672]},
 
 ---------------------------------POI xls,xlsxWorkbook webbook = null;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;

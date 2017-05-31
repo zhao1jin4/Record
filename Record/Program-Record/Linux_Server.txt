@@ -1425,6 +1425,9 @@ git push 弹出UI 要输入用户名密码
 git rm Not-Offen/Struts-2.x.java
 git push
 
+如用TortoiseGit ->Check for modifications 中 Commit
+			->push
+			
 ============== 上 Git 
 ============== MemCache  (memcached-1.4.17)
 文档在google上
@@ -1898,4 +1901,7 @@ yum install mrtg
 
 =============Sphinx  SQL 的全文搜索  可MySQL
 Coreseek 带有中文分词
+
+CentOS 最新版本 7
+
 

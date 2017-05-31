@@ -71,7 +71,8 @@ select * from t where username='SYSMAN';
       
 EXPLAIN PLAN  for   select /*+ index(t i_t) */ * from t where username='SYSMAN';     --强制使用索引 , INDEX(表名,索引名称) 
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);  
-
+ 
+Oracle 默认是B-Tree 索引
 索引创建策略 
 1.导入数据后再创建索引 
 2.不需要为很小的表创建索引 

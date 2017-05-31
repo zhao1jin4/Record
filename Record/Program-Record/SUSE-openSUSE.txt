@@ -612,7 +612,7 @@ error: Failed dependencies:
 面板中找 chrome 自带flashplayer-11.6
 	
 
----------openSUEE-12.3 SMB Client
+---------openSUSE-12.3 SMB Client
 
 smbclient -L [主机]  -U user%pass  ##显示列表,以$结尾的在windows中看不到的
 
@@ -653,7 +653,7 @@ dbus-launch vncserver :1 来启动
 ctrl+alt +f2命令行，使用 gnome-session &是不行的
 
 
----------openSUEE-12.2 NFS
+---------openSUSE-12.2 NFS
 防火墙关闭测试
 要安装nfs-doc,nfs-kernel-server,yast2-conf-server
 su - root
@@ -689,6 +689,7 @@ vim 和gedit 打开windows下的有中文GBK文件时,显示其它的怪字符
 
 ---SUSE cluster 
 
+openSUSE 最新leap-42.2
 
 
 
