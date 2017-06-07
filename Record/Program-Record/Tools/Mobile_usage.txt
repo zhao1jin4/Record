@@ -140,7 +140,8 @@ Increasing Ring
 
 电脑中iTunes中选择app , add file...
 
-暴风影音	可以缩放,但不能平移
+暴风影音	可以缩放,但不能平移,可传文件视频,缓存在线视频
+乐视  		也可以,缓存在线视频
 Code Viewer	下载github的Record,文件名字符集是UTF-8
 Sources 	下载github的Record(并没有存在本地，下次启动没了),文件名字符集是GBK
 iZip free版 可解带密码的包,有广告

@@ -1,3 +1,4 @@
+
 https://dev.mysql.com/doc/index-other.html MySQL  Sample Database
 https://dev.mysql.com/doc/employee/en/ Employees    https://launchpad.net/test-db  https://github.com/datacharmer/test_db
 
@@ -484,15 +485,16 @@ max_allowed_packet=1M
 fulltext 索引只用于 MyISAM
 unique 索引
 普通索引
-SPATIAL 索引(5.7新功能  空间数据类型如point和geometry等,列必须非NULL ) 在where 中  MBRContains() 或者 MBRWithin() 
+SPATIAL 索引(5.7新功能 MyISAM 和 InnoDB都支持, 空间数据类型如point和geometry等,列必须非NULL ) 在where 中  MBRContains() 或者 MBRWithin() , 会建立一个  R-tree 索引
 CREATE [UNIQUE|FULLTEXT|SPATIAL] INDEX  ,或者 alter table t1 add index ind (col)
 USING {BTREE | HASH}  //InnoDB 和 MyISAM 都是BTree
 
 MyISAM 引擎中 ft_min_word_len和ft_max_word_len 表示indicate  minimum and maximum word length for FULLTEXT indexes
 InnoDB 引擎中  innodb_ft_min_token_size 和 innodb_ft_max_token_size  
 
- 
- 
+B-Tree 索引  LIKE '%string%'  , string多于3个字符 MySQL  Turbo Boyer-Moore 算法搜索会更快
+
+
 show variables like 'group_concat_max_len'
 show variables like 'max_allowed_packet'
 
@@ -501,9 +503,7 @@ SHOW VARIABLES  显示所有的变量
 SHOW [GLOBAL | SESSION] VARIABLES [LIKE 'pattern'
 8bit(位)=1Byte(字节)
 1024Byte(字节)=1KB   一个英文字的空间    2K是一个汉字
-1024KB=1MB =86个手机 *12
-1024MB=1GB
-1024GB=1TB 
+
 
 
 CONCAT_WS(separator,str1,str2,...)  它与 group_concat 不同的是 不会对有 null的值而返回null

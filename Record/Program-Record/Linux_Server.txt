@@ -1284,7 +1284,7 @@ gitconfig 文件中  #或者;  是注释
 	email = zhao1jin4@sina.com
 	
 配置的是你个人的用户名称和电子邮件地址,提交时用
-$ git config --global user.name "Li Zhaojin"
+$ git config --global user.name "Li Zhaojin"  (windows下是保存在用户主目录.gitconfig 文件)
 $ git config --global user.email zhaojin.li@example.com
 $ git config --global core.editor vi		文本编辑器
 $ git config --global merge.tool vimdiff	差异分析工具
@@ -1415,11 +1415,11 @@ git push -u origin master
 
 如果在空目录中取代码 git clone https://github.com/zhao1jin4/Record.git
 修改更新,加新文件
-git config --global user.email "zhao1jin4@sina.com"
+git config --global user.email "zhao1jin4@sina.com"   (windows中保存在用户主目录/.gitconfig)
 git config --global user.name "Li Zhaojin"
 git add *
 git commit  -m "2017-05-18 record version" 
-git push 弹出UI 要输入用户名密码
+git push 弹出UI 要输入用户名密码   (windows下密码保存在控制面板-》用户-》Creddentail manager)
 
 删文件
 git rm Not-Offen/Struts-2.x.java

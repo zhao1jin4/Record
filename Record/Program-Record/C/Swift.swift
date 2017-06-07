@@ -1,5 +1,8 @@
 ﻿Swift 3
 
+http://m.swift51.com/swift3.0/  中文教程
+
+
 Xcode 8.2.1 看Swift 版本是2.3
 .//Contents/Developer/Toolchains/Swift_2.3.xctoolchain/usr/bin/swift  -v  
 .//Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift  -v 

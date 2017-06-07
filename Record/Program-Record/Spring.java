@@ -2699,6 +2699,9 @@ implements ItemWriter<Message>
 	return null;
 }  
 ========================Spring Boot
+logging.file=my.log  日志输入到当前目录下的文件名
+ 
+
 
 spring-boot-1.5.2.RELEASE.jar
 spring-boot-autoconfigure-1.5.2.RELEASE.jar
@@ -2709,7 +2712,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-@SpringBootApplication
+@SpringBootApplication  //等同用 @Configuration 和 , @EnableAutoConfiguration,@ComponentScan
 public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -2768,6 +2771,15 @@ https://springcloud.cc/spring-cloud-dalston.html
             <type>pom</type>
             <scope>import</scope>
         </dependency>
+		<!--  如果不想使用<parent>标签时,用这个
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-dependencies</artifactId>
+			<version>1.5.2.RELEASE</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+		-->
 		
  </dependencies>
 	 
@@ -3337,16 +3349,35 @@ http://localhost:8769/turbine.stream 做为monitor的地址
 
 
 ---consul 
+服务健康监测 ,key/value 存储
+
 下载 win zip包,就一个consul命令
 
-consul agent -dev
+consul agent -dev 启动
 http://localhost:8500
 
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-consul-discovery</artifactId>
 </dependency>
- 
+
+application.yml 文件
+
+spring:
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:	
+		#healthCheckPath: /${management.contextPath}/health    //变量, 
+        healthCheckPath: /consul-miya/health					//有404错误???
+		
+        healthCheckInterval: 15s
+        instance-id: consul-miya
+  application:
+    name: consul-miya
+server:
+  port: 8502
 
 ---
 

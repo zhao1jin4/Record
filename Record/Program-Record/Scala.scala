@@ -37,14 +37,22 @@ scala>  HelloWorld.main(Array()) 来执行
 
 |如输入错误可按两次回车取消
 
+一元操作符(unary)   -2.0转换成方法调用 (2.0).unary_-  ,可以当作前缀操作符用的标识符只有+，-，!和~
+如你定义了名为unary_!的方法，就可以像!p
+
+eq 同java的 == 比较地址，相反的有ne
+
 
 scalac  命令可以编译
 
 scalac -d classes HelloWorld.scala
 scala -cp classes HelloWorld 执行
 
+fsc -help
+fsc HelloApp.scala   第一次执行fsc时，会创建一个绑定在你计算机端口上的本地服务器后台进程,后台进程去编译
+fsc -shutdown  来关闭
 
-如果exends App就不用写main方法了
+如果 exends App   就不用写main方法了 ,如果想访问命令行参数的话就不能用它
 
 object HelloWorld extends App {  // object 是对单例类的对象
   println("Hello, world!")
@@ -79,9 +87,68 @@ object FrenchDate {
 
 
 Unit 		表示无值，和其他语言中void等同。
-Nothing 	在Scala的类层级的最低端；它是任何其他类型的子类型。
+Nothing 	在Scala的类层级的最低端；它是任何其他类型的子类型。 Nothing的一个用处是它标明了不正常的终止。 如 Predef对象有一个error方法 
 Any 	 	是所有其他类的超类
-AnyRef  	是Scala里所有引用类(reference class)的基类
+AnyRef  	是Scala里所有引用类(reference class)的基类, 实际就是类java.lang.Object的别名 ,定义了附加的eq方法
+Null
+None
+
+Any有两个子类：AnyVal和AnyRef
+Scala类与Java类不同在于它们还继承自一个名为ScalaObject的特别的记号特质
+
+ 
+RichByte
+RichShort
+RichInt
+RichLong
+RichChar
+RichString
+RichFloat
+RichDouble
+RichBoolean
+
+0 max 5 
+0 min 5 
+-2.7 abs 
+-2.7 round 
+1.5 isInfinity 
+(1.0 / 0) isInfinity
+true
+4 to 6  
+"bob" capitalize 
+"robert" drop 2   //  "bert"
+
+
+ val name_ : Int=1;//变量名以_结尾的话 : 前要有空格
+
+你不能写Thread.yield()因为yield是Scala的保留字。
+然而，你仍可以在反引号里引用方法的名称，例如Thread.`yield`() 
+
+import scala.collection.mutable.ArrayBuffer
+import scala.util.Sorting
+
+var changeBuffer=ArrayBuffer [Int]()
+changeBuffer+=1
+changeBuffer+=2
+changeBuffer++=Array(3,4,5,6)
+changeBuffer.insert(0, 100,101)
+println(changeBuffer)
+changeBuffer.remove(0)
+ println(changeBuffer)
+var  array= changeBuffer.toArray
+
+for(i <-0 until (array.length,2)) //2步长
+  print(array(i)+",")
+println("max="+array.max)       
+println("sum="+array.sum)
+Sorting.quickSort(array);
+
+println(array.mkString("---", ",","==="))
+
+
+var addArray= for(i <-array ) yield  i+10
+println(addArray.mkString( "," ))
+
 
 //变量
 var myVar : String = "Foo" 
@@ -161,10 +228,24 @@ for( a <- numList
 		}
 	 }
   }
-  
-   printVeryChar("a","b","c")
+val filesHere = (new java.io.File("./src")).listFiles
+def fileLines(file: java.io.File) = scala.io.Source.fromFile(file).getLines.toList
+
+ def grep(pattern: String) = 
+	 for { file <- filesHere 
+			   if file.isFile; //多个条件用;
+			   if file.getName.endsWith(".scala") 
+		   line <- fileLines(file)  //双重循环
+			   trimmed = line.trim  //中间变量
+			  if trimmed.matches(pattern)
+	  } 
+	 println(file + ": " + trimmed) 
+grep(".*gcd.*")
+
+
+   printEveryChar("a","b","c")
       
-     def printVeryChar(c:String*)=    //动态参数个数
+     def printEveryChar(c:String*)=    //动态参数个数
      {
         c.foreach( (x:String) => println(x) ) //=>函数文本
 //      c.foreach( x => println(x) )
@@ -174,6 +255,12 @@ for( a <- numList
         
         for(x<-c) //for 遍历
           println(x)
+     }
+	 
+	 printEveryInt(10 to 15:_*) //特殊用法
+     def printEveryInt(i:Int*) 
+     { 
+        println(i)
      }
 	 
     def defaultParam(name:String="world"):String= //参数默认值
@@ -189,6 +276,7 @@ for( a <- numList
       sum = a + b
       return sum //可不写return
    }
+   println(addInt(b=3,a=4)) //可以使用参数名修改顺序
    
    def add2(x:Int) (y:Int) =x+y //多参数写法2,如果函数只有一行代码可以不写{}
    println(add2(5)(3))
@@ -233,7 +321,10 @@ for( a <- numList
 	
 	
 	concat( myList1, myList2) //合并数组
-	
+	 var myList3 =myList1++ myList2
+	 var zipList=for ( (item1, itme2) <-  myList1 zip  myList2) yield item1 + itme2
+     println(zipList mkString "_" )
+	   
 	// range() 方法最后一个参数为步长，默认为 1：
     var myList11 = range(10, 20, 2)
     var myList22 = range(10,20)
@@ -243,7 +334,7 @@ for( a <- numList
 	println(theList(2));//下标0开头
 		
 	var list=1::2::3::Nil //Nil有::
-	//List没有append，使用：： 再reverse 或ListBuffer 提供append再toList
+	//List没有append，使用 :: 再reverse 或ListBuffer 提供append再toList
     //scala.collection.mutable.ListBuffer 
    
      println( theList.reverse)
@@ -379,6 +470,8 @@ println(pattern replaceFirstIn(str, "Java"))
          println("Exiting finally...")
       }
 
+def f(): Int = try { return 1 } finally { return 2 }// 调用f()产生结果值2 
+def g(): Int = try { 1 } finally { 2 }  //调用g()产生1
 
  def unapply1(str: String): Option[(String, String)] = {  //Option用法,表示可有可无,有的话用Some,没有用None 
       val parts = str split "@"
@@ -439,8 +532,14 @@ for(line <-scala.io.Source.fromFile("c:/tmp/hello_utf8.txt" ).getLines().toList)
  println("-"*4 +line);// 字符可以*
 }
 
- var a=if(x>0)1 else 0  //特殊写法
- 
+var a=if(x>0)1 else 0  //if 可以有返回值
+val firstArg = if (!args.isEmpty) args(0) else ""
+	val friend = firstArg match   //match 同  if 可以有返回值
+	  { case "salt" => "pepper" 
+		 case "chips" => "salsa" 
+		 case "eggs" => "bacon" 
+		 case _ => "huh?" 
+	  }
  
 var (m,n)=(1,2)  //多变量赋值
    
@@ -452,10 +551,182 @@ println( name.exists(_.isUpper))
 var num =BigInt(5);//BigInt就是使用BigInteger实现的
  
  
+ require(d != 0)  //Predif 包中
+ 
+implicit def intToRational(x: Int) = new Rational(x)  //自动把整数转换为Rational分数的隐式转换
+ 
+
+def testImplicitParam(implicit name2:String)
+{
+	println(name2)
+}
+implicit val name1="the implicit name!!"  //不根据变量名字
+
+testImplicitParam
+
  
  
  
+def greet() {
+println("hi") 
+}
+println( greet() == () )//返回true 
+
+var line = "" 
+while ((line = scala.io.StdIn.readLine()) != "") // 不起作用 
+println("Read: "+ line)
  
  
+ //最大公约数
+def gcd(x: Long, y: Long): Long = if (y == 0) x else gcd(y, x % y)
+ 
+def processFile(filename: String, width: Int) 
+{ 
+	def processLine(filename:String, width:Int, line:String) //把函数定义在另一个函数中,仅在包含它的代码块中可见
+	{ 
+		if (line.length > width) print(filename+": "+line) 
+	} 
+	val source = scala.io.Source.fromFile(filename) 
+	for (line <- source.getLines)
+	{ 
+	  processLine(filename, width, line)
+	}
+}
+
+val f = (_: Int) + (_: Int)//将扩展成带两个参数的函数
+val  sum= f(5, 10)
+
+
+def curriedSum(x: Int)(y: Int) = x + y
+val onePlus = curriedSum(1)_   //_是 第二个参数列表的占位
+println( onePlus(2) )
+	
+def twice(op: Double => Double, x: Double) = op(op(x))
+println(   twice(x => x + 1, 5) )
+println(   twice(_ + 1, 5) )//最简式
+	 
+def sum(a: Int, b: Int, c: Int) = a + b + c
+val a = sum _ //三个缺失整数参数
+println(  a(1, 2, 3) )  //实际上是应用了apply方法
+println( a.apply(1, 2, 3) )
+val b = sum(1, _: Int, 3)
+println( b(2) )
+
+
+def makeIncreaser(more: Int) = (x: Int) => x + more//每次函数被调用时都会创建一个新闭包
+val inc1 = makeIncreaser(1)
+println(inc1(10))
+
+
+
+private def filesHere = (new java.io.File("./src")).listFiles
+def filesMatching(query: String, matcher: (String, String) => Boolean) =
+{
+	for (file <- filesHere; if matcher(file.getName, query)) yield file
+}
+def filesEnding(query: String) = filesMatching(query, _.endsWith(_))//第一个 _ 对应matcher的第一个参数file.getName,等同下面
+println(filesEnding(".scala").mkString("\n"))
+
+
+
+递归函数 
+def approximate(guess: Double): Double =
+ if (isGoodEnough(guess)) guess 
+	else approximate(improve(guess)) 
+使用while循环编写 
+def approximateLoop(initialGuess: Double): Double =
+ { var guess = initialGuess 
+	while (!isGoodEnough(guess)) 
+		guess = improve(guess) 
+	guess 
+}
+ 
+ 两种approximate版本哪个更好？就简洁性和避免var而言，第一个，函数式的胜出。
+ 
+Scala编译器可以应用一个重要的优化。
+在它们最后一个动作调用自己的函数，被称为尾递归：tail recursive
+。Scala编译器检测到尾递归就用新值更新函数参数，然后把它替换成一个回到函数开头的跳转
+   
+   
+   
+ def withPrintWriter(file: java.io.File)(op: java.io.PrintWriter => Unit)
+{ val writer = new java.io.PrintWriter(file)
+  try { op(writer) } finally { writer.close() } 
+}
+val file = new java.io.File("c:/temp/date.txt") 
+withPrintWriter(file) { writer => writer.println(new java.util.Date) } //参数可以用{}传
+
+
+var assertionsEnabled = true 
+def myAssert(predicate: () => Boolean) =   //叫名参数
+  if (assertionsEnabled && !predicate()) 
+	throw new AssertionError
+
+myAssert(() => 5 > 3)//
+//myAssert(5 > 3)  //编译报错
+
+def byNameAssert(predicate: => Boolean) =   //省了() ，但还和平常的多了=> ,有先后的差别
+{ print("in byNameAssert")
+  if (assertionsEnabled && !predicate) throw new AssertionError //这里第二步才开始产生true
+}  
+byNameAssert(5 > 3) 
+
+def boolAssert(predicate: Boolean) = 
+{     print("in boolAssert")
+	if (assertionsEnabled && !predicate) throw new AssertionError
+}
+ boolAssert(5 > 3)//这里第一步产生true
+ /*
+ boolAssert(x / 0 == 0)
+ byNameAssert(x / 0 == 0)
+ */
  
  
+ class WontCompile {
+      private var f = 0 
+      //def f = 1 // 编译不过，因为字段和方法重名,因为无参数函数，调用时可以不写（），如果这样就区分不出哪个了
+   }
+   
+class ArrayElement( // 请注意，小括号
+    val contents: Array[String] )  //即是构造参数,又是属性
+    extends AnyRef
+class LineElement(s: String) extends ArrayElement(Array(s))//继承时初始化,像C++
+   
+   
+   
+X extends Ordered[Rational] {  //实现compare方法，就可以排序， 没有为你定义equals方法
+	def compare(that: Rational) = (this.numer * that.denom) - ( that.numer * this.denom)
+} 
+   
+   
+
+abstract class IntQueue {  //trait 或 abstract class 都可
+  def put(x: Int)
+} 
+trait Incrementing extends IntQueue
+{ abstract override def put(x: Int) {//必须在trait中，必须是 abstract override 
+  super.put(x + 1) //在trait中super其实是子类的实现
+  } 
+}
+ 
+trait Filtering extends IntQueue 
+{ abstract override def put(x: Int) 
+  { if (x >= 0) super.put(x) }
+}
+
+import scala.collection.mutable.ArrayBuffer
+class BasicIntQueue   extends IntQueue  //也要 extends IntQueue 
+{
+  val buf = new ArrayBuffer[Int]
+  def put(x: Int) { 
+    buf+=x
+    println(" put in BasicIntQueue ")
+  } 
+}
+
+class MyQueue extends BasicIntQueue with Incrementing with Filtering //1,2
+//class MyQueue extends BasicIntQueue with Filtering with Incrementing   // 0,1,2
+//次序非常重要。 最右侧特质的方法首先被调用。如果那个方法调用了super，它调用其左侧特质的方法，   
+   
+   
+   

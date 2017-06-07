@@ -16,3 +16,46 @@ Tina
 Kathie
 Rebecca
 
+
+~ 	tilde  /squiggle 
+!   exclamation mark/bang 
+@ 	at  
+# 	pound or hash / crosshatch/sharp/hash
+$ 	dollar 
+% 	percent /mod  
+^ 	caret/circumflex 
+& 	ampersand  / 
+* 	asterisk/star  
+( 	opening parenthesis or opening round bracket 
+) 	closing parenthesis or closing round bracket 
+_ 	underscore or underline 
++ 	plus  
+-   minus or hyphen or dash 
+=   equals  
+`   backtick or backquote \grave accent 重音号
+{   opening brace 
+}   closing brace  
+[   opening square bracket 
+]   closing square bracket 
+|   pipe or vertical bar 
+\   backslash / escape 
+: 	colon 
+;  	semicolon 
+"  	quotation marks/double quote 
+'  	apostrophe/single quote  
+<  	less than or left angle bracket 
+>  	greater than or right angle bracket 
+,  	comma 
+.  	dot/period/point 
+?  	question mark  
+/  	slash or forward slash 
+空格  space 
+小键盘 keypad 
+ 
+(), [] and {} 
+may also be called brackets in general. In that case, they specifically call []  
+square brackets and {} curly brackets.  Open and Closing may also be called  
+left and right. 
+
+
+

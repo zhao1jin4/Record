@@ -203,7 +203,9 @@ spring 配置事务方法,如果不是 pulic 的可以吗
 一致性hash (和solr)  , 虚IP 
 PV 并发   单点 500  
 
- DevOps  开发运营  是 Agile 的延伸 
+ DevOps  开发运营  是 Agile 的延伸  
+ (自动化运维之SaltStack ,用 Python语言开发的,开源的,很容易管理上万台服务器 ,完成服务器配置管理的功能)
+ Puppet,Ansible
 微服务架构 spring boot,Spring Cloud 
 
 银行小核心大外围
@@ -230,8 +232,37 @@ MySQL 性能优化
  ,in , not in使用索引
   BTree和hash索引 is not null ,is null 是使用索引的               对b-tree来说，where xx is null条件是不会利用索引的
 
+  
+  
+  
+  
+  
+  
  Oracle 和 MySQL 都是B-Tree 索引
  
+MySQL 用 B-tree 索引 , 找到一行要花多少次的公式
+log(row_count) /log(index_block_length / 3 * 2 / (index_length + data_pointer_length)) + 1 
+MySQL 中, index_block_length 通常是1024 bytes,data_pointer_length 通常是4bytes ,index_length 就是索引字段数据类型的长度
+如 500,000 行数据, index_length 3 个 bytes (即MEDIUMINT) 
+log(500,000)/log(1024/3*2/(3+4)) + 1 = 4 次查找  -- log是10为底的对数
+索引空间要500,000 * 7 * 3/2 = 5.2MB (假设索引缓存区使用比是 2/3))
+
+如果更新数据,要4次查找哪放索引和2次查找为更新索引,一般是缓存的除非大表 ,如为MyISAM表,参数key_buffer_size
+
+
+B-Tree （并不是二叉的） 
+       1.定义任意非叶子结点最多只有M个儿子；且M>2；
+       2.根结点的儿子数为[2, M]；  //根最少2个
+       3.除根结点以外的非叶子结点的儿子数为[M/2, M]；  //如M为3,即可以1个
+       4.每个结点存放至少M/2-1（取上整）和至多M-1个关键字；（至少2个关键字）
+       5.非叶子结点的关键字个数=指向儿子的指针个数-1；
+	  
+       6.非叶子结点的关键字：K[1], K[2], …, K[M-1]；且K[i] < K[i+1]； //当前节点的多个关键字 左小,右大
+       7.非叶子结点的指针：P[1], P[2], …, P[M]；其中P[1]指向关键字小于K[1]的子树，P[M]指向关键字大于K[M-1]的子树，其它P[i]指向关键字属于(K[i-1], K[i])的子树；//叶子是左下是小的,右下是大的排序的
+      
+	   8.所有叶子结点位于同一层；
+     
+
  
  Oralce 索引 
  B树索引不存储索引列全为空的记录，而BITMAP索引，则存储NULL值，
@@ -348,7 +379,7 @@ http://www.aikaiyuan.com/1809.html
 spring cloud 
 
 
-
+R-tree (mysql spatial index ,MyISAM 和 InnoDB都支持 )
 
  Mysql 将同一个表中的  数据按照某种条件拆分到多台数据库（主机）上面，这种切分称之为数据的水平（横向）切分
 		按照不同的表（或者Schema）来切分到不同的数据库（主机）之上，这种切可以称之为数据的垂直（纵向）切分
@@ -426,6 +457,18 @@ java.sql.Time日期格式为：时分秒
 java.sql.Timestamp日期格式为：年月日时分秒纳秒（毫微秒） 
 
 cglib代理实现原理    //通过字节码技术动态创建子类实例  
+
+
+
+wait/yield/sleep/join方法的区别 
+wait()使当前线程进入停滞状态时，还会释放当前线程所占有的“锁标志”，
+yield()法只能让同优先级的线程有执行的机会
+
+
+
+
+
+
 
 
 
