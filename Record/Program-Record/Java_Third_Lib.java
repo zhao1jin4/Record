@@ -285,7 +285,7 @@ RunJettyRun-1.8 插件 当eclipe认为是web项目(有建立Servlet的界面)才
 
 
 ----------- Maven服务器 Nexus OSS 
-有跨平台的 -bundle.zip解压 
+2.x版本有跨平台的 -bundle.zip解压 
 
 nexus-2.7.2-03\conf\nexus.properties 中有配置项目nexus-work 是 sonatype-work 目录,就是解压目录的 , 仓库存放位置 
 nexus-2.7.2-03\bin\jsw\windows-x86-64\ 以管理员运行 install-nexus.bat ,再 start-nexus.bat 
@@ -302,6 +302,26 @@ group 资源仓库组,用来合并多个hosted/proxy资源仓库,配置maven依�
  可以新建仓库，建立用户指定角色，角色指定权限
 
  可以设置是否可以 deployment,是release的还是snapshot的
+------Nexus Repository OSS 3.5.1
+	 没有 -bundle.zip了 unix版本 要求至少JDK 1.8 ,解压出现了sonatype-work
+	 可以运行在 Docker 上
+nexus-3.5.1-02/bin/nexus start
+ ./nexus run
+
+ tail -f sonatype-work/nexus3/log/nexus.log
+ 直接仿问 http://127.0.0.1:8081/ 默认有一个用户 admin  密码 admin123     
+		提示 max file descriptor至少65536(默认4096)
+		 /etc/security/limits.conf (Ubuntu 除外)
+			nexus - nofile 65536
+		重启 Nexus
+配置用
+http://127.0.0.1:8080/repository/maven-public/
+http://127.0.0.1:8080/repository/maven-releases/
+http://127.0.0.1:8080/repository/maven-snapshots/
+
+ 浏览包用
+ http://127.0.0.1:808/#browse/browse/components:maven-public 有目录级别
+ http://127.0.0.1:808/#browse/browse/assets:maven-public     子目录以/显示
  
 ----------------------------------Maven
 
@@ -561,8 +581,26 @@ artifactId 是自己的项目名
 				</execution>
 			</executions>
 		</plugin>
- 
-		
+
+	   <plugin> <!--打包方式2,依赖jar包会放在目录下 -->
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-assembly-plugin</artifactId>
+			<version>2.4</version> 
+			<configuration> 
+					<descriptor>assembly.xml</descriptor>
+				</descriptors>
+			</configuration>
+			<executions>
+				<execution>
+					<id>make-assembly</id>
+					<phase>package</phase>
+					<goals>
+						<goal>single</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+			
 		<plugin> <!-- 打包源码插件,生成-sources.jar  也可单独运行 mvn source:jar 但clean后就没了 -->
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-source-plugin</artifactId>
@@ -589,8 +627,68 @@ artifactId 是自己的项目名
 			  </configuration>
 			</configuration>
       </plugin>
+	  
+	<plugin>
+	  <groupId>org.eclipse.jetty</groupId>
+	  <artifactId>jetty-maven-plugin</artifactId>
+	  <version>9.4.6.v20170531</version>
+	   <configuration>
+		  <scanIntervalSeconds>10</scanIntervalSeconds>
+		  <webApp>
+			<contextPath>/test</contextPath>
+		  </webApp>
+		</configuration>
+	</plugin>  <!-- mvn jetty:run -->
+ 
+ 
+ <!--部署到tomcat,配置权限用户,  mvn cargo:redeploy 
+如tomat8,127.0.0.1就OK, 本机IP就不行,/conf/Catalina/localhost/目录下要加文件manager.xml （没有就新建） (CSRF) -->
+	<plugin>
+		    <groupId>org.codehaus.cargo</groupId>
+		    <artifactId>cargo-maven2-plugin</artifactId>
+		    <version>1.4.4</version> <!-- tomcat8 要1.4.4, tomcat9 要 1.5.1-->
+		    <configuration>
+		        <container>
+		            <containerId>tomcat8x</containerId>
+		            <type>remote</type>
+		        </container>
+		        <configuration>
+		            <type>runtime</type>
+		            <properties>
+		                <cargo.tomcat.manager.url>http://127.0.0.1:8080/manager</cargo.tomcat.manager.url>
+		                <cargo.remote.username>manager01</cargo.remote.username>
+		                <cargo.remote.password>manager01</cargo.remote.password>
+		                <cargo.servlet.port>8080</cargo.servlet.port>
+		                <cargo.hostname>127.0.0.1</cargo.hostname>
+		                <cargo.tomcat.ajp.port>8009</cargo.tomcat.ajp.port>
+		            </properties>
+		        </configuration>
+		    </configuration>
+		</plugin>
+		
+		
 	</plugins>
   </build>
+<profiles>  <!-- intellij IDE maven视图可以动态切换环境 -->
+	<profile>
+		<id>local</id>
+		<properties>
+			<env>dev</env>
+			<loglevel>DEBUG,Console</loglevel>
+		</properties>
+		<activation>
+			<activeByDefault>true</activeByDefault>
+		</activation>
+	</profile>
+	<profile>
+		<id>test</id>
+		<properties>
+			<env>test</env>
+			<loglevel>DEBUG,Console</loglevel>
+		</properties>
+	</profile>
+</profiles>
+
   <distributionManagement> <!-- 为mvn deploy时用使用id做对应  -->
 		<repository>
 			<id>releases</id>
@@ -610,7 +708,7 @@ artifactId 是自己的项目名
 		<dependency>
 		  <groupId>junit</groupId>
 		  <artifactId>junit</artifactId>
-		  <version>4.12</version> <!--  可以不指定版本 在 <dependencyManagement> <dependencies> 中管理版本 -->
+		  <version>4.12</version> <!-- 现在有5的版本  可以不指定版本 在 <dependencyManagement> <dependencies> 中管理版本 -->
 		  <scope>test</scope> <!-- 只my_app/src/test/java中类可访问到,  有 compile -->
 		</dependency>
 		<dependency>
@@ -640,6 +738,44 @@ artifactId 是自己的项目名
 		<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
 	</dependency>
 </project>
+
+
+
+----assembly.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>bin</id>
+    <includeBaseDirectory>false</includeBaseDirectory> 
+    <formats>
+        <format>zip</format>
+    </formats>
+ 
+    <dependencySets>
+        <dependencySet> 
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>query/lib</outputDirectory>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+
+    <fileSets> 
+        <fileSet>
+            <directory>${deploy.dir}/classes/</directory>
+            <outputDirectory>query/conf</outputDirectory>
+            <includes>
+                <include>*.xml</include>
+                <include>*.properties</include>
+            </includes>
+        </fileSet> 
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/query</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
 
 在test/java可以访问到依赖jar包中 my_app/src/main/java , my_app/src/main/resources
 
@@ -692,7 +828,7 @@ mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -Darchety
 对web项目
 mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-webapp -DinteractiveMode=false
  
- 
+ mvn -f xxx.pom   -s  settting.xml
  
 
 <project> <!-- 未测试 -->
@@ -769,6 +905,7 @@ dependencies {
     compile 'org.springframework:spring-context:4.3.4.RELEASE'
 	testCompile "junit:junit:4.12"
 	//也有providedCompile
+	classpath 'com.android.tools.build:gradle:2.3.3'
 } 
 jar {
     baseName = 'my-project'  //生成jar包的名字为my-project-0.1.0.jar
@@ -778,9 +915,9 @@ task wrapper (type:Wrapper)  // 就可以直接使用 gradle wrapper ,而不用�
 {
 	gradleVersion = 3.2 //只可有一个小数点
 } 
-
+// task后是定义的任务名
 会自动下载其它依赖的包,在~/.gradle\caches\modules-2\files-2.1目录下
-
+C:\Users\zhaojin\.gradle\caches\modules-2\files-2.1  
 
 gradle wrapper --gradle-version 3.2.1  会生成 gradlew 可执行文件和gradle/wrapper目录 在项目目录下,gradle-wrapper.properties文件中下载gradle对应版本的URL
 
@@ -864,6 +1001,7 @@ TestCase 中有
 这两个方法在抛出异常时也会被调用,测试失败也会的
 
 
+import org.junit.jupiter.api.Test; //Junit 5 
 
 JUnit 4.0 有 只执行一次初始方法,销毁方法 
 import static org.junit.Assert.assertEquals; 
@@ -2499,7 +2637,7 @@ public class MainApp
 ============ActiveMQ 的集群
 
 	  
-activemq5.9.0 开始 , activemq的集群实现方式取消了传统的Master-Slave方式 , 增加了基于zookeeper+leveldb的实现方式
+activemq5.9.0 开始 , activemq的集群实现方式取消了传统的Master-Slave方式 , 增加了基于 zookeeper + leveldb 的实现方式
 http://activemq.apache.org/replicated-leveldb-store.html
 
 activemq.xml
@@ -2542,10 +2680,76 @@ activemq.xml
 	</simpleAuthenticationPlugin>
 </plugins>
 
---------------------------------------------RabbitMQ 
+-------------------------------------------- RabbitMQ  3.6.12
 .exe安装版要 ERLang语言,启动停止只能在services.msc中做 ,开始菜单中的无效
 配置文件 是 C:\Users\zhaojin\AppData\Roaming\RabbitMQ\rabbitmq.config  ,可从rabbitmq.config.example复制修改
 默认端口  {tcp_listeners, [5672]},
+
+linux 下解压有sbin目录 rabbitmqctl 要 erl  ,安装erlang不太容易 CentOS 7 下 yum install erlang根本没有
+centos 7
+su -c 'rpm -Uvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-10.noarch.rpm'
+su -c 'yum install erlang' 就可以了
+
+linux sbin目录下  
+./rabbitmq-server 前台启动
+./rabbitmq-server  -detached    后台启动
+rabbitmqctl stop   停止
+看界面默认配置文件 解压的rabbitmq_server-3.6.12/etc/rabbitmq/rabbitmq.config 无
+看控制台默认日志在 解压的rabbitmq_server-3.6.12/var/log/rabbitmq/rabbit@<hostname>.log
+
+./rabbitmq-plugins enable rabbitmq_management    
+就可 http://hostname:15672/      
+  
+windows zip 要设置 ERLANG_HOME=C:\Program Files\erl8.3 变量 
+看控制台默认日志 C:\Users\zhaojin\AppData\Roaming\RabbitMQ\log
+看界面默认配置文件 c:/Users/zhaojin/AppData/Roaming/RabbitMQ/rabbitmq.config
+看界面默认数据目录 C:\Users\zhaojin\AppData\Roaming\RabbitMQ\db\RABBIT~1
+看界面默认amp端口是 5672
+看界面默认clustering端口是 25672
+
+rabbitmqctl  add_user zh 123  创建用户名密码 
+rabbitmqctl  list_users
+rabbitmqctl  change_password  zh  456
+rabbitmqctl  delete_user  zh
+rabbitmqctl  set_user_tags  zh  administrator  就可远程登录了
+
+rabbitmqctl  add_user mon 123 
+rabbitmqctl  set_user_tags  mon  monitoring  就可远程登录了
+(policymaker，management)
+rabbitmqctl  list_user_permissions  mon
+
+
+rabbitmq-plugins.bat enable rabbitmq_management    开启网页管理界面
+
+http://127.0.0.1:15672/     guest/guest  只可localhost登录 可以建立Queue
+还有其它工具
+http://127.0.0.1:15672/api
+http://127.0.0.1:15672/cli 
+
+<dependency>
+  <groupId>com.rabbitmq</groupId>
+  <artifactId>amqp-client</artifactId>
+  <version>5.0.0</version>
+</dependency>
+
+dependencies {
+  compile 'com.rabbitmq:amqp-client:5.0.0'
+}
+
+
+ConnectionFactory factory = new ConnectionFactory(); 
+factory.setUsername("zh"); 
+factory.setPassword("123"); 
+factory.setVirtualHost("/"); 
+factory.setHost("127.0.0.1"); 
+factory.setPort(5672); 
+Connection conn = factory.newConnection(); 
+Channel channel = conn.createChannel(); 
+
+
+
+channel.close(); 
+conn.close();
 
 ---------------------------------POI xls,xlsxWorkbook webbook = null;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -2575,7 +2779,7 @@ webbook.setSheetName(0, "我的第一个Sheet");
 int default_width=sheet.getColumnWidth(1);//default_width=2048
 sheet.setColumnWidth(1, default_width*2);
 
-Row row = sheet.createRow(0);
+Row row = sheet.createRow(0);//如要写第二列，就要使用sheet.getRow(0)了,如果还createRow就会把第一列的内容清了
 Cell cell0 = row.createCell(0);
 cell0.setCellValue( 10000 );
 Cell cell1 = row.createCell(1);
@@ -3559,32 +3763,6 @@ NioServerSocketChannel , NioSocketChannel 用了 java nio
 netty-all-4.1.8.Final-sources.jar 里有example
  
 
----------------------------------JSON
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
-JSONArray array = new JSONArray();
-		
-JSONObject obj = new JSONObject();
-obj.put("id", 100);
-obj.put("username",URLEncoder.encode("李","UTF-8"));
-obj.put("password", 123);
-array.add(obj);
-
-JSONObject obj1 = new JSONObject();
-obj1.put("id", 101);
-obj1.put("username",true);
-obj1.put("password", 123);
-array.add(obj1);
-System.out.println(array.toString());
-
-
-JSONObject jsonObject = JSONObject.fromObject(ua);
-System.out.println("java Object to json : "+ jsonObject); 
-
-JSONArray jsonArrasy = JSONArray.fromObject(ua);
-System.out.println("java Array to json : "+ jsonArrasy); 
-
 
 -------------------------------DisplayTag 表格 分页
 web.xml
@@ -4001,14 +4179,14 @@ javadoc中的示例
 
  
 ----tesseract ocr (支持中文)
-code.google.com/p/tesseract-ocr
-https://github.com/tesseract-ocr/tesseract
+https://github.com/tesseract-ocr/tesseract 
+Tess4J
 
 
 ------------指纹识别  人脸识别
 SURF (Speeded Up Robust Features, 加速稳健特征) 实现
 
-openCV , Android人脸识别
+openCV , Android人脸识别 (Face++)
 openSURF  基于 OpenCV
 
 ---------------------------------Ehcache 2.9
@@ -4348,6 +4526,7 @@ System.out.println(jc.get("foo"));
 ---------------------------------Redis client redisson	  分布式锁的实现 
 //redisson  依赖于netty,fasterxml的jackson
 
+
 Config config = new Config();
 //--单机 
 //SingleServerConfig singConfig= config.useSingleServer();
@@ -4421,26 +4600,50 @@ tomcat-7\webapps\dubbo\WEB-INF\dubbo.properties 配置zookeeper IP
 	<version>2.5.3</version>
 </dependency>
 
---classpath下的 dubbo.properties
+zkclient
+javassist
+netty-3.10  和 4 版本的包名不一样的
+
+Dubbo将自动加载classpath根目录下的dubbo.properties，
+可以通过JVM启动参数：-Ddubbo.properties.file=xxx.properties 改变缺省配置位置。
+
+System.setProperty("dubbo.properties.file", "alibaba/dubbo/client/dubbo.properties");
+
+
+---client/dubbo.properties
+
 dubbo.application.name=MyProject1
-dubbo.protocol.name=dubbo
-dubbo.protocol.port=20884
-#dubbo.protocol.heartbeat=60000
+dubbo.protocol.name=dubbo 
+
 dubbo.registry.address=zookeeper://127.0.0.1:2181
 #dubbo.registry.address=zookeeper://192.168.16.125:2181?backup=192.168.16.126:2181
-dubbo.spring.config=classpath*:alibaba/dubbo/dubbo-client.xml,classpath*:alibaba/dubbo/dubbo-server.xml  #是所有spring中的配置
+#dubbo.spring.config=classpath*:alibaba/dubbo/dubbo-client.xml,classpath*:alibaba/dubbo/dubbo-server.xml
 
 #for client
 dubbo.reference.timeout=55000
 
+#--only connect specical IP,only for dev enviroment   or url="127.0.0.1:20884" 
+
+dubbo.reference.dubboFacade.url= dubbo://127.0.0.1:20884
+ 
+---server/dubbo.properties
+dubbo.application.name=MyProject1
+dubbo.protocol.name=dubbo
+dubbo.protocol.port=20884
+dubbo.protocol.serialization=hessian2	
+# dubbo协议缺省为hessian2，rmi协议缺省为java，http协议缺省为json ,hessian2 序列化不支持反序列化 java.util.EnumSet ,kryo(官方版本报错,pingan版本不报错)
+
+#dubbo.protocol.heartbeat=60000
+
+dubbo.registry.address=zookeeper://127.0.0.1:2181
+#dubbo.registry.address=zookeeper://192.168.16.125:2181?backup=192.168.16.126:2181
+#dubbo.spring.config=classpath*:alibaba/dubbo/dubbo-client.xml,classpath*:alibaba/dubbo/dubbo-server.xml
+
 #for server
 pref.log.time.max.limit=500
 
-#--only connect specical IP,only for dev enviroment 
-dubbo.reference.dubboFacade.url= dubbo://127.0.0.1:20884
 
-
-dubbo-client.xml  接口方法参数类 implements Serializable
+dubbo-client.xml  
 <beans xmlns="http://www.springframework.org/schema/beans" 
 	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -4450,9 +4653,25 @@ dubbo-client.xml  接口方法参数类 implements Serializable
 	http://code.alibabatech.com/schema/dubbo 
 	http://code.alibabatech.com/schema/dubbo/dubbo.xsd"
 	default-autowire="byName">
-    <dubbo:reference id="dubboFacade"  interface="alibaba.dubbo.DubboFacade" check="false" retries="0"/> 
+    <dubbo:reference id="dubboFacade"  interface="alibaba.dubbo.server.DubboFacade" check="false" retries="0"/> 
+	<!-- 
+  	 直连的单个配置 ,和dubbo.properties不同的是,只对某个有效
+	 <dubbo:reference id="dubboFacade"  interface="alibaba.dubbo.server.DubboFacade" check="false" retries="0" url="127.0.0.1:20884" />
+	-->	
+	
+   <dubbo:application name="AppNameInXml"/>
+   <!-- 同  dubbo.application.name  -->
+   
+   <dubbo:registry address="zookeeper://127.0.0.1:2181" />
+   <!-- 同  dubbo.registry.address=zookeeper://127.0.0.1:2181    官方文档还可以注册到redis上  
+			register="true" 是否注册上zookeeper上,通过直连 
+			file="dubboregistry/op-baseinfo-provider.properties"  Dubbo缓存文件
+			 check="false" 半闭注册中心启动时检查
+   -->
+   
 </beans>
 
+dubbo-server.xml 接口方法参数类 implements Serializable
 <beans xmlns="http://www.springframework.org/schema/beans" 
 	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -4463,11 +4682,25 @@ dubbo-client.xml  接口方法参数类 implements Serializable
 	http://code.alibabatech.com/schema/dubbo/dubbo.xsd"
 	default-autowire="byName">	
 	
-	<dubbo:service interface="alibaba.dubbo.DubboFacade" ref="dubboFacdeImpl"/>
-	<bean id="dubboFacdeImpl"  class="alibaba.dubbo.DubboFacadeImpl" />
+ 
+	<dubbo:service interface="alibaba.dubbo.server.DubboFacade" ref="dubboFacdeImpl"/>
+	<!-- registry="$RegisterId" -->
+	
+	<bean id="dubboFacdeImpl"  class="alibaba.dubbo.server.DubboFacadeImpl" />
+	
+	<!--  
+ 	dubbo.protocol.name=dubbo
+	dubbo.protocol.port=20884
+    dubbo.protocol.serialization=hessian2	
+    # dubbo协议缺省为hessian2，rmi协议缺省为java，http协议缺省为json ,hessian2 序列化不支持反序列化 java.util.EnumSet 
+	kryo(官方版本报错,pingan版本不报错)
+	
+  	<dubbo:protocol name="dubbo" port="20884"  serialization="kryo"/>
+  -->
+  
 </beans>
 
-
+可以使用 telent 127.0.0.1 28004 连接上用 ls看所有提供服务
 
 ------------dubbo    Thrift(代码生成)  
 dubbo 协议适合   小数据量大并发,netty3.2.2 + hessian -3.2.1
@@ -4479,7 +4712,7 @@ dubbo 协议适合   小数据量大并发,netty3.2.2 + hessian -3.2.1
 <dependency>
   <groupId>org.apache.thrift</groupId>
   <artifactId>libthrift</artifactId>
-  <version>0.9.2</version>
+  <version>0.10.0</version>
 </dependency>
 
 
@@ -4627,6 +4860,92 @@ public class MyRequest {
 	private List<MyBody> body;
 }
 
+
+-------------JSON  已经有 javax.json
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
+JSONArray array = new JSONArray();
+		
+JSONObject obj = new JSONObject();
+obj.put("id", 100);
+obj.put("username",URLEncoder.encode("李","UTF-8"));
+obj.put("password", 123);
+array.add(obj);
+
+JSONObject obj1 = new JSONObject();
+obj1.put("id", 101);
+obj1.put("username",true);
+obj1.put("password", 123);
+array.add(obj1);
+System.out.println(array.toString());
+
+
+JSONObject jsonObject = JSONObject.fromObject(ua);
+System.out.println("java Object to json : "+ jsonObject); 
+
+JSONArray jsonArrasy = JSONArray.fromObject(ua);
+System.out.println("java Array to json : "+ jsonArrasy); 
+
+============FasterXml
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-core</artifactId>
+  <version>2.8.9</version>
+</dependency>
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+public class UserJson {
+
+	@JsonProperty("userName")
+    private String userName;
+	
+	@JsonProperty("joinDate")
+    private Date joinDate;
+	
+    @JsonIgnore
+    private String password;
+    
+    @JsonProperty("favorite")
+    private List<String> favorite;
+
+    @JsonProperty("order")
+    private OrderJson order;
+	
+	//可BigDecimal类型
+	
+	//getter/setter
+}
+
+//--- 对象 到 JSON字串
+ObjectMapper mapper = new ObjectMapper();
+mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user);
+System.out.println(jsonString);
+
+//--- JSON字串 到 对象
+ObjectMapper mapper = new  ObjectMapper();
+mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);//反序列化遇到未知属性不报异常
+mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);//允许使用未带引号的字段名
+mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true); //允许使用单引号
+String str= json2String();
+UserJson user=mapper.readValue(str, UserJson.class);
+
+============alibaba JSON 用 FasterXml
+<dependency>
+	<groupId>com.alibaba</groupId>
+	<artifactId>fastjson</artifactId>
+	<version>1.2.38</version>
+</dependency>
+
+import com.alibaba.fastjson.JSON;
+
+String jsonString=JSON.toJSONString(user);
+UserJson user=JSON.parseObject(str,UserJson.class);
+	
 ============ZkClient
 <dependency>
 	<groupId>com.101tec</groupId>
@@ -4696,4 +5015,60 @@ zkClient.unsubscribeDataChanges(childPath, changeListender);
 zkClient.unsubscribeChildChanges(rootPath, childListender);
 
 System.out.println("所有建立的节点删除了");
+
+============Shiro + Redis 做登录
+
+============FastDFS
+跟踪服务和存储服务，跟踪服务控制，调度文件以负载均衡的方式访问；存储服务包括：文件存储，文件同步，提供文件访问接口，同时以key value的方式管理文件的元数据
+跟踪和存储服务可以由1台或者多台服务器组成，同时可以动态的添加，删除跟踪和存储服务而不会对在线的服务产生影响
+存储系统由一个或多个卷组成
+一个卷可以由一台或多台存储服务器组成
+一个卷下的存储服务器中的文件都是相同的，卷中的多台存储服务器起到了冗余备份和负载均衡的作用
+在卷中增加服务器时，同步已有的文件由系统自动完成，同步完成后，系统自动将新增服务器切换到线上提供服务
+
+javaClient 请求 -> Tracker -> 查找可以用的Storage -> 返回javaClient Storage IP port->javaClient 连 Storage
+
+返回串格式   /组名/磁盘名/目录/文件名
+
+Class clazzClientGlobal=Class.forName("org.csource.fastdfs.ClientGlobal");
+Constructor construct=clazzClientGlobal.getDeclaredConstructors()[0];
+construct.setAccessible(true);
+Object obj=construct.newInstance(null);
+ClientGlobal global=(ClientGlobal)obj ;// Spring注入反射实例化
+
+ global.setP_g_connect_timeout(2000);
+ global.setP_g_connect_timeout(2000);
+ global.setP_g_charset("UTF-8");
+ global.setP_g_tracker_http_port(8080);
+ global.setP_g_anti_steal_token(false); 
+ global.setP_g_secret_key("");
+ //global.setP_tracker_servers("172.16.35.35:22122");//多个以,分隔
+  global.setP_tracker_servers("172.16.37.41:22122,172.16.37.40:22122");//测试OK
+  global.init1();
+StorageClient1 stclient=new StorageClient1(global);//Spring注入
+byte[] byteArray =getExcelArray();
+Date now=Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+NameValuePair[] meta_list = new NameValuePair[]{
+		  new NameValuePair("fileName", "excel数据.xls"),
+		  new NameValuePair("extName", "exls"),
+		  new NameValuePair("size",  byteArray.length+""),
+//		  new NameValuePair("md5", ""), 
+//		  new NameValuePair("contentType", ""),
+		  new NameValuePair("uploadDate", (new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")).format(new Date())), 
+		  new NameValuePair("creator", "lisi")
+};
+ 
+
+Lock lock=new ReentrantLock();
+try{
+	lock.tryLock(30, TimeUnit.SECONDS);
+	//不能两个文件同时上传，如jquery , fileupload插件，当<input type="file" multiple >多选时就会两个同时上传报错
+   String filePath= stclient.upload_file1(byteArray, "xls", meta_list);
+   System.out.println(filePath);
+}finally {
+	lock.unlock();
+}
+
+
+
 

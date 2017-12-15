@@ -14,13 +14,13 @@ username/password: zhanggl@shtel.com.cn/shanghaitel
 oracle EBS产品下载网页
 edelivery.oracle.com
 E-Delivery
+ 
 
-http://www.oracle.com/pls/db121/homepage   oracle-12.1在线文档
-Getting Started -> Supporting Documentation -> Reference  初始参数,数据字典和动态性能视图
-Getting Started -> Supporting Documentation ->Error Messages 
+---- oracle-12.2在线文档
+左则Task中 Development-> SQL and PL/SQL 组中的 SQL Language Reference(所有函数) , PL/SQL Language Reference 
+左则Task中 Development-> SQL and PL/SQL 组中的 PL/SQL Packages and Types Reference 有package参考
+左则Task中 Administration-> Most Popular 组中的 Error Messages  ,  Reference(初始参数,数据字典和动态性能视图 )
 
-Application Development->SQL and PL/SQL->SQL Language Reference   有函数,create xxx(展开所有的查找)
-Application Development->SQL and PL/SQL->PL/SQL Language Reference 
 
 --只删建立的数据库,dbca报错时
 oradim -delete -sid orcl,删SID服务
@@ -57,34 +57,58 @@ C:\oraclexe\app\oracle\product\11.2.0\server\config\scripts\postDBCreation.sql�
 所以也可调用 call  dbms_xdb.sethttpport('5500'); 来修改端口,立即生效,只在内存中修改,但重启后恢复原来的值
 
 
-1.开始->程序->Oracle Database 11g Express Edition->入门 http://127.0.0.1:5500/apex/f?p=4950(修改端口),提示Oracle Database XE 11.2界面
-	http://127.0.0.1:5500/apex/ 后在workspace下的administration-> Application Express Internal Administration 进入的是?p=4550不是一个(这个不能登录)
+1.开始->程序->Oracle Database 11g Express Edition->入门 http://127.0.0.1:5500/apex/f?p=4950 不要登录 (修改端口),提示Oracle Database XE 11.2界面
+	http://127.0.0.1:5500/apex/ Oracle Application Express界面中登录要填workspace, 在workspace标签的administration-> Application Express Internal Administration 进入的 登录不要workspace 
 点Applicaton Express,没要workspace输入system用户及密码->
 DataBase username中单选use existing 选择 hr
 	Applicaton Express username中输入myhr
 	Password中输入myhr
 	Create Workspace铵钮
 
-2. http://127.0.0.1:5500/apex 在Oracle Application Express界面中多了一个workspace写hr(数据库用户名),用户名(apex的用户)密码使用myhr就可登录,是apex的管理员,还可建立apex的普通用户
+2. http://127.0.0.1:5500/apex  workspace写hr(数据库用户名),用户名(apex的用户)密码使用myhr就可登录,是apex的管理员,还可建立apex的普通用户
 
 
 允许远程访问Oracle Application Express，用sqlplus执行 EXEC DBMS_XDB.SETLISTENERLOCALACCESS(FALSE); //文档上说的
 
 
 =======================OracleXE-11gR2 linux x64 rpm
+
+yum install bc.x86_64
+
+
 也有系统要求
 安装成功 后要以 root 运行  
 /etc/init.d/oracle-xe configure   #设置em端口默认8080改5500,监听端口,sys密码,是否开机自启,创建数据库/u01/app/oracle/oradata/XE
+
+ 会自动建立oracle用户,dba组, 主目录 /u01/app/oracle/ 
+ 
 chkconfig oracle-xe  off 
 
-/u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh 有环境变量
+/u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh 有环境变量  
+
+
 包括下面内容
 export ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
 export ORACLE_SID=XE
+export NLS_LANG=`$ORACLE_HOME/bin/nls_lang.sh`
+export PATH=$ORACLE_HOME/bin:$PAT
+
+ 
+alias sqlplus='rlwrap sqlplus'
+alias rman='rlwrap rman'
+
+locale charmap 来读系统字符集
 
 XE版只能有一个实例
 chown -R oracle:oinstall /u01
-/etc/init.d/oracle-xe start   
+
+
+/etc/init.d/oracle-xe start     提示用 systemctl
+.  /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
+sqlplus  sys/sys as sysdba
+startup
+
+
 ps -ef | grep ora有进程
 时入sqlplus前检查 echo $ORACLE_SID
 
@@ -93,7 +117,8 @@ sqlplus / as sysdba
 create  pfile='/u01/app/oracle/product/11.2.0/xe/dbs/initxe.ora' from spfile='/u01/app/oracle/product/11.2.0/xe/dbs/spfileXE.ora'
 startup  pfile='/u01/app/oracle/product/11.2.0/xe/dbs/initxe.ora'
 
-lsnrstl start后等一会就有5500端口监听  http://localhost:5500/apex 菜单中也有
+lsnrctl start  有1521,5500端口监听  http://localhost:5500/apex 菜单中也有
+用sqlplus system/sys@XE 可以登录
 
 ------ 
 会建立oracle 帐户,要手工设密码才可用
@@ -497,8 +522,9 @@ IMP aa@instance_name FULL=Y INDEXES=N FILE=path  IGNORE=Y
 exp system/manager inctype=complete file=040731.dmp
 2）、“增量型”增量导出 
 备份上一次备份后改变的数据，比如： 
-	exp system/manager inctype=incremental file=040731.dmp
-
+	exp system/manager inctype=incremental file=040731.dmp  
+	可以远程连接
+	exp system/manager@127.0.0.1:1521/XE rows=n  file=D:/temp/XE_oracle11.2_full.dmp
 
 
 exp parfile=my.par  ##参数 存文件中
@@ -574,6 +600,7 @@ xe.__streams_pool_size=0
 # set ORACLE_HOME=D:\instantclient_11_1
 # set TNS_ADMIN=D:\instantclient_11_1
 # set NLS_LANG=SIMPLIFIED CHINESE_CHINA.ZHS16GBK
+# set LD_LIBRARY_PATH on Linux, or PATH on Windows
 #sqlplus pin/pin@192.168.1.66:1521/orcl  OK
 #sqlplus pin/pin@//192.168.1.66:1521/orcl  OK
 # windows OK,linux or solaris　export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ORACLE_HOME OK
@@ -1177,3 +1204,39 @@ scsi1:1.deviceType = "disk"
 scsi1:2.deviceType = "disk"
 scsi1:3.deviceType = "disk"
 ---
+
+
+
+
+一、查询执行最慢的sql 
+	
+select *
+ from (select sa.SQL_TEXT,
+        sa.SQL_FULLTEXT,
+        sa.EXECUTIONS "执行次数",
+        round(sa.ELAPSED_TIME / 1000000, 2) "总执行时间",
+        round(sa.ELAPSED_TIME / 1000000 / sa.EXECUTIONS, 2) "平均执行时间",
+        sa.COMMAND_TYPE,
+        sa.PARSING_USER_ID "用户ID",
+        u.username "用户名",
+        sa.HASH_VALUE
+     from v$sqlarea sa
+     left join all_users u
+      on sa.PARSING_USER_ID = u.user_id
+     where sa.EXECUTIONS > 0
+     order by (sa.ELAPSED_TIME / sa.EXECUTIONS) desc)
+ where rownum <= 50;
+
+二、查询次数最多的 sql 
+	
+select *
+ from (select s.SQL_TEXT,
+        s.EXECUTIONS "执行次数",
+        s.PARSING_USER_ID "用户名",
+        rank() over(order by EXECUTIONS desc) EXEC_RANK
+     from v$sql s
+     left join all_users u
+      on u.USER_ID = s.PARSING_USER_ID) t
+ where exec_rank <= 100;
+ 
+ 

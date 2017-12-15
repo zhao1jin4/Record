@@ -92,6 +92,8 @@ VLOOKUP(要查找的单元格,要查找的矩形区,如果找到显示矩形区�
 principal  本金
 
 点链接进入其它标签页时,如要返回 按 alt + 左键
+如在一个单元格中输入回车， 按 alt + 回车
+
 
 第一个sheet连接到第二个sheet指定单元格,
 1.先选中第二个sheet的指定单元格,如D10
@@ -101,6 +103,8 @@ principal  本金
 =IF($F$2="T",18*D2,0)
 round(14.5,1) 四舍五入函数
 roundup(14.3,0) 向上舍入函数
+
+
 --------PowerPoint
 制作播放菜单
 	1.选中"菜单项"->自定义动画->进入-淡出,右击效果->计时...->选 单击下列对象时启动效果 ,并选"菜单"
@@ -113,14 +117,16 @@ office 2007 “<程序名> 选项”，然后依次单击“信任中心”、�
 shilft+del =copy
 shilft+insert=paste
  
-----LibreOffice
-Writer 
+========LibreOffice
+---Writer 
 
-插入->目录和索引
+插入->目录和索引->内容目录,索引及文献目录
+视图->导航(F5) ->点打开/关闭列表框 可以看目录
+
 编辑->追踪修订->开始记录更改   接受
 
 
-Calc 问题
+---Calc 问题
 如果过滤一列中的值,选择其它的列复制时会把过虑的也复制上
 
 
@@ -199,16 +205,17 @@ firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下�
 
 firefox27可用的插件
 	FireBug-1.12.7 (加大字体,tools ->web developer->Firebug->text size->increase text size)
-	DownThemAll-2.0.16,ColorZilla-2.8
+	DownThemAll-2.0.16,ColorZilla-2.8  新firefox57 不兼容了？？？？
 	FireFTP-2.0.18(Connection标签选择SFTP)
 	FireSSH-0.94.4(在Tools->Web Developer下,ls --color 才变色,ls 中文是根据系统字符集自动匹配view->character encoding来查看,手工设置LANG无效)
 	chmfox-2.9(file->open)
 	cacheviewer-0.7.6(Tools->Web Developer->CacheViewer)
-	HttpRequester 
+	HttpRequester  新firefox57 不兼容了？？？？
 	EPUBReader  用于读epub文件 mongodb doc   
-	
+	RESTClient  发POST请求
 	--黑客工具
-	Poster-3.1 发POST请求 	有Base64 编码	tools->poster  (可以设置HTTP头,注意RefControl可以覆盖poster),必须在单独界面发起
+	Poster-3.1 发POST请求  新firefox57 不兼容了？？？？
+		有Base64 编码	tools->poster  (可以设置HTTP头,注意RefControl可以覆盖poster),必须在单独界面发起
 	Modify Headers-0.7.1.1 		可以个性Http头, tools->web developer->Modify Headers,设置后start
 		RefControl 	设置http请求头referer的值tools-> RefControl options..    
 		User Agent Switcher 个性本地浏览器	tools -> default user agent     手机开发
@@ -253,7 +260,7 @@ about:support 查看有 browser.newtab.url 有值 ,在about:config 中删除其�
 	检查浏览器插件
 	
 ctrl+shift+P 以隐身(Private)模式上网,不会保留浏览历史和Cookie
-
+Tools->options->Privacy  -> remove individual cookies ->可以看到Cookie
 
 -------------Chrome
 下载URL
@@ -261,6 +268,7 @@ ctrl+shift+P 以隐身(Private)模式上网,不会保留浏览历史和Cookie
 https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg  mac最新版本
 https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm  linux 最新版本
 
+win64 最新版本
 https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B8CBF8931-A5A5-3DF2-204C-0834AED5FC82%7D%26lang%3Den%26browser%3D3%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3Dx64-stable-statsdef_1%26installdataindex%3Ddefaultbrowser/update2/installers/ChromeStandaloneSetup64.exe
  
 
@@ -281,6 +289,8 @@ Chrome查看版本的方法  chrome://version
 的URL中输入 about:inspect  (也可 工具->检查设备),要可以看到自己的手机(android手机打开  USB Debugging 模式,windows下安装USB Driver,都装Chrome)
 
 ctrl+shift+N 以隐身模式上网,不会保留浏览历史和Cookie
+Settins-> Privacy and Security->Content Settings->Cookies-> 在All Cookies and Site data组中可以看到Cookie
+Settins-> Download 可以打开 Ask where to save each file before downloading
 
 插件   应用组的 Postman   https://www.getpostman.com/  安装后是一个单独的程序
 
@@ -327,7 +337,7 @@ Document->Auto Wrap自动换行
 
 ---------Notepad++
 Notepad++  ->setting->Gerneral->Tab Bar 中->选中 show close button on each tab
-Notepad++  ->setting->backup ->取消 Remeber current session for next lanuch
+Notepad++  ->setting->MISC. ->取消 Remeber current session for next lanuch
 Notepad++ 在windows  下替换换行符 , 查找\r\n  , 单选Extended(\n,\t,\r)
 Notepad++ 对字体大小可以按ctrl+拖动滑轮来设置
 Notepad++ 工具栏中的 Function List按钮,Spell Check 按钮
@@ -397,14 +407,17 @@ alt+1 ,alt+2来切换时间切换桌面
 右击通知区图标->Window Catalogue->右击任务->Move->可以把一个桌面的任务移动另一个桌面上
  
 	
-----Fences 2  桌面图标分组
+----Fences 3  桌面图标分组
 	安装不要选择ObjectDock
-	双击桌面 显示/隐藏  分组图标,不能像手机一样的分组
+	双击桌面 显示/隐藏  分组图标
 	可右击文件夹->show this fold on desktop
 	可在桌面拖出一个区域->create fence here
+	双击标Fences题栏可以变成自动收缩
 	
-	如果拖一个fecen到左边界,或右边界会把当前fencen 移动另一个新的空的桌面图标组(Desktop Pages)
-	目前不知道当前在哪个方向,哪几个桌面,可以在Desktop Pages中取消 Enable,来禁用这个功能
+	如果拖一个fecen到左边界,或右边界会把当前fencen 移动另一个新的空的桌面图标组(Desktop Pages),下方有分页的小点
+	可以在设置中Desktop Pages组中取消 Enable,来禁用这个功能
+	
+	
  
 ZIP/RAR分卷压缩->选择文件右击->添加到压缩文件...->分卷压缩,字节->输入大小
 只有NTFS文件系统才支持大于4GB 的文件,FAT32不可以用

@@ -1040,6 +1040,7 @@ $ make install
 TortoiseSVN 清记忆密码，可以右键出SVN菜单
 Settings->Saved Data->Authentication data,Clear 
 
+svn://协议 客户端 使用silkSVN可以用,但使用Visual SVN就不行
 
 
 运行 svnserve -d (daemon)
@@ -1170,7 +1171,7 @@ http.conf文件
  svn://host.example.com/usr/local/repositories/project1
  或者用
  $ svnserve -d -r /usr/local/repositories 后就可以用
- $ svn checkout svn://host.example.com/project1　--username lisi
+ $ svn checkout svn://host.example.com/project1　--username lisi  --password
  	或者用这样的形式　svn co svn://lisi@localhost:3690/testProject
 
 
@@ -1862,7 +1863,39 @@ server {
         proxy_pass     http://backend;
     }
 }
+================FastDFS-5.08
 
+
+
+	logger.h 是依赖 libfastcommon 下载安装 ./make.sh  ./make install
+./make.sh  
+./make install
+cp /etc/fdfs/tracker.conf.sample /etc/fdfs/tracker.conf
+修改 base_path=/opt/fastdfs/tracker
+默认 port=22122
+默认http.server_port=8080
+
+# /usr/bin/fdfs_trackerd /etc/fdfs/tracker.conf restart   
+没有监听8080 ????
+
+cp /etc/fdfs/storage.conf.sample /etc/fdfs/storage.conf
+修改 base_path=/opt/fastdfs/storage
+默认 port=23000
+
+# /usr/bin/fdfs_storaged /etc/fdfs/storage.conf restart
+
+cp /etc/fdfs/client.conf.sample  /etc/fdfs/client.conf 
+修改 base_path=/opt/fastdfs/client
+	 tracker_server=127.0.0.1:22122
+
+# /usr/bin/fdfs_test /etc/fdfs/client.conf upload /usr/include/stdlib.h
+
+# /usr/bin/fdfs_monitor <client_conf_filename>
+
+
+---
+http.anti_steal.check_token=true
+http.anti_steal.secret_key=123456
 
 ================linux NIS  类似   Windows  domain 
 要有下面的rpm包
@@ -1905,3 +1938,382 @@ Coreseek 带有中文分词
 CentOS 最新版本 7
 
 
+
+
+
+
+
+============= GoldenGate  
+ 可 Oracle MySQL 间的数据复制,
+ 
+ Oracle数据库自身没有导出csv这种纯文本格式文件的功能,sqlplus spool功能是工具提供的(网上有人自已写存储过程) ,有sqlldr导入csv功能
+ 还有Studio 工具，和for Big Data是把各种数据库中的数据导入到大数据产品中 
+ 
+ 从源数据库 把数据导出文件中 (能过日志文件,导出的动作叫Capture，文件叫Trail) 
+ trail文件通过网络传到目标机器导入数据库中 (导入的动作叫Delivery) 
+ 
+ 可把多方向来的数据放在一个库
+ 也可把一个库分发到多个库
+ 也可三个库做环式复制
+ 
+ 
+ 
+
+----------------------------- 安装  GoldenGate  12.3.0.1  Oracle 端
+ ./runInstaller 要求有 图形界面
+ 
+ mkdir /u02/goldenGateOracle   		 // 如放/u01报过和Oracle相同目录
+ chown ogg:ogg /u02/goldenGateOracle
+ 
+ 复制示例 按注释提示修改 
+cp  response/oggcore.rsp  myogg.rsp
+vi  myogg.rsp
+	#注释提示有不让修改的Do not change
+	  INSTALL_OPTION=ORA11g
+	  SOFTWARE_LOCATION=/u02/goldenGateOracle
+
+	  START_MANAGER=true  (如为true,下面两个要设)
+	  MANAGER_PORT=2323    (好像没用)
+	  DATABASE_LOCATION=/u01/app/oracle/product/11.2.0/xe
+	  
+	  INVENTORY_LOCATION=/u02/goldenGateOracle/inventory    (最好不放 SOFTWARE_LOCATION 报目录不空的警告,使用了好像也行/)
+	  UNIX_GROUP_NAME=ogg   (INVENTORY目录的组名)
+
+su ogg
+. /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
+./runInstaller -silent -nowait -responseFile  /home/zh/ogg/myogg.rsp  命令行下安装 (必须绝对路径,必须普通用户,也可不加-silent)
+
+-nowait 会后台安装
+
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ORACLE_HOME/lib
+cd /u02/goldenGateOracle
+./ggsci 就可以用了
+GGSCI > CREATE SUBDIRS
+GGSCI > sh 调用系统命令
+ 
+GGSCI > edit params mgr   //会 vi   /u01/goldenGateOracle/dirprm/mgr.prm  写入 ,mgr是名字
+PORT 7809
+
+
+执行 start mgr
+
+GGSCI > view report mgr    //report是日志
+GGSCI > info  mgr
+GGSCI >help add replicat  //其实就是当前目录的help.txt
+
+netstat -anp | grep 7809
+ps -ef | grep mgr
+
+ 
+init-load相同数据库，可以用数据库自带工具
+  
+---源端 init-load  
+ 
+sqlplus > create user oggone identified by ogg 
+sqlplus >  grant connect,resource to oggone
+  
+ rlwrap  sqlplus oggone/ogg@xe  @demo_ora_create.sql  //自带的示例
+ rlwrap oggone/ogg@xe   
+  
+
+sqlplus > alter database add supplemental log data
+sqlplus > alter system switch logfile
+sqlplus >desc V$database;  有
+	 SUPPLEMENTAL_LOG_DATA_MIN 
+	 SUPPLEMENTAL_LOG_DATA_PK 
+	 SUPPLEMENTAL_LOG_DATA_UI	
+sqlplus > select supplemental_log_data_min from v$database;
+
+GGSCI > dblogin userid system@xe, password sys    格式 dblogin userid <> , password <>  
+//如和oracle是不同系统用户报ORA-12547: TNS:lost contact ,用户使用 system@xe 就可以了
+
+GGSCI > add trandata oggone.tcustmer      警告找不到 schematrandata 函数
+GGSCI > add trandata oggone.tcustord   
+GGSCI > help add trandata
+
+GGSCI > add extract einikk, sourceistable  // 名字为einikk  sourceistable表示初始数据的同步
+GGSCI > help add extract
+GGSCI > edit params einikk   //其实是 /u02/goldenGateOracle/dirprm/einikk.prm -- 是注释，最好不要有中文
+	-- this is comment
+	EXTRACT EINIKK
+	-- local db
+	USERID system@xe, PASSWORD "sys"   
+	-- 可以不用system用户
+	RMTHOST <remote-dest-ip>, MGRPORT <remport-dest-port7809>
+	RMTTASK REPLICAT, GROUP RINIKK
+	TABLE oggone.tcustmer;
+	TABLE oggone.tcustord;
+
+	
+
+文档上说必须启用archive ,archive log list 查
+SQL> shutdown immediate
+SQL> startup mount
+SQL> alter database archivelog;
+SQL> alter database open;
+
+GGSCI > start extract einikk //启动initial load
+GGSCI > view report einikk //看日志 有ERROR肯定不行  ，自己测试init-load成功
+
+
+ 
+---目的端 init-load
+ sqlplus 建用户,表结构,
+ ggsci 安装启动 start mgr
+ 
+ 
+SQL> create user oggtwo identified by ogg;          
+SQL> grant connect ,resource to oggtwo;
+SQL>  @demo_ora_create.sql
+GGSCI > CREATE SUBDIRS
+GGSCI > edit params mgr  
+	PORT 7809
+	ACCESSRULE, PROG *, IPADDR 172.16.*.*, ALLOW
+	-- 12c 新功能必须要加 
+GGSCI > start mgr
+
+-- 为initial load ,没有 trail文件 
+systemctl stop firewalld
+
+GGSCI > add replicat rinikk,specialrun   // rinikk 对应源端文件里的名
+GGSCI > edit params rinikk     // 其实是/u02/goldenGateOracle/dirprm/rinikk.prm
+	REPLICAT RINIKK
+	ASSUMETARGETDEFS  
+	-- 假设目标数据库表结构一致
+	USERID system, PASSWORD sys
+	-- 可以不用system用户
+	DISCARDFILE ./dirrpt/RINIKK.dsc, PURGE
+	MAP oggone.*, TARGET oggtwo.*;
+	
+
+--- 不知是否一定要
+sqlplus > alter database add supplemental log data
+sqlplus > alter system switch logfile
+ archive log list
+SQL> shutdown immediate
+SQL> startup mount
+SQL> alter database archivelog;
+SQL> alter database open;
+	
+源端做完 initail load 目标端可用 view report rinikk
+	
+
+----- 源端 数据同步官方叫Standard Reporting   源端不生成trail文件方试 
+ 
+add extract eorakk, tranlog, begin now, threads 1
+(delete extract eorakk 重建)
+info extract *
+edit params eorakk
+
+文件中写入
+	EXTRACT EORAKK
+	USERID system@xe, PASSWORD sys
+	-- 可以不用system用户
+	RMTHOST <remote-dest-ip>, MGRPORT <remport-dest-port7809>
+	RMTTRAIL ./dirdat/kk
+	--不同之处变  RMTTRAIL 文件名只能2个字母，系统会后加6个数字
+	TABLE oggone.tcustmer;
+	TABLE oggone.tcustord;
+ 
+目的机器上的文件在源端做
+ADD RMTTRAIL ./dirdat/kk, EXTRACT EORAKK, MEGABYTES 5 
+(delete RMTTRAIL ./dirdata/kk  没用??)
+源端和目的端关联起来
+
+info rmttrail *
+
+目的端是没有kk的文件
+
+start extract eorakk
+
+info all    如正常会变成RUNNING 
+info extract eorakk, detail  显示文件位置
+view report eorakk  如正常不会有错
+
+
+ 会读oracle目录中的 /u01/app/oracle/fast_recovery_area/XE/onlinelog/o1_mf_1_dzo6lnj5_.log 没权限，和oracle用户不是同一组 
+ (delete extract eorakk 重建) ,重启mgr,就可以了
+ (清目的端的ggchkptable  ,会影响目的端的启动)
+ 
+  
+目的端dirdat下有kk000000000文件
+
+
+----- 目的端 数据同步官方叫Standard Reporting
+
+edit params ./GLOBALS
+加入
+CHECKPOINTTABLE system.ggchkptable
+
+表不存下面创建
+dblogin userid system, password sys
+add checkpointtable  如果失败 ，说明修改GLOBALS文件，要退出ggsci再登录
+(DELETE CHECKPOINTTABLE )
+
+add replicat rorakk, exttrail ./dirdat/kk   指明从源端的kk文件  
+
+
+edit params rorakk
+文件中写入
+	REPLICAT RORAKK
+	USERID system, PASSWORD sys
+	-- 可以不用system用户
+	HANDLECOLLISIONS
+	ASSUMETARGETDEFS
+	DISCARDFILE ./dirrpt/RORAKK.dsc, PURGE
+	MAP oggone.tcustmer, TARGET oggtwo.tcustmer;
+	MAP oggone.tcustord, TARGET oggtwo.tcustord; 
+
+start replicat rorakk
+info all  如RUNNING表示启动成功
+
+如报 ERROR  OGG-00446  No data selecting position from checkpoint xxxx
+info rorakk 会看到 RBA 的值 和 文件名的序号  
+alter replicat rorakk, extseqno <文件名的序号从0开始>, extrba <RBA 的值>
+第一次就是
+alter replicat rorakk, extseqno 0, extrba 0 
+
+
+源端insert记录commit后，目的端也会有记录，自己测试成功 
+
+---其它
+RBA (Relative Bytes Address)  相对于文件头的偏移字节数
+
+
+GoldenGate的checkpoint 不同于Oracle的checkpoint
+GoldenGate的checkpoint 用于记录位置，当停机时，下次开机时还可以继续读未同步数据
+
+
+info einikk, showch (ch=checkpoint)
+info eorakk, showch
+	在 Log Read Checkpoint 组中有显示 Seqno 9 表示Oracle的
+	select group#,sequence#,status ,archived from V$log 
+	显示9号是current状态
+
+	日志文件在哪 select group#,type,member from v$logfile;  11gXE版本是在 /u01/app/oracle/fast_recovery_area/XE/onlinelog/o1_mf_开头的文件 
+	select sequence#,name  from V$archived_log; 11gXE 版本是在  /u01/app/oracle/fast_recovery_area/XE/archivelog/
+	
+	Read Checkpoint #1 	其中#1表示线程号
+
+	Startup Checkpoint (starting position in the data source):
+
+
+	Recovery Checkpoint (position of oldest unprocessed transaction in the data source):
+		SCN: 0.592464 (592464)
+		Oracle SCN号 System Change NO   ,可以把SCN号转换为时间
+		select to_char(scn_to_timestamp(592464),'YYYY-MM-DD HH24:MI:SS') from dual;
+
+		insert into tcustmer values('li' 'zhaojin','shanghia','SH');
+		select start_scn from v$transaction  ; 当有事务运行时可查SCN号
+		594725
+		
+	  linux命令 hexdump -Cv -n 8192  dirchk/EORAKK.cpe > EORAKK.dump 
+		-n 指定只对文件前部分大小做分析，防止文件过大
+		分析goldenGate的chekpoint文件  ,生成的文件像UltraEdit打开二进制样式
+		start_scn 值594725转换成16进制 0x 09 13 25 再把每个字节8位长度为单位即两个16进制数,反排序 0x 25 13 09
+		字节的存储方式Big and Little Endian,一般是小端Little Endian，低位字节(目前内存里在右边)放在左边,因书写从左向右
+		在EORAKK.dump 文件中可以找到25 13 09 数据
+	
+	Write Checkpoint #1  组中的 Sequence #: 0 表示trail文件两个字母后面的序号
+
+	select name,open_mode,force_logging,supplemental_log_data_min from v$database;
+	alter database force logging ;  就算大量数据操作 no loging也没用
+	
+	
+	如不使用system用户，单独建立表空间，两端都做
+	create tablespace goldengate datafile '/u01/app/oracle/oradata/XE/goldengate.dbf' SIZE 100m AUTOEXTEND ON ;
+	create user oggadmin identified by oggadmin default tablespace goldengate;
+	grant connect, resource,dba  to oggadmin;   //dba有点大,但不知道到底要什么权限
+	  
+	@role_setup.sql 提示输入schema,oggadmin
+	提示 GRANT GGS_GGSUSER_ROLE TO <loggedUser>
+	GRANT GGS_GGSUSER_ROLE TO oggadmin
+	
+	在参数文件中的密码也可以加密存储
+	  
+----- 源端 数据同步官方叫Standard Reporting 2  源端生成trail文件方试 , 带Data Pump
+edit params ex1
+	EXTRACT ex1
+	USERID oggadmin@xe, PASSWORD oggadmin
+	EXTTRAIL /u02/goldenGateOracle/dirdat/ex
+	TABLE oggone.*;
+	
+edit params dp1 (data pump进程)	
+	EXTRACT dp1
+	USERID oggadmin@xe, PASSWORD oggadmin
+	RMTHOST <remote-dest-ip>, MGRPORT <remport-dest-port7809>
+	RMTTRAIL /u02/goldenGateOracle/dirdat/rt
+	TABLE oggone.*;
+dblogin userid oggadmin@xe, password oggadmin
+
+add trandata oggone.tcustmer   
+add trandata oggone.tcustord 
+
+add extract ex1, tranlog,begin now
+add exttrail /u02/goldenGateOracle/dirdat/ex,EXTRACT ex1  关联起来
+
+add extract dp1,EXTTRAILSOURCE /u02/goldenGateOracle/dirdat/ex
+add RMTTRAIL  /u02/goldenGateOracle/dirdat/rt , extract dp1  远端和本地关联起来
+ls dirdat
+start mgr
+start * 除mgr外的所有启动
+ls dirdat 有文件了
+strings dirdat/ex000000 | grep    二进制文件中显示可打印字符
+
+
+----- 目标端 数据同步官方叫Standard Reporting 2
+edit params rt1  
+	REPLICAT rt1
+	USERID oggadmin@xe, PASSWORD oggadmin 
+	-- HANDLECOLLISIONS
+	ASSUMETARGETDEFS
+	DISCARDFILE /u02/goldenGateOracle/dirrpt/rt1.dsc, PURGE
+	MAP oggone.*, TARGET oggtwo.*; 
+
+edit params ./GLOBALS
+	GGSCHEMA oggadmin
+	CHECKPOINTTABLE oggadmin.checkpointtable
+	
+select sid,username,program from V$session where username is not null;
+
+GGSCI>dblogin userid oggadmin@xe, password oggadmin
+GGSCI>add checkpointtable oggadmin.checkpointtable
+
+add replicat rt1,exttrail /u02/goldenGateOracle/dirdat/rt, checkpointtable oggadmin.checkpointtable
+info all
+ls dirdat
+start mgr
+start replicat rt1  (可能之前源端要先启)
+ls dirdat 有文件了
+ 
+strings dirdat/rt000000 | grep    二进制文件中显示可打印字符
+ 
+-----   2 部分   自己手工做测试成功 
+
+
+
+----------------------------- 安装 GoldenGate  12.3.0.1  MySQL 端
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

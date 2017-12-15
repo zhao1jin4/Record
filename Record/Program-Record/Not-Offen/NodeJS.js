@@ -25,7 +25,9 @@ console.dir(process)//显示process对象,有很多信息
 
 NPM (像linux的rpm)
 npm install mongodb
-npm install -g mongodb //安装为一个全局使用的模块,设置NODE_PATH环境变量为C:\Users\zhaojin.li\AppData\Roaming\npm\node_modules
+npm install -g mongodb //安装为一个全局使用的模块,
+ 默认安装在 C:\Users\zhaojin\AppData\Roaming\npm\node_modules  
+//设置NODE_PATH环境变量为
 //----未测试
 npm update packname
 npm uninstall packname 

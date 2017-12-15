@@ -215,7 +215,7 @@ ${x} Anything.
 	</#if>
 	,${item}<br/>
 </#list>
-<#/if>
+</#if>
 
  
 @SessionAttributes({SessionKey.PAGE_SIZE})//将ModelMap中的  PAGE_SIZE 放在session中

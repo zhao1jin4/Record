@@ -137,9 +137,6 @@ C:\WINDOWS\system32\drivers\etc  里面有services,hosts文件
 桌面属性->设置->[显示]栏有两个可选择 是对双显示器用的吧
 
 
-开启远程桌面功能：
-在我的电脑上右键，属性》远程选项卡，在启用这台计算机上的远程桌面打勾。
-
 
 
 (一个硬盘 主分区（包括扩展分区）的最大个数是四个)
@@ -447,7 +444,7 @@ Program Files 写时可用 PROGRA~1 来替代
 
 window 键 +r =>msconfig 配置开机启动 (win10 在任务管理器中)
 msconfig中[启动中]项中有所的 注册表项CU=CURRENT_USER,LM=LOCAL_MACHINE,Wow6432Node应该是在64位机上为了兼容32位
-HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run (win10 同任务管理器中)
 HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
 HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run
 
@@ -763,7 +760,9 @@ shutdown /t 120 /s  ,两分钟后关机
 运行 cmd/notepad/wordpad/mspaint/regedit/explorer 命令
 运行 gpedit.msc/services.msc 
 运行  msconfig 配置开机启动(windows 10在任务管理器)
-运行 mstsc 远程桌面  使用RDP协议
+运行 mstsc 远程桌面 (service.msc中有Remote Desktop Services) 使用RDP协议  右击我的电脑 -> 属性 -> 远程设置 ->选中 允许远程协助连接这台计算机
+							防火墙，win10 windows Defender -> 防火墙和网络保护->允许应用通过防火墙 选中 远程协助 ，选 专用网络 和 公有网络  但还是不行？？？
+							
 运行 dxdiag 就可以看到显卡信息
 运行 wmic命令
 
@@ -801,7 +800,7 @@ Key：该密码用于对无线网进行安全的WPA2加密,至少8位
 手机连接时要手工设置IP为192.168.168.2,网关为192.168.168.1
 
 win10 启用FTP服务器
-在控制面板->程序 -> 启动关闭windows服务->Internet Information Service 中 要选择IIS管理控制台 和 FTP的全部服务
+在控制面板(进入方式 设置->应用->下拉到底的 程序和功能)->程序 -> 启动关闭windows服务->Internet Information Service 中 要选择IIS管理控制台 和 FTP的全部服务
 在计算机管理->服务和应用程序->IIS 管理器->右侧展开 右击网站->增加FTP站点-> 起名,设置目录,无SSL->身份验证选择基本,授权选择所有用户,权限选读和写
 
 ftp 命令
@@ -912,7 +911,11 @@ TASKLIST | find /C ".exe"   ,/C 表示计数
 TASKLIST  /FI "SESSIONNAME eq Services"
 TASKLIST  /FI "SESSIONNAME eq Console"
 
-win10自带Hyper-V 但要启用(像启用 IIS 一样,控制面板->添加删除程序->启用特性中),在开始-> windows Accessories->Administrative Tools->Hyper-V Manager
+win10自带Hyper-V 但要启用(像启用 IIS 一样,开始->windows 系统-> 控制面板->添加删除程序->启用特性中),在开始-> windows Accessories->Administrative Tools->Hyper-V Manager
+
+telent win10 默认没有,要使用 要在启用/关闭windows功能才安装telnet 客户端
+
+设置 -> 个性化 -> 主题 -> 桌面图标设置->可以选上 控制面板
 
 ===========
 

@@ -29,7 +29,7 @@ tools->modle options->Model Settings中可打开Name/Code Case sentive区分大�
 1.右击工作区－>chick Model ..(f4)检查是否有错
 2.tools->generate Physical Data Model->选择数据库类型->ok  
 3.database->generate Database..->保存脚本，可设置一些不要输出
-
+也可以右击建立的表,物理模型->SQL Preview...  直接看Oracle脚本
 
 generate Physical Data Model后，左侧树中的data items文件夹有字段属性，可以重复使用（在code 相同的）
 Model ->data items... 可建立多个重用字段

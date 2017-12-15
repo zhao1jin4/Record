@@ -689,7 +689,11 @@ vim 和gedit 打开windows下的有中文GBK文件时,显示其它的怪字符
 
 ---SUSE cluster 
 
-openSUSE 最新leap-42.2
+leap-42.3  版本是稳定的发布版本 
+tumbleweed 版本是为希望有最新的包
+
+
+
 
 
 

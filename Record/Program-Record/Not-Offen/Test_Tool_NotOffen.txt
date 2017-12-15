@@ -1,5 +1,5 @@
 ﻿
-Bug Tracker 工具 Jira(Java),Mantis BT(PHP),BugZilla(Perl),HP QC(Quality Center)
+Bug Tracker 工具 Jira(Java 除了scrum 还有 Kanban),Mantis BT(PHP),BugZilla(Perl),HP QC(Quality Center)
 禅道 项目管理 和Bug (中英文)
 ======================loadRunner tuxedo=============================
 
@@ -182,9 +182,6 @@ HTTP1.1    ,file upload
 CLIENTS_RAMPUP_INC=1 第一秒增加一个用户
 URL=http://
 
-===============Charles 代理工具
-
-===============Curl-Loader
 
 使用libcurl库 来发请求
 openssl,libevent
@@ -256,6 +253,9 @@ AUT (Application Under Test) 是被测试的系统
 SUT (System Under Test) 和AUT 是一个意思
 
 QTP录只录制界面(鼠标,键盘的消息),LoadRunner录制的是客户端与与服务器的交互
+
+
+-------Github 热项目 静态页生成 Jekyll
 
 
 

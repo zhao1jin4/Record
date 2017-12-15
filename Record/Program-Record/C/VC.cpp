@@ -32,7 +32,28 @@ VS 2015 带的Anroid SDK 在 C:\Program Files (x86)\Android\android-sdk
 		把VisualStudio14重命名,把下载的离线MSDN解压在这有中文的,也可其它位置,这里修改提向解压目录,目录中有启动快捷方式
 	help->set help preference->lanch in help view (文档内容中英文和HelpView的界面语言相同)
 	
-	
+
+VS2017 下载离线版本 
+all features 用 vs_community.exe --layout c:\vs2017layout --lang en-US
+	可选的 zh-CN
+如ent版本会下Android开头(有Xamarin)的目录达10G  ,其它达20G
+vs_enterprise__1568944658.1507519638.exe  --layout E:\NEW\VS2017LayoutEnt_en-US --lang en-US
+删所有Android开头目录达10G
+删Cocoas2D,CPython,Microsoft.Azure,Microsoft.PythonTools,Unity3d,Xamarin,JavaJDK,Microsoft.Net.4.7以前的版本,Microsoft.Windows.81SDK , Anaconda 是一个 Python 发行版,GitV2
+
+
+C++ desktop development 用 				 vs_community.exe --layout c:\vs2017layout --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended --lang en-US 
+.NET desktop and Office development   用 vs_community.exe --layout c:\vs2017layout --add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Workload.Office --includeOptional --lang en-US 
+.NET web and .NET desktop development 用 vs_community.exe --layout c:\vs2017layout --add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Workload.NetWeb --add Component.GitHub.VisualStudio --includeOptional --lang en-US 
+
+离线安装
+如果下载使用
+vs_community.exe --layout c:\vs2017layout --add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Workload.NetWeb --add Component.GitHub.VisualStudio --includeOptional --lang en-US
+那么安装用
+c:\vs2017layout\vs_community.exe 		  --add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Workload.NetWeb --add Component.GitHub.VisualStudio --includeOptional
+
+ 
+
 	
 #pragma comment (lib, "glew32.lib") //cl编译器读.lib
 
@@ -56,10 +77,14 @@ en_visual_studio_2010_professional_x86_dvd_509727.iso\WCU\dotNetFramework\dotNet
 
 vs2015.ent_enu.iso\packages\dotNetFramework\dotNetFx-x86-x64-AllOS-ENU.exe  是 4.6版本 
 
-----------------------VS2010 工具使用
+----------------------VS2010 - 2015 工具使用
+Tools->options->Enviroment->General -> color theme :Dark
 
 可以像用world 一样 ctrl+拖动变动字体大小 (只针对当前文件)
-Tools->options->Enviroment->Fonts and Colors 设置Font:12
+Tools->options->Enviroment->Fonts and Colors 默认下拉选的是Text Editor 设置Font:12
+
+控制台字体 选Output window ,如菜单或者Solution Explorer要下拉选择Enviroment Font
+
 Tools->options->Text Editor->C/C++->在 Display中 选中 Line Numbers
 
 当输入 "->" 时有提示
@@ -69,6 +94,9 @@ Tools->options->Text Editor->C/C++->在 Display中 选中 Line Numbers
 
 格式化代码 ,ctrl+a 全选 edit->advance->format selection(ctrl+k,ctrl+F)
 注释 ,选择代码 edit->advance->comment和uncomment ,是使用 /* */的形式
+
+view -> Navigate Backward ctrl+-
+view -> Navigate Forward  ctrl+shift+-
 
 windows ->reset window layout
 Debug->windows->breakpoints
@@ -2753,6 +2781,81 @@ HRESULT UnRegisterCLSIDInCategory(REFCLSID clsid, CATID catid)
     if (FAILED(hr)) return hr;      
 
 http://msdn.microsoft.com/zh-cn/library/599w5e7x.aspx  ATL IE插件三角形教程
+
+=============edge 插件开发
+https://code.msdn.microsoft.com/How-to-add-a-Hello-World-4af3463b
+
+地址栏输入  about:flags
+开发者设置 ->选中 开发人员扩展功能(这可能让设备处于危险之中) 
+...按钮->扩展->加载扩展->选择目录 
+
+---manifest.json  文件 
+  
+{ 
+  "author": "Microsoft OCOS Team", 
+  "description": "Get information of the active tab.", 
+  "icons": 
+    { 
+      "48": "icons/microsoft.png", 
+      "96": "icons/microsoft-96.png" 
+    }, 
+  "manifest_version": 2, 
+  "name": "HelloWorld", 
+  "version": "1.0", 
+  "permissions": [ 
+    "tabs" 
+  ], 
+  "browser_action": { 
+    "default_icon": { 
+      "30": "icons/microsoft-30.png" 
+    }, 
+    "default_title": "HelloWorld", 
+    "default_popup": "GetTabInfo.html" 
+  } 
+}
+
+---GetTabInfo.js 文件 
+document.addEventListener("click", function(e) { 
+    if (!e.target.classList.contains("tabInfo")) { 
+        return; 
+    } 
+ 
+    var root = document.getElementById("info"); 
+    root.innerHTML = ""; 
+    browser.tabs.query({ active: true, currentWindow: true }, function (tabs) { 
+        browser.tabs.get(tabs[0].id, function (tab) { 
+            var node = document.createElement("div"); 
+            var textnode = document.createTextNode("Url: " + tab.url); 
+            node.appendChild(textnode); 
+            root.appendChild(node); 
+            var node2 = document.createElement("div"); 
+            var textnode2 = document.createTextNode("Title: " + tab.title); 
+            node2.appendChild(textnode2); 
+            root.appendChild(node2); 
+        }); 
+        root.style.display = "block"; 
+    }); 
+});
+----GetTabInfo.html
+<!DOCTYPE html> 
+<html> 
+  <head> 
+    <meta charset="utf-8"> 
+      <link rel="stylesheet" href="GetTabInfo.css" /> 
+  </head> 
+ 
+  <body> 
+    <div class="tabInfo">Get Tab Info</div> 
+    <div id="info" style="display:none"></div> 
+    <script src="GetTabInfo.js" ></script> 
+  </body> 
+</html>
+
+
+...按钮->扩展->就有一个HelloWorld插件了， 可以开启显示在地址栏旁显示按钮
+
+
+
 
 =============ATL　COM
 http://msdn.microsoft.com/zh-cn/library/t9adwcde.aspx

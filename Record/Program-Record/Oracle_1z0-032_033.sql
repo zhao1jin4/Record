@@ -827,10 +827,8 @@ my.ctl 文件中内容是
 	INFILE 'c:\Data.txt'
 	APPEND INTO TABLE student
 	FIELDS TERMINATED BY WHITESPACE  
-	(
-	id,
-	name
-	)
+	(id,name)
+
 
 c:\Data.txt有两行(xls excel 文件也可打开)
 	1	李
@@ -838,7 +836,7 @@ c:\Data.txt有两行(xls excel 文件也可打开)
 
 
 使用方法
-sqlldr hr/hr control=my.ctl
+sqlldr hr/hr@127.0.0.1:1521/XE control=my.ctl
 
 如有数据内容不符合会生成Data.bad文件
 
@@ -857,6 +855,24 @@ id   char   terminated   by   WHITESPACE,
 name char   terminated   by   WHITESPACE,
 birthday timestamp   terminated   by   '|'
 )
+
+
+---InstantClient-12.2 sqlldr 成功示例
+
+LOAD DATA
+INFILE 'c:\temp\Data.csv'  "str '\r\n'"
+APPEND INTO TABLE T_OP_LOADING_CODE 
+FIELDS TERMINATED BY ',' optionally enclosed by '"'
+(ID,TYPE,LOADING_CODE,
+CREATE_TIME DATE "yyyy-mm-dd hh24:mi:ss" ,
+OP_TIME DATE "yyyy-mm-dd hh24:mi:ss" , 
+OP_USER_CODE,OP_USER,STATUS)
+
+//	如是CSV 文件 FIELDS TERMINATED BY ',' optionally enclosed by '"'
+// 如有日期类型 CREATE_TIME DATE "yyyy-mm-dd hh24:mi:ss" ,
+// windows换行符\r\n使用  INFILE 'c:\Data.txt' "str '\r\n'"
+
+11516,01,ZC1720330628926,2017-07-04 13:41:19,2017-07-04 13:41:19,userCode,User,01
 
 
 ==========================================033

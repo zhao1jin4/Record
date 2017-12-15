@@ -77,6 +77,13 @@ import java.text.DateFormat  //行结尾的;可有可元,如无使用换行
 import java.text.DateFormat._   //用_表示导入所有
 import java.util.{HashMap => JavaHashMap} // 重命名成员
 
+import 可放在def中
+
+import access.{_}  //同 import access._
+import java.{sql => S} //名称S引用了java.sql包
+import java.util.{Map => _, _} //引用了除Map之外的所有
+
+
 object FrenchDate {
   def main(args: Array[String]) {
     val now = new Date 
@@ -158,13 +165,15 @@ val foo = """第一行
 			  第二行
 			  第n行"""
 
-//方法返回值是元组
+// 元组给变量赋值
 val (myVar1: Int, myVar2: String) = Tuple2(40, "Foo")
 
-val pair = (99, "Luftballons") 
-println(pair._1) 
+val pair = (99, "Luftballons")  //元组
+println(pair._1) //开头
 println(pair._2)
 
+val (id: Int, _)=pair  //可不要元组中的元素
+   
 //Scala没有静态成员,单例对象用object关键字替换了class ,定义object 名与class名相同时叫伴生对象,不与伴生同名的对象叫孤立对象
 //单例对象不带参数,不能用new 
 
@@ -692,41 +701,63 @@ class ArrayElement( // 请注意，小括号
     extends AnyRef
 class LineElement(s: String) extends ArrayElement(Array(s))//继承时初始化,像C++
    
+-- order 
    
-   
-X extends Ordered[Rational] {  //实现compare方法，就可以排序， 没有为你定义equals方法
+X extends Ordered[Rational] {  //实现compare方法，就可以排序，自动实现了 > ,<,<=,>= , 没有为你定义equals方法
 	def compare(that: Rational) = (this.numer * that.denom) - ( that.numer * this.denom)
 } 
    
-   
+---super
 
-abstract class IntQueue {  //trait 或 abstract class 都可
+abstract class IntQueue //trait 或 abstract class 都可
+{  
   def put(x: Int)
 } 
 trait Incrementing extends IntQueue
-{ abstract override def put(x: Int) {//必须在trait中，必须是 abstract override 
-  super.put(x + 1) //在trait中super其实是子类的实现
+{ 
+  abstract override def put(x: Int) //必须在trait中，必须是 abstract override 
+  {
+    super.put(x + 1) //在trait中super其实是子类的实现
   } 
 }
- 
 trait Filtering extends IntQueue 
 { abstract override def put(x: Int) 
-  { if (x >= 0) super.put(x) }
+  {
+    if (x >= 0)
+      super.put(x)
+  }
 }
-
 import scala.collection.mutable.ArrayBuffer
 class BasicIntQueue   extends IntQueue  //也要 extends IntQueue 
 {
   val buf = new ArrayBuffer[Int]
-  def put(x: Int) { 
+  def put(x: Int)
+  { 
     buf+=x
     println(" put in BasicIntQueue ")
   } 
 }
-
 class MyQueue extends BasicIntQueue with Incrementing with Filtering //1,2
 //class MyQueue extends BasicIntQueue with Filtering with Incrementing   // 0,1,2
-//次序非常重要。 最右侧特质的方法首先被调用。如果那个方法调用了super，它调用其左侧特质的方法，   
-   
-   
+//次序非常重要。 最右侧特质的方法首先被调用。如果那个调用了super，它调用其左侧特质的方法
+//即当数为0时,Filter未调到super,即当数为1时,Filter 调到super再向左调用Incrementing，因又调了super，再向左调BasicIntQueue
+
+var testSuper:MyQueue=new MyQueue()
+testSuper.put(-1);
+testSuper.put(0);
+testSuper.put(1);
+
+
+package outpkg {
+  package inpkg { //像C# 格式
+  
+  
+//可仿问 本类所在包 的 同级包
+
+new _root_.three1pkg.Lanch()//如和外部文件包名同名,加_root_ 跳到顶级包开始找
+ 
+lazy val rows=scala.io.Source.fromFile("c:/temp/hell.txt")  //lazy 延迟初始化  
+ 
+ 
+ 
    

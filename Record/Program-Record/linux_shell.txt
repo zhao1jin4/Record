@@ -24,6 +24,14 @@ umask 显示 ,修改默认新建文件的权限  777- 要设的值
 shell的第一行必须有 #!/bin/bash
 # 注释
 
+多行注释 
+: << !
+xxx
+!
+ 
+
+
+
 alias ll='ls -l' 定义别名  #####  在=左右不要有空格
 
 $HOME/.bashrc 中定义别名
@@ -31,6 +39,10 @@ $HOME/.bashrc 中定义别名
 ``中的字串当命令
 
 & 后台运行 或用 nohup 命令也可以
+
+如A器远程B机器，执行B机器的nohup java -jar xx.jar & 不行的，A机器不会退出,B脚本要用 nohup java -jar xx.jar >nohup.out & 就可以
+ssh B_IP:~/deploy.sh 
+
 jobs -l
 ls | sort 
 
@@ -248,6 +260,8 @@ echo $line1
 echo $line2
 exec 与 文件描述符结合使用不会关闭当前的SHELL
 
+exec 并没有启动子 shell
+
 结果是输出namt.txt 的两行内容
 ==========================================================
 
@@ -415,6 +429,27 @@ awk '$0 ~/192.168.1.1/' sore.txt
  
 awk '{if($1=="192.168.1.1") print $0}' file.txt   ###!=
 awk -F',' '{if($3>="2015-05-01") print $0}' csv.txt  所有匹配第3例为 大于等于2015-05-01的记录
+
+进程号 
+ps -ef |grep tomcat-web |grep -v 'grep'  | awk  -F ' '  '{print $2}' 
+
+kilall tomcat-web
+
+
+
+function  killProc()
+{
+	name=$1
+	pid=`ps -ef |grep $name |grep -v 'grep'  | awk  -F ' '  '{print $2}'`
+	if [ "$pid" != "" ]; then
+		echo "KILL PROC ${name} PID=${pid}"
+	 	kill ${pid}
+	 else
+		echo "NO PROC ${name}"
+	fi
+}
+killProc tomcat-web
+
 
 ---------
 

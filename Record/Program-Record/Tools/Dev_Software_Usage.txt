@@ -1,5 +1,7 @@
 ﻿
 ============================Netbeans-8.1===============================
+C:\Users\zhaojin\AppData\Roaming\NetBeans
+C:\Users\zhaojin\AppData\Local\NetBeans\Cache  里面很大
 
 ------------ 
 在FreeBSD上运行正常，如果gnome 界面语言是english,那么 netbeans也是英语 ,	运行时有一个UnkowHostException   InetAddress.getLocalHost();不影响运行,是由hostname 的值空造成的
@@ -17,13 +19,42 @@ windows 下中文字体文件都 以sim开头,显示都有(TrueType)
 linux  是	/usr/share/fonts/truetype/
 
 
-如tomcat6启动时,总是说server.xml损坏,可能是普通用户启动netbeans,无权修改文件　	
+如tomcat 启动时,总是说server.xml损坏,可能是普通用户启动netbeans,无权修改文件　	
 ------------
 
-netbeans-javaee 要用./bin/netbeans --jdkhome /usr/local/diablo-jdk1.6.0 来运行
+netbeans-javaee 要用./bin/netbeans --jdkhome /usr/local/diablo-jdk1.6.0 来运行 如没有设置JAVA_HOME
+
+Tools -> Java Platfrom 配置JDK
+Tools -> Server 配置 Tomcat  ,配置后这里来改密码 ,也可配置deploy timeout
+如是maven 的web项目，右击项目->Run/Debug 启动时默认是运单测试的，右击项目-> Properties->Action -> 选择Run/Debug Project ,在set profiles中add->skip tests
+右击项目-> Properties->Run ->Context Path中修改为正确的
+
+重新可用部署cargo maven插件，打开pom.xml,在navigator视图-> 下拉选择navigator goals 可以右击 cargo reploy -> execute goal
+修改JSP如何动态更新tomcat?????  
+
+
+ 问题???? 如果是Maven web项目,生成 myProject-1.0.war包名和 <build><finalName>myProject</finalName></build>不一样 ,部署时并不会使用finalName中的值
+ 其实是在 apache-tomcat-7.0.78\conf\Catalina\localhost\中加入<项目>.xml  ,
+ 停tomcat时总是在处理,如Tomcat是8也部署不上去,如想随意切换tomcat 7,8的版本也不行,会短暂记住最近选择(就算选择了not rember for one-time deployment也没用)
  
-Tools -> Server 配置 Tomcat  ,配置后这里来改密码
- 
+ 或者(不用IDE 插件) 在pom.xml的<build>中加入
+<plugin>
+  <groupId>org.eclipse.jetty</groupId>
+  <artifactId>jetty-maven-plugin</artifactId>
+  <version>9.4.6.v20170531</version>
+   <configuration>
+	  <scanIntervalSeconds>10</scanIntervalSeconds>
+	  <webApp>
+		<contextPath>/myProject</contextPath>
+	  </webApp>
+	</configuration>
+</plugin>
+
+mvn jetty:run   
+eclipse测试能做调试,但找不到源代码??
+netbeans调试 add->debug maven build 生成了 jpda.listen=maven  ,可以找到源代码
+
+
 自己的tomcat 配置tomcat-users.xml ,要一个"管理员"(manager-gui) 角色的用户 ,我是 manager01
   <tomcat-users>
 	  <role rolename="manager-gui"/>
@@ -49,6 +80,30 @@ https://docs.oracle.com/netbeans/nb81/netbeans/develop/working_nbeans.htm#NBDAG1
 >netbeans.exe --fontsize 15 --locale en:US  英文界面（多语言版）
 >netbeans.exe --fontsize 15  --locale zh:CN 中文界面
 
+
+
+Tools->Options->Java->Maven->修改Maven_Home 
+如果 java Maven 项目 打开时,不对加载依赖中再依赖的jar包,  右击项目-> 使用依赖关系构建   就可以了
+选中Skip Test,要保证每个子项目可以build成功 ，才能运行
+
+
+
+拉SVN ,Team 菜单 -> check out.. 
+
+建立SVN 分支,右击项目-> subversion-> copy    -> copy to ...-> Source 中 默认选中的是Local Folder 修改为Remote Folder  ,Destination中选择放置目录如branch ,tag中
+ 
+右击项目-> subversion-> copy  -> switch to copy   ...
+右击项目-> subversion-> copy  -> merge change  ...
+右击项目-> subversion-> working copy -> 
+右击项目-> subversion-> diff ->  diff to repository 同eclipse的synchronize 
+
+
+
+右击项目 ->Custom-> Goal...
+或者右击pom.xml-> Run Maven->Goal...  建立maven任务后可以起名记住,会生成nbactions.xml,以后就可在右击项目 ->Custom-> 出现自己的任务名,如要修改也只能编辑XML文件
+
+
+
 点开.class自动打开UTF-8源码时的字符集windows默认为GBK,乱码  -J-Dfile.encoding=UTF-8  ,但output日志输出进会乱码
  netbeans.conf  配置文件中的 netbeans_default_options 项后加 --fontsize 15 --locale en:US  -J-Dfile.encoding=UTF-8
  
@@ -59,7 +114,6 @@ https://docs.oracle.com/netbeans/nb81/netbeans/develop/working_nbeans.htm#NBDAG1
 
 
 命令行下可以编译  javac -encoding UTF-8 Hello.java  对UTF-8的文件
-
 
 
 Run->Set Project Configuration->Custom...->  是对主项目的配置
@@ -86,10 +140,7 @@ ctrl+f5调试主项目就可以了
 source -> code complete (ctrl+space)
 ctrl+p 显示参数(Source->show method parameter)
 alter+shift+f  格式化代码(source->format)   
-
-Tools->Options->Java->Maven->修改Maven_Home 
-如果 java Maven 项目 打开时,不对加载依赖中再依赖的jar包,  右击项目-> 使用依赖关系构建   就可以了
-选中Skip Test,要保证每个子项目可以build成功 ，才能运行
+ctrl+alt+点击接口方法 进和实现类同Intellij
 
 导航 -> 转至类型 -> 输入类名 ,如想知道在哪目录中,右击标签->在项目中选择
 导航 -> 转至文件 -> 输入文件名
@@ -108,17 +159,6 @@ window->IDE Tools->Test Result
  Navigate->inspect->memebers 可以看类的所有方法的大纲 (ctrl+shift+F12),打开Navigate视图就可以了
  Edit->find in project ...  (ctrl+shift+f) 可搜索文件中包含的字符
  
-拉SVN ,Team 菜单 -> check out.. 
-
-建立SVN 分支,右击项目-> subversion-> copy    -> copy to ...-> Source 中 默认选中的是Local Folder 修改为Remote Folder  ,Destination中选择放置目录如branch ,tag中
- 
-右击项目-> subversion-> copy  -> switch to copy   ...
-右击项目-> subversion-> copy  -> merge change  ...
-右击项目-> subversion-> working copy -> 
-
-右击项目 ->Custom-> Goal...
-或者右击pom.xml-> Run Maven->Goal...  建立maven任务后可以起名记住,会生成nbactions.xml,以后就可在右击项目 ->Custom-> 出现自己的任务名,如要修改也只能编辑XML文件
-
 
 debug代码时 F7 进入函数,如这行代码有多个函数,会提示让选择进入哪个函数,比eclipse智能 
 	如修改了代码,保存后不能立即生效,要点工具栏上的Apply Code Change按钮,而eclipse是自动的
@@ -270,6 +310,11 @@ buildTools为23.0.3(24就不行了) 的 Android 7 NBAndroid 启动时logcat,也�
 手机插入USB 选择 PC Suite(HiSuite) 或者 Media device (MTP),
 不是Charge Only 就可以打开 Bebug 模式,就可以在真机上开发测试了
 
+============= NetBeans 8.1 安装 NB SpringBoot 插件/模块  
+Tools -> Plugins
+
+============= NetBeans   FindBugs
+
 ============= NetBeans 8.1 安装  nbscala-1.8.1.2  插件/模块  
 http://plugins.netbeans.org/   下载文件 1465275768_nbscala-1.8.1.2.zip
 https://github.com/dcaoyuan/nbscala
@@ -287,6 +332,8 @@ netbeans解压目录下会产生  nbscala\modules 目录 (离线安装)
 
 
 =============  DbVisualizer(所有平台) 使用JDBC all DB  ============= 
+Oracle是自动提交的，不同PL/SQL Developer
+
 在软件目录的jdbc目录自带一些JDBC(所在目录,最好不要有中文,空格)
 
 如第一次打开软件后,又把软件目录移动了,就会找不到自带的dirver 
@@ -296,10 +343,10 @@ Tools->Driver Manager, 子窗口Drvier菜单->JDB Driver Finder (点start 再次
 表的列有remark,可以移动数据表格的列
 如同时显示多个表的查询,右击标签->pin tab(也可单击标签的图标来开关),也可右击表->open in new tab
 
-界面中文显示方块(乱码)的解决方式
-在Tools->tool Properties->General->Appearance->Fonts->SQL Editor/Text Editor 选择PMingLiU , 宋体(SimSun), 同时把Grid,Other L&FS
-	(如果打开文件只能正常显示GBK的,UTF8的不行,Toad也是一样的)
-如重启脚本会变？ Tools->General->File Encoding->改为GBK
+界面中文显示方块(乱码)的解决方式 ,脚本重启会变？
+在Tools->tool Properties->General->Appearance->Fonts->SQL Editor/Text Editor 选择 宋体(SimSun), 同时把Grid,Other L&FS 也修改
+File-> Save as 选择UTF-8, Tools->General->File Encoding->改为UTF-8 但未保存的脚本重启也正常了
+
 
 右击数据表格中行-> edit row in window,打开一个窗口看,也可双击表格行左边的号
 
@@ -322,7 +369,14 @@ Tools Properties->Key Binding->默认选中Default->Make Copy->Action中选Edit�
 双击树中的表名->有Native DLL标签
 
 如果查询结果为   0.0000000  显示科数法 ??????  
-
+--oracle
+有单独的 comment 标签可以看列，但表没有？？？,要点DDL标签看SQL时看表的comment  
+select * from user_tab_comments; 
+  
+select c.* 
+from user_tab_comments  c,user_tables t
+where c.table_name=t.table_name;  
+ 
 --问题
 
 如果SQL很长,点鼠标,光标不能定位正确位置,必须删除~/.dbvis文件夹,再重新配置就可以了
@@ -342,23 +396,37 @@ Tools Properties->Key Binding->默认选中Default->Make Copy->Action中选Edit�
 	 右击表->Object information 可以查看SQL,可用这种方式看comment
 	 Tools->Console
 	
-=============  SqlDbx free  使用ODBC all DB   ============= 
+	
+	Oracle 是自动提交事务 ，不同与PL/SQL Developer
+	Oracle 使用SQL时 \\ 才代表一个\ 
+	substr(asciistr(op_user),0,1)!='\\'
+	
+	
+	
+=============  SqlDbx Personal 免费  Professional 收费 使用ODBC all DB   ============= 
+
+因为sqldbx是32位的(任务管理器中可看进程名)要使用32位的 ODBC  
+
 --IBM DB2 LUW  (linux unix windows)
 	安装db2 express 10.5客户端,连接OK,可输入schema 与用户名相同
 
---MySQL
-Tools->Options->MySQL  在 "Driver Load Order" 中增加 myodbc5a.dll  
-示例 myodbc5a.dll;myodbc5.dll;MySQL ODBC
+------MySQL
 
-因为sqldbx是32位的(任务管理器中可看进程名)要使用32位的MySQL ODBC ,mysql-connector-odbc-noinstall-5.3.4-win32
-把myodbc5a.dll文件复制到 sqldbx.exe 所在目录
+把 32位ODBC  libmysql.dll 文件复制到 sqldbx.exe 所在目录
+
+
+Tools->Options->Servers->MySQL  在 "Driver Load Order" 中增加 libmysql.dll
+ 
+
+------Oracle
+要32位的 oci.dll  ， 会自动从PATH中找
 
 右击表(会显示行数,大表显示的值要小)->select * -> 查询时会查所有的, 
 	Tool->options->Results->下方的复选Rows Limit on选中,设置行数为1000
 	对大表也可以右击->generate-> select 手工加 limit <begin> <rows>
 右击表->table properties->有Column和DLL,但没有comment???
 
----
+ 
 Tools->SQL History
 输入SQL提示效果很好
 右击数据行 transPose可行转列查看,类似card view,如想看某一行,可在transPose前,右击数据的主键格->filter->第一项key=value
@@ -376,18 +444,20 @@ SHOW  CREATE TABLE MyTable
 
 =============  PL/SQL Developer ============= 
 在登录界面中数据选择中支持输入  127.0.0.1/xe  或 127.0.0.1:1521/xe  
-可以没有Oracle客户端 , 如有64位的InstantClient而不支持
+可以没有Oracle客户端 , 如有64位的InstantClient 则PL/SQL Developer也要64位才行
 
 PL/SQL Developer 的调试方法 新建一个test　windows　,最左是书签，点放大镜start debug(F9),最后不用加/
 dba权限OK（必须有 DEBUG CONNECT SESSION权限，可仿问V$session,V$sesstat,V$statname）
 
 Tools->Object Explorer
 
+new 按钮下拉->选择Diagram window ,就可以拖表进来,显示关联关系  ,ctrl+ 滚轮就可以放大缩小视图
+
 切换连接,在SQL window/Command window 在下方显示连接处点击->Recent->
 
 preference...->data/time
 
-ctrl+E 打开最近执行的SQL
+ctrl+E ( Edit -> recall statement )打开最近执行的SQL
 
 PL/SQL Develpoer设置
 edit->PL/SQL Beatutifier 格式化
@@ -400,19 +470,26 @@ tool->windows list管理窗口
 用Sql window的全选结果集，右击－>copy to excel..
 
 F5 执行计划
-
+Preferences->Window Types->Plan window 可加其它项
 
 sql语句时候 输入的关键字自动转换为大写
 tools -> Preferences -> User Interface - Editor - Keyword case  选择 Uppercase
- 
+
+记住登录密码 
+tools -> Preferences -> 上面组Oracle中的Logon History->选中Store  history 和 Store with password
+登录时点...->选择历史就登录
+
+
 =============  SQL Developer-3.1 ============= 
 可以没有Oracle客户端
 
 SQL Developer 调试好像必须是放在function或者procedure中才行,建立好function或者procedure后在左树中打开，
 	点edit按钮，再comipler for debug按钮,打断点，点debug按钮,修改传入参数，下方debugging面板来step over
 	
-ctrl+space 来提示(source->complete code)  
-修改快捷键  options->keyMap ->Show Code Completion ，修改为alt+/
+3.x 版本 ctrl+space 来代码提示(source->completion insight)  
+4.x 版本  
+
+修改快捷键  preferences->Shortcut Keys-> 按category排,选择Code Editor  Completion insight ,修改为alt+/
 
 格式化代码 ctrl+F7
 
@@ -424,17 +501,30 @@ windows 下中文字体文件都 以sim开头,显示都有(TrueType)
 	simsun.ttc 宋体 & 新宋体	
 cp /usr/share/fonts/truetype/　$JAVA_HOME/jre/lib/fonts/fallback/   (fallback目录要新建立)
 SUSE 用cp /usr/share/fonts/truetype/FZHeiTi.ttf  /usr/local/jdk1.6/jre/lib/fonts/fallback/
-1.sqldeveloper 修改界面语言为英语
+
+windows 下
+	工具 -> 首选项 ->  环境 ->  编码 修改成 utf8
+
+1.sqldeveloper 3 修改界面语言为英语 
 	D:\Program\sqldeveloper\sqldeveloper\bin\目录下的sqldeveloper.conf中加入
 	AddVMOption -Duser.language=en
 	AddVMOption -Duser.country=US
+	
+	sqldeveloper 4 修改界面语言为英语 ？？？？
+	
 2.点钉(FreezeView)后,可同时打开多个表的数据
+
+Filter 中写 field_name='' 来过虑数据
 
 SQL Developer Data Modeler工具用来设计表的,查看现有表关系,文件->导入->数据字典->建立连接,选择用户,选择表
 
 sqldeveloper-4.0.0.13.80-no-jre\sqldeveloper\bin\sqldeveloper.conf  有 SetJavaHome
 
-=============  TOAD for Oracle ============= 
+日期默认不显示时间
+工具->首选项->数据库->NLS->日期格式: DD-MON-RR 修改为: YYYY-MM-DD HH24:MI:SS
+
+
+=============  TOAD for Oracle =============  最新的 2017 R2 版本安装还要license,安装中还失败
 64位的Toad 只能用64位的客户端,可用InstantClient
 session->new session
 standard工具栏->第二个按钮schema browser->可选择类型table
@@ -460,11 +550,12 @@ TOAD设置
 	ctrl+shift+f 格式化代码,也可检查语法
 
 	Toad中DBA->databse monitor  性能测试
+
+view->Object Palette 可以看所有的表
+	
 -------------dbForge Studio for Oracle
 
--------------MySQL Front
-
--------------TOAD for MySQL Freeware-7.3 只有freeware的
+-------------TOAD for MySQL Freeware-7.3 现在变为 toad edge 1.1 必须登录才能用
 	右击procedure有debug  ,但是总是卡死,不能用
 	显示输入提示,如表名,字段名
 
@@ -514,7 +605,7 @@ edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好�
 	TortoiseSVN—Repo-browser  选择一个版本做为比较的基础（单击右键—选择mark for comparison）
 	再选择另外一个版本（单击右键—选择show difference as unified diff），然后就会生成一个两个版本的不同之处的文本,是在一个窗口中显示所有的
 
-
+   清保存密码 ,右键->TortoiseSVN->Settings->Saved Data-> Authenticatoin data后点Clear all 
 ------------TortoisHg 是 Mercurial(分布式版本控制)工具
 
 OpenJDK source下载用的
@@ -536,9 +627,19 @@ make all
 
 
 
+-------------Curl-Loader 在 test
 
-------------Fiddler 
+-------------Charles 代理工具
+默认是8888 端口
 
+Firefox 中　工具－＞选项－＞高级－＞网络标签－＞单击　设置．．－＞选择 [手动设置代理]
+HTTP代理   127.0.0.1   8888　
+
+IE ->　工具－＞选项－＞连接->局域网设置->高级->设置 ->看HTTP的设置 
+
+
+-------------Fiddler 代理工具
+4.6 可对edge有效
 对IE 11 有效,也可在工具栏上修改为Firefox
 
 CA＝Certifcation Authority
@@ -666,3 +767,24 @@ Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到�
 ---------zabbix 性能监视工具
 
 Hudson是Jenkins的前身   都是持续集成(CI)
+
+
+---------Jenkins   2.74 .war 基于hudson
+支持 Docker
+	
+初次进入页面要复制~/.jenkins/secrets/initialAdminPassword中的密码
+会要求安装插件,可选择建议，只是请求服务器本身的资源,安装后提示建立admin user
+页面中可再安装插件 Jenkins->Mange Jenkins->manage plugin, 如maven,安装后建立项目时会提示指定maven目录(Global Tool Configuration)
+配置中默认工作目录~/.jenkins ,建立的项目在workspace目录，如页面上删目录不会删
+Maven项目
+自动构建 Build Triggers 
+	可选择Build after other projects are built,输入项目名字时会提示的
+	Build periodically 可定时构建,写法同linux cron
+	Add post-build step 中 可以增加 execute shell
+	Build 组 Goals and options 写 clean install -Dmaven.test.skip=true
+	
+
+	Deploy to container 插件可以部署到tomcat,  在Maven项目最后的 Post-build Actions 有deploy war/ear to container,target/xx.war测试使用没有效果
+	Capitomcat Plugin   插件可署到多台远程tomcat上
+	
+--------- FIT2CLOUD devops  运维打包部署工具，可一次部署多台服务器  国产，收费

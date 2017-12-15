@@ -12,7 +12,6 @@ javac TestHelloClient.java -Djava.ext.dirs=WEB-INF/lib
 java  -Djava.ext.dirs=WEB-INF/lib TestHelloClient
 java -DmyKey=myValue 在程序中使用 System.getProperty("myKey")取得
 
-java  -cp .;C:\bea\weblogic92\server\lib\weblogic.jar  TestHelloClient
 
 -Djava.ext.dirs=WEB-INF/lib  不但对java有效,也对javac有效
 
@@ -460,6 +459,8 @@ jstat -gcpermcapacity pid: perm对象的信息及其占用量。
 jstat -printcompilation pid:当前VM执行的信息
 jstat -gccause 
 
+
+
 jcmd <pid | main class> <command ...|PerfCounter.print|-f file>  
 对-f 每个命令必须写在单独的一行。以"#"开头的行会被忽略,	stop 命令
 jcmd <pid> GC.class_histogram 
@@ -499,7 +500,9 @@ jmap -dump:format=b,file=java_pid.hprof <进程ID> //(b是binary的缩写)进程
 //如文件过大,机器可用内存 可能 要大于文件大小
 jhat -J-mx768m -port <端口号:默认为7000> java_pid.hprof
 
-jhat java_pid.hprof 分析jmap导出的文件,启动服务 HTTP端口7000,http://localhost:7000/ ,界面中会按包名分类
+
+JDK9中去了除了jhat
+jhat java_pid.hprof 分析jmap导出的文件,启动服务 HTTP端口7000,http://localhost:7000/ ,界面中会按包名分类  
 	使用eclipse插件 MemoryAnalyzer分析jmap导出文件,插件认.hprof格式文件
 eclipse性能测试插件 TPTP
 java进程异常终止进产生 JavaCore 文件是关于CPU的　和　HeapDump(.hprof)文件是关于内存的
@@ -530,8 +533,8 @@ UNIX要
 Oracle AL32UTF8 varchar2如中文在数据中占用三个字节,nvarchar2中文是两个字节
 oracle.jdbc.xa.client.OracleXADataSource
 oracle.jdbc.driver.OracleDriver
-jdbc:oracle:thin:@127.0.0.1:1521:orcl
-
+jdbc:oracle:thin:@127.0.0.1:1521:orcl    对  SID
+jdbc:oracle:thin:@//127.0.0.1:1521/orcl   对  service Name
 
 com.mysql.jdbc.jdbc2.optional.MysqlXADataSource  
 com.mysql.jdbc.Driver
@@ -657,6 +660,8 @@ LinkedHashSet
 JDK 7新的排序 DualPivotQuicksort (在Arrays.sort方法中有使用)
 
 --------------------------正则
+ boolean a=Pattern.matches("^CB.*", "CB123");是否以什么开头要加.* ,而JS 不用加.*
+ 
  boolean b = Pattern.matches("a*b", "aaaaab");
  
 Pattern SPACES = Pattern.compile("\\s+"); //空格和制表符
@@ -868,7 +873,7 @@ enum Color
 	
     private int num;
     private String str;
-    Color(int n)    //自己的构造方法
+    Color(int n)    //自己的构造方法,不能加public
     {
         this.num=n;
     }
@@ -1127,7 +1132,10 @@ Class<AbstractImmediateRequest>  requestClass=(Class<AbstractImmediateRequest>)r
 
 
 this.entityType = getClass().getClassLoader().loadClass(entityType);
-----
+
+
+ ParameterizedType pt = (ParameterizedType)field.getGenericType(); // field 是List<String> 得到List范型
+ ----
 WeakReference
 WeakHashMap的key被实现为一种WeakReference
 
@@ -2658,8 +2666,8 @@ InputStream readStream =imgBlob.getBinaryStream();
 //Security.addProvider(new com.sun.crypto.provider.SunJCE()); 
 //Security.getProviders();
 //-------随机生成 Key 密钥
-//SecureRandom random = new SecureRandom();
-//KeyGenerator keyGenerator = KeyGenerator.getInstance ("DES" );
+//SecureRandom random = new SecureRandom();// SecureRandom.getInstance("SHA1PRNG");
+//KeyGenerator keyGenerator = KeyGenerator.getInstance ("DES" ); 
 //keyGenerator.init (random);
 //SecretKey key = keyGenerator.generateKey();				
 //------或者用    生成 Key 密钥
@@ -3063,6 +3071,8 @@ System.getProperties().get("os.name").toString()
 URL url=new URL("http://127.0.0.1");
 HttpURLConnection http=(HttpURLConnection)url.openConnection();
 http.setRequestMethod("POST");
+http.setRequestProperty("Content-type","application/json;charset=UTF-8");
+http.setDoOutput(true);//如要先写要调用这个
 OutputStream out = http.getOutputStream();
 out.write(xmlStr.getBytes("UTF-8"));
 out.flush();
@@ -3091,6 +3101,10 @@ OutputStream os = urlc.getOutputStream(); // 上传
 # <<是左移符号,列x<<1,就是x的内容左移一位(x的内容并不改变)　　　右边始终补0
 x<<几位，结果就是x乘2的几次方
 Math.pow(2,3)//2的3次方，或者3的2次幂
+Math.round() 结果是整数
+/ 结果是整数 
+BigDecimal   b   =   new   BigDecimal(0.032); 
+double   f1   =   b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue();  
 
 # >>是带符号位的右移符号,x>>1就是x的内容右移一位,如果开头是1则补1,是0责补0,(x的内容并不改变).
 # >>>是不带符号位的右移,x>>>1就是x的内容右移一位,开头补0(x的内容并不改变)
@@ -3113,6 +3127,8 @@ String res=String.format("%-50s", "abcd");//左对齐,长度50个右补空格
 Calendar c =   Calendar.getInstance();
 String s = String.format("today: %1$tY-%1$tm-%1$td", c); //%1$是后参数的第一个 
 String.format("today: %1$tY-%<tm-%<td", c);//%< 表示使用和前一个相同,即%1$
+String.format("now=%1$tY-%<tm-%<td %<tH:%<tM:%<tS.%<tL ",new java.util.Date());
+
 c.getActualMaximum(Calendar.DAY_OF_MONTH);//得到当月的最后一天
 
 System.currentTimeMillis();
@@ -3699,13 +3715,11 @@ Proxy.newProxyInstance(ClassLoader )
 1).java.lang.Class的forName()方法	
 2).java.lang.ClassLoader的loadClass()方法
 
- 
-类的初始化顺序
-static 属性/块 从书写顺序上到下初始化 ->   非static字段->构造器 
+
+类的初始化顺序  static 属性或块按书写的顺序 (有父类先父类,再子类)  -> 1. {}块  , 初始化非static有值字段 按书写的顺序来 ,2.构造方法 (有父类先父类,再子类)
 
 static final 属性如果编译就可以计算出结果,使用final属性时,类不会被初始化,即不会执行static块 
 
-初始化一个类时,如有有实现接口,接口不会被初始化,  如初始化接口时不会初始化父接口,除非使用接口静态变量才初始化,或者主动使用了
 
 用户定义的类java.lang.Spy  和 java.lang.* 是不同的类加载器,是不同的运行时包,Spy 不能仿问java.lang.*中的包中可见成员(安全)
 
@@ -4209,6 +4223,10 @@ System.out.println(uuid); //算'-'共37位,不算'-'共32位
 -----------Bean Validation
 public class Order 
 {
+	@NotNull
+    @Size(min=1)
+	private List<Product> products;
+	
 	@Size(min=2,max=20 ,message="订单号必须为2-20的长度")
 	private String orderId;
 	
@@ -4229,11 +4247,19 @@ public class Order
 	@javax.validation.constraints.Pattern(regexp="^(Y|N){1}$" ,message="isPay必须是Y或N")
     private String isPay;
 	
-	@Range(min=0,message="单价要大于0")//hiberante
+	 
+	@Digits(integer=4,fraction=2) //整数最多4位，小数最多2位
+	@DecimalMax("5555.32")
 	private float price;
 	
 	@Status(message="状态应只可是 'created', 'paid', shipped', closed'") //自定义验证
 	private String status;  
+	
+	@Null(message="下一个必须为空")
+	private Order nextOrder;
+	
+	@AssertTrue(message="有效必须为true")  // @AssertFalse 
+	private boolean available;
 	
 	 @Valid   // 嵌套验证
 	 private User user;
@@ -4268,6 +4294,11 @@ import javax.validation.ConstraintValidatorContext;
 public class User {
 	@Past(message="出生日期必须是过去的日期")   //@Future
 	private Date birthday;
+	
+	@Min(value=18, message="年龄要>18岁")
+	@Max(value=65, message="年龄要<64岁")
+	//@Range(min=18,max=65, message="年龄要在18-65岁")//hiberane 的只能整数
+	private int age;
 	
 	@Pattern(regexp = "^[a-zA-Z0-9]{3,20}$", message = "密码要有大小写字母和数字,3-20长度")
 	private String password;
@@ -4311,6 +4342,17 @@ public class EqualAttributesValidator implements ConstraintValidator<EqualAttrib
 		}
 	}
 }
+<dependency>
+	<groupId>org.hibernate</groupId>
+	<artifactId>hibernate-validator</artifactId>
+	<version>5.4.1.Final</version>
+</dependency>
+<dependency>
+	<groupId>javax.validation</groupId>
+	<artifactId>validation-api</artifactId>
+	<version>1.1.0.Final</version>
+</dependency>
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -4509,4 +4551,126 @@ interface InterfaceJDK8Child extends InterfaceJDK8,ParentInterface
 		InterfaceJDK8.super.objectMethodWithBody();//super用法
 	}
 }
+
+-- @Repeatable
+ @Target( ElementType.TYPE )
+   @Retention( RetentionPolicy.RUNTIME )
+   public @interface Filters {
+       Filter[] value();
+   }
+ 
+   @Target( ElementType.TYPE )
+   @Retention( RetentionPolicy.RUNTIME )
+   @Repeatable( Filters.class )
+   public @interface Filter {
+       String value();
+   };
+ 
+ 
+   @Filter( "filter1" )
+   @Filter( "filter2" )
+   public interface Filterable {
+ 
+   }
+   
+  for( Filter filter: Filterable.class.getAnnotationsByType( Filter.class ) ) {
+           System.out.println( filter.value() );
+       }
+	   
+ElementType.TYPE_USE 和ElementType.TYPE_PARAMETER 
+
+-- CompletableFuture
+
+public class TheImplFutureClass implements Runnable {
+	CompletableFuture<Integer> re = null;
+
+	public TheImplFutureClass(CompletableFuture<Integer> re) {
+		this.re = re;
+	}
+
+	@Override
+	public void run() {
+		int myRe = 0;
+		try {
+			myRe = re.get() * re.get();// 依赖于等待另一个线程计算完成
+		} catch (Exception e) {
+		}
+		System.out.println(myRe);
+	}
+
+	public static Integer calc(Integer para) {
+		try {
+			Thread.sleep(1000); // 模拟一个长时间的执行
+		} catch (InterruptedException e) {
+		}
+		return para * para;
+	}
+
+	public static void main(String[] args) throws   Exception
+	{
+		final CompletableFuture<Integer> future = new CompletableFuture<Integer>();
+		new Thread(new TheImplFutureClass(future)).start();
+		Thread.sleep(1000);
+		future.complete(60); // 告知完成结果
+
+		final CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> calc(50));
+		System.out.println(future1.get());
+		
+		CompletableFuture<Void> fu = CompletableFuture .supplyAsync(() -> calc(50)) 
+				.thenApply((i) -> Integer.toString(i))
+				.thenApply((str) -> "\"" + str + "\"")
+				.thenAccept(System.out::println); //像scala
+		 fu.get();
+		 
+		  CompletableFuture<Void> fu1 = CompletableFuture.supplyAsync(() -> calc(50))
+				//把上一个计算结果 传入下面的i
+				 .thenCompose(
+						 		(i) -> CompletableFuture.supplyAsync(() -> calc(i))
+						 )
+				 .thenApply((str) -> "\"" + str + "\"")
+				 .thenAccept(System.out::println);
+		 fu1.get();
+		 
+	}
+}
+
+
+
+StampedLock sl = new StampedLock();
+
+---
+jshell
+jshell> /help
+jshell> /list  -start 显示import
+jshell> /list -all  带默认import的和最近的代码
+import java.io.*;
+import java.math.*;
+import java.net.*;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.*;
+import java.util.prefs.*;
+import java.util.regex.*;
+import java.util.stream.*;
+ 
+按tab键可以自动补全，也提示方法的参数
+ new JFrame<Shift+Tab i> 自动导入类  测试无效
+
+
+/vars  列出所有变量 
+
+/methods 列出所有方法 
+/也可以用tab
+/edit 方法名 会打开编辑器
+
+/save 
+/open
+
+/l -a = /list -all
+
+
+
+
+
 

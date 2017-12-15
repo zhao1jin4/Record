@@ -262,7 +262,7 @@ formBackingObject //方法 是打开页面,或者返回时调用 ,返回的是�
 	<property name="defaultEncoding" value="UTF-8"></property><!-- 中文文件名 OK 加了CharacterEncodingFilter-->
 	<property name="maxUploadSize" value="10000000"/> <!--单位是 bytes  可能会抛 org.springframework.web.multipart.MaxUploadSizeExceededException (是RuntimeException)-->
 </bean>
-@InitBinder	//需要处理Date的时候,自动调用这个方法
+@InitBinder	//需要处理Date的时候,自动调用这个方法,对JSON无效
 public void initBinder(WebDataBinder binder)//要用 WebDataBinder
 {
 	//binder.registerCustomEditor(byte[].class,new ByteArrayMultipartFileEditor());//对图片是byte[]的附件做上传
@@ -271,6 +271,8 @@ public void initBinder(WebDataBinder binder)//要用 WebDataBinder
 	binder.registerCustomEditor(Date.class,new  MyPropertyEditor());
 //		binder.registerCustomEditor(Date.class,new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd"),true));
 }
+
+ 
 @RequestMapping(value="/submitUpload",method=RequestMethod.POST)
 public void sumbitUpload( @ModelAttribute("uploadForm") FileUploadBean bean) throws Exception
 {   
@@ -425,6 +427,8 @@ public ModelMap returnObject()
 public ModelAndView listEmployee(@PathVariable("page")int pageNO , HttpServletRequest request)
 {
 }
+public String submitQuery(Employee param,String otherParam )//表单参数可以单独参数同名传过来
+{}
 @RequestMapping("/webRequest")
 public String myHandleMethod(WebRequest webRequest, Model model)//参数可以是WebRequest
 {
@@ -475,7 +479,7 @@ Bean不是自己编写的类（如 JdbcTemplate , SessionFactoryBean 等），�
 <context:exclude-filter type="aspectj"  expression="com.baobaotao.util..*"/>	   排除
  
 新的@Contoller和@RequestMapping注解支持类 
-处理器映射RequestMappingHandlerMapping 和 处理器适配器RequestMappingHandlerAdapter组合
+处理器映射R equestMappingHandlerMapping 和 处理器适配器 RequestMappingHandlerAdapter 组合
 来代替Spring2.5开始的处理器映射 DefaultAnnotationHandlerMapping 和处理器适配器 AnnotationMethodHandlerAdapter 
 
 <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
@@ -525,11 +529,11 @@ org.springframework.web.servlet.support.BindStatus 类中的属性是为<spring:
 
 
 <form:input path="firstname"/>
-<form:checkbox 对应String[]
+<form:checkbox 对应String[] 也可是boolean ,value="1"
 生成后有一个<input type="hidden"  做用的是如果没有选择 ,这个值不会提交,解决是在其后面加一个hidden名字是 checkbox名加_
 <form:radiobutton path="sex" value="F">
 <form:password path=""
-<form:select path="" item=${all}>  或手工加 <form:option value=""/> 或用<form:options items=${countryList} itemLable="name" itemValue="code"
+<form:select path="" item=${all}>  或手工加 <form:option value=""/> 或用<form:options items="${countryList}" itemLable="name" itemValue="code"></form:options>
 <form:textarea rows="20" cols="20">
 <form:hidden>
 <form:errors path="username"/>  会产生一个<span> 
@@ -626,8 +630,8 @@ public @interface EqualAttributes
 @EqualAttributes(message="{validation.passwordNotSame}",value={"password","rePassword"})//自定义验证
  public class Account
  {
-	//@NotNull//只是值为null,如为空串用这个无效
-	@NotBlank//hibernate的,可以验证空串
+	//@NotNull(message = "日期不能为空")//只是值为null,如为空串用这个无效
+	@NotBlank( message = " username不能为空")//hibernate的,可以验证空串
 	@Size(min = 3, max = 20, message = "{validation.username_length}")//国际化串中可以使用{min},{max}
     private String username;
 	 
@@ -672,12 +676,18 @@ public  Map<Integer,String>  getMonthsNames()
 }
 <form:select path="month" items="${monthsNames}"></form:select> <!-- 可带回值的 -->
 
+
+<form:select path="vehicleLineCode"   id="newVehicleLineCode" >   <%--  items="${allLines}" itemLabel="vehicleLineName"  itemValue="vehicleLineCode" --%>
+	<form:option  value="">全部</form:option>
+	<form:options items="${allLines}" itemLabel="vehicleLineName" itemValue="vehicleLineCode" />
+</form:select>
+
 ----未测试
 ThemeChangeInterceptor,LocaleChangeInterceptor, 
  
 
 @RequestMapping(value = "/**/request")
-public String passwordRequest(@Valid final ForgottenPwdForm form,BindingResult result)//ForgottenPwdForm必须实现 Serializable,有@Valid就必须要有 BindingResult
+public String passwordRequest(@Valid final ForgottenPwdForm form,BindingResult result)//ForgottenPwdForm必须实现 Serializable,有@Valid就必须要有 BindingResult,如form中long类型也要有
 //List 没有实现  Serializable
 
 @RequestMapping(value = "/xxx")
@@ -910,7 +920,18 @@ jackson-databind-2.2.3.jar
 <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
 	<property name="messageConverters">
 		<list>
-			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> <!-- JSON -->
+		<!-- 	<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> JSON 简配置-->
+			<bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="objectMapper">
+					<bean class="com.fasterxml.jackson.databind.ObjectMapper">
+						<property name="dateFormat">
+							<bean class="java.text.SimpleDateFormat">
+								<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"/>  <!-- JSON到SpringMVC日期格式-->
+							</bean>
+						</property>
+					</bean>
+				</property>
+			  </bean>
 			<bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/> <!-- XML 为 @ResponseBody -->
 			<bean class="org.springframework.http.converter.StringHttpMessageConverter"/>  <!--为 @ResponseBody 的 text/*     */--> 
 			<!-- <bean class="org.springframework.http.converter.FormHttpMessageConverter"/>   application/x-www-form-urlencoded  -->
@@ -921,6 +942,15 @@ jackson-databind-2.2.3.jar
 		<bean class="spring_jsp.extention.MyWebBindingInitializer" />
 	</property>
 </bean>
+
+也可以这样配置
+ <mvc:annotation-driven>
+ 	<mvc:message-converters>
+ 		<ref bean="mappingJacksonHttpMessageConverter" />
+ 	</mvc:message-converters>
+ </mvc:annotation-driven>
+	
+	
 //MyWebBindingInitializer -> @ControllerAdvice -> @Controller 
 public class MyWebBindingInitializer implements WebBindingInitializer 
 {
@@ -932,13 +962,33 @@ public class MyWebBindingInitializer implements WebBindingInitializer
 	}
 }
 
+//如果JSON日期 实体某个属性日期格式不一样 未测试????
+@DateTimeFormat(pattern="yyyy-MM-dd")   
+@JsonSerialize(using=JsonDateSerializer.class)  
+private Date returnBillDepartureTime;
+
+class JsonDateSerializer extends JsonSerializer<Date> 
+ {
+	@Override
+	public void serialize(Date date, JsonGenerator gen, SerializerProvider provider)
+	{
+		SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
+		String value = dateFormat.format(date);
+		 try {
+			  gen.writeString(value);
+		  } catch (IOException e) {
+			  e.printStackTrace();
+		  }
+	}
+}
+	
 @Controller
 @RequestMapping("/json") 
 public class JSONController //OK
 {
 		@RequestMapping(value="/queryEmployeeVO",method=RequestMethod.POST)
 		@ResponseStatus(HttpStatus.OK)
-	    @ResponseBody
+	    @ResponseBody  //加这个表示只返回数据,不跳转页面(默认是和RequestMapping相同页)
 		public EmployeeResult queryEmployeeVO	( @RequestBody  Employee emp)
 		{
 			System.out.println(emp.getEmployee_id());
@@ -1126,296 +1176,7 @@ public UserDetails responseBodyXML() {
 	就可以注入   BasicAPI hessianServiceClient
 
 =========================上 Spring MVC
-
-=========================Spring Portlet 1
-Spring portlet 只支持 JSR 168 (Portlet 1.0),而现在的是 JSR 286 (Portlet 2.0)
-
-//可以使用eclipse集成pluto,要双击pluto->选择use tomcat installation->选择webapps目录,要在META-INF/建立contex.xml写<Context crossContext="true" />
-//能否被pluto admin界面被检测到,是因为web.xml中<url-pattern>/PlutoInvoker/x 对应的org.apache.pluto.container.driver.PortletServlet
-//lib不要加pluto中已经有的.jar包,刚启动,是点pluto admin界面进入登录界面的,可能有错误,再点一次就OK
-
-是pluto中的jsp报错, 
-java.lang.ClassCastException: org.springframework.web.servlet.support.JstlUtils$SpringLocalizationContext cannot be cast to java.lang.String
-pluto-2.0.3\webapps\pluto\WEB-INF\themes\pluto-default-theme.jsp 未部的 2003-<fmt:formatDate value="${now}" pattern="yyyy"/>删除
-
-
-只供编译使用
-portlet-api_2.0_spec-1.0.jar
-pluto-taglib-2.0.3.jar
-
---web.xml
-<!-- 设定Spring的根上下文 -->
-<context-param>
-	<param-name>contextConfigLocation</param-name>
-	<param-value>/WEB-INF/applicationContext.xml</param-value>
-</context-param>
-<listener>
-	<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-</listener>
-	
-//把 PortletRequest/PortletResponse 转换到 HttpServletRequest/HttpServletResponse
-<servlet>
-	<servlet-name>ViewRendererServlet</servlet-name>
-	<servlet-class>org.springframework.web.servlet.ViewRendererServlet</servlet-class>
-	<load-on-startup>1</load-on-startup>
-</servlet>
-<servlet-mapping>
-	<servlet-name>ViewRendererServlet</servlet-name>
-	<url-pattern>/WEB-INF/servlet/view</url-pattern>
-</servlet-mapping>
-
-<servlet>
-	<servlet-name>SpringTestPortlet1</servlet-name>
-	<servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
-	<init-param>
-		<param-name>portlet-name</param-name>
-		<param-value>SpringTestPortlet1</param-value><!-- 除了portlet.xml中相同外,还要和<url-pattern>/PlutoInvoker/后面部分也要相同 -->
-	</init-param>
-	<load-on-startup>1</load-on-startup>
-</servlet>
-<servlet-mapping>
-	<servlet-name>SpringTestPortlet1</servlet-name>
-	<url-pattern>/PlutoInvoker/SpringTestPortlet1</url-pattern> <!-- 如使用Pluto2.0.3 必须以/PlutoInvoker/开头-->
-</servlet-mapping>
-
-
----portlet.xml 
-<portlet-app
-    xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"
-    version="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd
-                        http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
-<portlet>
-		<portlet-name>SpringTestPortlet1</portlet-name>
-		<display-name>SpringTestPortlet1</display-name>
-		<portlet-class>org.springframework.web.portlet.DispatcherPortlet</portlet-class> <!--Spring的-->
-		<init-param>
-			<name>contextConfigLocation</name>		//该文件中配置的bean只对这个portlet可见
-			<value>/WEB-INF/springtest-portlet1.xml</value>	<!-- 默认是/WEB-INF/下的[portlet-name]-portlet.xml, -->
-		</init-param>
-		<supports>
-			<mime-type>text/html</mime-type>
-			<portlet-mode>view</portlet-mode>
-			<portlet-mode>edit</portlet-mode>
-			<portlet-mode>help</portlet-mode>
-		</supports>
-		<portlet-info>
-			<title>SpringTestPortlet1</title>
-		</portlet-info>
-	</portlet>
-</portlet-app>
-
---spring.xml
-<bean id="defaultExceptionHandler" class="org.springframework.web.portlet.handler.SimpleMappingExceptionResolver">
-	<property name="order" value="10" />
-	<property name="defaultErrorView" value="error" />
-	<property name="exceptionMappings">
-		<props>
-			<prop key="javax.portlet.UnavailableException">unavailable</prop>
-			<prop key="java.lang.Exception">error</prop>
-		</props>
-	</property>
-</bean>
-<bean class="org.springframework.web.portlet.handler.PortletModeHandlerMapping">
-	<property name="portletModeMap">
-		<map><!-- key为当前的portlet模式（比如：'view', 'edit', 'help'）  -->
-			<entry key="view" value-ref="myFormController" /><!--   myFormController -->
-		</map>
-	</property>
-</bean>
  
-<!-- 必须 使用 portletMultipartResolver 做id或name --> 
-<bean id="portletMultipartResolver" class="org.springframework.web.portlet.multipart.CommonsPortletMultipartResolver">
-	<property name="maxUploadSize" value="167772160"/><!-- 20M 以byte为单位-->
-</bean>
-
-@Controller
-@RequestMapping("view")//只Annotation方式 
-//@Resource(name="myFormController")
-public class MyFormController 
-{ 
-	@InitBinder
-	protected void initBinder(PortletRequest request,PortletRequestDataBinder binder) throws Exception 
-	{
-		binder.registerCustomEditor(Date.class,new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd"),true));//日期格式 
-		binder.registerCustomEditor(byte[].class, new ByteArrayMultipartFileEditor());//对图片是byte[]的附件做上传
-	}
-	//---------
-	@RenderMapping
-	public String search(RenderRequest renderRequest,RenderResponse renderResponse, Model model) 
-	{
-		return "anno/myform";
-	}
-	
-	@ActionMapping
-	public void submitForm(ActionRequest actionRequest,ActionResponse actionResponse, 
-			Model model, @ModelAttribute("myform") MyForm myForm) throws Exception
-	{
-		Date birthday=myForm.getBirthday();
-		System.out.println(birthday);
-		
-		//对图片是byte[]的附件做上传
-		if(myForm.getByteFile().length>0)
-		{
-			System.out.println("FileUploadBean:Length===" + myForm.getByteFile().length);
-			byte[] buff = myForm.getByteFile();
-			FileOutputStream out = new FileOutputStream(new File("c:/temp/ByteFile.upload"));//原始文件名是??
-			out.write(buff);
-			out.close();
-		}
-		
-		//------------------------------------------
-		if(myForm.getMultiFile().getSize()>0)
-		{
-			//对于MultipartFile的方式
-//			actionRequest.setCharacterEncoding("UTF-8");//没用的
-			String filename=myForm.getMultiFile().getOriginalFilename();//中文文件名OK
-			byte[] buff=new byte[1024];
-			FileOutputStream out=new FileOutputStream(new File("c:/temp/"+filename));
-			 InputStream  input=myForm.getMultiFile().getInputStream(); 
-			  while(input.read(buff)!=-1) 
-			  {
-				  out.write(buff); 
-			  }
-			  out.close();
-			  input.close(); 
-		}
-
-		  //对于List<MultipartFile>
-		 for( MultipartFile photo:myForm.getPhotos()) 
-		 {
-			 if(photo.getSize()>0)
-			 {
-				 byte[] buff=new byte[1024];
-				 FileOutputStream out=new FileOutputStream(new File("c:/temp/"+photo.getOriginalFilename()));
-				 InputStream input=photo.getInputStream(); 
-//				 photo.getContentType();
-//				 photo.getSize();
-				 while(input.read(buff)!=-1) 
-				  {
-					  out.write(buff); 
-				  }
-				 out.close();
-				 input.close(); 
-			 }
-		 }
-		 actionResponse.setRenderParameter("action", "resultRender");//像是链式服务端重定向
-	}
-	@RenderMapping(params = "action=resultRender")
-	public String toAddUserPage(RenderRequest renderRequest,
-			RenderResponse renderResponse) {
-		return "anno/result";
-	}
-	
-	@ActionMapping(params = "action=deleteAction")
-	public void deleteByID(ActionRequest actionRequest,ActionResponse actionResponse, 
-			Model model, @RequestParam(value = "id") String id) throws Exception
-	{
-		System.out.println("得到:ID="+id);
-	}
-}
-
-<portlet:renderURL var="resultRender">
-	<portlet:param name="action" value="resultRender" />
-</portlet:renderURL>
-<a href="${resultRender}">resultRender</a>
-
-
-<portlet:actionURL var="deleteAction">
-	<portlet:param name="action" value="deleteAction" />
-	<portlet:param name="id" value="123" />
-</portlet:actionURL>
-<a href="${deleteAction}">deleteAction</a>
-	
-<!-- name="myform"  commandName="myform"   modelAttribute="myform 都OK-->
-<form method="post" action="<portlet:actionURL/>" enctype="multipart/form-data" modelAttribute="myform" >
-
-每个 DispatcherPortlet 都有自己的 WebApplicationContext
-接口org.springframework.web.portlet.mvc.Controller
-{	void handleActionRequest(request,response) //动作阶段处理动作请求
-	ModelAndView handleRenderRequest(request,response) //显示阶段应该处理显示请求，并返回合适的模型和视图
-}
-
-Spring 针对 JSR-168 Portlet 新增了 globalSession 和 session 两种 bean scope
-<bean id="globalSessionTestBean" class="springportal.bean.TestBean"  scope="globalSession" />//仅仅在基于 portlet 的 Web 应用中才有意义
-
-
---jsp
-<%@ taglib prefix="portlet" uri="http://java.sun.com/portlet_2_0"%>
-<portlet:actionURL var="actionURL" />
-<form action="${actionURL}"   >
-<%--不能用<form:form>因为路径不是以/pluto开头,而是自己的项目开头
-<form commandName="addressBook" action="${actionURL}"  >
- --%>
- 
-<a href="<portlet:renderURL portletMode="view" windowState="normal"/>">-Home -</a>
- 
-  
-<bean id="my" class="spring_portlet.MyAbstractController">
-	<property name="cacheSeconds" value="20"/> <!-- 1表示表示不改变缺省的缓存,0不缓存结果 -->
-	<property name="requireSession" value="true"/>
-	<property name="synchronizeOnSession" value="true"/>
-	<property name="renderWhenMinimized" value="true"/>
-</bean>
-
-<bean id="wrappingController" class="org.springframework.web.portlet.mvc.PortletWrappingController">
-	<property name="portletClass" value="sample.MyPortlet"/>
-	<property name="portletName" value="my-portlet"/>
-	<property name="initParameters">
-		<value> config=/WEB-INF/my-portlet-config.xml</value>
-	</property>
-</bean>
-
-请求参数来控制映射。这个参数的缺省名是 'action'，可以通过 'parameterName' 属性来改变。
-<bean id="parameterHandlerMapping" class="org.springframework.web.portlet.handler.ParameterHandlerMapping"/>
-	<property name="parameterName" value="action"/> 
-    <property name="parameterMap">
-        <map>
-            <entry key="add" value-ref="addItemHandler"/>
-            <entry key="edit" value-ref="editItemHandler"/>
-            <entry key="delete" value-ref="deleteItemHandler"/>
-        </map>
-    </property>
-</bean>
-
-<bean id="portletModeParameterHandlerMapping" class="org.springframework.web.portlet.handler.PortletModeParameterHandlerMapping">
-    <property name="portletModeParameterMap">
-        <map>
-            <entry key="view"><!-- 'view' portlet模式 -->
-                <map>
-                    <entry key="add" value-ref="addItemHandler"/>
-                    <entry key="edit" value-ref="editItemHandler"/>
-                    <entry key="delete" value-ref="deleteItemHandler"/>
-                </map>
-            </entry>
-            <entry key="edit"><!-- 'edit' portlet模式 --> 
-                <map>
-                    <entry key="prefs" value-ref="prefsHandler"/>
-                    <entry key="resetPrefs" value-ref="resetPrefsHandler"/>
-                </map>
-            </entry>
-        </map>
-    </property>
-</bean>
- 
- 
-----------只用annotation配置失败????
-
-<!-- 对只能Annotation配置-->
-<mvc:annotation-driven /> <!-- 可不要 -->
- 
-
-@Controller
-@RequestMapping("view")//对只能Annotation配置
-public class LeftPortletController
-{
-	@RenderMapping
-	public String defaultPage(RenderRequest renderRequest,
-			RenderResponse renderResponse, Model model) {
-		return "Left";
-	}
-}
-=========================上 Spring Portlet 1
 
  =========================Spring HATEOAS
 (HATEOAS) Hypermedia as the Engine of Application State
@@ -1471,3 +1232,82 @@ public class GreetingController
 
 @RestController 返回 Greeting 类时,是以JSON显示
 如要以XML返回,返回类要有默认构造器,返回类加@XmlRootElement  (可选方法上加@ResponseBody)
+
+
+==============Swagger框架
+
+swagger-springmvc-1.0.2.jar
+swagger-models-1.0.2.jar
+swagger-annotations-1.3.11.jar
+guava-17.0.jar
+swagger-spring-mvc-ui-0.4.jar  不可自定义界面
+
+  
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+@Controller
+@RequestMapping(value = "swaggerController")
+public class SwaggerController {
+	@RequestMapping(value = "test", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @ApiOperation(value = "测试接口", httpMethod = "POST", notes = "测试接口", response = ResponseModel.class)
+    public @ResponseBody ResponseModel newPlan(@ApiParam(required = true) @RequestBody  RequestModel request)
+    {
+		System.out.println("StartTime="+request.getStartTime());
+		ResponseModel resp=new ResponseModel();
+		resp.setData("123");
+		resp.setErrorMessage("成功");
+		return resp;
+    }
+}
+
+import com.mangofactory.swagger.configuration.SpringSwaggerConfig;
+import com.mangofactory.swagger.models.dto.ApiInfo;
+import com.mangofactory.swagger.plugin.EnableSwagger;
+import com.mangofactory.swagger.plugin.SwaggerSpringMvcPlugin;
+@Configuration
+@EnableSwagger
+public class SwaggerConfig
+{
+    private SpringSwaggerConfig springSwaggerConfig;
+    @Autowired
+    public void setSpringSwaggerConfig(SpringSwaggerConfig springSwaggerConfig)
+    {
+        this.springSwaggerConfig = springSwaggerConfig;
+    }
+
+    @Bean
+    public SwaggerSpringMvcPlugin customImplementation() throws IOException
+    {
+        Properties prop = new Properties();
+        String pathString = this.getClass().getClassLoader().getResource("/").getPath();
+        pathString+="properties/apiInfo.properties";
+        InputStream in = new FileInputStream(pathString);
+        prop.load(in);
+        in.close();
+        ApiInfo apiInfo = new ApiInfo("项目标题",  "项目描述", "官方URL",  "联系人aa@sina.com", null, null);
+        return new SwaggerSpringMvcPlugin(this.springSwaggerConfig).apiInfo(apiInfo).includePatterns(".*?");
+    }
+}
+import com.fasterxml.jackson.annotation.JsonProperty;
+public class RequestModel     {
+
+    @JsonProperty("StartTime")
+    private Date startTime; 
+    
+    @JsonProperty("Status")
+   	private  String status;
+           
+    @JsonProperty("ID")
+	private  Long id;
+}
+properties/apiInfo.properties
+
+
+http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp 
+
+ 使用 http://127.0.0.1:8080/J_SpringMVC/api-docs.mvc  或者修改   <url-pattern>/</url-pattern>
+
+页面中 Data Type 组选    Model Schema 
+
+
+

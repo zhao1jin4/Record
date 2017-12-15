@@ -1,6 +1,12 @@
 ﻿https://github.com/mybatis/
 
 
+
+如用like 
+1、MySQL ：LIKE CONCAT('%',#{empname},'%' ) 或者 LIKE CONCAT('%',‘${empname}’,'%' )
+2、Oracle：LIKE '%'||#{empname}||'%'
+
+
 mybatis-3-config.dtd 和 mybatis-3-mapper.dtd 在 org.apache.ibatis.builder.xml
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -130,6 +136,15 @@ System.out.println("sql param:==>"+param.toString());
 	}
 }
 
+可以传递一个List或Array类型的对象作为参数,MyBatis会自动的将List或Array对象包装到一个Map对象中,List类型对象会使用list作为键名,而Array对象会用array作为键名。
+parameterType="list" 或者不写也可以
+
+<if test="list != null  list.size()>0" >
+	<foreach collection="list" item="item"   open="("  separator="or" close=")" >
+			  BILL_CODE=#{item}
+	</foreach>
+</if>
+	
 <!-- parameterType="string" 和  parameterType="int"
    如使用MyBatis的session方法调用,如selectOne(),要使用#{value},如使用Spring的MapperFactoryBean叫什么都可
 -->
@@ -212,6 +227,9 @@ System.out.println("sql param:==>"+param.toString());
 			where id=#{id}
 	</update>
 </mapper>	
+
+<if test=' name=="你好" '>  用 == 做相等判断，字串使用双引号
+<if test="signDateStr !=null and signDateStr !=''" >
 
 得到mysql 的自增主键
 	
@@ -464,7 +482,16 @@ public class SqlProvider
 
  create_time >= #{beginTime,jdbcType=TIMESTAMP} and create_time <= #{endTime,jdbcType=TIMESTAMP}
   
-  
+ jdbcType=DATE 只有年月日，没有时分秒  
+ 取值对应于 org.apache.ibatis.type.JdbcType中的值 其实就是  java.sql.Type中的值
+ 
+ Long deleted;  
+ ,jdbcType=NUMERIC      NUMERIC,INTEGER
+ 
+<if test="deleted !=null ">   
+	AND s.BL_DELETE=#{deleted}      
+</if>
+	
  //--分页 ,Map 参数
 @SelectProvider(type = SqlProvider.class, method = "getRecordCountByMap")
 public long getRecordCountByMap(Map<String,String> params);
@@ -623,8 +650,19 @@ SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(confi
          -->
 	<property name="configLocation" value="classpath:org/zhaojin/mybatis/Configuration.xml"></property>
 	 <!--
+	 <property name="configurationProperties">
+        <props>
+          <prop key="jdbcTypeForNull">NULL</prop>
+        </props>
+    </property>
 	<property name="mapperLocations" value="classpath*:org/zhaojin/mybatis/vo/**/*.xml" />
+	<property name="plugins">
+		<list>
+			<bean class="mybastis_spring.SQLLogInterceptor" />
+		</list>
+	</property>
 	 -->
+	    
 </bean>
 <!-- 你不能在Spring管理的SqlSession上调用SqlSession.commit()，SqlSession.rollback()或SqlSession.close()方法 -->
 
@@ -655,8 +693,10 @@ SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(confi
 <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate"> 
 	<constructor-arg index="0" ref="sqlSessionFactory" />
 </bean>
-    
-
+ 
+ batchSqlSessionTemplate.insert()默认是自动立即提交的
+batchSqlSessionTemplate.commit(); 
+batchSqlSessionTemplate.clearCache();
 
 org.apache.ibatis.session.SqlSession batchSqlSession = sqlSessionTemplate.getSqlSessionFactory().openSession(  ExecutorType.BATCH, false);//auto-commit:false
 	BaseDao batchBaseDao= batchSqlSession.getMapper(BaseDao.class);

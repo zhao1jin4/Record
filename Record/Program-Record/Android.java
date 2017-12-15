@@ -1,4 +1,6 @@
 
+Kotlin 成为 Android 官方开发语言
+
 --------------OMA
 www.openmobilealliance.org  ->TECHNICAL INFORMATION->Current Release->OMA Device Management V2.0
 
@@ -17,6 +19,7 @@ Dalvik VM是Android平台的核心组成部分之一，它的名字来源于冰�
 windows/mac 下载多选  Intel x86 Emulator Accelerator(HAXM installer)( linux不用的)) 
 		HAXM=Hardware Accelerated Execution Manager
 		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat  (也可intelhaxm-android.exe)
+	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x 
 	
 	下载多选 Android support Library,Google Repository
 	
@@ -41,8 +44,10 @@ https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project
  
  ADT-23.0.7_为SDK Tools r24.1.2设计的_最后google官方版本2015-08 
 ----- Android Studio
+  在 ~/.AndroidStudio2.3/ 
 
- 2.2.2 版本 ,带SDK的大小1.6GB  默认安装目录 C:\Users\zhaojin\AppData\Local\Android\sdk 
+ 默认安装目录 C:\Users\zhaojin\AppData\Local\Android\sdk 
+  默认工作区  C:\Users\zhaojin\AndroidStudioProjects
  如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
  
 基于IntelliJ IDEA ,使用openJDK8 ,Gradle构建
@@ -51,16 +56,20 @@ https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project
 第一个项目的名字是默认生成的,如mobile,可以重命名,会修改settings.gradle中的内容
 
  File->Other Settings->Default Project Structure 中设置Android SDK位置,Android NDK,JDK 
+ File-> Setting... ->Appearance & Behavior->System Settings-> Android SDK 可以下载SDK，镜像要在建立模拟器时下载，工具栏上也有的
+ 
  File-> Project Structure ...
 
-设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts->Font-> Save As ...后设置字体,18 比较好
-设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font
-会提示建立~/.AndroidStudio2.2/idea.properties
+设置菜单字体大小   File->Setting...->Appearance & Behavior-> Appearance -> Override defaul fonts by (not recommaned) 后面设置为14 (字体SimHei)
+
+设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts->Font-> Save As ...后设置字体,16
+设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font  16
+
 
 <project>\App\build\generated\source\r\debug\<package>\R.java
 <project>\App\build\generated\source\r\AndroidTest\debug\<package>\R.java
 
-Tools > Android > Android Device Monitor 会启动tools\monitor
+Tools > Android > Android Device Monitor 会启动tools\monitor  可以传文件 
 
 build.gradle文件在android括号中加
  productFlavors
@@ -86,10 +95,35 @@ task printVariantNames{
 
 执行 gradlew printVariantNames  (也可以使用 gradlew pVN 的形式)结果就是arrogantDebug,arrogantRelease及friendly,obsequious
 
+右击目录(libs)的jar包->add as library...
+建立项目自带的libs目录,放入jar包不会在AndroidStudio中显示,要重启才生效
+
+多个jar都有 META-INF/LICENSE 会报 DuplicateFileException 
+build.gradle中  android { }内部增加
+  packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+	
+
+LLDB 是 a next generation, high-performance debugger. 
+CMake 是 cross-platform  , build, test and package
+GPU Debugging tools
+
+
+
 ----- 
  android-sdk-windows\tools\monitor.bat 会启动界面 ,即老的ADT插件里的DDMS,有File Explorer
  
-tools\android.bat update sdk --no-ui  新版本会调用 tools\bin\sdkmanager  --update
+tools\android.bat update sdk --no-ui  新版本会调用 tools\bin\sdkmanager  --update  没有界面，使用Android Studio
+新版本建议使用sdkmanager.bat avdmanager.bat 命令
+
+sdkmanager.bat   --list  显示同界面所有sdk列表
+
+老版本的 tools_r25.2.3-windows\android.bat  还是有界面的
  
 tools\bin\sdkmanager --update --proxy=http  --proxy_host=mirrors.neusoft.edu.cn  --proxy_port=80 --no_https   还是找不到.xml文件
 Android Studio 配置成这个 http://mirrors.neusoft.edu.cn/android/repository/repository-12.xml
@@ -98,14 +132,13 @@ Android Studio 配置成这个 http://mirrors.neusoft.edu.cn/android/repository/
 emulator: ERROR:This AVD's configuration is missing a kernel file!!
 是因为android所在路径太长了
 
+
 http://developer.android.com/develop/index.html
 samples\android-19\legacy\ApiDemos  运行后 app,drawable,view中的是可见的,Content,Preference,Animation
-
-
-双击 SDK Setup.exe 会下载并创建.android 目录(ANDROID_SDK_HOME下)  ,有代理下不了
+ 
 
 添加环境变量 ANDROID_SDK_HOME
-PATH指向tools目录 ,platform-tools目录下有adb命令
+PATH指向tools 目录,tools/bin/ ,platform-tools目录下有adb命令
 
 Android 使用的是　dalvik 虚拟机
 
@@ -135,15 +168,12 @@ run configuration...新建一个Android,来运行
 
 导入sample,新建 Android项目->选择create project from exist source ,选目录后,会自动写Package name:的值
 
-报错  cvc-enumeration-valid: 对于枚举 '[ldpi, mdpi, tvdpi, hdpi, xhdpi, xxhdpi, xxxhdpi]', 值 '280dpi' 不具有面有效性。它必须是来自枚举的值
-把  android-sdk-windows\tools\lib\devices.xml 拷贝到 
-android-sdk-windows\system-images\android-24\android-wear\x86\devices.xml
-android-sdk-windows\system-images\android-24\android-wear\armeabi-v7a\devices.xml
-做文件替换,得启eclipse就OK了,也有adb进程了
 
 
 -------android命令
-列出模拟器类型:	 android list targets
+列出模拟器类型:	 android list targets 老命令
+使用 			avdmanager.bat list target 看到SDK 版本
+
 创建模拟器:	 android create avd --target 1 --name myAVD   --skin QVGA
 			>Do you wish to create a custom hardware profile [no]
 			android list targets的结果id: 1 or "android-17"
@@ -169,6 +199,7 @@ emulator @myAVD -http-proxy 172.52.17.184:8080   -dns-server 10.103.33.51
 
 
 -------adb命令
+platform-tools\adb
 adb(Android Debug Bridge)
 
 
@@ -198,6 +229,12 @@ adb pull <remote> <local>
 安装软件 adb -s emulator-5554 install -r  c:\my.apk   (-r reinstall)
 卸载软件 adb uninstall com.can.myandroid (这是package名,没有.apk)
 		 adb uninstall -k <package名> 卸载软件但是保留配置和缓存文件
+
+AndroidStuiod生成的命令
+adb push E:\tmp\A_Cordova_7\platforms\android\build\outputs\apk\android-debug.apk /data/local/tmp/org.zhaojin.cordova7
+adb shell pm install -r  /data/local/tmp/org.zhaojin.cordova7
+adb shell am start -n "org.zhaojin.cordova7/org.zhaojin.cordova7.MainActivity" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER
+
 
 adb logcat *:W 显示日志,比在eclipse中显示的消息要长,会一直监控
 
@@ -493,7 +530,15 @@ OnClickListener start =new OnClickListener()
  }
 player= new MediaPlayer();
 player.setDataSource(Environment.getExternalStorageDirectory()+"/ring.mp3");//从文件系统读
-player.prepare();//缓冲
+player.prepare();//缓冲 //MediaPlayer.create()的方式不要再调用prepare()
+
+mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {//构造器实例化MediaPlayer时这样调用
+			@Override
+			public void onPrepared(MediaPlayer mediaPlayer) {
+ 				mediaPlayer.start();
+			}
+		});
+		
 player.reset();
 
  
@@ -744,7 +789,23 @@ spinner.setOnItemSelectedListener(new OnItemSelectedListener()
 			}
 	});
 
-测试项目
+---- 新版本Android Studio Junit 测试项目	
+import android.support.test.runner.AndroidJUnit4;
+
+@RunWith(AndroidJUnit4.class) //如加这个，运行时会启动模拟器安装apk
+public class ExampleInstrumentedTest {
+    @Test
+    public void useAppContext() throws Exception {
+        Context appContext = InstrumentationRegistry.getTargetContext();
+        assertEquals("org.zhaojin.thejunit", appContext.getPackageName());
+    }
+}
+
+
+
+
+
+---- 老版本ADT测试项目
     <application>
         <uses-library android:name="android.test.runner" />
     </application>
@@ -758,6 +819,7 @@ spinner.setOnItemSelectedListener(new OnItemSelectedListener()
   
 package com.example.android.snake
  extends ActivityInstrumentationTestCase2<Snake> 
+---- 
 
 layout.xml中
 	<com.example.android.snake.SnakeView ( extends TileView)
@@ -2104,8 +2166,8 @@ res/xml/my_widget.xml文件中
     android:initialLayout="@layout/my_widget_layout"
      >
 </appwidget-provider>
-
-public class MyAppWidgetProvider extends AppWidgetProvider 
+ 
+public class MyAppWidgetProvider extends AppWidgetProvider   //Android Studio运行时，配置要把Lanch:默认的Default Activity修改为Nothing
 {
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) 
 	{	
@@ -2130,6 +2192,8 @@ public class MyAppWidgetProvider extends AppWidgetProvider
 		System.out.println("onEnabled被调用");
 	}
 }
+
+
 
 //SimpleDateFormat format =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 DateFormat format =DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.CHINA);

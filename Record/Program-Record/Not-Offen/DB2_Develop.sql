@@ -1,4 +1,4 @@
-
+IBM Data Studio client 官方自带的工具
 
 这三种驱动的程序加载和连接建立方法如下：
 //Class.forName("COM.ibm.db2.jdbc.app.DB2Driver");

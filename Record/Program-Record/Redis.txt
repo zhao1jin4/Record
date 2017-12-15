@@ -1,4 +1,66 @@
 
+UI工具
+redis-desktop-manager-0.8.8   只能是查看,新建,不能写命令
+
+redisclient-win32.x86_64.2.0.jar
+RedisStudio-en-0.1.5.exe
+
+---------Codis
+Codis 3.2.0 基于 Redis 3.2.x
+支持 Docker 部署
+
+ 豌豆荚公司开发的一个分布式 Redis 解决方案，用Go语言开发的,使用zookeeper来作为辅助，
+不支持scan,keys命令
+分布式上层应用可以像使用单机的 Redis 一样使用
+
+https://github.com/CodisLabs/codis/
+https://github.com/CodisLabs/codis/tree/release3.2/doc
+
+
+
+./codis-dashboard   启动codis-dashboard   http://127.0.0.1:18080
+./codis-proxy  		启动codis-proxy
+./codis-server 		启动codis-server
+
+
+codis-fe  集群管理界面
+codis-admin
+
+同一个业务集群而言，可以同时部署多个 codis-proxy 实例；
+不同 codis-proxy 之间由 codis-dashboard 保证状态同步
+
+
+同一个业务集群而言，同一个时刻 codis-dashboard 只能有 0个或者1个 
+对集群的修改都必须通过 codis-dashboard 完成
+
+
+============== Redis-4.0.2 版本编译安装
+cd src 
+make    OK
+make test 要 tcl-8.5以上,可用8.6.7  测试OK,
+	redis-trib.rb 还是要ruby,有ruby-2.4.1编译安装后带 gem 命令(RubyGems)，还要ruby的redis依赖
+	gem install redis  报没有zlib,
+	可以从https://rubygems.org/ 上搜索redis下载文件redis-4.0.0.gem
+	gem install --local redis-4.0.0.gem 报没有zlib
+	cd ruby-2.4.1/ext/zlib
+	ruby ./extconf.rb  gcc报找不到 lzlibwapi   yum install zlib-devel
+ 
+make install 在 /usr/local/bin/redis-server
+
+
+提示 加 vm.overcommit_memory = 1 到  /etc/sysctl.conf ,用命令 sysctl vm.overcommit_memory=1立即生效
+cat /proc/sys/vm/overcommit_memory
+0 表示内核将检查是否有足够的可用内存供应用进程使用:如果有足够的可用内存,内存申请允许. 否则,内存申请失败,并把错误返回给应用进程。
+1 表示内核允许分配所有的物理内存，而不管当前的内存状态如何。
+
+
+ 警靠执行
+ echo never > /sys/kernel/mm/transparent_hugepage/enabled   
+ 放/etc/rc.local 中启动执行
+ 
+  WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
+
+ 
 ============== Redis-3.0
 REmote DIctionary Server(Redis) 
 
@@ -9,7 +71,7 @@ make 或  make MALLOC=libc   (默认在/usr/local/bin) 或  make PREFIX=/some/ot
 make test 提示要 tcl  ruby ,RubyGems
 	安装tcl,cd tcl8.6.6/unix    执行./configure && 	make &&	make install  就有/usr/local/bin/tclsh8.6
 
-	 redis-trib.rb 用的是ruby脚本 源码安装ruby-2.3.3 就有/usr/local/bin/ruby
+	 redis-trib.rb 用的是ruby脚本(yum intall ruby) 源码安装ruby-2.3.3 就有/usr/local/bin/ruby
 	./configure && make && make install
 	运行依赖于 RubyGems-2.6.8 安装 /usr/local/bin/ruby setup.rb
 	ruby的redis 模块 在线安装 /usr/local/bin/gem install redis   
@@ -31,7 +93,7 @@ redis-server /usr/local/etc/redis.conf
 ./redis-server --port 9999 --slaveof 127.0.0.1 6379  自己做从,--slaveof 后的是masterIP masterport
 ./redis-server /etc/redis/6379.conf --loglevel debug
 
-./redis-cli -p <port> 有交互命令如ping
+./redis-cli -p <port>  -h <hostname>  有交互命令如ping
 >help 再按tab有命令组的提示,如@string
  help brpop
 >bgsave  保存到磁盘  使用LASTSAVE 命令判断 BGSAVE 命令是否执行成功

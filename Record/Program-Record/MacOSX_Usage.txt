@@ -685,7 +685,7 @@ appDelete   卸载软件,拖入app后可看到其它关联的文件，准备删�
 gfxCardStatus 手工切换显卡
 
 
-OmniGraffle 	UML工具, Pro版本可打开Microsoft的viso,只有Mac,iOS版
+OmniGraffle 	UML工具, Pro版本可打开Microsoft的viso,只有Mac,iOS版 ,可以做iOS的原型设计
 OmniPlan		项目管理工具,可以打开Microsft的Project,只有Mac,iOS版
 smartdraw 
 

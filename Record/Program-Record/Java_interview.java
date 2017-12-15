@@ -2,6 +2,11 @@
 http://www.gsxt.gov.cn/index.html
 
 
+-----------
+
+
+-----------
+
 
 int x=4;
 System.out.println("value is " +((x>4)?99.9:9));
@@ -54,7 +59,7 @@ System.out.println(ss);
 
 对使用者实例化隐藏起来，
 
-JTA 设计模式
+JTA 设计模式  应该是桥接 
 
 
 
@@ -354,7 +359,6 @@ IBM CC / ClearCase 项目管理工具，很难用
 Active MQ 的事务
 
 多线程的实现方式，也包括ForkJoinPool，Callable
- 自己查到的  Akka Actors 第三方库实现多线程
 
 Strust2-2.5  Toke 同一个浏览器(同一session)请求两次生成的 tokenID　是相同的，如是第一次提交是删除token
 
@@ -372,6 +376,12 @@ Partition tolerance(分区容错性) 可靠性
 
 
 
+
+ Mysql 将同一个表中的  数据按照某种条件拆分到多台数据库（主机）上面，这种切分称之为数据的水平（横向）切分
+		按照不同的表（或者Schema）来切分到不同的数据库（主机）之上，这种切可以称之为数据的垂直（纵向）切分
+自定义   序列化   Externalizable
+ 
+ 
  
  索引怎么实现的  Btree  怎么存储的  
 http://www.aikaiyuan.com/1809.html
@@ -380,13 +390,8 @@ spring cloud
 
 
 R-tree (mysql spatial index ,MyISAM 和 InnoDB都支持 )
-
- Mysql 将同一个表中的  数据按照某种条件拆分到多台数据库（主机）上面，这种切分称之为数据的水平（横向）切分
-		按照不同的表（或者Schema）来切分到不同的数据库（主机）之上，这种切可以称之为数据的垂直（纵向）切分
-自定义   序列化   Externalizable
- 
  lucene  原理
- DubboX
+ 
  机器学习技术和应用：Mahou, Spark MLLib,GraphX
   
 画 UML  图
@@ -410,9 +415,7 @@ http://cailin.iteye.com/blog/2014486/
 
 
 有N 个CPU 通常使用N+1个线程  170页
-
-Elasticsearch  基于 Lucene 的 收费的
-
+ 
 
 System.out.println("理想".getBytes("UTF-8").length); //6
 System.out.println("理想".getBytes("GBK").length); //4
@@ -424,13 +427,13 @@ System.out.println("理想".getBytes("GBK").length); //4
 大数据做报表慢 ，主从的读写分离，分区，分表，
 限流 AtomicInteger 记录当前节点正在执行线程数（可能每个请求处理时间不一样），如分布式
 session/redis写mysql
-分布式事务 JTA ,千万不要说锁，事务是可以回滚的 , 用 Spring Nested 和 JTA 实现是依赖于数据库吗？？
+分布式事务 JTA ,千万不要说锁，事务是可以回滚的 , 用 Spring Nested 和 JTA 实现是依赖于数据库 
 分布式日志  
 多模块的权限控制在一个系统  Spring Security
 工作流 Activiti
 
-
-
+mysql 嵌套事务 
+	start transaction 这条SQL会自动执行commit,不希望这样可以set autocommit =0
 
 垂直拆分：原来一个表的信息，拆分到两个或者多个表中， 通过主键来进行关联。 
 水平切分：把一个表的数据按照某种规则划分到不同表或数据库里。（水平拆分行，行数据拆分到不同表中）  mongodb 的 shard切片
@@ -466,9 +469,16 @@ yield()法只能让同优先级的线程有执行的机会
 
 
 
+ReentrantLock  的好处是可以tryLock 加超时时间，或者事先检查 isHeldByCurrentThread（）
+
+偏向锁 
+JDK 8 ConcurentHashMap
+CopyOnWriteArrayList 多线程时是产生多个复本吗？
+
+多线程 组合先后执行 
+hash
 
 
 
 
-
-
+SoftReference,WeakReference

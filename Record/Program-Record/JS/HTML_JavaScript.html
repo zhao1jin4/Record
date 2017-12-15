@@ -1,6 +1,8 @@
 https://developer.mozilla.org/en-US/
+https://developer.mozilla.org/en-US/docs/HTML
 https://developer.mozilla.org/en-US/docs/HTML/HTML5
 https://developer.mozilla.org/en-US/docs/JavaScript
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference
 https://developer.mozilla.org/en-US/docs/WebGL
 https://developer.mozilla.org/en-US/docs/DOM
 ---
@@ -146,6 +148,8 @@ size=1; //IE和Firefox,但最小是1
 
 所有同时加;opacity:0.3;filter: alpha(opacity=30);
 ----
+firefox可用  console.log("测试日志"); 显示debug console中
+debugger;
 =================================JavaScript=================================
 try{
 	abc
@@ -338,9 +342,47 @@ alert(typeof(eval(prop3)[1]));//number
 
 删除数组，把length=0就可以了
 
+new Date();
+
+var dateFrom=Date.parse('2011-10-10T14:48:00');  //字串转日期的格式 
+var dateTo=Date.parse('2012-10-10 14:48:00');
+getDate()   //1 ~ 31
+getMonth() 	//月份 (0 ~ 11)。
+getFullYear() 	//四位数字返回年份
+getHours() 	//小时 (0 ~ 23)。
+getMinutes() 	//分钟 (0 ~ 59)。
+getSeconds() 	//秒数 (0 ~ 59)。
+getMilliseconds() 	//毫秒(0 ~ 999)。
+
+now.setHours(0,0,0,0);//清时分秒，毫秒
+
+
+toUpperCase();
 
 <script  type="text/javascript">
-
+  document.onkeydown=function(event)
+  {
+	 var e = event || window.event || arguments.callee.caller.arguments[0];
+	if(e && e.keyCode==27){ // 按 Esc 
+		alert('Esc'); 
+	} 
+   if(e && e.keyCode==65){ // 按 a 
+		var keyCode= e.keyCode ; 
+		var keyValue = String.fromCharCode(e.keyCode); 
+		alert("code: " + keyCode + " val: " + keyValue);  //val:A
+	}
+ }; 
+ 
+ document.onkeydown=function(event)
+ { 
+    if (event.keyCode == 13 && event.ctrlKey) {
+       alert("你按下了ctrl+enter");
+    }
+	 if (event.keyCode == 32 && event.ctrlKey&& event.altKey&& event.shiftKey) {
+        alert("你按下了ctrl+alt+shift+space");
+     }
+ }
+	 
 function addTableRow()
 {
 	var tableId=document.getElementById("myTableId");
@@ -383,7 +425,10 @@ function createSelect()
 	var oOption = document.createElement("OPTION");
 	oOption.text ='工工工工';
 	oOption.value = '1';
+
 	mySelect.options.add(oOption);//用 options.add()
+	var opt=new Option("文本","值");
+	mySelect.options.add(opt);
 }
 function deleteOptions()
 {
@@ -471,6 +516,33 @@ function handleErr(msg,url,line)
 }
 
 </script>
+document.getElementsByClassName('red test'); 返回数组
+document.getElementById('main').getElementsByClassName('test');
+document.getElementsByTagName("a")[0].getAttribute("target");
+document.getElementsByTagName("BUTTON")[0].hasAttribute("onclick");
+document.body.hasAttributes() //false
+
+document.getELementsByName();//只document有
+getElementsByTagName元素有
+
+children 是无素
+childNodes 有无素和空格的文本
+hasChildNodes('')
+childElementCount
+
+firstChild 
+firstElementChild 
+
+nextSibling
+previousSibling 
+nextElementSibling
+previousElementSibling
+
+removeChild(x)
+appendChild(x)
+Element (nodeType = 1):
+Text (nodeType = 3):
+Document (nodeType = 9):
 
 
 如代码中要写多行表示一句代码,用\ ,如 
@@ -517,6 +589,8 @@ function fclick(obj){
 	<input type="file" id="t_file" name="upload" style="position:absolute;filter:alpha(opacity=30);width:30px;"  onchange="f_file.value=this.value">
 <br>	<input type="submit" value="提交">
 </form>
+
+<img src="" onmouseover="this.style.cursor='pointer'"/>  手形是pointer
 
 -----
 <SCRIPT type="text/javascript">
@@ -581,7 +655,42 @@ scrollLeft 是组件左边在滚动条不可见的长度(IE),scrollTop
 scrollWidth 元素完整内容的宽度,包含当前没有被显示出来的部分,scrollHeigth
 scroll 值为yes,no,auto
 
-selectedIndex 属性
+select 元素的 selectedIndex 属性，options
+
+
+
+
+
+<style type="text/css">
+ .file-box{ position:relative;width:340px;}
+.txt{ height:22px; border:1px solid #cdcdcd; width:180px;}
+.btn{ background-color:#FFF; border:1px solid #CDCDCD;height:24px; width:70px;}
+.file{ position:absolute; top:0; left: 0px;right:80px; height:24px; filter:alpha(opacity:0);opacity: 0;width:260px }
+</style>
+ input type file 格式化
+<div class="file-box">
+  <form action="submitUpload.mvc" method="post" enctype="multipart/form-data">
+	<input type='text' name='textfield' id='textfield' class='txt' />  
+	 <input type='button' class='btn' value='浏览...' />
+	 <input type="file" name="img" class="file" id="fileField" size="28" onchange="onlyFileName(this)" />
+	 <input type="submit" name="submit" class="btn" value="上传" />
+  </form> 
+</div>
+
+function onlyFileName(inputFile )
+{
+	var fullPath=inputFile.value;
+	var lastIndex=fullPath.lastIndexOf('\\');
+	var fileName;
+	if(lastIndex!=-1)
+		fileName=fullPath.substring(lastIndex);
+	else
+		lastIndex=fullPath.lastIndexOf('/');
+	fileName=fullPath.substring(lastIndex+1);
+	document.getElementById('textfield').value=fileName;
+}
+
+
 
 
 Array的　join方法把数组里的每一个元素用指定的字符来连接成一个长的字符串
@@ -591,7 +700,13 @@ escape 方法
 
 var x={name :"lisi",age:23} //对象
 var y=["list",123] //数组
-new Array();
+
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array
+var arr=new Array();
+arr.push(xxx);
+arr.indexOf(xxx);
+arr.splice(pos, 1); //指定位置删一个
+
 var val=new Function("x","y","var sum ;sum=x*6 ;return sum;")//最后一个参数是计算
 alert(val(5,6));
 
@@ -617,6 +732,9 @@ RegExp.lastMatch属性 ($&)	//最后的全匹配
 RegExp.lastParen 属性 ($+)	//最后一个()
 RegExp.$1			//()中的
 
+"hello wang".replace("wang","li")//用法同java
+"hello wang".split(" ")//用法同java
+
 var reg_phone =/^0{0,1}(13[0-9]|15[0-9])[0-9]{8}$/i;
 var one_phone="13011112222";
 //alert(reg_phone.test(one_phone));//true
@@ -637,6 +755,16 @@ var item;
 while ((item = regs.exec(many)) != null)
    alert(item.index + "=" + item[0]);
    
+   
+   
+   
+<input type="text"  onKeypress="return checkNum(event)" size="3" maxlength="3"/>
+function checkNum(event)
+{
+	var res= /[\d]/.test(event.key);
+	return res|| event.keyCode==8|| event.keyCode==37|| event.keyCode==39|| event.keyCode==46;
+	//46 = Delete, 8 backspace , 37 left ,39 rigth
+}
 ----------
 
 window.open('queryProp?id='+parentId ,'','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=750,height=470,left=80,top=40');
@@ -663,8 +791,6 @@ if(num.length==1)
 screen.width *w;//screen对象
 
 
-<TR> nextSibling,previousSibling 属性
-
 
 
 JS 父子页面传递参数
@@ -684,11 +810,15 @@ alert(str);
 
 
 
-Element (nodeType = 1):
-Text (nodeType = 3):
-Document (nodeType = 9):
-
-
+ window.print(); //windows下 调出打印窗口,打印当前document,可以用window.open只打印当前窗口
+事件
+  window.onbeforeprint
+  window.onafterprint
+CSS
+  page-break-before
+  page-break-after
+  page-break-inside
+ 
 <BODY>
 	<SCRIPT>
 	alert(document.body.scrollWidth); //<SCRIPT>必须放在<BODY>中才可仿问 document.body,但值scrollWidth不对
@@ -712,7 +842,7 @@ function showLoader()
 	div.style.position='absolute';
 	div.style.backgroundColor='grey';
 	div.style.filter='alpha(opacity=30)';
-	div.style.zIndex=200;//DIV宽高也会影响滚动条;
+	div.style.zIndex=200;//DIV宽高也会影响滚动条;   HTML CSS中 { z-index : vOrder } 
 
 	var scrollH=body.scrollHeight;
 	var scrollW=body.scrollWidth;
@@ -749,7 +879,99 @@ function hideLoader()
 	document.getElementById("largeDiv").style.display='none';
 }
 	
----
+---方案2
+
+
+#loading {
+    width:100%;
+    position:absolute;
+    z-index:100;
+    background-color:#F7F9FC;
+    line-height:25px;
+    text-align:center;
+    font-size:11pt;
+    display:none;
+    opacity:0.5;
+}
+
+<div id="loading">
+    <div id="loadingContent">  <img src="loading.gif" alt=""/>正在加载数据,请稍候... </div>
+</div>
+
+$(function(){
+
+    $("#loading").css("height",$(document).height());
+    $("#loadingContent").css("padding-top",$(document).height()/2);
+ 
+    $.ajaxSetup({
+        //timeout: 3000,
+        beforeSend: function (xhr)
+        {
+			$("#loading").show();
+        },
+        complete: function (xhr, status)
+        {
+            $("#loading").hide();
+        }
+    });
+
+});
+
+
+
+
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Map
+
+var myMap = new Map();
+ 
+var keyObj = {},
+    keyFunc = function () {},
+    keyString = "a string";
+ 
+// 添加键
+myMap.set(keyString, "和键'a string'关联的值");
+myMap.set(keyObj, "和键keyObj关联的值");
+myMap.set(keyFunc, "和键keyFunc关联的值");
+ 
+myMap.size; // 3
+ 
+// 读取值
+myMap.get(keyString);    // "和键'a string'关联的值"
+myMap.get(keyObj);       // "和键keyObj关联的值"
+myMap.get(keyFunc);      // "和键keyFunc关联的值"
+ 
+myMap.get("a string");   // "和键'a string'关联的值"
+                         // 因为keyString === 'a string'
+myMap.get({});           // undefined, 因为keyObj !== {}
+myMap.get(function() {}) // undefined, 因为keyFunc !== function () {}
+
+
+myMap.set(NaN, "not a number");
+
+myMap.get(NaN); // "not a number"
+for (var [key, value] of myMap) {
+  console.log(key + " = " + value);
+}
+for (var key of myMap.keys()) {
+  console.log(key);
+}
+for (var value of myMap.values()) {
+  console.log(value);
+}
+for (var [key, value] of myMap.entries()) {
+  console.log(key + " = " + value);
+}
+
+myMap.forEach(function(value, key) {
+  console.log(key + " = " + value);
+}, myMap)
+
+var kvArray = [["key1", "value1"], ["key2", "value2"]];
+var myMap = new Map(kvArray);
+console.log(uneval([...myMap])); //uneval只对firefox有效，结果为 [["key1", "value1"], ["key2", "value2"]]
+console.log(uneval([...myMap.keys()])); 
+
+keys() 返回一个新的 Iterator 对象,有next()
 
 ===================HTML5
 <button> 未加 type 值时,在 <form>中的<button>单击会提交表单
@@ -781,7 +1003,7 @@ loop="loop"
 <audio src="song.ogg" controls="controls">
 </audio>
  
-<canvas id="myCanvas" width="200" height="100" style="border:1px solid #FF0000;">  overflow:scroll 或 auto
+<canvas id="myCanvas" width="200" height="100" style="border:1px solid #FF0000;">  overflow:scroll(一直显示滚动条) 或 auto(只有需要时才显示滚动条)
 	Your browser does not support the canvas element.
 </canvas>
 
@@ -951,7 +1173,7 @@ if ("WebSocket" in window)
 document.addEventListener("touchmove"  
 
 ===================CSS  CSS 3
-<table  style="table-layout:fixed;word-wrap:break-word;"> 为<td>内容换行 
+<table border="1"  style="table-layout:fixed;word-wrap:break-word;"> 为<td>内容换行 
  table {  border-collapse: collapse;table-layout:fixed;word-wrap:break-word}
  
 a:link css的链接色
@@ -1040,6 +1262,11 @@ a[src^="https"] 	选择其 src 属性值以 "https" 开头的每个 <a> 元素�
 a[src$=".pdf"] 	选择其 src 属性以 ".pdf" 结尾的所有 <a> 元素。
 a[src*="abc"] 	选择其 src 属性中包含 "abc" 子串的每个 <a> 元素。
 
+
+div#row2 { color: red;display: inline }  //可以让DIV不换行，但div如果有子DIV默认所有的子DIV都继承这个，也可用 float:left ,right
+ 
+<div id="row1">第一个div</div>   
+<div id="row2">第二个div不换行</div>
 
 
 ===================SVG

@@ -423,6 +423,10 @@ bin/mapred job -list
 
  
 ---------------------------------hadoop 子项目 zookeeper
+
+Exhibitor的主要功能 监控本机的Zookeeper服务 
+
+
 zookeeper-3.4.6\conf\zoo_sample.cfg 修改为  zoo.cfg
 bin/zkServer.sh start  / start-foreground / stop 
 bin/zkServer.sh status 看是leader
@@ -460,6 +464,7 @@ jute.maxbuffer 		必须用java system properties 设置才生效,必须每个服
 
 
 bin/zkCli.sh -server 127.0.0.1:2181   可以选项 -timeout 0 毫秒  -r 表示只读，如有超过半数服务连接断开，就不处理客户端请求，但可以处理只读请求
+也可以用 connect 127.0.0.1:2181 来连接
 ] ls /
 ] create /zk_test my_data   可加-s 表示序列,节点名后加序列号,-e 表示临时
 ] create /acl_ip_test ip:10.1.5.225:crwda   			crwda=create,read,write,delete,admin
@@ -1051,8 +1056,8 @@ public class TestSpark {
 
     JavaRDD<String> words = lines.flatMap(new FlatMapFunction<String, String>() {
       @Override
-      public Iterable<String> call(String s) {
-        return Arrays.asList(SPACE.split(s));
+      public Iterator<String> call(String s) {
+        return Arrays.asList(SPACE.split(s)).iterator();
       }
     });
 
@@ -1078,30 +1083,17 @@ public class TestSpark {
 }
  public static void main(String[] args) throws Exception 
  {
-	SparkConf sparkConf = new SparkConf().setAppName("JavaSparkSQL").setMaster("local[4]");
-    JavaSparkContext ctx = new JavaSparkContext(sparkConf);
-    JavaSQLContext sqlCtx = new JavaSQLContext(ctx);
-    JavaRDD<Person> people = ctx.textFile("/home/zhaojin/people.txt").map(
-      new Function<String, Person>() {
-        public Person call(String line) throws Exception {
-			String[] parts = line.split(",");
-			Person person = new Person();
-			person.setName(parts[0]);
-			person.setAge(Integer.parseInt(parts[1].trim()));
-			return person;
-        }
-      });
-    JavaSchemaRDD schemaPeople = sqlCtx.applySchema(people, Person.class);
-    schemaPeople.registerAsTable("people");
-    JavaSchemaRDD teenagers = sqlCtx.sql("SELECT name FROM people WHERE age >= 13 AND age <= 19");
-    List<String> teenagerNames = teenagers.map(new Function<Row, String>() {
-      public String call(Row row) {
-        return "Name: " + row.getString(0);
-      }
-    }).collect();
-
-    schemaPeople.saveAsParquetFile("/home/zhaojin/people.parquet");//会生成目录,当前不能已存在
-    JavaSchemaRDD parquetFile = sqlCtx.parquetFile("/home/zhaojin/people.parquet");
+  SparkSession spark = SparkSession
+      .builder()
+      .appName("Java Spark SQL basic example")
+      .config("spark.some.config.option", "some-value")
+      .getOrCreate();
+	 Dataset<Row> df = spark.read().json("examples/src/main/resources/people.json");
+    df.show();
+	df.select(col("name"), col("age").plus(1)).show();
+	Dataset<Row> sqlDF = spark.sql("SELECT * FROM people");
+    sqlDF.show();
+	  
 }
 
 List<Integer> data = Arrays.asList(1, 2, 3, 4, 5);
@@ -1125,7 +1117,7 @@ bin/pyspark --master local[4] --py-files code.py,code.zip
 
 还有其它方式来提交任务
 
-------------------------- Spark MLIb 机器学习
+------------------------- Spark MLIb 机器学习  (目前github最火的机器学习项目是TensorFlow)
 machine learning
 Mahout  使用 MapReduce 
 
@@ -1242,8 +1234,12 @@ sqoop:000>start job --jid 2 ( H2和MySQL 都卡住不动???  curl --request POST
 启动服务
 bin/kafka-server-start.sh config/server.properties   & 
 
+如windows 
+cd bin/windows
+kafka-server-start.bat ../../config/server.properties   &   默认监听 9092 端口，启动日志中有 port=9092
+
 建立topic 名为test
-bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test  (kafka-topics.bat)
 
 查看
 bin/kafka-topics.sh --list --zookeeper localhost:2181		
@@ -1251,121 +1247,87 @@ bin/kafka-topics.sh --list --zookeeper localhost:2181
 发消息  , 没有提示后可输入消息,server.properties 中有配置 port=9092,也有zookeeper端口
 bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
 
+#处理消息
+#bin/kafka-run-class.sh   WordCountDemo
+
 收消息,可以收到启动前的消息
 bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic test --from-beginning
 
-再启两个服务
+再启两个服务 (cluster,即主从和failover)
 > cp config/server.properties config/server-1.properties 修改
     broker.id=1
-    port=9093
-    log.dir=/tmp/kafka-logs-1
+    listeners=PLAINTEXT://:9093
+    log.dir=/tmp/kafka-logs1
  
 > cp config/server.properties config/server-2.properties 修改
 	broker.id=2
-    port=9094
-    log.dir=/tmp/kafka-logs-2
+    listeners=PLAINTEXT://:9094
+    log.dir=/tmp/kafka-logs2
 bin/kafka-server-start.sh config/server-1.properties &
 bin/kafka-server-start.sh config/server-2.properties &	
 
 已有3个服务,--replication-factor 3
 bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 3 --partitions 1 --topic my-replicated-topic
 
-查看是3,第一行是总的,次级一个partition一行
-bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic my-replicated-topic
-	isr(in-sync) ,leader,replicas中的值是 broker.id
+看哪个broker是leader,还有replaction和partition信息 
+bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic my-replicated-topic  如查topic名为test就一个
+	isr(in-sync 表示可以成为leader的) ,leader,replicas中的值是 broker.id
 
-如当前leader是1,kill它后,再查leader变了,如再收消息,会收到这个新leader节点所有未收过的消息
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic my-replicated-topic  				指定接口上写
+
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --from-beginning --topic my-replicated-topic  指定接口上读
+
+如当前leader是0,kill它后,再查leader变成1了
 ps -ef | grep server-1.properties
 
---发消息
-props.put("metadata.broker.list", "localhost:9092");
-props.put("serializer.class", "kafka.serializer.StringEncoder");
-props.put("partitioner.class", "hadoop.kafka.SimplePartitioner");
-props.put("request.required.acks", "1");
+windows查进程命令
+wmic process get processid,caption,commandline | find "java.exe"   
+
+
+如再从1(目前的leader)收消息,是读到1所有未读的消息,即使0已经读过
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9093 --from-beginning --topic my-replicated-topic 
  
-ProducerConfig conf=new ProducerConfig(props);
-Producer<String, String> producer=new Producer<String, String> (conf);
 
-Random rnd = new Random();
-long runtime = new Date().getTime();
-String ip = "192.168.2." + rnd.nextInt(255);
-String msg = runtime + ",www.example.com," + ip;
-
-KeyedMessage<String, String> data = new KeyedMessage<String, String>("my-replicated-topic", ip, msg);
-producer.send(data);
-producer.close();
-
-----ConsumerConnector 收消息
+-- JAVA API 
+	kafka-clients-0.11.0.0.jar
+	kafka-streams-0.11.0.0.jar
+	
 Properties props = new Properties();
-props.put("zookeeper.connect", "localhost:2181");
-props.put("group.id", a_groupId);
-props.put("zookeeper.session.timeout.ms", "400");
-props.put("zookeeper.sync.time.ms", "200");
-props.put("auto.commit.interval.ms", "1000");
-String topic="my-replicated-topic";
+props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-wordcount");
+props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
-ConsumerConnector consumer=Consumer.createJavaConsumerConnector(new ConsumerConfig(props));
-Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-topicCountMap.put(topic, new Integer(a_numThreads));//格式topic, #streams 
-Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
-List<KafkaStream<byte[], byte[]>> streams = consumerMap.get(topic);
- 
-ExecutorService executor = Executors.newFixedThreadPool(a_numThreads);
- for (final KafkaStream stream : streams) {
-	executor.submit(new ConsumerRunnable(stream));
- }
-executor.shutdown();
-consumer.shutdown();
 
-class ConsumerRunnable implements Runnable  中 run 方法
-{
-	ConsumerIterator<byte[], byte[]> it = m_stream.iterator();
-	while (it.hasNext())
-		System.out.println("---------" + new String(it.next().message()));
-}
+KStreamBuilder builder = new KStreamBuilder();
 
----- SimpleConsumer 收消息
-int partition = 0;
-String topic = "my-replicated-topic";
-String clientName = "Client_" + topic + "_" + partition;
+KStream<String, String> source = builder.stream("streams-wordcount-input");
 
-SimpleConsumer consumer = new SimpleConsumer("127.0.0.1", 9092, 100000, 64 * 1024, "leaderLookup");
-TopicMetadataResponse resp = consumer.send(new TopicMetadataRequest(Collections.singletonList(topic)));
-List<TopicMetadata> metaData = resp.topicsMetadata();
-PartitionMetadata returnMetaData=null;
-for (TopicMetadata item : metaData) {
-	for (PartitionMetadata part : item.partitionsMetadata()) {
-		if (part.partitionId() == partition) {
-			returnMetaData = part;
-		}
-	}
-}
-if (returnMetaData==null || returnMetaData.leader() == null) {
-	return;
-}
-String leadBroker = returnMetaData.leader().host();
-consumer.close();
+KTable<String, Long> counts = source
+		.flatMapValues(new ValueMapper<String, Iterable<String>>() {
+			@Override
+			public Iterable<String> apply(String value) {
+				return Arrays.asList(value.toLowerCase(Locale.getDefault()).split(" "));
+			}
+		}).map(new KeyValueMapper<String, String, KeyValue<String, String>>() {
+			@Override
+			public KeyValue<String, String> apply(String key, String value) {
+				return new KeyValue<>(value, value);
+			}
+		})
+		.groupByKey()
+		.count("Counts");
 
-consumer = new SimpleConsumer(leadBroker, 9092, 100000, 64 * 1024,clientName);
-Map<TopicAndPartition, PartitionOffsetRequestInfo> requestInfo = new HashMap<TopicAndPartition, PartitionOffsetRequestInfo>();
-requestInfo.put( new TopicAndPartition(topic, partition), 
-			new PartitionOffsetRequestInfo(kafka.api.OffsetRequest.EarliestTime(), 1) );
-OffsetRequest request = new OffsetRequest(requestInfo, kafka.api.OffsetRequest.CurrentVersion(), clientName);
-OffsetResponse response = consumer.getOffsetsBefore(request);
-long readOffset = response.offsets(topic, partition)[0];
+// need to override value serde to Long type
+counts.to(Serdes.String(), Serdes.Long(), "streams-wordcount-output");
 
-kafka.api.FetchRequest req = new FetchRequestBuilder().clientId(clientName)
-		.addFetch(topic, partition, readOffset, 100000).build();
-FetchResponse fetchResponse = consumer.fetch(req);
+final KafkaStreams streams = new KafkaStreams(builder, props);
+streams.start();
 
-for (MessageAndOffset messageAndOffset : fetchResponse.messageSet(topic, partition) ) 
-{
-	messageAndOffset.nextOffset();
-	ByteBuffer payload = messageAndOffset.message().payload();
-	byte[] bytes = new byte[payload.limit()];
-	payload.get(bytes);
-	System.out.println(String.valueOf(messageAndOffset.offset()) + ": "+ new String(bytes, "UTF-8"));
-}
+
+
+
 ===========Flume	( 水槽) 分布式海量日志采集、聚合和传输
 一个agent有三个部分
 	Source 接入数据

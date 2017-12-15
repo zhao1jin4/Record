@@ -88,7 +88,7 @@ WPS  可以打开 pdf,但如果是图片pdf显示不好
 Adobe Reader
 
 Firefox
-Chrome
+Chrome  
 
 FlashPlayer-11.1
 SWF Player for Android

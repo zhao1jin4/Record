@@ -433,6 +433,9 @@ select * from user_tables
 select * from all_tables  比user_xx多一个owner列
 select * from dba_tables 要有dba的权限
 
+ select * from user_objects ubs where ubs.OBJECT_TYPE='TABLE'; 
+ select * from user_objects ubs where ubs.OBJECT_TYPE='SEQUENCE'; 
+ 
 2.Dynamic performance tables
 时时被改变的
 在mount来自控制文件的文件的信息   和nomount来自内在的动态信息  时有，而.ataDictionary 中可在open database时可以访问

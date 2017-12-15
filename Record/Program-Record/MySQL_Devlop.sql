@@ -149,6 +149,8 @@ show variables like '%datetime_format%'
 now() --当前日期和时间都带的
 CURRENT_DATE  和 CURRENT_DATE() 是  curdate()的别名,是带日期
 select CURRENT_TIMESTAMP ;
+
+mysql,oracle 都有 current_date 和 current_timestamp
  
 select date_format(now(),'%Y-%m-%d  %H:%i:%s') 
 SELECT STR_TO_DATE('01,5,2013 12:22:32','%d,%m,%Y %H:%i:%s');
@@ -208,6 +210,26 @@ SUBSTRING(str,pos,len),pos从1开始
 subString(date_time2,1,13)
 CHARACTER_LENGTH(group_concat(dest_mobile  SEPARATOR  ';'))/14 
 GROUP_CONCAT(busiType order by sTerm asc SEPARATOR ',')  中可加order by ,
+
+
+
+--不用 group_concat 实现
+
+CREATE table stu_score(id int ,stu_id int ,score int );
+insert into stu_score  values(1,1001,80);
+insert into stu_score values(2,1002,81);
+insert into stu_score values(3,1001,82);
+insert into stu_score values(4,1002,83);
+
+select distinct t.stu_id,
+concat(
+        (select score from stu_score where stu_id=t.stu_id order by score desc limit 1 )
+        ,',',
+        (select score from stu_score  where stu_id=t.stu_id order by score asc limit 1)
+) as res
+from stu_score  t
+
+
 SUBSTR() 是 SUBSTRING 的别名
 right(str,len); -- 从右向左取最多长度的字串
 RPAD(str,len,padstr)
@@ -896,5 +918,9 @@ MySQL性能注意问题，如果left join 连续使用两个关联三张表 (最
 count(*) 可以保证数据正确,如果count(col) 如果某行col的值为null不会被计算,MySQL和Oracle都是这样的
 
 
+ select sleep(3);  //单位秒
+ 
 
-		
+
+
+ 

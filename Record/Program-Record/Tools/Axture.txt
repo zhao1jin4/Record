@@ -1,0 +1,15 @@
+﻿Axture RP 网计设计工具  开发前的网站布局功能 跳转规划
+
+
+Publish -> generate HTML files
+Publish -> Review (F5) 直接在浏览器中看
+
+
+在  library 库中 点下拉菜单-> load library... ->选择下载的 lollipop.rplib  (Android 库)
+
+
+
+
+
+
+

@@ -1,3 +1,9 @@
+
+
+
+#sqlplus pin/pin@192.168.1.66:1521/orcl  OK
+#sqlplus pin/pin@//192.168.1.66:1521/orcl  OK 
+
 如使用关键字做表名,或者字段名,使用 ""引用
 
 自定义数据类型--
@@ -68,8 +74,10 @@ create index i_t on t(username);
 set autotrace trace explain
    
 select * from t where username='SYSMAN';
-      
+ 
+查执行计划
 EXPLAIN PLAN  for   select /*+ index(t i_t) */ * from t where username='SYSMAN';     --强制使用索引 , INDEX(表名,索引名称) 
+-- commit;
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);  
  
 Oracle 默认是B-Tree 索引
@@ -144,6 +152,11 @@ all_ind_columns/dba_ind_columns/user_ind_columns 索引对应的字段信息
 analyze table tablename compute statistics for all indexes;  
 analyze table tablename delete statistics 
 查 dbms_stats 包中的函数
+
+
+substr( string, start_position, [ length ] )
+asciistr(user_name) -- 可判断中英文 如果是中文以\开头
+substr(asciistr(user_name),0,1)  = '\';
 
 create table score
 ( id  number    ,--primary key ,
@@ -255,6 +268,11 @@ CREATE OR REPLACE FUNCTION F_LINK(P_STR VARCHAR2) RETURN VARCHAR2
   2  AGGREGATE USING T_LINK;   --T_link 是一个type body 自定义聚合函数
 
 
+聚合函数  wmsys.wm_concat(以逗号分隔,官方文档查不到这个包和函数11g中有,12c网上说就没了) 同mysql的 group_concat 
+可用 REPLACE(WMSYS.WM_CONCAT(xxx), ',', ';') 做替换
+建议使用函数  listagg(bs.site_name,',')within group (order by bs.site_name)  
+
+
 select regexp_replace('tj_12_45_123','([^[:digit:]])','') from dual;
 1245123
 
@@ -293,7 +311,7 @@ when others
 
 NO_DATA_FOUND   (select xx into vv 没有)
 TOO_MANY_ROWS   ()
-CASE_NOT_FOUND  (CASE 没有ELSE)
+CASE_NOT_FOUND  (CASE 没有ELSE, //END)
 END
 
 myexcept EXCEPTION;
@@ -426,8 +444,8 @@ forall 批量插入，不是循环
 记录变量	_record
 
 
-要使用 ' ,可以用两个' 还可[],{} ,<>  ,要在外加'',前加q
-			如string_var:=q'[xxx'xx]'
+要使用 ' ,可以用两个' ,还可[],{} ,<>  ,要在外加'',前加q
+			如string_var:=q'[xxx'xx]'				//'
 
 
  ** 幂,E ,e   
@@ -494,7 +512,14 @@ fetch curor_name bulk collect into var1, var2...  [limit __rows] ##一次可取�
 
 close curor_name;
 
+COLLECT 聚合函数 要和type一起使用
+CREATE TYPE warehouse_name_t AS TABLE OF VARCHAR2(35);
+/
+SELECT CAST(COLLECT(warehouse_name ORDER BY warehouse_name)
+       AS warehouse_name_t) "Warehouses"
+   FROM warehouses;
 
+   
 参数不用给长度,只给类型
 
 for xx in curor_name(20) loop
@@ -588,10 +613,10 @@ select * from (select * from employees where rownum<10)
 
 
 rownum也只可以用=1,
-//13>10 从第10行开始，要3 条记录 ,(开始)10+条数(3)=23     OK
+//  从第10行开始,13条结束,要3 条记录   OK
 select *   from (select e.*, rownum row_num from employees e where rownum <= 13) emp  where emp.row_num >= 10; 
 
-//3<10 从第3行开始， 要10 条记录 ,(开始)3+条数(10)=13 OK
+// 从第3行开始, 13条结束 要10 条记录  OK
 select *   from (select e.*, rownum row_num from employees e where rownum <= 13) emp  where emp.row_num >= 3; 
 
 String page_sql="select * from (select tmp.*, rownum row_num from ("+sqlOrTable+") tmp where rownum <= " + pageNo * pageSize +") page  where page.row_num >" + (pageNo * pageSize - pageSize);//通用的就要多一个select
@@ -600,12 +625,13 @@ sql 中如果有id>0的情况,就必须加 order by id ,否则第一页和最后
 
 可以用 rownum != 10 同 rownum <10 ,是返回前9条数据
 可以用 rownum =1 第一条,rownum>0所有的
-
+可以使用     rownum = 1 ,不能使用 rownum = 2
+不能单个使用 rownum > 10 rownum 
 
 因为ROWNUM是对结果集加的一个伪列，即先查到结果集之后再加上去的一个列 (强调：先要有结果集)
 因为 rownum 是在查询到的结果集后加上去的，它总是从1开始
 
- 
+
 
 根层次为1
 select lpad(' ',3*(LEVEL-1))||last_name name  , lpad(' ',3*(LEVEL-1))||job_id job
@@ -619,10 +645,38 @@ select last_name ,salary,department_id
 from employees outer
 where salary >(select avg(salary) from employees where department_id=outer.department_id);
 
+
+select last_name ,salary,
+	(select department_name from department where id=outer.department_id)
+	as department_name
+from employees outer 
  
------------其它的
+----------- oracle 式的关联更新 1
 update boss_customer set total_balance=(select money_remain from users where user_id=boss_customer.user_id) 
 //子查询是在父每移动一行，就执行一次子查询
+
+update t_op_bd_loading_code_log l
+set l.op_user=
+	(select e.EMPLOYEE_NAME 
+	from T_BASE_EMPLOYEE e 
+	where e.EMPLOYEE_CODE =l.op_user_code 
+	)  
+where substr(asciistr(l.op_user),0,1)!='\';    -- '可能关联不到值，返回 null，性能底
+ 
+----------- oracle 式的关联更新 2
+视图方式
+update 
+(
+	select l.op_user, e.EMPLOYEE_NAME
+	from t_op_bd_loading_code_log l , T_BASE_EMPLOYEE e
+	where e.EMPLOYEE_CODE =l.op_user_code
+) 
+set  op_user=  EMPLOYEE_NAME 
+where substr(asciistr(op_user),0,1)!='\';  -- ' 关联不到的会过滤掉，性能高
+
+
+
+ 
 
 alter session set nls_lanugage='american'  会影响
 select * from V$NLS_PARAMETERS where parameter = 'NLS_CHARACTERSET';  的值
@@ -796,7 +850,7 @@ NLS_CHARSET_ID('ZHS16GBK')
 exception when dup_val_on_index 
   
 
-外建约束时可加ON DELETE CASCADE
+外键约束时可加ON DELETE CASCADE
  
 CREATE TABLE salary
 (
@@ -820,6 +874,7 @@ and   foreign_t.r_constraint_name=main_t.constraint_name
 and   foreign_t.constraint_type='R' 
 and   main_t.table_name='OD_OPERATOR' and main_c.column_name='OPERATORID';
 --with read only;
+主键 P 
 
  
 ----对select count(*)   from 的性能,不支持加 where,不支持事务
@@ -892,9 +947,9 @@ SELECT
 FROM A  left join B ON a.x=b.y
 	left join C ON a.x=b.z
 
-
+mysql,oracle 都有 current_date 和 current_timestamp
 select current_date from dual;和sysdate 相同,
-
+trunc(sysdate) 只要日期，不要时间
 current_timestamp
 select systimestamp from dual;
 
@@ -1056,9 +1111,14 @@ add_months(sysdate,1)  //-1
 extract(year from sysdate)　//,month,day
 
 months_between
+select sysdate, sysdate+numtodsinterval(1,'hour') from dual ; //日期加1小时
+    'DAY'
+    'HOUR'
+    'MINUTE'
+    'SECOND'
 
    
-length()函数可以数据有效
+length()函数,有效数据的长度,字串的个数，中文也是一个
 VSIZE(x)返回的是内部存储所占用的字节数
 
 
@@ -1173,3 +1233,11 @@ create unique index MPMTDATA.IX_BTPAY_MC_BUSI_S on MPMTDATA.T_MPMT_PAY_TRANS_DET
 
 	 
 	 
+	 
+事务
+ savepoint my_a;
+ 
+ rollback to my_a;
+
+
+

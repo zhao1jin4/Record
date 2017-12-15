@@ -12,6 +12,8 @@ http://book.51cto.com/art/200910/159525.htm		Luence
 http://www.linuxforum.net/books/automake.html 
  
 
+MySQL 源码用的boost C++ libraries 1.59 , 二进制文件名使用glibc  
+
 SUNStuio基于Netbeans的
 Anjuta
 

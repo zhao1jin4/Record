@@ -1100,61 +1100,50 @@ NPN_Invoke()
 
 http://blog.csdn.net/zougangx/article/category/693231
 
+=========Cordova-7
 
-=========Cordova-3.5
-目前windows,ubuntu,osx 不支持自定义插件
+windows 10 要用 Visual Studio 2015 
 
----- Windows 7
-VS2010 右击项目->Configuration Properties->General->Platform Toolset 中 V11修改为V100   又报 error C2065: 'MF_LOW_LATENCY' : undeclared identifier 
+npm install -g cordova
+cordova create E:/tmp/VS2015_Cordova7 org.zhaojin VS2015_Cordova7
+cd E:/tmp/VS2015_Cordova7
+cordova platform add  windows      
 
-如使用VS2013 报 LINK : fatal error LNK1104: cannot open file 'kernel32.lib'
-右击项目 properties -> VC++ Directory ->library directory中加 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\
-又报　 LNK2001: unresolved external symbol _MF_LOW_LATENCY
+VS2015打开CordovaApp.sln 
 
-README说要VS2012
+日志文件中报错 The source completed without providing data to receive.
+警告: 程序集绑定日志记录被关闭。
+要启用程序集绑定失败日志记录，请将注册表值 [HKLM\Software\Microsoft\Fusion!EnableLog] (DWORD)设置为 1   ，修改为1也没用
 
----- Windows 8.1 Enterprise 要 VS 2013
-VS2013 update 版本支持 Cordova 
 
-在win8.1 下编译不能在win8上运行
-在win8  下编译能在win8.1 上运行
+修改代码要在CordovaApp项目下，要先cordova plugin add 再写自己的代码，否则自己的代码会丢失！！！
+ 
+windows 10 下
+右击 win8.1 项目 -> set as startup project  (如选择 windows 10 (UAP) 就不行???)
 
-因目录是windows8,而在windows8.1 中建立的项目是windows8版本的,提示Tools for Maintaing Store apps for Windows8 要安装,要么可右击项目->Retarget to windows 8.1
+ 
+----win10 支持的插件 
+ 
 
-cordova-windows-3.5.0\cordova-windows\windows8\bin\create   c:/hello com.example.hello HelloWorld
-
-要下载安装node.js的msi安装包, 运行 npm install -g cordova 在线安装
-> cordova create c:/hello_npm com.example.hello HelloWorld 下载
-> cd  c:/hello_npm
-> cordova platform add windows8  下载
-> cordova build
-#cordova build windows8
-
-C:\hello_npm\platforms\windows8\cordova\clean.bat
-
-打开  .sln 文件
-可以选择 pad 的Simulator,Windows 8.1 Enterprise 系统(与主系统相同,为了不同的屏幕大小)
-VS 中显示项目是JS图标,即JavaScript 项目,package.appxmanifest文件中设置start page,对html文件设置为utf8,但以系统默认gbk保存
-
-----win8支持的插件
-cordova plugin add org.apache.cordova.camera
-cordova plugin add org.apache.cordova.file
-cordova plugin add org.apache.cordova.file-transfer
-cordova plugin add org.apache.cordova.network-information
-cordova plugin add org.apache.cordova.device
-cordova plugin add org.apache.cordova.device-motion
-cordova plugin add org.apache.cordova.device-orientation
-cordova plugin add org.apache.cordova.dialogs
-cordova plugin add org.apache.cordova.geolocation
-cordova plugin add org.apache.cordova.media-capture
-
-#cordova plugin add org.apache.cordova.media   报   error APPX1404
-#cordova plugin add org.apache.cordova.splashscreen 报不支持
+cordova plugin add cordova-plugin-camera 
+cordova plugin add cordova-plugin-geolocation
+cordova plugin add cordova-plugin-globalization
+cordova plugin add cordova-plugin-battery-status
+cordova plugin add cordova-plugin-contacts
+cordova plugin add cordova-plugin-dialogs
+cordova plugin add cordova-plugin-file-transfer
+cordova plugin add cordova-plugin-inappbrowser
+cordova plugin add cordova-plugin-media
+cordova plugin add cordova-plugin-media-capture
+cordova plugin add cordova-plugin-network-information
+cordova plugin add cordova-plugin-splashscreen
+cordova plugin add cordova-plugin-vibration
+cordova plugin add cordova-plugin-device 
 
 
 cordova plugin ls
  
-----cordova plugin add org.apache.cordova.device
+----cordova plugin add cordova-plugin-device 
 	document.addEventListener("deviceready", onDeviceReady, false);
 	function onDeviceReady() {
 		var element = document.getElementById('deviceProperties');
@@ -1165,7 +1154,7 @@ cordova plugin ls
 							'Device Version: '  + device.version  + '<br />';   //6.3.xxx
 	}
 
------cordova plugin add org.apache.cordova.dialogs
+-----cordova plugin add cordova-plugin-dialogs
 	function alertDismissed() {
 		out("you clicked the button");
 	}
@@ -1180,7 +1169,7 @@ cordova plugin ls
 			);
     }
 	
------cordova plugin add org.apache.cordova.network-information
+-----cordova plugin add cordova-plugin-network-information
 	document.addEventListener("offline", onOffline, false);//当3G,或者wifi网络打开,或者关闭时
     function onOffline() {
     	out("offline");
@@ -1202,9 +1191,18 @@ cordova plugin ls
         states[Connection.NONE]     = 'No network connection';
         out('Connection type: ' + states[networkState]);
     }
-	
-IE-11,VS2013 如使用jQueryMobile-1.4.3 报 JS 用innerHTML不安全?????,要求使用toStaticHTML或createElement
-http://go.microsoft.com/fwlink/?LinkID=247104
+-----cordova plugin add cordova-plugin-camera
+
+
+-----cordova plugin add cordova-plugin-geolocation
+
+
+
+
+
+ 如使用jquery.js 报用innerHTML不安全,要求使用toStaticHTML或createElement
+ 实际是appendChild()在断点处停止，这样jqueryMobile等插件就用不了
+https://msdn.microsoft.com/en-us/library/windows/apps/hh849625.aspx
 
 =========MPICH2 并行计算
  

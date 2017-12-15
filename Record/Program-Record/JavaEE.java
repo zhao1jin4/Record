@@ -167,9 +167,13 @@ response.sendError(HttpServletResponse.SC_NON_AUTHORITATIVE_INFORMATION,"未授�
 response.sendError(HttpServletResponse.SC_NOT_FOUND,"找不到页");
 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,"出现错误");
 response.sendRedirect("/ok.jsp");
+Cookie cookie = new Cookie("cookiename","cookievalue");
+response.addCookie(cookie);
+
 request.getRequestDispatcher("/ok.jsp").forward(request, response);//后面的不会被执行
 request.getRequestDispatcher("/ok.jsp").include(request, response);
-
+request.getCookies();
+	
 PrintWriter writer =response.getWriter();
 writer.println("<h2>中国</h2>");
 writer.close();//如是被其它Servlet,调用request.getRequestDispatcher("/ok.jsp").include(),就不要关闭
@@ -368,6 +372,7 @@ ${23*(5-2)}
 EL中隐含对象,pageContext,pageScope,requestScope,sessionScope,applicationScope,param,paramValues,header,headerValues,cookie,initParam
 ${pageContext.servletContext.serverInfo}
 ${pageContext.request.requestURL}
+${pageContext.request.contextPath}
 ${pageContext.response.characterEncoding}
 ${pageContext.session.createTime}
 ${header["User-Agent"]}//包含一些特殊字符,一定要使用[ ]
@@ -2015,6 +2020,17 @@ ManagedExecutorService executor = (ManagedExecutorService) ctx.lookup("java:comp
 
 ===javax.ws.rs.  CXF支持
 =============================JSON
+<dependency>
+    <groupId>javax.json</groupId>
+    <artifactId>javax.json-api</artifactId>
+    <version>1.1</version>
+</dependency>
+<dependency>
+    <groupId>org.glassfish</groupId>
+    <artifactId>javax.json</artifactId>
+    <version>1.1</version>
+</dependency>
+
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonBuilderFactory;
@@ -2446,14 +2462,12 @@ public class JavaMailMessageBean implements MessageDrivenBean, JavaMailMessageLi
 }
 
 =============================Tomcat
+
+
 catalina.bat run 或 catalina.bat start
 startup.bat
 
-	
-tomcat 的catalina.sh  中加入
-JAVA_OPTS='-server -Xms800m -Xmx800m -XX:PermSize=64M -XX:MaxNewSize=256m -XX:MaxPermSize=128m -Djava.awt.headless=true'
-
-
+ 
 tomcat 8  tomcat-users.xml 中加配置
 	<role rolename="manager-gui"/>
 	<role rolename="manager-script"/>
@@ -2461,8 +2475,26 @@ tomcat 8  tomcat-users.xml 中加配置
 	<role rolename="manager-status"/>
 	<user username="admin" password="admin" roles="manager-gui,manager-script,manager-jmx,manager-status"/>
  
+默认的安全只能使用 127.0.0.1 或者 localhost 如是本机IP就不行 cross-site request forgery (CSRF),
+到tomcat8/conf/Catalina/localhost/目录下,打开manager.xml文件（没有就新建）添加下面内容  
+<Context privileged="true" antiResourceLocking="false"   
+         docBase="${catalina.home}/webapps/manager">  
+             <Valve className="org.apache.catalina.valves.RemoteAddrValve" allow="^.*$" />  
+</Context> 
+
+
+web.xml修改也会被reload
+
+<Context privileged="true" antiResourceLocking="false"
+         docBase="${catalina.home}/webapps/manager">
+  <Valve className="org.apache.catalina.valves.RemoteAddrValve"
+         allow="127\.0\.0\.1" />
+</Context>
+
+
+
 server.xml中
-	<Connector maxThreads="150" port="8080" 
+	<Connector port="8080"  protocol="HTTP/1.1" maxThreads="150" 
 	<Host name="localhost"  appBase="webapps" 这个webapps可以改成其它路径
 
 --------Tomcat/conf/web.xml中加修改listings 为true　就可以列目录了(默认是不可以的)
@@ -2471,6 +2503,28 @@ server.xml中
 	<param-value>true</param-value>
 </init-param>
 --------	
+
+
+在tomcat-7\conf\Catalina\localhost\建立 SpringPortlet.xml文件,内容
+<Context  docBase="D:/program/eclipse_java_workspace/J_SpringPortlet/WebContent"
+		 path="/SpringPortlet" reloadable="true"  crossContext="true">
+	<Resource name="jdbc/mydatasource" type="javax.sql.DataSource"
+		driverClassName="org.h2.Driver" url="jdbc:h2:tcp://localhost/~/test" username="sa" password=""
+		maxIdle="2" maxWait="5000" maxActive="4" />
+</Context>
+
+
+META-INF目录下加context.xml文件
+<Context crossContext="true" /> 
+<!--为Tomcat使用,eclipse生成的conf/server.xml  <Context 中会加上crossContext="true"  -->
+
+部署方法 
+$CATALINA_BASE/conf/[enginename]/[hostname]/context.xml		named [webappname].xml 
+$CATALINA_BASE/webapps/[webappname]/META-INF/context.xml
+[enginename]是Catalina,[hostname]是localhost
+ 
+ 
+
 ---------配置DataSource ,jdbc.jar放在tomcat的lib目录下
 方法一,要2步
 	1) 在Tomcat 根目录下的conf\server.xml 配置Resource：
@@ -2504,26 +2558,6 @@ server.xml 中 在文件未尾的</Host>之前加
 	</Context>
 
 
-在tomcat-7\conf\Catalina\localhost\建立 SpringPortlet.xml文件,内容
-<Context  docBase="D:/program/eclipse_java_workspace/J_SpringPortlet/WebContent"
-		 path="/SpringPortlet" reloadable="true"  crossContext="true">
-	<Resource name="jdbc/mydatasource" type="javax.sql.DataSource"
-		driverClassName="org.h2.Driver" url="jdbc:h2:tcp://localhost/~/test" username="sa" password=""
-		maxIdle="2" maxWait="5000" maxActive="4" />
-</Context>
-
-
-META-INF目录下加context.xml文件
-<Context crossContext="true" /> 
-<!--为Tomcat使用,eclipse生成的conf/server.xml  <Context 中会加上crossContext="true"  -->
-
-部署方法 
-$CATALINA_BASE/conf/[enginename]/[hostname]/context.xml		named [webappname].xml 
-$CATALINA_BASE/webapps/[webappname]/META-INF/context.xml
-[enginename]是Catalina,[hostname]是localhost
- 
- 
-放jdbc.jar包
 web.xml中
 <resource-ref>
  <res-ref-name>jdbc/Modeling</res-ref-name>

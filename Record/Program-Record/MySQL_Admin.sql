@@ -17,30 +17,36 @@ D: durability.
 
 linux下安装mysql在bin/mysqlaccess 18行改$PATH=指定安装的路径,最好是(/usr/local/mysql)
 
-------------MySQL-5.6 windows zip 版
+------------MySQL-5.7 windows zip 版
  mysqld启动服务，默认INNODB,默认字符集是latin1
+  
+mysqld --install MySQL57 --defaults-file=E:\\Program\\mysql-5.7.18-winx64\\my.ini  ###安装服务为MySQL 不能启动,--defaults-file前加任何参数,Bug!!!! 可在最后加 --console 来看启日志,
+mysqld --remove MySQL57
+
+##OK 
+mysqld  --defaults-file=E:/Program/mysql-5.7.18-winx64/my.ini --initialize   ##这是5.7版本新的要做的,root 密码在.err日志里 
+mysqld  --defaults-file=E:/Program/mysql-5.7.18-winx64/my.ini   --console  
+ 如果不指定 --console   输出到data_dir下 或者用 --log-error 
+
+##OK    ,type= own  ,要在=后有一个空格,建立删除如不行,不要在注册表中选中,关闭services.msc
+sc create MySQL57 binpath= "\"E:/Program/mysql-5.7.18-winx64/mysql-5.7.18-winx64/bin/mysqld\" --defaults-file=\"E:/Program/mysql-5.7.18-winx64/my.ini\" MySQL57" type= own start= auto displayname= "MySQL57"
+sc delete MySQL57 删服务
  
-D:\Program\mysql-5.6.14-winx64\bin\mysqld  --defaults-file=D:\Program\mysql-5.6.14-winx64\my.ini  ##OK 
- 不能在--defaults-file前加任何参数,Bug!!!! ,可在最后加 --console 来看启日志,用来排错
----my.in
+
+---my.ini
 [mysql]
 #default-character-set=utf8
 [mysqld]
-character_set_client=utf8
 character_set_server=utf8
 default-storage-engine=INNODB
-basedir=D:\\Program\\mysql-5.6.14-winx64
-datadir=D:\\Program\\mysql-5.6.14-winx64\\data
+basedir=E:\\Program\\mysql-5.7.18-winx64\\mysql-5.7.18-winx64
+datadir=E:\\Program\\mysql-5.7.18-winx64\\data
 ---
 sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
 max_connections=100			###  最大连接数 
 port=3306
 
 mysql -h 127.0.0.1 -P 3306 -u root -proot -D test
-
-
-mysqld --install MySQL56 --defaults-file=D:\Program\mysql-5.6.14-winx64\my.ini    ###安装服务为MySQL 不能启动,Bug !!!!!
-mysqld --remove MySQL56
 
 
 mysqladmin -uroot -proot shutdown  停止服务
@@ -93,11 +99,6 @@ grant lock tables on mydb.*    to user1@'%';
  
 use mysql;
 select user,host from user;  host字段为%表示可以在所有主机上登录mysql(看root用户有全部)
-
-
-##OK    ,type= own  ,要在=后有一个空格,建立删除如不行,不要在注册表中选中,关闭services.msc
-sc create MySQL56 binpath= "\"C:\Program Files\MySQL\MySQL Server 5.5\bin\mysqld\" --defaults-file=\"C:\ProgramData\MySQL\MySQL Server 5.5\my.ini\" MySQL56" type= own start= auto displayname= "MySQL56"
-sc delete MySQL56 删服务
 
 
 
@@ -186,29 +187,33 @@ show variables like 'storage_engine'
 
 看doc
 shell> groupadd mysql
-shell> useradd -r -g mysql -s /bin/false mysql   #-r表示系统帐户没有/etc/shadow记录
-shell> cd /usr/local
+-- shell> useradd -r -g mysql  mysql   #-r表示系统帐户没有/etc/shadow记录 -s /bin/false
 shell> tar zxvf /path/to/mysql-VERSION-OS.tar.gz
-shell> ln -s full-path-to-mysql-VERSION-OS mysql
-shell> cd mysql
+shell> ln -s full-path-to-mysql-VERSION-OS /usr/local/mysql
+shell> cd /usr/local/mysql
 shell> mkdir mysql-files
 shell> chmod 750 mysql-files
 shell> chown -R mysql .
 shell> chgrp -R mysql .
-shell> bin/mysql_install_db --user=mysql # Before MySQL 5.7.6
-shell> bin/mysqld --initialize --user=mysql # MySQL 5.7.6 and up
+-- shell> bin/mysql_install_db --user=mysql # Before MySQL 5.7.6
+shell> bin/mysqld --initialize --user=mysql # MySQL 5.7.6 and up   
+--defaults-file=/zh/mysql-files/my.cnf   
+--explicit_defaults_for_timestamp --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --log-error=/usr/local/mysql/mysql-files/mysql-error.log 
+提示生成了临时的 root@localhost的密码
+
 shell> bin/mysql_ssl_rsa_setup # MySQL 5.7.6 and up
+--datadir=/usr/local/mysql/data 
 shell> chown -R root .
 shell> chown -R mysql data mysql-files
-shell> bin/mysqld_safe --user=mysql &
+-- shell> bin/mysqld_safe --user=mysql &
 # Next command is optional
 shell> cp support-files/mysql.server /etc/init.d/mysql.server
 
 
 建立用户
 
-cd mysql-5.7.17-linux-glibc2.5-x86_64
-cp support-files/my-default.cnf  /zh/mysql-files/my.cnf  #文件内容比较空
+5.7.20版本没有support-files/my-default.cnf 
+#cp support-files/my-default.cnf  /zh/mysql-files/my.cnf  #文件内容比较空，
 
 bin/mysqld --verbose --help
 
@@ -226,11 +231,12 @@ bin/mysqld --verbose --help
 #log-syslog=/zh/mysql-files/mysql-sys.log
 
 #skip-grant-tables=ON
+#explicit_defaults_for_timestamp=ON
 
 basedir =/zh/mysql-5.7.17-linux-glibc2.5-x86_64  --默认值是/usr/local/mysql/
 datadir =/zh/mysql-files/data
 port =3308
-socket =/zh/mysql-files/mysql.sock
+socket =/zh/mysql-files/mysql.sock  #默认/tmp/mysql.sock
 
 如一台机器有多个mysql 要设置如下参数
  --port 
@@ -248,12 +254,13 @@ socket =/zh/mysql-files/mysql.sock
  
 bin/mysqld  --defaults-file=/zh/mysql-files/my.cnf   --initialize --user=mysql   #日志中会提示有root临时密码
 bin/mysql_ssl_rsa_setup  --datadir=/zh/mysql-files/data
-	
+ --defaults-file=/zh/mysql-files/my.cnf 
 --启动 mysql
 su - mysql
 bin/mysqld  --defaults-file=/zh/mysql-files/my.cnf 
 
 bin/mysql -u root   -P 3308  -h localhost -S /zh/mysql-files/mysql.sock  #临时密码,对不知道root密码不能登录
+mysqladmin 默认读配置顺序/etc/my.cnf /etc/mysql/my.cnf /usr/local/mysql/etc/my.cnf ~/.my.cnf 
 
 linux 还原 mysql 的 root密码方法	 
 	bin/mysqld  启动时my.cnf中加 skip-grant-tables=ON
@@ -282,7 +289,54 @@ mysqladmin -u用户名 -p旧密码 password 新密码  -h 主机 -S socket文件
 mysqladmin -uroot  -p password root   -S /zh/mysql-files/mysql.sock
 
 
-==========MySQL cluster   solaris----OK 
+==========Mycat 1.6
+OSI PI 实时数据库
+ 
+MySQL 本身支持表分区 
+
+http://www.mycat.io/
+基于阿里开源的Cobar产品
+ 
+	数据库分库(不支持分表)中间件，集群基于ZooKeeper管理,支持前端作为MySQL通用代理，后端JDBC方式支持Oracle、DB2、SQL Server 、 mongodb 
+
+	按照不同的表（或者Schema）来切分到不同的数据库（主机）之上，这种切可以称之为数据的垂直（纵向）切分  （不能join要接口解决，事务复杂）
+	表中的数据的逻辑关系，将同一个表中的数据按照某种条件拆分到多台数据库（主机）上面，这种切分称之为数据的水平（横向）切分。
+	
+	用户ID求模  这样所有的数据查询join都会在单库内解决
+    跨节点合并排序分页问题
+	
+linux：
+
+./mycat start 启动  默认监听8066
+
+./mycat stop 停止
+
+./mycat console 前台运行
+
+./mycat restart 重启服务
+
+./mycat pause 暂停
+
+./mycat status 查看启动状态
+win：
+
+直接运行startup_nowrap.bat，如果出现闪退，在cmd 命令行运行，查看出错原因。
+
+
+conf/wrapper.conf  可以修改JVM配置参数
+
+mysql -uroot -proot -P8066 -hlocalhost 
+
+conf/server.xml
+	<system> 下的属性
+	<user> 下的属性
+	
+conf/schema.xml
+conf/rule.xml
+conf/zkconf/
+
+
+==========MySQL cluster 7.1  solaris----OK   现在已经有7.5.8版本了
 NDB(Network DataBase)
 节点(node)在这里含义是进程(process),一台机器可以有多个节点,节点所在的机器叫(cluster host)
 
@@ -495,7 +549,9 @@ mysqlrplshow
 mysqluc 命令
   
 
-========= MySQL Router
+========= MySQL Router 2.1.4  ,8.0在开发中
+是 InnoDB cluster 的一部分 ，不支持 NDB Cluster
+ 
 
 
 =======远程DB的连接,federated引擎
@@ -991,6 +1047,11 @@ explain  select ........   //索引效率,执行计划
  
 explain extended    <sql> 后,再使用      SHOW WARNINGS 可以给出优化建议的SQL
 
+ show variables like '%optimizer_trace%';
+ set optimizer_trace="enabled=on";
+ explain select .....;
+ select * from information_schema.OPTIMIZER_TRACE;
+ 
 SET profiling = 1;  --  或者ON
 show profiles;   显示最近SQL 的过程 及执行时间	有  SET SQL_SELECT_LIMIT=25000
 

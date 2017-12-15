@@ -201,35 +201,64 @@ public void onCreate(Bundle savedInstanceState)
 
 //===============Cordova  Anroid 访问真机
 
-设置PATH 环境变量为android-sdk-windows\tools 目录(有android命令) 和 android-sdk-windows\platform-tools目录
+设置PATH 环境变量为android-sdk-windows\tools 目录(有android命令) 和 android-sdk-windows\platform-tools目录(有adb命令)
 设置ANT_HOME,PATH
 有一个cordova-android-master\VERSION文件看版本
 https://www.apache.org/dist/cordova/ 下载zip
+
+ 
 ---3.5
+
 $cd  cordova-android-3.5.0\cordova-android\framework
-$android update project -p . -t android-19    #android-19是android list targets看到的
+$android update project -p . -t android-19    #android-19是看到的
 $ant jar			#当前目录生成 cordova-3.5.0.jar
 
-------------离线 
- cordova-android-3.5.0\cordova-android\bin\create.bat  D:/A_Cordova_35 org.zhaojin.cordova35 A_Cordova_35
 
+导入 eclipse->import 要使用 android/exist -> platforms\android 目录,
+可以把A_Cordova_35_CordovaLib项目删,即目录CordovaLib ,也可删cordova目录(有命令), 在libs中增加cordova-3.5.0.jar(如使用cordova run android 会自动build,不要放jar)
+
+project->clean...
+
+------------离线 
+E:\Program\cordova-android-6.3.0\package\bin\create.bat E:/A_Cordova_7 org.zhaojin.cordova7 A_Cordova_7  
+生成的带 org\apache\cordova 源码 是AndroidStudio项目， 指定了 Grale 2.3.3 版本 修改本项目及CordovaLib 的target=android-26 为自己的 android 版本, 也编译不了 依赖下载有问题，可能是Gradle版本原因？？
+
+avdmanager.bat list target 看到SDK 版本26
+cd E:\Program\cordova-android-6.3.0\package\framework
 
 -------------在线
-要下载安装node.js的msi安装包, 运行 npm install -g cordova 在线安装
-安装到 C:\Users\zhaojin\AppData\Roaming\npm\node_modules\cordova
+要下载安装 node-v8.6 的msi安装包, 运行 npm install -g cordova 在线安装
+命令安装到 
+C:\Users\zhaojin\AppData\Roaming\npm\cordova 是PATH位置
+C:\Users\zhaojin\AppData\Roaming\npm\node_modules\cordova\bin\cordova
+
+C:\Users\zhaojin\AppData\Roaming\npm\node_modules\cordova\node_modules 有全部的模块
+
+
+
 安装后就可用cordova 命令
 
-cordova create D:/Program/eclipse_android_workspace/A_Cordova_35 org.zhaojin.cordova35 A_Cordova_35  要下载 
-cd D:/Program/eclipse_android_workspace/A_Cordova_35
-cordova platform add android		##只platforms\android 目录有用
+cordova create E:/tmp/A_Cordova_7 org.zhaojin.cordova7 A_Cordova_7   
+
+cd E:/tmp/A_Cordova_7
+cordova platform add android		##日志显示cordova-android@^6.2.3 和 Android target: android-25 ,这是最新的   
+cordova platform add android@^5.0.0    指定SDK版本 
+
+E:\tmp\A_Cordova_7\platforms\android 是项目目录,有org.apache的代码 , 有gradlew.bat , 能用AndroidStudio打开 
+ 
+ 指定了 Grale 2.3.3 版本 修改本项目及CordovaLib 的target=android-25 为自己的 android 版本, 也编译不了 依赖下载有问题，可能是Gradle版本原因？？
+ 如打开项目时自动下载Gradle就可以build,提示升级Grale插件从2.3.3到3.3，如Instanct Run
+
 #cordova platform rm android
 #cordova platform add ios
-#cordova platform add windows8
+#cordova platform add windows
 #cordova platform add ubuntu
 #cordova platform add osx
 
+cordova platform ls
+cordova requirements  要求SDK Platform  for API level android-25 (7.1.1)
 
-#cordova build 		生成gen,bin,ant-gen,ant-build目录 
+cordova build 		找android命令,gradle 下载很多maven库,会下载Android SDK Platform 25,    生成gen,bin,ant-gen,ant-build目录 
 			会把 A_Cordova_35\www 覆盖到 A_Cordova_35\platforms\android\assets\www
 			会把 A_Cordova_35\plugins 覆盖到 A_Cordova_35\platforms\android\assets\www\plugins
 			会把 A_Cordova_35\config.xml 覆盖到 A_Cordova_35\platforms\android\res\xml\config.xml
@@ -243,11 +272,6 @@ cordova platform add android		##只platforms\android 目录有用
 #cordova run android 运行 使用 \platforms\android\ant-build\A_Cordova35-debug-unaligned.apk
 #cordova run ubuntu  只运行指定平台
 
-
-导入 eclipse->import 要使用 android/exist -> platforms\android 目录,
-可以把A_Cordova_35_CordovaLib项目删,即目录CordovaLib ,也可删cordova目录(有命令), 在libs中增加cordova-3.5.0.jar(如使用cordova run android 会自动build,不要放jar)
-
-project->clean...
  
 以下两相bin目录不要删
 platforms\android\cordova\node_modules\shelljs\bin
@@ -256,77 +280,92 @@ platforms\android\cordova\node_modules\.bin
 ---用CLI 在线 管理插件
 cd D:/Program/eclipse_android_workspace/A_Cordova_35
 
-cordova plugin add org.apache.cordova.camera
-cordova plugin add org.apache.cordova.device 
-cordova plugin add org.apache.cordova.device-motion
-cordova plugin add org.apache.cordova.device-orientation
-cordova plugin add org.apache.cordova.geolocation
-cordova plugin add org.apache.cordova.globalization
-cordova plugin add org.apache.cordova.battery-status
-cordova plugin add org.apache.cordova.contacts
-cordova plugin add org.apache.cordova.dialogs
-cordova plugin add org.apache.cordova.file
-cordova plugin add org.apache.cordova.file-transfer
-cordova plugin add org.apache.cordova.inappbrowser
-cordova plugin add org.apache.cordova.media
-cordova plugin add org.apache.cordova.media-capture
-cordova plugin add org.apache.cordova.network-information
-cordova plugin add org.apache.cordova.splashscreen
-cordova plugin add org.apache.cordova.vibration
+自带 cordova-plugin-whitelist  插件
 
----  cordova plugin add org.apache.cordova.camera  要在线下载到plugins 和 platforms\android\assets\www\plugins目录中
+cordova plugin search camera 打开网址 http://cordova.apache.org/plugins/?q=camera
+
+cordova plugin add cordova-plugin-camera 
+cordova plugin add cordova-plugin-geolocation
+cordova plugin add cordova-plugin-globalization
+cordova plugin add cordova-plugin-battery-status
+cordova plugin add cordova-plugin-contacts
+cordova plugin add cordova-plugin-dialogs
+cordova plugin add cordova-plugin-file-transfer
+cordova plugin add cordova-plugin-inappbrowser
+cordova plugin add cordova-plugin-media
+cordova plugin add cordova-plugin-media-capture
+cordova plugin add cordova-plugin-network-information
+cordova plugin add cordova-plugin-splashscreen
+cordova plugin add cordova-plugin-vibration
+cordova plugin add cordova-plugin-device 
+
+
+Device Motion  和 Device Orientation  过时使用HTML5
+ 
+<项目目录>\node_modules 目录 , plugins 目录 , platforms\android\assets\www\plugins目录中 有增加
+<项目目录>\config.xml			文件中有增加
+<项目目录>\platforms\android 是android的工作目录
+
 cordova plugin ls  查看已安装的插件
-cordova plugin rm org.apache.cordova.camera   删插件
 
-A_Cordova_35\plugins\android.json中 config_munge 中有增加<feature>为工具使用的,不重要
+cordova plugin rm  cordova-plugin-camera    删插件
+
+
+
+------- cordova plugin add cordova-plugin-camera  v6.2.3  (7)
 
 res/xml/config.xml 新增加
 <feature name="Camera">
-    <param name="android-package" value="org.apache.cordova.camera.CameraLauncher" />
+	<param name="android-package" value="org.apache.cordova.camera.CameraLauncher" />
 </feature>
-
+ 
 多了org.apache.cordova.camera包,有CameraLauncher 类
 
 AndroidManifest.xml 新增加
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 
-platforms\android\assets\www\ 下多了 plugins\org.apache.cordova.camera\www\ (eclise中看不到的)
+platforms\android\assets\www\ 下多了 plugins\cordova-plugin-camera\www
 		Camera.js,CameraConstants.js,CameraPopoverHandle.js,CameraPopoverOptions.js
 --platforms\android\assets\www\cordova_plugins.js  文件中
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 	module.exports = [ 下新增
-		{
-			"file": "plugins/org.apache.cordova.camera/www/CameraConstants.js",
-			"id": "org.apache.cordova.camera.Camera",
-			"clobbers": [
-				"Camera"
-			]
-		},
-		{
-			"file": "plugins/org.apache.cordova.camera/www/CameraPopoverOptions.js",
-			"id": "org.apache.cordova.camera.CameraPopoverOptions",
-			"clobbers": [
-				"CameraPopoverOptions"
-			]
-		},
-		{
-			"file": "plugins/org.apache.cordova.camera/www/Camera.js",
-			"id": "org.apache.cordova.camera.camera",
-			"clobbers": [
-				"navigator.camera"
-			]
-		},
-		{
-			"file": "plugins/org.apache.cordova.camera/www/CameraPopoverHandle.js",
-			"id": "org.apache.cordova.camera.CameraPopoverHandle",
-			"clobbers": [
-				"CameraPopoverHandle"
-			]
-		}
+		 {
+        "id": "cordova-plugin-camera.Camera",
+        "file": "plugins/cordova-plugin-camera/www/CameraConstants.js",
+        "pluginId": "cordova-plugin-camera",
+        "clobbers": [
+            "Camera"
+        ]
+    },
+    {
+        "id": "cordova-plugin-camera.CameraPopoverOptions",
+        "file": "plugins/cordova-plugin-camera/www/CameraPopoverOptions.js",
+        "pluginId": "cordova-plugin-camera",
+        "clobbers": [
+            "CameraPopoverOptions"
+        ]
+    },
+    {
+        "id": "cordova-plugin-camera.camera",
+        "file": "plugins/cordova-plugin-camera/www/Camera.js",
+        "pluginId": "cordova-plugin-camera",
+        "clobbers": [
+            "navigator.camera"
+        ]
+    },
+    {
+        "id": "cordova-plugin-camera.CameraPopoverHandle",
+        "file": "plugins/cordova-plugin-camera/www/CameraPopoverHandle.js",
+        "pluginId": "cordova-plugin-camera",
+        "clobbers": [
+            "CameraPopoverHandle"
+        ]
+    }
+	
 	];
 	module.exports.metadata = { 下新增
-	 "org.apache.cordova.camera": "0.3.0"
+		"cordova-plugin-camera": "2.4.1",
 	}
 });
 ---开发
@@ -367,74 +406,7 @@ function onPhotoDataSuccess(imageData) {
 <button onclick="capturePhotoEdit();">Capture Editable Photo</button> <br>
 <img style="display:none;width:60px;height:60px;" id="smallImage" src="" />
  
----cordova plugin add org.apache.cordova.device 
-config.xml 新增加
-<feature name="Device">
-	<param name="android-package" value="org.apache.cordova.device.Device" />
-</feature>
-多了org.apache.cordova.camera包,有Device类
-
-platforms\android\assets\www\ 下多了 plugins\org.apache.cordova.device\www\device.js (eclise中看不到的)
-platforms\android\assets\www\cordova_plugins.js 中 module.exports = [ 中增加
-    {
-        "file": "plugins/org.apache.cordova.device/www/device.js",
-        "id": "org.apache.cordova.device.device",
-        "clobbers": [
-            "device"
-        ]
-    }
-	module.exports.metadata = { 中增加
-	 "org.apache.cordova.device": "0.2.10"
-	}
-
--开发,android模拟器OK
-function onDeviceReady() {
-	var element = document.getElementById('deviceProperties');
-
-	element.innerHTML = 'Device Name: '     + device.name     + '<br />' +  
-						'Device Cordova: '  + device.cordova + '<br />' +   
-						'Device Platform: ' + device.platform + '<br />' + 
-						'Device UUID: '     + device.uuid     + '<br />' +  
-						'Device Model: '    + device.model     + '<br />' +  
-						'Device Version: '  + device.version  + '<br />';   
-}
-<p id="deviceProperties">Loading device properties...</p>
-
----	cordova plugin add org.apache.cordova.device-motion
-	navigator.compass.getCurrentHeading(compassSuccess, compassError);
-	
---- cordova plugin add org.apache.cordova.device-orientation
- function onSuccess(acceleration) {
-        alert('Acceleration X: ' + acceleration.x + '\n' +
-              'Acceleration Y: ' + acceleration.y + '\n' +
-              'Acceleration Z: ' + acceleration.z + '\n' +
-              'Timestamp: '      + acceleration.timestamp + '\n');
-	}
-	 function onError() {
-		alert('onError!');
-	}
-	 navigator.accelerometer.getCurrentAcceleration(onSuccess, onError);
-
-	//---连继
-	var watchID = null;
-	function startWatch() {
-		var options = { frequency: 3000 };
-		watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
-	}
-     function stopWatch() {
-        if (watchID) {
-            navigator.accelerometer.clearWatch(watchID);
-            watchID = null;
-        }
-    }
-   function onSuccess(acceleration) {
-        var element = document.getElementById('accelerometer');
-        element.innerHTML = 'Acceleration X: ' + acceleration.x + '<br />' +
-                            'Acceleration Y: ' + acceleration.y + '<br />' +
-                            'Acceleration Z: ' + acceleration.z + '<br />' +
-                            'Timestamp: '      + acceleration.timestamp + '<br />';
-    }
-	
+ 
 	
 --- cordova plugin add org.apache.cordova.geolocation
 --- cordova plugin add org.apache.cordova.globalization
@@ -637,7 +609,7 @@ function onDeviceReady() {
         alert('Connection type: ' + states[networkState]);
     }
 	
---- cordova plugin add org.apache.cordova.splashscreen
+--- cordova plugin add cordova-plugin-splashscreen
 android系统在config.xml中加
 <!--  位于  res/drawable*/devices.png   -->
 <preference name="SplashScreen" value="devices" />
@@ -649,6 +621,43 @@ navigator.notification.vibrate(1500);
 navigator.notification.vibrateWithPattern([100, 500,1000, 2000] , 3);//重复3次
 navigator.notification.cancelVibration();
 
+
+
+ 
+---cordova plugin add org.apache.cordova.device    
+config.xml 新增加
+<feature name="Device">
+	<param name="android-package" value="org.apache.cordova.device.Device" />
+</feature>
+多了org.apache.cordova.camera包,有Device类
+
+platforms\android\assets\www\ 下多了 plugins\org.apache.cordova.device\www\device.js (eclise中看不到的)
+platforms\android\assets\www\cordova_plugins.js 中 module.exports = [ 中增加
+    {
+        "file": "plugins/org.apache.cordova.device/www/device.js",
+        "id": "org.apache.cordova.device.device",
+        "clobbers": [
+            "device"
+        ]
+    }
+	module.exports.metadata = { 中增加
+	 "org.apache.cordova.device": "0.2.10"
+	}
+
+-开发,android模拟器OK
+function onDeviceReady() {
+	var element = document.getElementById('deviceProperties');
+
+	element.innerHTML = 'Device Name: '     + device.name     + '<br />' +  
+						'Device Cordova: '  + device.cordova + '<br />' +   
+						'Device Platform: ' + device.platform + '<br />' + 
+						'Device UUID: '     + device.uuid     + '<br />' +  
+						'Device Model: '    + device.model     + '<br />' +  
+						'Device Version: '  + device.version  + '<br />';   
+}
+<p id="deviceProperties">Loading device properties...</p>
+ 
+
 ----管理插件使用plugman
 npm install -g plugman   必须有 git  命令
 plugman --platform android --project D:\Program\eclipse_android_workspace\A_Cordova_3 --plugin <name|url|path> 
@@ -657,7 +666,7 @@ plugman --platform android --project D:\Program\eclipse_android_workspace\A_Cord
 ------------------插件开发
 res/xml/config.xml中加
 <feature name="MyPlugin">
-	<param name="android-package" value="org.zhaojin.cordova3.MyPlugin" />
+	<param name="android-package" value="org.zhaojin.cordova7.MyPlugin" />
 	<param name="onload" value="true" />
 </feature>
 //---Adnroid本地

@@ -26,6 +26,7 @@ linux硬件兼容支持,显示设备XFree86
 
 lsb_release -a
 cat /etc/issue
+
 cat /etc/SUSE-release
 cat /etc/oracle-release
 cat /etc/redhat-release
@@ -73,6 +74,12 @@ linux 的mv 命令不能合并,如目录中有相同目录,先合并没相同的
 
 init 5 可以成功,OK
 修改/etc/inittab文件，将id:3:initdefault:修改为：id:5:initdefault:
+runlevel 看
+systemctl get-default
+
+/etc/inittab 提示
+systemctl set-default multi-user.target 是在 runlevel 3下
+systemctl set-default graphical.target  是在 runlevel 5下	运行命令后 提示 建立 symlink 从 /etc/systemd/system/default.target 到 /usr/lib/systemd/system/graphical.target
 
 e2label  /dev/sda1 显示挂在哪个分区下
 
@@ -108,7 +115,10 @@ ps -aux |808
 
 pgrep -l httpd 显示进程名字及进程ID,再用 killall 进程名
 pgrep -u root,daemon httpd    , pkill httpd
-
+grep -v '^#'  xx.conf
+egrep 就是 grep -E 正则
+fgrep 就是 grep -F 换行分隔多个字段
+ 
 rmmod pcspkr 可以将该命令写到 /etc/rc.local 这样下次系统启动的时候就会执行
   
 vi /etc/shells文件中显示这个系统有哪些shell 
@@ -179,7 +189,8 @@ mpstat 查看多处理器状况 (smp 是支持多处理器,up是不支持多处�
  watch -n 1 "/sbin/ifconfig eth0 | grep bytes"  每一秒执行一次命令
 
 
-stty erase ^h  使用backspace键生效　　(Oracle中)
+stty erase ^h  使用backspace键生效　　(Oracle中) 也可以ctrl+backspace
+rlwrap sqlplus 可以使用 sqlplus 中可使用上下键
 
 
 bash 中ls-> 按esc 3 ->再按a  ,就会出现3个a (aaa)
@@ -1116,10 +1127,10 @@ set backspace=indent,eol,start
 :later 1m
 
 
-ctrl+d 下半页
-ctrl+u 上半页
-ctrl+b 上一页
-ctrl+f 下一页
+ctrl+d 下半页 down
+ctrl+u 上半页 up
+ctrl+b 上一页 back
+ctrl+f 下一页 forward
 
 :set runtimepath?	查看插件目录,有$VIM/vimfiles/after,所有的路径下都有plugin目录
 
@@ -1131,6 +1142,15 @@ ctrl+f 下一页
 set nobackup                           
 set nowb	#wb=writebackup
 set noswapfile
+
+
+重新载入当前文件：
+:e
+:e! #放弃当前修改，强制重新载入
+
+:bufdo e 或者 :bufdo :e!
+
+:bufdo命令表示把后面的命令应用到所有buffer中的文件
 
 ---vim自动识别中文编码
 :help encoding-values 列出Vim支持的所有编码。
@@ -1505,7 +1525,8 @@ quotaoff 关闭功能
 0级加,(至少两硬盘)速度最快,但如要一个磁盘坏,其它的无用 (硬盘使用100%)
 1级加(至少两硬盘)速度和使用一个硬盘一样,很安全(硬盘使用1/2)
 5级加(至少三硬盘),速度快,安全,(硬盘使用(N-1)/N)	只是多了一个奇偶校验信息，写入数据的速度相当的慢，若使用“回写高速缓存”可以让效能改善不少
-1和0相加10(至少四硬盘)(硬盘使用1/2)
+1和0相加10(至少四硬盘)(硬盘使用1/2)  
+ RAID 0+1  先0后1 也被称为RAID 10标准
 
 rqm -ql raidtools
 man 5 raidtab
@@ -1848,11 +1869,28 @@ rpcinfo -p 10.1.5.226  查看服务器提供的rpc服务
 	
 mount -tnfs4 10.1.5.226:/root/shareDir  /home/hrbb/remoteDir (要root权限)
  
+
 ==========================VNC-5.2
+ yum install tigervnc  从 TightVNC 出来的
+ 
 ----linux 通用tar包安装
 root用户运行 ./vncinstall /usr/local/bin /usr/local/man
-vnclicense -add DN2AB-2224A-VRGSB-7J3D9-NN3RA   增加免费的license
-vncserver   第一次运行vncserver会提示输入密码 ,修改密码用 vncpasswd
+
+5.2版本用  vnclicense -add DN2AB-2224A-VRGSB-7J3D9-NN3RA   增加免费的license
+6.3版本用  vnclicense -add BQ24G-PDXE4-KKKRS-WBHZE-F5RCA    Enterprise 
+
+vncserver   
+	提示 日志在 /root/.vnc/<hostname>:1.log ,
+	提示 新桌面是 <hostname>:1 (<ip>:1)
+	提示 /etc/vnc/xstartup
+
+	5.2版本 第一次运行vncserver会提示输入密码       修改密码用 vncpasswd
+	6.3版本 不会提示输入密码，登录直接用系统用户,效果不好   
+	vncpasswd  -service  (Service Mode  ,Home or Professional 版本只支持这个,远程登录控制整个电脑,可以看真电脑前的人在干什么)
+	vncpasswd  -user  	 (User Mode ,Enterprise  版,远程登录控制当前用户在登录的时,可以看真电脑前的人在干什么)
+	vncpasswd  -virtual  (Virtual Mode ,Enterprise  Linux版,看不到真电脑前的人在干什么 )
+	
+	
 vncserver :1
 依赖于xauth (gnome 或者KDE)命令
 vncserver -geometry 1366x768 :1 启动时指定分辩率
@@ -1864,15 +1902,29 @@ netstat -an | grep 5901	 vncviewer的端口是5900+N N是你设置的X-display�
 vncserver -kill :1
 
 ~/.vnc/config.d/Xvnc 存密码
-/etc/vnc/xstartup 中有 gnome-session  (GNOME桌面) ,(KDE桌面 是 startkde& )  
+/etc/vnc/xstartup 中有 gnome-session  (GNOME桌面,gdm) ,(KDE桌面 是 startkde& )  
+
 
 源码目录java -jar java/vcnviewer.jar 有界面,也有 vncviewer 命令 
 
 如多个客户端同时连接到同一个显示端口,则一方鼠标动,另一方鼠标也动(可做远程演示)
 
+
+
+配置防火墙来让 VNC 服务正常工作
+ firewall-cmd --permanent --add-service vnc-server
+ systemctl restart firewalld.service
+
+
+关闭防火墙 
+# systemctl stop firewalld.service
+ systemctl list-unit-files | grep firewall
+ systemctl disable firewalld.service   关闭系统开机启动
+ systemctl status firewalld.service 
+ ---------------XDMCP--------------
+ 
 solaris  可以用Xmanager 直接远程桌面连接 (XDMCP)
 
- ---------------XDMCP--------------
 修改文件/etc/X11/gdm/gdm.conf，查找到[xdmcp]模块
 Enable=false修改为Enable=true，同时查找#Port=177这一行，把行首的#号去掉。
 
@@ -2054,6 +2106,10 @@ gpgcheck=0
 
 保存 
 yum clean all		清除yum缓存
+yum group list 显示有 GNOME Desktop
+yum groupinstall "GNOME Desktop"
+yum groups install "GNOME Desktop"
+
 yum install gnome-desktop  就可以了,会自动查找依赖包
 yum install gnome-session
 

@@ -1,8 +1,8 @@
 下载   http://repo.spring.io/libs-release/
 
 <properties>
-	<spring.version>4.3.7.RELEASE</spring.version>
-	<spring-security.version>4.0.2.RELEASE</spring-security.version>
+	<spring.version>5.0.2.RELEASE</spring.version>
+	<spring-security.version>5.0.0.RELEASE</spring-security.version>
 </properties>
 <parent>
     <groupId>org.springframework.boot</groupId>
@@ -481,6 +481,7 @@ public class MyIntercepter
 		cache.putIfAbsent(key, copier);
 	}
 	copier.copy(sourceObj, target, null);//是调用的getter/setter方法
+	//性能不高，不能用在for中很多条记录
 	return target;
 }
 ------Hibernate 3 集成
@@ -2701,8 +2702,90 @@ implements ItemWriter<Message>
 ========================Spring Boot
 logging.file=my.log  日志输入到当前目录下的文件名
  
+Spring Tool Suite 可以建立Spring starter project ,可选Maven(默认) 或 Gradle,Web组中选web  会自动建立项目
+在resource的目录(classpath)下有
+templates 目录放ftl文件 
+static 目录 放css,js,图片
+application.properties 是空的
 
 
+//入口类
+@SpringBootApplication  //内部使用了 @ComponentScan,也就是说可以扫这个类所在包的子包
+public class DemoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(DemoApplication.class, args);
+	}
+}
+
+生成pom.xml 中有
+<parent>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-parent</artifactId>
+	<version>1.5.8.RELEASE</version>
+	<relativePath/> 
+</parent>
+
+	
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-test</artifactId>
+	<scope>test</scope>
+</dependency>
+
+<plugin>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-maven-plugin</artifactId>
+</plugin>
+
+
+@RestController
+public class DemoResetController {
+	
+	@RequestMapping("sayHello")
+	public String sayHello() { //可返回Map,List,对象(可不实现Serializable),页面显示JSON
+		return "hello world";
+	}
+}
+
+--freemarker 
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-freemarker</artifactId>
+</dependency>
+
+templates 目录下放ftl文件即可，如有图片,js,css放static目录 使用@Controller 返回ModelAndView 即可
+
+
+--redis
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+
+application.properties中加
+#spring.redis.host=127.0.0.1
+spring.redis.host=172.16.37.42
+spring.redis.port=6379
+
+@SpringBootApplication 下加
+@EnableCaching//Redis
+
+@RequestMapping("list")方法上加 @Cacheable("keyList") //Redis ,返回Bean 一定要Serializable
+
+
+--redis cluster 
+
+--mybatis 
+
+
+
+--非web程序
 spring-boot-1.5.2.RELEASE.jar
 spring-boot-autoconfigure-1.5.2.RELEASE.jar
 
@@ -2751,7 +2834,22 @@ public class SampleController {
 		//new SpringApplicationBuilder(SampleController.class).web(true).run(args);
     }
 }
+
+
+<dependency>
+	<groupId>org.mybatis.spring.boot</groupId>
+	<artifactId>mybatis-spring-boot-starter</artifactId>
+	<version>1.3.1</version>
+</dependency>
+ 
+
+
 ========================Spring Cloud
+
+Intellij Idea 建立 spring initialir 项目->Cloud Discory -> eureka server  会自动生成pom.xml
+
+
+
 版本名是伦敦地铁站的名字，字母表的顺序
 最新的 Dalston  版本 
 
@@ -2767,7 +2865,7 @@ https://springcloud.cc/spring-cloud-dalston.html
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
-            <version>Dalston.SR1</version>
+            <version>Dalston.SR1</version>   <!-- Dalston.SR4   Edgware.RELEASE  要和 spring-boot对应才行的 -->
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -2847,7 +2945,7 @@ Spring Cloud CLI
 Spring Cloud Contract
 一共15个子项目   加单独的 Spring Cloud Data Flow
 
-
+---Eureka server 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;  
@@ -2876,7 +2974,7 @@ eureka:
 //通过eureka.client.registerWithEureka：false和fetchRegistry：false来表明自己是一个eureka server.	  
 运行后可以仿问 http://localhost:8761  有界面  ，是No instances available
 
--- client(server)
+--Eureka client(server)
 
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
@@ -2891,6 +2989,7 @@ public class ServiceHiApplication {
 
 	@Value("${server.port}")
 	String port;
+	
 	@RequestMapping("/hi")
 	public String home(@RequestParam String name) {
 		return "hi "+name+",i am from port:" +port;
@@ -2906,6 +3005,7 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 server:
   port: 8762
+  #port: 8763
 spring:
   application:
     name: service-hi
@@ -2914,28 +3014,43 @@ spring:
 测试
 http://localhost:8762/hi?name=forezp
 
+-- ribbon+restTemplate 
+-- Netflix开源了Hystrix组件, 断路器模式
+
 客户端(服务端) 改个端口到 8763 再启动一个  service-hi 就有两个服务了
 
 再建立一个客户端   Client Side Load Balancing (Ribbon)
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-ribbon</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-hystrix</artifactId>
+</dependency>
 
 <dependency>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-actuator</artifactId>
 </dependency>
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
+</dependency>
 
 @SpringBootApplication
-@EnableDiscoveryClient  // 向服务中心注册
+@EnableDiscoveryClient  //向服务中心注册 ribbon  和 @LoadBalanced 一起用
 
-@EnableHystrix //断路器(如果几台中一台服务不可用,返回2次固定的字串后,就不仿问这台了,如都不可用返回固定串) Hystrix后加的
+@EnableHystrix //断路器(如果几台中一台服务不可用,返回2次固定的错误后,后面就把这台服务器隔离了,就仿问不到这台机器了) Hystrix后加的
 @EnableHystrixDashboard // 就可以仿问 http://localhost:8764/hystrix 
-//maven加spring-boot-starter-actuator ,UI中输入 http://localhost:8764/hystrix.stream ,2000ms,Monitor Stream 会loading
+//maven加spring-boot-starter-actuator ,http://localhost:8764/hystrix 文本框中输入 http://localhost:8764/hystrix.stream ,2000ms,Monitor Stream 会loading
 //在另一个窗口 http://localhost:8764/hi?name=forezp 时,上一个窗口有图表
 public class ServiceRibbonApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceRibbonApplication.class, args);
 	}
 	@Bean
-	@LoadBalanced
+	@LoadBalanced //表明这个restRemplate开启负载均衡的功能
 	RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
@@ -2976,11 +3091,12 @@ spring:
   application:
     name: service-ribbon
 	
-测试  http://localhost:8764/hi?name=forezp 	  发现间隔调用 8762 和 8763 ,因加了@LoadBalanced
+测试  http://localhost:8764/hi?name=forezp 	  发现间隔调用 8762 和 8763 ,因加了 @LoadBalanced
 
----feign   如不使用ribbon,就使用feign,其实Feign已经使用Ribbon
+---feign   如不使用ribbon+restTemplate,就使用feign,其实Feign已经使用Ribbon
+-- 
 @SpringBootApplication
-@EnableDiscoveryClient
+@EnableDiscoveryClient  
 @EnableFeignClients //增加
 
 public class ServiceFeignApplication {
@@ -2990,7 +3106,7 @@ public class ServiceFeignApplication {
 	}
 }
 
-@FeignClient(value = "service-hi"   //服务名在这里
+@FeignClient(value = "service-hi"   //同@LoadBalanced 服务名在这里
 , fallback = SchedualServiceHiHystric.class )//Hystrix后加的,没用？？？
 public interface SchedualServiceHi {
     @RequestMapping(value = "/hi",method = RequestMethod.GET)
@@ -3005,11 +3121,30 @@ public class SchedualServiceHiHystric implements SchedualServiceHi { //Hystrix�
     }
 }
 
+@RestController
+public class HiController {
+
+    @Autowired
+    SchedualServiceHi schedualServiceHi;
+    
+    @RequestMapping(value = "/hi",method = RequestMethod.GET)
+    public String sayHi(@RequestParam String name){
+        return schedualServiceHi.sayHiFromClientOne(name);
+    }
+}
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8765
 spring:
   application:
     name: service-feign
+	
+http://localhost:8765/hi?name=forezp  也是 port:8762 和 port:8763切换
 
--- Zuul  route and filter 
+-- Zuul  默认和Ribbon结合   route and filter    
 @EnableZuulProxy  //新增加的
 @EnableEurekaClient
 @SpringBootApplication
@@ -3083,8 +3218,12 @@ public class MyFilter extends ZuulFilter{
     }
 }
 
---config
--server
+测试
+http://localhost:8769/api-a/hi?name=forezp
+http://localhost:8769/api-b/hi?name=forezp&token=123
+
+--config 分布式配置中心 从Git上读
+-server 端
 import org.springframework.cloud.config.server.EnableConfigServer;
 
 @SpringBootApplication
@@ -3104,6 +3243,10 @@ spring.cloud.config.label=master
 spring.cloud.config.server.git.username=
 spring.cloud.config.server.git.password=
 
+-如果使用eureka, 使用服务ID,而不使用IP(要先启动一个8889的eureka )
+eureka.client.serviceUrl.defaultZone=http://localhost:8889/eureka/
+
+
 测试 http://localhost:8888/foo/dev 有返回JSON表示可以从客户端取   {name}/{profile}
 
 https://github.com/forezp/SpringcloudConfig/ 中又个文件config-client-dev.properties文件中有一个属性：
@@ -3117,7 +3260,7 @@ foo = foo version 3
 /{label}/{application}-{profile}.properties
 
 
--client
+-client端
 @SpringBootApplication
 @RestController
 public class ConfigClientApplication {
@@ -3138,7 +3281,14 @@ spring.cloud.config.label=master
 spring.cloud.config.profile=dev
 spring.cloud.config.uri= http://localhost:8888/
 server.port=8881
+#read git  file format  =  {application}-{profile}.properties
 
+-如果使用eureka, 使用服务ID,而不使用IP(要先启动一个8889的eureka )
+#spring.cloud.config.uri= http://localhost:8888/
+eureka.client.serviceUrl.defaultZone=http://localhost:8889/eureka/
+spring.cloud.config.discovery.enabled=true
+spring.cloud.config.discovery.serviceId=config-server
+#-for config use eureka,use config-server  replace localhost:8888
 
 dev开发环境配置文件
 test测试环境
@@ -3147,9 +3297,9 @@ pro正式环境
 
 http://localhost:8881/hi  返回  foo version 3
 
+http://localhost:8889/ 显示有两个config server
 
-
----bus 
+---bus config client端
 在标有 @EnableEurekaClient 的类上再增加一个  @RefreshScope
 
 
@@ -3163,24 +3313,22 @@ http://localhost:8881/hi  返回  foo version 3
 </dependency>
  
  报 rabbit,kafka, and no default binder has been set 是因为同时配了两个, 如spring-cloud-stream-binder-rabbitmq.jar中有  META-INF/spring.binder
-用下面配置也不行
+用下面配置也不行 
 #spring.cloud.stream.bindings.input.binder=kafka
 spring.cloud.stream.bindings.output.binder=rabbit
 只能去掉一个
 
+多的配置
 spring.rabbitmq.host=localhost
 spring.rabbitmq.port=5672
-# spring.rabbitmq.username=
-# spring.rabbitmq.password=
-
-多的配置
-spring.cloud.config.discovery.enabled=true
-spring.cloud.config.discovery.serviceId=config-server
+#建用户zh，还要在管理界面中分配用户可Can access virtual hosts /
+spring.rabbitmq.username=zh
+spring.rabbitmq.password=123
 management.security.enabled=false
 
+ 
+POST 请求 (Firefox的 RESTClient  )  http://localhost:8881/bus/refresh  (config client端) 如更改Git配置,不用重启服务这样也能刷新 (MQ 广播配置文件的更改)
 
-
-POST 请求 (Firefox的HttpRequester)  http://localhost:8881/bus/refresh   如更改Git配置,不用重启服务这样也能刷新 (MQ 广播配置文件的更改)
 
 ----Sleuth
 
@@ -3511,3 +3659,4 @@ public aspect World
 
 ======================上 AspectJ
 
+org.springframework.beans.BeanUtils.copyProperties(model, entity);

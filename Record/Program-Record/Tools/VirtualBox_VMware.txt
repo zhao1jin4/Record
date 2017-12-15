@@ -190,6 +190,15 @@ OS X El 10.11.6(15G31)(MD5-200178E66502141638CE8E1E79BA6737).cdr  大小 7.15 GB
 
 当连接真机ipad到VMware中,内部的Mac OSX iTunes 不能识别出,关闭VMware,把 的USB 控制器默认3.0修改为2.0,再启动VMware就可以了
 
+----------使用VMware 14 安装 Mac OS High Sierra  10.13  测试中。。。。
+
+unlocker 2.1.1 官方 测试没用Mac选项 ???
+
+https://github.com/DrDonk/unlocker
+
+
+
+
 
 -----PC机 安装 Mac OS 10.8
 
