@@ -1035,7 +1035,7 @@ function jQueryJSONRequest() //OK
 	$.ajax (config);
 }
 
-spring-web-4.0.6.RELEASE.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中是SpringServletContainerInitializer,
+spring-web-4.0.6.RELEASE.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中是 SpringServletContainerInitializer,
 手工实现 WebApplicationInitializer  类(为不使用web.xml设计)
 
 

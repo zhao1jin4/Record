@@ -481,7 +481,7 @@ public class MyIntercepter
 		cache.putIfAbsent(key, copier);
 	}
 	copier.copy(sourceObj, target, null);//是调用的getter/setter方法
-	//性能不高，不能用在for中很多条记录
+	//网上查cglib 的BeanCopier 性能还不错 
 	return target;
 }
 ------Hibernate 3 集成
@@ -2335,7 +2335,7 @@ redisScript.setResultType(Boolean.class);
 boolean res= redisTemplate.execute(redisScript, Collections.singletonList("key"), 10, 20);//List keys,Object... args
 System.out.println(res);
 
-------checkandset.lua
+------checkandset.lua  ,LUA语言为了嵌入C/C++ 中
 local current = redis.call('GET', KEYS[1])
  if current == ARGV[1]
    then redis.call('SET', KEYS[1], ARGV[2])
@@ -2699,6 +2699,75 @@ implements ItemWriter<Message>
 	}
 	return null;
 }  
+
+========================Spring RabbitMQ
+--server
+ <!-- 建立  com.mj.test 的  Queue,Admin中建立用户
+      <rabbit:connection-factory id="connectionFactory" username="guest" password="guest"
+            host="localhost"
+            port="5672"
+            virtual-host="/"/>
+             -->   
+    <rabbit:connection-factory id="connectionFactory" username="zh" password="123"
+                               host="172.16.35.35"
+                               port="5672"
+                               virtual-host="/"/>
+
+   <rabbit:queue id="myQueueId1" name="myQueueName" durable="true" auto-delete="false" exclusive="false"/>
+
+
+    <bean id="messageReceiver" class="spring_rabbitmq.simple.MyLitener"></bean>
+
+    <rabbit:listener-container connection-factory="connectionFactory">
+        <rabbit:listener queues="myQueueId1" ref="messageReceiver"/>
+    </rabbit:listener-container>
+	
+	
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageListener;
+
+public class MyLitener implements  MessageListener{
+	@Override
+	public void onMessage(Message message) {
+			System.out.println("收到数据 body :" + new String(message.getBody()));
+		System.out.println("收到数据 ReceivedRoutingKe :" + message.getMessageProperties().getReceivedRoutingKey() );
+		System.out.println("收到数据 ReceivedExchange :" + message.getMessageProperties().getReceivedExchange());
+
+	}
+}
+
+ClassPathXmlApplicationContext ctx=new ClassPathXmlApplicationContext("spring_rabbitmq/simple/spring_rabbitmq_server.xml");
+	
+--client
+   <rabbit:connection-factory id="connectionFactory" username="zh" password="123"
+                               host="172.16.35.35"
+                               port="5672"
+                               virtual-host="/"/>
+
+    <!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成-->
+    <rabbit:admin connection-factory="connectionFactory"/>
+
+    <!--定义queue-->
+    <rabbit:queue id="myQueueId2" name="myQueueName" durable="true" auto-delete="false" exclusive="false"/>
+
+    <!-- 定义direct exchange，绑定myQueueName 自动建立exchange名为 myChange -->
+    <rabbit:direct-exchange name="myChange" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <rabbit:binding queue="myQueueId2" key="hello"></rabbit:binding>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+    
+    <!--定义rabbit template用于数据的接收和发送-->
+    <rabbit:template id="myAmqpTemplate" connection-factory="connectionFactory" exchange="myChange"/>
+
+	
+	
+ClassPathXmlApplicationContext ctx=new ClassPathXmlApplicationContext("spring_rabbitmq/simple/spring_rabbitmq_client.xml");
+AmqpTemplate amqpTemplate =(AmqpTemplate)ctx.getBean("myAmqpTemplate");
+amqpTemplate.convertAndSend("hello", "xxx");//hello是Routing key ,对应xml配置key="hello"
+System.out.println("发送了XXX");
+ctx.close();//如果不关，就不退出 
+
 ========================Spring Boot
 logging.file=my.log  日志输入到当前目录下的文件名
  
@@ -2709,6 +2778,51 @@ static 目录 放css,js,图片
 application.properties 是空的
 
 
+myprop.name=prop_name_test
+myprop.desc=descripion for ${myprop.name}
+myprop.random.value=${random.value} 
+myprop.random.int=${random.int} 
+myprop.random.long=${random.long} 
+myprop.random.int10=${random.int(10)} 
+myprop.random.int10_20=${random.int[10,20]} 
+
+
+@Value("${myprop.random.value}")
+private String random; //随机字串
+
+@Value("${myprop.random.int}")
+private int randomInt;
+
+@Value("${myprop.random.long}")
+private long randomLong;
+
+@Value("${myprop.random.int10}")//# 10以内的随机数
+private int randomIn10;
+
+@Value("${myprop.random.int10_20}")//10-20的随机数
+private int randomInt10_20;
+
+java -jar xxx.jar --server.port=8888   也可以修改参数,会覆盖application.properties
+
+application-dev.properties：开发环境
+application-test.properties：测试环境
+application-prod.properties：生产环境
+至于哪个具体的配置文件会被加载，需要在application.properties文件中通过spring.profiles.active属性来设置，其值对应{profile}值
+java -jar xxx.jar --spring.profiles.active=test
+
+spring.profiles.active=dev
+server.context-path=/J_SpringBoot
+
+
+@PropertySource(value = "classpath:test.properties") 
+@ConfigurationProperties(prefix = "my")
+@Component
+public class ConfigBean {
+
+    private String name;   //自动被设置指定文件中my.name的值
+    private int age;
+}
+
 //入口类
 @SpringBootApplication  //内部使用了 @ComponentScan,也就是说可以扫这个类所在包的子包
 public class DemoApplication {
@@ -2716,6 +2830,20 @@ public class DemoApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DemoApplication.class, args);
 	}
+}
+
+
+
+@RunWith(SpringRunner.class)
+@SpringBootTest() //classes=
+@SpringBootConfiguration
+@ContextConfiguration
+public class DemoSpringBootJunitTest {
+
+	@Test
+	public void contextLoads() {
+	}
+
 }
 
 生成pom.xml 中有
@@ -2727,15 +2855,47 @@ public class DemoApplication {
 </parent>
 
 	
-<dependency>
-	<groupId>org.springframework.boot</groupId>
-	<artifactId>spring-boot-starter-web</artifactId>
-</dependency>
+ 
+<!--<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+	 默认tomcat,如要用jetty  -->
+	 
+	 <dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-web</artifactId>
+		<exclusions>
+		  <exclusion>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+		  </exclusion>
+		</exclusions>
+	  </dependency>
+	  <dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-jetty</artifactId>
+	  </dependency>
 
 <dependency>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-test</artifactId>
 	<scope>test</scope>
+</dependency>
+
+
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-freemarker</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.springframework.boot</groupId>  
+	<artifactId>spring-boot-starter-amqp</artifactId>  
 </dependency>
 
 <plugin>
@@ -2775,14 +2935,194 @@ spring.redis.port=6379
 
 @SpringBootApplication 下加
 @EnableCaching//Redis
+ 
+ 
+@Autowired  
+private RedisTemplate<String,String> redisTemplate;  
 
-@RequestMapping("list")方法上加 @Cacheable("keyList") //Redis ,返回Bean 一定要Serializable
+@Cacheable("cacheList") //Redis ,返回Bean 一定要Serializable
+@RequestMapping("cachePage")
+public List showList() {
+	System.out.println("调用了showList方法 ");
+	List<UserVO> list=new ArrayList<>();
+	
+	UserVO user=new UserVO();
+	user.setId(32);
+	user.setUsername("李");
+	user.setBirthday(new Date());
+	list.add( user); 
+	
+	UserVO user2=new UserVO();
+	user2.setId(322);
+	user2.setUsername("李2");
+	user2.setBirthday(new Date());
+	list.add( user2); 
+	return list;
+} 
+	
+
+@RequestMapping("redisTemplate")
+public String useRedisTemplate() {
+	ValueOperations<String, String> ops=	redisTemplate.opsForValue();
+	ops.set("myKey", "my中文 ");
+	return ops.get("myKey");
+}
+	
+--redis cluster  
+不行？？？？
 
 
---redis cluster 
 
 --mybatis 
 
+
+<dependency>
+	<groupId>org.mybatis.spring.boot</groupId>
+	<artifactId>mybatis-spring-boot-starter</artifactId>
+	<version>1.2.1</version>
+</dependency>
+ 
+@Bean
+public ServletRegistrationBean dispatcherRegistration(DispatcherServlet dispatcherServlet) {
+	ServletRegistrationBean registration = new ServletRegistrationBean(dispatcherServlet);
+	registration.getUrlMappings().clear();
+	registration.addUrlMappings("*.action"); //只有*.action 的请求能通过
+	registration.addUrlMappings("*.json");
+	return registration;
+}
+
+//DataSource配置
+@Bean
+@ConfigurationProperties(prefix="spring.datasource")
+public DataSource dataSource() {
+	return new org.apache.tomcat.jdbc.pool.DataSource();
+}
+
+//提供SqlSeesion
+@Bean
+public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
+	SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+	sqlSessionFactoryBean.setDataSource(dataSource());//数据源可通过其它方式取得
+	PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+	sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mapper/*Mapper.xml"));//映射文件是resource/mybatis/目录下所有.xml文件,也可用application.properties
+	return sqlSessionFactoryBean.getObject();
+}
+
+@Bean
+public PlatformTransactionManager transactionManager() {
+	return new DataSourceTransactionManager(dataSource());
+}
+ 
+#mybatis.mapper-locations=classpath:mapper/*Mapper.xml             #也可程序中设置 */
+mybatis.config-locations=classpath:mapper/config/Config.xml
+#mybatis.type-aliases-package=mybatis.vo  #not effect ???
+
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+#spring.datasource.url=jdbc:mysql://localhost:3306/test
+spring.datasource.url=jdbc:mysql://172.16.35.10:3306/srm?useUnicode=true&characterEncoding=utf-8&useSSL=false
+spring.datasource.username=OP
+spring.datasource.password=abcd_1234
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--rabbitmq
+@Configuration  
+public class AmqpConfig {  
+    public static final String EXCHANGE   = "spring-boot-exchange";  
+    public static final String ROUTINGKEY = "spring-boot-routingKey";  
+    @Bean  
+    public ConnectionFactory connectionFactory() {  
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();  
+        connectionFactory.setAddresses("172.16.35.35:5672");  
+        connectionFactory.setUsername("zh");  
+        connectionFactory.setPassword("123");  
+        connectionFactory.setVirtualHost("/");  
+        connectionFactory.setPublisherConfirms(true); //必须要设置  
+        return connectionFactory;  
+    }  
+  
+    @Bean  
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)  
+    //必须是prototype类型  
+    public RabbitTemplate rabbitTemplate() {  
+        RabbitTemplate template = new RabbitTemplate(connectionFactory());  
+        return template;  
+    }  
+    /**  
+     * 针对消费者配置  
+     * 1. 设置交换机类型  
+     * 2. 将队列绑定到交换机  
+        FanoutExchange: 将消息分发到所有的绑定队列，无routingkey的概念  
+        HeadersExchange ：通过添加属性key-value匹配  
+        DirectExchange:按照routingkey分发到指定队列  
+        TopicExchange:多关键字匹配  
+     */  
+    @Bean  
+    public DirectExchange defaultExchange() {  
+        return new DirectExchange(EXCHANGE);  
+    }  
+    @Bean  
+    public Queue queue() {  
+        return new Queue("spring-boot-queue", true); //队列持久  ，不存在会自动创建Queue
+    }  
+    @Bean  
+    public Binding binding() {  
+        return BindingBuilder.bind(queue()).to(defaultExchange()).with(AmqpConfig.ROUTINGKEY);  
+    }  
+    @Bean  
+    public SimpleMessageListenerContainer messageContainer() {  
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory());  
+        container.setQueues(queue());  
+        container.setExposeListenerChannel(true);  
+        container.setMaxConcurrentConsumers(1);  
+        container.setConcurrentConsumers(1);  
+        container.setAcknowledgeMode(AcknowledgeMode.MANUAL); //设置确认模式手工确认  
+        container.setMessageListener(new ChannelAwareMessageListener() {  
+            @Override  
+            public void onMessage(Message message, Channel channel) throws Exception {  
+                byte[] body = message.getBody();  
+                System.out.println("receive msg : " + new String(body));  
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false); //确认消息成功消费  
+            }  
+        });  
+        return container;  
+    }  
+  
+}  
+@Component  
+public class Send implements RabbitTemplate.ConfirmCallback {  
+  
+    private RabbitTemplate rabbitTemplate;  
+   
+    @Autowired  
+    public Send(RabbitTemplate rabbitTemplate) {  
+        this.rabbitTemplate = rabbitTemplate;  
+        rabbitTemplate.setConfirmCallback(this); //rabbitTemplate如果为单例的话，那回调就是最后设置的内容  
+    }  
+  
+    public void sendMsg(String content) {  
+        CorrelationData correlationId = new CorrelationData(UUID.randomUUID().toString());  
+        rabbitTemplate.convertAndSend(AmqpConfig.EXCHANGE, AmqpConfig.ROUTINGKEY, content, correlationId);  
+    }  
+  
+    /**  
+     * 回调  
+     */  
+    @Override  
+    public void confirm(CorrelationData correlationData, boolean ack, String cause) {  
+        System.out.println(" 回调id:" + correlationData.getId());  
+        if (ack) {  
+            System.out.println("消息成功消费");  
+        } else {  
+            System.out.println("消息消费失败:" + cause);  
+        }  
+    }  
+  
+}  
 
 
 --非web程序
@@ -2834,14 +3174,6 @@ public class SampleController {
 		//new SpringApplicationBuilder(SampleController.class).web(true).run(args);
     }
 }
-
-
-<dependency>
-	<groupId>org.mybatis.spring.boot</groupId>
-	<artifactId>mybatis-spring-boot-starter</artifactId>
-	<version>1.3.1</version>
-</dependency>
- 
 
 
 ========================Spring Cloud
@@ -3354,21 +3686,81 @@ public class ServerZipkinApplication {
 	}
 }
 server.port=9411
-service-hi项目
-import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
-@Bean
-public AlwaysSampler defaultSampler(){
-	return new AlwaysSampler();
-}
 
+---service-hi项目
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-zipkin</artifactId>
+</dependency>
+
+	import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
+	@Bean
+	public AlwaysSampler defaultSampler(){
+		return new AlwaysSampler();
+	}
+	
+	@Autowired
+	private RestTemplate restTemplate;
+
+	@Bean
+	public RestTemplate getRestTemplate(){
+		return new RestTemplate();
+	}
+
+	@RequestMapping("/hi")
+	public String callHome(){
+		LOG.log(Level.INFO, "calling trace service-hi  ");
+		return restTemplate.getForObject("http://localhost:8989/miya", String.class);
+	}
+	@RequestMapping("/info")
+	public String info(){
+		LOG.log(Level.INFO, "calling trace service-hi ");
+
+		return "i'm service-hi";
+
+	}
+	server.port=8988
+	spring.zipkin.base-url=http://localhost:9411
+	spring.application.name=service-hi
+---service-miya 项目
+	@RequestMapping("/hi")
+	public String home(){
+		LOG.log(Level.INFO, "hi is being called");
+		return "hi i'm miya!";
+	}
+
+	@RequestMapping("/miya")
+	public String info(){
+		LOG.log(Level.INFO, "info is being called");
+		return restTemplate.getForObject("http://localhost:8988/info",String.class);
+	}
+
+	@Autowired
+	private RestTemplate restTemplate;
+
+	@Bean
+	public RestTemplate getRestTemplate(){
+		return new RestTemplate();
+	}
+
+server.port=8989
 spring.zipkin.base-url=http://localhost:9411
+spring.application.name=service-miya
 
-
-
-启动后 http://localhost:9411/ 有界面,但 Find Traces按钮无显示，Analyze Dependencies按钮无显示
+ 
+启动后 http://localhost:9411/ 有界面
+ 请求 http://localhost:8989/miya    后  Find Traces按钮有显示，
+ 请求 http://localhost:8988/hi  后 Analyze Dependencies按钮有显示
+-----eureka-server 冗余来增加可靠性，当有一台服务器宕机了，服务并不会终止，因为另一台服务存有相同的数据
+测试失败
 
 -----Docker 
-windows CE Stable 版本 要启用Hyper-V(win10自带,但要启用,像IIS一样启用),在开始-> windows Accessories->Administrative Tools->Hyper-V Manager
+有单独的Docker.txt
+windows 下要
+net user docker  /add /active:yes /expires:never /passwordchg:yes /fullname:"the-docker" /comment:"docker used"
+net localgroup "docker-users" docker /add
+
+windows CE Stable 版本 要启用Hyper-V,win10自带(官方说win10家庭版没有Hyper-V,),但要启用,像IIS一样启用 ,在开始-> windows Accessories->Administrative Tools->Hyper-V Manager
 自动建立了名为 MobyLinuxVM ,目录在 C:\Users\Public\Documents\Hyper-V\
 
  docker --version  				Docker version 17.03.1-ce, build c6d412e
@@ -3383,11 +3775,11 @@ windows CE Stable 版本 要启用Hyper-V(win10自带,但要启用,像IIS一样�
 Dockerfile 文件
 
 FROM frolvlad/alpine-oraclejdk8:slim					//使用哪个镜像源	:后是个标签名 格式 FROM <image> 或  FROM <image>:<tag>,docker images可看到, 如不指定标签默认使用latest镜像
-VOLUME /tmp
-ADD eureka-server-0.0.1-SNAPSHOT.jar app.jar
+VOLUME /tmp   											//目录具有持久化存储数据的功能，
+ADD eureka-server-0.0.1-SNAPSHOT.jar app.jar			//复制
 #RUN bash -c 'touch /app.jar'
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
-EXPOSE 8761
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]			//容器启动时执行的命令
+EXPOSE 8761 											//容器设置对外的端口号
 
 
 </build>中加
@@ -3398,6 +3790,14 @@ EXPOSE 8761
 		<configuration>
 			<imageName>forezp/${project.artifactId}</imageName>
 			<dockerDirectory>src/main/docker</dockerDirectory>
+			 <!-- 
+				CentOS 7 
+				打开/usr/lib/systemd/system/docker.service文件，修改ExecStart这行 
+				ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
+				(原来没-H参数，启动后就监听2375端口)
+			  -->
+			<dockerHost>http://172.16.35.35:2375</dockerHost>
+			
 			<resources>
 				<resource>
 					<targetPath>/</targetPath>
@@ -3458,9 +3858,8 @@ services:
 更新镜像后
  docker commit -m="描述信息" -a="作者" <容器ID> <要创建的目标镜像名>
  
------
-要想看这个系统的Hystrix Dashboard数据就需要用到Hystrix Turbine。
-
+----- 
+Hystrix Turbine将每个服务Hystrix Dashboard数据进行了整合
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-turbine</artifactId>
@@ -3493,12 +3892,14 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 	  
-http://localhost:8769/turbine.stream 做为monitor的地址
+http://localhost:8763/hystrix 或 http://localhost:8762/hystrix
 
+http://localhost:8769/turbine.stream 做为monitor的地址
+Hosts 值为2，下面有两组server
 
 ---consul 
 服务健康监测 ,key/value 存储
-
+https://www.consul.io/downloads.html
 下载 win zip包,就一个consul命令
 
 consul agent -dev 启动

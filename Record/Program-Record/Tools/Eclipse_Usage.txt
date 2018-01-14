@@ -665,7 +665,7 @@ File->project stucture ->选择Modules标签 可以Import或者Add 多个,默认
 或者File ->new ->new Module...
 
 右击.iml文件-> subversion->ignore->*.iml
-
+File->Settings->Editor->File Types  在ignore files and folders 中加*.iml;dubboregistry
 
 收费版 File->Settings->Build,Executeion,Deployment->Application Server-> + 一个Tomcat,就可以Run中建立,deployment中+ 个我Artifact..->选择xx:war exploded
 		(对应于project structure...->Artifact  + 一个 Web Application Exploed -> From modules->),设置context,启动时注意左侧的连接图标

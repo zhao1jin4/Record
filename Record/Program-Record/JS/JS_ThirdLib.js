@@ -802,6 +802,65 @@ function getLodop(oOBJECT, oEMBED) {
 
 
 
+===================SyntaxHighlighter  只是显示高亮
+可以在 页面中显示像开发工具中的代码,关键字带颜色,并可以正常复制,支持多种语言,如Java,C,JS,AS3
+
+<link type="text/css" rel="stylesheet" href="css/shCore.css"/>
+<link type="text/css" rel="stylesheet" href="css/shThemeDefault.css"/>
+<script type="text/javascript" src="js/shCore.js" ></script>
+<script type="text/javascript" src="js/shBrushJava.js" ></script>
+<script type="text/javascript">
+	SyntaxHighlighter.all() 
+</script>
+<!--  auto-links: true; collapse: false; first-line: 1; gutter: true; html-script: false; light: false; ruler: false; smart-tabs: true; tab-size: 4; toolbar: true; -->	
+<pre class="brush: java;">
+/**
+ * author
+ */
+package test;
+import java.io.FileInputStream;
+public static void main(String args[])
+{
+	int a=10;//test
+	String str="abc";
+	System.out.println("hello");
+}
+</pre>
+===================CodeMirror  在线编辑 代码 语法高亮
+codemirror-5.20.2\mode\sql  有示例
+ 
+<script src="js/codemirror.js"></script>
+<script src="js/mode/sql.js"></script>
+
+<link rel="stylesheet" href="css/codemirror.css">
+<style type="text/css">
+.CodeMirror {
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	border-right: 1px solid black;
+}
+</style>
+            
+<script type="text/javascript" >
+	//$(function(){   });
+	window.onload = function() 
+	{
+		var mime = 'text/x-mariadb';
+		 window.editor = CodeMirror.fromTextArea(document.getElementById('sql'), {
+				mode: mime,
+				lineNumbers: true,
+				autofocus: true
+		  });
+	}
+	
+	var sql=window.editor.getValue();
+	
+	
+</script>
+ SQL  :  <textarea   id="sql"> select table_name from information_schema.TABLES where table_schema='db_name'  </textarea>
+   
+
+
 
 
 

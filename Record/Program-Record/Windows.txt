@@ -187,7 +187,7 @@ sort->more...->Date created 创建日期(也是复制过来的日期)
 
 win7 有一个 snippingtool 截图工具,StikyNot 便利贴,关闭后再次打开,会记住,但还要记住去打开
 ver 命令　看到windows 7 系统的版本是6.1
-
+win10是 Microsoft Windows [版本 10.0.16299.125] 自动更新2017-12-19 大的更新 1709版本
 
 windows 7 禁用自动播放
 地址栏上 粘贴 控制面板\硬件和声音\自动播放  取消复选[为所有媒体和设备使用自动播放],列表中全部选择[不执行操作]
@@ -760,9 +760,10 @@ shutdown /t 120 /s  ,两分钟后关机
 运行 cmd/notepad/wordpad/mspaint/regedit/explorer 命令
 运行 gpedit.msc/services.msc 
 运行  msconfig 配置开机启动(windows 10在任务管理器)
-运行 mstsc 远程桌面 (service.msc中有Remote Desktop Services) 使用RDP协议  右击我的电脑 -> 属性 -> 远程设置 ->选中 允许远程协助连接这台计算机
+运行 mstsc 远程桌面
+ (service.msc中有Remote Desktop Services) 使用RDP协议  右击我的电脑 -> 属性 -> 远程设置 ->选中 允许远程协助连接这台计算机
 							防火墙，win10 windows Defender -> 防火墙和网络保护->允许应用通过防火墙 选中 远程协助 ，选 专用网络 和 公有网络  但还是不行？？？
-							
+	官方说win10家庭版没有远程桌面	
 运行 dxdiag 就可以看到显卡信息
 运行 wmic命令
 

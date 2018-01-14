@@ -138,9 +138,11 @@ kernel 中加single 时入单例用户
 	/home/swap swap swap defaults 0 0
 
  
+cat /proc/swaps 正在使用的swap
+swapon 是开启swap , swapoff 关闭swap
 
-/etc/yum.conf 文件中修改  keepcache=0  改为keepcache=1 这样在yum install xx 时，就不会删 /var/cache/yum/fedora/packages/e下的包了
-										/var/cache/yum/updates/packages/  
+
+										
 
 w 谁在做什么 w -f    显示ip  ,看哪个在使用w 命令,哪个就是当前的 ( 也可以用who am i 会显示是哪个pts/)
 who 看谁在用本机,
@@ -2092,7 +2094,7 @@ rpm -qf 文件名  显示文件属于哪个软件包
 rpm -e 卸载软件包
 useradd -d /u01/oracle  这是用户的默认主目录
 ------------
-----------------Redhat yum自动安装光盘中软件包,相当于 SUSE的yast2
+----------------Redhat yum 自动安装光盘中软件包,相当于 SUSE的yast2
 mount -t iso9660 -o ro,loop /dev/cdrom /mnt/cdrom
 cd /etc/yum.repos.d/
 mkdir bak
@@ -2121,8 +2123,17 @@ yum groupinstall "Chinese Support"
 yum groupinstall Fonts
 
 yum search gcc  模糊查找软件包名
-yum list |grep gcc 
+yum list |grep gcc  有gcc-c++
+
 64位机 yum 安装32位 gcc ,yum search all gcc
+
+
+
+/etc/yum.conf 文件中修改  keepcache=0  改为keepcache=1 这样在yum install xx 时，就不会删 /var/cache/yum/fedora/packages/e下的包了
+				CentOS是/var/cache/yum/x86_64/7/
+
+yum-config-manager   --add-repo    https://download.docker.com/linux/centos/docker-ce.repo
+
 ----------------
 -----------------硬盘安装RedhatEL5------------
 
@@ -2266,6 +2277,10 @@ ps axms
  
 ulimit -a
 open files                      (-n) 1024
+
+
+======linux KVM
+
 
 
 

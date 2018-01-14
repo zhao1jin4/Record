@@ -34,17 +34,16 @@ codis-admin
 对集群的修改都必须通过 codis-dashboard 完成
 
 
-============== Redis-4.0.2 版本编译安装
+============== Redis-4.0.6 版本编译安装
 cd src 
 make    OK
 make test 要 tcl-8.5以上,可用8.6.7  测试OK,
-	redis-trib.rb 还是要ruby,有ruby-2.4.1编译安装后带 gem 命令(RubyGems)，还要ruby的redis依赖
-	gem install redis  报没有zlib,
-	可以从https://rubygems.org/ 上搜索redis下载文件redis-4.0.0.gem
-	gem install --local redis-4.0.0.gem 报没有zlib
-	cd ruby-2.4.1/ext/zlib
-	ruby ./extconf.rb  gcc报找不到 lzlibwapi   yum install zlib-devel
- 
+	redis-trib.rb 还是要ruby,有ruby-2.5.0编译安装后(./configure  , make , make install)带 gem 命令(RubyGems)，还要ruby的redis依赖
+	gem list
+	gem install redis  报没有 Unable to require openssl, install OpenSSL and rebuild Ruby (preferred) or use non-HTTPS sources
+				
+	可以从https://rubygems.org/ 上搜索redis 点download链接 下载文件redis-4.0.0.gem
+	gem install --local redis-4.0.0.gem  
 make install 在 /usr/local/bin/redis-server
 
 
@@ -59,25 +58,10 @@ cat /proc/sys/vm/overcommit_memory
  放/etc/rc.local 中启动执行
  
   WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
-
  
-============== Redis-3.0
-REmote DIctionary Server(Redis) 
+默认配置 protected-mode yes 修改为 no
+bind 默认127.0.0.1  是不能外网连接的，要修改为本机IP 或者注释它
 
-源码安装
-cd src
-make 或  make MALLOC=libc   (默认在/usr/local/bin) 或  make PREFIX=/some/other/directory 
-
-make test 提示要 tcl  ruby ,RubyGems
-	安装tcl,cd tcl8.6.6/unix    执行./configure && 	make &&	make install  就有/usr/local/bin/tclsh8.6
-
-	 redis-trib.rb 用的是ruby脚本(yum intall ruby) 源码安装ruby-2.3.3 就有/usr/local/bin/ruby
-	./configure && make && make install
-	运行依赖于 RubyGems-2.6.8 安装 /usr/local/bin/ruby setup.rb
-	ruby的redis 模块 在线安装 /usr/local/bin/gem install redis   
-
-	报 NOREPLICAS Not enough good slaves to write   先忽略 
-#make install 如不install  在./src下有命令
 redis-server -v 看版本
  
 源码目录有redis.conf可用于复制
@@ -250,7 +234,8 @@ MOVE name 0		DB移动
 DBSIZE  当前库的key的个数
 info		显示所有配置
 FLUSHDB    清当前DB
-FLUSHALL 
+FLUSHALL   清所有的key
+del   <theKey>
 type dest 集合是什么类型的
 
 TTL 命令可以获取某个key值的过期时间(-1表示永不过期)
@@ -472,7 +457,7 @@ cluster-enabled yes
 cluster-config-file nodes0.conf		#文件自动生成,不需要手工修改,配置文件中不要中文
 cluster-node-timeout 5000			#毫秒 如时间内不能连接节点,认为节点失败
 appendonly yes 		
-
+appendfilename "appendonly.aof
 
 ---学习到的
 slave-serve-stale-data yes  	#表示当 从与主断开 或者 复制正在进行 回复客户端,如为no则报错 
@@ -484,7 +469,7 @@ min-slaves-max-lag 10
 启动时可以看到 node id,每次都是同一个
 最少3个  master 节点,建义3个master 节点+3个slave 节点(6个配置文件)
 
-示例建立目录 mkdir 7000 7001 7002 7003 7004 7005  每个目录中放相同的配置,并修改端口,config-file名,并启动
+示例建立目录 mkdir 7000 7001 7002 7003 7004 7005  每个目录中放相同的配置,并修改端口,config-file名和appendfilename名可放同一目录中,并启动
 
 如报最大打文件数
 	cat /proc/sys/fs/file-max
@@ -499,6 +484,8 @@ redis-cli -c -p 7000 (-c cluster,-p port)
 
 
 ./redis-trib.rb create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
+./redis-trib.rb create --replicas 1 172.16.35.35:7000 172.16.35.35:7001 172.16.35.35:7002 172.16.35.35:7003 172.16.35.35:7004 172.16.35.35:7005
+
 	提示哪三台做M,哪三台做S,  输入yes
 	其中 --replicas 1 表示 每个主节点要一个子节点
 	

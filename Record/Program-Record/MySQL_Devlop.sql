@@ -123,8 +123,9 @@ values(1,1,0,'black','a,b,c');
 	
 text 类型对应的就有tinytext,mediumtext,longtext
 	
-date 类型没有时间,而datetime 和 timestamp  
+date 类型没有时间,而datetime 和 timestamp  (如果修改了时区值也会自动变)类型是带日期和时间的
 (建表,加列时,列的类型为 timestamp 如不指定default,自动加  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP )
+
 YEAR ,TIME  类型     
 
 如为date 类型，在insert 数据时可以使用格式  d{'2010-10-10'} 来表示一个日期
@@ -193,8 +194,6 @@ SELECT PERIOD_DIFF(200802,200703); -- 第一个日期 减 第二个日期 相差
 SELECT UNIX_TIMESTAMP(end_time) - UNIX_TIMESTAMP(start_time) as t;  -- 两日期/时间之间相差的秒数 　
 SELECT TIME_TO_SEC(now())
  
-
-datetime 和 timestamp  类型是带日期和时间的
 
 ---字串函数
 varchar(20)的含义是20个中文或者英文字符,即中文也是占一个,可能是由于字符集是utf8原因
@@ -567,6 +566,8 @@ READ-COMMITTED
 REPEATABLE-READ
 SERIALIZABLE
 
+
+
 show variables like 'tx_isolation%';　 同 session 
 
 set global/session transaction isolation level read committed   -- read uncommitted
@@ -880,14 +881,28 @@ select  后可加 LOCK IN SHARE MODE   , 另一个session可以读,如要写必�
  --  表级锁
 	UNLOCK TABLES;
 -- 行级锁
-select  后可加 for update 对innoDB的表行级锁 ,也对索引加锁,和 tx_isolation 有关,
-	
-	说是INNODB 行级锁,如表没主键 或 没有index , 其实使用的是表级锁, 在另一个连接中也不能作insert,注意!!! 
-	(所以innodb 表要有index，或者primary key才是行级锁 )
+select  后可加 for update 对innoDB的表行级锁 ,也对索引加锁,和 tx_isolation 有关, 
 
     select * from myTable for update 如不加where条件就是表级锁,不能 insert ,注意!!!
 	
 查询哪些表,在锁中(行级锁)	show OPEN TABLES where In_use > 0;
+
+
+
+
+SET autocommit=0;
+show session variables where VARIABLE_NAME='autocommit';
+
+REPEATABLE-READ
+Session-1 查询
+Session-2 查询修改了,已经提交，Session-1 再查还是看到数据不变，即可以重复读
+如同一记录Session-1做了修改未提交， Session-2做了修改会锁等Session-1，如Session-1提交，Session-2等完成提示更新为0条，查询查件也未变
+如不是同一记录也是锁等，因条件未做索引,就是表锁, 注意!!! ,新版本MySQL-5.7.19就是这样,MySQL做的差的,如条件是索引就是行级锁
+
+SERIALIZABLE 同一条记录 Session-1 查询了也加锁， Session-2做不可以改(REPEATABLE-READ可以)，
+
+
+
 -- 
 
 强制索引

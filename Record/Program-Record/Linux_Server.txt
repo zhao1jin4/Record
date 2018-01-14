@@ -1264,7 +1264,11 @@ C:\Users\zhaojin\.gitconfig
 	
 C:\Program Files\Git\mingw64\share\doc\git-doc 下有文档
  user-manual.html
-
+---
+Git-2.15.1.2-64-bit.exe 如非管理员安装，默认安装在 C:\Users\zhaojin\AppData\Local\Programs\Git
+ 选择使用notepad++为默认编辑器
+ 
+ 
 ---源码版本安装
 make configure
 ./configure 
@@ -1761,32 +1765,36 @@ http_access allow all
 
 
 ============== Nginx 比Squid 强
-如何 https ,TLSV1.2,TLS( Transport Layer Security )最新版本1.2
+最新版本1.12.2
+有windows 版本.zip文件 
+
+
+如何 https ,TLSV1.2,TLS( Transport Layer Security )
 
 ​N​e​t​S​c​a​l​e​r​ 和 A10 EX Series  类似于F5,Radware 的硬件 ,负载均衡器
 Apache的 mod_proxy和mod_cache结合使用也可以实现对多台app server的反向代理和负载均衡，但是在并发处理方面apache还是没有 nginx擅长
 
-有windows 版本.zip文件 
 
 nginx 有一个 master 进程(读配置,维护worker进程) 和几个 worker进程(处理请求),基于OS的事件模型,默认进程数是CPU的核数
 
 流量控制 
 URL rewrite：URL重写
 reverse proxy：反向代理
-做缓存服务器
+做缓存服务器  
 实现对web服务的负载均衡
 安装第三方插件，实现健康状态监测
 
 
-源码编译 依赖于  PCRE 库(不是2版本) 
-默认安装在/usr/local/nginx
-./confure   --with-pcre=../pcre-8.37
+源码编译,要C++编译器 yum list| grep gcc-c++, 依赖于  PCRE (Perl Compatible Regular Expressions)库(不是2版本) 
+
+默认安装在/usr/local/nginx,包括日志
+./confure   --with-pcre=../pcre-8.41
 make
 make install
 
 
-/usr/local/nginx/sbin/nginx 启动
-/usr/local/nginx/sbin/nginx -s stop   (signal)
+/usr/local/nginx/sbin/nginx 启动  默认监听80端口
+/usr/local/nginx/sbin/nginx -s stop   (-s signal)
 
 stop — fast shutdown
 quit — graceful shutdown
@@ -1804,32 +1812,33 @@ http{
 		location / {  			是http请路径
 				root   html;	是安装目录下的html目录
 				index  index.html index.htm;
-			}
-		}
-	}
-	
+		 }
+	 }
+}
+
 server 
 {
-    listen 8080;
-    root /data/up1;   页面所在本地目录
-    location / {
-    }
+	listen 8080;
+	root /data/up1;   页面所在本地目录
+	location / {
+	}
 }
 
 server {
-    location / {
-        proxy_pass http://localhost:8080;   代理
-    }
+	location / {
+		proxy_pass http://localhost:8080;   代理
+	}
 
-    location /images/ {   请求 /images 对应本地/data/images/目录
-        root /data;
-    }
+	location /images/ {   请求 /images 对应本地/data/images/目录
+		root /data;
+	}
 }
-location ~ \.(gif|jpg|png)$ {     正则,  ~ 代表/data/images (\.是转义)  ,以.gif,.jpg,.png结尾的
-    root /data/images;
+server 组中
+location ~ \.(gif|jpg|png)$ {     正则表达式以~.开头表示,(\.是转义)  ,即以.gif,.jpg,.png结尾的
+	root /data/images;
 }
 
-
+ 
 upstream  nginx支持4种算法
 
 1 轮询(默认)   每个请求按时间顺序分配到不同的后端服务器了，后端服务器down掉，自动切除。
@@ -1838,18 +1847,30 @@ upstream  nginx支持4种算法
 4 fair			（第三方） 按后端服务器的响应时间来分配，响应时间短的优先分配
 5 url_hash  	按访问的url的hash结果分配，使每个url定向到同一个后端服务器，后端为缓存服务器比较有效。
 
-upstream http_server {
+upstream http_server 
+{
 　　ip_hash;
-　　 server 127.0.0.1:9090 down;			--down暂时不参与负载，不进行反向代理
-　　 server 127.0.0.1:8080 weight=2;		--weight默认为1，weight越大，负载的权重越大
-　　 server 127.0.0.1:6060;
-　　 server 127.0.0.1:7070 backup;			--其它为down或者忙时候，请求backup机器
-　　}    
+　　server 127.0.0.1:9090 down;			--down暂时不参与负载，不进行反向代理
+　　server 127.0.0.1:8080 weight=2;		--weight默认为1，weight越大，负载的权重越大
+　　server 127.0.0.1:6060;
+　　server 127.0.0.1:7070 backup;			--其它为down或者忙时候，请求backup机器
+}    
+
 
 nginx对静态资源 html静态页面缓存
 location ~* .(ico|gif|jpg|jpeg|png|js|css|mp3|mp4) {
   root  /var/www/opkeep;
   expires 30d;
+}
+
+
+
+proxy_cache_path /data/nginx/cache keys_zone=one:10m;  用本地文件系统去缓存，keys_zone指定名字，和共享内存大小，用于存无数据
+server {
+	proxy_cache one;  用上面的名字
+	location / {
+		proxy_pass http://localhost:8000;
+	}
 }
 
 --Memcached
@@ -1863,6 +1884,14 @@ server {
         proxy_pass     http://backend;
     }
 }
+
+ 
+------nginx cgi/fastcgi   使用C/C++编写fastcgi应用程序
+
+
+
+
+
 ================FastDFS-5.08
 
 

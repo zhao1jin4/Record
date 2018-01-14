@@ -1,4 +1,4 @@
-C:\ProgramData\Oracle\Java\javapath  目录中有java,javaw,的快捷方式
+C:\ProgramData\Oracle\Java\javapath  目录中有java,javaw
 
 apt	(Annotation Processing Tool)工具
 extcheck 工具,检查jar的冲突
@@ -61,14 +61,14 @@ JVM Stacks    有 栈帧（Stack Frame） (线程私有的)
 Native Method Stacks  
 
 ---线程共享的 (动态内存)
-非堆区包括 Metaspace , Code cache 和 Compress Class Space
+非堆区包括 Metaspace(即本地化的堆内存) , Code cache 和 Compress Class Space
  
-方法区(所有线程共享)移至Metaspace，字符串常量移至Java Heap
+方法区(所有线程共享)移至 Metaspace ，字符串常量移至 Java Heap
 
 (PermanetGeneration jdk8中被删 以促进HotSpot JVM与 JRockit VM的融合) Metaspace,参数 -XX:MaxMetaspaceSize=256m 限制本地内存分配给类元数据的大小,默认无限制
-
+   
 	
-Heap 堆区有
+Heap 堆区有 (非G1)
 
 1. new(young) Generation
 	一个Eden 空间,存放新生的对象,空间不足的时候，会把存活的对象转移到Survivor中
@@ -87,12 +87,12 @@ Survivor Space空间满了后, 剩下的live对象就被直接拷贝到tenured G
 
 Concurrent Mark Sweep (CMS)  Collector 
 	使用 标记—清除
-	初始标记(STW initial mark) STW(Stop The Word),描到能够和"根对象"直接关联的对象,暂停了整个JVM，但是很快就完成了
-    并发标记(Concurrent marking)
-    并发预清理(Concurrent precleaning)
-    重新标记(STW remark)
-    并发清理(Concurrent sweeping)
-    并发重置(Concurrent reset) 
+	1.初始标记(STW initial mark) STW(Stop The Word),描到能够和"根对象"直接关联的对象,暂停了整个JVM，但是很快就完成了
+    2.并发标记(Concurrent marking)
+    3.并发预清理(Concurrent precleaning)
+    4.重新标记(STW remark)
+    5.并发清理(Concurrent sweeping)
+    6.并发重置(Concurrent reset) 
 		
 
 	
@@ -103,20 +103,22 @@ Concurrent Mark Sweep (CMS)  Collector
 
 
 jvm垃圾回收算法
-	引用计数法:两个对象A和B，互相引用无法回收,老的
+	1.引用计数法:两个对象A和B，互相引用无法回收,老的
 	
-	搜索方法  GC Roots  从这些节点开始往下搜索，搜索通过的路径成为引用链（Reference Chain），当一个对象没有被GC Roots的引用链连接的时候，说明这个对象是不可用
+	2.搜索方法  GC Roots  从这些节点开始往下搜索，搜索通过的路径成为引用链（Reference Chain），当一个对象没有被GC Roots的引用链连接的时候，说明这个对象是不可用
 		a) 虚拟机栈（栈帧中的本地变量表）中的引用的对象。局部变量
-		b) 方法区域中的类静态属性引用的对象。static
-		c) 方法区域中常量引用的对象。final
+		b) 方法区域(Metaspace)中的类静态属性引用的对象。static
+		c) 方法区域(Metaspace)中常量引用的对象。final
 		d) 本地方法栈中JNI（Native方法）的引用的对象。
-	标记—清除算法(Mark-Sweep)  产生大量的不连续空间
-	复制算法(Copying) 			内存分成大小相等的两块，每次使用其中一块,把存活的对象复制到另一块上，然后把这块内存整个清理掉。内存的利用率不高,收集新生代 
-	标记—整理算法(Mark-Compact) 是把存活对象往内存的一端移动，然后直接回收边界以外的内存。  内存的利用率，并且它适合在收集对象存活时间较长的老年代。
+	3.标记—清除算法(Mark-Sweep)  产生大量的不连续空间
+	4.复制算法(Copying) 			内存分成大小相等的两块，每次使用其中一块,把存活的对象复制到另一块上，然后把这块内存整个清理掉。内存的利用率不高,收集新生代 
+	5.标记—整理算法(Mark-Compact) 是把存活对象往内存的一端移动，然后直接回收边界以外的内存。  内存的利用率，并且它适合在收集对象存活时间较长的老年代。
 	 
  
  
 G1收集器  JDK9的server默认
+	(每个heap区都是逻辑上连续的一段内存,virtual memory)  ,角色(eden, survivor, old), 但每个角色的区域个数都不是固定的
+	
 	Eden空间中，每一个线程都有一个固定的分区用于分配对象,即一个 TLAB.分配对象时，线程之间不再需要进行任何的同步。
 	如果Eden空间无法容纳该对象，就只能在老年代中进行分配空间
 
@@ -124,7 +126,7 @@ G1收集器  JDK9的server默认
 	server-style,目标多处理器,大内存(超过6G或更大),有GC暂停(0.5秒以下),大吞吐量  ,将来替代CMS
 	新生代，老年代的物理空间划分取消了,heap被平均分成若干个相同大小的区域(region)，每块区域既有可能属于Old区、也有可能是yong区
 	
-	是压缩,紧凑,致密(Compact)的,有停顿,并行标记,会知道哪些区域最空,先回收这些(Garbage-First名字的来历),根据配置的暂停时间确定回收区域数,压缩从一个或多个区域复制另一个单个区域
+	是压缩,紧凑,致密(Compact)的,有停顿,并行标记,会产生大量的空闲空间,先回收这些(Garbage-First名字的来历),根据配置的暂停时间确定回收区域数,压缩从一个或多个区域复制另一个单个区域
 
 	CMS 不做整理,G1并发整理是对整个heap,
 	
@@ -235,7 +237,7 @@ set JAVA_OPTS=-Xss256K -Xms256m -Xmx1024m   -XX:NewSize=128m -XX:MaxNewSize=256m
 -XX:ConcGCThreads=n
 -XX:G1ReservePercent=n    默认10 , 保留10%的空间,防止失败
 -XX:G1HeapRegionSize=n    默认区的大小(统一),最小1M ,最大32M
-
+-XX:G1NewSizePercent=  experimental flag ，The default value is 5 percent 
 
 
 ---性能
@@ -497,14 +499,14 @@ jinfo 修改有错误
 jmap -histo 进程ID  //(histo=histogram柱状图)以文本的形式显示现在所有的类,的实例数,占用空间
 jmap -dump:format=b,file=java_pid.hprof <进程ID> //(b是binary的缩写)进程的内存heap输出到heap.bin文件中,二进制文件  
 
-//如文件过大,机器可用内存 可能 要大于文件大小
-jhat -J-mx768m -port <端口号:默认为7000> java_pid.hprof
-
 
 JDK9中去了除了jhat
-jhat java_pid.hprof 分析jmap导出的文件,启动服务 HTTP端口7000,http://localhost:7000/ ,界面中会按包名分类  
-	使用eclipse插件 MemoryAnalyzer分析jmap导出文件,插件认.hprof格式文件
-eclipse性能测试插件 TPTP
+	//如文件过大,机器可用内存 可能 要大于文件大小
+	jhat -J-mx768m -port <端口号:默认为7000> java_pid.hprof
+	jhat java_pid.hprof 分析jmap导出的文件,启动服务 HTTP端口7000,http://localhost:7000/ ,界面中会按包名分类  
+		使用eclipse插件 MemoryAnalyzer分析jmap导出文件,插件认.hprof格式文件
+
+		eclipse性能测试插件 TPTP
 java进程异常终止进产生 JavaCore 文件是关于CPU的　和　HeapDump(.hprof)文件是关于内存的
 
 
@@ -530,12 +532,19 @@ UNIX要
 反编译器 JD-GUI 
 ------------------
 ------------------JDBC
+
 Oracle AL32UTF8 varchar2如中文在数据中占用三个字节,nvarchar2中文是两个字节
 oracle.jdbc.xa.client.OracleXADataSource
 oracle.jdbc.driver.OracleDriver
 jdbc:oracle:thin:@127.0.0.1:1521:orcl    对  SID
 jdbc:oracle:thin:@//127.0.0.1:1521/orcl   对  service Name
 
+
+<dependency>
+	<groupId>mysql</groupId>
+	<artifactId>mysql-connector-java</artifactId> 
+	<version>5.1.44</version>
+</dependency>
 com.mysql.jdbc.jdbc2.optional.MysqlXADataSource  
 com.mysql.jdbc.Driver
 jdbc:mysql://localhost:3306/databasename
@@ -1005,6 +1014,41 @@ class MyRecursiveTask extends RecursiveTask<Integer> {  //变RecursiveTask
 	return null;  
  }
 }
+--------------------------JDK9新特性
+FileInputStream resource1 = new FileInputStream("c:/tmp/input.txt"); 
+FileInputStream resource2 = new FileInputStream("c:/tmp/input2.txt"); 
+//JDK 8
+		{
+//			try (FileInputStream rs1=resource1;
+//					FileInputStream rs2=resource2 	){
+//				
+//			} catch (FileNotFoundException e) {
+//				 
+//				e.printStackTrace();
+//			}
+//			resource1.read();//流在这已经关闭
+		}
+		//JDK 9
+		{ 
+			try (resource1;resource2){
+				
+			} catch (FileNotFoundException e) {
+				 
+				e.printStackTrace();
+			}
+			resource1.read();//流在这已经关闭
+		}
+
+ 
+//		JDK9 中 
+//		包javax.annotation  在 java.xml.ws.annotation 模块下
+//		包javax.jws 		          在 java.xml.ws 模块 下
+//		module J_JavaSE
+//		 {
+//			 requires java.xml.ws;
+//			 requires java.xml.ws.annotation;
+//		 }
+
 
 
 //---------JDBC 
@@ -1475,274 +1519,6 @@ IsSameObject(jobject ,jobjcet)//两个引用是否指向同一个java对象
 JNI 对Java的异常处理
 JNI 对Java的多线程
 C/C++ 如何改 JVM参数
-
-
-=====================CORBA=====================
-CORBA（Common Object Request Broker Architecture）是为了实现分布式计算
-只有CORBA是真正跨平台的，RMI 只能用Java
-它通过一种叫IDL（Interface Definition Language）的接口定义语言，能做到语言无关，
-
-客户方叫IDL Stub（桩）, 在服务器方叫IDL Skeleton（骨架）    ,由IDL 编译器生成
-双方又要通过而ORB（Object Request Broker，对象请求代理）总线通信
-
-ORB还要负责将调用的名字、参数等编码成标准的方式(称Marshaling)  传输  ,Unmarshaling,这整个过程叫重定向，Redirecting
-
-IIOP（Internet Inter-ORB Protocol）
-
-
-http://www.omg.org/spec/CORBA/    CORBA-3.2 	November 2011
-Object Management Group (OMG)
-
-orbacus 是corba-2.6 的开源实现,支持C++/Java 
-http://web.progress.com/en/orbacus/documentation_432.html  orbacus doc
-
-
-即Web浏览器通过下载Java Applet形式的CORBA客户方程序
-标志产品Orbix是一个基于库的CORBA规范实现,又推出了Orbix的Java版本OrbixWeb
-
-
-
-hello.idl文件内容
-module corba
-{
-module helloApp
-{
-  interface Hello
-  {
-    string sayHello();
-    oneway void shutdown();
-  };
- }; 
-};
-//idlj -fall Hello.idl
-
-
-idlj hello.idl 相当于 idlj -fclient hello.idl 
-idlj -fclient -fserver hello.idl
-idlj -fall hello.idl
-idlj -fallTIE Hello.idl 如果使用这个,会多生成会一个HelloPOATie.java文件,只在写Server类时有点不一样
-
-//idlj命令后会生成corba/helloApp目录
-//client Stub:		_HelloStub.java,HelloHelper.java,HelloHolder.java,HelloOperations.java
-//server Skeleton: Hello.java,HelloPOA.java						  	,HelloOperations.java,
-
-Portable Object Adapter (POA)
-
-//HelloOperations->Hello->_HelloStub
-//HelloOperations->HelloPOA
-父->子
-
-import org.omg.CosNaming.NameComponent;
-Common Object Services (COS) 
-
-
-手工写 实现类 
-class HelloImpl extends HelloPOA {
-	private ORB orb;
-	public void setORB(ORB orb_val) {
-	    orb = orb_val; 
-	  }
-	  public String sayHello() {
-	    return "\nHello world !!\n";
-	  }
-	  public void shutdown() {
-	    orb.shutdown(false);//服务端退出,为客户端调用
-	  }
-	}
-手工写Server类
-ORB orb = ORB.init(args, null);
-POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-rootpoa.the_POAManager().activate();
-HelloImpl helloImpl = new HelloImpl();
-helloImpl.setORB(orb); 
-
-//--使用idlj -fall Hello.idl对应的方法
-//org.omg.CORBA.Object ref = rootpoa.servant_to_reference(helloImpl);
-//Hello href = HelloHelper.narrow(ref);
-//--使用idlj -fallTIE Hello.idl 对应的方法
-HelloPOATie tie = new HelloPOATie(helloImpl, rootpoa);
-Hello href = tie._this(orb);
-//-- 
-org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");//对于使用orbd也可以用"TNameService"表示是Transient
-NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
-String name = "Hello";
-NameComponent path[] = ncRef.to_name( name );
-ncRef.rebind(path, href);
-orb.run();//会一直阻塞,除非调用  orb.shutdown(
-
-手工写Client类
-ORB orb = ORB.init(args, null);
-org.omg.CORBA.Object objRef =  orb.resolve_initial_references("NameService");//对于使用orbd也可以用"TNameService"表示是Transient
-NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
-String name = "Hello";
-helloImpl = HelloHelper.narrow(ncRef.resolve_str(name));
-System.out.println(helloImpl.sayHello());//会调用_HelloStub的sayHello方法,中有_invoke方法 -> 会调用服务端的HelloPOA的_invoke方法,中有调用自己实现的方法(HelloPOATie)
-helloImpl.shutdown();//客户端调用服务端退出
-
-orbd -ORBInitialPort 11050 -ORBInitialHost localhost //启动ORBA 服务器,会生成orb.db目录
-java HelloServer -ORBInitialPort 11050 -ORBInitialHost localhost 
-java HelloClient -ORBInitialPort 11050 -ORBInitialHost localhost
-//测试OK
-也可使用  tnameserv -ORBInitialPort 11050
-orbd 命令 Transient Naming Service 和 a Persistent Naming Service,
-tnameserv 命令 (Transient Naming Service)  
- 
-服务端的另一种方式Tie,使用idlj -fallTIE Hello.idl
- 
- 
- 
- 
- 
- 
-module simpleDemo
-{
-	interface grid 
-	{
-		 readonly attribute short height; 
-		 readonly attribute short width; 
-		 void set(in short row, in short col, in long value);
-		 long get(in short row, in short col); 
-	};
-};
-
-
-Dynamic Invocation Interface (DII) 和 Dynamic Skeleton Interface (DSI)
-(DII)和（DSI）是用来支持客户在不知道服务器对象的接口的情况下也能调用服务器对象。
-Basic Object Adapter(BOA, 基本对象适配器)
-Portable Object Adapter（POA，可移植对象适配器）  ,最新的ORB产品一般都支持POA
-Server方的实现对象称为Servant
-
-	自己写类gridImpl extends  gridPOA
-
-自己写Server类
-org.omg.CORBA.ORB			global_orb	= ORB.init (args,null); //1.init
-
-//2.
-org.omg.CORBA.Object		poa_obj		= global_orb.resolve_initial_references("RootPOA");
-org.omg.PortableServer.POA	root_poa	= org.omg.PortableServer.POAHelper.narrow(poa_obj);
-byte[] grid_oid = root_poa.activate_object(grid);				//自已的POA实现类
-org.omg.CORBA.Object ref = root_poa.create_reference_with_id(grid_oid, gridHelper.id());
-String stringified_ref = global_orb.object_to_string(ref);//保存引用,
-//2
-org.omg.PortableServer.POAManager poa_manager = root_poa.the_POAManager();
-poa_manager.activate(); //3.
-global_orb.run();//4
-
-真正跨机器、跨平台的分布式应用中
-通常使用Naming Servic，	要启动Naming Service守护进程??????????????
-
-使用file based  ,Client和Server在同一台机器上时才是可行的
-
-
-//cleint
-ORB orb=ORB.init (args,null);
-org.omg.CORBA.Object obj_ref=orb.string_to_object(String ...); 
-								string_to_object("relfile:/Hello.ref");//指定文件名中的,当前目录下
-grid gridProxy =gridHelper.narrow (obj_ref);//就可使用了
-				 gridHelper.narrow(obj_ref);//多次也是同一个Servant对象,后面会覆盖前面的,不建议出多个
-
-....
-orb.shutdown(true);		//
-
-
-IDL 可以不定义 Module 使用jidl命令生成代码,CORBA开源产品 ORBacus-4.3.4
-jidl  --package hello  Hello.idl　　
-
-生成的POA类的_this方法 ,生成接口
-
-
-ORBacus 能存储为HTML文件. 这通常用在Client 是一个Java Applet的情况下???????????
-
-// Server and Client
-java.util.Properties props = System.getProperties();
-props.put("org.omg.CORBA.ORBClass", "com.ooc.CORBA.ORB");//OB.jar
-props.put("org.omg.CORBA.ORBSingletonClass","com.ooc.CORBA.ORBSingleton");
-
-orb = org.omg.CORBA.ORB.init(args, props);
-((com.ooc.CORBA.ORB)orb).destroy();
-
-
-启动Server时  java -Xbootclasspath/p:%CLASSPATH%  hello.Server   // /p=prepend 在开始处加 /a=append
-
-IDL 语法
-	数据类型
-short
-unsigned short
-long
-unsigned long
-long long
-unsigned long long
-float
-double
-long double
-char
-wchar
-string
-boolean
-octet
-any
-
-
-摒弃int 类型在不同平台上取值范围不同带来的多义性的问题。
-IDL提供2 字节 (short)、 4 字节 (long) 和 8 字节 (long long) 的整数类型。
-
-boolean 值只能是 TRUE 或 FALSE。
-
-octet 是 8 位类型 ,octet 在地址空间之间传送时不会有任何表示更改
-
-any	类似于C++ 的自我描述数据类型void *
-
-
-typedef
-enum 
-struct  
-union 
-
-识别联合
-enum PressureScale{customary,metric};
- 
-union BarometricPressure switch (PressureScale) { //short、long、long long , char、boolean , enumeraton
- case customary :
-    float Inches; //可以是任何类型
- case metric :
- default:
-    short CCs;
-};
-
-常数 const  不能是 any 类型或用户定义的类型,不能有混合的类型表达式,可以 0xff
-
-用户异常
-exception DIVIDE_BY_ZERO {
- string err;
-};
- 
-interface someIface {
- long div(in long x, in long y) raises(DIVIDE_BY_ZERO);
-};
-
-数组 ,typedef long shares[1000];//不支持[] 中无数字
-string 类型是一种特殊的序列
-
-struct ofArrays {
- long anArray[1000];
-}; 
-必须出现 typedef 关键字，除非指定的数组是结构的一部分
-下标从 1 开始,数组下标,不能动态修改下标
-typedef sequence<long> Unbounded;
-typedef sequence<long, 31> Bounded;
-
-wstring
-module States { 
-	//不能加属性,方法
- module Pennsylvania {  //可以嵌套,
-
-}
-}
-
-JOB-4.3.4\ob\demo\echo 和hello  示例
-
-
-
 =====================RMI =====================
 
 客户端写接口(Calculator)，在Server端和Client端必须是相同的包名,继承 Remote 每个方法要　throws RemoteException
@@ -3205,7 +2981,7 @@ public  Future<Object> submitWaitingTask(Callable task)//要求父线程退出�
 
 CyclicBarrier cyclic =new CyclicBarrier(3);//3个线程
 cyclic.await();//3个线程调用进入后,它们才可一起继续执行,
-
+cyclic.reset()//比CountDownLatch 好的地方
 cyclic.getNumberWaiting();
 
 Exchanger<String> exchanger=new Exchanger<String> ();//两个线程同时个自执行到exchange方法时交换数据,如一个线程先到,等待
@@ -3265,7 +3041,7 @@ if (lock.tryLock(2,TimeUnit.SECONDS)) {//如果已经被lock，则立即返回fa
 	  }
 }
   
- //Reentrant再进去re entrant
+ //Reentrant再进去re entrant,一个线程可多次试图获取它所占有的锁请求会成功
 private ReentrantLock pauseLock = new new ReentrantLock(false);
 //默认是 false 不公平,如为true 选择等待时间最长的线程进入
 //前一个线程进入lock()还没有退出unlock(),后一个线程不可以进入lock(),除非前一个线程进入.newCondition().await时,后一个线程才可进入
@@ -3273,12 +3049,15 @@ private ReentrantLock pauseLock = new new ReentrantLock(false);
 //	多个线程可同时得到读的Lock，但只有一个线程能得到写的Lock,必须等读锁完成
 //	而且写的Lock被锁定后，任何线程都不能得到Lock
     ReadWriteLock rwlock = new ReentrantReadWriteLock();
+	//在没有释放读锁的情况下，就去申请写锁，这属于锁升级，ReentrantReadWriteLock是不支持的
+	//ReentrantReadWriteLock支持锁降级
 	Lock rlock= rwlock.readLock();
 	Lock wlock= rwlock.writeLock();
 	
 private Condition unpaused = pauseLock.newCondition();//好处是可以有多个Condition
 
-pauseLock.lock();
+pauseLock.lock(); 
+
 //中间的相当于 外面加了synchronized
 
 // Object 的(wait, notify and notifyAll),必须先synchronized,应该也可以用于生产者,消费者
@@ -3307,7 +3086,7 @@ Thread 类的静态方法	interrupted() 影响" interrupted status "，如果连
 ThreadLocal  其实是采用哈希表的方式来为每个线程都提供一个变量的副本。从而保证各个线程间数据安全。每个线程的数据不会被另外线程访问和破坏。
 			所变量保存在ThreadLocal中，用set
 			
-ThreadLocal声明为static ,只有set,get,remove,相当于一个Map,key为当前线程的ID,有多少个线程在运行,Map里就有多少
+ThreadLocal 声明为static ,只有set,get,remove,相当于一个Map,key为当前线程的ID,有多少个线程在运行,Map里就有多少
 
 CountDownLatch countDownLatch = new CountDownLatch(threadNumber);//主线程等所有线程完成
 子线程结束前调用countDownLatch.countDown();  
@@ -3386,8 +3165,8 @@ socket.close();
 java.nio.ByteBuffer;			Position<=Limit<=Capacity
 java.nio.FileChannel; 线程安全的
 
-GatheringByteChannel extends WritableByteChannel 可以把多个  ByteBuffer 写入自己(外部)的能力  Gather  , header.putShort (TYPE_FILE).putLong (x)
-ScatteringByteChannel extends ReadableByteChannel   可自己(外部)同时往几个 ByteBuffer 读出的能力      , channel.read (buffers)  //buffers[]
+GatheringByteChannel extends WritableByteChannel 可以把多个内存中的ByteBuffer 写出(外部)的能力  Gather  ,  	write(ByteBuffer[] srcs) 
+ScatteringByteChannel extends ReadableByteChannel   把(外部)同时往几个 ByteBuffer 读入到内存的能力      , 	read(ByteBuffer[] dsts)
  
  .getShort(0)//getXxx就不用flip了 
  

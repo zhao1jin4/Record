@@ -125,7 +125,16 @@ TreeMap 红黑树 source code  ,lock ,ConcurrentSkipListMap  SortedMap
 
 HashMap key 为何能为空 ，因如有判断如为null hashcode就为0,hashtable key为什么不能为空
 HashTable 的key和value 都不能为空,key没有!=null的判断取hashCode,value有判断
-ConcurrentHashMap 为什么快，使用ReentrantLock 分段加锁
+
+ConcurrentHashMap 为什么快， 以前是分段锁，
+JDK7 是分段锁
+JDK8 是  transient volatile table，table数组＋单向链表＋红黑树的结构
+个数超过8(默认值)的列表，jdk1.8 中采用了红黑树的结构 ，只锁定当前链表或红黑二叉树的首节点 ， CAS更新容量
+
+
+
+
+使用ReentrantLock 分段加锁
 CopyOnWriteArrayList最快的list
 如果是接口实现的代理,接口的方法必须是public的  ,如cyglib 实现的代理，单独测试不是private即可
 
@@ -383,7 +392,7 @@ Partition tolerance(分区容错性) 可靠性
  
  
  
- 索引怎么实现的  Btree  怎么存储的  
+ 索引怎么实现的  Btree  B 通常认为是Balance的简称怎么存储的  
 http://www.aikaiyuan.com/1809.html
 
 spring cloud 
@@ -470,6 +479,7 @@ yield()法只能让同优先级的线程有执行的机会
 
 
 ReentrantLock  的好处是可以tryLock 加超时时间，或者事先检查 isHeldByCurrentThread（）
+接口ReadWriteLock和它的实现ReentrantReadWriteLock 升级，降级
 
 偏向锁 
 JDK 8 ConcurentHashMap
@@ -479,6 +489,34 @@ CopyOnWriteArrayList 多线程时是产生多个复本吗？
 hash
 
 
+ 
+SoftReference (只当没有内存时回收),WeakReference,只要内存回收时就会被回收
+
+Http1.1  HTTP管道的意思是 客户端送HTML和CSS请深圳市，服务端同时处理2个请求，但有要有顺序返回，先返回HTML,再CSS 。为了减少连接次数，多个图片为一个，用大的JS，或者放HTML中
+Http 2.0 二进制传 ，head帧,data帧 
+帧 通讯的最小单位，每个帧有帧首部 ，标识出所属流(哪个请求) 
+双向数据流，乱序发送 ，最后再在另一端把它们重新组合起来，很多流可以并行地在同一个TCP连接上交换消息
+		减少网络延迟，还有助于提高吞吐量
+每个流都可以带有一个31比特的优先值  ，浏览器明明在等关键的CSS和JavaScript，服务器却在发送图片，从而造成渲染阻塞。
+压缩首部元数据，可以针对之前的首部数据只编码发送差异数据  （首部表在 HTTP2.0的连接存续期内始终存在,）
+对一个域名，只需要开启一条 TCP 连接，之前的合并 JS、CSS 文件技巧，没有效果
+Chrome 等浏览器强制要求使用 HTTP/2.0 必须要用上 SSL
+
+服务器推送，客户端还可以缓存起来，甚至可以由不同的页面共享
 
 
-SoftReference,WeakReference
+
+ nginx 和 tomcat ,jetty  的 http 2.0
+
+Docker,OpenStack,Python
+Resetful,
+
+
+区块链
+RabbitMQ
+ 
+
+
+
+
+

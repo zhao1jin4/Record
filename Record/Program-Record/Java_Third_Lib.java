@@ -273,7 +273,7 @@ shared-ldap-0.9.19.jar
 						
 ==============================SNMP4J
 	服务端使用Net-SNMP
-----------------------------------Jetty
+==============================Jetty
 
 eclipse 插件 run-jetty-run  可以在eclipse中使用 jetty 做servlet容器
 
@@ -283,8 +283,9 @@ http://localhost:8080/
 
 RunJettyRun-1.8 插件 当eclipe认为是web项目(有建立Servlet的界面)才可run as ->jetty
 
+==============================Tomcat Embed
 
------------ Maven服务器 Nexus OSS 
+==============================Maven服务器 Nexus OSS 
 2.x版本有跨平台的 -bundle.zip解压 
 
 nexus-2.7.2-03\conf\nexus.properties 中有配置项目nexus-work 是 sonatype-work 目录,就是解压目录的 , 仓库存放位置 
@@ -1109,7 +1110,8 @@ public class CalculatorTestSuit
 {
 
 }
----------------------------EasyMock
+---------------------------JMockit 更强
+---------------------------EasyMock  
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 //---实例
@@ -1419,71 +1421,6 @@ JFreeChart 和 iText
    AsianFontMapper mapper = new AsianFontMapper("STSong-Light","UniGB-UCS2-H");
 
    
-   
-======================PdfBox=============================
-依赖于commons-logging,fontbox
-<dependency>
-  <groupId>org.apache.pdfbox</groupId>
-  <artifactId>pdfbox</artifactId>
-  <version>2.0.0</version>
-</dependency>
----1.8 
-import org.apache.pdfbox.exceptions.COSVisitorException;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.util.PDFTextStripper;
-
----读
-boolean sort = false;
-String textFile = null;
-String pdfFile = "D:/my/Spring_源码分析.pdf";
-PDDocument document = PDDocument.load(new File(pdfFile));
-if (pdfFile.length() > 4) {
-	textFile = pdfFile.substring(0, pdfFile.length() - 4) + ".txt";
-}
-// 文件输出流，写入文件到textFile
-Writer output = new OutputStreamWriter(new FileOutputStream(textFile),"UTF-8");
-// PDFTextStripper来提取文本
-PDFTextStripper stripper = new PDFTextStripper();//可加GBK,但中文OK
-stripper.setSortByPosition(sort);
-stripper.setStartPage(1);
-stripper.setEndPage(20);
-// 调用PDFTextStripper的writeText提取并输出文本
-stripper.writeText(document, output);
-output.close();
-document.close();
-//---
-PDFParser parser = new PDFParser(new RandomAccessFile(new File(pdfFile),"rw"));  
-parser.parse();  
-PDDocument pdfdocument = parser.getPDDocument();  
-PDFTextStripper stripper = new PDFTextStripper();  
-String result = stripper.getText(pdfdocument);  
-System.out.println(result);  
----写
-PDDocument document = new PDDocument();
-PDPage page = new PDPage();
-document.addPage( page );
-
-// Create a new font object selecting one of the PDF base fonts
-PDFont font = PDType1Font.HELVETICA_BOLD;//中文不行
-
-// Create a new font object by loading a TrueType font into the document
-//PDFont font = PDTrueTypeFont.loadTTF(document, "c:\\WINDOWS\\Fonts\\SIMHEI.TTF");//中文不正常
-
-PDPageContentStream contentStream = new PDPageContentStream(document, page);
-
-contentStream.beginText();
-contentStream.setFont( font, 12 );
-contentStream.newLineAtOffset( 100, 700 );
-contentStream.showText( "Hello World_中__" );
-contentStream.endText();
-contentStream.close();
-document.save( "d:/temp/Hello World.pdf");
-document.close();
-
 =================================Lucene-6.4================================
  最新的 luke-src-4.0.0 最近更新是2012年7月
  
@@ -2195,490 +2132,8 @@ collection.bulkWrite(
 );
    
    
---------------------------------------------pluto 不升级,JDK8不可用
-pluto(放射性检查计,冥王星) 的角色,用户
-Java Specification Request(JSR)
-Apache Pluto-2.0.3 , 实现portlet 2 Container 即 JSR-286 ,使用Tomcat-7.0.21
 
-
-不要把pluto中已有的.jar放在自己的项目中,只供编译使用
-portlet-api_2.0_spec-1.0.jar
-pluto-taglib-2.0.3.jar
-//可以使用eclipse集成pluto,要双击pluto->选择use tomcat installation->选择webapps目录,要在META-INF/建立contex.xml写<Context crossContext="true" />
-//能否被pluto admin界面被检测到,是因为web.xml中<url-pattern>/PlutoInvoker/x 对应的org.apache.pluto.container.driver.PortletServlet
-//界面pluto admin的page操作就是修改pluto/WEB-INF/conf/pluto-portal-driver-config.xml
-
-启动后使用  http://127.0.0.1:8080/pluto/portal  ,使用用户 pluto,密码pluto登录,即tomcat-users.xml中的配置,看项目web.xml配置
-带一个testsuite 项目,有portlet配置可以做复制用
-
-----在纯净的Tomcat中的改变 OK
-context.xml中多加
-	<Context sessionCookiePath="/">
-tomcat-users.xml 默认有
-  <role rolename="pluto"/>
-  <user username="pluto" password="pluto" roles="pluto,tomcat,manager"/>
-  
-conf\Catalina\localhost 默认有pluto.xml,testsuite.xml,主要是为配置 crossContext="true"
-	<Context path="pluto" docBase="../PlutoDomain/pluto-portal-2.0.3.war" crossContext="true"></Context>
-	<Context path="testsuite" docBase="../PlutoDomain/pluto-testsuite-2.0.3.war" crossContext="true"></Context>
-
-把pluto-2.0.3\PlutoDomain\pluto和testsuite复制
-还要加.jar到tomcat-6/lib
-	pluto-container-api-2.0.3.jar
-	pluto-container-driver-api-2.0.3.jar
-	portlet-api_2.0_spec-1.0.jar
-	pluto-taglib-2.0.3.jar
-	ccpp-1.0.jar
-
-	如报找不到org.apache.pluto.driver.PortalStartupListener ,把生成的删除再启动就OK,在pluto项目中pluto-portal-driver.jar
-----
- <servlet>
-	<servlet-name>changeCaseServ</servlet-name>
-	<servlet-class>org.apache.pluto.container.driver.PortletServlet</servlet-class>
-	<init-param>
-		<param-name>portlet-name</param-name>
-		<param-value>ChangeCasePortlet</param-value> <!-- 这里除了是portlet.xml中的值,还要与  <url-pattern>/PlutoInvoker/的值一样才行 -->
-	</init-param>
-	<load-on-startup>1</load-on-startup>
-</servlet>
-<servlet-mapping>
-	<servlet-name>changeCaseServ</servlet-name>
-	<url-pattern>/PlutoInvoker/ChangeCasePortlet</url-pattern><!-- 路径只能是/PlutoInvoker/ 开头 -->
-</servlet-mapping>
-
---------------------------------------------上 pluto
---------------------------------------------Liferay-6.2 CE
-下载 bundled with tomcat
-下载 Liferay IDE-2.1.1 是elipse插件
-下载 plugins SDK 和 portal javadoc
-
-cd liferay-plugins-sdk-6.2-ce-ga2-20140319114139101\liferay-plugins-sdk-6.2\portlets
-ant 会下载 liferay-plugins-sdk-6.2\.ivy目录中
-create.bat my-greeting2 "My Greeting2" 建立项目(没有eclipe的东西) ,eclipse 中 import->liferay->liferay project from existing source,右击项目有liferay组(是插件新生成的),如果在project facades中取消了portlet,就没有办法再加上了
-改回方法
-.settings\org.eclipse.wst.common.project.facet.core.xml 中加   <installed facet="liferay.portlet" version="6.0"/>
-.settings\中新加 org.eclipse.wst.common.project.facet.core.prefs.xml 文件
-<root>
-  <facet id="liferay.portlet">
-    <node name="libprov">
-      <attribute name="provider-id" value="com.liferay.ide.eclipse.plugin.portlet.libraryProvider"/>
-    </node>
-  </facet>
-</root>
-
-
-控制面板中可修改语言 
-在 http://localhost:8080/ 中配置DB,语言,生成文件保存在 liferay-portal-6.2-ce-ga2/portal-setup-wizard.properties 
-liferay-portal-6.2-ce-ga2\tomcat-7.0.42\lib  放 jdbc.jar
-liferay-portal-6.2-ce-ga2\tomcat-7.0.42\webapps\ROOT\WEB-INF\classes  下建立 portal-ext.properties
-
-# MySQL
-jdbc.default.driverClassName=com.mysql.jdbc.Driver
-jdbc.default.url=jdbc:mysql://localhost:3306/liferay62?useUnicode=true&characterEncoding=UTF-8&useFastDateParsing=false
-jdbc.default.username=liferay62
-jdbc.default.password=liferay62
-# Oracle
-#jdbc.default.driverClassName=oracle.jdbc.driver.OracleDriver
-#jdbc.default.url=jdbc:oracle:thin:@localhost:1521:xe
-#jdbc.default.username=liferay62
-#jdbc.default.password=liferay62
-
-jdbc.default.maxIdleTime=600
-jdbc.default.maxPoolSize=10
-jdbc.default.minPoolSize=2
-
-jdbc.default.jndi.name=jdbc/LiferayPool
-
-建立了 180 个表 没有前缀
-
-liferay-portal-6.2-ce-ga2\tomcat-7.0.42\webapps\中直接删自己不使用portlet目录,也可删  welcome-theme ,calendar-portlet  ,opensocial-portlet
-eclipse 中修改liferay 的 -Xmx1024m 为 -Xmx512m
-
----/WEB-INF/liferay-hook.xml
-<hook>
-	<language-properties>Language_en_US.properties</language-properties>
-	<language-properties>Language_zh_CN.properties</language-properties>
-</hook>
-
----/WEB-INF/liferay-display.xml
-<display>
-	<category name="category.mysample"> <!-- 国际化Key -->
-		<portlet id="portlet62_add" /><!-- 必须与 portlet.xml中的 <portlet-name>portlet62_add</portlet-name> 相同-->
-	</category>
-</display>
----/WEB-INF/liferay-portlet.xml
-<liferay-portlet-app>
-	<portlet>
-		<portlet-name>portlet62_add</portlet-name> <!-- 必须与 portlet.xml中<portlet-name>portlet62_add</portlet-name> 相同- -->
-		<icon>/icon.png</icon>
-		<ajaxable>true</ajaxable>
-		<instanceable>true</instanceable> <!-- 在一个页中,是可以多个portlet实例 -->
-		<header-portlet-css>/css/main.css</header-portlet-css>
-		<header-portlet-javascript>/js/jquery-1.7.2.min.js</header-portlet-javascript>
-	</portlet>
-</liferay-portlet-app>	
-
-
-
-
-
-控制面板中 建立Site Template ,建立Page template
-建立Site 基于Site Template,
-
-界面中 Add(+)->Applications-> My Sample (是liferay-display.xml文件中配置的国际化) 标签下有自己的项目
-
-
-liferay 62 不能在jsp中仿问session 
---------------------------------------------上 Liferay
-
---------------------------------------------ActiveMQ , Kafaka在hadoop中
-<dependency>
-	 <groupId>org.apache.activemq</groupId>
-	 <artifactId>activemq-core</artifactId>
-	 <version>5.7.0</version>
- </dependency>
-
-ActiveMQ是一个JMS Provider的实现,tomcat 使用JMS 
-
-JMeter做性能测试的文档
-http://activemq.apache.org/jmeter-performance-tests.html
-
-启动ActiveMQ服务器 bin\activemq.bat start  stop
-
-http://localhost:8161/admin    admin/admin (配置在/conf/jetty-realm.properties)  可以看有,创建Queue ,Topic,Durable Topic Subscribers
-http://localhost:8161/camel
-http://localhost:8161/demo
-端口配置在jetty.xml中
-
-启动日志中有　tcp://lizhaojin:61616　    端口配置在activemq.xml中
-
-日志中提示 JMX URL: service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi
-
-
-看log4j.properties日志在data目录中
-
-方法2（在JVM中嵌套启动）：
-cd example
-
-ant embedBroker
-
-ant consumer
-ant producer
-
-ant topic-listener
-ant topic-publisher
-
-
-
-----集成web项目------启动OK
-activemq-all-5.4.2.jar
-activemq-web-5.4.2.jar
-
-web.xml中
- <context-param>  
-	<param-name>brokerURI</param-name>  
-	<param-value>/WEB-INF/activemq.xml</param-value>  
- </context-param>  
- <listener>  
-	<listener-class>org.apache.activemq.web.SpringBrokerContextListener</listener-class>  
- </listener>  
-
-
-activemq.xml
- <beans  
-   xmlns="http://www.springframework.org/schema/beans"  
-   xmlns:amq="http://activemq.apache.org/schema/core"  
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
-   xsi:schemaLocation="
-   http://www.springframework.org/schema/beans 
-   http://www.springframework.org/schema/beans/spring-beans-2.0.xsd  
-   http://activemq.apache.org/schema/core 
-   http://activemq.apache.org/schema/core/activemq-core-5.2.0.xsd     
-   http://activemq.apache.org/camel/schema/spring 
-   http://activemq.apache.org/camel/schema/spring/camel-spring.xsd">  
-   
-    <bean id="oracle-ds" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">  
-       <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>  
-       <property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/>  
-       <property name="username" value="hr"/>  
-       <property name="password" value="hr"/>  
-       <property name="maxActive" value="20"/>  
-       <property name="poolPreparedStatements" value="true"/>  
-     </bean>  
-   
-     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost">  
-         
-      
-     </broker>  
-   
- </beans>  
-
----集成Tomcat------------
-
-
-<Resource
-    name="jms/FailoverConnectionFactory"
-    auth="Container"
-    type="org.apache.activemq.ActiveMQConnectionFactory"
-    description="JMS Connection Factory"
-    factory="org.apache.activemq.jndi.JNDIReferenceFactory"
-    brokerURL="failover:(tcp://localhost:61616)?initialReconnectDelay=100&amp;maxReconnectAttempts=5"
-   brokerName="localhost"
-    useEmbeddedBroker="false"/>
-
-<Resource name="jms/topic/MyTopic"
-    auth="Container"
-    type="org.apache.activemq.command.ActiveMQTopic"
-    factory="org.apache.activemq.jndi.JNDIReferenceFactory"
-    physicalName="MY.TEST.FOO"/>
-   
-failover transport是一种重新连接机制，用于建立可靠的传输。
-此处配置的是一旦ActiveMQ broker中断，Listener端将每隔100ms自动尝试连接，直至成功连接或重试5次连接失败为止。
- 
-
----集成 Spring Tomcat------------OK
-只 activemq-all-5.3.2.jar 放/WEB-INF/lib
-
-Tomcat目录下的conf/context.xml
-
-<Resource name="jms/ConnectionFactory"   
-  auth="Container"     
-  type="org.apache.activemq.ActiveMQConnectionFactory"   
-  description="JMS Connection Factory"  
-  factory="org.apache.activemq.jndi.JNDIReferenceFactory"   
-  brokerURL="vm://localhost"   
-  brokerName="LocalActiveMQBroker"/>  
-   
-<Resource name="jms/Queue"   
-auth="Container"   
-type="org.apache.activemq.command.ActiveMQQueue"  
-description="my Queue"  
-factory="org.apache.activemq.jndi.JNDIReferenceFactory"   
-physicalName="FOO.BAR"/>  
-
-
-spring.xml
- <bean id="jmsConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">  
-         <property name="jndiName" value="java:comp/env/jms/ConnectionFactory"></property>  
- </bean>  
- <bean id="jmsQueue" class="org.springframework.jndi.JndiObjectFactoryBean">  
-	 <property name="jndiName" value="java:comp/env/jms/Queue"></property>  
- </bean>  
- <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">  
-	 <property name="connectionFactory" ref="jmsConnectionFactory"></property>  
-	 <property name="defaultDestination" ref="jmsQueue"></property>  
- </bean>  
-
- <bean id="sender" class="activemq_web.Sender">  
-	 <property name="jmsTemplate" ref="jmsTemplate"></property>  
- </bean>  
-
- <bean id="receive" class="activemq_web.Receiver"></bean>  
- <bean id="listenerContainer"  class="org.springframework.jms.listener.DefaultMessageListenerContainer">  
-	 <property name="connectionFactory" ref="jmsConnectionFactory"></property>  
-	 <property name="destination" ref="jmsQueue"></property>  
-	 <property name="messageListener" ref="receive"></property>  
- </bean>  
------使用Spring标签
-<jee:jndi-lookup id="jmsConnectionFactory" jndi-name="java:comp/env/jms/ConnectionFactory" />
-<jee:jndi-lookup id="jmsQueue" jndi-name="java:comp/env/jms/Queue" />
-
-<bean id="receive" class="activemq_web.ReceiverListener"></bean>
-<jms:listener-container connection-factory="jmsConnectionFactory">
-	<jms:listener destination="jmsQueue" ref="receive"/>
-</jms:listener-container>
-	
-如使用ActiveMQ 
-<bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
-    <property name="connectionFactory">
-      <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-        <property name="brokerURL">
-          <value>tcp://localhost:61616</value>
-        </property>
-      </bean>
-	 
-    </property>
-  </bean>
-  
-<!--    也可以用  
-    <bean id="jmsConnectionFactory2" class="org.springframework.jms.connection.SingleConnectionFactory">
-        <property name="targetConnectionFactory" >
-		    <bean  class="org.apache.activemq.ActiveMQConnectionFactory">
-				<property name="brokerURL" value="tcp://localhost:61616" />
-				<property name="userName" value="#{jms['mq.username']}" />
-				<property name="password" value="#{jms['mq.password']}" />
-				<property name="sendTimeout" value="10000" />  <!-- 如果不设置,会一直卡住好多个小时 -->
-		    </bean>
-        </property>
-		
-    </bean>
-  -->  
-
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-
-public class Sender
-{
-	private JmsTemplate jmsTemplate;
-	public void setJmsTemplate(JmsTemplate jmsTemplate)
-	{
-		this.jmsTemplate = jmsTemplate;
-	}
-	public void send(final String text)
-	{
-		
-		 
-		System.out.println("---Send:" + text);
-		jmsTemplate.send(new MessageCreator()
-		{
-			public Message createMessage(Session session) throws JMSException
-			{
-				return session.createTextMessage(text);
-			}
-		});
-		
-		 Map<String,Object> msg=new HashMap<String,Object> ();
-		 msg.put("isSuccess", "true");
-		 jmsTemplate.convertAndSend(msg);
-		 
-	}
-}
-//--
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.TextMessage;
-import javax.jms.MapMessage;
-
-public class Receiver implements MessageListener
-{
-	public void onMessage(Message message)
-	{
-		try
-		{
-			if (message instanceof TextMessage)
-			{
-				TextMessage text = (TextMessage) message;
-				System.out.println("Receive:" + text.getText());
-				
-			}else if (message instanceof MapMessage)
-			{
-				MapMessage mapMsg=(MapMessage)message;
-				System.out.println(" Receive Map Names is:"+ mapMsg.getMapNames()); 
-			}
-		} catch (JMSException e)
-		{
-			e.printStackTrace();
-		}
-	}
-}
-ApplicationContext ctx = new ClassPathXmlApplicationContext("spring_jms_beans.xml");
-JSP中
-<%
-ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletConfig().getServletContext());
-Sender send=(Sender)ctx.getBean("sender");
-send.send("hello");
-%>
-//------------------------------ OK
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQTopic;
-public class MainApp 
-{
-	public static void main(String[] args) throws Exception
-	{
-		// apache-activemq-5.11.1\bin\activemq.bat start 来启动
-		//ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-		String url = ActiveMQConnection.DEFAULT_BROKER_URL;  //failover://tcp://localhost:61616
-		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-		Connection connection = factory.createConnection();
-		connection.start();
-		//在容器中,一个connection只能创建一个活的session,否则异常
-		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);//boolean transacted, int acknowledgeMode　
-		//对不在JTA事务中(如在JTA事务中,参数失效,commit,rollback,也失败,依赖于JTA事务),如transacted为true使用session.rollback();或 session.commit();   acknowledgeMode参数被忽略
-		Topic topic= new ActiveMQTopic("testTopic");//动态建立 , 也可使用new ActiveMQQueue("testQueue")
-		//Topic topic= session.createTopic("testTopic");
-		// queue=session.createQueue("testQueue");
-		MessageConsumer comsumer1 = session.createConsumer(topic);
-		comsumer1.setMessageListener(new MessageListener()
-		{
-			public void onMessage(Message m) {
-				try {
-					System.out.println("Consumer1 get " + ((TextMessage)m).getText());
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		//创建一个生产者，然后发送多个消息。
-		MessageProducer producer = session.createProducer(topic);
-		producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-		for(int i=0; i<10; i++)
-		{
-			producer.send(session.createTextMessage("Message:" + i));
-		}
-		producer.close();
-	}
-}
-============ActiveMQ 的集群
-
-	  
-activemq5.9.0 开始 , activemq的集群实现方式取消了传统的Master-Slave方式 , 增加了基于 zookeeper + leveldb 的实现方式
-http://activemq.apache.org/replicated-leveldb-store.html
-
-activemq.xml
-brokerName属性设置为统一的
-<broker brokerName="broker" ... >
-  ...
- <persistenceAdapter>
-    <replicatedLevelDB
-      directory="${activemq.data}/leveldb"
-      replicas="3"
-      bind="tcp://0.0.0.0:0"
-      zkAddress="my-pc:2181,192.168.2.145:2181,192.168.2.146:2181"
-      hostname="my-pc"
-      sync="local_disk"
-      zkPath="/activemq/leveldb-stores"
-      />
-</persistenceAdapter>
-  ...
-</broker>
-hostname属性值配置本机的值
- 
- 
- 
-客户端使用
-<bean class="org.apache.activemq.ActiveMQConnectionFactory">
-	<property name="brokerURL">
-	  <value>failover:(tcp://localhost:61616,tcp://otherIP:61616)</value>
-	  <property name="userName" value="hrbb" />
-	 <property name="password" value="hrbb" />
-	</property>
-</bean>
-
-activemq.xml
-如要设置用户名,密码,在 <systemUsage> 标签后加
-<plugins> 
-	<simpleAuthenticationPlugin>
-		<users>
-			<authenticationUser username="hrbb"  password="hrbb"  groups="users"/>
-		</users>
-	</simpleAuthenticationPlugin>
-</plugins>
+-------------------- Kafaka在hadoop中
 
 -------------------------------------------- RabbitMQ  3.6.12
 .exe安装版要 ERLang语言,启动停止只能在services.msc中做 ,开始菜单中的无效
@@ -2717,7 +2172,7 @@ rabbitmqctl  add_user mon 123
 rabbitmqctl  set_user_tags  mon  monitoring  就可远程登录了
 (policymaker，management)
 rabbitmqctl  list_user_permissions  mon
-
+rabbitmqctl list_queues
 
 rabbitmq-plugins.bat enable rabbitmq_management    开启网页管理界面
 
@@ -2737,6 +2192,13 @@ dependencies {
 }
 
 
+
+String message = "Hello World!";
+String EXCHANGE_NAME = "myExtchange";
+String ROUTING_KEY = "routingKey"; 
+String QUEUE_NAME = "myQueueName";
+
+--sender
 ConnectionFactory factory = new ConnectionFactory(); 
 factory.setUsername("zh"); 
 factory.setPassword("123"); 
@@ -2746,12 +2208,173 @@ factory.setPort(5672);
 Connection conn = factory.newConnection(); 
 Channel channel = conn.createChannel(); 
 
+channel.exchangeDeclare(EXCHANGE_NAME, "direct", true); //direct，且持久化，非自动删除
+ 
 
+//(String exchange, String routingKey, AMQP.BasicProperties props, byte[] body)
+channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY, null, message.getBytes());
+System.out.println(" [x] Sent '" + message + "'");
 
 channel.close(); 
 conn.close();
 
----------------------------------POI xls,xlsxWorkbook webbook = null;
+--receiver
+channel.exchangeDeclare(EXCHANGE_NAME, "direct", true); //direct，且持久化，非自动删除
+		
+String queueName = channel.queueDeclare().getQueue(); 
+System.out.println("queueName="+queueName);
+
+
+//String queue, boolean durable, boolean exclusive, boolean autoDelete, Map<String,Object> arguments
+channel.queueDeclare(QUEUE_NAME, true, false, false, null);//且持久化要和现有的配置相同
+System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+
+channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
+
+Consumer consumer = new DefaultConsumer(channel) {
+	  @Override
+	  public void handleDelivery(String consumerTag, Envelope envelope,
+								 AMQP.BasicProperties properties, byte[] body)
+		  throws IOException {
+		String message = new String(body, "UTF-8");
+		System.out.println(" [x] Received '" + message + "'");
+	  }
+	};
+channel.basicConsume(QUEUE_NAME, true, consumer);
+
+----
+
+Direct Exchange 将一个队列绑定到交换机上，要求该消息与一个特定的路由键完全匹配
+Fanout Exchange 个发送到交换机的消息都会被转发到与该交换机绑定的所有队列上
+Topic Exchange 队列名是一个模式上， 匹配有两种方式all和any 
+			符号“#”匹配一个或多个词，符号“*”匹配不多不少一个词。因此“audit.#”能够匹配到“audit.irs.corporate”的routeKey(未测试)
+Headers exchange  不是使用routingkey去做绑定。而是通过消息headers的键值对匹配,发送者在发送的时候定义一些键值对，接收者也可以再绑定时候传入一些键值对
+接收端必须要用键值"x-mactch"来定义。all代表定义的多个键值对都要满足，而any则代码只要满足一个就可以了。
+---类型headers   sender
+  
+//(String exchange, BuiltinExchangeType type, boolean durable, boolean autoDelete, Map<String,Object> arguments)
+channel.exchangeDeclare(EXCHANGE_NAME, ExchangeTypes.HEADERS,false,true,null);  
+String message = new Date()+ " : log something";  
+  
+Map<String,Object> headers =  new Hashtable<String, Object>();  
+headers.put("aaa", "01234");  
+Builder properties = new BasicProperties.Builder();  
+properties.headers(headers);  
+  
+// 指定消息发送到的转发器,绑定键值对headers键值对  
+//(String exchange, String routingKey, AMQP.BasicProperties props, byte[] body)
+channel.basicPublish(EXCHANGE_NAME, "",properties.build(),message.getBytes());  
+channel.close();  
+connection.close();
+
+---类型headers  receiver 
+ //(String exchange, BuiltinExchangeType type, boolean durable, boolean autoDelete, Map<String,Object> arguments)
+channel.exchangeDeclare(EXCHANGE_NAME, ExchangeTypes.HEADERS,false,true,null);  
+
+//String queue, boolean durable, boolean exclusive, boolean autoDelete, Map<String,Object> arguments
+channel.queueDeclare(QUEUE_NAME,false, false, true,null);  
+
+Map<String, Object> headers = new Hashtable<String, Object>();  
+headers.put("x-match", "any");//all any  
+headers.put("aaa", "01234");  
+headers.put("bbb", "56789");  
+// 为转发器指定队列，设置binding 绑定header键值对  
+channel.queueBind(QUEUE_NAME, EXCHANGE_NAME,"", headers);  
+Consumer consumer = new DefaultConsumer(channel) {
+  @Override
+  public void handleDelivery(String consumerTag, Envelope envelope,
+							 AMQP.BasicProperties properties, byte[] body)
+	  throws IOException {
+	String message = new String(body, "UTF-8");
+	System.out.println(" [x] Received '" + message + "'");
+  }
+}; 
+// 指定接收者，第二个参数为自动应答，无需手动应答 
+//(String queue, boolean autoAck, Consumer callback		
+channel.basicConsume(QUEUE_NAME, true, consumer);   
+----rabbitMQ 事务
+
+//(String exchange, String type,  boolean durable, boolean autoDelete, Map<String,Object> arguments)
+channel.exchangeDeclare(EXCHANGE_NAME, "direct", true, false, null);  
+
+//(String queue,  boolean durable,  boolean exclusive,  boolean autoDelete,   Map<String,Object> arguments)
+channel.queueDeclare(QUEUE_NAME, true, false, false, null);  
+ 
+channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);  
+			
+channel.txSelect();  
+	//(String exchange, String routingKey, AMQP.BasicProperties props, byte[] body)
+	channel.basicPublish(exchangeName, routingKey, true, MessageProperties.PERSISTENT_BASIC, ("第"+(i+1)+"条消息").getBytes("UTF-8"));  
+channel.txCommit();  
+channel.txRollback();  
+  
+  
+======================PdfBox=============================
+依赖于commons-logging,fontbox
+<dependency>
+  <groupId>org.apache.pdfbox</groupId>
+  <artifactId>pdfbox</artifactId>
+  <version>2.0.0</version>
+</dependency>
+---1.8 
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.util.PDFTextStripper;
+
+---读
+boolean sort = false;
+String textFile = null;
+String pdfFile = "D:/my/Spring_源码分析.pdf";
+PDDocument document = PDDocument.load(new File(pdfFile));
+if (pdfFile.length() > 4) {
+	textFile = pdfFile.substring(0, pdfFile.length() - 4) + ".txt";
+}
+// 文件输出流，写入文件到textFile
+Writer output = new OutputStreamWriter(new FileOutputStream(textFile),"UTF-8");
+// PDFTextStripper来提取文本
+PDFTextStripper stripper = new PDFTextStripper();//可加GBK,但中文OK
+stripper.setSortByPosition(sort);
+stripper.setStartPage(1);
+stripper.setEndPage(20);
+// 调用PDFTextStripper的writeText提取并输出文本
+stripper.writeText(document, output);
+output.close();
+document.close();
+//---
+PDFParser parser = new PDFParser(new RandomAccessFile(new File(pdfFile),"rw"));  
+parser.parse();  
+PDDocument pdfdocument = parser.getPDDocument();  
+PDFTextStripper stripper = new PDFTextStripper();  
+String result = stripper.getText(pdfdocument);  
+System.out.println(result);  
+---写
+PDDocument document = new PDDocument();
+PDPage page = new PDPage();
+document.addPage( page );
+
+// Create a new font object selecting one of the PDF base fonts
+PDFont font = PDType1Font.HELVETICA_BOLD;//中文不行
+
+// Create a new font object by loading a TrueType font into the document
+//PDFont font = PDTrueTypeFont.loadTTF(document, "c:\\WINDOWS\\Fonts\\SIMHEI.TTF");//中文不正常
+
+PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+contentStream.beginText();
+contentStream.setFont( font, 12 );
+contentStream.newLineAtOffset( 100, 700 );
+contentStream.showText( "Hello World_中__" );
+contentStream.endText();
+contentStream.close();
+document.save( "d:/temp/Hello World.pdf");
+document.close();
+
+--------------------------------- POI excel xls,xlsx 
+ 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -3762,308 +3385,6 @@ NioServerSocketChannel , NioSocketChannel 用了 java nio
 //---- Netty-4.1
 netty-all-4.1.8.Final-sources.jar 里有example
  
-
-
--------------------------------DisplayTag 表格 分页
-web.xml
-
-<!--  
-<filter>
-	<filter-name>ResponseOverrideFilter</filter-name>
-	<filter-class>org.displaytag.filter.ResponseOverrideFilter</filter-class>
-</filter>
-
-<filter-mapping>
-	<filter-name>ResponseOverrideFilter</filter-name>
-	<url-pattern>*.do</url-pattern>
-</filter-mapping>
-<filter-mapping>
-	<filter-name>ResponseOverrideFilter</filter-name>
-	<url-pattern>*.jsp</url-pattern>
-</filter-mapping>
--->
- 
-
- 
-
-id="codeTable 第一个作用是每个List的子对象的名，第二个生成<table id="">
- 
-
-<display:table name="blacklist" id="blacklistTable" defaultsort="1"   partialList="true" requestURI="/pages/sysInfoMgmt/codeMgmt/blacklist.do?method=query"
-  size="resultSize" pagesize="${PAGE_SIZE}" >
-	  <display:column property="number" title="${phoneNO}" style="text-align:center"  sortable="true" group="1"/>
-
-
-加一个 group="1" 表示对第一列 不显示重复的 
-sortable="true" 可排序的
-
-<display:table defaultsort="1"  对第一列默认是排序的
-
-有个问题是多次分页后 requestURI 后的参数会多次的重复
-
-
-
-
-<display:table name="strategyList" requestURI="/pages/Notice/queryStrategy.do" pagesize="5" uid="al">
-${al.strategeID}
-也可以使用uid
-
-
-uid 最好不要用,在和id一起使用没有办法得到正确的页号,编码参数错误
- 
-
------------classpath下的 displaytag_zh.properties  可以参考 org.displaytag.properties.displaytag.properties
-basic.empty.showtable=true
-basic.show.header=true
-basic.msg.empty_list=没有可以显示的数据 
-basic.msg.empty_list_row=<tr   align="center" class="empty"><td colspan="{0}">没有可以显示的数据</td></tr> 
-paging.banner.onepage=<span class="pagelinks">[第一页/前一页] 									{0} 					[下一页/最后一页 ] 					</span>	&nbsp; 每页显示<select id="idpagesize" onchange="javascript:dealfoward();"><option value=10>10</option><option value=20>20</option><option value=50>50</option><option value=100>100</option></select>条	&nbsp;	到第 <input id="tz" class="pageTxt" size="3" type="text" value="{5}"/>/{6}页 <input class="searchButton" type="button" onclick="javascript:displaytagURL();" value="跳转"/><input id="hd" type="hidden" value="{1}"/>
-paging.banner.first=<span class="pagelinks">[第一页/前一页] 									{0} [ <a href="{3}">下一页</a>/ <a href="{4}">最后一页</a>] </span>	&nbsp; 每页显示<select id="idpagesize" onchange="javascript:dealfoward();"><option value=10>10</option><option value=20>20</option><option value=50>50</option><option value=100>100</option></select>条 &nbsp;	到第 <input id="tz" class="pageTxt" size="3" type="text" value="{5}"/>/{6}页 <input class="searchButton" type="button" onclick="javascript:displaytagURL();" value="跳转"/><input id="hd" type="hidden" value="{1}"/>
-paging.banner.last=<span class="pagelinks">[<a href="{1}">第一页</a>/ <a href="{2}">前一页</a>] {0} 					[下一页/最后一页] 					</span>	&nbsp; 每页显示<select id="idpagesize" onchange="javascript:dealfoward();"><option value=10>10</option><option value=20>20</option><option value=50>50</option><option value=100>100</option></select>条 &nbsp;	到第 <input id="tz" class="pageTxt" size="3" type="text" value="{5}"/>/{6}页<input class="searchButton" type="button" onclick="javascript:displaytagURL();" value="跳转"/><input id="hd" type="hidden" value="{1}"/>
-paging.banner.full=<span class="pagelinks">[<a href="{1}">第一页</a>/ <a href="{2}">前一页</a>] {0} [ <a href="{3}">下一页</a>/ <a href="{4}">最后一页 </a>]</span> &nbsp; 每页显示<select id="idpagesize" onchange="javascript:dealfoward();"><option value=10>10</option><option value=20>20</option><option value=50>50</option><option value=100>100</option></select>条 &nbsp;	到第 <input id="tz" class="pageTxt" size="3" type="text" value="{5}"/>/{6}页 <input class="searchButton" type="button" onclick="javascript:displaytagURL();" value="跳转"/><input id="hd" type="hidden" value="{1}"/>
-paging.banner.placement = bottom
-paging.banner.group_size=5
-    
-paging.banner.item_name=记录  
-paging.banner.items_name=记录 
-paging.banner.page.selected=当前第<strong>{0}</strong>页
-paging.banner.no_items_found=<span   class="pagebanner">没找到{0}   .</span>   
-paging.banner.one_item_found=<span   class="pagebanner">共找到1条{0},当前显示所有的{0}   .</span>   
-paging.banner.all_items_found=<span   class="pagebanner">共找到{0}条{1},当前显示所有的{2}.</span> 
-paging.banner.some_items_found=<span   class="pagebanner">共找到{0}条{1},当前显示{2}到{3}条.</span>   
-
-export.banner=<div   class="exportlinks">数据:   {0}</div>   
-export.banner.sepchar=|     
-export.types=csv excel xml pdf
-export.excel=true
-export.csv=true
-export.xml=true
-export.pdf=true
-export.excel.label=my export excel
-export.excel.filename=the_exported_excel.xls
-#export.excel.include_header=true
-#export.excel.class=display_tag.ExcelView
-#export.pdf.class=display_tag.PdfView
-
-
-#locale.resolver=org.displaytag.localization.I18nStrutsAdapter
-#locale.provider=org.displaytag.localization.I18nStrutsAdapter
-
-
-项group_size 表示多页时中间最多8个链接页,数字后不要有空格
-
-<display:table export="true"
-	
-	....
-	<display:setProperty name="export.pdf" value="true" />
-</display:table>
-
-
-
-
-
-分页新加　每页x条，到x页
------JS 
-function displaytagURL() {  //for go page
-	var reg = /-p=\d{0,}/;
-	var url=document.getElementById("hd").value.replace(reg,"-p=" + document.getElementById("tz").value);
-	window.location=url;
-}
-
-function loadSelect(inSize)
-{
-	var pagesizeSel = document.getElementById("idpagesize");
-	for (var i=0; i<pagesizeSel.options.length; i++) 
-	{
-		if( pagesizeSel.options[i].value == inSize )
-		{
-			pagesizeSel.options[i].selected="selected";
-			return ;
-		}
-	}
-}
-function dealfoward() //for change page size
-{
-	var value = document.getElementById("idpagesize").value;
-	if(document.getElementById("hd"))
-	{	
-		var url=document.getElementById("hd").value.replace(/-p=\d{0,}/,"-p=1");
-		if( /\&pageSize=/.test(url) )
-			location.href = url.replace(/\&pageSize=\d{0,}/, "&pageSize=" + value);
-		else
-			location.href = url+"&pageSize=" + value;
-	}else
-	{
-		//for one page show all the record
-		var url = window.location.href;  //<FORM method="GET"
-		//debugger;
-		if( /\&pageSize=/.test(url) )
-			url = url.replace(/\&pageSize=\d{0,}/, "&pageSize=" + value);
-		else
-			url = url+"&pageSize=" + value;
-		
-		if(/-p=\d{0,}/.test(url))
-			url = url.replace(/-p=\d{0,}/,"-p=1");
-		else
-			url+="&-p=1";
-		
-		window.location.href=url;
-	}
-}
-
-
-<%@ taglib uri="http://displaytag.sf.net/el" prefix="display"%>
- 
-<display:table name="myList" id="myTable"  partialList="true" requestURI="/tablePageServlet.ser?action=query"
-	size="resultSize" pagesize="${sessionScope.SESSION_PAGE_SIZE}" >
-	  <display:column title="${title_name}" property="name" style="text-align:center"  sortable="true" group="1"/>
-	  <display:column title="日期" property="date" />
-	  <display:column title="日期" > ${myTable.date}  </display:column>
-	   
-</display:table>
-
-如去 partialList="true" 多加  commons-collections-3.2.1.jar
-URL 总是有重复的,应该和requestURI中有参数的原因
-
-<script type="text/javascript">
-	loadSelect(${sessionScope.SESSION_PAGE_SIZE});
-</script>
-
------Java
-@WebServlet("/tablePageServlet.ser")
-public class TablePageServlet extends HttpServlet {
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
-		System.out.println(request.getParameter("action"));//总是init
-	 	int pageNo=getPageNO(request,"myTable");
-		int pageSize=getSessionPageSize(request);
-		List data=generateData(pageNo,pageSize);
-		request.setAttribute("myList", data);
-		request.setAttribute("resultSize",data.size());
-		request.setAttribute("title_name","姓名");
-		request.getRequestDispatcher("display_tag.jsp").forward(request, response);
-	}
-	public List  generateData(int pageNo,int pageSize)
-	{
-		List dataList=new ArrayList();
-		for(int i=pageNo;i<pageNo + pageSize + 3 ;i++)
-		{
-			VO vo=new VO();
-			vo.setName("名"+i);
-			vo.setDate("2013年");
-			dataList.add(vo);
-		}
-		return dataList;
-	}
-	//---放入基类中
-	protected int  getPageNO(HttpServletRequest request,String tableId)
-	{
-		int pageNo=1;
-		String name = new ParamEncoder(tableId).encodeParameterName(TableTagParameters.PARAMETER_PAGE);//服务端接收传来的页号
-		if(request.getParameter(name)!=null)
-		{
-			try{
-				pageNo = Integer.parseInt(request.getParameter(name));//display tag 中分页按钮请求才有
-			}catch(NumberFormatException e)
-			{
-				pageNo=1;
-			}
-		}
-		return pageNo;
-	}
-	protected  int  getSessionPageSize(HttpServletRequest request)
-	{
-		HttpSession session=request.getSession();
-		int pageSize=Constant.DEFAULT_PAGE_SIZE;
-	    String reqSize=request.getParameter("pageSize");
-	    if(reqSize!=null && ! "".equals(reqSize))
-	    {
-	    	pageSize=Integer.parseInt(reqSize.toString());
-	    	session.setAttribute(Constant.SESSION_PAGE_SIZE,pageSize);
-	    }else
-	    {
-	    	 Object sessionPage =session.getAttribute(Constant.SESSION_PAGE_SIZE);
-	 	    if(sessionPage!=null)
-	 	    	pageSize=Integer.parseInt(sessionPage.toString());
-	 	    else
-	 	    	session.setAttribute(Constant.SESSION_PAGE_SIZE,pageSize);
-	    }
-	    return pageSize;
-	}
-}
-
- 
-------全部数据的排序
-新排序功能的实现方法：
-<display:table  sort="external" defaultsort="1" defaultorder="descending"
-	表示使用displaytag的外部排序功能，默认对第一列降序排列显示
-	<display:column  sortable="true"   如加 sortName="xx" 就要在display:table中加 sort="external"
- 
-// 获取外部排序列 
-String strSortName = new ParamEncoder("myTable").encodeParameterName(TableTagParameters.PARAMETER_SORT);
-String sortName = request.getParameter(strSortName);
-String strOrder = new ParamEncoder("myTable").encodeParameterName(TableTagParameters.PARAMETER_ORDER);
-String order = request.getParameter(strOrder);//order为升序还是降序(1为升序  2为降序)
-String dbOrder="";
-if("1".equals(order))
-	dbOrder="asc";
-else if("2".equals(order))
-	dbOrder="desc";
- 
----------
-因为displaytag和struts2一起使用导致的，由于displaytag生成的参数中带“-”，而struts2中接受的参数中默认又不允许有“-”，
-只要将，devMode设置为false就不会报这个错了，这个的确可以解决该问题。
-
-
-根据当前页的数据 List .size()是否为0 ,解决删除当前页所有的项,翻页的Bug
-
-
-----------SVNANT是subeclipse项目,在ANT中使用SVN
----------------------------------Apache  Continuum   1.4.1 
-apache-continuum-1.4.1\bin\continuum.bat console  启动 
-http://127.0.0.1:8080/continuum/
-
-continuum.bat install/remove 以管理员运行,安装为windows服务名为 "Apache Continuum"
-
-$CONTINUUM_HOME/contexts/continuum.xml 配置SMTP,DB,可JNDI
-可以安装到Tomcat  中做为一个项目,下载apache-continuum-1.4.1.war
-但要有以下3个JNDI
-mail/Session
-jdbc/continuum
-jdbc/users
-
-
-<Context path="/continuum" docBase="/path/to/continuum-webapp-1.4.1.war">
-
-  <Resource name="jdbc/users"
-            auth="Container"
-            type="javax.sql.DataSource"
-            username="sa"
-            password=""
-            driverClassName="org.apache.derby.jdbc.EmbeddedDriver"
-            url="jdbc:derby:database/users;create=true" />
-
-  <Resource name="jdbc/continuum"
-            auth="Container"
-            type="javax.sql.DataSource"
-            username="sa"
-            password=""
-            driverClassName="org.apache.derby.jdbc.EmbeddedDriver"
-            url="jdbc:derby:database/continuum;create=true" />
-
-  <Resource name="mail/Session"
-            auth="Container"
-            type="javax.mail.Session"
-            mail.smtp.host="localhost"/>
-</Context>
-
-
-配置${appserver.base} 
--Dappserver.base=/path/to/continuum-base
-
-如是Tomcat中加
-  (export)set CATALINA_OPTS="-Dappserver.home=$CATALINA_HOME -Dappserver.base=$CATALINA_HOME"
 
 
 ---------------------------------zxing  

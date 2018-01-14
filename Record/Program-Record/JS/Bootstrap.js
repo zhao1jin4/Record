@@ -1,7 +1,4 @@
- 在线修改教程网,像w3shool
- http://www.runoob.com/
 
-HPlus(H+) 美工使用的工具
 
 =============BootStrap  3.3.7 开源的
 Hadoop 的UI使用Bootstrap

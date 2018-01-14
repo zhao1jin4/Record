@@ -1,5 +1,5 @@
 ﻿函数式编程 FP
-Scala-2.11.8
+Scala-2.12.4  不支持JDK9
 
 
 eclipse_4.5_plugin_Scala IDE-4.4.1   可以dropsin安装  
@@ -21,6 +21,34 @@ PATH=%PATH%;%SCALA_HOME%\bin
 scala  命令
 scala> 可写scala 语言,如有tab会提示
 
+ var √ =scala.math.sqrt _  // √ 可以做变量名,但要加空格  (微软拼音 按v 数学 找的)   
+   var res = √ (4.0)
+   println(res);
+   //下面这些都可做变量名
+   var ~ = -1
+   var ! = 1   
+   //var @ = 2//不行
+   //var # = 3//不行
+   var $ = 4
+   var % = 5
+   var ^ = 6
+   var & = 7
+   var * = 8
+   var ** = 88
+   var - = 11
+   var + = 12
+   var | = 13
+   var / = 14
+   var \ = 15
+   var < = 1
+   var <= = 1
+   var > = 1
+   var >= = 1
+   var ? = 1
+   //var : = 16//不行
+   //()[]{}.,;'`" 这些不行的
+   
+   
 object HelloWorld {
   def main(args: Array[String]): Unit = {
   if(args.length>0)
@@ -37,8 +65,29 @@ scala>  HelloWorld.main(Array()) 来执行
 
 |如输入错误可按两次回车取消
 
-一元操作符(unary)   -2.0转换成方法调用 (2.0).unary_-  ,可以当作前缀操作符用的标识符只有+，-，!和~
+一元操作符(unary)   -2.0转换成方法调用 (2.0).unary_-  
+ //+-!~ 是4个前置操作符
+  var a=3;
+  var x1= -a; //同   a.unary_-
+  var x2= a.unary_-;
+  var x3= a.unary_+;
+  var x4= a.unary_~;
+  var b=true;
+  var x5=b.unary_!
+  
+,可以当作前缀操作符用的标识符只有+，-，!和~
 如你定义了名为unary_!的方法，就可以像!p
+class User2
+{
+	var age=3;
+	 def unary_!()//自己实现 !u
+	{
+	  this.age+=10;
+	}
+}
+var u=new User2();
+!u;
+println(u.age);
 
 eq 同java的 == 比较地址，相反的有ne
 
@@ -140,6 +189,7 @@ changeBuffer+=2
 changeBuffer++=Array(3,4,5,6)
 changeBuffer.insert(0, 100,101)
 println(changeBuffer)
+changeBuffer.trimEnd(2) //删最后两个
 changeBuffer.remove(0)
  println(changeBuffer)
 var  array= changeBuffer.toArray
@@ -301,9 +351,7 @@ grep(".*gcd.*")
       println("Hello, Scala2!")
    }
    printMe2
-	var factor = 3  
-	val multiplier = (i:Int) => i * factor   //闭包,函数指针,这里是用=>
-	println( "muliplier(1) value = " +  multiplier(1) ) 
+	 
 
 	val buf = new StringBuilder;
 	buf += 'a' //char 用一个+
@@ -327,7 +375,12 @@ grep(".*gcd.*")
 	var z3 = Array("Runoob", "Baidu", "Google") //实际上调用apply方法的可变参数
 	  
 	 var myMatrix = ofDim[Int](3,3) //Array.ofDim 二维数组
-	
+	var twoMatrix=new Array[Array[Int]](10);
+      for( i <- 0 until  twoMatrix.length)
+      {
+        twoMatrix(i)=new Array[Int](i+1)//第二维是变长的
+      }
+      
 	
 	concat( myList1, myList2) //合并数组
 	 var myList3 =myList1++ myList2
@@ -370,21 +423,34 @@ grep(".*gcd.*")
     set1.+=(9) //也可这样写
     println("set1="+set1)
    
-    //var map1 = Map("one" -> 1, "two" -> 2, "three" -> 3)
+    //var map1 = Map("one" -> 1, "two" -> 2, "three" -> 3) 
     var map1 = Map[String,Int]()
     map1 +=("four"->4)//加元素
     println("map1="+map1)
+    println(map1.getOrElse("nine", "empty")) 
    
-   
-    //var map1 = Map("one" -> 1, "two" -> 2, "three" -> 3)
+    //var map1 = Map("one" -> 1, "two" -> 2, "three" -> 3) //是immutable.Map 不可改变的
     var map1 = Map[String,Int]()
-    //map1 +=("four"->4)//加元素
+    //map1 +=("four"->4)//加元素  生成一个新的Map
     map1 +=("four".->(4)) //实际上是方法名为  -> ,可写成"four".->(4)  , ->可以任何对象
     println("map1="+map1)
-    println(map1("four"))//取元素
+    println(map1("four"))//取元素 ,同     map1.apply("four")
 	
-	
-	
+	var mapChange= scala.collection.mutable.Map (("one" , 1), ("two", 2), ("three" , 3))
+    mapChange("four")=400;//同  mapChange.update("four", 400);
+    mapChange -=("four" ) 
+    
+    var mapSort= scala.collection.immutable.SortedMap("one" -> 1, "two" -> 2)
+    
+  var list=List("one","two","three")
+  list match
+  {
+    case Nil=>0
+    case h::t=>println("head="+h+",tail="+t);  //head=one,tail=List(two, three)
+  }
+
+  
+  
 	val 与 var 不同的是, val指定了值后不能再次赋值,相当于final
 	
 	 
@@ -424,15 +490,17 @@ abstract class Account
    def save
  }
  class Point(xc: Int, yc: Int) extends Account with Equal { // 如已经有一个extends 后面就用with 一定以extends开始
+  @BeanProperty //生成getter/setter
   var x: Int = xc
   var y: Int = yc
   def isEqual(obj: Any) =
     obj.isInstanceOf[Point] &&   //Any 类型的特殊方法isInstanceOf
     obj.asInstanceOf[Point].x == x // Any 类型的强转
 	
-def save 
+def save  //父类是abstract的，可以不加 override
    {
      println("save 100")
+	 println(classOf[Point]);//Predef 中的
    }
 def matchTest(x: Any ): Any  = x match {   //match 相当于switch
       case 1 => "one"
@@ -442,13 +510,30 @@ def matchTest(x: Any ): Any  = x match {   //match 相当于switch
    }
 	
 }
+trait TraitException extends Exception
+{
+ 
+}
+//   class MyFrame extends JFrame with TraitException //这里不能同时extends JFrame类和Exception类
+//   {
+//     
+//   }
+class MyException extends IOException with TraitException  // IOException 和 TraitException都继承自Exception类是可以的
+{
+}
+
 class NoParamClass{}
 val x=new   NoParamClass //无参数可不写()
  
-case class Person(name: String, age: Int)  //可以用于  match case中
- 
-match {
-            case Person("Alice", 25) => println("Hi Alice!")
+ 样例类，自动有 apply,unapply  
+case class Person(name: String, age: Int)  //可用于  match case中
+
+val alice =  Person("Alice", 25)//无new 调用apply
+
+alice match {
+        //case Person("Alice", 25) => println("Hi Alice!")
+		case Person(name, age) => //调用unapply方法 
+               println("Age: " + age + " year, name: " + name + "?")
 	}	
 
 
@@ -469,7 +554,7 @@ println(pattern replaceFirstIn(str, "Java"))
  try {
          val f = new FileReader("input.txt")
       } catch {
-         case ex: FileNotFoundException => {
+         case _: FileNotFoundException => {//可用_
             println("Missing file exception")
          }
          case ex: IOException => {
@@ -493,19 +578,30 @@ def g(): Int = try { 1 } finally { 2 }  //调用g()产生1
    }
 
 
-object TestExtractClass {
+object ApplyUnApply {
    def main(args: Array[String]) 
    {
-      val x = TestExtractClass(5) //会调用apply方法
+        val x = ApplyUnApply(5) //会调用apply方法
       println(x)  //打印的是10
       println(x.getClass())//int
       x match
       {
         // case 10  => println("值是10")  
-         case TestExtractClass(num)  //如果match中 unapply 被调用,  num 是调用unapply 返回的,函数返回类型Option
+         case ApplyUnApply(num)  //如果match中 unapply 被调用,  num 是调用unapply 返回的,函数返回类型Option
                  => println(x + " 是 " + num + " 的两倍！")  
          case _ => println("无法计算")
       }
+	  //-----------
+     var name:String="wang wu";
+    //var name:String="wang li sun";
+     //var name:String="wang aa bb sun";
+     name match
+     {
+       case Name(first,last)=> println("unapplySeq="+first);
+       case Name(first,middle,last)=> println("unapplySeq="+middle);
+       case Name(first,"aa","bb",last)=> println("unapplySeq="+last);
+     }
+	  
    }
    
    def apply(x: Int) = x*2
@@ -516,22 +612,37 @@ object TestExtractClass {
      else 
        None
 }
-
+object Name
+{
+  def unapplySeq(input :String):Option[Seq[String]]= // unapplySeq变长自动调用
+  {
+    if(input.trim()=="") 
+      None
+    else
+      Some(input.trim().split("\\s+"));
+  }
+}
 
 print("请输入  : " )
 val line =  scala.io.StdIn.readLine //()可以省略 
 println("谢谢，你输入的是: " + line)
-
+StdIn.readInt();
 
 
 //因.scala文件是UTF8的,中文文件件名也是UTF8的
 
-scala.io.Source.fromFile("c:/tmp/hello_utf8.txt" ).foreach{ 
+var source=scala.io.Source.fromFile("c:/tmp/hello_utf8.txt" )
+//因.scala文件是UTF8的,中文文件件名也是UTF8的
+source.foreach{ 
  print 
 }
+source.close();
 
-for(line <- scala.io.Source.fromFile("c:/tmp/hello_utf8.txt" ).getLines() )
-//getLines返回Iterator[String] 用<-来遍历 ,空行就没有了???
+ var strArray=scala.io.Source.fromString("123 1234").mkString.split("\\s+");
+ var nums=strArray.map(_.toDouble);
+ 
+for(line <-scala.io.Source.fromURL("http://www.hao123.com").getLines() )
+        //getLines返回Iterator[String] 用<-来遍历 
 { 
  println(line.length + ":" + line) 
 }
@@ -539,6 +650,25 @@ for(line <- scala.io.Source.fromFile("c:/tmp/hello_utf8.txt" ).getLines() )
 for(line <-scala.io.Source.fromFile("c:/tmp/hello_utf8.txt" ).getLines().toList)
 {
  println("-"*4 +line);// 字符可以*
+}
+ var out= new PrintWriter("c:/tmp/out.txt");
+  out.printf("%5d 10.2f",20.asInstanceOf[AnyRef],34.5.asInstanceOf[AnyRef]);
+  out.write( "%5d 10.2f".format(20,34.5));//更好用
+  out.close();
+  
+  
+def subdirs(dir:File):Iterator[File]=
+{
+	var children=dir.listFiles().filter(_.isDirectory());
+	children.toIterator ++ children.toIterator.flatMap(subdirs _) // Iterator 可以 ++ 
+}
+for(d <- subdirs(new File("c:/temp")))
+  println(d);
+  
+  
+@SerialVersionUID(12L) //可以不写就生成默认的
+class User extends Serializable{
+
 }
 
 var a=if(x>0)1 else 0  //if 可以有返回值
@@ -715,6 +845,8 @@ abstract class IntQueue //trait 或 abstract class 都可
 } 
 trait Incrementing extends IntQueue
 { 
+  println("constructor Incrementing"); // trait 构造器
+  
   abstract override def put(x: Int) //必须在trait中，必须是 abstract override 
   {
     super.put(x + 1) //在trait中super其实是子类的实现
@@ -724,7 +856,7 @@ trait Filtering extends IntQueue
 { abstract override def put(x: Int) 
   {
     if (x >= 0)
-      super.put(x)
+      super.put(x) //同 super[IntQueue].put(x);
   }
 }
 import scala.collection.mutable.ArrayBuffer
@@ -756,8 +888,157 @@ package outpkg {
 
 new _root_.three1pkg.Lanch()//如和外部文件包名同名,加_root_ 跳到顶级包开始找
  
-lazy val rows=scala.io.Source.fromFile("c:/temp/hell.txt")  //lazy 延迟初始化  
+lazy val rows=scala.io.Source.fromFile("c:/temp/hell.txt")  //lazy 延迟初始化    每次都要检查是否初始化，不是那高效
  
- 
- 
+ scala -g:notailcalls 或者 scalc 下加入 ，会得到一个长长的信息
+ def bang(x: Int): Int ={
+	if( x == 0) 
+		throw new Exception("bang!") 
+	else 
+		bang(x-1)
+}
+ bang(5) 
    
+   class Persion(@BeanProperty var age:Int)//主构造器 也可 private
+   {
+      var _name:String="";
+     def this(name:String)//辅助构造器
+     {
+       this(20);//调用主构造器,必须第一行调用
+       _name=name;
+       println(age);
+     }
+   }
+   
+   class MyProg
+   {
+     private val pros=new Properties;
+     pros.load(new FileReader("my.properties"));
+     //以上是主构造器
+	}
+	
+	
+	class Outer(name:String)
+   { 
+       out=> //指向Outer.this
+      class Inner{
+       def desc=out.name
+      
+     }
+   }
+   val outer=new Outer("lisi")//必须是val 
+   //var in = out.new Inner();//Java做法
+   var in = new outer.Inner ;//Scala做法
+   println(in.desc)
+   
+   trait LoggedException {
+     this:Exception => //只能是Exception或者子类  才能 extends 这个
+       def log {
+         println(getMessage());//getMessage() = this.getMessage() 
+       }
+   }
+//   var j=new JFrame   with LoggedException{ //JFrame不是Exception的子类不行
+//   }
+   var i=new IOException  with LoggedException{
+   }
+   
+   
+    trait LogMethodException 
+   {
+     this: {  def getMessage():String  } => // 子类必须有  这个方法签名
+   }
+    var rightMethod=new IOException  with LogMethodException{
+    }
+//    var wrongMethod=new JFrame  with LogMethodException{//JFrame 没有getMessage方法 
+//    }
+   
+extends App 类可以在运行加 -Dscala.time 可显示运行时间
+
+
+object  ColorEnum extends Enumeration  
+{
+  //枚举类型是 ColorEnum.Value
+  type ColorEnum=Value;//内部别名 ，外面就可以用ColorEnum,而不是ColorEnum.Value
+  val Red,Blue=Value; 
+  val Green=Value(30,"greenName");
+  val Pink=Value("pinkName"); //id=31，最近的 + 1
+}
+doJudge(ColorEnum.Red);
+doJudge(ColorEnum.withName("Blue"));//取某个
+doJudge(ColorEnum(30)); 
+
+printAllEnum();
+def  doJudge(  color:ColorEnum.Value):Unit= //枚举类型是 ColorEnum.Value
+{
+if(color==ColorEnum.Red)
+  println(color.id+"---"+color);//toString反回name
+else
+   println(color.id+"==="+color);
+}
+
+import clazz_test.ColorEnum._
+def printAllEnum( ) 
+{
+ for(c <- ColorEnum.values)
+ {
+	var color:ColorEnum=c;//可以用ColorEnum,而不是ColorEnum.Value
+	println(color.id+"  xxx  "+color);
+ }
+}
+
+
+
+class Creture
+{
+  val range:Int =10
+  var env:Array[Int]=new Array[Int](range);
+}
+//class Ant extends Creture
+//{
+//  override val range:Int=2; //没有效果,env长度是0
+//}
+ // scalac 中加 -Xcheckinit  未初始化字段被仿问就抛异常
+
+class Ant extends  
+{
+   override val range:Int=2; //OK
+} with Creture
+
+println(new Ant().env.length)
+
+
+  import sys.process._
+    //如scala>下执行要多加import scala.language.postfixOps 
+    var res:Int="ls -la .." !  // !就是  ProcessBuilder ProcessImplicits stringToProcess 执行shell , windows下不行
+    //要有空行
+    
+    println("res="+res) //成功返回0，日志输出有结果，但拿不到 
+    
+    var resConole="ls -al .." !! // 返回字串结果
+    
+    println("resConole="+resConole)
+    
+    println("---pipe---" )
+    "ls -al .." #| "grep scala" ! //  管道
+   
+    "ls -al .." #> new File("ls.txt") ! 
+    
+    "echo aaaaaaaaaaaaaaaa" #>> new File("ls.txt") !
+    
+    "ls -lrt" #>> new File("ls.txt") ! 
+     
+    println("---input file---" )
+    "grep scala" #< new File("ls.txt") ! 
+    
+   println("---input URL---" )
+    "grep jquery" #< new URL("http://www.scala-lang.org/download/") ! //不支持https
+    
+    
+   // a #&& b  如果a成功 再执行b了 
+   // a #|| b  如果a不成功再执行b了
+   val p=Process("ls ",new File("/tmp"),("LANG","en_US"));//在指定目录，指定环境变量 执行命令
+    p!
+
+
+
+

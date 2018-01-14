@@ -1,4 +1,5 @@
 ﻿
+Activiti (2017年12月版本是6.0,可能要翻墙)是基于JBPM-4 ,   ORM 使用 MyBatis3
 
 activiti-engine-6.0.0.jar
 activiti-image-generator-6.0.0.jar

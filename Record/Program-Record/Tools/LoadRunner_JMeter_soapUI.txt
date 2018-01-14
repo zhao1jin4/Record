@@ -399,3 +399,10 @@ http://www.soapui.org/Load-Testing/simulating-different-types-of-load.html
 
 --- zabbix 运维监控
 
+--- logbase 登录监控抓屏，mstsc只启动 PL/SQL Developer ,可自动登录
+--- 还有一种是web页面登录，启动Xshell或者putty的,传文件用sz,rz
+--- Selenium 浏览器自动化测试框架
+
+
+
+

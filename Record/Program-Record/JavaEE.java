@@ -269,7 +269,7 @@ public class ServletParameter implements WebParameter {
         testServlet.addMapping("/nowebxml");    
     }    
 }
-//(不能是web项目的META-INF) WEB-INF/lib/xxx.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中写实现 implements ServletContainerInitializer全类名
+//(不能是web项目的META-INF) WEB-INF/lib/xxx.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中写实现 implements ServletContainerInitializer 全类名
 @HandlesTypes(WebParameter.class)    
 public class WebConfiguration implements ServletContainerInitializer {    
     @Override    

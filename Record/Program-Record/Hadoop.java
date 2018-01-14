@@ -993,10 +993,10 @@ scala>val filterRdd2=sc.parallelize(List(1,2,3,4,5,6)).map(2 * _).filter( _>5) /
 scala>var rdd1=sc.textFile("/home/zh/world.txt") // 以空格分格的字母文件,路径如C:是不行的
 scala>rdd1.cache
 scala>rdd1.count
-scala>val worldCount=rdd1.flatMap(_.split(' ')).mpa((_,1)).reduceByKey(_+_)	  
+scala>val worldCount=rdd1.flatMap(_.split(' ')).map((_,1)).reduceByKey(_+_)	  
 	// (_,1) 同 x=>(x,1) ,把文件中每个字母做为key,value为1
 	// .reduceByKey(_+_) 表示把相同的字母的key的值相加
-scala>val worldCount=rdd1.flatMap(_.split(' ')).mpa((_,1)).groupByKey  //相同的key的值，放在一个Array中	 
+scala>val worldCount=rdd1.flatMap(_.split(' ')).map((_,1)).groupByKey  //相同的key的值，放在一个Array中	 
 scala>worldCount.collect
 scala>worldCount.saveAsTextFile("/home/zh/output.txt")
 scala>
@@ -1477,24 +1477,6 @@ cluster.submitTopology("word-count", conf, builder.createTopology());
 
 
 ===========MRUnit  MapReduce 的单元测试
-===========cloudStack
-apache CloudStack的目标是提供高度可用的、高度可扩展的能够进行大规模虚拟机部署和管理的开放云平台
-用Java语言写的,支持MySQL 
-
- 虚拟化技术 支持没有openStack的多
-	
-regions -> zone->Pod, secondary storage ->cluster->host, primary storage
-
-===========openStack
-cloudStack/openStack 实现  IaaS(Infrastructure as a Service ) 层 , 
-			Hadoop     实现	 PaaS (Platform as a service)层  ,
-							 SaaS(Software-as-a- Service)
-
-cloudStack(上层) , openStack(底层,HP基于它后来又退出,可能Kubernetes更好,Solaris-11.2 使用它)
- 	
-中国银联采用 SUSE 部署 OpenStack ,目前已是全球第二大开源软件项目，仅次于Linux。 OpenStack能支持所有的 x86架构服务器
-社区活越度大,用python语言写的,未来支持Python 3 ,支持PostgreSQL,MySQL,SQLite 
-
 =============Greenplum  基于 PostgreSQL
 =============Nutch  搜索引擎   全文搜索和Web爬虫
 =============Avro
