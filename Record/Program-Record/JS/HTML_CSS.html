@@ -1,0 +1,441 @@
+https://developer.mozilla.org/en-US/
+https://developer.mozilla.org/en-US/docs/HTML
+https://developer.mozilla.org/en-US/docs/HTML/HTML5
+https://developer.mozilla.org/en-US/docs/JavaScript
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference
+https://developer.mozilla.org/en-US/docs/WebGL
+https://developer.mozilla.org/en-US/docs/DOM
+---
+https://developer.mozilla.org/en-US/docs/CSS/CSS_Reference
+https://developer.mozilla.org/en-US/docs/Gecko_DOM_Reference
+
+
+http://www.w3.org/DOM/Activity                             w3c手册
+
+http://www.w3school.com.cn/html5/html5_reference.asp HTML 5
+http://www.w3school.com.cn/tags/html_ref_ascii.asp  ASCII
+
+
+在线修改 教程
+http://www.w3school.com.cn/js/index.asp   提供在线javascript,DOM文档
+http://www.w3school.com.cn/css/css_reference.asp   CSS手册
+http://www.runoob.com/  ,像w3shool
+
+HPlus(H+) 美工使用的工具
+
+
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">    
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+ 
+<link rel="icon" href="img/bing.ico" /> <!--地址栏图标使用 .ico文件  -->
+<link rel="icon" href="img/animated_favicon.gif" type="image/gif" ><!-- 地址栏动画图标使用 .gif文件  -->
+<!-- Chrome必须在HTTP服务器中可见,不能播放动画,IE无效??? -->
+
+<link rel="StyleSheet" type="text/css"  href="css/test.css"/>
+<style type ="text/css"> 
+	@import "jquery.ui.base.css";
+</style>
+
+<script type="text/javascript" src="js/jquery-1.9.1.js"></script><!--不能使用 <script src="" /> 的简单形式-->
+
+
+<a href=javascript:history.back()>返回</a>
+
+document.oncontextmenu=new Function("return false;");//禁止网页右键
+
+<!-- 禁止选择和复制,只对IE有效  -->
+<BODY onselect="document.selection.empty()" oncopy="document.selection.empty()"> 
+<body   onselectstart="return   false"> 禁止选择
+
+
+<!--对IE,Chrome有效,Firefox无效 -->
+<RUBY>
+	基准文本
+	<RT>注音文本(如拼音)
+</RUBY>
+
+
+&quot;
+&gt;
+&#39; <!-- 是单引号 -->
+
+<!-- .CUR或*.ANI文件是动画" 可以使用 AWiconsPro 工具来做  -->
+<a href="#" style="cursor:url(img/rose.cur)">光标CUR</a> <!-- 只对IE 有效 -->
+<br/>
+<a href="#" style="cursor:url(img/smoke.ani)">光标ANI动画</a> <!-- 只对IE 有效 -->
+  
+
+<img src="" onmouseover="this.style.cursor='pointer'"/>  手形是pointer
+
+------
+
+<input type="image">自动是提交
+
+<img src ="planets.gif" width ="145" height ="126" 　alt="Planets"usemap ="#planetmap" />
+<map id ="planetmap" name="planetmap">
+<area shape ="rect" coords ="0,0,82,126" href ="sun.htm" target ="_blank"
+  alt="Sun" />
+<area shape ="circle" coords ="90,58,3" href ="mercur.htm" target ="_blank"
+  alt="Mercury" />
+<area shape ="circle" coords ="124,58,8" href ="venus.htm" target ="_blank"
+  alt="Venus" />
+</map> 
+
+ 
+只对IE
+<Meta http-equiv="Page-Enter" Content="blendTrans(Duration=0.5)">
+<Meta http-equiv="Page-Exit" Content="blendTrans(Duration=0.5)">
+
+
+设置select宽度,一定要加单位才有效，如px
+<select size="5" multiple="true" name="right" style="width:120px"  > 
+
+  
+target 属性
+	_blank 	在新窗口中打开。
+	_self 	默认。在相同的框架中打开。
+	_parent 	在父框架集中打开。
+	_top 	在整个窗口中打开
+	framename 	在指定的框架中打开。
+
+	
+	
+
+<style type="text/css">
+ .file-box{ position:relative;width:340px;}
+.txt{ height:22px; border:1px solid #cdcdcd; width:180px;}
+.btn{ background-color:#FFF; border:1px solid #CDCDCD;height:24px; width:70px;}
+.file{ position:absolute; top:0; left: 0px;right:80px; height:24px; filter:alpha(opacity:0);opacity: 0;width:260px }
+</style>
+ input type file 格式化
+<div class="file-box">
+  <form action="submitUpload.mvc" method="post" enctype="multipart/form-data">
+	<input type='text' name='textfield' id='textfield' class='txt' />  
+	 <input type='button' class='btn' value='浏览...' />
+	 <input type="file" name="img" class="file" id="fileField" size="28" onchange="onlyFileName(this)" />
+	 <input type="submit" name="submit" class="btn" value="上传" />
+  </form> 
+</div>
+
+<script type="text/javascript">
+function onlyFileName(inputFile )
+{
+	var fullPath=inputFile.value;
+	var lastIndex=fullPath.lastIndexOf('\\');
+	var fileName;
+	if(lastIndex!=-1)
+		fileName=fullPath.substring(lastIndex);
+	else
+		lastIndex=fullPath.lastIndexOf('/');
+	fileName=fullPath.substring(lastIndex+1);
+	document.getElementById('textfield').value=fileName;
+}
+</script>
+
+
+===================HTML5
+<button> 未加 type 值时,在 <form>中的<button>单击会提交表单
+type可取值为 button , reset ,submit
+
+	
+<meta charset="utf-8">
+
+目前 Chrome浏览器支持较好
+
+<video src="movie.ogg" width="320" height="240" controls="controls">
+	你的浏览器不支持HTML5,或者OGG格式
+</video>
+
+.ogg格式 和 .mp4格式   
+
+
+以下浏览将使用第一个可以支持的格式 加<source src,type
+
+<video width="320" height="240" controls="controls">
+  <source src="movie.ogg" type="video/ogg" />
+  <source src="movie.mp4" type="video/mp4" />
+	Your browser does not support the video tag.
+</video> 
+
+autoplay="autoplay"  
+loop="loop"
+ preload="preload"
+<audio src="song.ogg" controls="controls">
+</audio>
+
+
+//======Canvas
+ 
+<canvas id="myCanvas" width="200" height="100" style="border:1px solid #FF0000;">  overflow:scroll(一直显示滚动条) 或 auto(只有需要时才显示滚动条)
+	Your browser does not support the canvas element.
+</canvas>
+
+<script type="text/javascript">
+
+	var c=document.getElementById("myCanvas");
+	var cxt=c.getContext("2d");
+	cxt.fillStyle="#FFFF00";
+	cxt.fillRect(0,0,150,90); //起点,宽,高
+	//-----------
+	cxt.moveTo(10,10);
+	cxt.lineTo(10,50);
+	cxt.stroke(); //开始画线
+	//--------
+	cxt.beginPath();
+	cxt.arc(70,18,15,0,Math.PI*2,true);//x,y,radius,startAngle,endAngle,anticlockwise
+	cxt.closePath();
+	cxt.fill(); //画圆
+	//---
+	var grd=cxt.createLinearGradient(0,0,175,50);
+			createLinearGradient(x0, y0, x1, y1) start point (x0, y0) and end point (x1, y1) 
+
+	grd.addColorStop(0,"#FF0000");
+	grd.addColorStop(1,"#00FF00");
+	cxt.fillStyle=grd;
+	cxt.fillRect(0,0,175,50);//渐变
+	//---
+	var img=new Image()
+	img.src="flower.png"
+	cxt.drawImage(img,0,0);
+
+</script>
+//======
+
+localStorage 方法存储的数据没有时间限制
+localStorage.lastname="Smith";
+document.write(localStorage.lastname);
+
+sessionStorage 方法针对一个 session 进行数据存储。当用户关闭浏览器窗口后，数据会被删除。
+
+ <input type="number" min="1" max="10" />
+step 	number 	规定合法的数字间隔（如果 step="3"，则合法的数是 -3,0,3,6 等）
+value 	number 	规定默认值
+
+<input type="email"
+<input type="url"
+		//"date"
+<input type="month" 
+<input type="week" 
+<input type="time" 
+<input type="datetime" 
+<input type="datetime-local" 
+
+<input type="range"
+<input type="search"
+<input type="color"
+
+双击文本框,或者输入时产生下拉
+<input type="url" list="url_list" name="link" />
+
+<datalist id="url_list">
+	<option label="W3School" value="http://www.w3school.com.cn" />
+	<option label="Google" value="http://www.google.com" />
+	<option label="Microsoft" value="http://www.microsoft.com" />
+</datalist>
+
+<fieldset>
+    <legend>Personalia:</legend>
+    Name: <input type="text" /><br />
+     Date of birth: <input type="text" />
+ </fieldset>
+
+私钥（private key）存储于客户端，公钥（public key）则被发送到服务器
+
+<keygen name="security" />
+
+<output onforminput="resCalc()">
+
+<input type="image" src="img_submit.gif" width="99" height="99" />  width只对image
+
+<form action="demo_form.asp" method="get" id="user_form">
+</form>
+<input type="text" name="lname" form="user_form" /> 用一个以上的表单，请使用空格分隔的列表。 
+
+
+autocomplete="on"
+autocomplete="off"
+
+autofocus="autofocus"  规定在页面加载时，域自动地获得焦点。
+
+
+formaction - 重写表单的 action 属性
+formenctype - 重写表单的 enctype 属性
+formmethod - 重写表单的 method 属性
+formnovalidate - 重写表单的 novalidate 属性
+formtarget - 重写表单的 target 属性
+
+
+<input type="file" name="img" multiple="multiple" /> 可以多选文件
+<input type="text" name="country_code" pattern="[A-z]{3}" title="验证失败时的信息" />
+
+<input type="search" name="user_search"  placeholder="Search W3School" />
+输入域为空时显示出现，会在输入域获得焦点时消失
+
+<input type="text" name="usr_name" required="required" /> 必写的
+
+<article>
+<aside>
+
+
+<script type="text/javascript">
+	window.localStorage.setItem('value', area.value);
+	window.localStorage.getItem('value');
+	--
+	var db = window.openDatabase("DBName", "1.0", "description", 5*1024*1024); //5MB
+	db.transaction(function(tx) {
+	  tx.executeSql("SELECT * FROM test", [], successCallback, errorCallback);
+	});
+
+	--
+	var idbRequest = window.indexedDB.open('Database Name');
+	idbRequest.onsuccess = function(event) {
+	  var db = event.srcElement.result;
+	  var transaction = db.transaction([], IDBTransaction.READ_ONLY);
+	  var curRequest = transaction.objectStore('ObjectStore Name').openCursor();
+	  curRequest.onsuccess = ...;
+	};
+
+	--
+	// <html manifest="cache.appcache">
+	window.applicationCache.addEventListener('updateready', function(e) {
+	  if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+		window.applicationCache.swapCache();
+		if (confirm('A new version of this site is available. Load it?')) {
+		  window.location.reload();
+		}
+	  }
+	}, false);
+
+
+	//myDiv.style.cssText;显示所有有值的CSS
+
+
+
+	if ("WebSocket" in window)
+	  {
+		 alert("WebSocket is supported by your Browser!");
+		  var ws = new WebSocket("ws://localhost:8080/J_AjaxServer/webSocket");//tomcat支持
+		 ws.onopen = function()
+		 {
+			ws.send("Message to send");
+			alert("Message is sent...");
+		 };
+		 ws.onmessage = function (evt) 
+		 { 
+			var received_msg = evt.data;
+			alert("Message is received...");
+		 };
+		 ws.onclose = function()
+		 { 
+			alert("Connection is closed..."); 
+		 };
+	  }
+</script>
+
+淘宝触屏版 touchstart, touchend, touchmove
+多点触击涉及到三个事件：gesturestart、gesturechange、gestureend
+
+document.addEventListener("touchmove"  
+
+===================CSS  CSS 3
+<table border="1"  style="table-layout:fixed;word-wrap:break-word;"> 为<td>内容换行 
+ table {  border-collapse: collapse;table-layout:fixed;word-wrap:break-word}
+ 
+a:link css的链接色
+a:visited
+a:hover
+
+p.important {color:red;}　　只对<P>的important类
+
+
+a[href] {color:red;}
+a[href="http://www.w3school.com.cn/"][title="W3School"] {color: red;}
+p[class~="important"] {color: red;}  是对<p class="important warning">
+[abc^="def"] 	选择 abc 属性值以 "def" 开头的所有元素
+[abc$="def"] 	选择 abc 属性值以 "def" 结尾的所有元素
+[abc*="def"] 	选择 abc 属性值中包含子串 "def" 的所有元素
+
+*[lang|="en"] {color: red;}　　　lang 属性等于 en 或以 en- 开头的所有元素
+
+只作为 h1 元素子元素的 strong 元素，可以这样写：
+h1 > strong {color:red;}
+
+紧接在 h1 元素后出现的段落的上边距，可以这样写：
+h1 + p {margin-top:50px;}
+
+伪类
+a:link {color: #FF0000}		/* 未访问的链接 */
+a:visited {color: #00FF00}	/* 已访问的链接 */
+a:hover {color: #FF00FF}	/* 鼠标移动到链接上 */
+a:active {color: #0000FF}	/* 选定的链接 */
+
+a.red : visited {color: #FF0000}
+<a class="red" href="css_syntax.asp">CSS Syntax</a>
+
+p:first-child {font-weight: bold;}　　表示　P标签是父标签中的第一个标签的话（父标签中的第一个可以是文字，文字不算的），就应用　　　　，必须声明 <!DOCTYPE>，这样 :first-child 才能在 IE 中生效。
+
+
+p > i:first-child {
+  font-weight:bold;
+  } 
+<p>some <i>textＢ</i>. some <i>text</i>.</p>　　文字不是标签
+<p>some <i>textＢ</i>. some <i>text</i>.</p> 
+  
+ q:lang(no)
+   {
+   quotes: "~" "~"
+   }　是对　<q lang="no">
+ 
+ 伪元素
+ p:first-line　　对Ｐ的文字显示在浏览上第一行的文本应用
+  {
+  color:#ff0000;
+  font-variant:small-caps;
+  }
+  
+p:first-letter　　首字母
+  {
+  color:#0000ff;
+  font-size:20;
+  }
+
+h1:before  <h1> 元素前面插入一幅图片：
+  {
+  content:url(logo.gif);
+  }
+ :after 伪元素 
+  
+ul li{list-style-type:none;}  <li></li>不要前面的点
+  
+CSS3 选择器
+http://www.w3school.com.cn/cssref/css_selectors.asp
+
+
+.intro 	选择 class="intro" 的所有元素。
+#firstname 	选择 id="firstname" 的所有元素。 
+div,p 	选择所有 <div> 元素和所有 <p> 元素。
+div p 	选择 <div> 元素内部的所有 <p> 元素。
+div>p 	选择父元素为 <div> 元素的所有 <p> 元素。
+div+p 	选择紧接在 <div> 元素之后的所有 <p> 元素。
+[target] 	选择带有 target 属性所有元素。
+[target=_blank] 	选择 target="_blank" 的所有元素。
+[title~=flower] 	选择 title 属性包含单词 "flower" 的所有元素。
+[lang|=en] 	选择 lang 属性值以 "en" 开头的所有元素。
+input:focus 	选择获得焦点的 input 元素。
+p~ul 				选择前面有 <p> 元素的每个 <ul> 元素。
+a[src^="https"] 	选择其 src 属性值以 "https" 开头的每个 <a> 元素。
+a[src$=".pdf"] 	选择其 src 属性以 ".pdf" 结尾的所有 <a> 元素。
+a[src*="abc"] 	选择其 src 属性中包含 "abc" 子串的每个 <a> 元素。
+
+
+div#row2 { color: red;display: inline }  //可以让DIV不换行，但div如果有子DIV默认所有的子DIV都继承这个，也可用 float:left ,right
+ 
+<div id="row1">第一个div</div>   
+<div id="row2">第二个div不换行</div>
+ 
+
+===================SVG
+
+

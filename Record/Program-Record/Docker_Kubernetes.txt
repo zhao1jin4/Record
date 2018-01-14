@@ -1,0 +1,196 @@
+
+ 教程  （Spring cloud也有）
+ http://www.runoob.com/docker/docker-tutorial.html
+ 
+
+ 
+可能本地建立类似 docker hub 的仓库 Nexus Repository OSS 3.5.1好像就可以的
+
+
+软件自身官方有docker版本的有
+Jenkins
+Codis
+Jbpm7
+
+Docker集中化web界面管理平台shipyard
+curl -sSL https://shipyard-project.com/deploy | bash -s
+	 -L, --location 
+	 -S, --show-error
+	 -s, --silent  
+	bash -s  从标准输入读命令
+安装后 http://ip:8080 
+
+
+yum install python-pip python-dev
+pip install -U docker-compose
+docker-compose --version
+
+
+
+上传本地java安装包(nginx) 到服务器 
+docker load --input java1.8.tar
+
+
+
+
+Docker 使用GO语言开发
+
+比传统的虚拟机方式要快,统资源的利用率很高，一台主机上可以同时运行数千个 Docker 容器。容器除了运行其中应用外，基本不消耗额外的系统资源
+更快速的交付和部署
+几乎可以在任意的平台上运行，包括物理机、虚拟机、公有云、私有云、个人电脑、服务器
+
+镜像（Image）
+容器（Container）
+仓库（Repository）  存放镜像文件的场所
+
+ 
+
+yum-config-manager   --add-repo    https://download.docker.com/linux/centos/docker-ce.repo
+	
+	
+yum install docker-ce   目前安装的是  17.09.1.ce-1.el7.centos
+--uninstall
+	yum remove docker-ce
+	sudo rm -rf /var/lib/docker
+--
+CentOS 7 
+打开/usr/lib/systemd/system/docker.service文件，修改ExecStart这行 
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
+(原来没-H参数，启动后就监听2375端口)
+
+systemctl start docker  
+docker run hello-world  运行镜像,本地没有，会从网上下载
+
+docker images 显示本地已有的镜像
+
+systemctl enable docker.service   配置开机启动
+systemctl disable docker.service 
+
+docker --version
+
+
+最新版 windows 提示 You must be in the "docker-users" group. 
+net user docker  /add /active:yes /expires:never /passwordchg:yes /fullname:"the-docker" /comment:"docker used"
+net localgroup "docker-users" docker /add
+
+
+
+
+docker pull ubuntu:12.04   // pull 命令来从仓库获取所需要的镜像。 最新的是 17.10
+
+docker run -t -i ubuntu:12.04 /bin/bash   提示符是<CONTAINER ID>信息,也可以不退出docker container ls
+	-i, --interactive           
+	-t, --tty
+xxx 命令 如的容器已经被我们改变了，使用 docker commit 命令来提交更新后的副本
+
+docker commit -m "this is comment" -a "auther" <CONTAINER ID>   新REPOSITORY:新TAG 
+后使用docker images 可以看到新建的，再次docker run -t -i  新REPOSITORY:新TAG 可以查看到修改的变化
+
+ 
+
+docker run -d ubuntu:12.04  /bin/sh -c "while true; do echo hello world; sleep 1; done"
+会返回一串xx
+
+docker ps 查看运行的容器<CONTAINER ID>  和 <NAMES> 列
+docker logs <CONTAINER ID>   看执行结果 可加 -f 监视标准输出
+docker logs  <NAMES> 
+docker stop <CONTAINER ID> 停止运行
+docker stop  <NAMES> 
+
+
+docker run -d -P training/webapp python app.py  #如本地没有从服务器上下载
+-d detach 后台运行
+-p 小p, --publish list                   Publish a container's port(s) to the host
+-P 大P, --publish-all                    Publish all exposed ports to random ports
+
+docker ps 可以看到端口  0.0.0.0:32769->5000/tcp 表示本机是32769端口，可用浏览器看，docker是5000端口
+docker run -d -p 4000:5000 training/webapp python app.py   小p指定端口
+#-p 格式 本机端口:docker端口
+
+docker port <CONTAINER ID>或<NAMES> 查看端口
+docker top <CONTAINER ID>或<NAMES>  容器内部运行的进程
+docker inspect <CONTAINER ID>或<NAMES>   会返回一个 JSON 文件记录着 Docker 容器的配置和状态信息
+docker ps -l 查询最后一次创建的容器：
+docker rm  <CONTAINER ID>或<NAMES>  删除，必须先stop
+
+docker search httpd 搜索镜像  有 OFFICIAL:是否docker官方发布
+
+
+docker container ls 显示在正运行的镜像，是容器，结果同 docker ps 
+docker container rm <CONTAINER ID>   
+docker container stop <CONTAINER ID>    
+docker container kill <CONTAINER ID> 
+ 
+目录下有Dockerfile 文件 
+	#基于哪个镜像
+	FROM python:2.7-slim
+	
+	#维护人 信息
+	MAINTAINER  firstName lastName <usernme@docker.com>
+
+	#设置工作目录/app  (应该是docker的目录)
+	WORKDIR /app
+	
+	#复制当前目录 到 容器的/app目录  
+	ADD . /app
+
+	# RUN 后是命令
+	RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+	#向外部开放 80端口  
+	EXPOSE 80
+
+	#ENV 环境变量
+	ENV NAME World
+
+	#CMD 容器启动时执行的命令
+	CMD ["python", "app.py"]	
+	
+docker build -t friendlyhello .
+  -t, --tag list                   Name and optionally a tag in the 'name:tag' format
+  .表示 Dockerfile 文件所在目录
+  
+  第一件事情就是上传这个 Dockerfile 内容
+  同手工docker commit ,只是变成了批处理,所有的中间步骤所产生的容器都被删除和清理了 
+  注意一个镜像不能超过 127 层，即FROM 子级的次数
+
+docker run -p 4000:80 friendlyhello      #-p 格式 本机端口:docker端口
+	-p, --publish list                   Publish a container's port(s) to the host
+
+docker push username/repository:tag      上传到远程服务
+docker run -p 4000:80 username/repository:tag 从服务器上下载运行
+
+
+docker tag  <image id> <新repository名>  #新名必须全小写， 为镜像添加一个新的标签  
+
+从本地文件系统导入一个镜像
+cat ubuntu-14.04-x86_64-minimal.tar.gz |docker import - ubuntu:14.04
+
+
+存出镜像 
+docker save -o ./ubuntu12.04.tar ubuntu:12.04
+
+
+
+
+
+
+------------------------------------Kubernetes  (K8s)
+
+Kubernetes (开源) 基于 Docker 构建一个容器的调度服务 https://github.com/kubernetes/kubernetes/releases  v1.9.0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
