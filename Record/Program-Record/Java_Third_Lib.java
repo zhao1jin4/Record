@@ -1002,7 +1002,8 @@ TestCase 中有
 这两个方法在抛出异常时也会被调用,测试失败也会的
 
 
-import org.junit.jupiter.api.Test; //Junit 5 
+import org.junit.jupiter.api.Test; //Junit 5  
+import static org.junit.jupiter.api.Assertions.*;//Junit 5 
 
 JUnit 4.0 有 只执行一次初始方法,销毁方法 
 import static org.junit.Assert.assertEquals; 
@@ -1044,13 +1045,7 @@ if (result.wasSuccessful()) {
 	System.out.println("所有测试用列执行成功");
 }
 	
-	
-//junit.awtui.TestRunner.run(HelloTest.class);
-//junit.swingui.TestRunner.run(HelloTest.class);
-//awtui包 TestRunner类
-//swingui包 TestRunner类
-
-
+	 
 
 边界问题 数组没有元素
 
@@ -1058,8 +1053,7 @@ if (result.wasSuccessful()) {
 测试应该没有依赖性,一个测试方法不会依赖于另一个方法
 public static void main (String[] args) 
 {
-		junit.textui.TestRunner.run (suite());
-		junit.swingui.TestRunner.run(Junit3TestSuit.class);// 只对junit3
+	junit.textui.TestRunner.run (suite()); 
 }
 
 public static junit.framework.Test suite() {   
@@ -1110,7 +1104,7 @@ public class CalculatorTestSuit
 {
 
 }
----------------------------JMockit 更强
+---------------------------JMockit 更强 
 ---------------------------EasyMock  
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
@@ -1422,6 +1416,9 @@ JFreeChart 和 iText
 
    
 =================================Lucene-6.4================================
+ elasticsearch-6.1.1 openSource
+Elasticsearch: 权威指南  https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html
+ 
  最新的 luke-src-4.0.0 最近更新是2012年7月
  
  官方带的中文分词器 analyzers-smartcn  ,lucene-analyzers-smartcn-6.4.0.jar  大小  3.43M

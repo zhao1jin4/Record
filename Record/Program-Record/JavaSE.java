@@ -3868,9 +3868,8 @@ fileManager.close();
 Process proc =Runtime.getRuntime().exec("cmd /c copy "+JAVA_CLASS_FILE+" bin/"+PACKAGE); //调用 系统命令
 	 proc.waitFor();//如果命令运行时间较长,要用这个等待命令完成,linux下使用 a.sh >> a.log 1>&2 写日志没用效果
 //Class x=Thread.currentThread().getContextClassLoader().loadClass(PACKAGE+"."+JAVA_CLASS_NAME);
- Class.forName(PACKAGE+"."+JAVA_CLASS_NAME).newInstance();
- ---
- Compiler.compileClass(ABC.class);//生成本地文件
+ Class.forName(PACKAGE+"."+JAVA_CLASS_NAME);
+ --- 
  
 try (InputStream fis = new FileInputStream(source);
 	OutputStream fos = new FileOutputStream(target))

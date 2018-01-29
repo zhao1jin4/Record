@@ -23,11 +23,22 @@ console.dir(process)//显示process对象,有很多信息
 
 
 
-NPM (像linux的rpm)
+NPM (像linux的 yum  )
 npm install mongodb
 npm install -g mongodb //安装为一个全局使用的模块,
- 默认安装在 C:\Users\zhaojin\AppData\Roaming\npm\node_modules  
+默认安装在 C:\Users\zhaojin\AppData\Roaming\npm\node_modules 
+C:\Users\zhaojin\AppData\Roaming\npm-cache  目录很多文件
 //设置NODE_PATH环境变量为
+
+npm init   会提示回车生成package.json文件
+npm install --save browser-sync   //--save存在package.json文件中  安装 browser-sync,是一个服务器监控修改生效
+ package.json 修改 "scripts": 区
+ "scripts": {
+    "dev": "browser-sync start --server --files *.*"
+  },
+  
+npm run dev   会启动 http://localhost:3000
+
 //----未测试
 npm update packname
 npm uninstall packname 

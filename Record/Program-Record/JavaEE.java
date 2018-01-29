@@ -1,5 +1,5 @@
-
- 
+https://javaee.github.io/glassfish/documentation
+https://javaee.github.io/javaee-spec/javadocs/
 ==================================web.xml
 <context-param>
 	<param-name>life-name</param-name>
@@ -200,21 +200,24 @@ public class MyServlet3 extends HttpServlet {}
 或者
 @WebServlet( asyncSupported=true
 
-AsyncContext ctx=request.startAsync();   //异步的,现在又报错了????
+AsyncContext ctx=request.startAsync(); //走的Filter也要异步支持
 ctx.addListener(new AsyncListener()
 				{
 					public void onComplete(AsyncEvent event) throws IOException 
 					{
-						System.out.println("onComplete DONE");
+						System.out.println("MyAsyncServlet onComplete  ");
 					}
 					public void onError(AsyncEvent event) throws IOException 
 					{
+						System.out.println("MyAsyncServlet onError ");
 					}
 					public void onStartAsync(AsyncEvent event) throws IOException
 					{
+						System.out.println("MyAsyncServlet onStartAsync");
 					}
 					public void onTimeout(AsyncEvent event) throws IOException 
 					{
+						System.out.println("MyAsyncServlet onTimeout");
 					}  
 				});
 context.complete();//会调用  Listener的complete方法
@@ -226,17 +229,22 @@ public class MyContxtListener3 implements ServletContextListener
 {
 	public void contextInitialized(ServletContextEvent event) {
 		ServletContext context=event.getServletContext();
+		
+		//动态注册Servlet 
 		ServletRegistration.Dynamic dynServ=context.addServlet("myServName", MyServlet3.class);
-		dynServ.setInitParameter("initParam1", "initVal");
+		dynServ.setInitParameter("myparam", "myvalue");//servlet重写init方法，用ServletConfig取
 		dynServ.addMapping("/dynServ","/dynServ2");
 		dynServ.setAsyncSupported(true);
-		//动态注册Servlet 
-		FilterRegistration.Dynamic  dynFilter=context.addFilter("myFileterName",MyFilter3.class);//动态注册Filter
+		
+		//动态注册Filter
+		FilterRegistration.Dynamic  dynFilter=context.addFilter("myFileterName",MyFilter3.class); 
+		dynFilter.setAsyncSupported(true);
+		dynFilter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST) , true, "/async");//true=isMatchAfter 
 		
  	}
 }
 
-@WebFilter(filterName = "myFilter", urlPatterns = { "/test","/test1" })
+@WebFilter(filterName = "myFilter", urlPatterns = { "/dynServ","/test1" },asyncSupported=true)
 public class MyFilter3 implements Filter{}
 
 文件上传的原生支持
@@ -269,7 +277,7 @@ public class ServletParameter implements WebParameter {
         testServlet.addMapping("/nowebxml");    
     }    
 }
-//(不能是web项目的META-INF) WEB-INF/lib/xxx.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中写实现 implements ServletContainerInitializer 全类名
+//(不能是web项目的META-INF) 是classpath 或者 WEB-INF/lib/xxx.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中写实现 implements ServletContainerInitializer 全类名
 @HandlesTypes(WebParameter.class)    
 public class WebConfiguration implements ServletContainerInitializer {    
     @Override    

@@ -66,7 +66,48 @@ https://dev.mysql.com/doc/employee/en/ Employees    https://launchpad.net/test-d
  
 	
 	
-	
+---- 每门成绩的前2名  Oracle也通用，Oracle有 dense_rank()
+create table sc
+(sno int,
+cno int,
+score int);
+
+insert into sc values (1,1,100);
+insert into sc values (2,1,80);
+insert into sc values (3,1,25);
+insert into sc values (4,1,45);
+insert into sc values (5,1,67);
+insert into sc values (1,2,25);
+insert into sc values (2,2,77);
+insert into sc values (3,2,78);
+insert into sc values (4,2,69);
+insert into sc values (5,2,24);
+
+select  sno,cno,score
+from sc r1       
+where  
+(
+  select count(1)
+  from sc r2
+  where r2.cno=r1.cno 
+  and  r1.score <= r2.score
+) <=2;  --如条件是=2 ,侧只要第2名
+
+//--每个部门 (年龄/工资) 最大的前2个
+ select d.dep_name,e.username,e.age
+ from department  d , employee e 
+ where e.department_id=d.id
+ and  
+ (        
+        select  count(1) 
+        from employee  e2
+        where e.department_id=e2.department_id and  e.age <= e2.age 
+ ) <= 2 --如条件是=2 ,侧只要第2名
+ 
+ 
+ 
+ 
+
 --------------------------------------使用
 \! 和system (linux 下) 是执行系统命令
 \. 和source 是执行给定文件的sql
@@ -125,7 +166,10 @@ text 类型对应的就有tinytext,mediumtext,longtext
 	
 date 类型没有时间,而datetime 和 timestamp  (如果修改了时区值也会自动变)类型是带日期和时间的
 (建表,加列时,列的类型为 timestamp 如不指定default,自动加  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP )
-
+ 
+ DATETIME 范围是 '1000-01-01 00:00:00' to '9999-12-31 23:59:59'.
+ TIMESTAMP 范围是 '1970-01-01 00:00:01' UTC to '2038-01-19 03:14:07' UTC.
+ 
 YEAR ,TIME  类型     
 
 如为date 类型，在insert 数据时可以使用格式  d{'2010-10-10'} 来表示一个日期

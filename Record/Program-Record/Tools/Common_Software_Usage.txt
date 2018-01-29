@@ -202,6 +202,8 @@ firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下�
 	显示加载的插件	about:plugins
 	可修改配置	about:config 
 	help->TroubleShooting Information 即		about:support
+	firefox　主页被修改　　about:support  显示有user.js　在　C:\Users\zhaojin\AppData\Roaming\Mozilla目录下
+
 
 firefox27可用的插件
 	FireBug-1.12.7 (加大字体,tools ->web developer->Firebug->text size->increase text size)

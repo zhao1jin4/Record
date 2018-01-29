@@ -279,65 +279,31 @@ formtarget - 重写表单的 target 属性
 <aside>
 
 
-<script type="text/javascript">
-	window.localStorage.setItem('value', area.value);
-	window.localStorage.getItem('value');
-	--
-	var db = window.openDatabase("DBName", "1.0", "description", 5*1024*1024); //5MB
-	db.transaction(function(tx) {
-	  tx.executeSql("SELECT * FROM test", [], successCallback, errorCallback);
-	});
 
-	--
-	var idbRequest = window.indexedDB.open('Database Name');
-	idbRequest.onsuccess = function(event) {
-	  var db = event.srcElement.result;
-	  var transaction = db.transaction([], IDBTransaction.READ_ONLY);
-	  var curRequest = transaction.objectStore('ObjectStore Name').openCursor();
-	  curRequest.onsuccess = ...;
-	};
+---Drop Drag
 
-	--
-	// <html manifest="cache.appcache">
-	window.applicationCache.addEventListener('updateready', function(e) {
-	  if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
-		window.applicationCache.swapCache();
-		if (confirm('A new version of this site is available. Load it?')) {
-		  window.location.reload();
-		}
-	  }
-	}, false);
-
-
-	//myDiv.style.cssText;显示所有有值的CSS
-
-
-
-	if ("WebSocket" in window)
-	  {
-		 alert("WebSocket is supported by your Browser!");
-		  var ws = new WebSocket("ws://localhost:8080/J_AjaxServer/webSocket");//tomcat支持
-		 ws.onopen = function()
-		 {
-			ws.send("Message to send");
-			alert("Message is sent...");
-		 };
-		 ws.onmessage = function (evt) 
-		 { 
-			var received_msg = evt.data;
-			alert("Message is received...");
-		 };
-		 ws.onclose = function()
-		 { 
-			alert("Connection is closed..."); 
-		 };
-	  }
+<script>
+function allowDrop(ev)
+{
+    ev.preventDefault();
+}
+ 
+function drag(ev)
+{
+    ev.dataTransfer.setData("Text",ev.target.id);
+}
+ 
+function drop(ev)
+{
+    ev.preventDefault();
+    var data=ev.dataTransfer.getData("Text");
+    ev.target.appendChild(document.getElementById(data));
+}
 </script>
+<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+<br>
+<img id="drag1" src="assets/img_logo.gif" draggable="true" ondragstart="drag(event)" width="336" height="69">
 
-淘宝触屏版 touchstart, touchend, touchmove
-多点触击涉及到三个事件：gesturestart、gesturechange、gestureend
-
-document.addEventListener("touchmove"  
 
 ===================CSS  CSS 3
 <table border="1"  style="table-layout:fixed;word-wrap:break-word;"> 为<td>内容换行 

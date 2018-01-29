@@ -2,7 +2,7 @@
  教程  （Spring cloud也有）
  http://www.runoob.com/docker/docker-tutorial.html
  
-
+创建一个轻量级私有PaaS云
  
 可能本地建立类似 docker hub 的仓库 Nexus Repository OSS 3.5.1好像就可以的
 

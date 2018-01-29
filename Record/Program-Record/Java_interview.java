@@ -461,13 +461,33 @@ mysql 嵌套事务
 取模机器数分隔不好，如加机器就难办了，一致性hash就是取模2的32次方
 
 分布式   垂直 水平  ，就是一台机器提供多个服务 和 多台机器提供同一个服务
+  
  
-
 java.util.Date日期格式为：年月日时分秒
 java.sql.Date日期格式为：年月日[只存储日期数据不存储时间数据，是专门针对sql设计]
 java.sql.Time日期格式为：时分秒
 java.sql.Timestamp日期格式为：年月日时分秒纳秒（毫微秒） 
 
+
+
+
+该问题出现在ORACLE 数据库，其他数据库没有试过。
+
+如果JAVA中的属性为DATE,而数据库中是DATE类型的话。mybatis会默认将JAVA中DATE属性映射到数据库的
+Timestamp类型。这时就会有这样的查询
+where create_time >= v_time
+
+左边为DATE , 右边为Timestamp.类型不一致，ORACLE会隐式将小的转成大的 
+where to_Timestamp(create_time) >= v_time
+这样导致左边的列用到函数的。索引列上使用函数后会导致索引失效。
+
+ //如oracle 是date 类型,使用java.sq.Date 会使用索引,而util.Date不会 !!!
+ java.sql.Date 是针对SQL语句使用的，它只包含日期而没有时间部分
+ 
+ 
+ 
+ 
+ 
 cglib代理实现原理    //通过字节码技术动态创建子类实例  
 
 
@@ -515,7 +535,7 @@ Resetful,
 区块链
 RabbitMQ
  
-
+Servlet 4.0
 
 
 

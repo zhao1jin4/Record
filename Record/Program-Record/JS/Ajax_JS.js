@@ -1133,3 +1133,84 @@ document.addEventListener("touchmove"
 
 
 
+
+
+Time:  <div id="foo"></div> 
+<button onclick="start()">Start Server Send</button>
+function start() {
+	//服务器端把 "Content-Type" 报头设置为 "text/event-stream"。
+	var eventSource = new EventSource("serverSend");
+	eventSource.onmessage = function(event) {
+		//服务端返回字串，格式data:xx
+		document.getElementById('foo').innerHTML += event.data+" <br/>";
+	};
+	eventSource.onopen=function(event)
+	{
+		document.getElementById("foo").innerHTML+=  "onopen <br/>";
+	};
+	eventSource.onerror=function(event)
+	{
+		document.getElementById("foo").innerHTML+=  "onerror"+event+" <br/>";
+	};
+}
+</script>
+
+@WebServlet(urlPatterns="/serverSend")
+public class ServerSendServlet extends HttpServlet {
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//content type must be set to text/event-stream
+		response.setContentType("text/event-stream");	
+		//encoding must be set to UTF-8
+		response.setCharacterEncoding("UTF-8");
+		PrintWriter writer = response.getWriter();
+		writer.write("data: "+ System.currentTimeMillis() +"\n\n");
+		writer.close();
+	}
+}
+
+
+
+up:  <div id="up"></div> 
+down:  <div id="down"></div> 
+<button onclick="startMulti()">Start Multi Server Send</button>
+function startMulti()
+{
+	var eventSource = new EventSource("serverSendMulti");
+	eventSource.addEventListener('up_vote',//对应服务端的 event:up_vote\n
+		function(event) {
+			document.getElementById('up').innerHTML = event.data;
+		}, false);
+	eventSource.addEventListener('down_vote', 
+		function(event) {
+			document.getElementById('down').innerHTML = event.data;
+		}, false);
+}
+@WebServlet(urlPatterns="/serverSendMulti")
+public class ServerSendMultiServlet extends HttpServlet {
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/event-stream");
+		response.setCharacterEncoding("UTF-8");
+		PrintWriter writer = response.getWriter();
+		int upVote = 0;
+		int downVote = 0;
+		upVote = upVote + (int) (Math.random() * 10);
+		downVote = downVote + (int) (Math.random() * 10);
+		writer.write("event:up_vote\n");
+		writer.write("data: " + upVote + "\n\n");
+		writer.write("event:down_vote\n");
+		writer.write("data: " + downVote + "\n\n");
+		writer.flush();
+		writer.close();
+	}
+} 
+
+
+
+
+======ECMA Script 2016  2017 
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+﻿
+-------------V-ray
+F10打开渲染设置->common 标签->Assign Render卷栏-> Product旁边的 ... 按钮选择渲染器
+如果安装V-ray就有了,如果没有破解选择V-ray Adv 后，材质编辑器不正常，渲染有错误
+
+
+
+-------------3ds max
+3ds max 2013 使用黑界面时，图标大部分还是黑色的，应该全为彩色才对
+customize->load Custom UI Schem->选择ame-light.ui 或者ame-dark.ui
+菜单也并不是黑色
+
+
+Maya2013的图标就是彩色的，菜单也是黑色的

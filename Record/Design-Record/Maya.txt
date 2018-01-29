@@ -1,10 +1,10 @@
-мЬрЁ╡к╣╔ Support & Learing -> Maya (2015)->  
-	Downloads ╠Йг╘-> ур Download & Install Maya Product Help (нд╣╣обть,в╒╡╩йгdeveloper-help)
-	Getting Started ╠Йг╘-> ур  Maya Documentation  тзоънд╣╣ 
+О╩©Г╫▒И║╣Х▐°Е█∙ Support & Learing -> Maya (2015)->  
+	Downloads Ф═┤Г╜╬-> Ф┴╬ Download & Install Maya Product Help (Ф√┤Ф║ёД╦▀Х╫╫,ФЁ╗Д╦█Ф≤╞developer-help)
+	Getting Started Ф═┤Г╜╬-> Ф┴╬  Maya Documentation  Е°╗Г╨©Ф√┤Ф║ё 
 
  
 
-windows 7жпндо╣мЁ , д╛хо╟╡в╟╨Сйгжпндё╛иХжц╩╥╬Ё╠Да© MAYA_UI_LANGUAGE н╙ en_US ╬мOK
+windows 7Д╦╜Ф√┤ГЁ╩Г╩÷ , И╩≤Х╝╓Е╝┴Хё┘Е░▌Ф≤╞Д╦╜Ф√┤О╪▄Х╝╬Г╫╝Г▌╞Е╒┐Е▐≤И┤▐ MAYA_UI_LANGUAGE Д╦╨ en_US Е╟╠OK
 
 
 
