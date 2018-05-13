@@ -1,26 +1,34 @@
 
+Docker 使用GO语言开发
+
+比传统的虚拟机方式要快,统资源的利用率很高，一台主机上可以同时运行数千个 Docker 容器。容器除了运行其中应用外，基本不消耗额外的系统资源
+更快速的交付和部署
+几乎可以在任意的平台上运行，包括物理机、虚拟机、公有云、私有云、个人电脑、服务器
+
+Dcoker Edge   是实验版本
+
+创建一个轻量级私有PaaS云
+
  教程  （Spring cloud也有）
  http://www.runoob.com/docker/docker-tutorial.html
  
-创建一个轻量级私有PaaS云
+ 
+软件自身官方有docker版本的有
+Jenkins		
+GitLab		gitlab/gitlab-ce
+
+Codis
+Jbpm7
+
+镜像（Image）
+容器（Container）
+仓库（Repository）  存放镜像文件的场所
+
  
 可能本地建立类似 docker hub 的仓库 Nexus Repository OSS 3.5.1好像就可以的
 
 
-软件自身官方有docker版本的有
-Jenkins
-Codis
-Jbpm7
-
-Docker集中化web界面管理平台shipyard
-curl -sSL https://shipyard-project.com/deploy | bash -s
-	 -L, --location 
-	 -S, --show-error
-	 -s, --silent  
-	bash -s  从标准输入读命令
-安装后 http://ip:8080 
-
-
+--Docker compose安装
 yum install python-pip python-dev
 pip install -U docker-compose
 docker-compose --version
@@ -32,23 +40,18 @@ docker load --input java1.8.tar
 
 
 
-
-Docker 使用GO语言开发
-
-比传统的虚拟机方式要快,统资源的利用率很高，一台主机上可以同时运行数千个 Docker 容器。容器除了运行其中应用外，基本不消耗额外的系统资源
-更快速的交付和部署
-几乎可以在任意的平台上运行，包括物理机、虚拟机、公有云、私有云、个人电脑、服务器
-
-镜像（Image）
-容器（Container）
-仓库（Repository）  存放镜像文件的场所
-
- 
-
+---CentOS 安装
 yum-config-manager   --add-repo    https://download.docker.com/linux/centos/docker-ce.repo
+	保存到 /etc/yum.repos.d/docker-ce.repo
 	
-	
-yum install docker-ce   目前安装的是  17.09.1.ce-1.el7.centos
+yum install docker-ce   目前安装的是 17.12.0.ce-1.el7.centos 还依赖一个container-selinux-2.36-1
+
+或者 下载下来安装
+https://download.docker.com/linux/centos/7/x86_64/stable/Packages/
+https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm 
+
+yum install docker-ce-17.12.0.ce-1.el7.centos.x86_64.rpm 
+
 --uninstall
 	yum remove docker-ce
 	sudo rm -rf /var/lib/docker
@@ -68,7 +71,7 @@ systemctl disable docker.service
 
 docker --version
 
-
+windows 10 版本使用  Hyper-V ,只用于开发
 最新版 windows 提示 You must be in the "docker-users" group. 
 net user docker  /add /active:yes /expires:never /passwordchg:yes /fullname:"the-docker" /comment:"docker used"
 net localgroup "docker-users" docker /add
@@ -174,15 +177,28 @@ docker save -o ./ubuntu12.04.tar ubuntu:12.04
 
 
 
+---------Docker集中化web界面管理平台 shipyard
+curl -sSL https://shipyard-project.com/deploy | bash -s
+	 -L, --location 
+	 -S, --show-error
+	 -s, --silent  
+	bash -s  从标准输入读命令
+安装后 http://ip:8080 
+
+
 
 ------------------------------------Kubernetes  (K8s)
 
-Kubernetes (开源) 基于 Docker 构建一个容器的调度服务 https://github.com/kubernetes/kubernetes/releases  v1.9.0
+Kubernetes (开源) 基于 Docker 构建一个容器的调度服务
+v1.10.0
+https://github.com/kubernetes/kubernetes/tree/release-1.10/examples
+https://kubernetes.io/docs/imported/release/notes/ 二进制
 
 
 
+-----Docker Swarm 
 
-
+1.12版本以后 Docker Swarm 是集成在docker引擎中, 提供容器集群服务
 
 
 

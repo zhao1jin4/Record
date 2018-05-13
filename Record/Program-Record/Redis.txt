@@ -1,13 +1,14 @@
 
 UI工具
-redis-desktop-manager-0.8.8   只能是查看,新建,不能写命令
+redis-desktop-manager-0.9.1  可以监控，可写命令好用
 
 redisclient-win32.x86_64.2.0.jar
-RedisStudio-en-0.1.5.exe
+RedisStudio-en-0.1.5.exe  不能写命令，不能看数据值
 
 ---------Codis
-Codis 3.2.0 基于 Redis 3.2.x
+Codis 3.2.2  (go 1.9.2) 基于 Redis 3.2.8
 支持 Docker 部署
+
 
  豌豆荚公司开发的一个分布式 Redis 解决方案，用Go语言开发的,使用zookeeper来作为辅助，
 不支持scan,keys命令
@@ -16,7 +17,10 @@ Codis 3.2.0 基于 Redis 3.2.x
 https://github.com/CodisLabs/codis/
 https://github.com/CodisLabs/codis/tree/release3.2/doc
 
-
+ 
+Codis Dashboard：集群管理工具  
+Codis Admin：集群管理的命令行工具。
+Codis FE：集群管理界面。
 
 ./codis-dashboard   启动codis-dashboard   http://127.0.0.1:18080
 ./codis-proxy  		启动codis-proxy
@@ -34,16 +38,30 @@ codis-admin
 对集群的修改都必须通过 codis-dashboard 完成
 
 
-============== Redis-4.0.6 版本编译安装
+============== Redis-4.0.8 版本编译安装 CentOS 7
 cd src 
 make    OK
-make test 要 tcl-8.5以上,可用8.6.7  测试OK,
-	redis-trib.rb 还是要ruby,有ruby-2.5.0编译安装后(./configure  , make , make install)带 gem 命令(RubyGems)，还要ruby的redis依赖
+
+如报error: jemalloc/jemalloc.h: No such file or directory  
+用 make MALLOC=libc 就OK ,Mac用jemalloc(README文件中说的)
+
+make test 要 tcl-8.5以上(CentOS 7DVD自带8.5.13),可用8.6.7  测试OK,
+	redis-trib.rb 还是要ruby>2.2.2(CentOS 7DVD自带2.0) 有ruby-2.5.0编译安装后(./configure  , make , make install)带 gem 命令(RubyGems)，还要ruby的redis依赖
 	gem list
-	gem install redis  报没有 Unable to require openssl, install OpenSSL and rebuild Ruby (preferred) or use non-HTTPS sources
+	gem install redis 
+
 				
-	可以从https://rubygems.org/ 上搜索redis 点download链接 下载文件redis-4.0.0.gem
-	gem install --local redis-4.0.0.gem  
+	可以从https://rubygems.org/ 上搜索redis 点download链接 下载文件redis-4.0.1.gem
+	gem install --local redis-4.0.1.gem   
+		如报错 cannot load such file -- zlib 
+			cd ruby-2.5.0/ext/zlib
+			ruby ./extconf.rb  报很多 no  ,yum install zlib-devel 就可以了
+				
+				如报No rule to make target `/include/ruby.h', needed by `zlib.o'.
+				vi Makefile  修改 zlib.o: $(top_srcdir)/include/ruby.h 改成 zlib.o: ../../include/ruby.h
+			make
+			make install
+	安装OK
 make install 在 /usr/local/bin/redis-server
 
 
@@ -53,7 +71,7 @@ cat /proc/sys/vm/overcommit_memory
 1 表示内核允许分配所有的物理内存，而不管当前的内存状态如何。
 
 
- 警靠执行
+ 警告执行
  echo never > /sys/kernel/mm/transparent_hugepage/enabled   
  放/etc/rc.local 中启动执行
  

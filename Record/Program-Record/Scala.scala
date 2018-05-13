@@ -262,7 +262,7 @@ for( a <- 1 until 10){ //until不包括右边界10
  println( "Value of a: " + a );
 } 
 var b = 0;
-for( a <- 1 to 3; b <- 1 to 3){
+for( a <- 1 to 3; b <- 1 to 3){//两层子循环
 	println( "Value of a: " + a );
 	println( "Value of b: " + b );
 }
@@ -336,7 +336,8 @@ grep(".*gcd.*")
       return sum //可不写return
    }
    println(addInt(b=3,a=4)) //可以使用参数名修改顺序
-   
+   def add(x:Int) = (y:Int) =>x+y
+   //简写法
    def add2(x:Int) (y:Int) =x+y //多参数写法2,如果函数只有一行代码可以不写{}
    println(add2(5)(3))
   
@@ -449,8 +450,18 @@ grep(".*gcd.*")
     case h::t=>println("head="+h+",tail="+t);  //head=one,tail=List(two, three)
   }
 
+  import scala.collection.JavaConverters._
+
+  val source = new scala.collection.mutable.ListBuffer[Int]
+  val target: java.util.List[Int] = source.asJava
+  val other: scala.collection.mutable.Buffer[Int] = target.asScala
+  assert(source eq other)
   
-  
+   val vs = java.util.Arrays.asList("hi", "bye") 
+   val ss = asScalaIterator(vs.iterator)
+   val ss1 = asScalaBuffer(vs) 
+   
+   
 	val 与 var 不同的是, val指定了值后不能再次赋值,相当于final
 	
 	 
@@ -543,12 +554,14 @@ val str = "Scala is Scalable and cool"
 println(pattern findFirstIn      str)//可以省略. ( ) 用空白分隔	
 println(pattern replaceFirstIn(str, "Java"))
 {
-   val pattern = new Regex("(S|s)cala")
+  val pattern = new Regex("(S|s)cala")
   val str = "Scala is scalable and cool"
-  
   println((pattern findAllIn str).mkString(","))// 使用逗号 , 连接返回结果
-
 }
+var numLetter ="([0-9]+) ([a-z]+)".r;
+var  numLetter(num,letter)="99 wang";//存入
+println(num);
+println(letter);
 
  
  try {
@@ -651,10 +664,10 @@ for(line <-scala.io.Source.fromFile("c:/tmp/hello_utf8.txt" ).getLines().toList)
 {
  println("-"*4 +line);// 字符可以*
 }
- var out= new PrintWriter("c:/tmp/out.txt");
-  out.printf("%5d 10.2f",20.asInstanceOf[AnyRef],34.5.asInstanceOf[AnyRef]);
-  out.write( "%5d 10.2f".format(20,34.5));//更好用
-  out.close();
+var out= new PrintWriter("c:/tmp/out.txt");
+out.printf("%5d %10.2f\n",20.asInstanceOf[AnyRef],34.5.asInstanceOf[AnyRef]);//一定要转换为AnyRef
+out.write( "%5d %10.2f\n".format(20,34.5));//更好用
+out.close();
   
   
 def subdirs(dir:File):Iterator[File]=
@@ -1036,9 +1049,25 @@ println(new Ant().env.length)
     
    // a #&& b  如果a成功 再执行b了 
    // a #|| b  如果a不成功再执行b了
-   val p=Process("ls ",new File("/tmp"),("LANG","en_US"));//在指定目录，指定环境变量 执行命令
+    val p=Process("ls ",new File("/tmp"),("LANG","en_US"));//在指定目录，指定环境变量 执行命令
     p!
 
 
-
-
+	println( "hello"(4)) //输出 o
+    //scala.collection.immutable.StringOps 的apply 方法  ,String 是隐式转换这个类
+    println( "hello".intersect("World")) //lo  并不是相邻的
+    println( "hello".distinct) //helo
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

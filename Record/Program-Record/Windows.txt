@@ -1,3 +1,5 @@
+windows 10 目前(2018-03-01)最新版本是 1709 ,看安装更新后打开的网址
+
 乙的五笔 nnll
 美国代码1
 中国代码86
@@ -222,6 +224,12 @@ gpedit.msc->用户配置→管理模板→Windows组件→Windows资源管理器
 右击开始菜单->properties->Start Menu->取消Store and display recent opened item in the start menue and the taskbar
 win10中 Setting->Personalization->Start->关闭 Show recently open items in Jump List on Start or the task bar ,任务栏的图标就不显示了,再打开也没了
 
+查看->选项->打开资源管理器时打开:选择此电脑,而不是快速访问
+windows 10 可以关闭它,设置->个性化->开始->关闭   在"开始"菜单或任务栏列表中显示最近打开的项
+
+
+
+
 看显卡  附件->系统工具->系统信息->展开 组件->显示 第一个是集成的,第二个是独立显卡
 	也可在设备管理器在看到两个, dxdiag 名称栏中 看到的是显示名,是集成的显卡
 	
@@ -268,22 +276,35 @@ gpedit.msc->本地计算机策略->用户配置->管理模板->Windows 组件->�
 
 ---密码复杂度禁用
 gpedit.msc->computer configuration->Security Settings->Account Policies->Password Policy->
+gpedit.msc->计算机配置->Windows设置->安全设置->帐户策略->密码策略  在右侧双击打开  密码最长使用期限 
+
+wmic 命令可以交互
+wmic UserAccount set PasswordExpires=True 
+wmic UserAccount where Name='zhaojin' set PasswordExpires=True 
+
+net accounts /maxpwage:UNLIMITED    密码永不过期
+/maxpwage=max password age设置用户帐户密码有效天数的最大值
+
+net user zhaojin 看到密码永不过期
+
+
 
 
 ====快捷键
-windows + tab 在windows 7 下是特效
+
 ctrl+tab 当前程序的多窗口切换 
+
 win+P	切换连接到投影仪的方式
 win+加号"+"按比例放大整个屏幕
 win+减号"-"按比例缩小整个屏幕
-
-win10  windowx + X 相当于右击开始菜单
-win10  win+空格键  切换输入法 
+ 
 win+数字键1~9 依次打开任务栏锁定程序
  
 win+T 预览第一个/下一个 任务栏中的项  win+shift+T 
 
-win10 win+tab  可切换多个桌面,可切换任务,要鼠标点
+win10 
+
+win+tab  可切换多个桌面,拖动可把窗口移动到另一桌面(或者右击),可切换任务,要鼠标点 , 在windows 7 下是特效
 win+ctrl+左/右 键头 切换桌面
 
 Win + Ctrl + D 创建新的虚拟桌面 
@@ -447,6 +468,10 @@ msconfig中[启动中]项中有所的 注册表项CU=CURRENT_USER,LM=LOCAL_MACHI
 HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run (win10 同任务管理器中)
 HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
 HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run
+shell:startup 进入(当前用户) C:\Users\zhaojin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup 目录
+(所有用户)C:\Users\All Users\Microsoft\Windows\Start Menu\Programs\Startup
+C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+
 
 ----网上其它的
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run  有时没有Run
@@ -477,9 +502,8 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
 --
 
 
- 开始菜单中有启动项
-win键+R 命令 shell:startup 进入(当前用户) C:\Users\zhaojin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup 目录
-			(所有用户)C:\Users\All Users\Microsoft\Windows\Start Menu\Programs\Startup
+
+ 
 远程桌面　默认端口　3389
 修改默认端口
 
@@ -659,6 +683,7 @@ tree 可以树壮显示目录结构
 cd
 netstat -an | findstr \-\-complete
 netstat -an | find "8080"
+netstat -ano | find "8080"  带进程号
 find /c /i "true"  C:/xx/yy.xml			##/C 计数   /I忽略大小写
 
 FINDSTR  /N /I /R "hello ther*"  D:/dir_name/fileName.txt    #查找内容可用则表达式 /R  , /I   指定搜索不分大小写   /N         在匹配的每行前打印行数。
@@ -696,7 +721,7 @@ ipconfig /renew
 netstat -an | find "80"
 IPV6 命令 ping6,tracert6 
 tracert [IP]
-
+nslookup
 netstat -ano 后面即可显示出相应的PID号，
 任务管理器->查看相应的PID号进程
 也可用 netstat -anob
@@ -759,7 +784,7 @@ shutdown /t 120 /s  ,两分钟后关机
 运行 cmd  /t:70  /k  cd \ ,以黑字白底显示,并执行 cd \
 运行 cmd/notepad/wordpad/mspaint/regedit/explorer 命令
 运行 gpedit.msc/services.msc 
-运行  msconfig 配置开机启动(windows 10在任务管理器)
+
 运行 mstsc 远程桌面
  (service.msc中有Remote Desktop Services) 使用RDP协议  右击我的电脑 -> 属性 -> 远程设置 ->选中 允许远程协助连接这台计算机
 							防火墙，win10 windows Defender -> 防火墙和网络保护->允许应用通过防火墙 选中 远程协助 ，选 专用网络 和 公有网络  但还是不行？？？

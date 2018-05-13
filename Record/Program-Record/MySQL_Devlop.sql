@@ -1,4 +1,4 @@
-
+从5.7.21 windows安装版开始  自带samples and Examples 的目录 C:\Program Files (x86)\MySQL\Samples and Examples 5.7\Sample Databases中有 Sakila和World
 https://dev.mysql.com/doc/index-other.html MySQL  Sample Database
 https://dev.mysql.com/doc/employee/en/ Employees    https://launchpad.net/test-db  https://github.com/datacharmer/test_db
 
@@ -151,6 +151,9 @@ mysql -uroot -proot -D nine -e "select * from boss_functions " --default-charact
 	
 CHAR ,VARCHAR,BINARY,VARBINARY,BLOB,TEXT,ENUM , SET	 类型
 	
+ CREATE SCHEMA 是 CREATE DATABASE 的同义词
+ 
+	
 CREATE TABLE data_type
 (
 	my_bit bit, -- 只能0或1, 可以多位 
@@ -159,6 +162,7 @@ CREATE TABLE data_type
 	my_enum ENUM('red','orange','black'),
 	my_set  SET('a', 'b', 'c', 'd')  -- 一格中有相同值时,保存会去重复
 );
+一个 SET 列最多有 64 个不重复的值
 insert into data_type(my_bit,my_blob,my_binary,my_enum,my_set)
 values(1,1,0,'black','a,b,c');
 	
@@ -238,6 +242,9 @@ SELECT PERIOD_DIFF(200802,200703); -- 第一个日期 减 第二个日期 相差
 SELECT UNIX_TIMESTAMP(end_time) - UNIX_TIMESTAMP(start_time) as t;  -- 两日期/时间之间相差的秒数 　
 SELECT TIME_TO_SEC(now())
  
+ 
+ 
+SELECT FROM_UNIXTIME(UNIX_TIMESTAMP(current_timestamp));
 
 ---字串函数
 varchar(20)的含义是20个中文或者英文字符,即中文也是占一个,可能是由于字符集是utf8原因
@@ -745,8 +752,7 @@ SELECT CASE 10*2
 END;
 
 
-case x 
- when null then 0  --不行,null的判断要用 is null,不是=null
+case x when null then 0  --不行,null的判断要用 is null,不是=null
 end
 
 case when x  is null then 0  --OK
@@ -757,7 +763,7 @@ case when end 也可以用在select 的where 部分
 case  when l.prodId='100' or l.prodId='200'  then '学生'   end  -- OK
 case l.prodId when '100' or '200' then '学生'   end    -- or 这样用不行的 
         
-无论是case x when 1 还是case when x=1 then 都是相当于else if 或 java 的带break 的 switch,即最多一个成立
+无论是case x when 1 end 还是case when x=1 then 都是相当于else if 或 java 的带break 的 switch,即最多一个成立
 		
 MySQL中实现rownum
 select @rownum:=@rownum+1 AS rownum,  -- 带小数点???
@@ -820,7 +826,7 @@ BEGIN
 	DECLARE done INT DEFAULT FALSE;
 	DECLARE a CHAR(16);
 	DECLARE b, c INT;
-	DECLARE cur1 CURSOR FOR SELECT id,data FROM test.t1;
+	DECLARE cur1 CURSOR FOR SELECT id,data FROM test.t1;   -- cursor 中的select不能有into
 	DECLARE cur2 CURSOR FOR SELECT i FROM test.t2;
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
 	OPEN cur1;
@@ -966,7 +972,7 @@ youTable  USE index for join(PRIMARY)
 		
 MySQL性能注意问题，如果left join 连续使用两个关联三张表 (最后面的大表又没有任何过滤条件时)，会导致索引失效，加 force index 无用
 (看 explain select ... 是否有 Range checked for each record (index map: 0x1) 的说明,
- 有时也没有这个说明,加了包含所记录的条件后,type的值由ref变到All ,rows值变多了,说明rows的参考价值失效了???)
+时也没有这个说明,加了包含所记录的条件后,type的值由ref变到All ,rows值变多了,说明rows的参考价值失效了???)
 
 解决方法，要么使用临时视图方式做成嵌套查询,要么表加过滤条件,可包含所记录的条件, 也可考虑使用 inner join 
 
@@ -977,9 +983,56 @@ MySQL性能注意问题，如果left join 连续使用两个关联三张表 (最
 count(*) 可以保证数据正确,如果count(col) 如果某行col的值为null不会被计算,MySQL和Oracle都是这样的
 
 
- select sleep(3);  //单位秒
- 
+select sleep(3);  //单位秒
 
 
+select replace(UUID(),'-','')
+	
+	
+	
+SET @skip=1; SET @numrows=5;
+PREPARE STMT FROM 'SELECT * FROM tbl LIMIT ?, ?';   
+EXECUTE STMT USING @skip, @numrows;
 
- 
+---- queryLargeTable.sql
+
+delimiter ;
+drop table if exists res; 
+create table  res(name varchar(80),cnt int);  
+drop PROCEDURE queryLargeTable ; 
+delimiter //
+
+CREATE  PROCEDURE queryLargeTable ( IN  dbName varchar(20) )
+BEGIN   
+		DECLARE done INT DEFAULT FALSE;
+		 
+		DECLARE tableName varchar(40);
+		DECLARE cur1 CURSOR FOR select table_name  from information_schema.TABLES where table_schema=dbName;
+		DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+		OPEN cur1;
+		read_loop: LOOP
+				FETCH cur1 INTO tableName; 
+				IF done THEN
+						LEAVE read_loop;
+				END IF; 
+				SET  @cnt = 0;
+				SET  @tbl_name = CONCAT(dbName,".", tableName);
+				SET @STMT := CONCAT("SELECT COUNT(*) INTO @cnt FROM ", @tbl_name, ";");  -- 表名变量
+				  PREPARE STMT FROM @STMT;
+				  EXECUTE STMT; 
+
+
+				IF @cnt > 100 THEN
+				   insert into res values( @tbl_name,@cnt);
+				END IF;
+				
+		END LOOP;
+		CLOSE cur1;		
+ END//
+ delimiter ;
+call queryLargeTable('AKAPP');
+select * from res;
+  
+  
+ --- JSON functions  是 MySQL 5.7.8 新加的
+	

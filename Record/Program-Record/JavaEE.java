@@ -1384,7 +1384,8 @@ TopicConnection topicConnection = topicConnectionFactory.createTopicConnection()
 
 topicConnection.setClientID("client-name");
 TopicSession topicSession = topicConnection.createTopicSession(transacted, Session.AUTO_ACKNOWLEDGE);
-TopicSubscriber topicSubscriber=topicSession.createDurableSubscriber(topic, "my-sub-name"); 
+TopicSubscriber topicSubscriber=topicSession.createDurableSubscriber(topic, "my-sub-name"); //第二个参数是唯一标识这个TopicSubscriber (java 进程)的名字,对应于PERSISTENT的topic
+
 //会在weblogic的Monitor->Durable Subscribers下建立的,离线也可取消息,之后connection.start();
 //TopicSubscriber topicSubscriber= topicSession.createSubscriber(topic);//必须在线可取消息
 topicConnection.start();
@@ -1431,10 +1432,11 @@ Topic topic = (Topic)context.lookup(jndiTopic);
 TopicConnection topicConnection = topicConnectionFactory.createTopicConnection();
 TopicSession topicSession = topicConnection.createTopicSession(transacted, Session.AUTO_ACKNOWLEDGE);
 TopicPublisher topicPublisher= topicSession.createPublisher(topic);
-topicPublisher.setDeliveryMode(DeliveryMode.PERSISTENT);//设置保存消息 
+topicPublisher.setDeliveryMode(DeliveryMode.PERSISTENT);//topic可持久化,Producer级的,发的消息都是可持 久化
 topicConnection.start();
 
 TextMessage textMessage=topicSession.createTextMessage();
+textMessage.setJMSDeliveryMode(DeliveryMode.PERSISTENT);//消息级的 持久化
 textMessage.setText("topicPublisher's Message");
 topicPublisher.publish(textMessage);
 

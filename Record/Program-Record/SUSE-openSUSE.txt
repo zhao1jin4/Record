@@ -578,29 +578,7 @@ mpalyer 1.1 可以播放avi视频，但没有声音，打开后提示audio_setup
 
 pageup,pagedown是快进10分，上下键快进1分
 ＊增大音量  ／减小音量
-
-----chmsee 运行OK 做用不大
-rpm -ivh chmsee-1.99.08-2.1.2.x86_64.rpm
-error: Failed dependencies:
-	libchm.so.0()(64bit) is needed by chmsee-1.99.08-2.1.2.x86_64
-	libmozalloc.so()(64bit) is needed by chmsee-1.99.08-2.1.2.x86_64
-	libxpcom.so()(64bit) is needed by chmsee-1.99.08-2.1.2.x86_64
-	xulrunner >= 13.0.1 is needed by chmsee-1.99.08-2.1.2.x86_64
-
-rpm -ivh /mnt/iso/suse/x86_64/libchm0-0.40-15.1.3.x86_64.rpm
-rpm -ivh xulrunner-14.0.1-2.5.1.x86_64.rpm
-error: Failed dependencies:
-	mozilla-js = 14.0.1 is needed by xulrunner-14.0.1-2.5.1.x86_64
-	libmozjs.so()(64bit) is needed by xulrunner-14.0.1-2.5.1.x86_64
-rpm -ivh mozilla-js-14.0.1-2.5.1.x86_64.rpm
-rpm -ivh chmsee-1.99.08-2.1.2.x86_64.rpm   安装OK
-
-
-面板中找 chmsee
-
-
-xchm  做用不大 ->chmlib-devel, 后面DVD中stl版本的,安装失败 libwx_baseu_net,libwx_gtk2u_html,libwx_gtk2u_aui
-
+ 
 -----chrome 26 运行OK
 依赖于 lsb>=4.0
 # rpm -ivh lsb-4.0-20.1.1.x86_64.rpm
@@ -634,24 +612,7 @@ mount -t cifs -o username=xxx,password=xxx //IP/temp /mnt
 mount -t cifs -o username=xxx,password=xxx  \/\/192.168.253.1\/share /mnt/smb   
 openSUSE-12.3 报错????
  
-----------openSUSE 12.2  TightVNC启动VNC server ------未成功
-alt+左右键，上键
-
-要使用fn＋F2 来禁用网络，如使用gnome3的界面 到OFF就不能再ON了，除非重启机器
-
-
-vncserver :1
-有界面，但是简单的那种
-vncserver -kill :1
-
-
-
-以下未成功
-vi ~/.vnc/xstartup把所有行都注释,加/usr/bin/gnome &
-dbus-launch vncserver :1 来启动 
-
-ctrl+alt +f2命令行，使用 gnome-session &是不行的
-
+----------openSUSE   tigervnc
 
 ---------openSUSE-12.2 NFS
 防火墙关闭测试
@@ -687,10 +648,9 @@ Yast2 -> Security and User -> User and Group  Management -> Expert Options -> Lo
 -----------未解决的
 vim 和gedit 打开windows下的有中文GBK文件时,显示其它的怪字符
 
----SUSE cluster 
 
-leap-42.3  版本是稳定的发布版本 
-tumbleweed 版本是为希望有最新的包
+openSUSE leap-42.3  版本是稳定的发布版本 
+openSUSE tumbleweed 版本是为希望有最新的包
 
 
 

@@ -138,12 +138,12 @@ netbeans支持代码折叠  ，打开调试工具栏，变量窗口
 ctrl+f5调试主项目就可以了
 
 source -> code complete (ctrl+space)
-ctrl+p 显示参数(Source->show method parameter)
+ctrl+p 显示参数(Source->show method parameter) 同Intellij
 alter+shift+f  格式化代码(source->format)   
-ctrl+alt+点击接口方法 进和实现类同Intellij
+ctrl+alt+点击接口方法 进和实现类 同Intellij
 
-导航 -> 转至类型 -> 输入类名 ,如想知道在哪目录中,右击标签->在项目中选择
-导航 -> 转至文件 -> 输入文件名
+导航 -> 转至类型 ctrl+o -> 输入类名 ,如想知道在哪目录中,右击标签->在项目中选择
+导航 -> 转至文件 alt+shit+o -> 输入文件名
 
 右击代码 insert code ... -> Getter...或者Setter...
 
@@ -163,8 +163,10 @@ window->IDE Tools->Test Result
 debug代码时 F7 进入函数,如这行代码有多个函数,会提示让选择进入哪个函数,比eclipse智能 
 	如修改了代码,保存后不能立即生效,要点工具栏上的Apply Code Change按钮,而eclipse是自动的
 
-NetBeans 默认一个tab键占8个空格,而eclipse则是4个,
-修改 Tools->options->Formating ,Language确认为Java,取消复选 Use All Languages Settings (也取消Expand Tabs to Space)设置Tab Size为4
+NetBeans 默认一个tab键生成4个空格代替一个tab,而eclipse则是1个tab占4个空格的长度,
+修改 Tools->options->Formating ,Language确认为Java(最好选择为 All Language ,取消复选 Use All Languages Settings) 取消Expand Tabs to Space ,Tab Size修改为4, number of space per是4
+
+
 windows下的notepad和linux的vi一个tab是8个,但notpead++是4个
 
  ,Navigate菜单-> go to Line (ctrl+G )   同eclipse ctrl+L
@@ -215,7 +217,62 @@ Netbeans默认使用UTF-8来打开文件,如是GBK要修改C++项目目录\nbpro
 
 官方文档是 MSYS2 & MinGW-w64 
 
-MSYS2 是 起源于 cygwin
+MSYS2 是 起源于 cygwin,
+Git 使用MSYS2
+Git GUI ->option->Default file contnes Encodeing:修改为UTF-8/GBK
+
+-----Source Tree-2.4.8.0 是Git 客户端工具 免费
+GitLab 服务端
+
+SourceTree 安装之后需要使用账号登陆以授权，以前是可以不登陆的
+安装之后，转到用户本地文件夹下的 SourceTree 目录，没有则新建
+
+%LocalAppData%\Atlassian\SourceTree\
+
+新建 accounts.json 文件
+
+%LocalAppData%\Atlassian\SourceTree\accounts.json
+
+输入以下内容保存即可
+复制代码
+
+[
+  {
+    "$id": "1",
+    "$type": "SourceTree.Api.Host.Identity.Model.IdentityAccount, SourceTree.Api.Host.Identity",
+    "Authenticate": true,
+    "HostInstance": {
+      "$id": "2",
+      "$type": "SourceTree.Host.Atlassianaccount.AtlassianAccountInstance, SourceTree.Host.AtlassianAccount",
+      "Host": {
+        "$id": "3",
+        "$type": "SourceTree.Host.Atlassianaccount.AtlassianAccountHost, SourceTree.Host.AtlassianAccount",
+        "Id": "atlassian account"
+      },
+      "BaseUrl": "https://id.atlassian.com/"
+    },
+    "Credentials": {
+      "$id": "4",
+      "$type": "SourceTree.Model.BasicAuthCredentials, SourceTree.Api.Account",
+      "Username": "",
+      "Email": null
+    },
+    "IsDefault": false
+  }
+]
+
+会找PATH中的git，修改要重启source tree
+
+这个两种方式不行的
+C:\Program Files\TortoiseGit\bin
+C:\Users\zhaojin\AppData\Local\Programs\Git\mingw64\bin\  安装不能是git bash方式
+
+工具-> 选项->一般->SSH 客户端->可选 openSSH
+
+不行就用内嵌的git
+
+----
+
 直接下载.exe,安装后有一个基本的系统
  
 运行 msys2_shell.cmd 
@@ -403,7 +460,7 @@ where c.table_name=t.table_name;
 	
 	
 	
-=============  SqlDbx Personal 免费  Professional 收费 使用ODBC all DB   ============= 
+=============  SqlDbx Personal-4.17 免费  Professional 收费 使用ODBC all DB 
 
 因为sqldbx是32位的(任务管理器中可看进程名)要使用32位的 ODBC  
 
@@ -411,12 +468,11 @@ where c.table_name=t.table_name;
 	安装db2 express 10.5客户端,连接OK,可输入schema 与用户名相同
 
 ------MySQL
+最好是安装版本,因为PowerDesigner也可以用 
+Tools->Options->Servers->MySQL  在 "Driver Load Order" 默认设置就是
+MySQL ODBC;myodbc5.dll;myodbc5a.dll;myodbc5w.dll
+设置PATH=C:\Program Files (x86)\MySQL\Connector ODBC 5.3  目录下就有myodbc5a.dll 和 myodbc5w.dll
 
-把 32位ODBC  libmysql.dll 文件复制到 sqldbx.exe 所在目录
-
-
-Tools->Options->Servers->MySQL  在 "Driver Load Order" 中增加 libmysql.dll
- 
 
 ------Oracle
 要32位的 oci.dll  ， 会自动从PATH中找
@@ -579,7 +635,7 @@ delete,update where时没有主键,报错,preferences...->SQL Editor->取消复�
 Mysql官方的开发工具安装在/usr/bin/mysql-query-browser
 
 database->manage connections...
-database->Reverse engineer ...->有向导会把数据库表转换成ER图
+database->Reverse engineer ...->有向导会把数据库表转换成ER图,可以选择shema即哪个数据库,速度比PowerDesigner快,可以在右上角搜索表名
 edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好用
 
 表格右侧有 Form Editor  
@@ -593,7 +649,9 @@ edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好�
 
 数据表格的上方工具栏有一个 switch to card view 
 =============Mongodb工具    Toad Extension for Eclipse  好用,带语法提示的
- 
+
+=============Mongodb工具    Robo Studio 3T for Mongodb
+
 
 ------------Tortoise SVN工具
 
@@ -606,6 +664,13 @@ edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好�
 	再选择另外一个版本（单击右键—选择show difference as unified diff），然后就会生成一个两个版本的不同之处的文本,是在一个窗口中显示所有的
 
    清保存密码 ,右键->TortoiseSVN->Settings->Saved Data-> Authenticatoin data后点Clear all 
+------------Tortoise Git
+2.6版本
+
+合并时如有冲突可以修改代码，保存为解决冲突 -> commit & push 
+
+
+
 ------------TortoisHg 是 Mercurial(分布式版本控制)工具
 
 OpenJDK source下载用的
@@ -639,16 +704,22 @@ IE ->　工具－＞选项－＞连接->局域网设置->高级->设置 ->看HTT
 
 
 -------------Fiddler 代理工具
-4.6 可对edge有效
+4.6 可对edge有效 目前最新是5.0
+win10中修改了 设置->网络和Internet->代理->打开了 使用代理服务器  在地址中写了 http=127.0.0.1:8888;https=127.0.0.1:8888
+
 对IE 11 有效,也可在工具栏上修改为Firefox
 
 CA＝Certifcation Authority
 
+Tools >   Options > Appearance-> Font size 到 12
+
 状态栏当有黄色条时表示当前没有capture,点击后变为红色capuing,在浏览器访问URL,就会被记录
 
 --打开https
-Tools > Fiddler Options > HTTPS ->复选Decrypt HTTPS Traffic  -> Yes 安装证书
-	也可点 Export Root Certifcation to Desktop ,在桌面上,双击导入.cer文件导入到浏览器
+Tools >   Options > HTTPS ->复选Decrypt HTTPS Traffic  ->
+	 也可点 Export Root Certifcation to Desktop ,在桌面上,双击导入.cer文件导入到浏览器
+Tools >   Options  > HTTPS -> 默认Captrue HTTPS Connects是选中的，Actions 按钮-> Trust Root certificate
+Tools >   Options  > HTTPS -> 默认Captrue HTTPS Connects是选中的，Actions 按钮-> open windows certification manager 
 
 Inspector视图中上方区是请求区,下方区是响应区
 
@@ -661,7 +732,9 @@ Rules-> Automatic Breakpoint  ->Before Requests(这种方法会中断所有的�
 ---修改响应
 选中capture中要修改的文件,在AutoResponder标签中,addRule按钮,复选Enable Automatic reponse,复选Unmacthced request passthrough
 最下方区下拉选择find a file ...->选择替换响应的文件->save,再次请求并capture
-
+--- 手机
+Tools >   Options  > Connections -> 打开 Allow remote computers to connect
+Tools >   Options  > HTTPS -> 复选Decrypt HTTPS Traffic  复选Ignore server certifcate errors(unsafe)
 
 ------------ Hemes JMS
 启动后会在C:\下生成一个 C:\Users\zhaojin\.hermes 目录 所有的配置存在那里
@@ -765,11 +838,9 @@ Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到�
 	字体变大 , 点图标 -> Text Size-> increse text Size
 	
 ---------zabbix 性能监视工具
+ 
 
-Hudson是Jenkins的前身   都是持续集成(CI)
-
-
----------Jenkins   2.74 .war 基于hudson
+---------Jenkins   2.74 .war 基于hudson  都是持续集成(CI)
 支持 Docker
 	
 初次进入页面要复制~/.jenkins/secrets/initialAdminPassword中的密码
@@ -780,11 +851,28 @@ Maven项目
 自动构建 Build Triggers 
 	可选择Build after other projects are built,输入项目名字时会提示的
 	Build periodically 可定时构建,写法同linux cron
-	Add post-build step 中 可以增加 execute shell
+	Add post-build step 中 可以增加 execute shell ，要用 bash /xxx.sh 否则服务进程会阻塞
+				文件复制到远程用Send files or execute command over ssh,单选Run only if build succeeds 
 	Build 组 Goals and options 写 clean install -Dmaven.test.skip=true
 	
 
 	Deploy to container 插件可以部署到tomcat,  在Maven项目最后的 Post-build Actions 有deploy war/ear to container,target/xx.war测试使用没有效果
 	Capitomcat Plugin   插件可署到多台远程tomcat上
 	
+----------ansible  让我们自动化部署APP
+----------sonar
 --------- FIT2CLOUD devops  运维打包部署工具，可一次部署多台服务器  国产，收费
+
+
+--------- starUML
+Model->Add Diagram->Sequence Diagram
+ 
+
+
+
+
+
+
+
+
+

@@ -54,6 +54,7 @@ jdk-8u121-docs-all\docs\technotes\guides\vm\gctuning\index.html
 
 静态内存和动态内存
 编译时就能够确定的内存就是静态内存,如int类型
+Object的finalize方法只会被调用一次,这一次有可能会复活对象
 
 ----每个线程有自己的
 pc Register  线程轮流切换,保证线程切换回来后，还能恢复到原先状态(每条线程都有一个独立的程序计数器)
@@ -340,7 +341,7 @@ set JAVA_OPTS=-Xss256K -Xms256m -Xmx1024m   -XX:NewSize=128m -XX:MaxNewSize=256m
 -XX:-UseSerialGC		使用串行垃圾收集器
 -XX:+UseConcMarkSweepGC 老生代采用CMS收集器
 
--XX:+UseSpinning    多线程安全Lock,较短的时间内又必须重新调度回原线程的,线程进入OS互斥前，自旋一定的次数来检测锁的释放
+-XX:+UseSpinning (新版本去除了)  多线程安全Lock,较短的时间内又必须重新调度回原线程的,线程进入OS互斥前，自旋一定的次数来检测锁的释放
 -XX:PreBlockSpin=10
  
 -XX:+UseThreadPriorities	使用本地线程的优先级
@@ -358,6 +359,15 @@ Minor GC主要负责收集Young Generation
 Minor GC会把Eden中的所有活的对象都移到Survivor区域中，如果Survivor区中放不下，那么剩下的活的对象就被移到Old generation 中。
 
 Full GC （或Major GC）对所有内存都做GC
+
+jdk 10 对docker容器运行java 的改善, -XX:-UseContainerSupport 
+ -XX:ActiveProcessorCount=count  使用CUP数
+ jdk 10 的 并行 Full GC (G1) 
+ 
+ 
+得到锁的顺序,偏向锁->轻量级锁->自旋锁->OS 互斥锁
+
+-XX:+DoEscapeAnalysis  默认开启 only hotspot JVM
 
 --------性能监视工具
 
@@ -543,7 +553,7 @@ jdbc:oracle:thin:@//127.0.0.1:1521/orcl   对  service Name
 <dependency>
 	<groupId>mysql</groupId>
 	<artifactId>mysql-connector-java</artifactId> 
-	<version>5.1.44</version>
+	<version>5.1.45</version>
 </dependency>
 com.mysql.jdbc.jdbc2.optional.MysqlXADataSource  
 com.mysql.jdbc.Driver
@@ -552,7 +562,7 @@ jdbc:mysql:///mydb?useUnicode=true&amp;characterEncoding=UTF-8    xml文件中�
 jdbc:mysql://address=(protocol=tcp)(host=localhost)(port=3306)/mydb?useUnicode=true&amp;characterEncoding=UTF-8
 &zeroDateTimeBehavior=convertToNull 对于日期类型,如果从文件导入没有值会被认为0000-00-00,
 emptyStringsConvertToZero 默认是true
-
+useSSL=true
 
 connectTimeout  milliseconds
 
@@ -1015,6 +1025,8 @@ class MyRecursiveTask extends RecursiveTask<Integer> {  //变RecursiveTask
  }
 }
 --------------------------JDK9新特性
+--module-path 如放JDK,为了兼容老版本的jar放 --class-path中(eclipse)
+
 FileInputStream resource1 = new FileInputStream("c:/tmp/input.txt"); 
 FileInputStream resource2 = new FileInputStream("c:/tmp/input2.txt"); 
 //JDK 8
@@ -1040,15 +1052,74 @@ FileInputStream resource2 = new FileInputStream("c:/tmp/input2.txt");
 		}
 
  
-//		JDK9 中 
-//		包javax.annotation  在 java.xml.ws.annotation 模块下
+//		JDK9 中  
 //		包javax.jws 		          在 java.xml.ws 模块 下
+//		包javax.annotation 		      在java.xml.ws.annotation 模块 下 JDK 10 中 
 //		module J_JavaSE
 //		 {
-//			 requires java.xml.ws;
-//			 requires java.xml.ws.annotation;
+//			 requires java.xml.ws; 
+//			requires java.xml.ws.annotation; //JDK 10 中 
 //		 }
 
+import java.util.concurrent.SubmissionPublisher;
+try (SubmissionPublisher<Long> pub = new SubmissionPublisher<>()) { 
+	System.out.println("Subscriber Buffer Size: " + pub.getMaxBufferCapacity()); 
+	subTask = pub.consume(System.out::println); 
+	LongStream.range(1L, 6L).forEach(pub::submit);
+}
+
+
+
+import java.util.concurrent.Flow;
+public class SimpleSubscriber implements Flow.Subscriber<Long> {    
+    private Flow.Subscription subscription; 
+    private String name = "Unknown"; 
+    private final long maxCount; 
+    private long counter;
+    public SimpleSubscriber(String name, long maxCount) {
+        this.name = name;
+        this.maxCount = maxCount <= 0 ? 1 : maxCount;
+    }
+    public String getName() {
+        return name;
+    }
+    @Override
+    public void onSubscribe(Flow.Subscription subscription) {
+        this.subscription = subscription;
+        System.out.printf("%s subscribed with max count %d.%n", name, maxCount);      
+        subscription.request(maxCount);// 设置最大接收消息，防止接收端收到太多的消息压力大，处理完成后可以再请求
+    }
+    @Override
+    public void onNext(Long item) {
+        counter++;
+        System.out.printf("%s received %d.%n", name, item);
+        if (counter >= maxCount) {//也可以不判断 因 subscription.request(maxCount); 已经设置最大接收消息
+            System.out.printf("Cancelling %s. Processed item count: %d.%n", name, counter);            
+            // Cancel the subscription
+            subscription.cancel();//取消接收消息,也可以再请求
+            
+//            counter=0;
+//            subscription.request(maxCount);
+        }
+    }
+    @Override
+    public void onError(Throwable t) {
+        System.out.printf("An error occurred in %s: %s.%n", name, t.getMessage());
+    }
+    @Override
+    public void onComplete() {
+        System.out.printf("%s is complete.%n", name);
+    }
+}
+
+
+  SubmissionPublisher<Long> pub = new SubmissionPublisher<>();
+  SimpleSubscriber sub1 = new SimpleSubscriber("S1", 2);
+   pub.subscribe(sub1);//会调用 Subscriber的onSubcribe方法
+//后面订阅的，收不到前面的消息
+ pub.submit(i);//会调用 Subscriber的onNext方法
+ pub.close();//会调用 Subscriber的onComplete方法
+  
 
 
 //---------JDBC 
@@ -2466,10 +2537,45 @@ de_cipher.init( Cipher.DECRYPT_MODE, key ); //解密
 byte[] de_byte=de_cipher.doFinal(en_byte);
 System.out.println("解码后:"+new String(de_byte));
 
+---------------------AES 加密，解密  DES的取代者
+ public static byte[] aesEncryptToBytes(String content, String encryptKey) throws Exception {  
+	KeyGenerator kgen = KeyGenerator.getInstance("AES");  
+	kgen.init(128, new SecureRandom(encryptKey.getBytes()));  
+
+	Cipher cipher = Cipher.getInstance("AES");  
+	cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(kgen.generateKey().getEncoded(), "AES"));  
+	  
+	return cipher.doFinal(content.getBytes("UTF-8"));  
+}  
+public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey) throws Exception {  
+	KeyGenerator kgen = KeyGenerator.getInstance("AES");  
+	kgen.init(128, new SecureRandom(decryptKey.getBytes()));  
+	  
+	Cipher cipher = Cipher.getInstance("AES");  
+	cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(kgen.generateKey().getEncoded(), "AES"));  
+	byte[] decryptBytes = cipher.doFinal(encryptBytes);  
+	  
+	return new String(decryptBytes,"UTF-8");  
+}  
+String content = "我爱你";  
+System.out.println("加密前：" + content);  
+String key = "123456";  
+System.out.println("加密密钥和解密密钥：" + key);  
+
+Base64.Encoder base64Encoder=Base64.getEncoder();
+byte[] encoded=base64Encoder.encode(aesEncryptToBytes(content, key));
+System.out.println("加密后："+new String(encoded));
+
+Base64.Decoder base64Decoder=Base64.getDecoder();
+byte[] decoded=base64Decoder.decode(encoded);
+System.out.println("解密后：" + aesDecryptByBytes(decoded, key));
+
+
 -------------MD5
 
 MessageDigest md5 = MessageDigest.getInstance("MD5");// 确定计算方法
-BASE64Encoder base64en = new BASE64Encoder();//Base64 编码,
+
+BASE64Encoder base64en = new BASE64Encoder();//Base64 编码  Sun过时了,
 newstr = base64en.encode(md5.digest(str.getBytes("utf-8")));// newstr加密后的字符串,str是要加密的
 -------------MD5 加密文件
  
@@ -2992,7 +3098,8 @@ String data1=exchanger.exchange(data2);//第二个线程
 
 ExecutorService x=	Executors.newFixedThreadPool(int) 
 	Executors.newSingleThreadExecutor()//只是一个线程,好处是一个线程使用完成后,会自动建立,还可再继续使用
-ScheduledExecutorService  x=Executors.newScheduledThreadPool();//定时
+ScheduledExecutorService ScheduledExecutor=Executors.newScheduledThreadPool();//定时
+ScheduledExecutor.schedule(callable,5,TimeUnit.SECONDS); //5 秒后启动线程
 	Executors.defaultThreadFactory()// same ThreadGroup and with the same NORM_PRIORITY priority and non-daemon status
 	
  
@@ -3352,7 +3459,7 @@ class FileVisitorTest extends SimpleFileVisitor<Path>  //FileVisitor
 		 return FileVisitResult.CONTINUE; 
 	}
 }
------异步NIO 文件 
+-----异步NIO , AIO文件 
  AsynchronousFileChannel afc = AsynchronousFileChannel.open(Paths.get(""));
  ByteBuffer byteBuffer = ByteBuffer.allocate(16 * 1024);  
  afc.read(byteBuffer, 0, null, new CompletionHandler<Integer, Object>() {  
@@ -3704,19 +3811,6 @@ class MyContenttHandler extends DefaultHandler
 {
 	//覆盖startDocument(),endDocument(),startElement(),endElement()
 }
----------XML SAX2  读
-InputStream input=SAX.class.getResourceAsStream("/xml/dom/rule.xml");
-InputSource source=new InputSource(input);
-XMLReader xmlReader=XMLReaderFactory.createXMLReader();//javax.xml包
-xmlReader.setFeature("http://xml.org/sax/features/validation", true);//打开DTD验证
-xmlReader.setContentHandler(new MyContenttHandler());
-xmlReader.setErrorHandler(new MyErrorHandler());
-xmlReader.parse(source);
-//input.close();//会自动close InputStream
-class MyErrorHandler extends DefaultHandler 
-{
-	//覆盖 error(),fatalError(),warning()
-}
 
 ---------XML StAX  解析 (Streaming API for XML) JDK1.6新
 
@@ -3995,9 +4089,10 @@ class B extends A<String> {
 Method[] method=B.class.getMethods();
 System.out.println(method[0].isBridge());//B继承abstract A,A有模板,B使用了A的模板,B生成的字节码多了brige方法,目的是为了可以覆盖A中的方法
 
-UUID.fromString("currentMillSec");
-String uuid=UUID.randomUUID().toString() ;
-System.out.println(uuid); //算'-'共37位,不算'-'共32位
+
+UUID.fromString("c67f50c2-ac25-483b-a008-f982e3354a66");
+String uuid=UUID.randomUUID().toString() ;//不能用于数据主键,只能重复
+System.out.println(uuid); //算'-'共34位,不算'-'共31位
 -----------Bean Validation
 public class Order 
 {
@@ -4277,6 +4372,7 @@ var Thread = Java.type("java.lang.Thread");
 var th = new Thread(new MyRun());
 
 
+//java.util
 Base64.Encoder base64Encoder=Base64.getEncoder();
 byte[] encoded=base64Encoder.encode("这是一个中文".getBytes("UTF-8"));
 System.out.println(new String(encoded));

@@ -1,4 +1,5 @@
 =================================PowerDisgner 16.5
+除了数据相关的,可以画BPM图,也可以画UML图
 
 
 ER 图  Entity Relationship
@@ -63,8 +64,18 @@ permission可以访问的表，select insert update ...
 
 
 
-在物理模型下database ->connect可连接数据库(ODBC),database ->reverse engineeer database,可以数据库中的表转换成关系图 
-(PL/SQL Developer 的Diagram 视图也可以)
+在物理模型下database ->connect可连接数据库(ODBC),要下载安装MySQL 32位数据源安装版本
+(因powerDesinger是32位的,如数据库是64位的ODBC中看不到MySQL,那64位的ODBC也要安装)
+file ->reverse engineeer -> database...选择MySQL->确定->配置 数据库(ODBC)确定->下拉选择某个schema,可以数据库中的表转换成关系图
+
+如MySQL5.7 root用户很慢,生成很多不是表的东西,有些权限也当作表了(PowerDisgner-16.5)???还是用MySQL WorkBench吧
+
+
+
+PL/SQL Developer 的Diagram 视图也可以,但要手拖动表,只支持oracle
+MySQL WorkBench也可 database->Reverse engineer ...->有向导会把数据库表转换成ER图,可以选择shema即哪个数据库,只支持MySQL,速度比PowerDesigner快,可以在右上角搜索表名
+
+
 
 也可JDBC连接 数据库database ->configure data connections->connection profiles标签->点add datasource 按钮->
 

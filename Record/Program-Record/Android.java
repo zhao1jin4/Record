@@ -16,16 +16,16 @@ Dalvik VM是Android平台的核心组成部分之一，它的名字来源于冰�
 
 
 
-windows/mac 下载多选  Intel x86 Emulator Accelerator(HAXM installer)( linux不用的)) 
+windows/mac 下载多选  
+1. Intel x86 Emulator Accelerator(HAXM installer)( linux不用的)) 
 		HAXM=Hardware Accelerated Execution Manager
 		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat  (也可intelhaxm-android.exe)
 	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x 
+2. Android support Library
+3. Google Repository
+4. ConstraintLayout for Android
+5. Solver for ConstraintLayout
 	
-	下载多选 Android support Library,Google Repository
-	
-	
-Android SDK Manager -> Settings ->HTTP Proxy Server 输入  mirrors.neusoft.edu.cn (yourid.repository.bugly.qq.com),在HTTP Proxy Port 80 
-并且选中 Force  复选框->Close , Packages->Reload 
 
 http://www.androiddevtools.cn/ 有 可配置在SDK Manager 中镜像
 
@@ -42,12 +42,14 @@ https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project
  
 ---------------上  Android 更新版本 下载
  
- ADT-23.0.7_为SDK Tools r24.1.2设计的_最后google官方版本2015-08 
------ Android Studio
-  在 ~/.AndroidStudio2.3/ 
+Android SDK Manager -> Settings ->HTTP Proxy Server 输入  mirrors.neusoft.edu.cn (yourid.repository.bugly.qq.com),在HTTP Proxy Port 80 
+并且选中 Force  复选框->Close , Packages->Reload 
 
+
+----- Android Studio
+ 在 ~/.AndroidStudio3.0
  默认安装目录 C:\Users\zhaojin\AppData\Local\Android\sdk 
-  默认工作区  C:\Users\zhaojin\AndroidStudioProjects
+ 默认工作区  C:\Users\zhaojin\AndroidStudioProjects
  如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
  
 基于IntelliJ IDEA ,使用openJDK8 ,Gradle构建
@@ -118,12 +120,12 @@ GPU Debugging tools
 ----- 
  android-sdk-windows\tools\monitor.bat 会启动界面 ,即老的ADT插件里的DDMS,有File Explorer
  
-tools\android.bat update sdk --no-ui  新版本会调用 tools\bin\sdkmanager  --update  没有界面，使用Android Studio
+tools\android.bat update sdk --no-ui  新版本会调用 tools\bin\sdkmanager  --update  没有界面
 新版本建议使用sdkmanager.bat avdmanager.bat 命令
 
 sdkmanager.bat   --list  显示同界面所有sdk列表
 
-老版本的 tools_r25.2.3-windows\android.bat  还是有界面的
+老版本的 tools_r25.2.3-windows\android.bat  还是有界面的,安装更新到8.1 版本后就不行了 
  
 tools\bin\sdkmanager --update --proxy=http  --proxy_host=mirrors.neusoft.edu.cn  --proxy_port=80 --no_https   还是找不到.xml文件
 Android Studio 配置成这个 http://mirrors.neusoft.edu.cn/android/repository/repository-12.xml
@@ -171,23 +173,23 @@ run configuration...新建一个Android,来运行
 
 
 -------android命令
-列出模拟器类型:	 android list targets 老命令
-使用 			avdmanager.bat list target 看到SDK 版本
+列出模拟器类型:	( android list targets 老命令)
+使用 			avdmanager list target 看到SDK 版本
 
-创建模拟器:	 android create avd --target 1 --name myAVD   --skin QVGA
-			>Do you wish to create a custom hardware profile [no]
-			android list targets的结果id: 1 or "android-17"
-	会生成C:\Documents and Settings\Administrator\.android\avd\myAVD.avd目录 和 myAVD.ini文件
-		  C:\Users\Administrator\.android\avd
+创建模拟器:( android create avd --target 1 --name myAVD   --skin QVGA 老命令 QVGA 是在android-sdk-windows\platforms\android-15\skins目录下放外观的主题)
+	avdmanager create avd  --name myAVD -k system-images;android-27;google_apis;x86
+			Do you wish to create a custom hardware profile? [no]
+	
+	会生成~\.android\avd\myAVD.avd目录 和 myAVD.ini文件
 	也可以在eclipse中 SDK and AVD Manager来创建
-	QVGA 是在android-sdk-windows\platforms\android-15\skins目录下放外观的主题
+	
 
-列出自己创建的模拟器：android list avd  
-删除模拟器 android  delete avd --name myAVD 
+列出自己创建的模拟器：(android list avd  老命令) avdmanager list avd
+删除模拟器 (android  delete avd --name myAVD 老命令) avdmanager delete avd  --name myAVD
 
 
 -------emulator命令
-指定用什么模拟器启动：emulator -debug avd_config -avd myAVD
+指定用什么模拟器启动 emulator -debug avd_config -avd myAVD
 							-partition-size 256  system/data分区大为256M
 
 mksdcard 64M c:\temp\my.img    制作SD卡

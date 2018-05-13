@@ -251,8 +251,8 @@ eclipse 主题修改为黑色General->Apprance-> Theme 选Dark ,代码字体 有
 ------Rational Software Architect Designer V9.6 是 eclipse-4.6.1
 可下载for websphere的包
 
-带  CDT,BPMN2,UML2.2,Data Design(像power designer),Data Tools Platorm,Git
-无  SVN,SpringToolSuite,Mylyn,PropEdit(links),Maven
+带  CDT,BPMN2,UML2.2,Data Design(像power designer),Data Tools Platorm
+无  SVN,SpringToolSuite,Mylyn,Maven,PropEdit(links,dropsin安装要用jp.gr.java_conf.ussiy.app.propedit_6.0.3.zip如6.0.5就总提示日文 )
 
 安装目录在 C:\Program Files\IBM\SDP  (Software Delivery Platform)
 修改界面语言 eclipse.ini 文件中尾添加参数： -Duser.language=en
@@ -361,7 +361,7 @@ linux eclipse不变色解决方案  window ->preference->c/C++->indexer->选中i
 =======================================eclipse-4.4.2(Luna) 插件  WTP-3.6.3
 下载界面选择  Other Platforms   http://download.eclipse.org/eclipse/downloads/  下载文件中有SDK
 
-eclipse-4.4.2(Luna) 自带Git,Maven(m2e),Mylyn,使用WTP-3.6.3的 XML Eitors,  
+eclipse-4.4.2(Luna) Maven(m2e),Mylyn,使用WTP-3.6.3的 XML Eitors,  
 但SDK文件名的版本中都没有,只有CVS,Plugin,Java
 
 Eclipse SDK v4.4.2 
@@ -469,12 +469,31 @@ target
  比较选择两个branch版本,要选择目录不同名,右击->创建单一差异文件
  
  合并分支,下载分支,(把所有的修改提交,更新)右击项目->team->合并(把其它分支合并到本地,先不提交上去)->默认是 Merge a range of revisions ->select...按钮选择要合并到这个版本的版本
+----Git 插件 4.9.2
+eclipse自带Git 插件
+
+右击项目->team->reset ->单选Hard (相当于SVN的revert)
+右击项目->team->sychronized workspace ->右击冲突的文件->overwrite 提示覆盖本地的修改 ,还原后,文件还显示?? 并未消失
+右击项目->team->sychronized workspace ->右击冲突的文件-> remove from view 
+
+如目录有文件服务端删除本地不会删，Egit显示不出，也无法还原，用git status(提示用 git checkout file.txt) 或者 TortoiseGit 的revert
+
+
+
+
+只commit后，再push
+右击项目->team->Advanced->sychronized->正确的branch(每个文件名后有提示当前在哪个branch)->不能再 commit and push ???(找不出哪些要push)
+TortoiseGit->Git Sync ...也找不出哪些要push???
+git status 也找不出哪些要push???
+
+
+
 
 ----eclipse-4.4.2  Mylyn-3.14 插件
 	help->install 安装时 (  取消 SDK and frameworks 组 )
 			Integeration组选 加 Mylyn Context Connector:Team Support(Git依赖) , Connector: Java (Spring依赖)
 
-----eclipse-4.4.2 Git-3.7 插件  依赖于 mylyn
+
 ----eclipse Grale插件  buildship 使用marketplace 下载
 
 
@@ -619,8 +638,10 @@ shift+enter 自动换行缩进
 ----问题
 eclipse-4.6.2版本,为class指定源码,如以目录方式的源码无效果???  IntelliJ可以的
 
-
-====================IntelliJ IDEA  Community 2017.1.4 要JDK1.8 才能启动64位版本
+---windows 下 oxgen 版本和前面的版本 总报错Unhandled event loop exception No more handles
+安装eclipse windows builder,也没用????
+配置开机不启动 Catalyst Control Center ,也没用????
+====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
 
 File->project stucture ->project -> 配置JDK
 
@@ -636,7 +657,8 @@ File->project stucture ->project -> 配置JDK
 	Maven project 视图 中选择项目 Plugins->install 或者展开jetty->jetty:run 同eclipse右击.pom文件的选择
 	 eclipse是ctrl+点击<dependency>高亮整个进入pom,而intellij 点单独要<artifactId>中的值才能进入pom
 
-	打开pom.xml 右击-> Diagrams--Show Dependencies  可以信赖的图形
+	打开pom.xml 右击-> Diagrams--Show Dependencies  可以信赖的图形 (也可Maven Projects视图) 
+	ctrl+左键拖动，移动位置,ctrl+中键滚动，放大缩小，ctrl+f找包名
  
 --SVN 
 	File -> Setting -> Version Control -> Subversion 配置 svn 命令所在路径
@@ -658,8 +680,17 @@ File->project stucture ->project -> 配置JDK
 
 	合并SVN  右击项目 -> subversion->Integerate directory ....  ,有时又不支持中文SVN路径？？？
 	SVN分支  右击项目 -> subversion->Branch or Tag  ....  不支持中文SVN路径？？？
+---Git
+	右击文件->Git->Repository->Pull...
+	
+	右击根目录->Git->Repository->merge change ->选择 remote/origin/对应的分支 , 再刷新项目  右击根目录->sychronize xx 
+	
+	当有冲突时 	右击根目录->Git->Resolve Confilcts...->
+	
+	File->Settings->Version Control ->可以配置Git 的 root目录
+	
+	 
 ---
-
 像word 同时只能打开一个项目
 File->project stucture ->选择Modules标签 可以Import或者Add 多个,默认目录是在本项目的子目录 (有 Search for projects recursively)，可以修改为同级,多个web项目可独立运行
 或者File ->new ->new Module...
@@ -716,14 +747,14 @@ Code -> reformat code 格式化代码
 Code -> Generate...生成getter,setter  ( alter+insert  )
 code -> completation -> basic   ( ctrl+ 空格  要修改 Setting->Keymap->Main menu中修改也可搜索 )代码提示 
 code -> completation -> smart type   (   ctrl+shift+空格 代码提示  )
-view -> parameter info      		 ( ctrl+p 参数提示  )
+view -> parameter info      		 ( 放在方法()中按  ctrl+p 参数提示  )
 view -> Tool Buttons
 code -> optimize import (ctrl+alt+o) 
 	如有import xx.*; 会去无用的import ,并不会自动替换,这点不如eclipse好用
 	也不能像eclipse那样，自动批量导入
 标放在没有导入的类上, 按 alter + enter (同eclipse的ctrl+1) 提示import
- 
 
+ 
 File->Settings->Key Map 可以选择与eclipse一样的快捷键
 
 Edit -> find in path  ( ctrl+shift+f ) 按文件内容查,要点右则Recursivly按钮
@@ -760,6 +791,12 @@ Perferences...  ->  Editor  ->General->  Editor Tabs 调整 Tab Closing Policy �
 	-Xmx750m
 	-XX:MaxMetaspaceSize=200m
 	-XX:ReservedCodeCacheSize=240m
+
+默认情况下不能调试(debug)多线程，如要调试多线程，在每个线程代码中打断点，右击断点->单选Thread(默认All), set Default 
+
+
+
+
 
 ---------
 

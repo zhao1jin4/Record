@@ -1,15 +1,22 @@
 下载   http://repo.spring.io/libs-release/
 
 <properties>
-	<spring.version>5.0.2.RELEASE</spring.version>
-	<spring-security.version>5.0.0.RELEASE</spring-security.version>
+	<spring.version>5.0.3.RELEASE</spring.version>
+	<spring-security.version>5.0.3.RELEASE</spring-security.version>
 </properties>
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>1.5.2.RELEASE</version>
+    <version>2.0.0.RELEASE</version>
 </parent>
 <dependencies>
+
+	<dependency>
+		<groupId>org.aspectj</groupId>
+		<artifactId>aspectjweaver</artifactId>
+		<version>1.7.4</version>
+	</dependency>
+		
 	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-aspects</artifactId>
@@ -70,10 +77,12 @@
 		<artifactId>spring-webmvc</artifactId>
 		<version>${spring.version}</version>
 	</dependency>
+	
+	
 	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-webmvc-portlet</artifactId>
-		<version>${spring.version}</version>
+		<version>4.3.9.RELEASE</version> <!-- 只有 4.3.9.RELEASE   -->
 	</dependency>
 	
 	<!-- security -->
@@ -111,10 +120,11 @@
 		<artifactId>spring-data-mongodb</artifactId>
 		<version>1.7.0.RELEASE</version>
 	</dependency>
+	
 	<dependency>
 		<groupId>org.springframework.data</groupId>
 		<artifactId>spring-data-redis</artifactId>
-		<version>1.8.3.RELEASE</version>
+		<version>2.0.5.RELEASE</version>
 	</dependency>
 	
 	
@@ -161,7 +171,7 @@
 	<dependency>
         <groupId>org.springframework.kafka</groupId>
         <artifactId>spring-kafka</artifactId>
-        <version>1.1.2.RELEASE</version>
+        <version>2.1.5.RELEASE</version>
     </dependency>
 	
 </dependencies>
@@ -466,6 +476,70 @@ public class MyIntercepter
 		-->
 	</aop:aspect>
 </aop:config>
+
+
+对自定义的@做拦截
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+public @interface Caches {
+	String prefixKey() default ""; //缓存key前缀
+}
+
+@Aspect
+public class AnnoAspect 
+{	
+	@Pointcut("@annotation(spring_aop_aspectj_anno.Caches)")  
+    public void setCached(){}
+	
+	@Around("setCached()")//OK
+	//@Around("@annotation(spring_aop_aspectj_anno.Caches)")//OK
+	public Object aroundMethod(ProceedingJoinPoint point) 
+	{
+		MethodSignature signature = (MethodSignature) point.getSignature();
+		Method method = signature.getMethod();
+		Caches caches=method.getAnnotation(Caches.class);
+		Object result = null;  
+		if(StringUtils.isNotBlank(caches.prefixKey()))
+		 {
+			  System.out.println("config prefixKey="+caches.prefixKey());
+		 }
+		 try 
+		 {
+		 	System.out.println("before @Caches");
+			result = point.proceed();
+			System.out.println("after @Caches");
+		} catch (Throwable e) { 
+			e.printStackTrace();
+		}   
+        return result;  
+    }  
+}
+
+<aop:aspectj-autoproxy /> 
+<bean id="myInterceter" class="spring_aop_aspectj_anno.AnnoAspect"></bean> 
+<bean id="annoService" class="spring_aop_aspectj_anno.AnnoService"></bean> 
+	
+或者 
+
+@Configuration
+@EnableAspectJAutoProxy
+class Config
+{
+	@Bean
+	public AnnoAspect newAspect()
+	{
+		return new AnnoAspect();
+	}
+	@Bean
+	public AnnoService newService()
+	{
+		return new AnnoService();
+	}
+}
+
+
 
 //对象复制
  private static ConcurrentHashMap<String,BeanCopier> cache=new ConcurrentHashMap<String, BeanCopier>();
@@ -1003,7 +1077,7 @@ MethodMapTransactionAttributeSource 可以对包.类.方法 应用事务属性
 <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
 	<property name="transactionManager" ref="transactionManager" />
 	<property name="propagationBehaviorName" value="PROPAGATION_REQUIRED"></property>
-	<property name="isolationLevelName" value="ISOLATION_SERIALIZABLE"></property>
+	<property name="isolationLevelName" value="ISOLATION_SERIALIZABLE"></property>  ISOLATION_DEFAULT
 </bean>
 
 TransactionTemplate(PlatformTransactionManager transactionManager)
@@ -1013,6 +1087,8 @@ transactionTemplate.execute(new TransactionCallback ()  //或者使用 Transacti
 									Object doInTransaction(TransactionStatus status)  
 									{
 										status.createSavePoint();//如有错误会回滚事务,最外execute要try catch
+										
+										status.setRollbackOnly();//就可以回滚事务
 									}  
 								});
 								
@@ -1071,7 +1147,7 @@ public class DefaultFooService implements FooService
 <tx:annotation-driven proxy-target-class="false"/>  proxy-target-class默认值false,JDK基于接口的代理 , 如true使用cglib代理
 
 
-//isolation默认依赖于数据, propagation默认是Propagation.REQUIRED.
+//isolation默认依赖于数据库, propagation默认是Propagation.REQUIRED.
 @Transactional(propagation = Propagation.REQUIRES_NEW ,isolation=Isolation.READ_COMMITTED,timeout=10,
 			rollbackFor=IOException.class,rollbackForClassName="FileNotFoundException",noRollbackFor=IOException.class)
 	 //timeout单位(秒)
@@ -1082,8 +1158,10 @@ unchecked(RuntimeException)异常默认会事务回滚
 @Transactional(rollbackFor=Exception.class) //要符加,才会回滚,也可加 noRollbackFor=RuntimeException.class
 
 @Transactional(propagation=Propagation.NOT_SUPPORTED)//不需要事务
-	 
- 
+
+
+对标有 	  @Transactional 的方法，调用这个方法所在类不能是本类调用，否而事务不起作用  
+
 -----
 import org.aspectj.lang.ProceedingJoinPoint; ProceedingJoinPoint exposes the proceed(..) method in order to support around advice in @AJ aspects 
 1. toShortString());Returns an abbreviated string representation of the join point. 
@@ -1436,6 +1514,11 @@ public EntityManager em; //JPA
 		<property name="checkoutTimeout" value="10000" />
 	</bean>
 
+	<dependency>
+		<groupId>com.mchange</groupId>
+		<artifactId>c3p0</artifactId>
+		 <version>0.9.5.2</version> 
+	</dependency> 
 	
 	ComboPooledDataSource dataSource= new  ComboPooledDataSource();
 	dataSource.setDriverClass("org.h2.Driver");
@@ -1553,7 +1636,21 @@ public class TestSpringJunit {
 		
 	}
 }
+ 
+<beans profile="dev">
+    <context:property-placeholder
+		location="classpath*:common/*.properties, classpath*:dev/*.properties" />
+	<import resource="classpath*:common/applicationContext-*.xml"/>
+	<import resource="classpath*:dev/applicationContext-*.xml"/>
+</beans>
 
+web.xml中
+  <context-param>
+    <param-name>spring.profiles.default</param-name>
+    <param-value>dev</param-value>
+  </context-param>
+
+  
 --web 不行的??
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -1567,6 +1664,35 @@ public class TestSpringJunitWithWeb
 }
  
 org.springframework.util.Assert.notNull(obj,"error,obj is null");
+
+=========================mockMVC 不行的??
+
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
+public MockMvc mockMvc;
+mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+	
+ResultActions resultActions = mockMvc.perform(
+				post("/employee/list/1.mvc")
+						.characterEncoding("UTF-8")
+						.contentType(MediaType.APPLICATION_JSON)
+						//.content(json)
+						)
+				.andExpect(status().isOk())
+				.andDo(print());
+
+MvcResult mvcResult = resultActions.andReturn();
+
+String result = mvcResult.getResponse().getContentAsString();
+
 
 =========================spring JNDI
 JMS见ActiveMQ
@@ -1836,6 +1962,56 @@ parser.parseExpression("random number is #{T(java.lang.Math).random()}", new Tem
  
 
 =========================Spring Cache
+java map
+
+<bean id="simpleCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+<property name="caches"> 
+  <set> 
+	<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+	  p:name="default" /> 
+	<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+	  p:name="accountCache" /> 
+  </set> 
+</property> 
+</bean> 
+
+<bean id="cacheManager" class="org.springframework.cache.support.CompositeCacheManager">
+<property name="cacheManagers">
+	<list>
+		<bean class="org.springframework.cache.support.NoOpCacheManager" />
+		<ref bean="simpleCacheManager" />
+	</list>
+</property>
+<property name="fallbackToNoOpCache" value="true" /> <!--  禁用缓存 @Cache* 无效  -->
+</bean>
+
+
+
+
+
+自定义 cache
+<bean id="cacheManager" class="spring_cache_map.MyCacheManager">
+    <property name="caches"> 
+      <set> 
+        <bean  class="spring_cache_map.MyCache"
+          p:name="accountCache" /> 
+      </set> 
+    </property> 
+  </bean> 
+  
+import org.springframework.cache.support.AbstractCacheManager; 
+public class MyCacheManager extends AbstractCacheManager
+{
+  @Override 
+  protected Collection<? extends MyCache> loadCaches() { 
+    return this.caches; 
+  } 
+}
+
+import org.springframework.cache.Cache;
+public class MyCache implements Cache 
+
+
 对方法如果每次的参数相同,缓存后,就不执行方法,直接返回缓存的结果
 public class ReadOnlyCache {
 	@Cacheable(value = "DEFAULT_CACHE" ,key="#param")//对应于ehcache.xm中的配置,#引用参数变量
@@ -1844,25 +2020,31 @@ public class ReadOnlyCache {
 		return "[" + param + "] processed : " + param;
 	}
 }
-<bean id="myCache" class="spring_cache.ReadOnlyCache"></bean>
-	
- 
-<bean id="cacheManagerFactory"  class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" 
-	p:configLocation="classpath:/spring_cache/ehcache.xml" /> 
-<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" 
-	p:cacheManager-ref="cacheManagerFactory" />
-	
-<!--  <cache:annotation-driven cache-manager="cacheManager" />   或用 @EnableCaching 和@Configuration放在一起-->
+<bean id="myCache" class="spring_cache_ehcache.ReadOnlyCache"></bean>
 
-<cache:advice id="cacheAdvice" cache-manager="cacheManager">
-	<cache:caching cache="DEFAULT_CACHE"> <!-- 对应于ehcache.xm中的配置 -->
-		<cache:cacheable method="cacheTest" key="#param"/>
-	</cache:caching>
-</cache:advice>
-<aop:config>
-	<aop:advisor advice-ref="cacheAdvice" pointcut="execution(* spring_cache.ReadOnlyCache.*(..))"/>
-</aop:config>
-	
+
+<bean id="cacheManagerFactory"  class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" 
+	p:configLocation="classpath:/spring_cache_ehcache/ehcache.xml" /> 
+<bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager" 
+	p:cacheManager-ref="cacheManagerFactory" /> 
+
+ <!-- @声明式    或用 @EnableCaching 和 @Configuration放在一起   -->
+ <cache:annotation-driven cache-manager="cacheManager" />
+
+
+<!-- xml声明式   DEFAULT_CACHE对应于ehcache.xm中的配置  	
+     <cache:advice id="cacheAdvice" cache-manager="cacheManager">
+		<cache:caching cache="DEFAULT_CACHE"> 
+			<cache:cacheable method="cacheTest" key="#param"/>
+		</cache:caching>
+	</cache:advice>
+	<aop:config>
+		<aop:advisor advice-ref="cacheAdvice" pointcut="execution(* spring_cache_ehcache.ReadOnlyCache.*(..))"/>
+	</aop:config>
+ -->	
+ 
+ 
+ 
 ehcache.xml
 <ehcache>
 	<diskStore path="java.io.tmpdir" />
@@ -1870,11 +2052,13 @@ ehcache.xml
 	<cache name="DEFAULT_CACHE" maxElementsInMemory="5000" eternal="false" timeToIdleSeconds="500" timeToLiveSeconds="500" overflowToDisk="true" />
 </ehcache> 
 
-<!-- ehcache配置  2-->
+<!-- ehcache配置  2-
+ehcache要指定名字cacheManagerName,否则可能mybatis使用ehcahce是默认名字,自己也是默认名字,高版本不可同名的存在两个 
+->
     <bean id="cacheManager2" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-		<property name="cacheManagerName" value="myCacheManagerName"></property> <!-- -->
+		<property name="cacheManagerName" value="myCacheManagerName"></property>  
         <property name="configLocation">
-            <value>classpath:/spring_cache/ehcache.xml</value>
+            <value>classpath:/spring_cache_ehcache/ehcache.xml</value>
         </property>
     </bean>
 	<bean id="ehcache2" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
@@ -1893,6 +2077,47 @@ Object obj=element.getObjectValue();
 String tmpDir=System.getProperty("java.io.tmpdir");//C:\Users\zhaojin\AppData\Local\Temp\
 //		 Set<String> allKeys = new HashSet<String>();
 //		 Map<Object, Element> localMap = ehCache.getAll(allKeys);
+
+ 
+--- 还有 caffeine 和 jcache (JSR 107 )
+
+---	redis 
+<dependency>
+	<groupId>org.springframework.data</groupId>
+	<artifactId>spring-data-redis</artifactId>
+	<version>2.0.5.RELEASE</version>
+</dependency>  <!-- 要spring 5.0-->
+
+import org.springframework.data.redis.cache.RedisCacheManager;
+
+
+@Bean
+public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+	return RedisCacheManager.create(connectionFactory);
+}
+
+@Bean
+public RedisConnectionFactory redisConnectionFactory( ) 
+{
+	RedisStandaloneConfiguration standConfig=new RedisStandaloneConfiguration();
+	standConfig.setHostName("120.55.90.245");
+	standConfig.setPort(6380);
+	standConfig.setPassword(RedisPassword.of("test2016"));
+	standConfig.setDatabase(0);
+	JedisConnectionFactory factory2=new JedisConnectionFactory(standConfig) ;
+	return factory2;
+}
+
+
+
+// intellij Maven 测试OK  ,但到updateBook 方法返回自己的类报错
+RedisConnectionFactory redisConnectionFactory = context.getBean(RedisConnectionFactory.class);
+RedisConnection conn=redisConnectionFactory.getConnection();
+conn.del("MyGuava::key1".getBytes());
+conn.close();
+
+
+ 
 
 =========================Spring OXM
 import javax.xml.transform.stream.StreamResult;
@@ -2299,9 +2524,19 @@ FilterChainProxy
    <property name="numTestsPerEvictionRun" value="3"></property>  
    <property name="timeBetweenEvictionRunsMillis" value="60000"></property>  
 </bean>
-<bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-	  p:hostName="192.168.1.59" p:port="6379" p:poolConfig-ref="jedisPoolConfig" p:usePool="true" p:timeout="5000" >
-	 <!--  <property name="password" value="123456"></property>  -->
+ <bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  >
+	<constructor-arg >
+		<bean class="org.springframework.data.redis.connection.RedisStandaloneConfiguration">
+			<property name="hostName" value="120.55.90.245"></property>
+			<property name="port" value="6380"></property>
+			<property name="password"  >
+				<bean class="org.springframework.data.redis.connection.RedisPassword" factory-method="of" >
+					<constructor-arg value="test2016"/>
+				</bean>
+			</property>
+			<property name="database"  value="0"></property>
+		</bean>
+	</constructor-arg> 
 </bean>
 <bean id="jedisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
 	  p:connectionFactory-ref="jedisConnectionFactory">
@@ -2315,7 +2550,7 @@ FilterChainProxy
  
 import org.springframework.data.redis.core.ValueOperations;
  
-RedisTemplate<String,Object> = context.getBean("jedisTemplate",RedisTemplate.class);  
+RedisTemplate<String,Object> redisTemplate = context.getBean("jedisTemplate",RedisTemplate.class);  
 //其中key采取了StringRedisSerializer  
 //其中value采取JdkSerializationRedisSerializer   
 ValueOperations<String, User> valueOper = redisTemplate.opsForValue();  
@@ -2334,6 +2569,8 @@ redisScript.setResultType(Boolean.class);
 
 boolean res= redisTemplate.execute(redisScript, Collections.singletonList("key"), 10, 20);//List keys,Object... args
 System.out.println(res);
+
+redisTemplate 就不用关闭连接
 
 ------checkandset.lua  ,LUA语言为了嵌入C/C++ 中
 local current = redis.call('GET', KEYS[1])
@@ -2395,6 +2632,19 @@ private ListOperations<String, String> listOps;
 listOps.leftPush(userId, url.toExternalForm());
  也可以直接用redisTemplate
 redisTemplate.boundListOps(userId).leftPush(url.toExternalForm());
+
+
+方试二
+@Autowired
+private JedisPool jedisPool;
+
+Jedis jedis = jedisPool.getResource();
+//...
+jedis.close();
+
+方试三
+因为ShardedJedisPool可以通过一致性哈希实现分布式存储
+
 
  
 =========================Spring Data Mongodb
@@ -2769,8 +3019,16 @@ System.out.println("发送了XXX");
 ctx.close();//如果不关，就不退出 
 
 ========================Spring Boot
-logging.file=my.log  日志输入到当前目录下的文件名
- 
+http://start.spring.io/
+
+
+
+
+#logging.file=my.log  日志输入到当前目录下的文件名
+logging.file=/tmp/springBoot.log
+logging.level.root=DEBUG
+logging.level.org.zhaojin.dao.mapper=DEBUG 
+
 Spring Tool Suite 可以建立Spring starter project ,可选Maven(默认) 或 Gradle,Web组中选web  会自动建立项目
 在resource的目录(classpath)下有
 templates 目录放ftl文件 
@@ -2809,6 +3067,7 @@ application-test.properties：测试环境
 application-prod.properties：生产环境
 至于哪个具体的配置文件会被加载，需要在application.properties文件中通过spring.profiles.active属性来设置，其值对应{profile}值
 java -jar xxx.jar --spring.profiles.active=test
+java org.springframework.boot.loader.JarLauncher  --spring.profiles.active=test  如解压
 
 spring.profiles.active=dev
 server.context-path=/J_SpringBoot
@@ -2833,15 +3092,23 @@ public class DemoApplication {
 }
 
 
+---spring boot junit
 
+
+//测试 OK
 @RunWith(SpringRunner.class)
-@SpringBootTest() //classes=
+@SpringBootTest(classes=MybatisSpringBoot.class) //本类的所在包名无所谓
 @SpringBootConfiguration
 @ContextConfiguration
-public class DemoSpringBootJunitTest {
+public class SpringBootJunitTest {
 
+	@Autowired
+	private  UserMapper userMapper;
+	
 	@Test
-	public void contextLoads() {
+	public void testMyBatis() {
+		List<User> list= userMapper.selectAll();
+		System.out.println(list);
 	}
 
 }
@@ -2853,8 +3120,6 @@ public class DemoSpringBootJunitTest {
 	<version>1.5.8.RELEASE</version>
 	<relativePath/> 
 </parent>
-
-	
  
 <!--<dependency>
 		<groupId>org.springframework.boot</groupId>
@@ -2902,7 +3167,14 @@ public class DemoSpringBootJunitTest {
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-maven-plugin</artifactId>
 </plugin>
-
+<!-- 可打包成.jar -->
+<plugin> <!-- 可打包成.war包没有web.xml要加 -->
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-war-plugin</artifactId>
+	<configuration>
+		<failOnMissingWebXml>false</failOnMissingWebXml>
+	</configuration>
+</plugin>
 
 @RestController
 public class DemoResetController {
@@ -2973,55 +3245,77 @@ public String useRedisTemplate() {
 
 
 
+
 --mybatis 
 
 
 <dependency>
 	<groupId>org.mybatis.spring.boot</groupId>
 	<artifactId>mybatis-spring-boot-starter</artifactId>
-	<version>1.2.1</version>
+	<version>1.3.0</version>
 </dependency>
+  
+@SpringBootApplication
+@MapperScan("mybatis.dao")  //MyBatis Mapper
+@ComponentScan
+public class MybatisSpringBoot {
+	public static void main(String[] args) {
+		SpringApplication.run(MybatisSpringBoot.class, args);
+	}
+}
+  
  
-@Bean
-public ServletRegistrationBean dispatcherRegistration(DispatcherServlet dispatcherServlet) {
-	ServletRegistrationBean registration = new ServletRegistrationBean(dispatcherServlet);
-	registration.getUrlMappings().clear();
-	registration.addUrlMappings("*.action"); //只有*.action 的请求能通过
-	registration.addUrlMappings("*.json");
-	return registration;
-}
+	/*
+	加
+	spring.datasource.url=jdbc:mysql://localhost:3306/mydb?useSSL=true&useUnicode=true&amp;characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+	spring.datasource.username=root
+	spring.datasource.password=root
+	spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+	 就不用下面了
+	 
+	@Bean(name = "dataSource")
+	@Qualifier(value = "dataSource")
+	@Primary
+	@ConfigurationProperties(prefix = "c3p0")
+	public DataSource dataSource() {
+		 return DataSourceBuilder.create().type(com.mchange.v2.c3p0.ComboPooledDataSource.class).build();
+	}
+	*/
 
-//DataSource配置
-@Bean
-@ConfigurationProperties(prefix="spring.datasource")
-public DataSource dataSource() {
-	return new org.apache.tomcat.jdbc.pool.DataSource();
-}
+	/*
+	加 
+	mybatis.mapper-locations=classpath:mapper/*Mapper.xml  
+	 就不用下面了
+	 
+	@Bean
+	public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
+		SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+		sqlSessionFactoryBean.setDataSource(dataSource());//数据源可通过其它方式取得
+		PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+		sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mapper/*Mapper.xml"));//映射文件是resource/mybatis/目录下所有.xml文件,也可用application.properties
+		return sqlSessionFactoryBean.getObject();
+	}
 
-//提供SqlSeesion
-@Bean
-public SqlSessionFactory sqlSessionFactoryBean() throws Exception {
-	SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
-	sqlSessionFactoryBean.setDataSource(dataSource());//数据源可通过其它方式取得
-	PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-	sqlSessionFactoryBean.setMapperLocations(resolver.getResources("classpath:/mapper/*Mapper.xml"));//映射文件是resource/mybatis/目录下所有.xml文件,也可用application.properties
-	return sqlSessionFactoryBean.getObject();
-}
-
-@Bean
-public PlatformTransactionManager transactionManager() {
-	return new DataSourceTransactionManager(dataSource());
-}
+	@Bean
+	public PlatformTransactionManager transactionManager() {
+		return new DataSourceTransactionManager(dataSource());
+	}
+	*/
+	
  
-#mybatis.mapper-locations=classpath:mapper/*Mapper.xml             #也可程序中设置 */
+mybatis.mapper-locations=classpath:mapper/*Mapper.xml             #也可程序中设置 */
 mybatis.config-locations=classpath:mapper/config/Config.xml
 #mybatis.type-aliases-package=mybatis.vo  #not effect ???
 
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb?useSSL=true&useUnicode=true&amp;characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+spring.datasource.username=root
+spring.datasource.password=root
 spring.datasource.driver-class-name=com.mysql.jdbc.Driver
-#spring.datasource.url=jdbc:mysql://localhost:3306/test
-spring.datasource.url=jdbc:mysql://172.16.35.10:3306/srm?useUnicode=true&characterEncoding=utf-8&useSSL=false
-spring.datasource.username=OP
-spring.datasource.password=abcd_1234
+	
+c3p0.jdbcUrl=jdbc:mysql://localhost:3306/mydb
+c3p0.user=root
+c3p0.password=root
+c3p0.driverClassName=com.mysql.jdbc.Driver
  
  
  
@@ -3175,6 +3469,25 @@ public class SampleController {
     }
 }
 
+//方式二  web方式
+SpringBootServletInitializer 实现 Spring自己的 WebApplicationInitializer  类
+
+public class MyInitializer extends SpringBootServletInitializer {
+
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(MyApplication.class);
+	}
+
+}
+
+@SpringBootApplication 
+@ImportResource({"classpath:config/spring.xml"})
+public class MyApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(MyApplication.class, args);
+	}
+}
 
 ========================Spring Cloud
 
@@ -3278,6 +3591,8 @@ Spring Cloud Contract
 一共15个子项目   加单独的 Spring Cloud Data Flow
 
 ---Eureka server 
+https://github.com/Netflix/Eureka
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;  
@@ -3667,6 +3982,14 @@ POST 请求 (Firefox的 RESTClient  )  http://localhost:8881/bus/refresh  (confi
 Twitter开源的Zipkin就是参考Google Dapper 论文而开发
 Dapper  一个请求在系统中会经过多个子系统的处理，而且这些处理是发生在不同机器甚至是不同集群上的，当请求处理发生异常时，需要快速发现问题，并准确定位到是哪个环节出了问题 
 
+https://github.com/openzipkin/zipkin/
+docker run -d -p 9411:9411 openzipkin/zipkin
+http://localhost:9411 
+
+还有PINPOINT  (也是 Dapper)监控调用哪个链路出现了问题，如响应时间
+https://github.com/naver/pinpoint
+
+
 	<dependency>
 		<groupId>io.zipkin.java</groupId>
 		<artifactId>zipkin-server</artifactId>
@@ -3984,10 +4307,6 @@ public class CustomPropertySourceLocator implements PropertySourceLocator {
 
 .jar包/META-INF/spring.factories中加入
 org.springframework.cloud.bootstrap.BootstrapConfiguration=sample.custom.CustomPropertySourceLocator
-
-
-
-
 
 
 

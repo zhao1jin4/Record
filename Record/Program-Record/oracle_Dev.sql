@@ -156,7 +156,7 @@ analyze table tablename delete statistics
 
 substr( string, start_position, [ length ] )
 asciistr(user_name) -- 可判断中英文 如果是中文以\开头
-substr(asciistr(user_name),0,1)  = '\';
+substr(asciistr(user_name),0,1)  = '\';  ##'
 
 create table score
 ( id  number    ,--primary key ,
@@ -445,7 +445,7 @@ forall 批量插入，不是循环
 
 
 要使用 ' ,可以用两个' ,还可[],{} ,<>  ,要在外加'',前加q
-			如string_var:=q'[xxx'xx]'				//'
+			如string_var:=q'[xxx'xx]'				
 
 
  ** 幂,E ,e   

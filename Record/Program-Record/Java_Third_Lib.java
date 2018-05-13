@@ -395,6 +395,7 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 	  <properties>
 		<!-- <url>http://repo1.maven.org/maven2/</url>  这里是配置公用的第三方包 http://search.maven.org/#browse
 					http://repo.spring.io/libs-release/
+					http://repo.spring.io/libs-milestone/
 			-->
 		<release_deployment_url>http://localhost:8080/my/repo</release_deployment_url>
 		<snapshot_deployment_url>http://localhost:8080/my_snapshot/repo</snapshot_deployment_url>
@@ -529,13 +530,19 @@ artifactId 是自己的项目名
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
-			<version>3.6.0</version>
+			<version>3.7.0</version>
 			<configuration>
 			  <verbose>true</verbose>
 			  <fork>true</fork>
 			  <executable>${JAVA_HOME}/bin/javac</executable>
 			  <compilerVersion>1.8</compilerVersion>
 			</configuration>
+			<!--
+			  <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+             </configuration>
+			-->
 		  </plugin>
 		  
 		  
@@ -601,7 +608,23 @@ artifactId 是自己的项目名
 				</execution>
 			</executions>
 		</plugin>
-			
+		<plugin> <!--打包方式3 要在jar外有lib目录,  但没有生成？？？？  --> 
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-jar-plugin</artifactId>
+			<configuration>
+				<source>1.8</source>
+				<target>1.8</target>
+				<archive>
+					<manifest>
+						<mainClass>com.xx.MainApp</mainClass>
+						<addClasspath>true</addClasspath>
+					<classpathPrefix>lib/</classpathPrefix>
+					</manifest> 
+				</archive>
+				<classesDirectory>
+				</classesDirectory>
+			</configuration>
+		</plugin>
 		<plugin> <!-- 打包源码插件,生成-sources.jar  也可单独运行 mvn source:jar 但clean后就没了 -->
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-source-plugin</artifactId>
@@ -674,7 +697,7 @@ artifactId 是自己的项目名
 	<profile>
 		<id>local</id>
 		<properties>
-			<env>dev</env>
+			<env>dev</env><!-- 里面的是自己使用的自属性 spring 配置中可以使用${env} ,log4j.properties可用${loglevel}-->
 			<loglevel>DEBUG,Console</loglevel>
 		</properties>
 		<activation>
@@ -690,6 +713,31 @@ artifactId 是自己的项目名
 	</profile>
 </profiles>
 
+<!--就可以不从官方下载jar,速度快很多-->
+<repositories>  
+    <repository>  
+        <id>central</id>  
+        <name>Maven Repository Switchboard</name>  
+        <url>http://repo.spring.io/libs-release/</url>  
+        <layout>default</layout>  
+        <snapshots>  
+            <enabled>false</enabled>  
+        </snapshots>  
+    </repository>  
+</repositories>  
+<pluginRepositories>
+	<pluginRepository>
+		<id>dev_nexus</id>
+		<url>http://repo.spring.io/libs-release/</url>
+		<releases>
+			<enabled>true</enabled>
+		</releases>
+		<snapshots>
+			<enabled>true</enabled>
+		</snapshots>
+	</pluginRepository>
+</pluginRepositories>
+ 
   <distributionManagement> <!-- 为mvn deploy时用使用id做对应  -->
 		<repository>
 			<id>releases</id>
@@ -809,7 +857,7 @@ mvn clean compile   可以几个目标一起执行
 mvn package -e 查看错误信息
 mvn clean package -Dmaven.test.skip=true    跳过编译测试类,生成.war包中的/lib/没有重复的.jar
 mvn install -DskipTests     跳过test的执行，但要编译  
- 
+ --update-snapshots  更新snapshots的依赖包
 
 jenkins ->配置->构建后操作步骤->Sonar,Publish Coberutra Coverage Report
 mvn clean package cobertura:cobertura   单独生成测试覆盖率报告   target/site/cobertura/index.html ,适用于每个项目的test 目录,只测试这个项目的main中的类
@@ -1238,8 +1286,60 @@ public class DaoPostProcessor implements BeanPostProcessor
 //---Product不用重写equals方法
 Assert.assertEquals(dataSet.get(0).getName(), bean.queryData(param).get(0).getName());
 Assert.assertEquals(dataSet.size(), bean.insertData(dataSet));
-		
-		
+
+-------------------------MockITO
+<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <version>2.16.0</version>
+</dependency>
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
+
+//模拟返回值
+MyServiceBean myServiceBean = mock(MyServiceBean.class);   
+when(myServiceBean.queryData(any(Product.class))).thenReturn(dataSet); 
+List<Product>  res=myServiceBean.queryData(new Product());
+System.out.println(res);
+
+//模拟抛异常
+when(myServiceBean.insertData(ArgumentMatchers.anyList())).thenThrow(RuntimeException.class);
+myServiceBean.insertData(Arrays.asList(new Product()));
+
+
+---Spring 集成 mockito
+import org.mockito.Mock;
+import static org.mockito.Mockito.when;
+
+@RunWith(SpringJUnit4ClassRunner.class)  
+//@ActiveProfiles({"test"})
+//@Transactional
+@WebAppConfiguration //SpringMVC利用MockMvc进行单元测试 
+@ContextConfiguration(locations={"classpath:test_mockmvc/spring-mockmvc.xml"})
+public class MockITO_MockMvcTest  
+{
+	//	@InjectMocks //会进入方法体中
+	//	@Autowired
+
+	@Mock
+	private MyServiceBean myServiceBean;
+
+	@Before
+	public void setup() {
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+		MockitoAnnotations.initMocks(this);
+	}
+	@Test
+	public void testService() throws Exception
+	{ 
+		when(myServiceBean.queryData(any(Product.class))).thenReturn(dataSet); 
+		List<Product>  res=myServiceBean.queryData(new Product());
+	}
+}
+spring-mockmvc.xml 只有
+	<context:component-scan base-package="test_mockmvc"></context:component-scan>
 
 --------------------------iText
 import com.itextpdf.text.BaseColor;
@@ -1416,9 +1516,7 @@ JFreeChart 和 iText
 
    
 =================================Lucene-6.4================================
- elasticsearch-6.1.1 openSource
-Elasticsearch: 权威指南  https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html
- 
+  
  最新的 luke-src-4.0.0 最近更新是2012年7月
  
  官方带的中文分词器 analyzers-smartcn  ,lucene-analyzers-smartcn-6.4.0.jar  大小  3.43M
@@ -1812,19 +1910,6 @@ isearcher.search(query,  1000);
 //...
 manager.release(isearcher);//finally中做
 
-----Hibernate Search 基于 Lucene
-----Elastic Search  收费的，可下载(分布式，RESTful搜索引擎)  基于 Lucene
-更适用于新兴的实时搜索应用
-
- 当单纯的对已有数据进行搜索时，Solr更快。
- 实时建立索引时, Solr会产生io阻塞，查询性能较差, Elasticsearch具有明显的优势。
- 数据量的增加，Solr的搜索效率会变得更低，而Elasticsearch却没有明显的变化。
- 从Solr转到Elasticsearch以后的平均查询速度有了50倍的提升。
- 
- 只支持JSON
- 
-bin\elasticsearch.bat   启动
- http://localhost:9200/
 ================================Solr-6.4
 
 bin/solr start -e cloud -noprompt  ( SolrCloud example )启动两个节点,监听 8983 , 7574 端口 ,有zookeeper
@@ -1890,6 +1975,291 @@ wt返回形式 json,xml,csv
 
 ---SolrCloud
 
+----Hibernate Search 基于 Lucene 
+================================Elastic Search    6.1
+ELK= Elasticsearch , Logstash, Kibana
+https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html
+
+(分布式，RESTful搜索引擎)  基于 Lucene
+更适用于新兴的实时搜索应用
+
+ 当单纯的对已有数据进行搜索时，Solr更快。
+ 实时建立索引时, Solr会产生io阻塞，查询性能较差, Elasticsearch具有明显的优势。
+ 数据量的增加，Solr的搜索效率会变得更低，而Elasticsearch却没有明显的变化。
+ 从Solr转到Elasticsearch以后的平均查询速度有了50倍的提升。
+ 
+ 只支持JSON
+ 
+ 
+bin\elasticsearch.bat   启动   http://localhost:9200/ 
+ 
+conf/elasticsearch.yml
+	network.host: 0.0.0.0   可以接收任何地址   
+	http.port: 9200
+
+
+curl选项
+-X, --request <command> a custom request method 
+-i, --include (HTTP) Include the HTTP-header in the output
+-H, --header <header>
+-d, --data <data>  specified data in a POST request
+--data-binary  @accounts.json
+  
+ 
+数据存储于一个或多个索引中，索引是具有类似特性的文档的集合
+索引相当于SQL中的一个数据库
+Type 在6的版本中过时了 相当于“表”
+索引由其名称(必须为全小写字符)进行标识
+
+
+	
+新建一个名叫weather的 Index
+
+curl -X PUT 'http://localhost:9200/weather'
+curl -X DELETE -i http://http://localhost:9200/weather
+-i 输入响应头
+
+elasticsearch-plugin install analysis-smartcn   
+elasticsearch-plugin remove analysis-smartcn
+
+新建一个名称为accounts的 Index，里面有一个名称为person的 Type。person有三个字段。
+
+curl -X PUT -H 'Content-Type: application/json;charset=UTF-8' -i http://http://localhost:9200/accounts --data 
+'{
+  "mappings": {
+    "person": {
+      "properties": {
+        "user": {
+          "type": "text",
+          "analyzer": "smartcn",
+          "search_analyzer": "smartcn"
+        },
+        "title": {
+          "type": "text",
+          "analyzer": "smartcn",
+          "search_analyzer": "smartcn"
+        },
+        "desc": {
+          "type": "text",
+          "analyzer": "smartcn",
+          "search_analyzer": "smartcn"
+        }
+      }
+    }
+  }
+}'
+
+
+
+
+--PUT
+向指定的 /Index/Type 发送 PUT 请求，就可以在 Index 里面新增一条记录
+
+$ curl -X PUT 'http://localhost:9200/accounts/person/1' -d 
+'{
+  "user": "张三",
+  "title": "工程师",
+  "desc": "数据库管理"
+}' 
+
+记录的 Id。它不一定是数字，任意字符串
+"result":"created"
+
+
+--override PUT
+更新记录就是使用 PUT 请求，重新发送一次数据。
+$ curl -X PUT 'http://localhost:9200/accounts/person/1' -d 
+'{
+    "user" : "张三",
+    "title" : "工程师",
+    "desc" : "数据库管理，软件开发"
+}' 
+
+"result":"updated"
+ "_version": 有变值
+ 
+
+
+
+--POST
+如为POST 可不用指定ID,生成长串ID  
+
+curl -X POST 'http://localhost:9200/accounts/person/' -d 
+'{
+  "user": "张三",
+  "title": "工程师",
+  "desc": "数据库管理"
+}' 
+
+
+如果没有先创建 Index（这个例子是accounts），直接执行上面的命令，Elastic 也不会报错，而是直接生成指定的 Index。
+所以，打字的时候要小心，不要写错 Index 的名称。
+
+
+
+
+---  _update 某个值，而不是override
+ 
+curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/accounts/person/1/_update?pretty' --data 
+'{
+  "doc": { "user": "zhangsan" }
+}'
+
+
+修改值和增加字段age
+curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/accounts/person/1/_update?pretty' --data 
+'{
+  "doc": { "user": "zhangsan","age":20 }
+}'
+
+修改值增加5
+curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/accounts/person/1/_update?pretty' --data 
+'{
+  "script" : "ctx._source.age += 5"
+}'
+
+curl -X DELETE 'http://localhost:9200/accounts/person/1'
+
+
+
+
+
+同时插入两条数据 doc/_bulk
+curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/customer/doc/_bulk?pretty' --data 
+'
+{"index":{"_id":"1"}}
+{"name": "John Doe" }
+{"index":{"_id":"2"}}
+{"name": "Jane Doe" }
+'
+
+curl -X GET -H 'Content-Type: application/json' -i 'http://localhost:9200/customer/doc/_search?pretty'
+
+也可即更新又删除
+curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/customer/doc/_bulk?pretty' --data 
+'{"update":{"_id":"1"}}
+{"doc": { "name": "John Doe becomes Jane Doe" } }
+{"delete":{"_id":"2"}}
+'
+某一个命令执行出错，那么会继续执行后面的命令，最后会返回每个命令的执行结果
+
+
+--GET
+
+向/Index/Type/Id发出 GET 请求，就可以查看这条记录。
+curl 'http://localhost:9200/accounts/person/1?pretty=true'
+
+ "found" : true,  表示查询成功    _source字段返回原始记录。
+ 
+ 
+--- _search
+
+ GET 方法，直接请求/Index/Type/_search，就会返回所有记录。
+ 结果的 took字段表示该操作的耗时（单位为毫秒）
+ 
+ 
+  _search?q=user:kimchy  但不能有中文 值是完全等于
+  
+ 
+ 可中文和模糊匹配
+GET _search  
+{
+    "query" : {
+        "match" : {
+            "user" : "张三"   
+        }
+    }
+}
+
+GET accounts/person/_search 
+{
+    "query" : {
+        "bool": {
+            "must": {
+                "match" : {
+                    "user" : "zhangsan" 
+                }
+            },
+            "filter": {
+                "range" : {
+                    "age" : { "gt" : 10 } 
+                }
+            }
+        }
+    }
+}
+
+
+--DELETE
+ 删除记录就是发出 DELETE 请求。
+
+
+$ curl -X DELETE 'http://localhost:9200/accounts/person/1'
+如无返回   "result":"not_found"
+
+
+检查 cluster health, 使用 _cat API.
+curl -X GET -H 'Content-Type: application/json;charset=UTF-8' -i 'http://http://localhost:9200/_cat/health?v'
+status
+red：表示有些数据不可用
+yellow：表示所有数据可用，但是备份不可用
+green：表示一切正常
+
+
+----Logstash
+
+ 6.2版本 不支持JDK 9,只能用8
+ windows 7 下运行占CPU过大,内存一直涨(jruby 运行.rb文件),要等有日志输出就可以了
+ 
+ bin/logstash -e 'input { stdin { } } output { stdout {} }'
+ 
+---logstash-simple.conf
+# comment
+
+input { stdin { } }
+
+filter {
+ 
+}
+
+output {
+  elasticsearch { hosts => ["localhost:9200"] }
+  stdout { codec => rubydebug }
+}
+
+这个配置会输出到elasticsearch和stdout上
+
+bin/logstash -f logstash-simple.conf --config.test_and_exit 验证配置文件正确性
+bin/logstash -f logstash-simple.conf --config.reload.automatic 自动加载配置 
+
+input 插件 
+filter 插件 
+output 插件 
+codec 插件支持 https://www.elastic.co/guide/en/logstash/current/codec-plugins.html
+	json
+	avro (hadoop中的)
+	protobuf(google跨语言的序列化协议)
+
+
+----Kibana
+ kibana-6.1.3-windows-x86_64\bin\kibana.bat  plugin --install elastic/sense
+ kibana.bat   启动  http://127.0.0.1:5601/   要求先启动 Elasticsearch 
+ 有Console  可以发送命令,带代码提示功能, 默认查全部的有 , 参数可有可无
+ GET _search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+查行数
+ GET _count
+{
+  "query": {
+    "match_all": {}
+  }
+}
+ 
 
 ----------------MongoDB 
  <dependency>
@@ -2181,7 +2551,7 @@ http://127.0.0.1:15672/cli
 <dependency>
   <groupId>com.rabbitmq</groupId>
   <artifactId>amqp-client</artifactId>
-  <version>5.0.0</version>
+  <version>5.2.0</version>
 </dependency>
 
 dependencies {
@@ -2241,8 +2611,8 @@ channel.basicConsume(QUEUE_NAME, true, consumer);
 
 ----
 
-Direct Exchange 将一个队列绑定到交换机上，要求该消息与一个特定的路由键完全匹配
-Fanout Exchange 个发送到交换机的消息都会被转发到与该交换机绑定的所有队列上
+Direct Exchange 将一个队列绑定到交换机上，要求该消息与一个特定的路由键routing key完全匹配
+Fanout Exchange 个发送到交换机的消息都会被转发到与该交换机绑定的所有队列上(忽略routing key)
 Topic Exchange 队列名是一个模式上， 匹配有两种方式all和any 
 			符号“#”匹配一个或多个词，符号“*”匹配不多不少一个词。因此“audit.#”能够匹配到“audit.irs.corporate”的routeKey(未测试)
 Headers exchange  不是使用routingkey去做绑定。而是通过消息headers的键值对匹配,发送者在发送的时候定义一些键值对，接收者也可以再绑定时候传入一些键值对
@@ -2304,8 +2674,228 @@ channel.txSelect();
 	channel.basicPublish(exchangeName, routingKey, true, MessageProperties.PERSISTENT_BASIC, ("第"+(i+1)+"条消息").getBytes("UTF-8"));  
 channel.txCommit();  
 channel.txRollback();  
+======================RocktMQ   alibaba 捐给了apache
+
+控制台
+Mirror of Apache RocketMQ (Incubating) 
+https://github.com/apache/rocketmq-externals/tree/master/rocketmq-console
+mvn spring-boot:run
+或者
+mvn clean package -Dmaven.test.skip=true
+java -jar target/rocketmq-console-ng-1.0.0.jar  --server.port=8888 --rocketmq.config.namesrvAddr=127.0.01:9876;192.168.1.107:9876
+
+http://127.0.0.1:8080/ 就有界面了  OPS 中有 NameSvrAddrList   地址 
+消息标签 可以查看消息体，可以重发
+
+<dependency>
+	   <groupId>org.apache.rocketmq</groupId>
+	   <artifactId>rocketmq-common</artifactId>
+	   <version>4.2.0</version>
+</dependency>
+<dependency>
+	   <groupId>org.apache.rocketmq</groupId>
+	   <artifactId>rocketmq-client</artifactId>
+	   <version>4.2.0</version>
+</dependency>
+<dependency>
+	   <groupId>org.apache.rocketmq</groupId>
+	   <artifactId>rocketmq-remoting</artifactId>
+	   <version>4.2.0</version> 
+</dependency>
+ 
+4.2
+环境变量  ROCKETMQ_HOME=
+启动Name Server 
+bin/mqnamesrv
+
+启动Broker  
+bin/mqbroker -n localhost:9876  autoCreateTopicEnable=true
   
-  
+停服务
+bin/mqshutdown broker
+bin/mqshutdown namesrv
+ 
+String mqGroup = "myGroup";
+String mqIP = "localhost:9876";
+String mqTopic = "myTopic";
+String mqTag = "myTag";
+String key="123";
+String msgStr="hello 小李";
+
+String appName="app-1";
+
+//服务/消费 端
+DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(mqGroup);
+consumer.setConsumerGroup(mqGroup);
+consumer.setNamesrvAddr(mqIP);
+consumer.setVipChannelEnabled(false);
+consumer.setConsumeThreadMax(10);//接收消息最多启10个线程处理，防止线程过多导致数据库连接用光
+consumer.setConsumeThreadMin(5);
+//设置广播消费  还有 MessageModel.CLUSTERING
+//consumer.setMessageModel(MessageModel.BROADCASTING);//要对应用  MessageListenerConcurrently
+//consumer.setInstanceName(appName);//如果是BROADCASTING的当一个app服务全部down机，再启动时就会丢失前面的消息，
+//如一个app服务有2台都会收到相同的消息(这点不太好，接收方法要做幂等，JMS 持久化topic好像不是这样的)
+ 
+//批量消费,每次拉取10条
+//consumer.setConsumeMessageBatchMaxSize(10);
+
+//如果非第一次启动，那么按照上次消费的位置继续消费
+consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+//consumer.subscribe(mqTopic, mqTag);
+ 
+consumer.subscribe(mqTopic, "myTag || TagB || TagC || TagD || TagE"); //匹配多个用 || 或   * ,如传null同* 
+MessageListenerOrderly messageListenerOrderly= new MessageListenerOrderly() //有顺序的
+{
+	public ConsumeOrderlyStatus consumeMessage(List<MessageExt> list, ConsumeOrderlyContext consumeOrderlyContext)
+	{
+		MessageExt msg=list.get(0);
+		if(msg.getTags().contains(mqTag))//区分哪个tag,用于传送多种消息格式
+			  System.out.println("这个tag是"+mqTag);
+		System.out.println(new Date()+appName+"服务收到消息体："+new String(msg.getBody(),Charset.forName("UTF-8")));
+		return ConsumeOrderlyStatus.SUCCESS;
+	}
+};
+
+MessageListenerConcurrently messageListenerConcurrently= new MessageListenerConcurrently() //BROADCASTING
+{
+	@Override
+	public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext context) 
+	{
+		//要做幂等
+		MessageExt msg=list.get(0);
+		if(msg.getTags().contains(mqTag))//区分哪个tag,用于传送多种消息格式
+			  System.out.println("这个tag是"+mqTag);
+		System.out.println(new Date()+appName+"服务收到消息体："+new String(msg.getBody(),Charset.forName("UTF-8")));
+		return ConsumeConcurrentlyStatus.CONSUME_SUCCESS; // CONSUME_SUCCESS
+	}
+};
+consumer.registerMessageListener(messageListenerOrderly); 
+//consumer.registerMessageListener(messageListenerConcurrently); //BROADCASTING
+
+long iterval=this.getPullInterval();//0立即收到消息
+consumer.start();
+System.out.println("服务 启动");
+
+//客户/生产端
+DefaultMQProducer producer = new DefaultMQProducer(mqGroup);
+producer.setNamesrvAddr(mqIP);
+producer.start();
+ 
+producer.setRetryTimesWhenSendAsyncFailed(0);
+ for (int i = 0; i < 10; i++) 
+ {
+	final int index = i; 
+	Message msg = new Message(mqTopic, mqTag, key, msgStr.getBytes(RemotingHelper.DEFAULT_CHARSET));
+	msg.setKeys("hello"+i);//要唯一
+	msg.setDelayTimeLevel(3);//延迟收到消息,官方示例上说3对应的是10秒,防止消费端过快处理
+	//  producer.sendOneway(msg);
+	 //SendResult sendResult = producer.send(msg);//同步发
+	producer.send(msg, new SendCallback() {//异步发
+		@Override
+		public void onSuccess(SendResult sendResult) {
+			System.out.printf("%-10d OK %s %n", index,
+				sendResult.getMsgId());
+		}
+		@Override
+		public void onException(Throwable e) {
+			System.out.printf("%-10d Exception %s %n", index, e);
+			e.printStackTrace();
+		}
+	});
+} 
+
+producer.shutdown();
+
+
+//事务发
+TransactionCheckListener transactionCheckListener = new TransactionCheckListenerImpl();//自己的类
+TransactionMQProducer producer = new TransactionMQProducer(mqGroup);
+producer.setNamesrvAddr(mqIP);
+producer.setCheckThreadPoolMinSize(2);
+producer.setCheckThreadPoolMaxSize(2);
+producer.setCheckRequestHoldMax(2000);
+producer.setTransactionCheckListener(transactionCheckListener);//broker检查发送的回调吗
+producer.start();
+
+String[] tags = new String[] {mqTag, "TagB", "TagC", "TagD", "TagE"};
+LocalTransactionExecuter tranExecuter = new TransactionExecuterImpl();//自己的类 
+for (int i = 0; i < 100; i++) {
+	Message msg =  new Message(mqTopic, tags[i % tags.length], "KEY" + i,
+			("你好 RocketMQ " + i).getBytes(Charset.forName("UTF-8")));
+	SendResult sendResult = producer.sendMessageInTransaction(msg, tranExecuter, null);
+	System.out.printf("%s%n", sendResult);
+	Thread.sleep(10); 
+}
+
+public class TransactionExecuterImpl implements LocalTransactionExecuter {
+    private AtomicInteger transactionIndex = new AtomicInteger(1);
+    @Override
+    public LocalTransactionState executeLocalTransactionBranch(final Message msg, final Object arg) {
+        int value = transactionIndex.getAndIncrement();
+        if (value == 0) {
+            throw new RuntimeException("Could not find db");
+        } else if ((value % 5) == 0) {
+            return LocalTransactionState.ROLLBACK_MESSAGE;
+        } else if ((value % 4) == 0) {
+        	System.out.println("发送 commit msg"+msg);
+            return LocalTransactionState.COMMIT_MESSAGE;
+        }
+        return LocalTransactionState.UNKNOW;
+    }
+}
+public class TransactionCheckListenerImpl implements TransactionCheckListener {
+    private AtomicInteger transactionIndex = new AtomicInteger(0);
+    @Override
+    public LocalTransactionState checkLocalTransactionState(MessageExt msg) {
+        System.out.printf("server checking TrMsg %s%n", msg);
+        int value = transactionIndex.getAndIncrement();
+        if ((value % 6) == 0) {
+            throw new RuntimeException("Could not find db");
+        } else if ((value % 5) == 0) {
+            return LocalTransactionState.ROLLBACK_MESSAGE;
+        } else if ((value % 4) == 0) {
+            return LocalTransactionState.COMMIT_MESSAGE;
+        }
+        return LocalTransactionState.UNKNOW;
+    }
+}
+
+
+
+
+
+ 多个nameServer 服务中,只要有一个有效整个cluster就可用
+ Broker 发送心跳到所有的nameServer
+ 
+ broker master  可读写
+ broker slave 只读
+
+conf 目录 
+2m-2s-async 两主，两从，同步复制数据的配置
+2m-2s-sync 两主，两从，异步复制数据的配置
+2m-noslave 两主,无从的配置
+
+Broker分为Master与Slave，一个Master可以对应多个Slave，但是一个Slave只能对应一个Master，
+Master与Slave的对应关系通过指定相同的BrokerName，不同的BrokerId来定义，BrokerId=0表示Master，>0的整数表示Slave
+每个Broker与Name Server集群中的所有节点建立长连接
+
+Producer 向提供Topic服务的Master建立长连接
+Consumer 向提供Topic服务的Master、Slave建立长连接
+
+一个topic下，我们可以设置多个queue
+
+
+可以事务 
+第一阶段发送Prepared消息拿到消息的地址，
+第二阶段执行本地事物，
+第三阶段通过第一阶段拿到的地址去访问消息，并修改消息的状态
+
+如第三阶失败 向消息发送端(生产者)确认,如还失败 , 会根据发送端设置的策略来决定是回滚还是继续发送确认消息
+
+Push and Pull model,
+TAG 可以用同一个topic 发不同的消息
+
+
 ======================PdfBox=============================
 依赖于commons-logging,fontbox
 <dependency>
@@ -2371,7 +2961,12 @@ document.save( "d:/temp/Hello World.pdf");
 document.close();
 
 --------------------------------- POI excel xls,xlsx 
- 
+ <dependency>
+	<groupId>org.apache.poi</groupId>
+	<artifactId>poi-ooxml</artifactId>
+	<version>3.17</version>
+</dependency>
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -2384,17 +2979,17 @@ boolean is2007=true;//true,false
 if(is2007)
 {
 	//要多加poi-ooxml-3.8.x.jar,apache项目xmlbeans的xbean.jar,poi-ooxml-schemas-3.8-x.jar
-	//webbook=new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
-	webbook=new XSSFWorkbook();
+	//workbook=new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
+	workbook=new XSSFWorkbook();
 	out=new FileOutputStream("c:/temp/workbook.xlsx");
 }
 else
 {
 	out = new FileOutputStream("c:/temp/workbook.xls");
-	webbook=new HSSFWorkbook();
+	workbook=new HSSFWorkbook();
 }
-Sheet sheet = webbook.createSheet();
-webbook.setSheetName(0, "我的第一个Sheet");
+Sheet sheet = workbook.createSheet();
+workbook.setSheetName(0, "我的第一个Sheet");
 
 int default_width=sheet.getColumnWidth(1);//default_width=2048
 sheet.setColumnWidth(1, default_width*2);
@@ -2404,8 +2999,18 @@ Cell cell0 = row.createCell(0);
 cell0.setCellValue( 10000 );
 Cell cell1 = row.createCell(1);
 cell1.setCellValue( "中国我爱你" );
-webbook.write(out);
+workbook.write(out);
 out.close();
+
+
+
+row.createCell(3, CellType.NUMERIC).setCellValue(3.0);
+
+CellStyle cellStyle = workbook.createCellStyle();
+DataFormat df = workbook.createDataFormat();  
+cellStyle.setDataFormat(df.getFormat("#,#0.00")); //小数点后保留两位 
+cell0.setCellStyle(cellStyle);
+
 
 //读
 InputStream inp =file.getInputStream();
@@ -2516,6 +3121,20 @@ Logger rootLog=Logger.getRootLogger();//根
 
 ---------------------------------Log4j 2
  
+
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.11.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.11.0</version>
+      </dependency>
+    </dependencies>
+	
 log4j-api-2.1.jar
 log4j-core-2.1.jar
 log4j-slf4j-impl-2.1.jar  如用slf4j
@@ -2872,7 +3491,7 @@ public static void decompressTarGzFile(String tarGzFile,String outDir)
 
 //----tar.gz 压缩
 org.apache.commons.compress.utils.IOUtils
-org.apache.commons.io.IOUtils
+org.apache.commons.io.IOUtils //closeQuietly 过时了
  //只压缩一个文件 
 protected static void compressOneTarGzFile(File srcFile, File destFile)
 {  
@@ -3572,6 +4191,35 @@ ehcache.put(element);
 Element valElement = ehcache.get("key1");
 Object value = valElement.getObjectValue();
 
+---------------------------------Guava 缓存部分
+<dependency>
+	<groupId>com.google.guava</groupId>
+	<artifactId>guava</artifactId>
+	<version>24.1-jre</version>   <!--  24.1-jre , 24.1-android -->
+</dependency>
+
+LoadingCache<String,Object> dictCache = CacheBuilder.newBuilder()
+	.maximumSize( 1000) 
+	.expireAfterWrite(1, TimeUnit.DAYS)
+	.concurrencyLevel( 5 )
+	.build(new CacheLoader<String,Object>() {
+		@Override
+		public String load(String key) throws Exception {
+			return null;
+		}
+	});
+dictCache.put("key", "value");
+Object o= dictCache.getIfPresent("key");
+System.out.println(o);
+
+dictCache.invalidate("key");
+
+o= dictCache.getIfPresent("key");
+System.out.println(o);
+	
+
+---------------------------------Guava  限流 RateLimiter
+
 ---------------------------------Memcache Java Client --- alisoft 阿里巴巴
 
 import com.alisoft.xplatform.asf.cache.ICacheManager;
@@ -3634,7 +4282,7 @@ socketTO 属性是Socket操作超时配置，单位ms
 aliveCheck 属性表示在使用Socket以前是否先检查Socket状态
  
 
-			
+
 ---分布式
 <memcached>
     <client name="mclient" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool0">
@@ -3761,7 +4409,7 @@ jedis.zadd("sose", 0, "car");//0是score
 jedis.zadd("sose", 0, "bike"); 
 Set<String> sose = jedis.zrange("sose", 0, -1);//score 范围
 System.out.println(sose);
-pool.returnResource(jedis); //将资源归还个连接池
+jedis.close();//一定要close 
 pool.destroy();
 
 //----transaction
@@ -3841,6 +4489,41 @@ jc.set("foo", "bar");
 System.out.println(jc.get("foo"));
  
 
+--shard 通过一致性哈希算法决定把数据存到哪台上,算是一种客户端负载均衡
+JedisPoolConfig config=new JedisPoolConfig();
+config.setMaxIdle(20);
+config.setMaxTotal(30);
+config.setMaxWaitMillis(5*1000);
+config.setTestOnBorrow(false);
+config.setBlockWhenExhausted(false);//连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
+
+JedisShardInfo shardInfo =new JedisShardInfo(ip,port);//passwd
+ShardedJedisPool shardedPool=new ShardedJedisPool(config,Arrays.asList(shardInfo)) ;
+ShardedJedis shardedJedis=shardedPool.getResource();
+//put-key
+shardedJedis.set("user1", "用户1");
+shardedJedis.expire("user1",20*60);//单位秒，20分
+//setnx,incr
+shardedJedis.set("user2", "用户2");
+
+ShardedJedisPipeline pipeline = shardedJedis.pipelined();  
+pipeline.set("trainNo1_SH", "20");  
+pipeline.set("trainNo1_SZ", "10");  
+List<Object> res = pipeline.syncAndReturnAll();
+System.out.println(res);//[OK, OK]
+//del-key
+String delKeyLike="user";
+Collection<Jedis> jedisCollect = shardedJedis.getAllShards();  
+Iterator<Jedis> iter = jedisCollect.iterator();  
+while (iter.hasNext()) 
+{  
+  Jedis jedis = iter.next();  
+  Set<String> keys = jedis.keys(delKeyLike + "*");  
+  jedis.del(keys.toArray(new String[keys.size()]));  
+}   
+shardedJedis.close();//一定要close
+
+ 
 ---------------------------------Redis client redisson	  分布式锁的实现 
 //redisson  依赖于netty,fasterxml的jackson
 
@@ -3907,20 +4590,28 @@ java.math.BigDecimal=com.caucho.hessian.io.StringValueSerializer
 
 
 
-------------dubbo   dubbo-admin-2.5.4.war
-http://dubbo.io/
- 一定tomcat-7版本,8不行的,JDK也不能用8
-tomcat-7\webapps\dubbo\WEB-INF\dubbo.properties 配置zookeeper IP
+------------dubbo   
+
+http://dubbo.io/    2.6.0
+https://github.com/alibaba/dubbo  
+
+2.6.0 版本的Dubbo ops组里的 dubbo-admin-2.0.0\WEB-INF\dubbo.properties 默认值如下
+dubbo.registry.address=zookeeper://127.0.0.1:2181
+dubbo.admin.root.password=root
+dubbo.admin.guest.password=guest
 
 <dependency>
 	<groupId>com.alibaba</groupId>
 	<artifactId>dubbo</artifactId>
-	<version>2.5.3</version>
+	<version>2.6.0</version>
 </dependency>
 
+----2.6.0 版本的Dubbo ops组里的 dubbo-springboot
+ 
+----
 zkclient
 javassist
-netty-3.10  和 4 版本的包名不一样的
+依赖 netty 3(org.jboss.netty) 和 4(io.netty.) 版本 ,mina
 
 Dubbo将自动加载classpath根目录下的dubbo.properties，
 可以通过JVM启动参数：-Ddubbo.properties.file=xxx.properties 改变缺省配置位置。
@@ -3949,7 +4640,7 @@ dubbo.application.name=MyProject1
 dubbo.protocol.name=dubbo
 dubbo.protocol.port=20884
 dubbo.protocol.serialization=hessian2	
-# dubbo协议缺省为hessian2，rmi协议缺省为java，http协议缺省为json ,hessian2 序列化不支持反序列化 java.util.EnumSet ,kryo(官方版本报错,pingan版本不报错)
+# dubbo协议缺省为hessian2，rmi协议缺省为java，http协议缺省为json ,hessian2 序列化不支持反序列化 java.util.EnumSet ,可用kryo
 
 #dubbo.protocol.heartbeat=60000
 
@@ -3977,6 +4668,10 @@ dubbo-client.xml
 	 <dubbo:reference id="dubboFacade"  interface="alibaba.dubbo.server.DubboFacade" check="false" retries="0" url="127.0.0.1:20884" />
 	-->	
 	
+	<dubbo:reference id="dubboGroupVersionFacade"  interface="alibaba.dubbo.server.DubboGroupVersionFacade" check="false" retries="0" 
+	 group="group1"  version="1.0"
+	 />
+	 
    <dubbo:application name="AppNameInXml"/>
    <!-- 同  dubbo.application.name  -->
    
@@ -3984,7 +4679,7 @@ dubbo-client.xml
    <!-- 同  dubbo.registry.address=zookeeper://127.0.0.1:2181    官方文档还可以注册到redis上  
 			register="true" 是否注册上zookeeper上,通过直连 
 			file="dubboregistry/op-baseinfo-provider.properties"  Dubbo缓存文件
-			 check="false" 半闭注册中心启动时检查
+			 check="false" 半闭注册中心启动时检查  ,如果服务端没有启动,客户端不能能启动 
    -->
    
 </beans>
@@ -4006,6 +4701,15 @@ dubbo-server.xml 接口方法参数类 implements Serializable
 	
 	<bean id="dubboFacdeImpl"  class="alibaba.dubbo.server.DubboFacadeImpl" />
 	
+	<dubbo:service interface="alibaba.dubbo.server.DubboGroupVersionFacade" ref="dubboGroupVersionFacadeImpl"
+ 	 group="group1"  version="1.0"/>
+ 	 <!--  group="group1" 可 相同的接口多个不同的实现，用group区分
+	 version="1.0.0" 当一个接口的实现，出现不兼容升级时(即删改属性，加是兼容的)，可以用版本号过渡，版本号不同的服务相互间不引用
+	 -->
+	<bean id="dubboGroupVersionFacadeImpl"  class="alibaba.dubbo.server.DubboGroupVersionFacadeImpl" />
+ 	
+	
+	
 	<!--  
  	dubbo.protocol.name=dubbo
 	dubbo.protocol.port=20884
@@ -4020,7 +4724,26 @@ dubbo-server.xml 接口方法参数类 implements Serializable
 
 可以使用 telent 127.0.0.1 28004 连接上用 ls看所有提供服务
 
-------------dubbo    Thrift(代码生成)  
+dubbo consumer 负载均衡策略
+1.Random  随机　按权重
+2.RoundRobin 轮循 按权重
+3.LeastActive  最少活跃调用数,相同活跃数的随机  ,调用前后计数差,慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大
+4.ConsistentHash  一致性Hash  缺省只对第一个参数Hash，
+	如果要修改，请配置<dubbo:parameter key="hash.arguments" value="0,1" />
+	缺省用160份虚拟节点，如果要修改，请配置<dubbo:parameter key="hash.nodes" value="320" />
+界面上有随机，轮询，最少并发
+
+
+dubbo协议使用默认Hessian二进制序列化,也可使用 kryo,通讯使用mina
+Hessian协议   Dubbo缺省内嵌Jetty作为服务器实现
+Thrift是Facebook捐给Apache
+ 
+ 
+dubbo main 方法 com.alibaba.dubbo.container.Main 可实现安全关机,用JDK的ShutdownHook,
+如kill 不带-9 Provider方可以先不接收请求,如有任务等待完成,Consumer方,如有请求没有返回的等待
+eclipse启动用  com.alibaba.dubbo.container.Main 参数传 -Ddubbo.properties.file=alibaba/dubbo/server/dubbo.properties -Ddubbo.spring.config=classpath:alibaba/dubbo/server/dubbo-server.xml
+
+------------dubbo    Thrift(跨语言,代码生成)  
 dubbo 协议适合   小数据量大并发,netty3.2.2 + hessian -3.2.1
     
 ./configure && make (要  bison version >= 2.5  ,xz -d -k bision-3.0.tar .xz )
@@ -4030,13 +4753,13 @@ dubbo 协议适合   小数据量大并发,netty3.2.2 + hessian -3.2.1
 <dependency>
   <groupId>org.apache.thrift</groupId>
   <artifactId>libthrift</artifactId>
-  <version>0.10.0</version>
+  <version>0.11.0</version>
 </dependency>
 
 
 
  //---Hello.thrift
- namespace java thrift.demo 
+ namespace java apache_thrift.hello 
  service Hello{ 
   string helloString(1:string para) 
   i32 helloInt(1:i32 para) 
@@ -4047,18 +4770,22 @@ dubbo 协议适合   小数据量大并发,netty3.2.2 + hessian -3.2.1
  
 thrift --gen <language> <Thrift filename>
  -r  (recursivly)
-	语言支持
+	多语言支持
 	C++
 	Java
 	Cocoa
-
-thrift  --gen java Hello.thrift    
+	Python
+	C#
+	
+thrift  --gen java Hello.thrift  
+  
 生成Hello类,有以下内部类
- <方法名>_args
- <方法名>_result
- Hello.Client    生成有 send_<方法名> 方法,recv_<方法名> 方法
- Hello.AsyncClient
- Hello.Processor
+	 <方法名>_args
+	 <方法名>_result
+	 Hello.Client    生成有 send_<方法名> 方法,recv_<方法名> 方法
+	 Hello.AsyncClient
+	 Hello.Processor
+ 
  自己写类 HelloServiceImpl implements Hello.Iface
  
 
@@ -4146,6 +4873,41 @@ server.serve();
 	exception：对应 Java 的 Exception
 服务类型：
 	service：对应服务的类
+	
+------------protobuf
+  google跨语言的序列化协议
+https://blog.csdn.net/u011518120/article/details/54604615
+<dependency>
+    <groupId>com.google.protobuf</groupId>
+    <artifactId>protobuf-java</artifactId>
+    <version>3.5.1</version>
+</dependency>
+ 
+--persion.proto 文件 
+syntax = "proto3";
+option java_outer_classname = "PersonEntity";//生成的数据访问类的类名
+package protobuf;   
+message Person {  
+    int32 id = 1; 
+    string name = 2; 
+    string email = 3; 
+}  
+protoc -I=. --java_out=. persion.proto   
+protoc.exe -I=proto的输入目录 --java_out=java类输出目录 proto的输入目录包括包括proto文件
+
+
+PersonEntity.Person.Builder builder = PersonEntity.Person.newBuilder();
+builder.setId(1);
+builder.setName("ant");
+builder.setEmail("ghb@soecode.com");
+PersonEntity.Person person = builder.build();
+System.out.println("before :"+ person.toString());
+
+//模拟接收Byte[]，反序列化成Person类
+byte[] byteArray =person.toByteArray();
+PersonEntity.Person p2 = PersonEntity.Person.parseFrom(byteArray);
+System.out.println("after :" +p2.toString());
+
 ============XStream
 
 import com.thoughtworks.xstream.XStream;
@@ -4204,6 +4966,15 @@ System.out.println("java Object to json : "+ jsonObject);
 
 JSONArray jsonArrasy = JSONArray.fromObject(ua);
 System.out.println("java Array to json : "+ jsonArrasy); 
+
+
+//String->Object
+UserModel userModel = (UserModel) JSONObject.toBean(JSONObject.fromObject(strJsonObj), UserModel.class);
+System.out.println("userModel: "+ userModel); 
+
+//String->Map
+Map userMap = (Map) JSONObject.toBean(JSONObject.fromObject(strJsonMap), Map.class);
+System.out.println("userMap: "+ userMap); 
 
 ============FasterXml
 <dependency>
@@ -4268,7 +5039,7 @@ UserJson user=JSON.parseObject(str,UserJson.class);
 <dependency>
 	<groupId>com.101tec</groupId>
 	<artifactId>zkclient</artifactId>
-	<version>0.8</version>
+	<version>0.10</version>
 </dependency>
 	
 	
@@ -4333,6 +5104,146 @@ zkClient.unsubscribeDataChanges(childPath, changeListender);
 zkClient.unsubscribeChildChanges(rootPath, childListender);
 
 System.out.println("所有建立的节点删除了");
+============curator
+
+<dependency>
+	<groupId>org.apache.curator</groupId>
+	<artifactId>curator-framework</artifactId>
+	<version>4.0.1</version>
+</dependency>
+<dependency>
+	<groupId>org.apache.curator</groupId>
+	<artifactId>curator-recipes</artifactId>
+	<version>4.0.1</version>
+</dependency>
+
+curator-client-4.0.1.jar
+
+String ip ="127.0.0.1";
+String ipPort="127.0.0.1:2181";
+
+String nodePath="/hello/world";
+String nodeValue="123";
+
+
+
+
+//		RetryPolicy retryPolicy=new ExponentialBackoffRetry(1000,3);//baseSleepTimeMs,  maxRetries 每次重试时间逐渐增加
+//		RetryPolicy retryPolicy=new RetryNTimes(5,1000);//retryCount 最大重试次数，elapsedTimeMs
+RetryPolicy retryPolicy=new RetryUntilElapsed(5000,1000);//maxElapsedTimeMs最多重试多长时间,   sleepMsBetweenRetries 每次重试时间间隔
+//		CuratorFramework client=CuratorFrameworkFactory.newClient(ipPort,500,5000, retryPolicy);
+
+
+List<AuthInfo> authInfos =new ArrayList<>();
+AuthInfo auth=new AuthInfo("digest", "myuser:mypass".getBytes());
+authInfos.add(auth);
+
+CuratorFramework client= CuratorFrameworkFactory.builder().connectString(ipPort)
+.sessionTimeoutMs(5000)
+.connectionTimeoutMs(5000)
+//		.authorization("digest", "myuser:mypass".getBytes()) //同命令  addauth digest  myuser:mypass
+.authorization(authInfos)
+.retryPolicy(retryPolicy)
+.build();
+
+client.start();
+
+
+//		client.delete().deletingChildrenIfNeeded().forPath(nodePath);
+//client.delete().guaranteed().deletingChildrenIfNeeded().withVersion(1).forPath(nodePath); //可带withVersion
+//guaranteed 如删除失败,会一直重试
+
+
+ ACL aclIp=new ACL(Perms.READ,new Id("ip",ip));//Id构造器参数schema只可是ip(白名单)或digest(用户名密码)
+ String userPwd=DigestAuthenticationProvider.generateDigest("myuser:mypass");
+ ACL aclDigest=new ACL(Perms.READ|Perms.WRITE,new Id("digest",userPwd));
+ ArrayList<ACL> aclList=new ArrayList<>();
+//		 aclList.add(aclIp);
+ aclList.add(aclDigest);
+
+
+String path=client.create()
+.creatingParentsIfNeeded() //如果一级不存会先创建再建二级目录
+.withMode(CreateMode.PERSISTENT)
+.withACL(aclList)
+.forPath(nodePath,nodeValue.getBytes());
+
+System.out.println(path);
+
+
+Stat stat=new Stat();
+byte[] data =client.getData().storingStatIn(stat).forPath(nodePath);
+System.out.println("data= "+new String(data));
+System.out.println("stat= "+stat);
+
+
+
+List<String> children=client.getChildren().forPath(nodePath);
+System.out.println("child have "+children);
+
+
+stat=client.checkExists().forPath(nodePath);
+System.out.println(nodePath+" = "+stat);//null 就不存
+
+ExecutorService executorService= Executors.newFixedThreadPool(5);
+
+ 
+
+client.setData().withVersion(stat.getVersion()).forPath(nodePath,"newData".getBytes());
+
+
+//inBackground 转异步
+ client.checkExists().inBackground(new BackgroundCallback() {
+		@Override
+		public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
+			CuratorEventType type=event.getType();
+			int resultCode=event.getResultCode(); //0成功
+			System.out.println("processResult type= "+type);
+			System.out.println("processResult resultCode= "+resultCode);
+			System.out.println("processResult getContext= "+event.getContext());
+			System.out.println("processResult getPath= "+event.getPath());
+			System.out.println("processResult getChildren= "+event.getChildren());
+			System.out.println("processResult data= "+new String(event.getData()));
+		}
+	},"contextVal",executorService).forPath(nodePath);
+
+ 
+ 
+//监听 要 curator-recipes 包
+NodeCache cache=new NodeCache(client,nodePath);
+cache.start();
+cache.getListenable().addListener(new NodeCacheListener() {
+	@Override
+	public void nodeChanged() throws Exception {
+		byte[]data =cache.getCurrentData().getData();
+		System.out.println("NodeCache data= "+new String(data));
+	}
+});
+
+
+PathChildrenCache pathCache=new PathChildrenCache(client,nodePath,true);//true 子节点变化时，也取内容
+pathCache.start();
+pathCache.getListenable().addListener(new PathChildrenCacheListener() {
+	@Override
+	public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+		switch(event.getType())
+		{
+			 case CHILD_ADDED :
+				 System.out.println("CHILD_ADDED"+event.getData().getPath());
+				 break;
+			 case CHILD_UPDATED:
+				 System.out.println("CHILD_UPDATED"+event.getData().getPath());
+				  break;
+			 case CHILD_REMOVED:
+				 System.out.println("CHILD_REMOVED"+event.getData().getPath());
+				  break;
+					 
+		}
+	}
+});
+
+System.in.read();
+client.close();
 
 ============Shiro + Redis 做登录
 

@@ -139,7 +139,7 @@ System.out.println("sql param:==>"+param.toString());
 可以传递一个List或Array类型的对象作为参数,MyBatis会自动的将List或Array对象包装到一个Map对象中,List类型对象会使用list作为键名,而Array对象会用array作为键名。
 parameterType="list" 或者不写也可以
 
-<if test="list != null  list.size()>0" >
+<if test="list != null and list.size()>0" >
 	<foreach collection="list" item="item"   open="("  separator="or" close=")" >
 			  BILL_CODE=#{item}
 	</foreach>
@@ -198,7 +198,11 @@ parameterType="list" 或者不写也可以
 	</insert>
 	 -->
 	<insert id="insertEmployee" parameterType="Employee" >
-		<selectKey keyProperty="id" resultType="int" order="BEFORE"> <!-- MySQL --> 
+	  <selectKey keyProperty="id" resultType="int" order="AFTER">  
+          SELECT last_insert_id ()
+      </selectKey>
+	  
+	 <selectKey keyProperty="id" resultType="int" order="BEFORE"> <!-- MySQL --> 
 			select cast(rand()*100 as SIGNED )
 		</selectKey>
 		
@@ -637,8 +641,32 @@ configuration.addMapper(BlogMapper.class);
 configuration.setCacheEnabled(true);
 SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
 
+-----Druid
+<dependency>
+	<groupId>com.alibaba</groupId>
+	<artifactId>druid</artifactId>
+	<version>1.1.7</version>
+</dependency>
 
-
+<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close"> 
+	 <property name="url" value="${jdbc.url}" />
+	 <property name="username" value="${jdbc.username}" />
+	 <property name="password" value="${jdbc.password}" />
+	 <property name="filters"><value>stat</value></property>
+	 <property name="maxActive"><value>20</value></property>
+	 <property name="initialSize"><value>1</value></property>
+	 <property name="maxWait"><value>60000</value></property>
+	 <property name="minIdle"><value>1</value></property>
+	 <property name="timeBetweenEvictionRunsMillis"><value>60000</value></property>
+	 <property name="minEvictableIdleTimeMillis"><value>300000</value></property>
+	 <property name="validationQuery"><value>SELECT 'x'</value></property>
+	 <property name="testWhileIdle"><value>true</value></property>
+	 <property name="testOnBorrow"><value>false</value></property>
+	 <property name="testOnReturn"><value>false</value></property>
+	 <property name="poolPreparedStatements"><value>true</value></property>
+	 <property name="maxOpenPreparedStatements"><value>20</value></property>
+ </bean>
+	
 -------MyBatis3 Spring集成
 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
@@ -794,12 +822,12 @@ public interface AnnoEmployeeInterface {
 		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
 </bean>
 
-<!-- 就不用每个类 配置MapperFactoryBean  
+<!-- 就不用每个类 配置 MapperFactoryBean  
 	但  PropertyPlaceholderConfigurer 无用, 可以使用 PropertiesFactoryBean 和 SpEL 表达式来作为替代-->
 <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
   <property name="basePackage" value="mybatis_spring.factorybean.dao" />  <!-- 逗号分隔多个 -->
 </bean>
-
+@MapperScan(basePackages ="mybatis_spring.factorybean.dao")
 
 Class  targetClass=proxy.getClass().getInterfaces()[0]; // BaseDao 的子类
 
@@ -854,6 +882,7 @@ mybatis默认是启用cache的,如不使用cache  <select        useCache="false
     <version>1.3.2</version>
 </dependency>
 
+
 --generatorConfig.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE generatorConfiguration   PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
@@ -884,7 +913,8 @@ mybatis默认是启用cache的,如不使用cache  <select        useCache="false
 		  <property name="enableSubPackages" value="true" />
 		</javaClientGenerator>
 
-	<!-- 二选一 , 1.3.2 生成的使用类是 过时的  SqlBuilder.BEGIN , 也有type="MIXEDMAPPER" 混合式,复杂的SQL用XML
+	<!-- 二选一 , 1.3.2 生成的使用类是 过时的  SqlBuilder.BEGIN ,(现在是1.3.6版本)
+		也有type="MIXEDMAPPER" 混合式,复杂的SQL用XML
         <javaClientGenerator type="ANNOTATEDMAPPER" targetPackage="org.project.annotate"  targetProject="project/src/main">
           <property name="enableSubPackages" value="true" />
         </javaClientGenerator>
@@ -909,6 +939,24 @@ java -jar mybatis-generator-core-1.3.2.jar -configfile generatorConfig.xml -over
 
 
 <javaClientGenerator type="ANNOTATEDMAPPER" 
+
+Maven插件方式
+<plugin>
+		<groupId>org.mybatis.generator</groupId>
+		<artifactId>mybatis-generator-maven-plugin</artifactId>
+		<version>1.3.6</version>
+		<dependencies>
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>5.1.45</version>
+			</dependency>
+		</dependencies>
+		<configuration> 
+			 <configurationFile>${basedir}/src/main/resources/generatorConfig.xml</configurationFile> 
+			<overwrite>true</overwrite>
+		</configuration>
+</plugin>
 =====
 
 

@@ -1,3 +1,5 @@
+PowerDesigner 也可画UML图
+
 ----------------------UML
 
 全面的软件工程，企业信息化（ERP，SCM，CRM等）方面的技能和知识
@@ -127,7 +129,7 @@ Interface Realiztion (虚线空心三角形)
 泳道图,一种UML活动图  (Viso 中的 Cross-Function Flowchart)
 
 
-------------Astah  community 免费,Professional收费 使用Java做的 有Liux,Mac版
+------------Astah  community-6.9 免费,Professional-7.2 收费 使用Java做的 有Liux,Mac版
 tool->export image-> ... 保存UML为图片
 时序图
 	有一个Combinded Fragement,默认operator是alt类型的,可右击Combinded图->add operand增加条件
@@ -149,14 +151,14 @@ state machine diagram 是状态图
 建立 Data Design 项目(像power designer)
 建表,加主键点出键头拉线到另一张表,弹出菜单选关系, 右击工作区-> show implicit relationship 才能看到带线的关系
 
-------------Visual Paradigm  14.1  有Mac,Linux版 收费  UML 工具
+------------Visual Paradigm  15  有Mac,Linux版 收费  UML 工具
+
+
+-----StarUML 2.8.1 (2018/01/05更新)  有Mac,Linux版 收费 UML 工具
 
 
 ----- Enterprise Architect 13 (EA) 只windows版  收费  UML 工具
 
-
-
------StarUML 2.8 (2016-11更新)  有Mac,Linux版 收费 UML 工具
 
 ----- Mindjet MindManager 2016 分支图
 

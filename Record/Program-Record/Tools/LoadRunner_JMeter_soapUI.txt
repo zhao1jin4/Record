@@ -289,6 +289,129 @@ truncate table mysql.general_log ;
 	 右击 ForEach控制器 ->添加 -> sampler->Http请求
 		 右击 Http请求 -> 添加 -> 断言->响应断言
 		 
+-------JMS
+	Add > Sampler > JMS Point-to-Point 
+	
+-------SMTP 发邮件
+	Add > Sampler > SMTP
+	
+-------TCP 
+	Add > Sampler > TCP
+	
+	
+-------Java 自定义	
+	Add > Sampler > Java Request
+	自已类 implements org.apache.jmeter.protocol.java.sampler.JavaSamplerClient  ( apache-jmeter-4.0\lib\ext\ApacheJMeter_java.jar  ApacheJMeter_core.jar) 
+	打成jar包，打依赖的包一起放在 apache-jmeter-4.0\lib\ext
+	
+public class JMeterRocketMQProducter  implements JavaSamplerClient
+{  
+	//apache-jmeter-4.0\lib\ext\ApacheJMeter_java.jar  ApacheJMeter_core.jar
+	//rocketmq-client-4.2.0.jar   rocketmq-common-4.2.0.jar   rocketmq-remoting-4.2.0.jar
+	//netty-all-4.1.8.Final.jar
+	String mqGroup = "myGroup";
+	String mqIP = "127.0.0.1:9876";
+	String mqTopic = "myTopic";
+	String mqTag = "myTag";
+	String keyPrefix="mykey";
+	String msgPrefix="hello 小李";
+	int times=15;
+	String appName="app-1";
+	SampleResult sr = new SampleResult();  
+	DefaultMQProducer producer=null;
+	
+	boolean isJMeter=true;
+	
+//	@Override
+	public Arguments getDefaultParameters()
+	{
+		 //io.netty.util.concurrent.GenericFutureListener x;
+		System.out.println("getDefaultParameters");
+		Arguments args=new Arguments();
+		args.addArgument("group", mqGroup);
+		args.addArgument("ipPort", mqIP);
+		args.addArgument("topic", mqTopic);
+		args.addArgument("tag", mqTag);
+		args.addArgument("keyPrefix",keyPrefix);
+		args.addArgument("msgPrefix", msgPrefix);
+		args.addArgument("times",Integer.toString(times));
+		return args;
+	}
+
+
+//	@Override
+	public void setupTest(JavaSamplerContext context) 
+	{
+		System.out.println("setupTest isJMeter="+isJMeter);
+		if(isJMeter)
+		{
+			this.mqGroup=context.getParameter("group");
+			this.mqIP=context.getParameter("ipPort");
+			this.mqTopic=context.getParameter("topic");
+			this.mqTag=context.getParameter("tag");
+			this.keyPrefix=context.getParameter("keyPrefix");
+			this.msgPrefix=context.getParameter("msgPrefix");
+			System.out.println("setupTest parameter group="+ context.getParameter("group"));
+			
+			sr.setSampleLabel("RocketMQ测试");  
+		    sr.sampleStart();  
+		}
+	    producer = new DefaultMQProducer(mqGroup);  
+        producer.setNamesrvAddr(mqIP);  
+        producer.setInstanceName(appName);  
+        producer.setVipChannelEnabled(false);  
+        try {
+			producer.start();
+		} catch (MQClientException e) {
+			e.printStackTrace();
+		} 
+	}
+
+//	@Override
+	public void teardownTest(JavaSamplerContext context)
+	{
+		System.out.println("teardownTest");
+		producer.shutdown();
+		if(isJMeter)
+		{
+		   sr.sampleEnd();
+		}
+	}
+	
+    public SampleResult runTest(JavaSamplerContext javaSamplerContext) 
+    {  
+        try 
+        {  
+            for(int i=0;i<times;++i)
+            {  
+                Message msg = new Message(mqTopic, mqTag, keyPrefix+i, (msgPrefix+i).getBytes(Charset.forName("UTF-8")));  
+                SendResult sendResult = producer.send(msg);  
+                if(sendResult ==null || sendResult.getSendStatus() != SendStatus.SEND_OK){  
+                    System.err.println(sendResult);  
+                }
+                System.out.println("send msg times="+i);
+            }  
+            if(isJMeter)
+			{
+	            sr.setResponseData("success","utf-8");  
+	            sr.setDataType(SampleResult.TEXT);  
+	            sr.setSuccessful(true);
+			}
+        }catch(Exception e)
+        {  
+            e.printStackTrace(); 
+            StringWriter strWriter=  new StringWriter();
+            e.printStackTrace(new PrintWriter(strWriter)); 
+            System.err.println(strWriter.toString());
+            if(isJMeter)
+			{
+	            sr.setSuccessful(false);
+	            sr.setResponseData(strWriter.toString(),"utf-8");  
+			}
+        }  
+        return sr;  
+    }
+}
 ===================================soapUI 
 新版本的soapUI , 可以POST请求(建立reset项目)
 
@@ -403,6 +526,15 @@ http://www.soapui.org/Load-Testing/simulating-different-types-of-load.html
 --- 还有一种是web页面登录，启动Xshell或者putty的,传文件用sz,rz
 --- Selenium 浏览器自动化测试框架
 
+---showdoc 在线文档工具  v1.8.6 
+PHP项目
+https://github.com/star7th/showdoc/releases
+让这几个目录有写的权限  /install, /Application/Runtime ,/Public/Uploads,/Sqlite,/Sqlite/showdoc.db.php
 
+---pinpoint 可监控，出了问题时在哪个系统在哪里有问题
+pinpoint 1.7.1 要求 HBase 1.2.x	 
+https://github.com/naver/pinpoint
+
+ 
 
 

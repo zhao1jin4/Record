@@ -1,19 +1,24 @@
 ﻿
+
 C++语言编写
 工具用  Toad Extension for Eclipse 带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
 Toad for Eclipse-2.4.4 可以支持mongo-3.2版本,3.4版本打开js文件连接不成功,
+Robo  Studio 3T  2018.2.5 (10-April-2018)
 
 https://docs.mongodb.com/
 https://docs.mongodb.com/manual/
 http://docs.mongoing.com/manual-zh/
 
-3.0.3文档 是pdf的, 3.2文档 是epub格式 ,用Adobe Digital Editor-4.5打开后,但不能复制代码,使用Calibre 就可以复制,还可前进后退,点右上角可以切换翻页和滚页模式,还有Mac 版本的
+3.2文档 是epub格式 ,用Adobe Digital Editor-4.5打开后,但不能复制代码,使用Calibre 就可以复制,还可前进后退,点右上角可以切换翻页和滚页模式,还有Mac 版本的
 3.3 的html文档 有仿问google的js打不开
 
 JSON (JavaScript Object Notation 标记法)
 Mongo (humongous  巨大无比的)
 
 NoSQL不支持事务,用C++写的,支持分布式 (JSON,JS语言)
+目前 3.6.4
+MongoDB 4.0 will add support for multi-document transactions
+
 
  $./mongod --help
  

@@ -16,6 +16,23 @@ D: durability.
 
 
 linux下安装mysql在bin/mysqlaccess 18行改$PATH=指定安装的路径,最好是(/usr/local/mysql)
+------------MySQL-8 windows zip 版
+my.ini
+
+[mysql]
+#default-character-set=utf8
+[mysqld]
+character_set_server=utf8
+default-storage-engine=INNODB
+basedir=D:\\Program\\mysql-8.0.11-winx64\\
+datadir=D:\\Program\\mysql-8.0.11-winx64\\data
+
+
+#mysqld  --defaults-file=D:/Program/mysql-8.0.11-winx64/my.ini --initialize  # root 密码在.err日志里 
+#sc create MySQL8  binpath= "\"D:/Program/mysql-8.0.11-winx64/bin/mysqld\" --defaults-file=\"D:/Program/mysql-8.0.11-winx64/my.ini\" MySQL8" type= share  start= auto displayname= "MySQL8"
+
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';  #mysql8 多加的
 
 ------------MySQL-5.7 windows zip 版
  mysqld启动服务，默认INNODB,默认字符集是latin1
@@ -336,12 +353,21 @@ conf/rule.xml
 conf/zkconf/
 
 
-==========MySQL cluster 7.1  solaris----OK   现在已经有7.5.8版本了
+==========MySQL NDB cluster 7.1  solaris----OK   现在已经有7.5.9版本了
+
+无共享存储设备 （Share Nothing）
+要将所有索引装载在内存中
+
+
+新的是客户端连接到MySQL Router 再连接到(可用 X Protocal ) InnoDB Cluster
+MySQL Shell (使用JavaScript 或者 Python)可以交互(控制)MySQL Router
+新的插件 DocumentStore/NoSQL , X DevAPI, X Protocal 
+
 NDB(Network DataBase)
 节点(node)在这里含义是进程(process),一台机器可以有多个节点,节点所在的机器叫(cluster host)
 
-一台(多台) 管理(MGM)节点:	启动其他节点之前首先启动这类节点,ndb_mgmd启动的 
-多台 数据节点:	用命令ndbd启动的 ,
+一台(多台) 管理(MGM)节点:	启动其他节点之前首先启动这类节点,ndb_mgmd启动的 , 客户端ndb_mgm, 只要这两命令即可  
+多台 数据节点:	用命令ndbd启动的 , ndbmtd (multi-threaded) ,只要这两个命令即可  
 多台 SQL节点:	mysqld –ndbcluster --ndb-connectstring 启动的,或将ndbcluster添加到my.cnf后使用mysqld启动   ,NDBCLUSTER 存储引擎
 
 ndb_restore是用来恢复备份
@@ -408,7 +434,8 @@ cp support-files/my-small.cnf  /etc/my.cnf
 
 配置管理节点	# vi /usr/local/mysql/config.ini  ###
 	[NDBD DEFAULT]
-	NoOfReplicas=1
+	NoOfReplicas=1			
+	#每一份数据被冗余存储在不同节点上面的份数，一般为2
 	[TCP DEFAULT]
 	portnumber=3306
 	
@@ -467,6 +494,15 @@ cp support-files/my-small.cnf  /etc/my.cnf
 
 JDBC连接SQL节点 OK,
 
+==========MySQL InnoDB cluster
+至少3个MySQL服务实例，每个实例运行 Group Replication,内建failover
+ AdminAPI 
+ Time for Node Failure Recovery 要 30 seconds or longer 
+支持 MVCC，Transactions 支持所有的,而NDB只支持 READ COMMITTED
+
+
+
+
 =========Replication 
 默认是异步的,不是持续连接,可以指定数据,指定表
 
@@ -522,6 +558,10 @@ UNLOCK TABLES;
 
 
 --- Scale-Out
+========= Group Replication
+可以多个Master
+
+
 
 ========= MySQL Utilities-1.6.5
  包括 Fabric
@@ -688,9 +728,11 @@ select *  into dumpfile '/tmp/myTable.dump' from myTable where id=1  -- 文件�
 --lock-tables=false   默认true , 为 insert 前加,LOCK TABLES myTable WRITE; 再insert完成后加UNLOCK TABLES;  可 --skip-lock-tables
  --add-locks  可--skip-add-locks 
  -B , --databases 
+ --tables  会覆盖  --databases 
  -A, --all-databases
  -d, --no-data  不要数据，只要表结构
-  
+--ignore-table=db_name.tbl_name,db_name2.tbl_name2
+--set-gtid-purged=OFF
 
 alter table large_table  disable keys 会停止更新索引,大量数据导入性能变高
 
@@ -701,7 +743,7 @@ alter table large_table  disable keys 会停止更新索引,大量数据导入�
 	
 mysqldump -uroot -p -h 127.0.0.1 --add-drop-database=false  dbName table1 table2  > dbName_table1_table2.sql   
 
-mysqldump -uroot -p -h 127.0.0.1  --databases  db1 db2  > db1_db2.sql  
+mysqldump -uroot -p -h 127.0.0.1  --databases  db1 db2 --ignore-table=db1.tbl_name,db2.tbl_name2 > db1_db2.sql  
 mysqldump -uroot -p -h 127.0.0.1  --all-databases   > all_db.sql  
  
 备份 Innodb 表  ,把--opt放在最前,后面会覆盖前面 ,linux下生成文件乱码,但用notpad++打开显示正常
@@ -1111,4 +1153,22 @@ show global status like 'Open%tables';
 show global status like 'threads%';
 	在MySQL中每个连接即一个线程。通过thread_cache_size可以减少操作系统的线程创建/销毁，提高性能。
  
+ 
+ 
+ 
+select * from time_zone;
+select * from time_zone_name;
+默认就是空表
+show variables like '%time_zone%'  -- SYSTEM
+
+mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p  mysql  导入时区相关表 ,windows要下载timezone_2018d_posix_sql.zip
+mysql -u root -p mysql < D:/tmp/timezone_2018d_posix_sql/timezone_posix.sql 
+显示下面语句
+TRUNCATE TABLE time_zone;
+TRUNCATE TABLE time_zone_name;
+TRUNCATE TABLE time_zone_transition;
+TRUNCATE TABLE time_zone_transition_type;
+START TRANSACTION;
+COMMIT;
+
 

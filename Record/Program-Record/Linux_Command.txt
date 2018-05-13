@@ -213,7 +213,8 @@ mkisofs  -print-size  -r a/
 
 
  数据同步  sync 命令,async
-
+ 
+ 
 LD_LIBRARY_PATH Solaris/Linux
 
 linux开通组播命令
@@ -669,7 +670,8 @@ curl -I http://www.baidu.com #仅仅返回header
 curl -D /tmp/header www.baidu.com  #将http header保存到/tmp/header文件
 
 curl -u admin:admin http://127.0.0.1:8161/admin/  对要Basic的验证 如ActiveMQ
-
+-X, --request <command> a custom request method 
+-i, --include (HTTP) Include the HTTP-header in the output
 
 Linux 下挂载 Mac 的dmg 格式  mount -t hsfplus -o ro /dev/cdrom /mnt
 
@@ -1282,6 +1284,7 @@ ip6tables -L
 iptables -L -n 显示 数字IP
 iptables -F (flush)    清空规则
 -D delete  从一开始
+-A append
 -Z 清零(包的个数)
 -N --new 新建一个链
 -X 删自己的链
@@ -1302,10 +1305,10 @@ iptables -A OUTPUT -p tcp   (-s 127.0.0.1)   --sport 22 -j ACCEPT
 iptables -P INPUT DROP  改变默认 -P 所有的 INPUT 都DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
+ 
+配置文件  /etc/sysconfig/iptables
 
-service iptables save  保存到/etc/sysconfig/iptables或者用
-iptables-save>/etc/sysconfig/iptables
-
+iptables-save > /etc/sysconfig/iptables
 相应的有 iptables-restore
 
 
@@ -1338,7 +1341,29 @@ iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 
 
 
-service iptables save		redhat 保存到 /etc/sysconfig/iptables
+service iptables save
+systemctl list-unit-files | grep firewall 有 firewalld.service 
+systemctl stop firewalld
+
+firewall-cmd --list-services   
+firewall-cmd --get-services 哪些服务可以打开
+
+添加新端口
+firewall-cmd --zone=public --add-port=6379/tcp --permanent		redis
+firewall-cmd --zone=public --add-port=27017/tcp --permanent      mongodb 
+
+firewall-cmd --zone=public --add-port=2181/tcp --permanent       zookeeper
+firewall-cmd --zone=public --add-port=60010/tcp --permanent 	 hbase
+firewall-cmd --zone=public --add-port=6627/tcp --permanent 		 storm
+
+
+
+firewall-cmd --reload 
+
+
+firewall-cmd --zone=public --list-ports  查开了哪些端口
+
+
 iptablse -A INPUT -p tcp -dport 22 -j  LOG --log-level 5 --log-prefix "iptables::" ###记录日志 --prefix 并不是最前的
 要确保前方没有DROP, 或者ACCEPT 的规则对应的包,并在其它对应的ACCEP规则的前面才有效 
 
@@ -1373,8 +1398,7 @@ iptables -t nat -A POSTROUTING -s 10.0.0.0/24(24=255.255.255.0) -j SNAT --to-sou
 iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j MASQUERADE 违装(masquerade 化装)
 
 iptables -t nat -A PREROUTING -d 10.0.0.254 -p tcp -dport 80 -j DNAT --to-destination 192.168.0.1
-
-
+ 
 
 =================pam模块
 ldd /usr/sbin/sshd 如果链接了 /lib/libpam.so->/etc/pam.d/<service>
@@ -1635,7 +1659,7 @@ LVM挂载 / 分区
 gunzip -c 
 file xxx 看文件系统是ext2
 
-unzip -l  显示文件目录结构  -o 覆盖存在的不提示   -n 不覆盖存在的
+unzip -l  显示文件目录结构  -o 覆盖存在的不提示   -n 不覆盖存在的 -d解压到指定目录
 unzip file.zip -d mydir
 tar -t    显示文件目录结构
 tar -zcvf my.tar.gz xx.txt
@@ -1871,10 +1895,19 @@ rpcinfo -p 10.1.5.226  查看服务器提供的rpc服务
 	
 mount -tnfs4 10.1.5.226:/root/shareDir  /home/hrbb/remoteDir (要root权限)
  
+--------------------tigervnc
+VNC(Virtual Network Computing)
+yum install tigervnc  (CentOS 7 DVD 自带1.8版本 只vncviwer)从 TightVNC 出来的
+yum install tigervnc-server 就有vncserver了
+
+vncserver :1 提示输入两次密码(如第二次选y),就有5901的监听,iptables -F 外部就可以输入密码连接上了,但进入界面系统的密码是启动vnc服务用户系统的密码
+Creating default startup script /root/.vnc/xstartup
+Creating default config /root/.vnc/config
+CentOS 7 测试OK
+
 
 ==========================VNC-5.2
- yum install tigervnc  从 TightVNC 出来的
- 
+
 ----linux 通用tar包安装
 root用户运行 ./vncinstall /usr/local/bin /usr/local/man
 
@@ -2019,6 +2052,7 @@ service iptables start/stop/restart/status/condrestart/panic/save
 	echo 0 > /selinux/enforce  暂时性的关闭 SELinux
 启动时读/etc/rc.local
 
+临时关闭selinux模式 setenforce 0 
 
 rpm -q --requires pam-1.1.8-12.el7.i686 查已安装包的依赖
 rpm -q --requires -p pam-1.1.8-12.el7.i686.rpm 查指定包的依赖
@@ -2085,6 +2119,7 @@ yum -y install d4x 来在线下载安装
 yum update 
 yum list
 yum search xxx
+yum remove xxx  把依赖也自动删像ruby
 
 在/var/cache/yum/extras/packages/目录有下载的软件包
 在/var/cache/yum/base/packages/目录有下载的软件包
@@ -2098,8 +2133,8 @@ useradd -d /u01/oracle  这是用户的默认主目录
 mount -t iso9660 -o ro,loop /dev/cdrom /mnt/cdrom
 cd /etc/yum.repos.d/
 mkdir bak
-mv ./* bak
-vi Redhat6.3DVD.repo  文件名任意,要以.repo结尾
+mv *.repo bak
+vi RedhatENT7DVD.repo (CentOS7DVD.repo) 文件名任意,要以.repo结尾 
 写入
 [base]
 name=iso
@@ -2108,19 +2143,18 @@ gpgcheck=0
 
 保存 
 yum clean all		清除yum缓存
+yum grouplist
 yum group list 显示有 GNOME Desktop
 yum groupinstall "GNOME Desktop"
-yum groups install "GNOME Desktop"
+yum groups install "GNOME Desktop"  
 
-yum install gnome-desktop  就可以了,会自动查找依赖包
+yum install gnome-desktop3  就可以了,会自动查找依赖包
 yum install gnome-session
+ xorg-x11 中才有startx
+# systemctl get-default #可以查询到当前所设定的状态  multi-user.target 相当于以前的 level 3
+# systemctl set-default graphical.target  #相当于以前的 level 5 也就是图形界面  
 
-给最小化安装的RHEL-6配置GNOME桌面环境
-yum groupinstall "X Window System"
-yum groupinstall Desktop
-	没有 1和2提供最基本的桌面环境(Gnome)
-yum groupinstall "Chinese Support"
-yum groupinstall Fonts
+
 
 yum search gcc  模糊查找软件包名
 yum list |grep gcc  有gcc-c++
@@ -2133,6 +2167,7 @@ yum list |grep gcc  有gcc-c++
 				CentOS是/var/cache/yum/x86_64/7/
 
 yum-config-manager   --add-repo    https://download.docker.com/linux/centos/docker-ce.repo
+yum-config-manager   --add-repo    https://copr.fedorainfracloud.org/coprs/vbatts/bazel/repo/epel-7/vbatts-bazel-epel-7.repo
 
 ----------------
 -----------------硬盘安装RedhatEL5------------
@@ -2283,6 +2318,10 @@ open files                      (-n) 1024
 
 
 
+
+
+
+yum   install  lrzsz  就可以用 rz ,sz 
 
 
 

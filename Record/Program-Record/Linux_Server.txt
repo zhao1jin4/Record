@@ -386,8 +386,10 @@ ProxyPassReverse /mdm	http://localhost:7001/mdm
 -------------PHP5
 ./configure --prefix=/usr/local/php5 --with-mysql=/usr/local/mysql --with-apxs2=/usr/local/apache2/bin/apxs 
 (路径不要以/ 结尾,　可--with-config-file-path=/etc/php.ini 所在的路径 PREFIX/lib)
-
+可选的有 --enable-fastcgi ,--enable-fpm (fastcgi process manager 有配置文件php-fpm.conf 有配置listen_address,allowed_clients ,php-fpm start)
  cp php.ini-dist  /usr/local/php5/lib/
+ ./php-cgi --help看有-c 指定查找php.ini文件位置
+ 
 要libxml2 
 
 
@@ -1226,22 +1228,6 @@ NameVirtualHost *:8080
 SVN  如何禁止commit
 
 ==============上 SVN===================== 
----------SVNwebclient Java项目web.xml中
-<!--
-	<context-param>
-		<param-name>RepositoryUrl</param-name>
-		<param-value>http://localhost:5001/svnmgr/testproj/</param-value>
-	</context-param>
--->
-	 <context-param>
-		  <param-name>ParentRepositoryDirectory</param-name>
-		  <param-value>http://localhost:5001/svnmgr/</param-value>
-	 </context-param>
-
----------SVNManager
-	PHP/mysql(SqlLite)项目
-
-
 ==============Git 安装配置 使用
 Git四种协议
 1.本地
@@ -1254,8 +1240,16 @@ SmartGit界面UI
 ---windows版本
 Google Code项目 msysgit 中的Git 和 msysGit-fullinstall 有 GitGUI ,C:/Program Files (x86)/Git/doc/git/html
 GitStack 说是开源,30天后变为基本版本,网页形式的Server,http://localhost/gitstack/,可以建库,建用户,以http(s)的形式对外使用
+---
+GitLab (linux) 收费的，有管理界面
 
 
+C:\Users\zhaojin\AppData\Local\Programs\Git\mingw64\bin\git.exe
+
+Git-2.15.1.2-64-bit.exe 如非管理员安装，默认安装在 C:\Users\zhaojin\AppData\Local\Programs\Git
+ 选择使用notepad++为默认编辑器 
+ 
+ 
 C:\Program Files\Git\mingw64\etc\gitconfig
 	[credential]
 		helper = manager
@@ -1264,9 +1258,6 @@ C:\Users\zhaojin\.gitconfig
 	
 C:\Program Files\Git\mingw64\share\doc\git-doc 下有文档
  user-manual.html
----
-Git-2.15.1.2-64-bit.exe 如非管理员安装，默认安装在 C:\Users\zhaojin\AppData\Local\Programs\Git
- 选择使用notepad++为默认编辑器
  
  
 ---源码版本安装
@@ -1289,6 +1280,8 @@ gitconfig 文件中  #或者;  是注释
 	email = zhao1jin4@sina.com
 	
 配置的是你个人的用户名称和电子邮件地址,提交时用
+git config --global core.autocrlf true
+
 $ git config --global user.name "Li Zhaojin"  (windows下是保存在用户主目录.gitconfig 文件)
 $ git config --global user.email zhaojin.li@example.com
 $ git config --global core.editor vi		文本编辑器
@@ -1382,10 +1375,15 @@ Git 协议
 如何做,为开源匿名只读,要有独的用户验证机制
 
 
-
 git branch 查看branch 有 *master
+git branch --merged 查看哪些分支已被并入当前分支
+git branch --no-merged 查看尚未合并的工作
+git branch -d testing 合并后就没用了,删本地分支
+
+
 git tag -l 查看tag
 git remote -v 显示对应的克隆地址
+
 
 当本地有git版本,服务器上有git版本,都是新建立, 从本地git版本 push报错时
 git fetch  提示新branch是  master -> origin/master
@@ -1394,6 +1392,77 @@ git status
 git checkout origin/master
 git checkout master 切换到master
 git merge  <服务器git版本最后的id>
+
+
+---建分支
+
+git clone -b myBranch ssh://git@xx.com/project.git  直接从分支拉代码
+
+$ git checkout -b myBranch  提示切换到新的分支了
+它是下面两条命令的简写 
+$ git branch myBranch
+$ git checkout myBranch
+git push --set-upstream origin myBranch
+开发做修改后
+
+把myBranch 合并到master
+git checkout master
+git merge myBranch  (git merge remotes/origin/myBranch  ) 如有冲突提示符变  (master|MERGING)，如要取消修改git reset 到(master)
+
+合并没用了，就可以删了
+git branch -d myBranch 
+git branch -r -d origin/myBranch 
+git push origin :myBranch
+
+远程没有有remote_branch分支并，本地已经切换到local_branch
+git push origin local_branch:remote_branch
+git push --set-upstream origin <branch_name>
+git push origin myBranch:myBranch
+git push <远程主机名> <本地分支名>:<远程分支名>
+git remote show 查远程主机名是什么
+
+git push -u origin master
+命令将本地的master分支推送到origin主机，同时指定origin为默认主机，后面就可以不加任何参数使用git push了
+
+git branch -a 可以查看到 remotes/origin 开头的远程分支
+git branch -r 查看远程分支
+
+git pull <远程主机> <远程分支>:<本地分支>
+
+
+NetBeans 切换分支生成的命令 git branch --track performance origin/performance
+
+---建tag 
+轻量级标签就像是个不会变化的分支
+	git tag v1.4-lw
+	git tag
+	
+附注标签  可以加说明   
+	git tag -a v1.4 -m 'my version 1.4'
+	git show v1.4
+	
+默认情况下git push 并不会把标签传送到远端服务器上
+tag要单独puhs用 git push origin [tagname]
+	git push origin  v1.4
+
+	git checkout -b branch-v1.4 v1.4  基于tag建立分支
+	
+	
+---
+如果想要恢复到修改之前的状态就使用，即自己的修改不想要了(Totorise SVN的revert某个文件)
+git checkout  文件名
+ 
+git reset --hard  <commit Id> 已经commit没有push做取消 ,<commit Id>是回到那次提交的状态，不是对某个文件，全局的  (新加的文件不会被删除)
+
+git查看某个文件的修改历史
+git log --pretty=oneline 文件名
+
+
+的分支上开发一半, 发现原有的分支上有紧急的bug， 使用'git stash'就可以将你当前未提交到本地（和服务器）的代码推入到Git的栈中 
+放心的修 Bug，等到修完Bug，提交到服务器上后，再使用'git stash apply'将以前一半的工作应用回来
+
+你多次使用'git stash'命令后，你的栈里将充满了未提交的代码，'git stash list'命令可以将当前的Git栈信息打印出来，你只需要将找到对应的版本号，例如使用'git stash apply stash@{1}
+可以使用'git stash clear'来将栈清空。
 
 ----  github操作提示
 …or create a new repository on the command line
@@ -1430,9 +1499,18 @@ git push 弹出UI 要输入用户名密码   (windows下密码保存在控制面
 git rm Not-Offen/Struts-2.x.java
 git push
 
-如用TortoiseGit ->Check for modifications 中 Commit
+如用TortoiseGit ->Check for modifications 中 Commit 或者revert
 			->push
-			
+
+github上的代码库时，如果使用SSH链接
+ssh-keygen 然后系统提示输入文件保存位置等信息，连续敲三次回车即可，生成的SSH key文件保存在中~/.ssh/id_rsa.pub
+拷贝 .ssh/id_rsa.pub文件内的所以内容，将它粘帖到github帐号管理中的添加SSH key界面中
+(登录github->右上方的Accounting settings图标->SSH key->Add SSH key->填一个你自己喜欢的名称即可，然后将上面拷贝的~/.ssh/id_rsa.pub文件内容粘帖到key一栏，在点击“add key”按钮就可以了)
+
+
+
+
+----  github		
 ============== 上 Git 
 ============== MemCache  (memcached-1.4.17)
 文档在google上
@@ -1450,7 +1528,7 @@ make install
 /usr/local/bin/memcached -h
 
 启动Memcache的服务器端：
-memcached -d -m 10   -u root -l 192.168.0.184 -p 12000 -c 256 -P /tmp/memcached.pid
+memcached -d -m 10   -u root -l 127.0.0.1 -p 12000 -c 256 -P /tmp/memcached.pid
 -d 做服务端
 -m 以M为单位的最大内存
 -u user 只对root用户运行命令
@@ -1458,9 +1536,42 @@ memcached -d -m 10   -u root -l 192.168.0.184 -p 12000 -c 256 -P /tmp/memcached.
 -l 监听IP,本机IP
 -c 最大连接数
 -P PID文件只对-d同时有效
-
+-f 增长因子 默认1.25
+-vv very verbose
 服务器监听端口,通过一定的协议交互来写入数据到服务器内存中
 
+
+memcached -help 
+memcached  -m 64    -l 127.0.0.1 -p 12000 -c 256 -vv (windows版本)
+telnet 127.0.0.1 12000
+	windows下按ctrl +] 打开回显功能 ->回车
+windows下如何命令写错只能新写命令
+
+add <key> <flag> <expire秒或时间戳.0不自动删也可能被删> <值的length>
+add new  0  0 5 
+回车后输入5个字符值hello后,显示STORED
+get new 取值
+
+delete <key> <可选秒数> 表示 删除而且几秒内不能使用同名的键 
+
+replace 修改同add参数,只可对已经存在
+set 相当于add 和 replace
+set age 0 0 2
+输入 18
+incr age 1
+decr age 1  因是无符号的,不可能<0
+stats  显示状,可以看命中数
+flush_all  后stats 显示curr_items还有值(过期后并没有删除,只当get时才判断如果过期则删除,再看stats就减少,或者有新值要占用直接用就好),一种惰性删除
+
+防止内存的碎片更少
+预先分组多个大小约相同的slab ,每组slab 中 的chunk大小不同,按-f参数来增长,启动可以看日志
+在同一个slab 中 chunck 相同
+不在同一个slab 中chunck不相同
+chunk 存储选用最小,如果还是有空闲空间,是不可避免的
+如果当前最小chunk所在slab已经满了,就把老chunk数据踢除(惰性过期 和LRU最近最少使用即多少次没被使用最大的,FIFO,删除)
+
+Key长度限制250字节
+Value限制1M
 
 ===========postfix===========================
  
@@ -1689,6 +1800,10 @@ Cyrus-IMAP的邮件信箱位于/var/spool/imap目录下
  Postfix queues.默认是 [/var/spool/postfix]
 不可queue management 组默认postdrop
 
+
+imap ssl 端口 993
+smtp ssl 端口 465
+
 ===========上 postfix==========================
 
 ===========Imap cyrus
@@ -1788,14 +1903,14 @@ reverse proxy：反向代理
 源码编译,要C++编译器 yum list| grep gcc-c++, 依赖于  PCRE (Perl Compatible Regular Expressions)库(不是2版本) 
 
 默认安装在/usr/local/nginx,包括日志
-./confure   --with-pcre=../pcre-8.41
+./confure   --with-pcre=../pcre-8.41  (CentOS7自带 pcre-8.32 , apache也是用这个)
 make
 make install
 
 
 /usr/local/nginx/sbin/nginx 启动  默认监听80端口
 /usr/local/nginx/sbin/nginx -s stop   (-s signal)
-
+/usr/local/nginx/sbin/nginx  -t 检查配置文件语法正确性
 stop — fast shutdown
 quit — graceful shutdown
 reload — reloading the configuration file,如果配置有错,就停止worker(处理完正处理的连接)进程
@@ -1873,7 +1988,7 @@ server {
 	}
 }
 
---Memcached
+--nginx Memcached
 server {   
     location / {
         set            $memcached_key "$uri?$args";
@@ -1886,9 +2001,34 @@ server {
 }
 
  
-------nginx cgi/fastcgi   使用C/C++编写fastcgi应用程序
+------nginx  fastcgi  PHP
+CGI(Commmon Gateway Interface)
+fastcgi应用程序(可以使用使用C/C++,python,PHP编写),
+	单独的进程(出错不影响ngnix)一直启动着(老的CGI是每次用的时候启动,性能差)
+	apache是把cgi嵌入进来 (SAPI就是Server API 就是合并到服务器中,语言开发有限制,即apache的php模块只能用C/C++) 
+
+	
+PHP 编译加 --enable-fastcgi ,--enable-fpm (fastcgi process manager 有配置文件php-fpm.conf 有配置listen_address,allowed_clients ,php-fpm start)
+
+用 ngx_http_fastcgi_module 模块
+
+location ~ \.php$ {
+	#root  			html;
+    fastcgi_pass  localhost:9000;  #php-fpm 的listen_address
+    fastcgi_index index.php;
+
+    fastcgi_param SCRIPT_FILENAME /home/www/scripts/php/$fastcgi_script_name;  #对方机器的指定目录找php文件
+    fastcgi_param QUERY_STRING    $query_string;
+    fastcgi_param REQUEST_METHOD  $request_method;
+    fastcgi_param CONTENT_TYPE    $content_type;
+    fastcgi_param CONTENT_LENGTH  $content_length;
+}
+
+------nginx https ssl 
+http ssl 默认端口443
 
 
+------nginx cluster
 
 
 
@@ -2319,11 +2459,9 @@ ls dirdat 有文件了
 strings dirdat/rt000000 | grep    二进制文件中显示可打印字符
  
 -----   2 部分   自己手工做测试成功 
-
-
-
------------------------------ 安装 GoldenGate  12.3.0.1  MySQL 端
  
+ 
+-----------------------------  KVM
  
  
  

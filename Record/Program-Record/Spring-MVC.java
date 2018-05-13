@@ -1035,8 +1035,8 @@ function jQueryJSONRequest() //OK
 	$.ajax (config);
 }
 
-spring-web-4.0.6.RELEASE.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中是 SpringServletContainerInitializer,
-手工实现 WebApplicationInitializer  类(为不使用web.xml设计)
+spring-web-4.0.6.RELEASE.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中是 SpringServletContainerInitializer (实现了标准的servlet类 ServletContainerInitializer ),
+ 内部读取了 实现 WebApplicationInitializer  类(spring自己 为不使用web.xml设计)
 
 
 @ControllerAdvice("spring_jsp.annotation")
@@ -1175,6 +1175,42 @@ public UserDetails responseBodyXML() {
 	</bean>
 	就可以注入   BasicAPI hessianServiceClient
 
+	
+	
+-------------mockMVC
+
+@RunWith(SpringJUnit4ClassRunner.class)  
+//@ActiveProfiles({"test"})
+//@Transactional
+@WebAppConfiguration //SpringMVC利用MockMvc进行单元测试 
+@ContextConfiguration(locations={
+		"classpath:test_mockmvc/spring-mockmvc.xml",
+		})
+public class MockITO_MockMvcTest  {
+
+	@Before
+	public void setup() {
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+		MockitoAnnotations.initMocks(this); 
+	}
+ 
+	@Test
+	public void testMVC()throws Exception   
+	{
+		//spring-mockmvc.xml 有正启动的全部内容
+		ResultActions resultActions = mockMvc.perform(
+				post("/json/queryEmployeeVO.mvc")
+				.characterEncoding("UTF-8")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\"employee_id\":123,\"first_name\":\"李四\"}")
+				)
+				.andExpect(status().isOk())
+				.andDo(print());
+		MvcResult mvcResult = resultActions.andReturn();
+		String result = mvcResult.getResponse().getContentAsString();
+		System.out.println(result);
+	}
+}
 =========================上 Spring MVC
  
 
@@ -1309,5 +1345,5 @@ http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp
 
 页面中 Data Type 组选    Model Schema 
 
-
+------------ RestTemplate
 

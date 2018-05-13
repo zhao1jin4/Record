@@ -295,6 +295,9 @@ Settins-> Privacy and Security->Content Settings->Cookies-> 在All Cookies and S
 Settins-> Download 可以打开 Ask where to save each file before downloading
 
 插件   应用组的 Postman   https://www.getpostman.com/  安装后是一个单独的程序
+-------------Edge --------
+安装目录 
+C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe
 
 -------------IE --------
 IE中 强制刷新快捷键是CTLR+F5.
@@ -410,6 +413,7 @@ alt+1 ,alt+2来切换时间切换桌面
  
 	
 ----Fences 3  桌面图标分组
+	破解安装要以管理员用户安装,才能结束正在使用的进程
 	安装不要选择ObjectDock
 	双击桌面 显示/隐藏  分组图标
 	可右击文件夹->show this fold on desktop
