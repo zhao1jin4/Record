@@ -30,12 +30,33 @@ https://www.activiti.org/userguide/
 
 database目录中有建表的脚本(mysql,oracle)
 
+bpmn 文件格式
+
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"  
+xmlns:activiti="http://activiti.org/bpmn"
+xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+typeLanguage="http://www.w3.org/2001/XMLSchema"
+expressionLanguage="http://www.w3.org/1999/XPath"
+targetNamespace="http://www.activiti.org/test">
+
+  <process id="myProcess">
+							<startEvent id="startevent1" name="Start"></startEvent>
+							<userTask id="usertask1" name="提交申请"></userTask>
+							<userTask id="usertask2" name="经理审批"></userTask>
+							<endEvent id="endevent1" name="End"></endEvent>
+							<sequenceFlow id="flow1" sourceRef="startevent1" targetRef="usertask1"></sequenceFlow> 
+		</process>
+</definitions>
+
+
 import org.activiti.engine.ProcessEngineConfiguration;
 
 
 ProcessEngineConfiguration config =ProcessEngineConfiguration.createStandaloneProcessEngineConfiguration();
-config.setJdbcDriver("com.mysql.jdbc.Driver");
-config.setJdbcUrl("jdbc:mysql://localhost:3306/activiti?useUnicode=true&amp;characterEncoding=UTF-8");
+	config.setJdbcDriver("com.mysql.cj.jdbc.Driver");//mysql 8
+	config.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/activiti?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC");
 config.setJdbcUsername("bpmn");
 config.setJdbcPassword("bpmn");
 //String schemaType=ProcessEngineConfiguration.DB_SCHEMA_UPDATE_CREATE_DROP;//先删表再建
@@ -51,26 +72,23 @@ ProcessEngine engine=config.buildProcessEngine();
 		
 //mysql 
 create database activiti default character set utf8;
-grant all on activiti.* to 'bpmn'@'%'  identified by 'bpmn';
-grant all on activiti.* to bpmn@localhost  identified by 'bpmn';
+CREATE USER bpmn@'%'  IDENTIFIED BY 'bpmn';
+CREATE USER bpmn@localhost  IDENTIFIED BY 'bpmn';
+grant all on activiti.* to 'bpmn'@'%'  ;
+grant all on activiti.* to bpmn@localhost ;
 
 activiti-6.0.0\database\create  三个文件 
 	activiti.mysql.create.engine.sql 
 	activiti.mysql.create.history.sql
 	activiti.mysql.create.identity.sql
 
-表都以 ACT_开头,共28张表
-ACT_RU是runtime
-ACT_HI是history
-ACT_GE是 
-ACT_ID
 
 
 //用 Spring  wars\activiti-rest.war\WEB-INF\classes\activiti-custom-context.xml  有 spring
 ProcessEngineConfiguration config =ProcessEngineConfiguration.createProcessEngineConfigurationFromResource("activiti.cfg.xml");
  <bean id="processEngineConfiguration" class="org.activiti.engine.ProcessEngineConfiguration" factory-method="createStandaloneProcessEngineConfiguration">
-	<property name="jdbcDriver" value="com.mysql.jdbc.Driver"/>
-	<property name="jdbcUrl" value="jdbc:mysql://172.16.35.35:3306/activiti?useUnicode=true&amp;characterEncoding=UTF-8"/>
+		<property name="jdbcDriver" value="com.mysql.cj.jdbc.Driver"/>
+	<property name="jdbcUrl" value="jdbc:mysql://127.0.0.1:3306/activiti?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC"/>>
 	<property name="jdbcUsername" value="bpmn"/>
 	<property name="jdbcPassword" value="bpmn"/>
  </bean>
@@ -108,15 +126,23 @@ Deployment deployment=deploymentBuilder.deploy();
 System.out.println(deployment.getId());
 System.out.println(deployment.getName());
 
-共28张表名缩写全称
+
+表都以 ACT_开头,共28张表,缩写全称
 GE=General 
 HI=History
-RE=Repository
+RE=Repository , RepositoryService
 ID=Identity
-RU=Runtime
+RU=Runtime	,RuntimeService
 
+		engine.getRepositoryService();
+		engine.getRuntimeService();
+		engine.getTaskService();
+		engine.getHistoryService();
+		engine.getIdentityService();
+		engine.getFormService();
+		
 部署后 ACT_RE_DEPLOYMENT 表中有值
-ACT_RE_PROCDEF 表存放的是 流程定义
+ACT_RE_PROCDEF 表存放的是 流程定义  
 ACT_GE_BYTEARRAY 表存放图片
 ACT_GE_PROPERTY 存
 

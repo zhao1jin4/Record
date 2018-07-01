@@ -45,26 +45,29 @@ cheese 命令是一个载图软件
 /usr/share/pixmaps  图标文件 
 /usr/share/pixmaps/backgrounds/gnome/  有图片
 /usr/share/icon
-/usr/share/applications  像是Activies下的应用
-
+/usr/share/applications/bcompare.desktop  左侧的工具栏图标  
+	
 
 ctrl+小写L 在文件浏览器就有地址栏
-alter+上键，向上
 Alt+F2,打开“运行应用程序”对话框
+super(win)+a 快速打开所有应用
+super +h 隐藏窗口
+shift + print 会选择区域截图
  
-gconf-editor 配置界面没有gedit的项,类似windows的注册表一样的东西
+alter+上键，向上 
+#gconf-editor 配置界面没有gedit的项,类似windows的注册表一样的东西
 gedit 打开文件时可以选择GBK编码,一下次再打开这个文件就会记录,自动选择正确的中文编码，而不是手工选择，？？
 
 Ctrl+Shift+Alt+R    开始屏幕录像,上方栏中有红点,再按结束,会生成文件 ~/Vides/screencase-时间.webm   使用Totem Movie Player 3.2.1来播放,但好像没有声音
 
 在 文件浏览器中  ctrl+alt +backspace 可以注销
-锁机快捷键？？？
+
 
 gedit 打开自动换行->preference-> not select "Enable text wrapping"
 
 用  "CD/DVD创建者"打开*.iso文件
 
-ctrl+shift+拖文件创建链接
+ 
  
 
 ========================命令
@@ -379,6 +382,7 @@ cdrecord dev=b,t,l -v -dao schillix-0.1.iso
 alias ls='ls --color=always -ahl'
 unalias 
 
+ip link set dev eth0 down
 #ifconfig eth0 down
 更换物理地址
 # ifconfig eth0 hw ether AA：BB：CC：DD：EE：FF
@@ -391,6 +395,7 @@ rout
 tcpdump
 windows 下php+mysql+apache的安装集成
 hostname
+hostname -i 查看ip  ，同ifconfig
 
 route add default gw 202.2.2.2 dev eth0
 
@@ -823,8 +828,9 @@ mount -t vfat -o ro,utf8,uid=zhaojin,gid=zhaojin /dev/....
 -a 会读/etc/fstab文件 ( -a -t vfat 会/etc/fstab 中有所的vfat类型的) 
 wheel组为root组
 
-mount -o iocharset=utf8 -t vfat /dev/sda7 /media/E/
-fat32 要加iocharset=utf8 ,是正常显示中文的，ntfs就不用了只ro
+mount -o iocharset=utf8,uid=zhaojin  -t vfat /dev/sda7 /media/E/
+fat32 要加iocharset=utf8 ,文件名是按linux正常显示中文的，ntfs就不用了只ro
+  要指定uid 普通用户才能有权限写
 
 netstat -tnl  显示端口
 
@@ -1344,6 +1350,7 @@ iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 service iptables save
 systemctl list-unit-files | grep firewall 有 firewalld.service 
 systemctl stop firewalld
+systemctl enabled firewalld
 
 firewall-cmd --list-services   
 firewall-cmd --get-services 哪些服务可以打开
@@ -1553,6 +1560,9 @@ quotaoff 关闭功能
 5级加(至少三硬盘),速度快,安全,(硬盘使用(N-1)/N)	只是多了一个奇偶校验信息，写入数据的速度相当的慢，若使用“回写高速缓存”可以让效能改善不少
 1和0相加10(至少四硬盘)(硬盘使用1/2)  
  RAID 0+1  先0后1 也被称为RAID 10标准
+
+raid 6 可允许两个盘失效
+
 
 rqm -ql raidtools
 man 5 raidtab
@@ -1965,20 +1975,38 @@ Enable=false修改为Enable=true，同时查找#Port=177这一行，把行首的
 
 修改文件/etc/X11/xdm/Xaccess文件，查找到下面一行，把前面的#号去掉。
 # *         #any host can get a login window
+# *               CHOOSER BROADCAST       #any indirect host can get a chooser
 
 
 修改文件/etc/X11/xdm/xdm-config文件，找到下面这一行，把它注释掉。[注意该地方注释使用!,而不是我们常用的#号]
-！Display Manager .Requestport 0
+！DisplayManager.Requestport: 0
 
 修改/etc/inittab文件，将id:3:initdefault:修改为：id:5:initdefault:并且在最后一行添加x:5:respawn:/usr/bin/gdm
 
-修改/etc/X11/xdm/Xsetup_0的属性为755。
+openSUSE-15
+		修改/etc/sysconfig/displaymanager文件，更改以下内容：
+					DISPLAYMANAGER_REMOTE_ACCESS=”yes”               （ 注：允许远程桌面连接）
+					DISPLAYMANAGER_ROOT_LOGIN_REMOTE=”yes”     （注：允许root用户远程连接）
+					DISPLAYMANAGER_XSERVER_TCP_PORT_6000_OPEN="yes
+		配置/etc/gdm/custom.conf
+			在[xdmcp]下添加这样几句 
+				Enable=true 
+				Port=177 
+		在[security]下添加
+		 DisallowTCP=false 
+			AllowRoot=true 
+			AllowRemoteRoot=true
+											
+修改/etc/X11/xdm/Xsetup_0的属性为755(openSUSE-15无)
 
-重新启动服务器
+systemctl  restart xdm
+
+ss -atr 没有监听177端口？？重启linux,关win,linux防火墙也一样
+Xbrowser 5 ->new XDMCP session ->secure XDMCP 有输入用户密码(sshd)，但无界面
 
 -------------上 XDMCP-----------
 
-rdesktop 工具 同windows的mstsc ,使用RDP协议,linux服务端xrdp
+rdesktop 工具 (openSUSE-15自带RDP协议的远程桌面工具)  同windows的mstsc ,使用RDP协议,linux服务端xrdp
 
 
 -------------gcc 的安装(4.3.1较新的)
@@ -2067,6 +2095,7 @@ auth       required    pam_succeed_if.so  quiet
 
 ---------Redhat  修改主机名
 hostname myhost
+/etc/hostname
 /etc/sysconfig/network 中的 hostname
 /etc/hosts 文件
 

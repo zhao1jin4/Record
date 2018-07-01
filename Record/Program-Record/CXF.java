@@ -78,6 +78,7 @@ public class ClientJAXWS
     }
 }
 //java_first_jaxws  对象
+wsimport -s c:/tmp -keep  http://localhost:8000/helloWorld?wsdl 生成webservice代码
 
 ===== 上 java_first_jaxws 
 ------------方法参数是对象 

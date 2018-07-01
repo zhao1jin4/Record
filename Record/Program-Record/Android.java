@@ -49,10 +49,18 @@ Android SDK Manager -> Settings ->HTTP Proxy Server 输入  mirrors.neusoft.edu.
 ----- Android Studio
  在 ~/.AndroidStudio3.0
  默认安装目录 C:\Users\zhaojin\AppData\Local\Android\sdk 
+	linux: /home/zhaojin/Android/Sdk
  默认工作区  C:\Users\zhaojin\AndroidStudioProjects
  如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
  
 基于IntelliJ IDEA ,使用openJDK8 ,Gradle构建
+
+android 3.1.2 下 载的是 gradle-4.4-all.zip 可开始下载时中断生成目录
+~/.gradle/wrapper/dists/gradle-4.4-all/9br9xq1tocpiv8o6njlyu5op1/  再放入gradle-4.4-all.zip 
+
+Linux: ~/.gradle/wrapper/dists 
+windows:   C:\users\{user name}\.gradle\wrapper\dists
+
 像Word一样的单文档,一个Studio只能打开一个项目,也可以建立Module,都是在gradel子目录中,都可以单独运行,使用同一个gradle构建,生成gradlew 等文件
  
 第一个项目的名字是默认生成的,如mobile,可以重命名,会修改settings.gradle中的内容

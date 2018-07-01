@@ -2,6 +2,13 @@
 https://dev.mysql.com/doc/index-other.html MySQL  Sample Database
 https://dev.mysql.com/doc/employee/en/ Employees    https://launchpad.net/test-db  https://github.com/datacharmer/test_db
 
+PHPMyAdmin
+SQLyog(MySQL GUI & Admin)	windows only
+Monyog(MySQL Monitor)
+MySQLFront   				windows only
+dbForge Studio for MySQL	windows only
+
+
    -- 2001年 工资>80000的员工,及所在部门及领导 ,一个部门会有2个领导
    
   select concat(e.first_name,e.last_name ,' ') as emp_name   ,

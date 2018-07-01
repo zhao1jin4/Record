@@ -413,6 +413,11 @@ TLD文件中
 自定义的EL表达式函数toGBK:${you:toGBK("你好abc123","ISO8859-1")}<br/>
 
 ==================================JSTL中
+<dependency>
+	<groupId>javax.servlet</groupId>
+	<artifactId>jstl</artifactId>
+</dependency>
+
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -2472,7 +2477,7 @@ public class JavaMailMessageBean implements MessageDrivenBean, JavaMailMessageLi
 }
 
 =============================Tomcat
-
+catalina.bat jdpa start 启动8000 可远程调试
 
 catalina.bat run 或 catalina.bat start
 startup.bat

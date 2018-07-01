@@ -88,6 +88,11 @@ public class HelloWorldController implements Controller
 		//return new ModelAndView("/WEB-INF/jsp/helloWorld.jsp", "now", nowx);//对没有配置UrlBasedViewResolver的方式
 	}
 }
+<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp"></property>
+</bean>
 
 <bean  class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
 	<property name="mappings">
@@ -95,79 +100,21 @@ public class HelloWorldController implements Controller
 			/helloWorld.mvc				=helloWorldCntroller
 			login.mvc					=loginController <!-- 可以不用加/ -->
 			register.mvc				=enterRegisterController <!-- UrlFilenameViewController,找register名字做为view -->
-			/delegateMulti/*			=delegateMulti 								*/
-		</value>
+	 	</value>
 	</property>
 </bean>
 
-<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
-		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
-		<property name="prefix" value="/WEB-INF/jsp/"></property>
-		<property name="suffix" value=".jsp"></property>
-</bean>
 <bean id="helloWorldCntroller" class="spring_jsp.HelloWorldController" />
 <bean  id="loginController"  class="org.springframework.web.servlet.mvc.ParameterizableViewController">
 	<property name="viewName" value="login"></property> <!-- 可不用自己建立的Controller,而直接进入login.jsp页面的方式-->
 </bean>
-<bean  id="enterRegisterController"  class="org.springframework.web.servlet.mvc.UrlFilenameViewController"/>
-<!-- 视图名  就是配置的URL的部分  -->
-	
+<bean  id="enterRegisterController"  class="org.springframework.web.servlet.mvc.UrlFilenameViewController"/><!-- 视图名  就是配置的URL的部分  -->
 
- 
-<!-- 只对特定的controller -->
-<bean id="propertiesMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver" >
-	<property name="mappings">
-		<props> <!-- 使用props也可使用 value -->
-			<prop key="/showTeacherDetailById.mvc">queryTeacherDetailById</prop>
-			<prop key="/showAllTeacher.mvc">queryAllTeacher</prop> 
-		</props>
-	</property>
-</bean>
+
+<bean name="/helloWorldBeanName.mvc" class="spring_jsp.HelloWorldController" />
+<bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+<!--   以是 name="/helloWorldBeanName.mvc" , 是使用 BeanNameUrlHandlerMapping  -->
   
-public class StudentMultiActionController extends MultiActionController
-{
-	//MultiActionController 方法格式 public (ModelAndView | Map | String | void) actionName(HttpServletRequest request, HttpServletResponse response, [,HttpSession] [,AnyObject]);
-	public ModelAndView queryStudentDetailById(HttpServletRequest request,HttpServletResponse respnose) 
-	{}
-}
-<bean id="internalPathMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.InternalPathMethodNameResolver" />
-<!-- 根据请求路径名对应方法名-->	
-<bean id="studentMultiActionController" class="spring_jsp.StudentMultiActionController">
-<property name="methodNameResolver" ref="internalPathMethodNameResolver"/>
-</bean>
-	
-	
-<!--
-	ControllerClassNameHandlerMapping初始化要在Controller之前
-	对 InternalPathMethodNameResolver的Multi规则是 StudentMultiActionController 地址为studentmultiaction.mvc要全小写
-	因为是Multi的所有要加/queryStudentDetailById,
-	studentmultiaction/queryStudentDetailById.mvc?student_id=123,注意.mvc在最后一个
-	ParameterMethodNameResolver不行的???????
--->
-<bean  class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping">
-</bean>
-
-<!-- 对 MultiActionController 就不行了 -->
-<bean  class="org.springframework.web.servlet.mvc.support.ControllerBeanNameHandlerMapping"/>
-<bean name="helloWorldABC.mvc" class="spring_jsp.HelloWorldController" />
-<!-- 也可以是 name="/helloWorldABC.mvc",就不用配置 ControllerBeanNameHandlerMapping ,应该是使用BeanNameUrlHandlerMapping-->
-
-
-<bean id="paramMethodNameResolver"   class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver" >
-	<property name="paramName" value="doMethod" /><!-- 根据doMethod参数 决定方法名-->
-</bean>
-<bean id="clazzMultiActionController" class="spring_jsp.ClazzMultiActionController">
-	<property name="methodNameResolver" ref="paramMethodNameResolver"/>
-</bean>
-
- 
- <!-- 不用继承自MultiActionController,使用 delegate方式,默认是InternalPathMethodNameResolver-->
-  <bean id="delegateMulti" class="org.springframework.web.servlet.mvc.multiaction.MultiActionController">
- 	<property name="delegate">
- 		 <bean class="spring_jsp.MyDelegateMulti"></bean>
- 	</property>
- </bean>
-
 
 <!--基于UrlBasedViewResolver,就不用指定viewClass-->
 <bean  class="org.springframework.web.servlet.view.InternalResourceViewResolver">
@@ -955,7 +902,7 @@ jackson-databind-2.2.3.jar
 public class MyWebBindingInitializer implements WebBindingInitializer 
 {
 	@Override
-	public void initBinder(WebDataBinder binder, WebRequest request) {
+	public void initBinder(WebDataBinder binder) {
 		System.out.println("调用 MyWebBindingInitializer ");
 		//binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd"), true));
 		binder.registerCustomEditor(Date.class,new  MyPropertyEditor());
@@ -1214,6 +1161,16 @@ public class MockITO_MockMvcTest  {
 =========================上 Spring MVC
  
 
+ =========================Spring   Session
+<dependency>
+	<groupId>org.springframework.session</groupId>
+	<artifactId>spring-session-data-redis</artifactId>
+	<version>2.0.4.RELEASE</version>
+</dependency>
+
+
+
+
  =========================Spring HATEOAS
 (HATEOAS) Hypermedia as the Engine of Application State
 //依赖于 objenesis-2.1.jar
@@ -1268,6 +1225,7 @@ public class GreetingController
 
 @RestController 返回 Greeting 类时,是以JSON显示
 如要以XML返回,返回类要有默认构造器,返回类加@XmlRootElement  (可选方法上加@ResponseBody)
+
 
 
 ==============Swagger框架
@@ -1347,3 +1305,42 @@ http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp
 
 ------------ RestTemplate
 
+------------spring session redis
+<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig"/>
+  <bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  >
+	<constructor-arg >
+		<bean class="org.springframework.data.redis.connection.RedisStandaloneConfiguration">
+			<property name="hostName" value="192.168.56.101"></property>
+			<property name="port" value="6379"></property>
+			<property name="password"  >
+				<bean class="org.springframework.data.redis.connection.RedisPassword" factory-method="of" >
+					<constructor-arg value="redisPass"/>
+				</bean>
+			</property>
+			<property name="database"  value="0"></property>
+		</bean>
+	</constructor-arg> 
+</bean>
+
+ <!-- spring session redis 设置  10分钟过期-->
+  <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
+      <property name="maxInactiveIntervalInSeconds" value="600"></property>
+  </bean>
+  
+ <context:component-scan base-package="org.springframework.web.filter.DelegatingFilterProxy"/>
+<!-- 解决  No bean named 'springSessionRepositoryFilter' is defined  -->
+
+
+  <!--   spring session 过滤器  -->
+  <filter>
+    <filter-name>springSessionRepositoryFilter</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>springSessionRepositoryFilter</filter-name>
+    <url-pattern>/*</url-pattern>   */
+  </filter-mapping>
+  
+  request.getSession().setAttribute("key","valu"); //就把session的值存放在redis中
+  
+------------

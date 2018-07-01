@@ -3,7 +3,9 @@
 C++语言编写
 工具用  Toad Extension for Eclipse 带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
 Toad for Eclipse-2.4.4 可以支持mongo-3.2版本,3.4版本打开js文件连接不成功,
-Robo  Studio 3T  2018.2.5 (10-April-2018)
+Robo  Studio 3T  2018.2.5 (收费的)
+NoSQL Manager for MongoDB-4.9.8  (只windows，下freeware安装后Professional版30天试用)
+MongoDB 页面管理工具: Rockmongo
 
 https://docs.mongodb.com/
 https://docs.mongodb.com/manual/
@@ -19,6 +21,7 @@ NoSQL不支持事务,用C++写的,支持分布式 (JSON,JS语言)
 目前 3.6.4
 MongoDB 4.0 will add support for multi-document transactions
 
+Win10 家庭版 安装 MongoDB 3.6.4 安取消选择install mongodb compass,否则安装失败
 
  $./mongod --help
  
@@ -28,14 +31,14 @@ $ ./mongod  默认找/data/db
 
 
 windows命令 md C:\mongodb\data\db 
-启动服务 mongod.exe --dbpath c:\mongodb\data\db  --port 47017 //默认监听 27017  端口,如路径有空格 加" "
+启动服务 mongod.exe --dbpath c:\mongodb\data\db  --port 27017 //默认监听 27017  端口,如路径有空格 加" "
 
 
  
 客户端工具
 mongo.exe   --port 47017 // 默认连接 27017 端口 
 mongo   127.0.0.1:27017/admin   来建立管理员用户 
-mongo -u zh -p 123  10.1.5.226:27017/reporting  ##/后面是数据名    默认不验证用户名要启动时加 --auth
+mongo -u zh -p 123  127.0.0.1:27017/reporting  ##/后面是数据名    默认不验证用户名要启动时加 --auth ,建立用户时不加--auth
 
 
 >db.test.save( { a: 1 } )
@@ -50,26 +53,27 @@ md c:\mongoData\db
 
 echo logpath=c:\mongoData\log\mongod.log> "c:\mongoData\mongod.cfg"
 echo dbpath=c:\mongoData\db>> "c:\mongoData\mongod.cfg"
-echo port=27017>>"c:\mongoData\mongod.cfg"
-echo httpinterface=true >> "c:\mongoData\mongod.cfg"
-echo rest=true >> "c:\mongoData\mongod.cfg"
+echo port=27017>>"c:\mongoData\mongod.cfg" 
 echo auth=true >> "c:\mongoData\mongod.cfg"
+--
+logpath=c:\mongoData\log\mongod.log
+dbpath=c:\mongoData\db
+port=27017 
+auth=true 
 
 
-mongod --dbpath=c:\mongoData\db --logpath=c:\mongoData\log\db.log --auth  --httpinterface --rest
+mongod --dbpath=c:\mongoData\db --logpath=c:\mongoData\log\db.log --auth   
 mongod  --config=c:\mongoData\mongod.cfg
-
 // mongod.exe 默认找 C:\data\db目录
- 
-mongod --dbpath=c:\mongoData\db --logpath=c:\mongoData\log\db.log --auth  --httpinterface --rest --install  会自动建立名字为MongoDB的服务
- 
-mongod.exe --remove  删除服务
+
+mongod  --config=c:\mongoData\mongod.cfg  --install 会自动建立名字为MongoDB的服务 启动命令后加 --service
+mongod  --remove  删除服务
 
 
  sc命令加服务,以管理员运行
-sc  create MongoDB binPath= "\"C:\Program Files\MongoDB\Server\3.4\bin\mongod.exe\" --service --config=\"c:\mongoData\mongod.cfg\"" DisplayName= "MongoDB 3.4 Server" start= "auto"
+sc  create MongoDB binPath= "\"C:\Program Files\MongoDB\Server\3.6\bin\mongod.exe\" --service --config=\"c:\mongoData\mongod.cfg\"" DisplayName= "MongoDB 3.6 Server" start= "auto"
 
-net stop MongoDB  有错误提示  "发生系统错误 1067" 忽略
+net stop MongoDB   
 
 sc  delete MongoDB  删除服务
 
@@ -88,9 +92,8 @@ mongod --config=./mongod.cfg  --shutdown
 最好不要使用kill -9 杀进程 ,可以用 pkill,killall
 
 
-mongod --config=./mongod.cfg &
- --httpinterface  启用管理web控制台  就可以使用http://127.0.0.1:28017/  来仿问了
-  --rest  可以列出所有的命令  同 listCommands()
+mongod --config=./mongod.cfg & 
+
 use admin
 db.shutdownServer(); 停服务
  
@@ -273,8 +276,17 @@ db.inventory.insert(
      category: "clothing"
    }
 )
+ db.inventory.update({item:"ABC1"},{$set:{category: "clothing2222222"}});
+ db.inventory.update({item:"ABC1"},{$set:{"stock.0.size": "LL"}});  //修改数组指定位置 
+ db.inventory.update({"stock.qty":25},{$set:{"stock.$":{size: "S1", qty: 30 }}});//按查找修改数组,$必须是找到的 
+ db.inventory.update({"stock.qty":{$ne:25}},{$push:{"stock": {size: "S0", qty: 25} }}); //不存在,新增
+ db.inventory.update({item:"ABC1"},{$push:{"stock": {size: "L", qty: 70} }});//push数组末尾加项
+ db.inventory.update({item:"ABC1"},{$push:{"stock": {size: "S1", qty: 30} }});
+ db.inventory.update({item:"ABC1"},{$pop:{"stock":1}}); //pop数组最后删除
+ db.inventory.update({item:"ABC1"},{$pop:{"stock":-1}});//数组开头删
+ db.inventory.update({item:"ABC1"},{$pull:{"stock":{qty: 30}}});  //删除数组中间 $pull
 
- 
+	 
 db.bios.createIndex( { "birth": 1 }, { unique: true } )//1,表示升序,-1表示降序,唯一索引
 db.bios.createIndex( { _id: "hashed" } )  //hash索引
 db.bios.createIndex(
@@ -591,6 +603,7 @@ db.stu.find({},{post:{$slice:2}}).toArray().length
  db.stu.find({},{_id:false,name:true})//_id不显示,name显示
 --
 db.stu.update({name:"wang8"},{name:"wang1"})  //如原来有 age,只样改会丢失age
+db.stu.insert({name:"wang88",post:[33,44]})
  
 db.stu.update({name:"wang77"},{name:"wang88"})//默认更新不到,不新增
 db.stu.update({name:"wang88"},{$set:{age:22}}) //这样不丢失原来
@@ -652,7 +665,7 @@ db.stu.insert({name:"wang22" ,age:null} ) ;
 db.stu.insert({name:"wang33" } ) ;
 
 db.stu.find({age:null})//也包括不存在age 的值
-db.stu.find({age:{$type:10}}) // 指定值为null的
+db.stu.find({age:{$type:10}}) // 10为null的
 
 
 
@@ -736,6 +749,9 @@ tcpdump -i eth0 -n "port 27017" -w traffic.pcap
 mongoreplay record -f traffic.pcap -p ~/recordings/playback
 
 mongoreplay play -p ~/recordings/playback --report ~/reports/replay_stats.json --host mongodb://192.168.0.4:27018
+
+mongostat
+mongotop
 
 ----
 ======= wiredTiger 3.0新版本的存储引擎

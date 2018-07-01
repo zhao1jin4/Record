@@ -400,7 +400,8 @@ CDT 插件 help->install安装选择zip
 		取消选择 optional 下  C/C++ Docker Container Launch Support  依赖于 linuxtools  http://www.eclipse.org/linuxtools/downloads.php
 					可使用Jboss Tools中的Docker Tooling  但是依赖于org.glassfish.hk2.locator 2.3.0 
 	
-	
+======================================= CDT 9.4.3 for Eclipse Oxygen
+
 =======================================eclipse 其它插件
 -----dropins 目录安装 ,好处是不会复制插件到eclipse自己的plugins和features目录中
 也可以放自己的插件名目录(要求有eclipse/plugins,eclipse/features目录)
@@ -622,7 +623,9 @@ Toad for Eclipse-2.4.4 可以支持mongo-3.2版本, 到3.4版本打开js文件�
 
 -- eclipse Scala 插件 Scala IDE-4.4.1   
 eclipse_4.5 可以dropsin安装  
-
+eclipse-4.7 要下载单独scalaIDE版本，无离线包，  在线安装
+-- Intellij Idea 插件  Scala-2018.1.9
+   
 -- eclipse Python 插件 PyDev
 marketplace安装  Python 插件 PyDev-5.4 ,安装时不会提示版本兼容,当使用时提示要eclipse-4.6 才行
 
@@ -641,6 +644,9 @@ eclipse-4.6.2版本,为class指定源码,如以目录方式的源码无效果???
 ---windows 下 oxgen 版本和前面的版本 总报错Unhandled event loop exception No more handles
 安装eclipse windows builder,也没用????
 配置开机不启动 Catalyst Control Center ,也没用????
+有的说是team viewer的原因,可我已经卸载了
+发现在是目录太深了,删除安装目录时就时提示了，目录变浅还是不行？？
+
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
 
 File->project stucture ->project -> 配置JDK
@@ -687,7 +693,7 @@ File->project stucture ->project -> 配置JDK
 	
 	当有冲突时 	右击根目录->Git->Resolve Confilcts...->
 	
-	File->Settings->Version Control ->可以配置Git 的 root目录
+	File->Settings->Version Control ->可以配置Git 的 root目录 (VCS Root如没有配置，右击文件就没有Git菜单，启动时会提示的)
 	
 	 
 ---
@@ -741,8 +747,9 @@ View->tool windows->project 显示项目视图
 设置菜单字体大小   File->Setting...->Appearance & Behavior-> Appearance -> Override defaul fonts by (not recommaned) 后面设置为14 (字体SimHei)
 
 设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts -> Font   16
+				2018版	File->Setting...->Editor -> Color Scheme-> Color Scheme Font   16
 设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font  16
-
+				 2018版	File->Setting...->Editor -> Color Scheme-> Console Font  16
 Code -> reformat code 格式化代码
 Code -> Generate...生成getter,setter  ( alter+insert  )
 code -> completation -> basic   ( ctrl+ 空格  要修改 Setting->Keymap->Main menu中修改也可搜索 )代码提示 
@@ -795,13 +802,19 @@ Perferences...  ->  Editor  ->General->  Editor Tabs 调整 Tab Closing Policy �
 默认情况下不能调试(debug)多线程，如要调试多线程，在每个线程代码中打断点，右击断点->单选Thread(默认All), set Default 
 
 
+intellij edea 一个main方法只可启动一次，如要多在配置启动项中取消  single instance only
 
 
+====================IntelliJ IDEA plugin 
+scala 
+jd-gui
 
----------
+---------DataGrip 2018
+MySQL 8 jdbc
+zeroDateTimeBehavior 要设置为CONVERT_TO_NULL
+serverTimezone	 要设置为 UTC
 
-
-
+右击连接 -> database tools ...->manage show schemas->current schema
 
 
 

@@ -1,4 +1,119 @@
 
+---------------------------------Mina 
+Apache 项目基于java nio
+
+sample中的 gettingstarted　是服务端
+
+事件驱动
+Handler 中处理响应事件
+Filter,FilterChain //日志，压缩，数据转换，黑名单
+
+Service
+	Connector  客户
+	Acceptor 服务
+
+
+//服务端
+IoAcceptor acceptor = new NioSocketAcceptor(); //UDP 用 NioDatagramAcceptor
+
+acceptor.getFilterChain().addLast( "logger", new LoggingFilter() );
+//acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
+acceptor.getFilterChain().addLast( "codec", new ProtocolCodecFilter( new TextLineCodecFactory( Charset.forName( "UTF-8" ))));
+//acceptor.getFilterChain().addLast(  "codec", new ProtocolCodecFilter(  new SumUpProtocolCodecFactory(true)));//是自定义类  extends DemuxingProtocolCodecFactory 
+ 
+acceptor.setHandler( new TimeServerHandler() );//自己的回调
+acceptor.getSessionConfig().setReadBufferSize( 2048 );
+acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, 10 );//空闲10秒后调用Handler sessionIdle方法 
+acceptor.bind( new InetSocketAddress(9123));
+
+
+//客户端
+NioSocketConnector connector = new NioSocketConnector();// UDP 用 NioDatagramConnector
+ connector.setConnectTimeoutMillis(3000);
+   
+//connector.getFilterChain().addLast("black",  new BlacklistFilter());
+connector.getFilterChain().addLast("logger", new LoggingFilter());
+//connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
+connector.getFilterChain().addLast( "codec", new ProtocolCodecFilter( new TextLineCodecFactory( Charset.forName( "UTF-8" ))));
+//connector.getFilterChain().addLast(  "codec", new ProtocolCodecFilter(  new SumUpProtocolCodecFactory(false)));//是自定义类  extends DemuxingProtocolCodecFactory 
+ 
+connector.setHandler(new ClientSessionHandler());//自己的回调
+  
+ConnectFuture future = connector.connect(new InetSocketAddress(9123));
+future.addListener( new IoFutureListener<ConnectFuture>()
+		{
+            public void operationComplete(ConnectFuture future) //会第一次执行
+            {
+                if( future.isConnected() )
+                {
+                	IoSession session =future.getSession();
+                    IoBuffer buffer = IoBuffer.allocate(8);
+                    //buffer.putLong(85);
+                    buffer.putChar('L');
+                    buffer.putChar('E');
+                    buffer.putChar('N');
+                    buffer.flip();
+                    session.write(buffer);//另一端不会立即收到请求，要在外部的session.write才写
+                } else {
+                   System.out.println("Not connected...exiting");
+                }
+            }
+        });
+future.awaitUninterruptibly();
+IoSession session = future.getSession();
+session.setAttribute(sessionCountKey,0);//session只可在自己这一端可以仿问
+WriteFuture write= session.write("客户端第二次写Header");//这里才开始写ConnectFuture中 Listener的session.write 再和这里 一起到服务端的
+write.addListener(new IoFutureListener<IoFuture>() 
+{
+	@Override
+	public void operationComplete(IoFuture fure) {
+		System.out.println("客户端第二次写Header完成");
+	}
+}) ;
+ 
+session.getCloseFuture().awaitUninterruptibly();//阻， 另一端关闭时这里关闭
+connector.dispose();
+
+class ClientSessionHandler extends IoHandlerAdapter
+{
+	public void exceptionCaught( IoSession session, Throwable cause ) throws Exception
+	{
+	    cause.printStackTrace();
+	}
+	public void messageReceived( IoSession session, Object message ) throws Exception
+	{
+	    int count=Integer.parseInt(session.getAttribute(MinaClient.sessionCountKey).toString());
+		session.setAttribute(MinaClient.sessionCountKey , ++count);
+		if(count > 3)
+		{
+			session.write("quit");
+			return;
+		}else
+		{
+			 String str = message.toString();
+		    System.out.println("客户端 receive is:"+str);
+		    session.write("hello 你好！");
+		    System.out.println("客户端已经写了hello");
+		}
+	}
+	public void messageSent(IoSession session, Object message) throws Exception {//调用了write方法调用这个,不一定发送
+		 System.out.println("messageSent: session="+session.getId()+",message="+message);
+	}
+	public void sessionIdle( IoSession session, IdleStatus status ) throws Exception
+	{
+	    System.out.println( "IDLE " + session.getIdleCount( status ));
+	}
+}
+public class SumUpProtocolCodecFactory extends DemuxingProtocolCodecFactory {
+   public SumUpProtocolCodecFactory(boolean server) 
+   {
+	   if (server) {
+		  super.addMessageDecoder(AddMessageDecoder.class);//implements MessageDecoder
+	      super.addMessageEncoder(ResultMessage.class, ResultMessageEncoder.class);//自己的类T Serializable , implements MessageEncoder<T>
+	  }
+   }
+}
+
 -----------------------------Applet
 只能是JApplet,不能是JFrame ,JApplet中可加JButton...  
 <applet archive="mylib.jar,myDeps.jar" 　 CODE="MyJApplet.class"　width="500" height="500" ></applet>

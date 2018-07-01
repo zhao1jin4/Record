@@ -642,17 +642,19 @@ configuration.setCacheEnabled(true);
 SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
 
 -----Druid
+https://github.com/alibaba/druid
+
 <dependency>
 	<groupId>com.alibaba</groupId>
 	<artifactId>druid</artifactId>
-	<version>1.1.7</version>
+	<version>1.1.10</version>
 </dependency>
 
 <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close"> 
 	 <property name="url" value="${jdbc.url}" />
 	 <property name="username" value="${jdbc.username}" />
-	 <property name="password" value="${jdbc.password}" />
-	 <property name="filters"><value>stat</value></property>
+	 <property name="password" value="${jdbc.password}"/>
+	 <property name="driverClassName" value="${jdbc.driver}"/>  
 	 <property name="maxActive"><value>20</value></property>
 	 <property name="initialSize"><value>1</value></property>
 	 <property name="maxWait"><value>60000</value></property>
@@ -665,8 +667,91 @@ SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(confi
 	 <property name="testOnReturn"><value>false</value></property>
 	 <property name="poolPreparedStatements"><value>true</value></property>
 	 <property name="maxOpenPreparedStatements"><value>20</value></property>
- </bean>
+ 
+ 	<property name="filters" value="stat" /> 
+	<!-- value="stat"用于统计监控信息,stat别名映射配置信息保存在druid-xxx.jar!/META-INF/druid-filter.properties 可逗号配多个,也可使用proxyFilters引用bean,会合并 -->
 	
+	<!--
+	<property name="connectionProperties" value="druid.stat.mergeSql=true" />
+	<property name="connectionProperties" value="druid.stat.slowSqlMillis=5000" />
+   
+  	<property name="filters" value="log4j,mergeStat" /> 
+	<property name="proxyFilters">
+		<list>
+			<ref bean="stat-filter" />
+		</list>
+	</property>
+	-->
+	
+ </bean>
+
+ <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+	<property name="slowSqlMillis" value="10000" />
+	<property name="logSlowSql" value="true" />
+	<property name="mergeSql" value="true" /> 
+	<!--  当多个相同的SQL不能参数时，变为一个SQL ? 形式, 也可在DruidDataSource用 <property name="filters" value="mergeStat" /> -->
+</bean>
+
+
+web.xml 中加
+<servlet>
+  <servlet-name>DruidStatView</servlet-name>
+  <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+   <init-param>  
+	<!-- 允许清空统计数据 -->  
+	<param-name>resetEnable</param-name>  
+	<param-value>true</param-value>  
+    </init-param>  
+    <init-param>  
+	<!-- 用户名 -->  
+	<param-name>loginUsername</param-name>  
+	<param-value>druid</param-value>  
+    </init-param>  
+    <init-param>  
+	<!-- 密码 -->  
+	<param-name>loginPassword</param-name>  
+	<param-value>druid</param-value>  
+	</init-param>
+	<init-param>
+  		<param-name>allow</param-name>
+  		<param-value>127.0.0.1/24,128.242.128.1</param-value>
+  	</init-param>
+  	<init-param>
+  		<param-name>deny</param-name>
+  		<param-value>128.242.127.4</param-value>
+  	</init-param>
+	<init-param>
+  		<param-name>resetEnable</param-name>
+  		<param-value>false</param-value>
+  	</init-param>
+</servlet>
+<servlet-mapping>
+  <servlet-name>DruidStatView</servlet-name>
+  <url-pattern>/druid/*</url-pattern>   */
+</servlet-mapping>
+ 
+ 
+ <filter>
+  	<filter-name>DruidWebStatFilter</filter-name>
+  	<filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
+  	<init-param>
+  		<param-name>exclusions</param-name>
+  		<param-value>*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*</param-value>
+  	</init-param>
+	<init-param>
+		<param-name>profileEnable</param-name>  <!-- 配置profileEnable能够监控单个url调用的sql列表。 -->
+		<param-value>true</param-value>
+	</init-param>
+
+  </filter>
+  <filter-mapping>
+  	<filter-name>DruidWebStatFilter</filter-name>
+  	<url-pattern>/*</url-pattern>  */
+  </filter-mapping>
+  
+ http://127.0.0.1:8080/J_SpringMVC/druid  登录密码就是web.xml中配置的
+ 
+
 -------MyBatis3 Spring集成
 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
@@ -957,6 +1042,7 @@ Maven插件方式
 			<overwrite>true</overwrite>
 		</configuration>
 </plugin>
+mvn mybatis-generator:generate
 =====
 
 

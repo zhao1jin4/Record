@@ -473,6 +473,8 @@ DivX 有时作用也不大
 -----------------------Beyond Compare
 工具栏 Rules按钮 -> Comparison 标签中，取消compare timestamps,即不比较文件的修改时间
 
+-----------------------UltraCompare 18 取消比较修改时间,右击标签->session properties-> 复选中 ignore timestamp difference
+比较中文总会乱码??不如Beyond Compare好用
 
 
 

@@ -200,6 +200,9 @@ object classes 每个Entry都必须至少属于一个object class。规定了该
  
 ==============================LADP Server Apache Directory Server
 openLDAP没有windows的
+
+Active Directory =LDAP服务器＋LDAP应用（Windows域控）
+
 //-apache的LDAP服务器项目ApacheDS,纯Java实现,可嵌入到你的应用程序,可与Spring一起使用
  ------apacheDS-2.0.0-M7 解压版本	没有server.xml
 	
@@ -335,6 +338,7 @@ mvn -e		full stack trace of the errors
 
 
 http://search.maven.org/ 可以搜索 Maven 依赖包的配置 Version 例中
+http://www.mvnrepository.com
 
 Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/maven-model-builder-3.3.9.jar/org/apache/maven/model/pom-4.0.0.xml 有配置 
 <repositories>  
@@ -366,6 +370,7 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 		<id>mirrorId</id>  
 		<mirrorOf>*</mirrorOf>  
 		<!-- 可为 *   或者 env_development,central (https://repo.maven.apache.org/maven2/) 
+	
 		表示如果仿问 central 也要通过个url仿问 -->
 		<url>http://192.168.0.141:8081/nexus/content/groups/public</url>    <!-- 应该是内网地址 -->
 	</mirror>
@@ -394,6 +399,7 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 	  </repositories>
 	  <properties>
 		<!-- <url>http://repo1.maven.org/maven2/</url>  这里是配置公用的第三方包 http://search.maven.org/#browse
+					http://central.maven.org/maven2
 					http://repo.spring.io/libs-release/
 					http://repo.spring.io/libs-milestone/
 			-->
@@ -524,9 +530,26 @@ artifactId 是自己的项目名
 			<version>2.4</version>
 			 <configuration>
 				<packagingExcludes>**/dubbo.properties</packagingExcludes>
+				<attachClasses>true</attachClasses>  <!-- 就会把classs打包会生成<project>-<version>-classes.jar -->
+				<archiveClasses>true</archiveClasses>
 			</configuration>
 		</plugin>
-		
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-war-plugin</artifactId>
+			<version>3.2.2</version>
+			<configuration>
+			  <overlays>  
+				<overlay> <!-- 项目中先 dependency  <type>war</type> 加这个插件把依赖的war和这个war合并打包-->
+				  <groupId>com.example.projects</groupId>
+				  <artifactId>documentedprojectdependency</artifactId>
+				  <excludes>
+					<exclude>WEB-INF/classes/images/sampleimage-dependency.jpg</exclude>
+				  </excludes>
+				</overlay>
+			  </overlays>
+			</configuration>
+		  </plugin>
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
@@ -625,6 +648,8 @@ artifactId 是自己的项目名
 				</classesDirectory>
 			</configuration>
 		</plugin>
+		
+	  
 		<plugin> <!-- 打包源码插件,生成-sources.jar  也可单独运行 mvn source:jar 但clean后就没了 -->
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-source-plugin</artifactId>
@@ -691,6 +716,62 @@ artifactId 是自己的项目名
 		</plugin>
 		
 		
+	<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <id>compile</id>
+            <phase>compile</phase>
+            <configuration>
+              <target>
+                <property name="compile_classpath" refid="maven.compile.classpath"/>
+                <property name="runtime_classpath" refid="maven.runtime.classpath"/>
+                <property name="test_classpath" refid="maven.test.classpath"/>
+                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+
+                <ant antfile="${basedir}/build.xml">
+                  <target name="antBuild"/>
+                </ant>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+	  <--  
+	   build.xml 
+		<project name="test">
+			<target name="antBuild">
+			  <echo message="compile classpath: ${compile_classpath}"/>
+			  <echo message="runtime classpath: ${runtime_classpath}"/>
+			  <echo message="test classpath:    ${test_classpath}"/>
+			  <echo message="plugin classpath:  ${plugin_classpath}"/>
+			  <property name="fromProject" value="baseProject"/>
+			  <property name="fromVersion" value="1.0.1"/>
+			  
+			  <copy  todir="${basedir}/target/classes"  overwrite="no" >  
+				<fileset dir="${basedir}/../${fromProject}/target/classes"/>
+			 </copy>
+			 <copy  todir="${basedir}/target/${ant.project.name}"  overwrite="no" >  
+				<fileset dir="${basedir}/../${fromProject}/target/${fromProject}-${fromVersion}"/>
+			 </copy>
+			</target>
+		</project>
+		更好的方案
+			==父war项目 maven-war插件用 ,就会把classs打包会生成<project>-<version>-classes.jar
+			<attachClasses>true</attachClasses> 
+			<archiveClasses>true</archiveClasses> 
+			
+			== 子war项目依赖父<type>war</type>一次,在package时可以把父项目的webapp复制过来,
+					再第二次依赖父<type>jar</type>
+   								 <classifier>classes</classifier>会依赖<project>-<version>-classes.jar及所有子依赖,再复制WEB-INF/lib下,可以解决编译依赖类问题
+			如子项目与项目同名文件，子项目会覆盖父项目
+	-->
+	  
 	</plugins>
   </build>
 <profiles>  <!-- intellij IDE maven视图可以动态切换环境 -->
@@ -766,6 +847,13 @@ artifactId 是自己的项目名
 			<version>2.5</version>
 			<scope>provided</scope> <!-- 不会参与打包 -->
 		</dependency> 
+		<dependency>
+         <groupId>ldapjdk</groupId>
+         <artifactId>ldapjdk</artifactId>
+         <scope>system</scope>  <!-- 指定jar包在本地系统中 -->
+         <version>1.0</version>
+         <systemPath>${basedir}\src\lib\ldapjdk.jar</systemPath>
+      </dependency>
 	  </dependencies>
 	 </dependencyManagement>
 	<dependencies>
@@ -3074,6 +3162,7 @@ log4j.appender.rollingFile.Append=true
 log4j.appender.rollingFile.MaxFileSize=20MB
 log4j.appender.rollingFile.MaxBackupIndex=10
 
+zookeeper,kafka 是用log4j1版本
 
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">   
@@ -3879,121 +3968,6 @@ org.quartz.threadPool.threadCount: 10
 
 动态配置cronExpression ,类	extends CronTriggerBean
 	setCronExpression(cronExpression)
-
----------------------------------Mina 
-Apache 项目基于java nio
-
-sample中的 gettingstarted　是服务端
-
-事件驱动
-Handler 中处理响应事件
-Filter,FilterChain //日志，压缩，数据转换，黑名单
-
-Service
-	Connector  客户
-	Acceptor 服务
-
-
-//服务端
-IoAcceptor acceptor = new NioSocketAcceptor(); //UDP 用 NioDatagramAcceptor
-
-acceptor.getFilterChain().addLast( "logger", new LoggingFilter() );
-//acceptor.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
-acceptor.getFilterChain().addLast( "codec", new ProtocolCodecFilter( new TextLineCodecFactory( Charset.forName( "UTF-8" ))));
-//acceptor.getFilterChain().addLast(  "codec", new ProtocolCodecFilter(  new SumUpProtocolCodecFactory(true)));//是自定义类  extends DemuxingProtocolCodecFactory 
- 
-acceptor.setHandler( new TimeServerHandler() );//自己的回调
-acceptor.getSessionConfig().setReadBufferSize( 2048 );
-acceptor.getSessionConfig().setIdleTime( IdleStatus.BOTH_IDLE, 10 );//空闲10秒后调用Handler sessionIdle方法 
-acceptor.bind( new InetSocketAddress(9123));
-
-
-//客户端
-NioSocketConnector connector = new NioSocketConnector();// UDP 用 NioDatagramConnector
- connector.setConnectTimeoutMillis(3000);
-   
-//connector.getFilterChain().addLast("black",  new BlacklistFilter());
-connector.getFilterChain().addLast("logger", new LoggingFilter());
-//connector.getFilterChain().addLast("codec", new ProtocolCodecFilter(new ObjectSerializationCodecFactory()));
-connector.getFilterChain().addLast( "codec", new ProtocolCodecFilter( new TextLineCodecFactory( Charset.forName( "UTF-8" ))));
-//connector.getFilterChain().addLast(  "codec", new ProtocolCodecFilter(  new SumUpProtocolCodecFactory(false)));//是自定义类  extends DemuxingProtocolCodecFactory 
- 
-connector.setHandler(new ClientSessionHandler());//自己的回调
-  
-ConnectFuture future = connector.connect(new InetSocketAddress(9123));
-future.addListener( new IoFutureListener<ConnectFuture>()
-		{
-            public void operationComplete(ConnectFuture future) //会第一次执行
-            {
-                if( future.isConnected() )
-                {
-                	IoSession session =future.getSession();
-                    IoBuffer buffer = IoBuffer.allocate(8);
-                    //buffer.putLong(85);
-                    buffer.putChar('L');
-                    buffer.putChar('E');
-                    buffer.putChar('N');
-                    buffer.flip();
-                    session.write(buffer);//另一端不会立即收到请求，要在外部的session.write才写
-                } else {
-                   System.out.println("Not connected...exiting");
-                }
-            }
-        });
-future.awaitUninterruptibly();
-IoSession session = future.getSession();
-session.setAttribute(sessionCountKey,0);//session只可在自己这一端可以仿问
-WriteFuture write= session.write("客户端第二次写Header");//这里才开始写ConnectFuture中 Listener的session.write 再和这里 一起到服务端的
-write.addListener(new IoFutureListener<IoFuture>() 
-{
-	@Override
-	public void operationComplete(IoFuture fure) {
-		System.out.println("客户端第二次写Header完成");
-	}
-}) ;
- 
-session.getCloseFuture().awaitUninterruptibly();//阻， 另一端关闭时这里关闭
-connector.dispose();
-
-class ClientSessionHandler extends IoHandlerAdapter
-{
-	public void exceptionCaught( IoSession session, Throwable cause ) throws Exception
-	{
-	    cause.printStackTrace();
-	}
-	public void messageReceived( IoSession session, Object message ) throws Exception
-	{
-	    int count=Integer.parseInt(session.getAttribute(MinaClient.sessionCountKey).toString());
-		session.setAttribute(MinaClient.sessionCountKey , ++count);
-		if(count > 3)
-		{
-			session.write("quit");
-			return;
-		}else
-		{
-			 String str = message.toString();
-		    System.out.println("客户端 receive is:"+str);
-		    session.write("hello 你好！");
-		    System.out.println("客户端已经写了hello");
-		}
-	}
-	public void messageSent(IoSession session, Object message) throws Exception {//调用了write方法调用这个,不一定发送
-		 System.out.println("messageSent: session="+session.getId()+",message="+message);
-	}
-	public void sessionIdle( IoSession session, IdleStatus status ) throws Exception
-	{
-	    System.out.println( "IDLE " + session.getIdleCount( status ));
-	}
-}
-public class SumUpProtocolCodecFactory extends DemuxingProtocolCodecFactory {
-   public SumUpProtocolCodecFactory(boolean server) 
-   {
-	   if (server) {
-		  super.addMessageDecoder(AddMessageDecoder.class);//implements MessageDecoder
-	      super.addMessageEncoder(ResultMessage.class, ResultMessageEncoder.class);//自己的类T Serializable , implements MessageEncoder<T>
-	  }
-   }
-}
 
 ---------------------------------Netty
 JBoss的 NIO  很少类基于 java nio
@@ -4980,9 +4954,19 @@ System.out.println("userMap: "+ userMap);
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
-  <version>2.8.9</version>
+  <version>2.9.6</version>
 </dependency>
 
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.9.6</version>
+</dependency>
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-annotations</artifactId>
+    <version>2.9.6</version>
+</dependency>
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -5297,6 +5281,25 @@ try{
 }finally {
 	lock.unlock();
 }
+
+-------------javassit 
+可以没有接口
+ClassPool pool=new ClassPool(true);
+pool.insertClassPath(new LoaderClassPath(MainJavasssit.class.getClassLoader()));
+
+CtClass targetClass=pool.makeClass("my.javassist.Hello");//动态代理生成新的class，比cglib慢
+targetClass.addInterface(pool.get(IHello.class.getName()));
+
+CtClass returnType=pool.get(void.class.getName());
+String mname="sayHello";
+CtClass[] parameters=new CtClass[] {pool.get(String.class.getName())};
+CtMethod method=new CtMethod(returnType, mname, parameters, targetClass);
+String src="{ System.out.println(\"hello \"+$1); }";
+method.setBody(src);
+targetClass.addMethod(method);
+Class<IHello> clazz=targetClass.toClass();
+IHello  hello=clazz.newInstance();
+hello.sayHello("王");
 
 
 

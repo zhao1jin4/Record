@@ -464,7 +464,7 @@ Program Files 写时可用 PROGRA~1 来替代
 
 
 window 键 +r =>msconfig 配置开机启动 (win10 在任务管理器中)
-msconfig中[启动中]项中有所的 注册表项CU=CURRENT_USER,LM=LOCAL_MACHINE,Wow6432Node应该是在64位机上为了兼容32位
+msconfig中[启动中]项中有所的 注册表项CU=CURRENT_USER,LM=LOCAL_MACHINE,Wow6432Node 应该是在64位机上为了兼容32位
 HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run (win10 同任务管理器中)
 HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
 HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run
@@ -677,7 +677,7 @@ echo %time%
  
 ---常用命令
 where java  相当于linux which
-
+whoami 
 dir
 tree 可以树壮显示目录结构
 cd

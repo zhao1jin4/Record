@@ -1,21 +1,40 @@
-
 http://doc.opensuse.org/
 
-http://download.opensuse.org/distribution/13.2/repo/oss/suse/x86_64/
-	scim-tables,scim-tables-zh,scim-pinying,scim-bridge,scim-bridge-gtk
-	stardict-3
-	mysql-workbench-6.1.7-3.2.7.x86_64.rpm  
-	lsb-4(chrome依赖)-> libqt4,qt3 
- 
-http://download.opensuse.org/distribution/13.2/repo/oss/suse/noarch/
---lsb-4依赖
-	glibc-i18ndata 
-	qt3
 
-http://download.opensuse.org/distribution/13.2/repo/non-oss/suse/x86_64/
+openSUSE-15-DVD有
+	chromium-66.0.3359.170-lp150.1.1.x86_64.rpm
+		git-2.16.3-lp150.1.1.x86_64.rpm
+openSUSE-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,cheese摄像,Totem播放器,pidgin(可MSN,GTalk都测试过的),brasero(DVD工具)
+	Firefox
+	GStreamer是在Linux下创建流媒体的应用程序框架
+	ibus,fcitx,cyrus,TiggerVNC
+	Mesa(openGL)
+
+http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
+	go-1.9.4-lp150.1.1.x86_64.rpm
+	redis-4.0.9-lp150.2.8.x86_64.rpm
+ 	docker-17.09.1_ce-lp150.4.2.x86_64.rpm
+	sysstat (iostat)
+	mysql-workbench-6.3.10-lp150.3.1.x86_64.rpm
+		mysqlworkbench 启动要 libproj.so , 连接要 /usr/lib64/mysql/plugin/caching_sha2_password.so  没有，绝对路径??? 
+		做 ln -s  /usr/lib64/libproj.so.12.0.0 /usr/lib64/libproj.so  无用??
+		官方doc 说在8.0中默认使用caching_sha2_password已经集成在 libmysqlclient中了
+	anjuta,glade
+	lsb-4(chrome依赖)-> libqt4,qt3
+
+http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 noarch/ 
+	iotop 
+	--lsb-4依赖
+		glibc-i18ndata 
+		qt3
+
+http://download.opensuse.org/distribution/leap/15.0/repo/non-oss/  下的 x86_64/
 	unrar
 
-/etc/SuSE-release 版本信息
+cat /etc/SUSE-brand  
+
+https://software.opensuse.org/download.html?project=server%3Adatabase&package=mysql-workbench
+
 ------------------------硬盘安装SUSE-Desktop-10-DVD
 (用isoemu,硬盘安装SUE不行,要用grub4dos)
 SUSE.iso\boot\i386\loader 目录下的文件linux,initrd  
@@ -64,14 +83,15 @@ iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
 
 yast 显示界面  停止防火墙(有图形界面来停止,启动时是否停止)
 
-#chkconfig --list 有SuSEfirewall2_init  SuSEfirewall2_setup  
-#chkconfig --level 5  SuSEfirewall2_setup  off
-#chkconfig --level 5  SuSEfirewall2_init  off
-chkconfig SuSEfirewall2 off
-
-SuSEfirewall2  start/stop
+#chkconfig --list  
+ 提示用 systemctl list-unit-files 有 firewalld.service 是enabled
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl start  sshd
+systemctl enabled sshd
  
- /etc/sysconfig/SuSEfirewall2 配置文件
+ 
+ /etc/sysconfig/SuSEfirewall2.d/services/  
 
 看 /etc/hosts.deny 中的的注释  man tcpd ,man hosts_access
 
@@ -82,8 +102,6 @@ SuSE Linux防火墙配置
 yast图形界面配置, 或 vi /etc/sysconfig/SuSEfirewall2
 
   
-
-按print 或者alt+print 生出现 Save Screenhot 对话框
 
 
 SuSE Linux配置网关
@@ -98,13 +116,31 @@ route -n 可以看,netstat -rn 相同 (前三列,和最后一列 是network/rout
 
 /etc/sysconfig/network/ifcfg-[网络类型]/-id-[网卡mac地址] ,#如ifcfg-wlan-id-00:16:6f:25:73:1f
 
+
+查看所有路由表。
+ip r
+ip rout
 ip route list
 ip route show
 ip link show 
 ip link set eth0 address aa:aa:aa:aa:aa:aa
 //改MAC ,要先关闭网卡
 
- ip address show
+ip address show   (无ifconfig,net-tools 不再维护，我们强烈建议以 ip 命令代替 ifconfig)
+address  可缩写为addr或a
+ip a
+ip a show eth0
+
+禁用 eth0 
+ip link set dev eth0 down
+
+激活 eth0 
+ip link set dev eth0 up
+
+ (无 netstat,,net-tools 不再维护)
+ss 命令（Socket Statistics）
+ss -atr | grep ssh
+	
 
 iwlist、iwconfig
 这两个命令需要你有无线网卡才能够进行使用
@@ -362,6 +398,9 @@ grub>boot
 
 
 ---------openSUSE 使用
+没有iostat命令,sar,要安装sysstat包,
+看磁盘使用 pidstat -d 1 100
+
 使用yast2安装软件包,会自动解决依赖关系,
 菜单configuraitons->repositories->Add->local ISO image 再选择openSUSE-12.1x64.iso或者 Local Directory->输入rpm包名,像gucharmap-devel,
 可能要取消Active其它在线repository，它会自动也把依赖的包选择上
@@ -397,7 +436,7 @@ Print Setting应用 -> Add按钮 ->NetWork Printer->Windows Printer via SAMBA
  
 /etc/init.d/cups start 监听 631端口
 
-即目录 /usr/lib/systemd/system  也可 systemctl start  sshd.service
+即目录 /usr/lib/systemd/system 有sshd.service 也可 systemctl start  sshd.service
  systemd-analyze plot > system.svg 生成系统启动时各服务花的时间
 systemctl | grep cups   相当于redhat的service命令
 systemctl stop cups.service 
@@ -436,10 +475,19 @@ env | grep im 来查看
 重启生效  ctrl+space切换中英文 ,ctrl+shift切换中文
 
 ---ibus输入法  支持日文anthy,韩文hangul
+python3写的，有python3进程
 在GTK3中会出现右上角的工具栏中 , 删无用的rpm ,输入文字时显示的文字中有引出的三角
-	 输入法栏切换只对google拼音有用,  其它的输入法 无效果??? 可能是对GTK3没做好???(Firefox和GTK面板) ??? 
 
-Redhat(gnome-2) 系统->首选项->输入法->复选 启用输入法特征
+
+进入面板的ibus preferences->Input Method->Add->下拉选择chinese->Pinyin和Wubi-jidian,在最上面的为当前输入法
+( 这里设置切换输入法ctrl+shift不太起作用，这里增加，删除输入法无用)
+
+进入面板的 Setting -> region & language (或者进入面板的 language )-> 
+修改主语言为简体中文, 增加,删除输入法在右上角的栏才有效果,
+#有提示重启， 有说明修改 /etc/sysconfig/language  文件  
+
+windows（super） +space切换输入法同win10,设置在    设置－》设备－》键盘－》打字－》切换至下一输入法
+左shift 可切换中英文
 
 安装ibus-table-chinese-wubi-jidian 包 , 极点五笔  
 Redhat 下载安装 http://mirrors.fedoraproject.org/publiclist
@@ -447,7 +495,8 @@ http://mirror.bjtu.edu.cn/fedora-epel/6/x86_64/ibus-table-chinese-1.4.6-1.el6.no
 http://mirror.bjtu.edu.cn/fedora-epel/6/x86_64/ibus-table-chinese-wubi-jidian-1.4.6-1.el6.noarch.rpm
 
 安装ibus-pinyin
-/etc/profile
+
+/etc/profile （openSUSE-15不修改也可的）
 
 export QT_IM_SWITCHER=imsw-multi
 
@@ -457,16 +506,7 @@ export QT_IM_MODULE=ibus
 
 killall ibus-daemon
 ibus-daemon -d
-
-进入面板的ibus preferences->Input Method->Add->下拉选择chinese->Pinyin和Wubi-jidian,在最上面的为当前输入法( 这里增加，删除输入法无用)
-
-
-进入面板的 language -> 修改主语言为简体中文,detail 有说明修改 /etc/sysconfig/language  文件
-进入面板的 Setting -> region & language -> 修改主语言为简体中文, 增加,删除输入法在右上角的栏才有效果,有提示重启  
-
-/etc/sysconfig/language 中修改 INPUT_METHOD="ibus" 
-
-
+ 
 
 ---fcitx 输入法 
 Free Chinese Input Tool for X   没有二进制的 日语, 韩语
@@ -525,12 +565,38 @@ gcc -o helloOpenGL helloOpenGL.c -lglut -lGL -lGLU
 
 注意和windows不同的是GL是大写的
 
+-要破解
+Charles－4.2.5
+Beyond Compare 3 openSUSE leap-15 安装不了,4是在线验证注册码的
+Navicat
+DbVisualizer-9.2.9  openSUSE leap-15 使用闪退
+SmartGit
+--free
+anjuta
+thunderbird
+flashplayer
+stardict-3
+mysql-workbench 
 
-openSUSE-12.3自带的软件
-	anjuta,libreOffice,evolution,evince,gimp,inkscape,cyrus,git,
-	Mesa,freeglut,Mono,Firefox,thunderbird,wine,ibus,fcitx,wireshark,flashplayer,
-	rdesktop命令和界面,tsclient远程桌面,cheese摄像,gstreammer,Totem播放器,pidgin(可MSN,GTalk都测试过的)
-	Brasero DVD工具,
+Redis Desktop Manager (官方说有，但没找到src build）
+	cd src/
+	./configure
+	qmake-qt5 && make && sudo make install
+	cd /usr/share/redis-desktop-manager/bin
+	sudo mv qt.conf qt.backup
+
+FileZilla
+JD-GUI
+wireshark (有源码无linux zypper install wireshark)
+git
+wine
+
+rdesktop 命令,windows远程桌面 
+tsclient 远程桌面 
+freeglut
+Mono
+
+	
 ===================要手工下载安装的软件
 ---stardict 安装 运行OK，但取词 取不到，要安装库
 要点左下角的退出，才是真的退出
@@ -538,13 +604,15 @@ openSUSE-12.3自带的软件
 ---unrar安装OK ,未测试解压
 rpm -ivh unrar-4.0.4-10.1.7.x86_64.rpm
 yast2 安装 gparted
-   
+    
+gnome3 桌面上不能放文件 ，gnome-tweak-tool （Utilities->Tweaks） -> Desktop ->把 把所有的都打开,就可以在桌面上放文件了 
+左侧的工具栏图标   /usr/share/applications/bcompare.desktop
 
-gnome3 没有最小化按钮，复制地址栏，go->location（ctrl+L）,按esc返回
-gnome3 桌面上不能放文件 ，gnome-tweak-tool -> Desktop ->把 把所有的都打开,就可以在桌面上放文件了
+ctrl+小写L 在文件浏览器就有地址栏
+Alt+F2,打开“运行应用程序”对话框
+Seetings->Devices->Keyboard 有很多快捷键
 
-
-linux Firefox 14 安装 flashplayer 11---测试OK
+linux Firefox 60 安装 flashplayer 30---测试OK
 mkdir ~/.mozilla/plugins/
 cp ~/libflashplayer.so ~/.mozilla/plugins
 
@@ -552,12 +620,16 @@ cp ~/libflashplayer.so ~/.mozilla/plugins
   -下载 QQ plugin 基于webQQ-
  
 ----UltraEdit-3.3  压缩包 安装运行OK   带自己的Compare
-----UltraCompareX -14 压缩包 安装运行OK  
-----Beyond Compare 3 (可能32位的不能运行在64位上)
+----UltraCompareX -17 压缩包
+安装依赖于libpng12.so.0，光盘中带16不行，zypper install libpng12  (yast2打开多点) 
+	ln -s /usr/lib64/libjpeg.so.8 /usr/lib64/libjpeg.so.62
+		openSUSE－15 运行OK
+	----UltraEditX -16 openSUSE－15 运行OK
+	
 -----diffuse 文件比较器,依赖于scrollkeeper,光盘中有的
------Komodo-Edit-8  运行install.sh提示安装位置,运行OK
-----FileZilla-3.6 运行OK
-
+-----Komodo-Edit-11  运行install.sh提示安装位置~/Komodo-Edit-11,运行OK 
+ 右击工具栏－>show menu bar
+-----Robo  Studio 3T 
 ====node.js源码安装
 ./configure
 make
@@ -649,7 +721,7 @@ Yast2 -> Security and User -> User and Group  Management -> Expert Options -> Lo
 vim 和gedit 打开windows下的有中文GBK文件时,显示其它的怪字符
 
 
-openSUSE leap-42.3  版本是稳定的发布版本 
+openSUSE leap-15.0  版本是稳定的发布版本 
 openSUSE tumbleweed 版本是为希望有最新的包
 
 

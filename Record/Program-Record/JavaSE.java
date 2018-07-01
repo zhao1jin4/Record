@@ -1,3 +1,5 @@
+http://doc.javanb.com 中文JDK6API
+
 C:\ProgramData\Oracle\Java\javapath  目录中有java,javaw
 
 apt	(Annotation Processing Tool)工具
@@ -553,13 +555,16 @@ jdbc:oracle:thin:@//127.0.0.1:1521/orcl   对  service Name
 <dependency>
 	<groupId>mysql</groupId>
 	<artifactId>mysql-connector-java</artifactId> 
-	<version>5.1.45</version>
+	<version>8.0.11</version> <!--5.1.45, 8.0.11 -->
 </dependency>
 com.mysql.jdbc.jdbc2.optional.MysqlXADataSource  
-com.mysql.jdbc.Driver
+
+com.mysql.jdbc.Driver  //MySQL 5.x
+com.mysql.cj.jdbc.Driver //MySQL 8
+
 jdbc:mysql://localhost:3306/databasename
-jdbc:mysql:///mydb?useUnicode=true&amp;characterEncoding=UTF-8    xml文件中用&amp;
-jdbc:mysql://address=(protocol=tcp)(host=localhost)(port=3306)/mydb?useUnicode=true&amp;characterEncoding=UTF-8
+jdbc:mysql:///mydb?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC    xml文件中用&amp;
+jdbc:mysql://address=(protocol=tcp)(host=localhost)(port=3306)/mydb?useUnicode=true&characterEncoding=UTF-8
 &zeroDateTimeBehavior=convertToNull 对于日期类型,如果从文件导入没有值会被认为0000-00-00,
 emptyStringsConvertToZero 默认是true
 useSSL=true
@@ -620,6 +625,7 @@ eclipse 也可以把第三方jar包中class解包放到自己的jar中( extract 
 
 jar -m Manifest文件
 
+wsimport -s c:/tmp -keep  http://localhost:8000/helloWorld?wsdl 生成webservice代码
 -----------------远程 调试
 作为调试服务器的目标 VM
 	-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8765        8453
@@ -2573,7 +2579,7 @@ System.out.println("解密后：" + aesDecryptByBytes(decoded, key));
 
 -------------MD5
 
-MessageDigest md5 = MessageDigest.getInstance("MD5");// 确定计算方法
+MessageDigest md5 = MessageDigest.getInstance("MD5");// 确定计算方法  SHA256
 
 BASE64Encoder base64en = new BASE64Encoder();//Base64 编码  Sun过时了,
 newstr = base64en.encode(md5.digest(str.getBytes("utf-8")));// newstr加密后的字符串,str是要加密的
@@ -4008,8 +4014,8 @@ timer.schedule(new TimerTask(){
 	a++;
 }
 
-
-Externalizable  extends Serializable
+自定义   序列化   Externalizable  extends Serializable
+实现方法  writeExternal()与readExternal()
 
 Cloneable 接口没有方法,Object的clone方法要使用,必须实现Cloneable接口
 

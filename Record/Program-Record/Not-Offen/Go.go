@@ -20,7 +20,7 @@ PATH 增加 C:\Go\bin
 
 go version
 
-
+linux GCC也可以编译GO
 ---hello.go
 package main
 

@@ -15,6 +15,8 @@ fil->new ->Conceptual Data Model-> 在工具箱点entity按钮，工作区点(�
 	attributes标签中输入VA3 是varchar(3)，I 都是简定的Integer,, mandatory (M)是否是强制not null,鼠标移上显示提示
 数据类型有Money
 
+
+
 双击实体在Attributes   标签 customer column and filter (ctrl +u) 可以增加一个列comment注释列,来加注释
 
 relationShip 工具按钮,拖一表到另一表,一对多关系(只是显示)
@@ -28,6 +30,11 @@ tools->modle options->Model Settings中可打开Name/Code Case sentive区分大�
 
 
 1.右击工作区－>chick Model ..(f4)检查是否有错
+	
+		如一个id在一张表上使用了，在另一个表也用id报错
+		菜单栏上的“tool”-〉“Model Option”-〉“Model Setting” 把右边的“Data Item”数据框中的“Unique code”选项框取消掉 
+
+		右击项目->check model...(F4)->取消 data item下的 data item name uniqueness和data item code uniqueness 
 2.tools->generate Physical Data Model->选择数据库类型->ok  
 3.database->generate Database..->保存脚本，可设置一些不要输出
 也可以右击建立的表,物理模型->SQL Preview...  直接看Oracle脚本
@@ -59,7 +66,9 @@ tools->generate Physical Data Model 后点开左树中的tables,有columns,keys,
 permission可以访问的表，select insert update ...
 
 
-物理下，在generate databse 选择用户，下的privilege 打钩 (Mysql无，SQlServer和Oracle 有的)
+------在物理模型
+
+在generate databse 选择用户，下的privilege 打钩 (Mysql无，SQlServer和Oracle 有的)
 
 
 

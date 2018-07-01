@@ -18,6 +18,30 @@ Akka 线程创建　
 SCALA_HOME=C:\Program Files (x86)\scala\
 PATH=%PATH%;%SCALA_HOME%\bin
 
+可在maven项目中即java又scala ,idea建立maven项目选择scala自动生成配置
+ <dependency>
+  <groupId>org.scala-lang</groupId>
+  <artifactId>scala-library</artifactId>
+  <version>2.11.7</version>
+</dependency>
+	
+ <plugin>
+	<groupId>net.alchim31.maven</groupId>
+	<artifactId>scala-maven-plugin</artifactId>
+	<version>3.2.2</version>
+	<executions>
+	  <execution>
+		<goals>
+		  <goal>compile</goal>
+		  <goal>testCompile</goal>
+		</goals>
+	  </execution>
+	</executions>
+  </plugin>
+
+	  
+
+
 scala  命令
 scala> 可写scala 语言,如有tab会提示
 
@@ -1060,6 +1084,7 @@ println(new Ant().env.length)
 	
 	
 	
+_toList().sortBy(_._2).reverse
 	
 	
 	
@@ -1069,5 +1094,35 @@ println(new Ant().env.length)
 	
 	
 	
-	
-	
+========Play Framework 2.6.13
+
+
+----SBT-1.1.5
+依赖于SBT 一个构建工具
+最简单的项目目录中建立空 build.sbt 文件 ,sbt命令会从maven上下载很多东西
+示例项目运行 sbt run 
+
+--增加SBT下载镜像(不从maven中央仓库下,修改maven配置好像没用)
+
+在`~/.sbt/`下添加一个`repositories`文件，里面内容如下  
+[repositories]  
+local  
+osc: http://maven.oschina.net/content/groups/public/  
+typesafe: http://repo.typesafe.com/typesafe/ivy-releases/, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext], bootOnly  
+sonatype-oss-releases  
+maven-central  
+sonatype-oss-snapshots  
+
+---要eclipse插件  sbteclipse
+建立文件  ~/.sbt/0.13/plugins/plugins.sbt 内容为 ,也可是 PROJECT_DIR/project/plugins.sbt
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
+
+项目目录执行  sbt
+>reload
+>compile
+>eclipse  后就可用eclipse导入了
+
+>run
+
+
+

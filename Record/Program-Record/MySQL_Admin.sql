@@ -1,4 +1,3 @@
-http://doc.javanb.com
 
 mysql优化配置，mysql集群，热备，故障切换，mysql服务器管理
 
@@ -86,9 +85,10 @@ create user user1 identified by 'user1';  /*只是建立host为 % 的mysql.usr�
 create user user1@localhost identified by 'user1'; 
 
 GRANT ALL   ON mydb.* TO 'user1'@'%';
+Revoke all on mydb.*  from user1@'%';
 
 1.create database bugs default character set utf8
-2.GRANT all ON bugs.*  TO bugs@localhost IDENTIFIED BY 'bugs';
+2.GRANT all ON bugs.*  TO bugs@localhost IDENTIFIED BY 'bugs'; ###MySQL8不支持grant 带IDENTIFIED 
 3.GRANT all ON bugs.*  TO bugs IDENTIFIED BY 'bugs'; ###linux源码安装这样是无密码？？？
 
 SHOW GRANTS;
@@ -213,7 +213,7 @@ shell> chmod 750 mysql-files
 shell> chown -R mysql .
 shell> chgrp -R mysql .
 -- shell> bin/mysql_install_db --user=mysql # Before MySQL 5.7.6
-shell> bin/mysqld --initialize --user=mysql # MySQL 5.7.6 and up   
+shell> bin/mysqld --initialize --user=mysql # MySQL 5.7.6 and up  不指定配置默认在data目录 
 --defaults-file=/zh/mysql-files/my.cnf   
 --explicit_defaults_for_timestamp --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --log-error=/usr/local/mysql/mysql-files/mysql-error.log 
 提示生成了临时的 root@localhost的密码
@@ -224,7 +224,7 @@ shell> chown -R root .
 shell> chown -R mysql data mysql-files
 -- shell> bin/mysqld_safe --user=mysql &
 # Next command is optional
-shell> cp support-files/mysql.server /etc/init.d/mysql.server
+shell> cp support-files/mysql.server /etc/init.d/mysql.server   -- openSUSE-15不行
 
 
 建立用户
@@ -305,6 +305,7 @@ mysqladmin -uroot -p  password root   -S /zh/mysql-files/mysql.sock
 mysqladmin -u用户名 -p旧密码 password 新密码  -h 主机 -S socket文件路径
 mysqladmin -uroot  -p password root   -S /zh/mysql-files/mysql.sock
 
+---- openSUSE 15 使用 mysql 客户端 要libtinfo.so.5 而实际上有libncurses6-6.1 ,zypper install libncurses5
 
 ==========Mycat 1.6
 OSI PI 实时数据库
@@ -615,7 +616,7 @@ OPTIONS (USER 'user1', PASSWORD 'pass1',HOST '10.1.5.226',PORT 3306, DATABASE 't
 
 CREATE TABLE t (s1 INT) ENGINE=FEDERATED CONNECTION='dev';
 
-
+======= BlackHole ：黑洞引擎
 ======= 备份 与 恢复
 load data local infile '/clientDir/xx.xls' into table 表名 CHARACTER SET utf8 FIELDS TERMINATED BY ',\t'
  -- OPTIONALLY ENCLOSED BY '"' ESCAPED BY '\\'    
@@ -632,7 +633,8 @@ SET repay_date = if(repay_date='0000-00-00',null,repay_date), from_sys='COLLEGE'
 -- 如有default 是 ON UPDATE 类型字段,使用load data 表自身设置值,要使用load data 的set 设置 
 -- 对日期date类型,如果文件中没值,会变为0000-00-00 , 用SET 做设置
 -- 对新的字段设置自己的值
-JDBC driver  中加 ?zeroDateTimeBehavior=convertToNull 
+JDBC driver  中加 ?zeroDateTimeBehavior=convertToNull    
+-- 8.0 默认取值变为EXCEPTION, 可选 CONVERT_TO_NULL，ROUND
   
  如数据类型decimal的在文件中是空 ,JDBC 加 emptyStringsConvertToZero=true,含义就变了,0和null是不同的
  或者在 未尾加 SET EXCHANGERATE = if(EXCHANGERATE='',null,EXCHANGERATE) 
@@ -649,7 +651,7 @@ mysqlimport 如在windows客户端使用  --fields-terminated-by=/ --lines-termi
   
   
   
-source filename
+mysql>source filename.sql
 mysql -h host -u user -p < batch-file
  
  

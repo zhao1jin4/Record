@@ -641,6 +641,7 @@ edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好�
 表格右侧有 Form Editor  
 
 -------------MyFront 5.3 免费
+-------------SQLyog Monyog 
 -------------dbForge Studio for MySQL-6.3 Express  免费
 -------------dbForge Studio for MySQL-6.3  Professional Trial
 可以debug 存储过程 ,有debug菜单	 
@@ -650,8 +651,8 @@ edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好�
 数据表格的上方工具栏有一个 switch to card view 
 =============Mongodb工具    Toad Extension for Eclipse  好用,带语法提示的
 
-=============Mongodb工具    Robo Studio 3T for Mongodb
-
+=============Mongodb工具  Robo Studio 3T for Mongodb
+=============Mongodb工具  NoSQL Manager for MongoDB-4.9.8
 
 ------------Tortoise SVN工具
 
@@ -669,7 +670,8 @@ edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好�
 
 合并时如有冲突可以修改代码，保存为解决冲突 -> commit & push 
 
-
+------------GitExtensions 免费Git工具(windows) 
+	默认要kdiff3做为比较合并工具,可选择BeyondCompare3,4 也要sh可用git,或者cygwin
 
 ------------TortoisHg 是 Mercurial(分布式版本控制)工具
 
