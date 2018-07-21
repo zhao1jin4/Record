@@ -184,8 +184,8 @@ ServletContextListener
 ServletContextAttributeListener
 ServletRequestAttributeListener
 ServletRequestListener
-HttpSessionAttributeListener
-HttpSessionListener
+HttpSessionAttributeListener	attributeAdded,attributeRemoved,attributeReplaced
+HttpSessionListener  sessionCreated,sessionDestroyed
 
 Listener->Filter->Servlet(load-on-startup)加载顺序
 
@@ -416,6 +416,7 @@ TLD文件中
 <dependency>
 	<groupId>javax.servlet</groupId>
 	<artifactId>jstl</artifactId>
+	<version>1.2</version>
 </dependency>
 
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>

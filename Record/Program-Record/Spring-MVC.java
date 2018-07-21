@@ -1161,13 +1161,6 @@ public class MockITO_MockMvcTest  {
 =========================上 Spring MVC
  
 
- =========================Spring   Session
-<dependency>
-	<groupId>org.springframework.session</groupId>
-	<artifactId>spring-session-data-redis</artifactId>
-	<version>2.0.4.RELEASE</version>
-</dependency>
-
 
 
 
@@ -1306,30 +1299,43 @@ http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp
 ------------ RestTemplate
 
 ------------spring session redis
-<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig"/>
-  <bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  >
-	<constructor-arg >
-		<bean class="org.springframework.data.redis.connection.RedisStandaloneConfiguration">
-			<property name="hostName" value="192.168.56.101"></property>
-			<property name="port" value="6379"></property>
-			<property name="password"  >
-				<bean class="org.springframework.data.redis.connection.RedisPassword" factory-method="of" >
-					<constructor-arg value="redisPass"/>
-				</bean>
-			</property>
-			<property name="database"  value="0"></property>
-		</bean>
-	</constructor-arg> 
-</bean>
+ 
+<dependency>
+	<groupId>org.springframework.session</groupId>
+	<artifactId>spring-session-data-redis</artifactId>
+	<version>2.0.4.RELEASE</version>
+</dependency>
+ 
+	<bean  id="redisStandaloneConfiguration" class="org.springframework.data.redis.connection.RedisStandaloneConfiguration">
+		<property name="hostName" value="127.0.0.1"></property>
+		<property name="port" value="6379"></property>
+		<property name="database"  value="0"></property>
+		<!-- 
+		<property name="password"  >
+			<bean class="org.springframework.data.redis.connection.RedisPassword" factory-method="of" >
+				<constructor-arg value="redisPass"/>
+			</bean>
+		</property>
+		 -->
+	</bean>
+	 
+	<bean id="connectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  >
+		<constructor-arg  ref="redisStandaloneConfiguration"> </constructor-arg> 
+	</bean>
+
+  <!--  二选一
+	<bean class="org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory">
+		<constructor-arg ref="redisStandaloneConfiguration">  </constructor-arg>
+	</bean>
+	 -->
+	<context:annotation-config/> <!-- 创建 springSessionRepositoryFilter  -->
+
 
  <!-- spring session redis 设置  10分钟过期-->
   <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
       <property name="maxInactiveIntervalInSeconds" value="600"></property>
   </bean>
-  
- <context:component-scan base-package="org.springframework.web.filter.DelegatingFilterProxy"/>
-<!-- 解决  No bean named 'springSessionRepositoryFilter' is defined  -->
-
+   
 
   <!--   spring session 过滤器  -->
   <filter>

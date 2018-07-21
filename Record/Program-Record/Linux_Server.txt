@@ -1315,6 +1315,9 @@ git status  显示有没有新加文件,或者要提交的文件
 
 #忽略所有以swp结尾的文件,vi生成的
 *swp
+
+build/
+#最后跟斜杠（/）说明要忽略的是目录 
 --
 git diff hello.c
 
@@ -1453,7 +1456,7 @@ tag要单独puhs用 git push origin [tagname]
 git checkout  文件名
  
 git reset --hard  <commit Id> 已经commit没有push做取消 ,<commit Id>是回到那次提交的状态，不是对某个文件，全局的  (新加的文件不会被删除)
-
+								已经push回退到某个版本
 git查看某个文件的修改历史
 git log --pretty=oneline 文件名
 

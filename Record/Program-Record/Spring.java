@@ -15,7 +15,7 @@
 		<groupId>org.aspectj</groupId>
 		<artifactId>aspectjweaver</artifactId>
 		<version>1.7.4</version>
-	</dependency>
+	</dependencyr
 		
 	<dependency>
 		<groupId>org.springframework</groupId>
@@ -100,7 +100,13 @@
 		<version>${spring.version}</version>
 	</dependency>
 	
-	
+	<!-- ldap -->
+	<dependency>
+		<groupId>org.springframework.ldap</groupId>
+		<artifactId>spring-ldap-core</artifactId>
+		<version>2.3.1.RELEASE</version>
+	</dependency>
+
 	<!-- boot  要parent-->
 	<dependency>
         <groupId>org.springframework.boot</groupId>
@@ -256,51 +262,57 @@ web.xml中
     xmlns:hdp="http://www.springframework.org/schema/hadoop"
     xmlns:jpa="http://www.springframework.org/schema/data/jpa"
     xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xmlns:ldap="http://www.springframework.org/schema/ldap"
     xmlns:p="http://www.springframework.org/schema/p"
     xmlns:c="http://www.springframework.org/schema/c"
     xsi:schemaLocation="http://www.springframework.org/schema/beans
-                        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
                         http://www.springframework.org/schema/context
-                        http://www.springframework.org/schema/context/spring-context-4.2.xsd
+                        http://www.springframework.org/schema/context/spring-context.xsd
                         http://www.springframework.org/schema/aop
-                        http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+                        http://www.springframework.org/schema/aop/spring-aop.xsd
                         http://www.springframework.org/schema/tx
-                        http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+                        http://www.springframework.org/schema/tx/spring-tx.xsd
                         http://www.springframework.org/schema/util
-                        http://www.springframework.org/schema/util/spring-util-4.2.xsd
+                        http://www.springframework.org/schema/util/spring-util.xsd
                         http://www.springframework.org/schema/tool
-                        http://www.springframework.org/schema/tool/spring-tool-4.2.xsd
+                        http://www.springframework.org/schema/tool/spring-tool.xsd
                         http://www.springframework.org/schema/jee
-                        http://www.springframework.org/schema/jee/spring-jee-4.2.xsd
+                        http://www.springframework.org/schema/jee/spring-jee.xsd
                         http://www.springframework.org/schema/jms
-                        http://www.springframework.org/schema/jms/spring-jms-4.2.xsd
+                        http://www.springframework.org/schema/jms/spring-jms.xsd
                         http://www.springframework.org/schema/task
-                        http://www.springframework.org/schema/task/spring-task-4.2.xsd
+                        http://www.springframework.org/schema/task/spring-task.xsd
                         http://www.springframework.org/schema/cache
-                        http://www.springframework.org/schema/cache/spring-cache-4.2.xsd
+                        http://www.springframework.org/schema/cache/spring-cache.xsd
                         http://www.springframework.org/schema/lang
-                        http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+                        http://www.springframework.org/schema/lang/spring-lang.xsd
                         http://www.springframework.org/schema/jdbc
-                        http://www.springframework.org/schema/jdbc/spring-jdbc-4.2.xsd
+                        http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
                         http://www.springframework.org/schema/oxm
-                        http://www.springframework.org/schema/oxm/spring-oxm-4.2.xsd
+                        http://www.springframework.org/schema/oxm/spring-oxm.xsd
                         http://www.springframework.org/schema/mvc
-                        http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+                        http://www.springframework.org/schema/mvc/spring-mvc.xsd
                         http://www.springframework.org/schema/websocket
-                        http://www.springframework.org/schema/websocket/spring-websocket-4.2.xsd
+                        http://www.springframework.org/schema/websocket/spring-websocket.xsd
                         http://www.springframework.org/schema/security
-                        http://www.springframework.org/schema/security/spring-security-4.0.xsd
+                        http://www.springframework.org/schema/security/spring-security.xsd
                         http://www.springframework.org/schema/redis
-                        http://www.springframework.org/schema/redis/spring-redis-1.0.xsd
+                        http://www.springframework.org/schema/redis/spring-redis.xsd
                         http://www.springframework.org/schema/data/mongo
-                        http://www.springframework.org/schema/data/mongo/spring-mongo-1.7.xsd 
+                        http://www.springframework.org/schema/data/mongo/spring-mongo.xsd 
                         http://www.springframework.org/schema/hadoop
-                        http://www.springframework.org/schema/hadoop/spring-hadoop-2.1.xsd
+                        http://www.springframework.org/schema/hadoop/spring-hadoop.xsd
                         http://www.springframework.org/schema/data/jpa
-                        http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd
+                        http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
                         http://www.springframework.org/schema/batch
-                        http://www.springframework.org/schema/batch/spring-batch-3.0.xsd">
-       
+                        http://www.springframework.org/schema/batch/spring-batch.xsd
+						http://www.springframework.org/schema/rabbit 
+                        http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
+						http://www.springframework.org/schema/ldap 
+						http://www.springframework.org/schema/ldap/spring-ldap.xsd">
+    
 						
  :p 表示 property
  :c 表示 contruction 
@@ -1674,7 +1686,7 @@ public class TestSpringJunitWithWeb
 }
  
 org.springframework.util.Assert.notNull(obj,"error,obj is null");
-
+	isTrue()
 =========================mockMVC 不行的??
 
 import org.springframework.test.web.servlet.MvcResult;
@@ -1846,7 +1858,7 @@ mailSender.send(preparator);
 			<ref local="myCronTrigger"/>
 		</list>
 	</property>
-	<!-- 持久化,quartz-2.1.6\docs\dbTables\[数据库].sql,示例在quartz-2.1.6\examples\example10\quartz.properties -->
+	<!-- 持久化,quartz-2.1.6\docs\dbTables\[数据库].sql, tables_mysql_innodb.sql 示例在quartz-2.1.6\examples\example10\quartz.properties -->
 	<property name="configLocation" value="classpath:spring/quartz/quartz.properties"/>
 </bean> 
 
@@ -2091,44 +2103,6 @@ String tmpDir=System.getProperty("java.io.tmpdir");//C:\Users\zhaojin\AppData\Lo
  
 --- 还有 caffeine 和 jcache (JSR 107 )
 
----	redis 
-<dependency>
-	<groupId>org.springframework.data</groupId>
-	<artifactId>spring-data-redis</artifactId>
-	<version>2.0.5.RELEASE</version>
-</dependency>  <!-- 要spring 5.0-->
-
-import org.springframework.data.redis.cache.RedisCacheManager;
-
-
-@Bean
-public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
-	return RedisCacheManager.create(connectionFactory);
-}
-
-@Bean
-public RedisConnectionFactory redisConnectionFactory( ) 
-{
-	RedisStandaloneConfiguration standConfig=new RedisStandaloneConfiguration();
-	standConfig.setHostName("120.55.90.245");
-	standConfig.setPort(6380);
-	standConfig.setPassword(RedisPassword.of("test2016"));
-	standConfig.setDatabase(0);
-	JedisConnectionFactory factory2=new JedisConnectionFactory(standConfig) ;
-	return factory2;
-}
-
-
-
-// intellij Maven 测试OK  ,但到updateBook 方法返回自己的类报错
-RedisConnectionFactory redisConnectionFactory = context.getBean(RedisConnectionFactory.class);
-RedisConnection conn=redisConnectionFactory.getConnection();
-conn.del("MyGuava::key1".getBytes());
-conn.close();
-
-
- 
-
 =========================Spring OXM
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -2187,346 +2161,57 @@ class GroovyMessenger implements Messenger {//实现java中的Messenger
 	
 
 =========================Spring JCA
+
 =========================Spring Reactor
-Environment env = new Environment();
-Reactor reactor = Reactors.reactor()
-		  .env(env)  
-		  .dispatcher(Environment.EVENT_LOOP) // BlockingQueueDispatchers ,事件到达时先存储在一个Blockingqueue中，再由统一的后台线程一一顺序执行 
-		  .get(); 
-//$("parse") 同 Selectors.object("parse"),Tuple可以传多个参数
-Registration reg=reactor.on($("parse"), new Consumer<Event<String>>() 
-		{
-		  @Override
-		  public void accept(Event<String> ev) {
-		    System.out.println("Received event with data: " + ev.getData());
-		  }
-		});
-reg.pause(); //暂停后,再notify无用的
-reactor.notify("parse", Event.wrap("data"));
-Thread.sleep(1000);
-
-reg.resume();
-reactor.notify("parse", Event.wrap("data"));
-Thread.sleep(500);
-
-reactor-core-1.1.3.BUILD-SNAPSHOT.jar\META-INF\reactor\default.properties
-	reactor.dispatchers.default = ringBuffer  ## eventLoop
-	
-java -Dreactor.profiles.default=production  会使用 META-INF/reactor/production.properties文件
-
-
-Deferred<String, Stream<String>> deferred = Streams.<String>defer()
-		  .env(env)
-		  .dispatcher(Environment.RING_BUFFER)
-		  .get();
-Stream<String> stream = deferred.compose();
-//---	
-Stream<String> filtered = stream   
-		.map(new Function<String, String>() 
-		{
-			public String apply(String s) {
-			  return s.toLowerCase();
-			}
-		  })
-		  .filter(new Predicate<String>()
-		{
-			public boolean test(String s) {
-			  // test String
-			  return s.startsWith("nsprefix:");
-			}
-		  });
-//---			
-		
-// consume values
-stream.consume(new Consumer<String>() {//如用 filtered.consume() 会使用过滤规则
-  public void accept(String s) {
-	  System.out.println("accepted :"+s);
-  }
-});
-
-// producer calls accept
-deferred.accept("Hello World!");
-
-//------Promise
-Deferred<String, Promise<String>> deferred1 = Promises.<String>defer()
-		  //.env(env).dispatcher(Environment.RING_BUFFER) //加这行 deferred1.accept 不会等待执行完成,不加会等待
-		  .get();
-//Promise<String> p1 = Promises.success("12333").get();//作用不大
-Promise<String> p1=deferred1.compose(); 
-
-// Transform the String into a Float using map()
-Promise<Float> p2 = p1.map(new Function<String, Float>() {
-		public Float apply(String s) {
-		return Float.parseFloat(s);
-		}
-		}).filter(new Predicate<Float>() {
-		public boolean test(Float f) {
-			return f > 100f;
-		  }
-		});
-
-//p2.then(onSuccess, onError)
-p2.onSuccess(new Consumer<Float>() { //p1.onSuccess
-	public void accept(Float f) {
-		Thread.sleep(3000);
-		System.out.println("---promise Float:"+f);
-	}
-});
-deferred1.accept("182.2");
-----Spring 集成 
-
-
-=========================Spring for Hadoop 2.0
-
-=========================Spring Security 3.1 (老的是ACegi)　安全 
-要使用Spring 3.x
-CAS (JA-SIG Central Authentication Service)流行的开源单点登录系统  org.springframework.security.cas
-OpenID		OpenID4Java			org.springframework.security.openid
-ACL
-Kerberos
-
-http://www.family168.com/tutorial/springsecurity3/html/preface.html
-
-reference/springsecurity.html 是指南的首页
-有示例代码
-spring-security-samples-contacts-3.1.0.RELEASE.war
-spring-security-samples-tutorial-3.1.0.RELEASE.war
-
-spring-security-web-3.1.0.RELEASE.jar
-spring-security-core-3.1.0.RELEASE.jar
-spring-security-config-3.1.0.RELEASE.jar
-spring-security-taglibs-3.1.0.RELEASE.jar
-
-web.xml
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath:applicationContext*.xml</param-value>
-	</context-param>
-
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
-
-    <filter>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-    <filter-mapping>
-        <filter-name>springSecurityFilterChain</filter-name>
-        <url-pattern>/*</url-pattern>		*/
-    </filter-mapping>
-
-
-spring会自动生成登录页,也可自己指定 <form-login login-page="/login.jsp"/>必须是 
-	
-	${sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message}
-	<form action="../j_spring_security_check">
-		<input name="j_username">
-		<input name="j_password">
-	</form>
-
-国际化在 spring-security-core-3.1.x.jar中org.spring.framework.security下
-AbstractUserDetailsAuthenticationProvider.badCredentials的key是登录失败的错误信息,覆盖默认的
+ <dependency>
+    <groupId>io.projectreactor.spring</groupId>
+    <artifactId>reactor-spring-context</artifactId>
+    <version>2.0.7.RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>io.projectreactor.spring</groupId>
+    <artifactId>reactor-spring-core</artifactId>
+    <version>2.0.7.RELEASE</version>
+</dependency>
 
 
 
-<security:ldap-server />  为测试用途,在应用内部启动一个内嵌LDAP服务器,比配置一个 Apache Directory Server 要简单得多
 
 
-<security:http auto-config="true" use-expressions="true" access-denied-page="/auth/denied.mvc" >
-	<security:intercept-url pattern="/auth/login.mvc" access="permitAll"  requires-channel="http"  method="GET"/>  <!-- permitAll是 SecurityExpressionRoot类中的方法名字 ,有http,https,any-->
-	<security:intercept-url pattern="/main/test*"  access="hasAnyRole('ROLE_USER','ROLE_ADMIN')" />
-	<security:intercept-url pattern="/main/admin.mvc" access="hasRole('ROLE_ADMIN')"/>
-	<security:intercept-url pattern="/main/common.mvc" access="hasRole('ROLE_USER')"/>
-	<!--方式一  ,使用浏览器弹出对框的方式输入用户,密码, <security:http-basic />  -->
-	<!-- 方式二,自定义页面 -->	
-	<security:form-login login-page="/auth/login.mvc"
-		 authentication-failure-url="/auth/login.mvc?error=true" 
-			     default-target-url="/main/common.mvc"/>
-	
-	<security:logout  invalidate-session="true" 
-					  logout-success-url="/auth/login.mvc" 
-							  logout-url="/auth/logout.mvc"/><!-- 对应页面中的退出的链接 -->
-	<security:session-management>		
-		<security:concurrency-control max-sessions="1" error-if-maximum-exceeded="true"/> <!-- 只可有一个会话用户在线, 要配<listener-class>HttpSessionEventPublisher -->
-		<!-- 跳到  authentication-failure-url 指定面,使用 ${sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message}显示
-		国际化 ConcurrentSessionControlStrategy.exceededAllowed  -->
-	</security:session-management>
-</security:http>
-	
-<!-- 用户,角色,密码的存储方式 -->
-<bean id="customUserDetailsService" class="org.liukai.tutorial.service.CustomUserDetailsService"/>	<!--  implements UserDetailsService -->
-<bean class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" id="passwordEncoder"/>
- <bean id="myUserDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl"> 
-	<property name="dataSource" ref="dataSource"/>
-</bean>
-<security:authentication-manager>
-	<security:authentication-provider user-service-ref="customUserDetailsService" >
-		<!--方式一,自定义取用户密码方式,使用user-service-ref="customUserDetailsService" ,就不可有XML子节点
-			如 user-service-ref='myUserDetailsService' 同 <jdbc-user-service data-source-ref= > -->
-	
-		<!-- 方式二,存在DB中 
-		<security:jdbc-user-service data-source-ref="dataSource"/>
-		-->
-		<!--方式三,写在配置文件中 
-		<security:user-service> 
-			<security:user name="user" authorities="ROLE_USER" password="ee11cbb19052e40b07aac0ca060c23ee"/>
-			<security:user name="admin" authorities="ROLE_USER,ROLE_ADMIN" password="21232f297a57a5a743894a0e4a801fc3"/>
-		</security:user-service>
-		-->	
-		<security:password-encoder hash="md5"/><!-- hash="sha" 或  ref="passwordEncoder" -->
-	</security:authentication-provider>
-</security:authentication-manager>
-<!-- 使用 @Secure("ROLE_USER") 要 secured-annotations="enabled" ,
-	使用@PreAuthorize或 @PostAuthorize要打开 pre-post-annotations="enabled"-->
-<security:global-method-security  secured-annotations="enabled" pre-post-annotations="enabled"/>
-public class CustomUserDetailsService implements UserDetailsService {
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException 
-	{
-		List<SimpleGrantedAuthority> authList = new ArrayList<SimpleGrantedAuthority>(2);
-		authList.add(new SimpleGrantedAuthority("ROLE_USER"));
-		UserDetails user=new User("lisi", "123", true, true, true, true, authList);
-		return user;
-	} 
+=========================Spring for Hadoop 2.5.0 (Data)
+HbaseTemplate 
+=========================Spring Data Redis
+
+<dependency>
+	<groupId>org.springframework.data</groupId>
+	<artifactId>spring-data-redis</artifactId>
+	<version>2.0.5.RELEASE</version>
+</dependency>  <!-- 要spring 5.0-->
+
+import org.springframework.data.redis.cache.RedisCacheManager;
+
+@Bean
+public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+	return RedisCacheManager.create(connectionFactory);
 }
 
-在JSP页中
-<%@taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
-<security:authentication property="name" /> <!--得到登录使用的用户名  --> <br/>
-<security:authorize ifAllGranted="ROLE_ADMIN,ROLE_USER"><!-- ifAnyGranted=""  ifNotGranted="" -->
-	<a href="<%=request.getContextPath()%>/main/admin.mvc"> Go AdminPage </a><br />
-</security:authorize>
-
-Java代码中
-@Secured({"ROLE_USER"})//要在接口中有效,表示要调用这个方法要用ROLE_USER角色,要有配置<security:global-method-security  secured-annotations="enabled"
-public String getHello();
-
-@PreAuthorize("hasAuthority('ROLE_ADMIN')")//要有配置<security:global-method-security pre-post-annotations="enabled",支持表达式,要有角色
-public void initAdmin();
-
-@PostAuthorize("isAnonymous()")//要有配置<security:global-method-security pre-post-annotations="enabled",只可是未登录用户才可调用
-public void destroy();
-
-//---SQL 为 JDBC implementation of the UserDetailsService (JdbcDaoImpl) 或 <jdbc-user-service data-source-ref= >
-create table users(
-      username varchar_ignorecase(50) not null primary key,
-      password varchar_ignorecase(50) not null,
-      enabled boolean not null);
-
-create table authorities (
-  username varchar_ignorecase(50) not null,
-  authority varchar_ignorecase(50) not null,
-  constraint fk_authorities_users foreign key(username) references users(username));
-  create unique index ix_auth_username on authorities (username,authority);
-  
-insert into users(username,password,enabled)values('user','ee11cbb19052e40b07aac0ca060c23ee',1);//密码是user的MD5
-insert into users(username,password,enabled)values('admin','21232f297a57a5a743894a0e4a801fc3',1);
-
-insert into authorities(username,authority)values('user','ROLE_USER');
-insert into authorities(username,authority)values('admin','ROLE_ADMIN');
-insert into authorities(username,authority)values('admin','ROLE_USER');
-//---  
+@Bean
+public RedisConnectionFactory redisConnectionFactory( ) 
+{
+	RedisStandaloneConfiguration standConfig=new RedisStandaloneConfiguration();
+	standConfig.setHostName("120.55.90.245");
+	standConfig.setPort(6380);
+	standConfig.setPassword(RedisPassword.of("test2016"));
+	standConfig.setDatabase(0);
+	JedisConnectionFactory factory2=new JedisConnectionFactory(standConfig) ;
+	return factory2;
+}
  
-<authentication-provider ref='myAuthenticationProvider'/>
-								实现AuthenticationProvider接口
- 
-	<remember-me/>
+RedisConnectionFactory redisConnectionFactory = context.getBean(RedisConnectionFactory.class);
+RedisConnection conn=redisConnectionFactory.getConnection();
+conn.del("MyGuava::key1".getBytes());
+conn.close();
 
-<http>
-	<intercept-url pattern="/secure/**" access="hasRole('ROLE_USER')" requires-channel="https"/>有"http", "https" 或 "any"
-	通过HTTP尝试访问"/secure/**"匹配的网址，他们会先被重定向到HTTPS网址下
-
-	<port-mappings>
-		  <port-mapping http="9080" https="9443"/>
-	</port-mappings>
- 
- 
-	如使用了remember-me，返回“未认证”(402)错误，可以在session-management 中添加 session-authentication-error-url属性
-
-
-
-Session固定攻击，， 恶意攻击者可以创建一个session访问一个网站的时候，然后说服另一个用户登录到同一个会话上(比如，发送给他们一个包含了session标识参数的链接)
-<http>
-	<openid-login>
-		<attribute-exchange>
-		  <openid-attribute name="email" type="http://axschema.org/contact/email" required="true" />
-		  <openid-attribute name="name" type="http://axschema.org/namePerson" />
-		</attribute-exchange>
-	</openid-login>
-程序中取到配置
-OpenIDAuthenticationToken token = (OpenIDAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-List<OpenIDAttribute> attributes = token.getAttributes();
-<http>
-	<custom-filter ref="" after="LAST" />可以使用before="FIRST" ,"ANONYMOUS_FILTER" ...
-
-
-<global-method-security>
-   <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" access="ROLE_USER"/>
-</global-method-security>
-
-
-自定AccessDecisionManager
-<global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
-<http					access-decision-manager-ref="myAccessDecisionManagerBean">
-
-
-tutorial示例是带你入门的很好的
-    <http pattern="/loggedout.jsp" security="none"/>
-	<http use-expressions="true">
-        <intercept-url pattern="/secure/extreme/**" access="hasRole('ROLE_SUPERVISOR')"/>  hasRole是SecurityExpressionRoot中的方法名字
-Contacts例子，是一个很高级的例子
-
-
-不需要特别配置一个Java Authentication and Authorization Service (JAAS)政策文件， 也不需要把Spring Security放到server的classLoader下
-不需要把Spring Security放到server的classloader下
-
-
-	
-Object principal= SecurityContextHolder.getContext().getAuthentication().getPrincipal();//在代码中得到密码
-										Authentication提供的重要方法是.getAuthorities()//角色
-																		.getName();用户名
-if (principal instanceof UserDetails) 
-
-UsernamePasswordAuthenticationToken(user,password,new ArrayList 里new SimpleGrantedAuthority("ROLE_USER") )
-
-AuthenticationException 的子类 BadCredentialsException
-
-
-<user-service id="userDetailsService" properties="users.properties"/>
-属性文件需要包含下面格式的内容
-
-username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]
-
-
-FilterChainProxy
-
-
-<http realm="字串是在显示在对话框上" >
-	<http-basic/> 使用Base64编码,一但登录成功,其它的认证就不用了,不安全的
-
-
-<%@taglib prefix="security" uri="http://www.springframework.org/security/tags" %>
-<security:authentication property="name"></security:authentication> 得到登录用户名
-<security:authorize ifAllGranted="ROLE_ADMIN,ROLE_USER" 
-		<a href="<%=request.getContextPath()%>/main/admin"> Go AdminPage </a>
-</security:authorize>
-
-
-<http auto-config="true"  >就不会配置下面的了
-<bean id="" class="org.springframework.security.web.FilterChainProxy">配置过虑器
-		<security:filter-chain-map path-type="ant">
-			<security:filter-chain filters="" pattern="/**"/>
-		</security:filter-chain-map>
-</bean>
-
-<http>
-	<security:logout 
-				invalidate-session="true" 
-				logout-success-url="/auth/login" 
-				logout-url="/auth/logout"/> //这个是界面中手工注销的地址
-=========================上 Spring Security
-
-=========================Spring Data Redis
 
 <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">  
    <property name="maxIdle" value="6"></property>  
@@ -2534,7 +2219,7 @@ FilterChainProxy
    <property name="numTestsPerEvictionRun" value="3"></property>  
    <property name="timeBetweenEvictionRunsMillis" value="60000"></property>  
 </bean>
- <bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  >
+ <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  >
 	<constructor-arg >
 		<bean class="org.springframework.data.redis.connection.RedisStandaloneConfiguration">
 			<property name="hostName" value="120.55.90.245"></property>
@@ -2656,6 +2341,40 @@ jedis.close();
 因为ShardedJedisPool可以通过一致性哈希实现分布式存储
 
 
+------------------	spring data redis  lettuce
+ @Bean
+ public LettuceConnectionFactory redisConnectionFactory()
+ {
+	return new LettuceConnectionFactory(new RedisStandaloneConfiguration("localhost", 6379));
+ }
+public static void springDataLettuce() 
+{
+	 ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+			 "springdata_redis_lettuce/spring_lettuce_client.xml");
+	 LettuceConnectionFactory factory = context.getBean(LettuceConnectionFactory.class);
+	 RedisConnection conn=factory.getConnection();
+	 conn.set("key".getBytes(), "val".getBytes());
+	 conn.close();
+}
+
+ 
+ <bean   class="org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory">
+	<constructor-arg ref="redisStandaloneConfiguration"> <!-- 同Jedis的 -->
+	</constructor-arg>
+ </bean>
+ 
+ <bean id="redisClient" class="io.lettuce.core.support.RedisClientFactoryBean">
+	<property name="uri" value="redis://localhost:6379/1" />
+	<!--  redis://password@localhost:6379/0 -->
+	<!--   <property name="password" value="mypassword" /> -->   
+</bean>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
 =========================Spring Data Mongodb
 依赖 spring-data-commons-1.9.2.RELEASE.jar
@@ -2989,6 +2708,12 @@ implements ItemWriter<Message>
 }  
 
 ========================Spring RabbitMQ
+<dependency>
+    <groupId>org.springframework.amqp</groupId>
+    <artifactId>spring-amqp</artifactId>
+    <version>2.0.4.RELEASE</version>
+</dependency>
+
 --server
  <!-- 建立  com.mj.test 的  Queue,Admin中建立用户
       <rabbit:connection-factory id="connectionFactory" username="guest" password="guest"
@@ -3057,6 +2782,13 @@ System.out.println("发送了XXX");
 ctx.close();//如果不关，就不退出 
 
 
+
+======================Spring LADP
+<dependency>
+    <groupId>org.springframework.ldap</groupId>
+    <artifactId>spring-ldap-core</artifactId>
+    <version>2.3.1.RELEASE</version>
+</dependency>
 
 
 ======================AspectJ

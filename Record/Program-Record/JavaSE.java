@@ -625,7 +625,8 @@ eclipse 也可以把第三方jar包中class解包放到自己的jar中( extract 
 
 jar -m Manifest文件
 
-wsimport -s c:/tmp -keep  http://localhost:8000/helloWorld?wsdl 生成webservice代码
+wsimport -s c:/tmp/ws_code -p org.zhaojin.ws -keep  http://localhost:8000/helloWorld?wsdl 生成webservice代码
+
 -----------------远程 调试
 作为调试服务器的目标 VM
 	-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8765        8453
@@ -2698,11 +2699,14 @@ public static String getMD5String(byte[] bytes) {
 http://www.xmd5.org MD5解密,可数字和字母,但如特殊字符
 
 -----安全散列算法1 (SHA1),测试OK,API使用和MD5一样的
-MessageDigest.getInstance("SHA-1");//在JDK9中要禁用了
+
+//SHA-1,SHA-256,MD5
+MessageDigest.getInstance("SHA-1");
 MessageDigest.getInstance("sha-1");
 MessageDigest.getInstance("Sha-1"); 是一样的。
 
 已经有md6和sh-3
+------Bcrypt
 -------DSA
 public static final String KEY_ALGORITHM="DSA";  
 public static final String SIGNATURE_ALGORITHM="SHA1withDSA";  

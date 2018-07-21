@@ -37,8 +37,10 @@ codis-admin
 同一个业务集群而言，同一个时刻 codis-dashboard 只能有 0个或者1个 
 对集群的修改都必须通过 codis-dashboard 完成
 
-
+windows 版 redis-3.2.100
+https://github.com/MicrosoftArchive/redis/releases
 ============== Redis-4.0.8 版本编译安装 CentOS 7
+
 cd src 
 make    OK
 
@@ -306,7 +308,7 @@ exec  #这里如果另一个session也修改了这个，这里再执行会返回
 #执行exec ,discard,unwatch 时会自动取消watch
 
 
----分布式锁 Java 实现  Redisson 
+---分布式锁 Java client 实现  Redisson 
 
 ---Lua 
 eval "return redis.call('set','foo','bar')" 0 

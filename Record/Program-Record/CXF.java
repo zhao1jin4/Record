@@ -1,3 +1,4 @@
+
 ==================================CXF SOAP Webservice
 Java API for XML Web Services (JAX-WS) 
 JAXB  (Java API for Xml  Binding)
@@ -78,9 +79,31 @@ public class ClientJAXWS
     }
 }
 //java_first_jaxws  对象
-wsimport -s c:/tmp -keep  http://localhost:8000/helloWorld?wsdl 生成webservice代码
 
 ===== 上 java_first_jaxws 
+
+wsimport  -s c:/tmp/ws_code -p org.zhaojin.ws -encoding utf8 -keep  http://localhost:8000/helloWorld?wsdl  
+生成webservice代码 -s的目录要是已经存的
+生成的类有 @WebServiceClient 注释的类 new出来
+	构造器传URL可带?wsdl,也可不带,和new QName 参数同@WebServiceClient
+就可以getXxxPort().method(xx)
+@WebEndPoint 在getXxxPort()方法前
+
+// 加  stax2-api-3.1.4.jar 和  woodstox-core-5.0.3.jar
+URL url=new URL("http://localhost:9000/helloWorld?wsdl");
+QName HELLOWORLDIMPLSERVICE_QNAME = new QName("http://server.hw.demo/", "HelloWorldImplService");
+HelloWorldImplService service=new  HelloWorldImplService(url,HELLOWORLDIMPLSERVICE_QNAME);
+User u=new User();
+u.setName("test生成代码");
+String res=service.getHelloWorldImplPort().sayHiToUser(u);
+System.out.println(res);
+
+javax.xml.ws.spi.Provider 如不加CXF使用JDK的
+cxf-rt-frontend-jaxws-xx.jar/META-INF/services/有文件 javax.xml.ws.spi.Provider 内容为实现类 org.apache.cxf.jaxws22.spi.ProviderImpl
+也可以使用 System.setProperty("javax.xml.ws.spi.Provider","com.sun.xml.internal.ws.spi.ProviderImpl");
+ 
+使用ServiceLoader 来找
+
 ------------方法参数是对象 
 
 nill  不想, 不愿

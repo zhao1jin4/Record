@@ -114,6 +114,83 @@ where
  
  
  
+show variables  like 'max_sp_recursion_depth';
+
+
+create table sc
+(sno int,
+cno int,
+score int);
+
+insert into sc values (1,1,100);
+insert into sc values (2,1,80);
+insert into sc values (3,1,25);
+insert into sc values (4,1,45);
+insert into sc values (5,1,67);
+insert into sc values (1,2,25);
+insert into sc values (2,2,77);
+insert into sc values (3,2,78);
+insert into sc values (4,2,69);
+insert into sc values (5,2,24);
+
+
+delimiter //
+drop function IF EXISTS getChildLst  //
+
+-- SET GLOBAL log_bin_trust_function_creators = 1;  -- root run
+CREATE FUNCTION `getChildLst`(rootId INT)
+  RETURNS varchar(1000)
+  BEGIN
+    DECLARE sTemp VARCHAR(1000);
+    DECLARE sTempChd VARCHAR(1000);
+
+    SET sTemp = '$';
+    SET sTempChd =cast(rootId as CHAR);
+
+    WHILE sTempChd is not null DO
+      SET sTemp = concat(sTemp,',',sTempChd);
+     SELECT group_concat(id) INTO sTempChd FROM treeNodes where FIND_IN_SET(pid,sTempChd)>0;
+    END WHILE;
+    RETURN sTemp;
+  END;
+  //
+
+select getChildLst(1);//
+
+
+
+drop function IF EXISTS  getParentLst  //
+CREATE FUNCTION `getParentLst`(rootId INT)
+  RETURNS varchar(1000)
+  BEGIN
+    DECLARE sTemp VARCHAR(1000);
+    DECLARE sTempParent VARCHAR(1000);
+    declare depth int;
+    set depth=0;
+    SET sTemp = '';
+    SET sTempParent =rootId  ; -- cast(rootId as CHAR)
+
+  --  WHILE sTempChd is not null DO
+    WHILE sTempParent !=0 DO
+      set depth=depth+1;
+      SET sTemp = concat(sTempParent,'/',sTemp);
+      SELECT group_concat(pid) INTO sTempParent FROM treeNodes where FIND_IN_SET(id,sTempParent)>0;
+    END WHILE;
+    RETURN  concat('/',sTemp,'$',depth);
+  END;
+  //
+
+select getParentLst(7); //
+select t.*,   getParentLst(t.id)  from treenodes t
+
+select t.*, 
+   @tmpStr:=getParentLst(t.id) as res,
+  substr(@tmpStr,1,instr(@tmpStr,'$')-1  ) as path,
+  substr(@tmpStr,locate('$',@tmpStr)+1  ) as depth
+from treenodes t,(SELECT @tmpStr:='') r
+
+delimiter;
+
 
 --------------------------------------使用
 \! 和system (linux 下) 是执行系统命令
@@ -265,6 +342,15 @@ SUBSTRING(str,pos)
 SUBSTRING(str FROM pos) 
 SUBSTRING(str,pos,len),pos从1开始
 subString(date_time2,1,13)
+
+
+select locate('$','/1/3/6/7/$4') //返回10 找字符下标
+
+select substr('/1/3/6/7/$4',1,instr('/1/3/6/7/$4','$')-1)
+select substr('/1/3/6/7/$4',locate('$','/1/3/6/7/$4')+1)
+
+
+
 CHARACTER_LENGTH(group_concat(dest_mobile  SEPARATOR  ';'))/14 
 GROUP_CONCAT(busiType order by sTerm asc SEPARATOR ',')  中可加order by ,
 
@@ -773,7 +859,7 @@ case l.prodId when '100' or '200' then '学生'   end    -- or 这样用不行�
 无论是case x when 1 end 还是case when x=1 then 都是相当于else if 或 java 的带break 的 switch,即最多一个成立
 		
 MySQL中实现rownum
-select @rownum:=@rownum+1 AS rownum,  -- 带小数点???
+select @rownum:=@rownum+1 AS rownum,   
 	p.class_id
 from mytable t,(SELECT @rownum:=0) r
 order by t.class_id asc;

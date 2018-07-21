@@ -20,7 +20,10 @@ https://springcloud.cc/spring-cloud-dalston.html
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
-            <version>Dalston.SR1</version>   <!-- Dalston.SR4   Edgware.RELEASE  要和 spring-boot对应才行的 -->
+            <version>Dalston.SR1</version>  
+			<!-- Dalston.SR4    要和spring-boot-starter-parent  1.5.2.RELEASE 对应
+				Finchley.RELEASE  要和spring-boot-starter-parent 2.0.1.RELEASE 对应 
+			-->
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -43,15 +46,34 @@ https://springcloud.cc/spring-cloud-dalston.html
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-config</artifactId>
     </dependency>
-    <dependency>
+    
+	
+	
+	<!-- Finchley.RELEASE -->
+	<dependency> 
         <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-eureka</artifactId> <!-- 自动依赖 spring-cloud-starter-eureka-client  -->
+        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
     </dependency>
+	<!-- Finchley.RELEASE -->
 	<dependency>
 		<groupId>org.springframework.cloud</groupId>
-		<artifactId>spring-cloud-starter-eureka-server</artifactId> <!--  自动依赖  spring-cloud-netflix-eureka-server  -->
+		<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 	</dependency>
 	
+	
+	<!--  Dalston.SR4 自动依赖 spring-cloud-starter-eureka-client   -->
+	<dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-eureka</artifactId> 
+	</dependency>
+	
+	<!--  Dalston.SR4 自动依赖  spring-cloud-netflix-eureka-server  -->
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-eureka-server</artifactId> 
+	</dependency>
+	
+		
 	<dependency>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-starter-hystrix</artifactId>

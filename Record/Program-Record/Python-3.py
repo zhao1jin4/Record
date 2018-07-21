@@ -31,8 +31,8 @@ preferences->PyDev->Interpreters->Python Interpreter->选择python.exe所在路�
 shift+enter 自动换行缩进 ,ctrl+1有很多功能
 
 
-PyCharm-2017.3.2(基于IntelliJ IDEA)
-破解 http://idea.liyang.io 
+PyCharm-2018.1.3(基于IntelliJ IDEA)
+linux 破解 http://idea.toocruel.net 
 Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 
 ----- windows 

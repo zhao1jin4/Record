@@ -1,7 +1,8 @@
 EasyUI 主题包 Insdep Theme
 https://www.insdep.com/document/page/easyui/index/init
-Insdep UI For EasyUI 是基于EasyUI 1.5.x 的一款免费的UI工具库,EasyUI组件美化
 
+Insdep UI-2.x For EasyUI 是基于EasyUI 1.5.x 的一款免费的UI工具库,EasyUI组件美化
+https://www.insdep.com  国产的
 =================================================jQuery插件 easyUI-1.3.5
 1.5 有免费版本带源码
 

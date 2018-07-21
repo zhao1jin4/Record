@@ -273,7 +273,7 @@ shared-ldap-0.9.19.jar
 禁用匿名用户仿问
   <defaultDirectoryService 
         中修改   allowAnonymousAccess="true"  为false
-						
+Spring LADP				
 ==============================SNMP4J
 	服务端使用Net-SNMP
 ==============================Jetty
@@ -337,8 +337,8 @@ mvn -e		full stack trace of the errors
 如单元测试报错, 控制台没有原因,要进入target/surefire-report/中的txt文件 有错误 堆栈信息
 
 
-http://search.maven.org/ 可以搜索 Maven 依赖包的配置 Version 例中
-http://www.mvnrepository.com
+http://search.maven.org/ 可以搜索 Maven 依赖包 
+http://www.mvnrepository.com   
 
 Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/maven-model-builder-3.3.9.jar/org/apache/maven/model/pom-4.0.0.xml 有配置 
 <repositories>  
@@ -474,7 +474,8 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 	
 
 ----pom.xml 
-
+mvn dependency:tree 打印整个依赖树 
+ 
 Maven内置隐式变量 
 ${basedir} 项目根目录
 ${project.xxx} 当前pom文件的任意节点的内容 
@@ -540,7 +541,7 @@ artifactId 是自己的项目名
 			<version>3.2.2</version>
 			<configuration>
 			  <overlays>  
-				<overlay> <!-- 项目中先 dependency  <type>war</type> 加这个插件把依赖的war和这个war合并打包-->
+				<overlay> <!-- 项目中先 dependency  <type>war</type> 加这个插件把依赖的war和这个war合并打包,会生成<项目>/overlays目录 存放依赖war的解压-->
 				  <groupId>com.example.projects</groupId>
 				  <artifactId>documentedprojectdependency</artifactId>
 				  <excludes>
@@ -585,7 +586,7 @@ artifactId 是自己的项目名
 	
 	  
 		  
-		<!-- 如果为.jar 指定 Main-Class: com.   ,如使用了spring,运行的机器又不能上网要加AppendingTransformer  -->
+		<!-- mvn package时 把所有依赖的jar解压放在一起,如果为.jar 指定 Main-Class: com.   ,如使用了spring,运行的机器又不能上网要加 AppendingTransformer  -->
 		<plugin> 
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>
@@ -766,7 +767,7 @@ artifactId 是自己的项目名
 			<attachClasses>true</attachClasses> 
 			<archiveClasses>true</archiveClasses> 
 			
-			== 子war项目依赖父<type>war</type>一次,在package时可以把父项目的webapp复制过来,
+			== 子war项目依赖父<type>war</type>一次,在package时可以把父项目的webapp复制过来,如有overlay插件修改父项目pom.xml时,clean时也要把overlays目录删除
 					再第二次依赖父<type>jar</type>
    								 <classifier>classes</classifier>会依赖<project>-<version>-classes.jar及所有子依赖,再复制WEB-INF/lib下,可以解决编译依赖类问题
 			如子项目与项目同名文件，子项目会覆盖父项目
@@ -839,13 +840,21 @@ artifactId 是自己的项目名
 		  <groupId>junit</groupId>
 		  <artifactId>junit</artifactId>
 		  <version>4.12</version> <!-- 现在有5的版本  可以不指定版本 在 <dependencyManagement> <dependencies> 中管理版本 -->
-		  <scope>test</scope> <!-- 只my_app/src/test/java中类可访问到,  有 compile -->
+		  <scope>test</scope> <!-- 只my_app/src/test/java中类可访问到-->
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope> <!-- 不会参与打包 -->
+			<version>4.0.1</version> <!-- 2.5-->
+			<scope>provided</scope> <!-- 不会参与打包 ,默认是compile ,还有runtime不参与run -->
+		</dependency> 
+		<!-- A依赖B，B依赖C  当C是test或者provided时，C直接被丢弃，A不依赖C 也就会编译错误-->
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.0</version> 
+			<scope>compile</scope>  
 		</dependency> 
 		<dependency>
          <groupId>ldapjdk</groupId>
@@ -1012,6 +1021,10 @@ mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -Darchety
   </reporting>
 </project>
 ----------------------------------Gradle
+eclipse marketplace 插件 buildship gradle integration 2.0
+
+
+
 Spring 和 Android使用 ,可以构建 C++
 
 bin 目录入 PATH 环境变量下,初次运行 gradle 命令会在~\.gradle下生成文件
@@ -3150,8 +3163,8 @@ log4j.appender.console=org.apache.log4j.ConsoleAppender
 log4j.appender.console.layout=org.apache.log4j.PatternLayout
 #log4j.appender.console.Threshold=info
 log4j.appender.console.layout.ConversionPattern=[OD]%-d{yyyy-MM-dd HH:mm:ss} [%c:%L] %m%n
+# %-15c{1}  15宽度左对齐,只要类名 %M 方法名
 log4j.appender.console.Encoding=UTF-8
-
 log4j.appender.dailyRollingFile=org.apache.log4j.DailyRollingFileAppender
 log4j.appender.dailyRollingFile.file=${log_home}/dailyRollingFile.log
 log4j.appender.dailyRollingFile.DatePattern='.'yyyy-MM-dd
@@ -3542,6 +3555,29 @@ byte[] res= base64.encode(data);
 res=base64.decode(data);
 
 Base64.decodeBase64(data);
+------------------------------Bcrypt Java实现 jBCrypt
+http://www.mindrot.org/projects/jBCrypt/
+<dependency>
+    <groupId>org.mindrot</groupId>
+    <artifactId>jbcrypt</artifactId>
+    <version>0.4</version>
+</dependency>
+// Hash a password for the first time
+String password = "testpassword";
+String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
+System.out.println(hashed);
+// gensalt's log_rounds parameter determines the complexity
+// the work factor is 2**log_rounds, and the default is 10
+String hashed2 = BCrypt.hashpw(password, BCrypt.gensalt(12));
+System.out.println(hashed2);
+// Check that an unencrypted password matches one that has
+// previously been hashed
+String candidate = "testpassword";
+// String candidate = "wrongtestpassword";
+if (BCrypt.checkpw(candidate, hashed))
+	System.out.println("It matches");
+else
+	System.out.println("It does not match");
 
 -------------------------------commons compress
 //--tar.gz 解压
@@ -3887,7 +3923,19 @@ public static void async() throws Exception
 		System.out.println("返回="+new String(response,"UTF-8"));
 		httpclient.getConnectionManager().shutdown();
 	}
------------------------------Quartz 2.1.x
+-----------------------------Quartz 
+ <dependency>
+  <groupId>org.quartz-scheduler</groupId>
+  <artifactId>quartz</artifactId>
+  <version>2.2.1</version>
+</dependency>
+<dependency>
+  <groupId>org.quartz-scheduler</groupId>
+  <artifactId>quartz-jobs</artifactId>
+  <version>2.2.1</version>
+</dependency>  
+
+@DisallowConcurrentExecution
 public class MyQuartzJob implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 	    JobKey jobKey = context.getJobDetail().getKey();
@@ -3899,6 +3947,7 @@ SchedulerFactory schedFact = new StdSchedulerFactory();
 		Scheduler sched = schedFact.getScheduler();
 		sched.start();
 		JobDetail job = JobBuilder.newJob(MyQuartzJob.class)
+			//.usingJobData(dataKey, value)
 			.withIdentity("myJob", "group1")
 			.build();
   
@@ -3923,9 +3972,12 @@ SchedulerFactory schedFact = new StdSchedulerFactory();
 		
 //		.withSchedule(SimpleScheduleBuilder.simpleSchedule()
 //			.withIntervalInSeconds(3)
-//			.withRepeatCount(10))
+//			.withRepeatCount(10))//假期是当天就不能启动了
 		      
 		.withSchedule(CronScheduleBuilder.cronSchedule("0/2 * 8-17 * * ?"))
+		//.withSchedule(CalendarIntervalScheduleBuilder.calendarIntervalSchedule().withIntervalInMinutes(3))
+		//.withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(16, 0))
+		//.forJob("myJob", "group1");
 /*
 //cron表达式,空格分隔的顺序是
 1.Seconds					0-59
@@ -3947,6 +3999,44 @@ SchedulerFactory schedFact = new StdSchedulerFactory();
 	
 		  sched.scheduleJob(job, trigger);
 
+		  
+		  
+		  
+//		  sched.addJob(job,true);
+//		  sched.scheduleJob(trigger);//triggerBuild.forJob
+		  
+//		  TriggerKey triggerKey=new TriggerKey("myTrigger","group1");
+//		  sched.unscheduleJob(triggerKey);//删任务 
+		  
+//		  JobKey jobKey=new JobKey("myJob","group1");
+//		  sched.checkExists(jobKey);
+		  
+	  
+	/*	  List<Trigger> triggers=(List<Trigger>)sched.getTriggersOfJob(jobKey);//查某个任务的所有定时
+		  for(Trigger trig:triggers)
+		  {
+			  TriggerKey triggerKey=trig.getKey();
+			  TriggerState triggerState=sched.getTriggerState(triggerKey);
+			  System.out.println(triggerState);//enum ,COMPLETED
+		  }
+	  */
+//		sched.triggerJob(jobKey);//立即启动任务
+//		sched.resumeTrigger(triggerKey);//启用
+//		sched.pauseTrigger(triggerKey);//暂停
+
+	/*	  
+		  GroupMatcher<JobKey> matcher=GroupMatcher.groupEquals("group1");//查所有存的任务
+		  Set<JobKey> jobs=sched.getJobKeys(matcher);
+		  for(JobKey key:jobs)
+		  {
+			  JobDetail detail=sched.getJobDetail(key);
+			  detail.getClass();
+			  detail.getDescription();
+			  key.getName();
+			  key.getGroup(); 
+		  }
+		*/
+		  
 //-------使用配置文件方式		  
 //org/quartz/quartz.properties文件,可以被src\下的文件覆盖, 示例在quartz-2.1.6\examples\example10\quartz.properties
 //org/quartz/xml/job_scheduleing_data_2_0.xsd
@@ -3969,12 +4059,18 @@ org.quartz.threadPool.threadCount: 10
 动态配置cronExpression ,类	extends CronTriggerBean
 	setCronExpression(cronExpression)
 
+Clustering 配置 org.quartz.jobStore.isClustered: true
+	
 ---------------------------------Netty
 JBoss的 NIO  很少类基于 java nio
 NioServerSocketChannel , NioSocketChannel 用了 java nio
 //---- Netty-4.1
 netty-all-4.1.8.Final-sources.jar 里有example
- 
+ <dependency>
+    <groupId>io.netty</groupId>
+    <artifactId>netty-all</artifactId>
+    <version>4.1.27.Final</version>
+</dependency>
 
 
 ---------------------------------zxing  
@@ -4497,7 +4593,39 @@ while (iter.hasNext())
 }   
 shardedJedis.close();//一定要close
 
- 
+---------------------------------Redis client  lettuce Spring用这个
+ <dependency>
+    <groupId>io.lettuce</groupId>
+    <artifactId>lettuce-core</artifactId>
+    <version>5.0.4.RELEASE</version>
+</dependency>
+使用reactor,netty
+
+
+//注意 jboss-client.jar了有netty的类
+//		RedisClient redisClient = RedisClient.create("redis://password@localhost:6379/0");
+//		RedisClient redisClient = RedisClient.create("redis://localhost:6379/0");
+//		RedisClient redisClient = RedisClient.create(RedisURI.create("localhost", 6379));
+
+		RedisURI redisUri =RedisURI.Builder.redis("localhost", 6379).withPassword("").withDatabase(1)
+				//.withSsl(true)
+				.build();
+		RedisClient redisClient = RedisClient.create(redisUri);
+		
+		//RedisAsyncCommands<String, String> commands = client.connect().async();
+		//RedisFuture<String> future = commands.get("key");
+		
+		StatefulRedisConnection<String, String> connection = redisClient.connect();
+		RedisCommands<String, String> syncCommands = connection.sync();
+
+		syncCommands.set("key", "Hello, Redis!");
+
+		connection.close();
+		redisClient.shutdown();
+
+		
+		
+		
 ---------------------------------Redis client redisson	  分布式锁的实现 
 //redisson  依赖于netty,fasterxml的jackson
 
@@ -5018,7 +5146,10 @@ import com.alibaba.fastjson.JSON;
 
 String jsonString=JSON.toJSONString(user);
 UserJson user=JSON.parseObject(str,UserJson.class);
-	
+
+List<OrderJson> res=JSON.parseArray(jsonString, OrderJson.class);
+
+		
 ============ZkClient
 <dependency>
 	<groupId>com.101tec</groupId>
@@ -5229,7 +5360,34 @@ pathCache.getListenable().addListener(new PathChildrenCacheListener() {
 System.in.read();
 client.close();
 
-============Shiro + Redis 做登录
+============Shiro (安全) 
+
+<dependency>
+  <groupId>org.apache.shiro</groupId>
+  <artifactId>shiro-core</artifactId>
+  <version>1.3.2</version>
+</dependency>
+ 	
+
+<dependency>
+  <groupId>org.apache.shiro</groupId>
+  <artifactId>shiro-web</artifactId>
+  <version>1.3.2</version>
+</dependency>
+
+
+<dependency>
+  <groupId>org.apache.shiro</groupId>
+  <artifactId>shiro-spring</artifactId>
+  <version>1.3.2</version>
+</dependency>
+
+
+UsernamePasswordToken token = new UsernamePasswordToken("user", "pass");
+Subject currentUser = SecurityUtils.getSubject();
+currentUser.login(token);//当使用外部系统验证成功后告诉Shiro已经登录
+
+
 
 ============FastDFS
 跟踪服务和存储服务，跟踪服务控制，调度文件以负载均衡的方式访问；存储服务包括：文件存储，文件同步，提供文件访问接口，同时以key value的方式管理文件的元数据
@@ -5301,6 +5459,115 @@ Class<IHello> clazz=targetClass.toClass();
 IHello  hello=clazz.newInstance();
 hello.sayHello("王");
 
+-------------Reactor 
+<dependency>
+	<groupId>io.projectreactor</groupId>
+	<artifactId>reactor-core</artifactId>
+	<version>3.1.8.RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>com.lmax</groupId>
+    <artifactId>disruptor</artifactId>
+    <version>3.4.2</version>
+</dependency>
+<dependency>
+    <groupId>com.goldmansachs</groupId>
+    <artifactId>gs-collections-api</artifactId>
+    <version>7.0.3</version>
+</dependency>
+<dependency>
+    <groupId>com.goldmansachs</groupId>
+    <artifactId>gs-collections</artifactId>
+    <version>7.0.3</version>
+</dependency>
+jsr166e-1.0.jar
+Environment env = new Environment();
+Reactor reactor = Reactors.reactor()
+		  .env(env)  
+		  .dispatcher(Environment.EVENT_LOOP) // BlockingQueueDispatchers ,事件到达时先存储在一个Blockingqueue中，再由统一的后台线程一一顺序执行 
+		  .get(); 
+//$("parse") 同 Selectors.object("parse"),Tuple可以传多个参数
+Registration reg=reactor.on($("parse"), new Consumer<Event<String>>() 
+		{
+		  @Override
+		  public void accept(Event<String> ev) {
+		    System.out.println("Received event with data: " + ev.getData());
+		  }
+		});
+reg.pause(); //暂停后,再notify无用的
+reactor.notify("parse", Event.wrap("data"));
+Thread.sleep(1000);
+
+reg.resume();
+reactor.notify("parse", Event.wrap("data"));
+Thread.sleep(500);
+
+reactor-core-1.1.3.BUILD-SNAPSHOT.jar\META-INF\reactor\default.properties
+	reactor.dispatchers.default = ringBuffer  ## eventLoop
+	
+java -Dreactor.profiles.default=production  会使用 META-INF/reactor/production.properties文件
 
 
+Deferred<String, Stream<String>> deferred = Streams.<String>defer()
+		  .env(env)
+		  .dispatcher(Environment.RING_BUFFER)
+		  .get();
+Stream<String> stream = deferred.compose();
+//---	
+Stream<String> filtered = stream   
+		.map(new Function<String, String>() 
+		{
+			public String apply(String s) {
+			  return s.toLowerCase();
+			}
+		  })
+		  .filter(new Predicate<String>()
+		{
+			public boolean test(String s) {
+			  // test String
+			  return s.startsWith("nsprefix:");
+			}
+		  });
+//---			
+		
+// consume values
+stream.consume(new Consumer<String>() {//如用 filtered.consume() 会使用过滤规则
+  public void accept(String s) {
+	  System.out.println("accepted :"+s);
+  }
+});
+
+// producer calls accept
+deferred.accept("Hello World!");
+
+//------Promise
+Deferred<String, Promise<String>> deferred1 = Promises.<String>defer()
+		  //.env(env).dispatcher(Environment.RING_BUFFER) //加这行 deferred1.accept 不会等待执行完成,不加会等待
+		  .get();
+//Promise<String> p1 = Promises.success("12333").get();//作用不大
+Promise<String> p1=deferred1.compose(); 
+
+// Transform the String into a Float using map()
+Promise<Float> p2 = p1.map(new Function<String, Float>() {
+		public Float apply(String s) {
+		return Float.parseFloat(s);
+		}
+		}).filter(new Predicate<Float>() {
+		public boolean test(Float f) {
+			return f > 100f;
+		  }
+		});
+
+//p2.then(onSuccess, onError)
+p2.onSuccess(new Consumer<Float>() { //p1.onSuccess
+	public void accept(Float f) {
+		Thread.sleep(3000);
+		System.out.println("---promise Float:"+f);
+	}
+});
+deferred1.accept("182.2");
+
+
+-------------Reactor 
+ 
 
