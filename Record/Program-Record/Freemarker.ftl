@@ -1,5 +1,12 @@
+<dependency>
+  <groupId>org.freemarker</groupId>
+  <artifactId>freemarker</artifactId>
+  <version>2.3.28</version>
+</dependency>
 
-Freemarker 不能在群集上面发布应用
+
+FreeMarker不支持集群应用
+	把序列化的东西都放到了Session,request等,但如果将应用放到集群中，就会出现错误
 
 
 

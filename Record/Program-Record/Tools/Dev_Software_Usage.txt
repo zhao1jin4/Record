@@ -24,9 +24,11 @@ linux  是	/usr/share/fonts/truetype/
 
 netbeans-javaee 要用./bin/netbeans --jdkhome /usr/local/diablo-jdk1.6.0 来运行 如没有设置JAVA_HOME
 
-Tools -> Java Platfrom 配置JDK
+Tools -> Java Platfrom 配置JDK.即JAVA_HOME,多个JDK 以系统环境变量为默认 ，
 Tools -> Server 配置 Tomcat  ,配置后这里来改密码 ,也可配置deploy timeout
-如是maven 的web项目，右击项目->Run/Debug 启动时默认是运单测试的，右击项目-> Properties->Action -> 选择Run/Debug Project ,在set profiles中add->skip tests
+如是maven 的web项目，右击项目->Run/Debug 启动时默认是运单测试的，
+右击项目-> Properties->Action -> 选择Run/Debug Project ,在set profiles中add->skip tests
+tools -> options-> Java -> Maven-> Execution标签中选中Skip Tests....
 右击项目-> Properties->Run ->Context Path中修改为正确的
 
 重新可用部署cargo maven插件，打开pom.xml,在navigator视图-> 下拉选择navigator goals 可以右击 cargo reploy -> execute goal
@@ -35,7 +37,7 @@ Tools -> Server 配置 Tomcat  ,配置后这里来改密码 ,也可配置deploy 
 
  问题???? 如果是Maven web项目,生成 myProject-1.0.war包名和 <build><finalName>myProject</finalName></build>不一样 ,部署时并不会使用finalName中的值
  其实是在 apache-tomcat-7.0.78\conf\Catalina\localhost\中加入<项目>.xml  ,
- 停tomcat时总是在处理,如Tomcat是8也部署不上去,如想随意切换tomcat 7,8的版本也不行,会短暂记住最近选择(就算选择了not rember for one-time deployment也没用)
+ 停tomcat时总是在处理,如Tomcat是8也部署不上去,如想随意切换tomcat 7,8的版本也不行,会短暂记住最近选择(就算选择了not rember for one-time deployment也没用,下次启动netbeans才行)
  
  或者(不用IDE 插件) 在pom.xml的<build>中加入
 <plugin>
@@ -116,7 +118,7 @@ Tools->Options->Java->Maven->修改Maven_Home
 命令行下可以编译  javac -encoding UTF-8 Hello.java  对UTF-8的文件
 
 
-Run->Set Project Configuration->Custom...->  是对主项目的配置
+Run->Set Project Configuration->Custom...->  是对主项目的配置,像是对Maven profile
 
 alt + 滑动滚轮,可调整代码区的字体大小
 
@@ -129,8 +131,7 @@ alter+shift+f   source->format
 代码格式化 "{" 放单独一行
 tools->options->editors按钮->formation标签->language选择java->category选择braces-> 改为next line
 				Java -> Maven配置根目录,即使用配置
-				
-Run->Set Project Configuration->Custom...->  是对主项目的配置
+				 
 
 在错误处 alt+enter 会给出解决方法
 
@@ -623,7 +624,8 @@ view->Object Palette 可以看所有的表
  不支持调试
  select  * from xx procedure analyse() 表格中显示blob其实是字符
 ---- 
-
+要 Visual C++ Redistributable Packages for Visual Studio 2015
+这里有 vs2015.ent_enu.iso\packages\vcRedistD14\VC_redist.x64.exe			
 
 Output视图 有SQL错误提示,写SQL时也会有线波浪线的语法错误提示
 字体大小,可ctrl+滚轮,editor->preferences->font & Colors 中设置字体为 12
@@ -636,17 +638,48 @@ Mysql官方的开发工具安装在/usr/bin/mysql-query-browser
 
 database->manage connections...
 database->Reverse engineer ...->有向导会把数据库表转换成ER图,可以选择shema即哪个数据库,速度比PowerDesigner快,可以在右上角搜索表名
+(ctrl + - 缩小视图, ctrl+ + 放大视图)
+
 edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好用
 
 表格右侧有 Form Editor  
 
 -------------MyFront 5.3 免费
--------------SQLyog Monyog 
--------------dbForge Studio for MySQL-6.3 Express  免费
--------------dbForge Studio for MySQL-6.3  Professional Trial
+-------------SQLyog Monyog  
+-------------dbForge Studio for MySQL 8 Enterprise Edition
+-- SET GLOBAL log_bin_trust_function_creators = 1;  -- root run
+
+ 
+delimiter  //
+drop  FUNCTION if exists hello //
+CREATE FUNCTION hello (s CHAR(20))
+  RETURNS CHAR(50) DETERMINISTIC  -- Function dbForge一定要有DETERMINISTIC
+  BEGIN
+    DECLARE res VARCHAR(30);
+   SET res =CONCAT('Hello, ',s,'!');
+  RETURN  res;
+    END;//
+delimiter  ;
+
+
+delimiter  //
+drop  PROCEDURE if exists  demo_inout_parameter ; //
+CREATE PROCEDURE demo_inout_parameter (inout cnt int)
+BEGIN 
+  SET cnt=cnt+1; 
+ END//
+delimiter  ;
+
+set @cnt=10
+call demo_inout_parameter(@cnt);
+select @cnt
+
 可以debug 存储过程 ,有debug菜单	 
-	展开procedure->选中右击->Debug->Compile for Debugging完成后,双击procedure打开程序,双击打断点,点Start Debugging按钮,会提示输入存储in参数 
-	会建立cr_debug数据库,MySQL 5.6测试OK
+	展开procedure->选中右击->Debug->Compile for Debugging ->提示点deploy按钮
+	(会建一些东西,root用户权限,会建立cr_debug数据库)
+	完成后,双击procedure打开程序,双击打断点,点工具栏的Start Debugging按钮,会提示输入存储in参数 
+	
+	dbForge 8 在 MySQL 8 测试失败？	
 
 数据表格的上方工具栏有一个 switch to card view 
 =============Mongodb工具    Toad Extension for Eclipse  好用,带语法提示的

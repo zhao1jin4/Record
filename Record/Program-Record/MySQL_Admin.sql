@@ -31,7 +31,11 @@ datadir=D:\\Program\\mysql-8.0.11-winx64\\data
 #sc create MySQL8  binpath= "\"D:/Program/mysql-8.0.11-winx64/bin/mysqld\" --defaults-file=\"D:/Program/mysql-8.0.11-winx64/my.ini\" MySQL8" type= share  start= auto displayname= "MySQL8"
 
 
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';  #mysql8 多加的
+
+MySQL8 安装后老的UI工具报 Authentication plugin 'caching_sha2_password' cannot be loaded 的解决方式 
+ALTER USER zh@localhost IDENTIFIED WITH mysql_native_password   BY '123';
+ALTER USER zh@'%'  IDENTIFIED WITH mysql_native_password   BY '123';
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';  
 
 ------------MySQL-5.7 windows zip 版
  mysqld启动服务，默认INNODB,默认字符集是latin1

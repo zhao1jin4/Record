@@ -566,6 +566,7 @@ jdbc:mysql://localhost:3306/databasename
 jdbc:mysql:///mydb?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC    xml文件中用&amp;
 jdbc:mysql://address=(protocol=tcp)(host=localhost)(port=3306)/mydb?useUnicode=true&characterEncoding=UTF-8
 &zeroDateTimeBehavior=convertToNull 对于日期类型,如果从文件导入没有值会被认为0000-00-00,
+&zeroDateTimeBehavior=CONVERT_TO_NULL (MySQL8 CONVERT_TO_NULL)
 emptyStringsConvertToZero 默认是true
 useSSL=true
 
@@ -773,7 +774,20 @@ java -splash:Sunset.jpg com.xx.MainApp  启动显示图片
 如是.jar包中加参数 SplashScreen-Image: Sunset.jpg  // :后有空格
 
 
-javap （-s）来生成属性或者方法的签名，也可用来有哪些属性方法,L表示类,[ 表示数组,  I 表示 int
+javap （-s）来生成属性或者方法的签名，也可用来有哪些属性方法,
+I 表示 int
+S short
+B byte
+C char
+F float
+D double
+---
+L 表示类以;结束
+[ 表示数组
+Z 表示 boolean
+J 表示 long
+
+
 pack200 压缩.jar包
 unpack200
 rmiregistry 命令启动后,会监听1099 端口
@@ -810,7 +824,7 @@ public static void agentmain(String agentArgs);
 class MyClassFileTransformer implements ClassFileTransformer
 {
 	public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) 
-			throws IllegalClassFormatException {
+			throws IllegalClassFormatException 
 	{
 		//System.out.println("className="+className);
 		if (!className.equals("instrument/TransClass")) {
@@ -979,58 +993,9 @@ eclipse中project->generate javadoc
 子类可以覆盖父类的方法和@( @Override)
 接口前加@xx ,是不可以继承@xx
 Junit,Spring,Hibernate ,都有@的形式来开发
---------------------------JDK 7 新特性
-File fileDire = new File("/home/test");// 在windows上是建立在,当C:盘上没有权限时,会D:盘上建立
-boolean isOK = fileDire.mkdirs();
-System.out.println("dir create :"+isOK);
-try
-{	 
-InputStream  in=new FileInputStream("c:/temp/aa.txt"); //实现AutoCloseable接口的自动关闭
-}catch( NullPointerException | FileNotFoundException e  ) // 多个异常用 | 
-{
-}
- 
- try (BufferedReader br = new BufferedReader(new FileReader(""))) //try ()中可以加代码,后可没有catch和finally
- {  
-  String a= br.readLine();  
-}  
-		
-int billion=1_000_000_000;//在数字中使用下划线
-int binary=0b1001_1001;  //0b是二进制
 
-switch("one")  //switch可可char,byte ,int ,short,enum ,String是新版本,,不可用于long和小数
 
- Map<String, List<String>> myMap = new HashMap<>(); //可以简写
- 
-ForkJoinPool pool = new ForkJoinPool(); //Fork/Join 模式 ,默认是runtime.availableProcessors();CPU多少核的
-pool.invoke(new MySortTask()); //会调用RecursiveAction 的 compute 方法
-class MySortTask extends RecursiveAction //如使用RecursiveTask的compute方法可带返回值
-{
-	protected void compute()
-	{
-	//if(数量少)
-	//		直接调用
-	//else  数量多
-	//		递归拆分多个,一般是二分法
-	//		invokeAll(left,right); //invokeAll是ForkJoinTask的方法
-	//		compute方法没有返回值,这里可以保存递归值
-	
-		.fork();//子任务的异步执行,每次调用增加一个线程,直到 runtime.availableProcessors()个线程为止,如果超过getSurplusQueuedTaskCount()返回值加1
-		.join()//阻塞等待结果完成。
-	}
-}
 
-//第二种带返回值的
-RecursiveTask<Integer> task=new MyRecursiveTask (); 
-pool.execute(task);//变execute
-Integer result = task.get();
-
-class MyRecursiveTask extends RecursiveTask<Integer> {  //变RecursiveTask
- public Integer compute() {
-	 //可调用fork/join/compute
-	return null;  
- }
-}
 --------------------------JDK9新特性
 --module-path 如放JDK,为了兼容老版本的jar放 --class-path中(eclipse)
 
@@ -1128,7 +1093,198 @@ public class SimpleSubscriber implements Flow.Subscriber<Long> {
  pub.close();//会调用 Subscriber的onComplete方法
   
 
+jshell 命令是JDK9新功能,类似Scala
+jshell> /help
+jshell> /list  -start 显示import
+jshell> /list -all   默认import的包 和 最近的代码
+jshell>/imports 列出已经导入的包：//默认import的有
+	import java.io.*;
+	import java.math.*;
+	import java.net.*;
+	import java.nio.file.*;
+	import java.util.*;
+	import java.util.concurrent.*;
+	import java.util.function.*;
+	import java.util.prefs.*;
+	import java.util.regex.*;
+	import java.util.stream.*;
+ 
+按tab键可以自动补全，也提示方法的参数
+ 
+/vars  列出所有变量 
 
+/methods 列出所有方法 
+/也可以用tab
+/edit 方法名 会打开JShell edit pad(java写的)编辑器
+
+/save 
+/open
+
+/l -a 的全写是  /list -all
+
+
+
+//----JDK8 新特性
+//@FunctionalInterface //即只可有一个未实现的方法,如不加这个默认就是
+interface IntegerMath {
+	int operation_(int a, int b);
+}
+//lambda表达式
+IntegerMath subtraction = (a, b) ->{ return a - b;};//如使用lambda ,必须接口是@FunctionalInterface,类似于匿名内部类
+IntegerMath addition = (c, d) -> c + d; //如实现只有一行，可省{}和return
+
+double num=5;//这里可以不用加final
+lambdaOneInterface one = x -> x*0.9-num;  //如果只一个形参可以省(),-> 只可以用于@FunctionalInterface的方法
+//num=6;// 和内部类一样，引用外部变量必须为final,这里只是可以不写，如后面有修改就会报错
+
+interface MethodRef
+{
+	void processStr(String s) ;
+}
+MethodRef instanceRef=  System.out::println ;//实例方法 引用:: ，要求接口中的方法参数和被引用方法的参数有相同类型和个数的
+instanceRef.processStr("method instance ref string :: ");
+
+interface MethodStaticRef 
+{
+	void processArray(int [] s) ;
+}
+MethodStaticRef staticRef=Arrays::sort;//类的静态方法引用 ::
+int[] array=new int[]{6,9,4,5,8,1};
+staticRef.processArray(array);
+System.out.println(Arrays.toString(array));
+
+interface MethodRefNoneStatic
+{
+	void processStr(PrintStream stream,String s) ;
+}
+
+MethodRefNoneStatic objectRef=PrintStream::println;//类的非静态方法引用 :: ,接口的唯一方法的第一个参数一定要是PrintStream类型
+objectRef.processStr(System.out,"method noneStatic ref string");
+
+
+interface MethodConstructRef
+{
+	void processStr(char[] s) ;
+}
+
+MethodConstructRef constructRef= String::new;//构造函数引用，接口方法与构造函数声明结构相同
+constructRef.processStr(new char[]{'中','国'});
+		
+		
+LocalDateTime dateAndTime = LocalDateTime.now();
+LocalDate currentDate = LocalDate.from(dateAndTime); 
+LocalTime timeToSet = LocalTime.of(hour, minute, second);//of表示修改
+dateAndTime = LocalDateTime.of(currentDate, timeToSet);
+
+LocalDate birthday;
+birthday.until(IsoChronology.INSTANCE.dateNow())//返回  Period 
+	.getYears();
+
+ZoneId.systemDefault();
+ZonedDateTime.of(dateAndTime, ZoneId.of("Asia/Shanghai"));
+ 
+ 
+//接口中有方法实现,方法前加default或static
+//default方法 能够添加新的功能到已经存在的接口，确保与采用老版本这些接口编写的代码的二进制兼容性
+//比抽象类好处可以多重继承,一个类继承两个接口时,这个两个接口中如有相同的default方法,子类必须重写
+//接口中定义的变量默认是public static final 型，且必须给其初值，所以实现类中不能重新定义，也不能改变其值;抽象类中的变量默认是 friendly 型，其值可以在子类中重新定义，也可以重新赋值
+	
+
+
+List<Integer> l = Arrays.asList(numbers);
+List<Integer> r = l.stream() //Stream<Integer>
+		.map(e -> new Integer(e))
+		.filter(e -> e > 2)//参数为Predicate类型
+		.distinct()
+		.collect(Collectors.toList());
+	
+命令 jdeps  <class,jar,目录>  显示所有依赖中的缺失(不使用eclipse也可以了)
+
+javac 的-profile 选项
+compact1< compact2 <  compact3 < JavaSE
+javac -profile compact1 Hello.java
+ 
+ Nashorn JS 引擎 ,使用 jjs 命令调用
+jjs 后可输入JS来测试,也可 jss  x.js
+jjs> typeof java.lang.System == "function"
+jjs> var intNum = 10
+jjs> intNum.class
+class java.lang.Integer
+
+--x.js
+var Run = Java.type("java.lang.Runnable");
+var MyRun = Java.extend(Run, {   
+    run: function() {
+        print("Run in separate thread");
+    }
+});
+var Thread = Java.type("java.lang.Thread");
+var th = new Thread(new MyRun());
+
+
+//java.util
+Base64.Encoder base64Encoder=Base64.getEncoder();
+byte[] encoded=base64Encoder.encode("这是一个中文".getBytes("UTF-8"));
+System.out.println(new String(encoded));
+
+Base64.Decoder base64Decoder=Base64.getDecoder();
+byte[] decoded=base64Decoder.decode(encoded);
+System.out.println(new String(decoded));
+
+Base64.getUrlEncoder();
+
+--------------------------JDK 7 新特性
+File fileDire = new File("/home/test");// 在windows上是建立在,当C:盘上没有权限时,会D:盘上建立
+boolean isOK = fileDire.mkdirs();
+System.out.println("dir create :"+isOK);
+try
+{	 
+InputStream  in=new FileInputStream("c:/temp/aa.txt"); //实现AutoCloseable接口的自动关闭
+}catch( NullPointerException | FileNotFoundException e  ) // 多个异常用 | 
+{
+}
+ 
+ try (BufferedReader br = new BufferedReader(new FileReader(""))) //try ()中可以加代码,后可没有catch和finally
+ {  
+  String a= br.readLine();  
+}  
+		
+int billion=1_000_000_000;//在数字中使用下划线
+int binary=0b1001_1001;  //0b是二进制
+
+switch("one")  //switch可可char,byte ,int ,short,enum ,String是新版本,,不可用于long和小数
+
+ Map<String, List<String>> myMap = new HashMap<>(); //可以简写
+ 
+ForkJoinPool pool = new ForkJoinPool(); //Fork/Join 模式 ,默认是runtime.availableProcessors();CPU多少核的
+pool.invoke(new MySortTask()); //会调用RecursiveAction 的 compute 方法
+class MySortTask extends RecursiveAction //如使用RecursiveTask的compute方法可带返回值
+{
+	protected void compute()
+	{
+	//if(数量少)
+	//		直接调用
+	//else  数量多
+	//		递归拆分多个,一般是二分法
+	//		invokeAll(left,right); //invokeAll是ForkJoinTask的方法
+	//		compute方法没有返回值,这里可以保存递归值
+	
+		.fork();//子任务的异步执行,每次调用增加一个线程,直到 runtime.availableProcessors()个线程为止,如果超过getSurplusQueuedTaskCount()返回值加1
+		.join()//阻塞等待结果完成。
+	}
+}
+
+//第二种带返回值的
+RecursiveTask<Integer> task=new MyRecursiveTask (); 
+pool.execute(task);//变execute
+Integer result = task.get();
+
+class MyRecursiveTask extends RecursiveTask<Integer> {  //变RecursiveTask
+ public Integer compute() {
+	 //可调用fork/join/compute
+	return null;  
+ }
+}
 //---------JDBC 
 DatabaseMetaData dbMetaData= conn.getMetaData();
 ResultSet tablesRS=dbMetaData.getTables(null, null, null, new String[]{"TABLE"});
@@ -1163,7 +1319,7 @@ call.setInt(1, 123);
 call.execute();
 String result=call.getString(2);
 
-//--RowSet
+//--RowSet jdk1.7新功能
 RowSetFactory  rowSetFactory = RowSetProvider.newFactory();//用缺省的RowSetFactory 实现 
 JdbcRowSet rowSet = rowSetFactory.createJdbcRowSet(); 
 String url="jdbc:h2:tcp://localhost:9092/test";
@@ -4116,12 +4272,12 @@ public class Order
 	@Length(min=2,max=20)//hiberante
 	private String customer;
 	
-	@NotBlank //hiberante
-	@Email //hiberante
+	@NotBlank 
+	@Email  
 	private String email;
 	
 	@NotNull(message="建立日期为null")
-	@NotEmpty(message="建立日期不能为空串") //hiberante
+	@NotEmpty(message="建立日期不能为空串") 
 	private String createDate;
 	
 	@Pattern(regexp="^[0-9]{13}$" ,message="手机号必须是13位数字")
@@ -4226,14 +4382,15 @@ public class EqualAttributesValidator implements ConstraintValidator<EqualAttrib
 	}
 }
 <dependency>
-	<groupId>org.hibernate</groupId>
-	<artifactId>hibernate-validator</artifactId>
-	<version>5.4.1.Final</version>
+    <groupId>org.hibernate.validator</groupId>
+    <artifactId>hibernate-validator</artifactId>
+    <version>6.0.12.Final</version>
 </dependency>
+
 <dependency>
 	<groupId>javax.validation</groupId>
 	<artifactId>validation-api</artifactId>
-	<version>1.1.0.Final</version>
+	<version>2.0.1.Final</version>
 </dependency>
 
 import javax.validation.ConstraintViolation;
@@ -4283,115 +4440,6 @@ grant {
 grant {
   permission java.util.PropertyPermission "user.dir", "read";
 };
-
-//----JDK8 new
-//@FunctionalInterface //即只可有一个未实现的方法,如不加这个默认就是
-interface IntegerMath {
-	int operation_(int a, int b);
-}
-//lambda表达式
-IntegerMath subtraction = (a, b) ->{ return a - b;};//如使用lambda ,必须接口是@FunctionalInterface,类似于匿名内部类
-IntegerMath addition = (c, d) -> c + d; //如实现只有一行，可省{}和return
-
-double num=5;//这里可以不用加final
-lambdaOneInterface one = x -> x*0.9-num;  //如果只一个形参可以省(),-> 只可以用于@FunctionalInterface的方法
-//num=6;// 和内部类一样，引用外部变量必须为final,这里只是可以不写，如后面有修改就会报错
-
-interface MethodRef
-{
-	void processStr(String s) ;
-}
-MethodRef instanceRef=  System.out::println ;//实例方法 引用:: ，要求接口中的方法参数和被引用方法的参数有相同类型和个数的
-instanceRef.processStr("method instance ref string :: ");
-
-interface MethodStaticRef 
-{
-	void processArray(int [] s) ;
-}
-MethodStaticRef staticRef=Arrays::sort;//类的静态方法引用 ::
-int[] array=new int[]{6,9,4,5,8,1};
-staticRef.processArray(array);
-System.out.println(Arrays.toString(array));
-
-interface MethodRefNoneStatic
-{
-	void processStr(PrintStream stream,String s) ;
-}
-
-MethodRefNoneStatic objectRef=PrintStream::println;//类的非静态方法引用 :: ,接口的唯一方法的第一个参数一定要是PrintStream类型
-objectRef.processStr(System.out,"method noneStatic ref string");
-
-
-interface MethodConstructRef
-{
-	void processStr(char[] s) ;
-}
-
-MethodConstructRef constructRef= String::new;//构造函数引用，接口方法与构造函数声明结构相同
-constructRef.processStr(new char[]{'中','国'});
-		
-		
-LocalDateTime dateAndTime = LocalDateTime.now();
-LocalDate currentDate = LocalDate.from(dateAndTime); 
-LocalTime timeToSet = LocalTime.of(hour, minute, second);//of表示修改
-dateAndTime = LocalDateTime.of(currentDate, timeToSet);
-
-LocalDate birthday;
-birthday.until(IsoChronology.INSTANCE.dateNow())//返回  Period 
-	.getYears();
-
-ZoneId.systemDefault();
-ZonedDateTime.of(dateAndTime, ZoneId.of("Asia/Shanghai"));
- 
- 
-//接口中有方法实现,方法前加default或static
-//default方法 能够添加新的功能到已经存在的接口，确保与采用老版本这些接口编写的代码的二进制兼容性
-//比抽象类好处可以多重继承,一个类继承两个接口时,这个两个接口中如有相同的default方法,子类必须重写
-//接口中定义的变量默认是public static final 型，且必须给其初值，所以实现类中不能重新定义，也不能改变其值;抽象类中的变量默认是 friendly 型，其值可以在子类中重新定义，也可以重新赋值
-	
-
-
-List<Integer> l = Arrays.asList(numbers);
-List<Integer> r = l.stream() //Stream<Integer>
-		.map(e -> new Integer(e))
-		.filter(e -> e > 2)//参数为Predicate类型
-		.distinct()
-		.collect(Collectors.toList());
-	
-命令 jdeps  <class,jar,目录>  显示所有依赖中的缺失(不使用eclipse也可以了)
-
-javac 的-profile 选项
-compact1< compact2 <  compact3 < JavaSE
-javac -profile compact1 Hello.java
- 
- Nashorn JS 引擎 ,使用 jjs 命令调用
-jjs 后可输入JS来测试,也可 jss  x.js
-jjs> typeof java.lang.System == "function"
-jjs> var intNum = 10
-jjs> intNum.class
-class java.lang.Integer
-
---x.js
-var Run = Java.type("java.lang.Runnable");
-var MyRun = Java.extend(Run, {   
-    run: function() {
-        print("Run in separate thread");
-    }
-});
-var Thread = Java.type("java.lang.Thread");
-var th = new Thread(new MyRun());
-
-
-//java.util
-Base64.Encoder base64Encoder=Base64.getEncoder();
-byte[] encoded=base64Encoder.encode("这是一个中文".getBytes("UTF-8"));
-System.out.println(new String(encoded));
-
-Base64.Decoder base64Decoder=Base64.getDecoder();
-byte[] decoded=base64Decoder.decode(encoded);
-System.out.println(new String(decoded));
-
-Base64.getUrlEncoder();
 
 
 @Repeatable 用在了Spring的 PropertySource
@@ -4522,39 +4570,41 @@ public class TheImplFutureClass implements Runnable {
 
 StampedLock sl = new StampedLock();
 
----
-jshell
-jshell> /help
-jshell> /list  -start 显示import
-jshell> /list -all  带默认import的和最近的代码
-import java.io.*;
-import java.math.*;
-import java.net.*;
-import java.nio.file.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.*;
-import java.util.prefs.*;
-import java.util.regex.*;
-import java.util.stream.*;
  
-按tab键可以自动补全，也提示方法的参数
- new JFrame<Shift+Tab i> 自动导入类  测试无效
+//---java.beans
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+public static void transMap2Bean(Map<String, Object> map, Object obj) throws Exception// Map->Bean
+{
+	BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());
+	PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+	for (PropertyDescriptor property : propertyDescriptors) {
+		String key = property.getName();
+		if (map.containsKey(key) && !"class".equals(key)) { //转换的map有class属性,key也有
+			Object value = map.get(key);
+			Method setter = property.getWriteMethod(); // 得到property对应的setter方法
+			setter.invoke(obj, value);
+		}
+	}
+	return;
+}
 
-
-/vars  列出所有变量 
-
-/methods 列出所有方法 
-/也可以用tab
-/edit 方法名 会打开编辑器
-
-/save 
-/open
-
-/l -a = /list -all
-
-
-
-
+public static Map<String, Object> transBean2Map(Object obj) throws Exception // Bean->Map
+{
+	if (obj == null) {
+		return null;
+	}
+	Map<String, Object> map = new HashMap<String, Object>();
+	BeanInfo beanInfo = Introspector.getBeanInfo(obj.getClass());// java.beans.Introspector
+	PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+	for (PropertyDescriptor property : propertyDescriptors) {
+		String key = property.getName();
+		Method getter = property.getReadMethod(); // 得到property对应的getter方法
+		Object value = getter.invoke(obj);
+		map.put(key, value);
+	}
+	return map;
+}
 
 

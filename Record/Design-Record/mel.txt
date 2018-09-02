@@ -1,18 +1,13 @@
-最近因为工作要用到maya，又因为我的mel很差，临时抱抱佛脚，看看书，所以写一些mel的教程，希望精于此道的兄弟看到问题多提出来，也帮我进步进步，谢谢
-
-mel的强大自不必多说了，因为他是maya的底层语言，maya界面菜单上的每一个命令其实都是在执行mel命令，可以说mel是无所不能的，用它来编程的话，有什么做不到的呢？
-
-先来看看从哪里可以手工输入mel 
+ mel 是maya的底层语言，maya界面菜单上的每一个命令其实都是在执行mel命令 
  
-
-eagle0691 2006-04-06 21:33 
-常用的就是script editor,因为直观，command shell那里也很好用，但对很多段的程序，不够直观。不过对于一句的mel，它的好处就在于能用上下箭头调出以前的命令。
-在script editor中，点击edit→echo all commands，这样的话，你在maya里执行每一个菜单命令，你都能从se中看到那个命令是怎样写的，这个可以自己看一下。 
+window->general editor->script editor, 能用上下箭头调出以前的命令。
+在script editor中,点击history->echo all commands 这样的话 ,你在maya里执行每一个菜单命令,都能从中看到那个命令是怎样写的 
  
-
-eagle0691 2006-04-06 21:55 
-来说说表达式，表达式其实也是mel，本质上一样，但是表达方式不太一样，一个明显的区别就是mel中获取或者设置属性值是不能用等号（＝）的而是要用setAttr这个命令。表达式一般运行较慢，最好就是能用约束或其它命令，就不要用它。
-我们现在来写一个简单的表达式。
+ 
+表达式 一个明显的区别就是mel中获取或者设置属性值是不能用等号（＝）的而是要用setAttr这个命令
+  
+  
+  
 创建一个球体，然后在它的属性页中(ctrl+a)选择 attribute → add atrribute
 属性名称(attribute name)输入revolutons，数据类型(data type)选择float（浮点，就是精确到小数点的数），点ok
 这时在右边的通道栏下边就可以看到revolutons了
@@ -141,8 +136,7 @@ connectAttr nurbsSphere1.translateX nurbsSphere2.translateY;
 
 这就是将nurbsSphere1(为物体名称，通常为第一个nurbs球体的名称)的tanslateX（x方向的位移），与球体2的y方向的位移连接起来了 
  
-
-eagle0691 2006-04-07 19:32 
+ 
 突然发现这部分基础需要说的太多，所以应观众要求直接跳到窗口的编写部分。其它基础如声明变量、全局变量、数据类型、执行流程等等以后有机会再写了。
 
 构造窗口这部分其实应该是有可视化软件构造的，我想应该有，只是不知道，好在用mel编写的窗口不会太复杂，要是够复杂，都会用cpp写了
@@ -186,11 +180,3 @@ string $myFSG = `floatSliderGrp -min 0
                                   -label
                                   "Drag it"
                                   -field true`;
-
-
-这只是简单的例子，我觉得有心学的，只要多看看帮助就都懂了，我也没必要写这个了，算是让有心人入入门吧。工作太累了，有心转向lw，做做自己的东西，但几个同事都觉得lw现在太繁琐了，简单说是落伍，用起来太累，想想算了吧，lw9出来后再看看吧
-
-The end
-
-regards 
- 

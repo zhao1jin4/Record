@@ -304,6 +304,32 @@ function drop(ev)
 <br>
 <img id="drag1" src="assets/img_logo.gif" draggable="true" ondragstart="drag(event)" width="336" height="69">
 
+---跨域
+
+<script type="text/javascript">
+//var url = "http://localhost:8080/S_HTML5CSS3/js/remote.js";
+var url = "http://127.0.0.1:8080/S_HTML5CSS3/js/remote.js";
+
+var localHandler = function(data){
+    alert('我是本地函数，可以被跨域的remote.js文件调用，远程js带来的数据是：' + data.result);
+};
+
+//方式二  动态创建<script>
+var script = document.createElement('script');
+script.setAttribute('src', url); 
+document.getElementsByTagName('head')[0].appendChild(script); 
+
+//方式三 jQuery jsonp
+</script>
+  
+<!-- 浏览器如是localhost,用127.0.0.1就是跨域
+ //凡是拥有"src"这个属性的标签都拥有跨域的能力，比如<script>、<img>、<iframe>，Websocket跨域
+方式一
+<script type="text/javascript" src="http://127.0.0.1:8080/S_HTML5CSS3/js/remote.js"></script>
+ <script type="text/javascript" src="http://localhost:8080/S_HTML5CSS3/js/remote.js"></script>
+  -->
+---remote.js
+localHandler({"result":"我是远程js带来的数据"});
 
 ===================CSS  CSS 3
 <table border="1"  style="table-layout:fixed;word-wrap:break-word;"> 为<td>内容换行 
@@ -401,6 +427,17 @@ div#row2 { color: red;display: inline }  //可以让DIV不换行，但div如果�
 <div id="row1">第一个div</div>   
 <div id="row2">第二个div不换行</div>
  
+oDiv2.style.styleFloat=sValue2;//兼容IE
+oDiv2.style.cssFloat =sValue2;//兼容火狐
+
+
+横向ul ,li变圆,间距相等<br/>
+<ul style="list-style-type:none;display:flex;justify-content:space-between;width:100px">
+	<li><div style="border-radius:50%;background:blue;color:white;width:20px;height:20px;text-align:center;line-height:20px" >1</div></li>
+	<li><div style="border-radius:50%;background:blue;color:white;width:20px;height:20px;text-align:center;line-height:20px" >2</div></li>
+	<li><div style="border-radius:50%;background:blue;color:white;width:20px;height:20px;text-align:center;line-height:20px" >3</div></li> 
+</ul> 
+
 
 ===================SVG
 

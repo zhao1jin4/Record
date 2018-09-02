@@ -4,8 +4,9 @@ C++语言编写
 工具用  Toad Extension for Eclipse 带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
 Toad for Eclipse-2.4.4 可以支持mongo-3.2版本,3.4版本打开js文件连接不成功,
 Robo  Studio 3T  2018.2.5 (收费的)
-NoSQL Manager for MongoDB-4.9.8  (只windows，下freeware安装后Professional版30天试用)
+NoSQL Manager for MongoDB-4.9.9.2 支持MongoDB 4.0  (只windows,下freeware安装 )
 MongoDB 页面管理工具: Rockmongo
+官方的Mongo Compass
 
 https://docs.mongodb.com/
 https://docs.mongodb.com/manual/
@@ -17,12 +18,31 @@ http://docs.mongoing.com/manual-zh/
 JSON (JavaScript Object Notation 标记法)
 Mongo (humongous  巨大无比的)
 
-NoSQL不支持事务,用C++写的,支持分布式 (JSON,JS语言)
-目前 3.6.4
-MongoDB 4.0 will add support for multi-document transactions
+用C++写的,支持分布式 (JSON,JS语言)  目前4.0 支持多文档事务
+目前  MongoDB 4.0 add support for multi-document transactions
 
-Win10 家庭版 安装 MongoDB 3.6.4 安取消选择install mongodb compass,否则安装失败
 
+Win10 家庭版/win7旗靓版  安装 MongoDB 4.0.1 安取消选择install mongodb compass(一个图表界面工具,后面可以单独安装),否则安装一直卡着
+安装后建立的服务是D:\Program\MongoDB\Server\4.0\bin\mongod.exe --config "D:\Program\MongoDB\Server\4.0\bin\mongod.cfg" --service
+
+-----------4.0 配置文件 mongod.cfg YAML 格式配置变化,缩进不支持用tab,要用空格
+storage:
+  dbPath: D:\Program\MongoDB\Server\4.0\data
+  journal:
+    enabled: true
+  
+systemLog:
+  destination: file
+  logAppend: true
+  path:  D:\Program\MongoDB\Server\4.0\log\mongod.log
+
+net:
+  port: 27017
+  bindIp: 127.0.0.1
+
+setParameter:
+   enableLocalhostAuthBypass: false
+-----------
  $./mongod --help
  
  启动单实例
@@ -172,7 +192,12 @@ db.dropUser("zh", {w: "majority", wtimeout: 5000})
 db.dropAllUsers() ; 删所有的用户及DB 
 
 
-客户端 mongo --host 127.0.0.1 --port 27017  -u zh -p 123  reporting    
+客户端 mongo --host 127.0.0.1 --port 27017  -u zh -p 123  reporting   
+mongo --host 127.0.0.1 --port 27017  -u rootUser -p rootPass admin   
+mongo --host 127.0.0.1 --port 27017  -u rootUser -p rootPass reporting   --authenticationDatabase  admin  
+	--authenticationMechanism SCRAM-SHA-1   是3.x版本默认的
+	--authenticationMechanism SCRAM-SHA-256  是4.0 新功能也是默认的 SCRAM是默认的 全称 Salted Challenge Response Authentication Mechanism  
+	还有 x.509
 验证密码,要服务端加--auth
 
 在admin库下创建的帐号有仿问test库的权限,不能直接在test库做db.auth验证,要先切换到admin库db.auth后再切换test其它库(原因是建立用户的信息只在当前库中)
@@ -940,7 +965,7 @@ db.settings.find() //写了之后才可查到,存放在configsvr中
 sh.status()
 预先分好10个片,当i的值在100,200... 处分片,防止当增加机器时,移动分片产生大量的IO 
 for (var i=1;i<=10;i++){ 
-	sh.splitAt({"test.bios", { "_id":i*100  })
+	sh.splitAt({"test.bios", { "_id":i*100  }})
 }
 
 sh.status()  // chunks:没有变化?????
@@ -949,6 +974,7 @@ sh.status()  // chunks:没有变化?????
 for (var i=1;i<=500;i++){ 
 	 db.bios.insert({ "_id":i , name:"lisi"+i })
 }
-
-
-
+ ==========Transaction 4.0 新功能 多文档事务
+ 
+ 
+ 

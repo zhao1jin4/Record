@@ -16,6 +16,10 @@ MySQL 源码用的boost C++ libraries 1.59 , 二进制文件名使用glibc
 
 SUNStuio基于Netbeans的
 Anjuta
+Visual Studio Code-1.26  for linux x64
+eclipse CDT
+CLion 基于Intellij Idea 
+
 
 gcc -o libxxxx.so -shared -fPIC a.o b.o (生成动态链接库)
 使用时和静态库一样,加在一起编译,要加头文件的,文件名用全名就可以了(不用少前缀lib,不用少后缀dll)

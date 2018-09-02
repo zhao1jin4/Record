@@ -116,7 +116,7 @@ public class HelloWorldController implements Controller
 <!--   以是 name="/helloWorldBeanName.mvc" , 是使用 BeanNameUrlHandlerMapping  -->
   
 
-<!--基于UrlBasedViewResolver,就不用指定viewClass-->
+<!--基于 InternalResourceViewResolver 就不用像 UrlBasedViewResolver 指定viewClass-->
 <bean  class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 	<property name="prefix" value="/WEB-INF/jsp/" />
 	<property name="suffix"  value=".jsp"/>
@@ -130,32 +130,59 @@ return new ModelAndView("/WEB-INF/jsp/hello.jsp", "now", nowx);
 
 
 
-<!-- 国际化 -->
+<!-- 国际化  基于JDK的实现 -->
 <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
-	<property name="basename" value="messages"/> 
+	<property name="basename" value="conf.messages"/>  <!-- 包名格式 文件名要有 messages_en.properties 和 messages_zh.properties -->
 </bean>
- 
-<fmt:setBundle basename="message"/>
+<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+	<property name="basename" value="classpath:/conf/messages"/> <!-- 也可  WEB-INF/messages ，使用属性basenames可配置多个-->
+</bean>
+
+
+<fmt:setBundle basename="message"/>  <!-- JSTL -->
 <fmt:setLocale value="zh_CN"/>
 
 <fmt:message key="employee_query"/>
 <spring:message code="employee_id"/>
+<spring:message code="title" arguments="王2,张2"   />
 
+@Autowired
+private MessageSource messageSource;
 
-web.xml中<error-page> 比Spring中的优先级要高
-<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+Locale locale=request.getLocale();
+//locale=Locale.CHINESE;
+String i18nStr=messageSource.getMessage("title",new Object[] {"张","王"} , locale);
+System.out.println("i18nStr="+i18nStr);
+
+<!-- 全局错误页 定义 
+也可
+ 	@ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+-->
+<bean  class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+	<!-- 
 	<property name="defaultErrorView">
-		<value>failure</value>
+		<value>error/failure</value>
+	</property>
+	 -->
+	<property name="statusCodes"> <!-- 404 500 不好使？？？ 只能web.xml 和defaultErrorView -->
+		<props>
+			<prop key="error/serverError">500</prop>
+			<prop key="error/notFound">404</prop>
+		</props>
 	</property>
 	<property name="exceptionMappings">
 		<props>
-			<prop key="java.sql.SQLException">showDBError</prop>
-			<prop key="java.lang.RuntimeException">showError</prop>
+			<prop key="org.springframework.web.multipart.MaxUploadSizeExceededException" >error/showError</prop>
+			<prop key="java.sql.SQLException">error/showDBError</prop> <!-- 优先于web.xml的配置 -->
+			<prop key="java.lang.RuntimeException">error/showError</prop>
 		</props>
 	</property>
 </bean>
+<mvc:resources mapping="/error/**" location="/WEB-INF/views/error/" />
 
-<% Exception ex = (Exception)request.getAttribute("Exception"); %>
+<% Exception ex = (Exception)request.getAttribute("Exception"); //只对 defaultErrorView 指定的有值
+%>
 
 
 
@@ -514,7 +541,7 @@ public String login(@ModelAttribute("account") Account account)//表单对应的
 
 
 
-@EnableWebMvc
+@EnableWebMvc  同  <mvc:annotation-driven/>
 @Configuration
  
  
@@ -594,15 +621,20 @@ public @interface EqualAttributes
     @Pattern(regexp = "^[_.0-9a-z-]+@([0-9a-z][0-9a-z-]+.)+[a-z]{2,3}$", message = "{validation.email_format}")
     private String email;
 }
+//@Valid 只可对表单提交式
 public String login(@Valid @ModelAttribute("accountForm") Account account ,BindingResult result)
 {
 	if(result.hasErrors())
 	{
-				//代码中的国际化方法,必须有ContexLoaderListener注册过
+		for(ObjectError err:result.getAllErrors())
+		{
+			System.out.println(err.getObjectName()+"=="+err.getDefaultMessage());
+		}
+				//代码中的国际化方法,也可 @Autowired private MessageSource messageSource;
 //			ServletContext servletContext=request.getServletContext();
-//			WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);  
+//			WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);  //web.xml中要必须有ContexLoaderListener注册过
 //			Locale locale = RequestContextUtils.getLocaleResolver(request).resolveLocale(request);  
-//		    String title = applicationContext.getMessage("title",null, locale);  
+//		    String title = applicationContext.getMessage("title",getRequiredWebApplicationContext, locale);  
 //		    System.out.println("代码  国际化  title为:"+title);
 		result.addError(new FieldError("emailSendForm","email","代码中验证表单表单的错误"));
 		return "company_annotation/login";   
@@ -654,7 +686,11 @@ public String handleException(final Exception e)
 @Required
 
 ------------------------Freemarker 
-Freemarker 不能在群集上面发布应用
+
+
+FreeMarker不支持集群应用
+	把序列化的东西都放到了Session,request等,但如果将应用放到集群中，就会出现错误
+	
 
 freemarker 文件改编码要UTF-8
 freemarker 文件中加<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
@@ -691,6 +727,8 @@ freemarker 文件中加<meta http-equiv="Content-Type" content="text/html; chars
 在org.springframework.web.servlet.view.freemarker包下
 
 国际化消息:<@spring.message "title"/>
+<#assign seq = ['王1', '张1']> 
+带参数的国际化消息:<@spring.messageArgs "title", seq/> <BR/>
 带默认值的国际化消息:<@spring.messageText "_title_", "这是默认值"/>
 
 用  户  名:<@spring.formInput "form.username" 'class="mytext"'/> * <@spring.showErrors "<BR/>" "color:red" /> <br>
@@ -867,19 +905,8 @@ jackson-databind-2.2.3.jar
 <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
 	<property name="messageConverters">
 		<list>
-		<!-- 	<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> JSON 简配置-->
-			<bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-				<property name="objectMapper">
-					<bean class="com.fasterxml.jackson.databind.ObjectMapper">
-						<property name="dateFormat">
-							<bean class="java.text.SimpleDateFormat">
-								<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"/>  <!-- JSON到SpringMVC日期格式-->
-							</bean>
-						</property>
-					</bean>
-				</property>
-			  </bean>
-			<bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/> <!-- XML 为 @ResponseBody -->
+			<ref bean="mappingJacksonHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/> <!-- XML 为 @ResponseBody produces="application/xml" -->
 			<bean class="org.springframework.http.converter.StringHttpMessageConverter"/>  <!--为 @ResponseBody 的 text/*     */--> 
 			<!-- <bean class="org.springframework.http.converter.FormHttpMessageConverter"/>   application/x-www-form-urlencoded  -->
 		</list>
@@ -890,7 +917,20 @@ jackson-databind-2.2.3.jar
 	</property>
 </bean>
 
-也可以这样配置
+
+<!-- 	<bean id="mappingJacksonHttpMessageConverter"  class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> JSON 简配置-->
+		<bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+			<property name="objectMapper">
+				<bean class="com.fasterxml.jackson.databind.ObjectMapper">
+					<property name="dateFormat">
+						<bean class="java.text.SimpleDateFormat">
+							<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"/>  <!-- JSON到SpringMVC日期格式-->
+						</bean>
+					</property>
+				</bean>
+			</property>
+		  </bean>
+也可以这样配置 　@Valid 是有效的
  <mvc:annotation-driven>
  	<mvc:message-converters>
  		<ref bean="mappingJacksonHttpMessageConverter" />
@@ -1323,21 +1363,26 @@ http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp
 		<constructor-arg  ref="redisStandaloneConfiguration"> </constructor-arg> 
 	</bean>
 
-  <!--  二选一
+   <!--  二选一
 	<bean class="org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory">
 		<constructor-arg ref="redisStandaloneConfiguration">  </constructor-arg>
 	</bean>
 	 -->
-	<context:annotation-config/> <!-- 创建 springSessionRepositoryFilter  -->
 
-
- <!-- spring session redis 设置  10分钟过期-->
+	 
+	 
+  <context:annotation-config/> 
+	<!-- 
+	创建 springSessionRepositoryFilter,即是 SessionRepositoryFilter 的实例
+	RedisHttpSessionConfiguration 类的父类是带@Configuration中有一个方法名叫 springSessionRepositoryFilter 创建的  
+	-->
   <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
       <property name="maxInactiveIntervalInSeconds" value="600"></property>
+	  <!-- spring session redis 设置  10分钟过期 -->
   </bean>
    
 
-  <!--   spring session 过滤器  -->
+  <!--   spring session 总开关, 如项目中有使用spring secruity 要放在    springSecurityFilterChain 前面 -->
   <filter>
     <filter-name>springSessionRepositoryFilter</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>

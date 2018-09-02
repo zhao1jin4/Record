@@ -665,7 +665,7 @@ webservice 请求  ,当前目录建立xml中写请求体
 curl --request POST -k --data-binary @hello.xml -H "Content-Type:text/xml;charset=UTF-8"  http://127.0.0.1:8080/J_CXFSpring/Hello
 
 -o out  将指定curl返回保存为out文件,同 >
--d <key=value>  向服务器POST表单数据,值加"" 
+-d, --data <key=value>  向服务器POST表单数据,值加"" 
 -x  ip:port 指定使用的http代理
 
 -H <header:value>  为HTTP请求设置任意header及值  

@@ -2,7 +2,6 @@ http://www.w3school.com.cn/jquery/index.asp
 http://api.jquery.com/
 
 Apatana 3.1
-
 --eclipse插件Spket
 preferences->Spket->JavaScript Prfiles->new...->输入jQuery->选择jQuery->Add File 按钮->  选择jQuery-1.7.2.js 
 对.js文件open with ->spket javascript editor-> 可以按ctrl拖动放大缩小字体
@@ -10,6 +9,14 @@ preferences->Spket->JavaScript Prfiles->new...->输入jQuery->选择jQuery->Add 
 Hplus 美工使用的工具
 
 Chrome 可以看到某个元素是否被动态增加了事件,有一个EventListener标签,对jquery增加的也很准,而edge则不是很准(Firefox 无)
+
+----jquery其它插件
+Highcharts ,HighStock 收费的
+jqPlot 免费的
+Sparklines  免费的
+	https://omnipotent.net/jquery.sparkline/#s-about
+InsDep
+https://www.insdep.com/
 ---css
 #myid 
 {
@@ -130,7 +137,11 @@ firefox ->firebug中以选中一个区域 (如是encodeURI("test.jsp?username=�
 		async:false,//是否异步
 		dataType:"xml",//服务器端一定要返回XML,可不要这个
 		success:mycallback , //只对成功完成的,complete完成 ==4,error
-		error:function(e){ alert(e.responseText) } 
+		error:function(e) // 新版本是三个参数, Function( jqXHR jqXHR, String textStatus, String errorThrown )
+		//textStatus 像error，errorThrown值像Bad Request
+		{ 
+			alert(e.responseText);//是HTML文本
+		} 
 	});
 	 function mycallback(data)
      { } 
@@ -186,6 +197,7 @@ console.log(JSON.stringify(fields));
 	});
 	
 	
+	
   function resetForm(jqForm){
 	$(':input',"#queryForm")
 	 //jqForm.find(':input')
@@ -211,8 +223,8 @@ $.ajax({
 		});
    }
 });
-
-
+ 	
+		
 var config=
 {
 	type: 'POST',
@@ -232,6 +244,41 @@ $.ajax (config);
 $("input[name='myName']")//<input name="myName"/>
 
 
+// 跨域 jsonp 
+	$(document).ready(function()
+	{ 
+		$.ajax({
+			 type: "get",
+			 async: true,
+			 url: "http://127.0.0.1:8080/S_jQuery/jQuery/crossDomainJsonp",
+			 //url: "http://localhost:8080/S_jQuery/jQuery/crossDomainJsonp",
+			 data:{flight:"FLT001"},
+			 dataType: "jsonp",
+			 jsonp: "callback",//默认为:callback，传到服务端的参数名
+			 jsonpCallback:"flightHandler",//传到服务端的参数值,即函数名(也可不传jquery自动生成名字),JS端生成这个函数调用success
+			 success: function(json){
+				 alert('您查询到航班'+json.code+'信息：票价： ' + json.price + ' 元，余票： ' + json.tickets + ' 张。');
+			 },
+			 error: function(){
+				 alert('fail');
+			 }
+		 });
+	 });
+Servlet端
+		String callback=request.getParameter("callback");//flightHandler 
+		String flight=request.getParameter("flight"); 
+  
+		//页面中jsonpCallback:flightHandler
+		String strFunc=callback+
+		"({ code: '"+flight+
+		 "',  price: 1780,"+
+		"    tickets: 5"+
+		"});";
+		response.getWriter().write(strFunc);
+		
+ 
+ 
+ 
 //-->
 </script>
 
@@ -427,7 +474,48 @@ jQuery请求下载文件
 	}
  });
   
-
+-----------extend
+//extend(dest,src1,src2,src3...);//它的含义是将src1,src2,src3...合并到dest中,
+	var ori={};
+	var result=$.extend(ori,{name:"Tom",age:21},{name:"Jerry",sex:"Boy"});
+	console.log('ori='+JSON.stringify(ori)+",result="+JSON.stringify(result));
+	
+	
+	$.extend({
+		  hello:function(){console.log('hello');}
+		  });//就是将hello方法合并到jquery的全局对象中。
+	$.hello();
+		  
+	$.fn.extend({
+	  hello2:function(){console.log('hello2');} //该方法将src合并到jquery的实例对象中去，如:
+	 });
+	
+	$("#myDiv").hello2();
+	//$("#myDiv").hello();//报错
+	
+	
+	$.extend({net:{}});
+	$.extend($.net,{ //　 这是在jquery全局对象中扩展一个net命名空间。
+		   hello:function(){console.log('hello.net');}
+		  })
+	$.net.hello();
+	
+	
+	//extend(boolean,dest,src1,src2,src3...)//  第一个参数boolean代表是否进行深度拷贝
+	var result=$.extend( false, {},  
+			{ name: "John", location:{city: "Boston",county:"USA"} },  
+			{ last: "Resig", location: {state: "MA",county:"China"} }  //只要最后一个 location
+   ); 
+	console.log('dep copy=false,result='+JSON.stringify(result));
+	//{"name":"John","location":{"state":"MA","county":"China"},"last":"Resig"}
+	
+	var result=$.extend( true, {},  
+			{ name: "John", location:{city: "Boston",county:"USA"} },  
+			{ last: "Resig", location: {state: "MA",county:"China"} }  
+   ); 
+	console.log('dep copy=true,result='+JSON.stringify(result));  //两location合并，中相同的county使用最后面的
+	//{"name":"John","location":{"city":"Boston","county":"China","state":"MA"},"last":"Resig"}
+	
 
 =================================================jQuery插件 DataTables  表格
 hadoop yarn使用这个  在bootstrap中

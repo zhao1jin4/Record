@@ -1659,6 +1659,22 @@ struct A
 ========== C++14
 https://gcc.gnu.org/projects/cxx1y.html
 -std=c++14
+Visual Studio 2015 支持多半
+gcc 6.1 以上  -std=c++14 或者 -std=gnu++14
+
+
+
+========== C++17
+
+https://msdn.microsoft.com/zh-cn/library/hh567368.aspx
+https://blogs.msdn.microsoft.com/vcblog/2017/12/19/c17-progress-in-vs-2017-15-5-and-15-6/
+Visual Studio 2017.15.8 支持多半
+
+gcc -std=gnu++17 还是实验阶段
+
+
+========== C++2a 
+gcc 8 以后 -std=gnu++2a 还是实验阶段
 
 ========== boost   C++ 标准库,MySQL有使用这个库
 

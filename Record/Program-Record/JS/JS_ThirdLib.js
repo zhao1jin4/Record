@@ -860,6 +860,28 @@ codemirror-5.20.2\mode\sql  有示例
  SQL  :  <textarea   id="sql"> select table_name from information_schema.TABLES where table_schema='db_name'  </textarea>
    
 
+==============ckeditor 5 
+classic -11
+
+
+
+<script type="text/javascript" src="classic/ckeditor.js"></script>
+<script type="text/javascript" src="classic/zh-cn.js"></script>
+ 
+ CKEditor5-classic 11 version <br/>
+<textarea name="content" id="editor">
+    &lt;p&gt;Here goes the initial content of the editor.&lt;/p&gt;
+</textarea>
+
+<script type="text/javascript"> <!-- 要放在<textarea id="editor">后面 -->
+ClassicEditor.create( document.querySelector( '#editor' ) )
+	.then( editor => {
+	    console.log( editor );
+	} )
+	.catch( error => {
+	    console.error( error );
+	} );
+</script>
 
 
 

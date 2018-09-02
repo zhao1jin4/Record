@@ -94,8 +94,7 @@ Three.js 也是用"experimental-webgl"
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
-<script type="text/javascript" src="js/Three.js"></script>
-<script type="text/javascript" src="js/Stats.js"></script>
+<script type="text/javascript" src="js/three.js"></script> 
 
 至少要一个 scene, 一个 camera, 一个 renderer
 <body>

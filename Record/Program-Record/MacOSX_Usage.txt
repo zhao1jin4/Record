@@ -586,7 +586,7 @@ $ lsnrctl status listenername
 
 
 brew install mongodb 在线下载安装
-----------TextWrangler （不兼容 macOS 10.13 (High Sierra)）新版本改为 BBEdit －12
+----------TextWrangler （不兼容 macOS 10.13 (High Sierra)）新版本改为 BBEdit-12
 TextWrangler  中 view->Hide/Show File   ,打开文件时要把文件拖到左边的(File)窗口中
 TextWrangler  中 preferences->Application标签->取消 Reopen Documents that were open at last quit
 TextWrangler  中 File->Reopen with encoding->Chinese GBK 可以对打开的文件是乱码做修改 （保存时可选择文件编码）
@@ -661,12 +661,13 @@ Versions 收费SVN
 SCPlugin	SVN 要把app文件放在工具栏上_选择文件夹后点它
 SVNX 	google免费SVN
 
+Git Extensions
 SmartGit 	收费Git工具,Xcode带Git工具,Windows版本带一个Git-GUI小工具
 SourceTree 	 免费Git工具,使用必须注册登录??(windows )
 
 GitKraken    免费Git工具,使用必须注册登录??(windows,linux)
 git-cola	免费Git工具,是Python写的要pythonw命令(windows,linux)
-GitEye 		免费Git工具(windows,linux,mac),界面就是eclipse,但没有插件,有收费版本
+GitEye 		 界面就是eclipse,就是EGit插件
 
 VisualDiffer  文件比较器，Xcode自带FileMerge
 

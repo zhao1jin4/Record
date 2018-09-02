@@ -1,10 +1,10 @@
 http://doc.opensuse.org/
 
 
-openSUSE-15-DVD有
+openSUSE-leap-15-DVD有
 	chromium-66.0.3359.170-lp150.1.1.x86_64.rpm
 		git-2.16.3-lp150.1.1.x86_64.rpm
-openSUSE-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,cheese摄像,Totem播放器,pidgin(可MSN,GTalk都测试过的),brasero(DVD工具)
+openSUSE-leap-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,cheese摄像,Totem播放器,pidgin(可MSN,GTalk都测试过的),brasero(DVD工具)
 	Firefox
 	GStreamer是在Linux下创建流媒体的应用程序框架
 	ibus,fcitx,cyrus,TiggerVNC
@@ -538,7 +538,7 @@ view /boot/grub2/grub.cfg  是用grub2-mkconfig工具通过/etc/grub.d和 /etc/d
 view  /etc/sysconfig/bootloader  配置使用grub2
 
 vi /etc/default/grub
-修改GRUB_DEFAULT＝saved为GRUB_DEFAULT＝2,按从到下顺序从0开始 ,
+修改GRUB_DEFAULT＝saved为GRUB_DEFAULT＝2,按从上到下顺序从0开始 ,
 后使用 grub2-mkconfig -o /boot/grub2/grub.cfg ,看menuentry项
 
 在选择项目

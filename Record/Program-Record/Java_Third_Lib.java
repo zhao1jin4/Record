@@ -73,6 +73,13 @@ class MyVisitor extends VisitorSupport
 	}
 }
 ==============================xerces
+
+<dependency>
+    <groupId>xerces</groupId>
+    <artifactId>xercesImpl</artifactId>
+    <version>2.12.0</version>
+</dependency>
+
 xercesImpl.jar/META-INF/services/javax.xml.parsers.DocumentBuilderFactory文件中记录着DocumentBuilderFactory实现类
 
 ---------xerces 读    //不能忽略缩进空白??????????
@@ -94,6 +101,12 @@ fileWriter.close();
 org.w3c.dom.Document myDoc=new org.apache.xerces.dom.DocumentImpl();//建立
 
 ---------xalan
+<dependency>
+    <groupId>xalan</groupId>
+    <artifactId>xalan</artifactId>
+    <version>2.7.2</version>
+</dependency>
+
 TransformerFactory   tFactory=TransformerFactory.newInstance();
 System.getProperty("javax.xml.transform.TransformerFactory");//org.apache.xalan.processor.TransformerFactoryImpl
 //xx.jar/META-INF/services/javax.xml.transform.TransformerFactory文件
@@ -200,6 +213,7 @@ object classes 每个Entry都必须至少属于一个object class。规定了该
  
 ==============================LADP Server Apache Directory Server
 openLDAP没有windows的
+Softerra LDAP Administrator 2017 是一个客户端管理工具
 
 Active Directory =LDAP服务器＋LDAP应用（Windows域控）
 
@@ -845,11 +859,13 @@ artifactId 是自己的项目名
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
-			<version>4.0.1</version> <!-- 2.5-->
+			<version>4.0.1</version> <!-- 2.5,3.0-->
 			<scope>provided</scope> <!-- 不会参与打包 ,默认是compile ,还有runtime不参与run -->
 		</dependency> 
-		<!-- A依赖B，B依赖C  当C是test或者provided时，C直接被丢弃，A不依赖C 也就会编译错误-->
-
+		<!-- A依赖B，B依赖C  当C是test或者provided时，C直接被丢弃，A不依赖C 也就会编译错误
+			<type>pom</type>
+			<scope>import</scope>
+		-->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jsp-api</artifactId>
@@ -874,8 +890,15 @@ artifactId 是自己的项目名
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 		 </dependency> 
-	</dependencies>
-  <!-- 防止报  Missing artifact jdk.tools:jdk.tools:jar:1.6      -->
+		 
+		 <dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${jedis}</version>
+			<optional>true</optional> <!-- 可选的 -->
+		</dependency>
+		
+	<!-- 防止报  Missing artifact jdk.tools:jdk.tools:jar:1.6      -->
 	 <dependency>  
 		<groupId>jdk.tools</groupId>
 		<artifactId>jdk.tools</artifactId>
@@ -883,7 +906,9 @@ artifactId 是自己的项目名
 		<scope>system</scope>
 		<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
 	</dependency>
-</project>
+	
+	</dependencies>
+ </project>
 
 
 
@@ -1021,6 +1046,8 @@ mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -Darchety
   </reporting>
 </project>
 ----------------------------------Gradle
+http://avatarqing.github.io/Gradle-Plugin-User-Guide-Chinese-Verision/
+
 eclipse marketplace 插件 buildship gradle integration 2.0
 
 
@@ -1171,7 +1198,11 @@ public static void destory()
 public   void initObj() 
 {
 }
-
+@After
+public void destroy()
+{
+	System.out.println("junit after"); 
+}
 @Test
 public void myTest()//不必以test开头
 {
@@ -2077,7 +2108,7 @@ wt返回形式 json,xml,csv
 ---SolrCloud
 
 ----Hibernate Search 基于 Lucene 
-================================Elastic Search    6.1
+================================Elastic Search    6.4
 ELK= Elasticsearch , Logstash, Kibana
 https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html
 
@@ -2092,9 +2123,9 @@ https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html
  只支持JSON
  
  
-bin\elasticsearch.bat   启动   http://localhost:9200/ 
+bin\elasticsearch.bat   启动   http://localhost:9200/ 有JSON 返回
  
-conf/elasticsearch.yml
+config/elasticsearch.yml
 	network.host: 0.0.0.0   可以接收任何地址   
 	http.port: 9200
 
@@ -2118,9 +2149,9 @@ Type 在6的版本中过时了 相当于“表”
 
 curl -X PUT 'http://localhost:9200/weather'
 curl -X DELETE -i http://http://localhost:9200/weather
--i 输入响应头
+-i 输出响应头
 
-elasticsearch-plugin install analysis-smartcn   
+elasticsearch-plugin install analysis-smartcn    中文支持
 elasticsearch-plugin remove analysis-smartcn
 
 新建一个名称为accounts的 Index，里面有一个名称为person的 Type。person有三个字段。
@@ -2307,14 +2338,35 @@ yellow：表示所有数据可用，但是备份不可用
 green：表示一切正常
 
 
-----Logstash
+================================Logstash
+做数据收集的，有实时管道能力，再推向Elastic Search
 
- 6.2版本 不支持JDK 9,只能用8
- windows 7 下运行占CPU过大,内存一直涨(jruby 运行.rb文件),要等有日志输出就可以了
+6.4 版本 不支持JDK 9,只能用JDK8
+有.zip, rpm 和 Docker 版本
+
+基centos7的Docker镜像
+docker pull docker.elastic.co/logstash/logstash:6.4.0
+
+rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch 
+增加如下文件
+/etc/yum.repos.d/logstash.repo
+	[logstash-6.x]
+	name=Elastic repository for 6.x packages
+	baseurl=https://artifacts.elastic.co/packages/6.x/yum
+	gpgcheck=1
+	gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
+	enabled=1
+	autorefresh=1
+	type=rpm-md
+
+sudo yum install logstash
+
+
+cd logstash-6.4.0/bin
+logstash -e 'input { stdin { } } output { stdout {} }'   报错？？？
+windows 7/10 下运行占CPU过大,内存一直涨(jruby 运行.rb文件),要等有日志输出就可以了
  
- bin/logstash -e 'input { stdin { } } output { stdout {} }'
- 
----logstash-simple.conf
+---config/logstash-sample.conf
 # comment
 
 input { stdin { } }
@@ -2330,8 +2382,8 @@ output {
 
 这个配置会输出到elasticsearch和stdout上
 
-bin/logstash -f logstash-simple.conf --config.test_and_exit 验证配置文件正确性
-bin/logstash -f logstash-simple.conf --config.reload.automatic 自动加载配置 
+bin\logstash -f config\logstash-sample.conf --config.test_and_exit 验证配置文件正确性
+bin\logstash -f config\logstash-sample.conf --config.reload.automatic 自动加载配置 
 
 input 插件 
 filter 插件 
@@ -2342,16 +2394,30 @@ codec 插件支持 https://www.elastic.co/guide/en/logstash/current/codec-plugin
 	protobuf(google跨语言的序列化协议)
 
 
-----Kibana
- kibana-6.1.3-windows-x86_64\bin\kibana.bat  plugin --install elastic/sense
- kibana.bat   启动  http://127.0.0.1:5601/   要求先启动 Elasticsearch 
- 有Console  可以发送命令,带代码提示功能, 默认查全部的有 , 参数可有可无
+=======================================Kibana
+与elastic search一起工作，做分析 
+ kibana.bat   启动   要求先启动 Elasticsearch 
+ config/kibana.yml
+	elasticsearch.url: "http://localhost:9200"
+	
+ http://127.0.0.1:5601/   有界面
+ 
+ DevTools有Console  可以发送命令,带代码提示功能, 默认查全部的有 , 参数可有可无
  GET _search
 {
   "query": {
     "match_all": {}
   }
 }
+
+# index a doc
+PUT index/type/1
+{
+  "body": "here"
+}
+
+# and get it ...
+GET index/type/1
 
 查行数
  GET _count
@@ -2362,22 +2428,34 @@ codec 插件支持 https://www.elastic.co/guide/en/logstash/current/codec-plugin
 }
  
 
-----------------MongoDB 
+==============================MongoDB 
  <dependency>
     <groupId>org.mongodb</groupId>
     <artifactId>mongodb-driver</artifactId>
-    <version>3.4.0</version>
+    <version>3.8.0</version>
+</dependency>
+<dependency>
+	<groupId>org.mongodb</groupId>
+	<artifactId>mongodb-driver-core</artifactId>
+	<version>3.8.0</version>
 </dependency>
 <dependency>
 	<groupId>org.mongodb</groupId>
 	<artifactId>mongodb-driver-async</artifactId>
-	<version>3.4.0</version>
+	<version>3.8.0</version>
+</dependency>
+<dependency>
+    <groupId>org.mongodb</groupId>
+    <artifactId>bson</artifactId>
+    <version>3.8.0</version>
 </dependency>
 
-mongodb-driver-3.4.0.jar
-mongodb-driver-async-3.4.0.jar
-	mongodb-driver-core-3.4.0.jar
-bson-3.4.0.jar
+3.8 支持MongoDB 4.0 的事务
+
+mongodb-driver-3.8.0.jar
+mongodb-driver-async-3.8.0.jar
+	mongodb-driver-core-3.8.0.jar
+bson-3.8.0.jar
 
 http://mongodb.github.io/mongo-java-driver/3.4/
 	
@@ -2435,7 +2513,7 @@ public class MongoTest
 		for (Document o : list) {
 		   System.out.println(o);
 		}
-		System.out.println("-- bios collection count:"+coll.count());
+		System.out.println("-- bios collection count:"+coll.countDocuments()); // coll.estimatedDocumentCount()
 		
 //		FindIterable<Document> cursor = coll.find();
 //		Bson query = new BasicDBObject("name", "MongoDB");
@@ -2458,10 +2536,10 @@ public class MongoTest
 //		MongoClient mongoClient = new MongoClient(Arrays.asList(new ServerAddress("localhost", 27017),
 //		                                      new ServerAddress("localhost", 27018),
 //		                                      new ServerAddress("localhost", 27019)));
-		List<MongoCredential> credentialList = new ArrayList<MongoCredential>();  
+		  
         MongoCredential credential = MongoCredential.createCredential("zh", "reporting", "123".toCharArray());  
-        credentialList.add(credential);  
-        MongoClient mongoClient  = new MongoClient(Arrays.asList(new ServerAddress("10.1.5.226", 27017)), credentialList);  
+         MongoClientOptions opts= new MongoClientOptions.Builder().build();
+        MongoClient mongoClient  = new MongoClient(Arrays.asList(new ServerAddress("10.1.5.226", 27017)), , credential,opts);  
 		
 		MongoDatabase db = mongoClient.getDatabase( "test" );//= use test
 		 System.out.println("--all db");
@@ -2483,15 +2561,21 @@ public class MongoTest
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Sorts.*;
 import static com.mongodb.client.model.Projections.*;
+import com.mongodb.MongoClientSettings;
 
-//MongoClient client = MongoClients.create();//default server localhost on port 27017
+//MongoClient client = MongoClients.create();//default port 27017, default connection string "mongodb://localhost" 
 //MongoClient client = MongoClients.create("mongodb://localhost");
 //MongoClient client = MongoClients.create(new ConnectionString("mongodb://localhost"));
-
-ClusterSettings clusterSettings = ClusterSettings.builder().hosts(Collections.singletonList((new ServerAddress("localhost",47017)))).build();
-MongoClientSettings settings = MongoClientSettings.builder().clusterSettings(clusterSettings).build();
+ 
+Block<Builder> block=new Block<Builder>(){
+	@Override
+	public void apply(Builder builder) {
+		builder.hosts(Collections.singletonList((new ServerAddress("localhost",27017))));
+	}
+};
+MongoClientSettings settings = MongoClientSettings.builder().applyToClusterSettings(block).build();
 MongoClient client = MongoClients.create(settings);
-		
+
 //支持JDK8
 collection.insertOne(doc, (Void result, final Throwable t) -> System.out.println("Inserted!"));
 
@@ -2603,9 +2687,11 @@ collection.bulkWrite(
 
 -------------------- Kafaka在hadoop中
 
--------------------------------------------- RabbitMQ  3.6.12
-.exe安装版要 ERLang语言,启动停止只能在services.msc中做 ,开始菜单中的无效
-配置文件 是 C:\Users\zhaojin\AppData\Roaming\RabbitMQ\rabbitmq.config  ,可从rabbitmq.config.example复制修改
+-------------------------------------------- RabbitMQ  3.7.7
+.exe安装版要 ERLang语言,RabbitMQ,启动停止可在services.msc中做也可使用命令启动
+配置文件 是 rabbitmq.config  
+D:\Program\RabbitMQ Server\rabbitmq_server-3.7.7\etc\rabbitmq.config.example 复制修改
+#C:\Users\zhaojin\AppData\Roaming\RabbitMQ\rabbitmq.config.example
 默认端口  {tcp_listeners, [5672]},
 
 linux 下解压有sbin目录 rabbitmqctl 要 erl  ,安装erlang不太容易 CentOS 7 下 yum install erlang根本没有
@@ -2613,17 +2699,14 @@ centos 7
 su -c 'rpm -Uvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-10.noarch.rpm'
 su -c 'yum install erlang' 就可以了
 
-linux sbin目录下  
+linux sbin目录下  	
 ./rabbitmq-server 前台启动
 ./rabbitmq-server  -detached    后台启动
-rabbitmqctl stop   停止
-看界面默认配置文件 解压的rabbitmq_server-3.6.12/etc/rabbitmq/rabbitmq.config 无
-看控制台默认日志在 解压的rabbitmq_server-3.6.12/var/log/rabbitmq/rabbit@<hostname>.log
-
-./rabbitmq-plugins enable rabbitmq_management    
-就可 http://hostname:15672/      
-  
-windows zip 要设置 ERLANG_HOME=C:\Program Files\erl8.3 变量 
+./rabbitmqctl stop   停止
+看界面默认配置文件 解压的 rabbitmq_server-3.7.7/etc/rabbitmq/rabbitmq.config  
+看控制台默认日志在 解压的 rabbitmq_server-3.7.7/var/log/rabbitmq/rabbit@<hostname>.log
+ 
+windows zip 设置 ERLANG_HOME=D:\Program\erl9.3\ 变量  
 看控制台默认日志 C:\Users\zhaojin\AppData\Roaming\RabbitMQ\log
 看界面默认配置文件 c:/Users/zhaojin/AppData/Roaming/RabbitMQ/rabbitmq.config
 看界面默认数据目录 C:\Users\zhaojin\AppData\Roaming\RabbitMQ\db\RABBIT~1
@@ -2642,12 +2725,14 @@ rabbitmqctl  set_user_tags  mon  monitoring  就可远程登录了
 rabbitmqctl  list_user_permissions  mon
 rabbitmqctl list_queues
 
-rabbitmq-plugins.bat enable rabbitmq_management    开启网页管理界面
+rabbitmq-plugins.bat enable rabbitmq_management    开启网页管理界面   (windows要使用命令启动服务,才可仿问界面) 
 
 http://127.0.0.1:15672/     guest/guest  只可localhost登录 可以建立Queue
 还有其它工具
 http://127.0.0.1:15672/api
 http://127.0.0.1:15672/cli 
+
+还要在界面中配置 Admin-> Virtual Hosts 配置/ 虚拟机的用户仿问权限
 
 <dependency>
   <groupId>com.rabbitmq</groupId>
@@ -2675,26 +2760,36 @@ factory.setHost("127.0.0.1");
 factory.setPort(5672); 
 Connection conn = factory.newConnection(); 
 Channel channel = conn.createChannel(); 
+//会按 名自动建立exchange
+//direct可用 BuiltinExchangeType.DIRECT;
+channel.exchangeDeclare(EXCHANGE_NAME, "direct", true); //boolean durable  持久化 
 
-channel.exchangeDeclare(EXCHANGE_NAME, "direct", true); //direct，且持久化，非自动删除
- 
 
+//AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().replyTo(callbackQueueName).build();//回调的Queue
+AMQP.BasicProperties props =MessageProperties.PERSISTENT_TEXT_PLAIN; //当durable true时
+		
 //(String exchange, String routingKey, AMQP.BasicProperties props, byte[] body)
-channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY, null, message.getBytes());
+channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY,props,message.getBytes());
 System.out.println(" [x] Sent '" + message + "'");
 
 channel.close(); 
 conn.close();
 
 --receiver
-channel.exchangeDeclare(EXCHANGE_NAME, "direct", true); //direct，且持久化，非自动删除
+//RabbitMQ同一时间发给消费者的消息不超过一条
+//这样就能保证消费者在处理完某个任务，并发送确认信息后，RabbitMQ才会向它推送新的消息
+//在此之间若是有新的消息话，将会被推送到其它消费者，若所有的消费者都在处理任务，那么就会等待。
+int prefetchCount = 1;
+channel.basicQos(prefetchCount);//放消费端
+
+channel.exchangeDeclare(EXCHANGE_NAME, "direct", true);  //boolean durable  持久化 
 		
-String queueName = channel.queueDeclare().getQueue(); 
+String queueName = channel.queueDeclare().getQueue(); //自动建立Queue,自动取名,是AD=AutoDelete,Excl=Exlusive
 System.out.println("queueName="+queueName);
 
-
+//自动建立Queue,D=durable
 //String queue, boolean durable, boolean exclusive, boolean autoDelete, Map<String,Object> arguments
-channel.queueDeclare(QUEUE_NAME, true, false, false, null);//且持久化要和现有的配置相同
+channel.queueDeclare(QUEUE_NAME, true, false, false, null);//且持久化要和现有的配置相同,即如果Queue已经存在不能变durable了
 System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
 
 channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
@@ -2706,9 +2801,15 @@ Consumer consumer = new DefaultConsumer(channel) {
 		  throws IOException {
 		String message = new String(body, "UTF-8");
 		System.out.println(" [x] Received '" + message + "'");
+		
+		 //对于basicConsume  autoAck为false时
+		//channel.basicAck(envelope.getDeliveryTag(),//消息标识
+		//		false);//multiple 是否多个,即这个标识前面的一次性全部认为Ack收到了
+		//还有Nack(可多个)不知道(未收到) 和 Reject (只可一个)
+		
 	  }
 	};
-channel.basicConsume(QUEUE_NAME, true, consumer);
+channel.basicConsume(QUEUE_NAME, true, consumer);//boolean autoAck,true收到消息就自动应答,false要手工应答(在消息任务完成后)
 
 ----
 
@@ -2775,6 +2876,43 @@ channel.txSelect();
 	channel.basicPublish(exchangeName, routingKey, true, MessageProperties.PERSISTENT_BASIC, ("第"+(i+1)+"条消息").getBytes("UTF-8"));  
 channel.txCommit();  
 channel.txRollback();  
+
+----死信
+Dead Letter Exchange  (DLX) 
+
+Map<String, Object>  argss = new HashMap<String, Object>();
+argss.put("vhost", "/");
+argss.put("username","root");
+argss.put("password", "root");
+argss.put("x-message-ttl",6000); //超过指定时时间如没有消费就不能消费了
+//队列设置TTL
+channel.queueDeclare(queueName, durable, exclusive, autoDelete, argss);
+不设置TTL,则表示此消息不会过期
+如果将TTL设置为0，则表示除非此时可以直接将消息投递到消费者,否则该消息会被立即丢弃
+
+消息设置TTL,
+AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
+builder.deliveryMode(2);
+builder.expiration("6000");
+AMQP.BasicProperties  properties = builder.build();
+
+channel.basicPublish(exchangeName,routingKey,mandatory,properties,"ttlTestMessage".getBytes());
+ 
+队列设置和消息都设置TTL较小的那个数值为准
+
+
+channel.exchangeDeclare("some.exchange.name", "direct");
+
+Map<String, Object> args = new HashMap<String, Object>();
+args.put("x-dead-letter-exchange", "some.exchange.name");
+channel.queueDeclare("myqueue", false, false, false, args);
+
+
+args.put("x-dead-letter-routing-key", "some-routing-key");
+
+rabbitmqctl set_policy DLX ".*" '{"dead-letter-exchange":"my-dlx"}' --apply-to queue
+rabbitmqctl set_policy DLX ".*" "{""dead-letter-exchange"":""my-dlx""}" --apply-to queues //windows
+
 ======================RocktMQ   alibaba 捐给了apache
 
 控制台
@@ -3312,12 +3450,7 @@ Logger logger = LogManager.getLogger(TestLog4j2.class);
 
 
 	
-
----------------------------------commons logging 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-Log logger = LogFactory.getLog(XXX.class);
-
+ 
 ---------------------------------SLF4J
 替代 Spring 使用的 commons-logging 加 jcl-over-slf4j-1.7.6.jar
 
@@ -3433,6 +3566,13 @@ public class ServcieOutPropertyDefiner implements  PropertyDefiner {
 
 logback-examples\src\main\java\chapters\appenders\conf\logback-sizeAndTime.xml
 <appender name="bizRolling" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<!-- 可记录DEBUG 不记录ERROR的方式  , 不好使???
+ 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+ 			<level>DEBUG</level>
+ 			<onMatch>ACCEPT</onMatch>
+ 			<onMisMatch>DENY</onMisMatch>
+ 		</filter>
+ 		 -->
 	<file>${APP_BIZ_HOME}/biz.log</file>
 	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 		<fileNamePattern>${APP_BIZ_HOME}/biz-%d{yyyy-MM-dd}.%i.zip</fileNamePattern> <!-- .zip 可有可无,压缩会节约20倍的空间 一定要加%i-->
@@ -3460,7 +3600,11 @@ logback-examples\src\main\java\chapters\appenders\conf\logback-sizeAndTime.xml
 
 %.-1level  把INFO 变为  I
 
-
+logback可以把日志推送给logstash 
+<appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+	<destination>IP:port</destination>
+	<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder"/>
+</appender>
 -------------------------------JSCH
 jCraft的一个项目,是sftp实现
 
@@ -3527,11 +3671,13 @@ public String toString() {
 
 org.apache.commons.lang.StringUtils  isBlank
 
--------------------------------commons logging
-Log logger = LogFactory.getLog(getClass());
+-------------------------------commons logging 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+Log logger = LogFactory.getLog(XXX.class);
 
--------------------------------commons codec
----
+-------------------------------commons codec 
+
 import org.apache.commons.codec.digest.DigestUtils;
 
 byte[] data="hello".getBytes(Charset.forName("UTF-8"));
@@ -3555,6 +3701,32 @@ byte[] res= base64.encode(data);
 res=base64.decode(data);
 
 Base64.decodeBase64(data);
+
+
+---------------------------------commons beanutils
+import org.apache.commons.beanutils.BeanUtils;
+
+UserVO user=new UserVO();
+user.setBirthday(new Date());
+user.setCreateTime(new Timestamp(new Date().getTime()));
+user.setId(100);
+user.setName("王");
+user.setSalary(10000.80);
+
+UserVO dest=new UserVO();
+UserVO orig=user;
+
+BeanUtils.copyProperties(dest, orig); // 不行？？？ commons.beanutils 和 spring都有
+
+ConvertUtils.register(new  SqlDateConverter(null), java.sql.Date.class);
+ConvertUtils.register(new  SqlDateConverter(null), java.util.Date.class);
+ConvertUtils.register(new  SqlTimestampConverter(null),  java.sql.Timestamp.class);
+
+//也可用 java.beans.Introspector 做  Map --> Bean , Bean -> Map
+BeanUtils.populate(obj, map); // Map --> Bean 
+
+ 
+ 
 ------------------------------Bcrypt Java实现 jBCrypt
 http://www.mindrot.org/projects/jBCrypt/
 <dependency>
@@ -3790,6 +3962,16 @@ response.addHeader("Content-Disposition", "attachment;filename="+ new String(fil
 response.getOutputStream();
 	
 <form method="post" action="xxx" enctype="multipart/form-data">
+
+-----------------------------commons pool
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-pool2</artifactId>
+    <version>2.6.0</version>
+</dependency>
+
+
+
 
 -----------------------------http client
 public static void proxyTest() throws Exception //测试OK,注意看日志
@@ -4472,13 +4654,20 @@ System.out.println(jedis.get(keys));
 JedisPool pool = new JedisPool(new JedisPoolConfig(), ip,port,2000);//timeout,可加passworld参数
 		
 Jedis jedis = pool.getResource();
-jedis.set("foo", "bar");
+jedis.set("foo", "bar");//string
 String foobar = jedis.get("foo");
-
+//zset
 jedis.zadd("sose", 0, "car");//0是score
 jedis.zadd("sose", 0, "bike"); 
 Set<String> sose = jedis.zrange("sose", 0, -1);//score 范围
 System.out.println(sose);
+
+jedis.sadd("myset","mysetval");//set
+jedis.lpush("mylist", "one");//list
+jedis.lpush("mylist", "two");
+jedis.hset("myhashStuScore", "zhang", "A");//hash
+jedis.hset("myhashStuScore", "lisi", "B");
+
 jedis.close();//一定要close 
 pool.destroy();
 
@@ -4622,32 +4811,93 @@ shardedJedis.close();//一定要close
 
 		connection.close();
 		redisClient.shutdown();
-
 		
+public void testShowAllKeyValues() 
+{
+	Set<String> keys=jedis.keys("*");
+	for(String key:keys)
+	{
+		String type=jedis.type(key);//set,zset,list,hash
+		System.out.println("type:"+type+",key="+key);
+		if("zset".equals(type))
+		{
+			Set<String> zsets=jedis.zrange(key, 0, -1); 
+			System.out.println("\t value== \t ");
+			for(String zset:zsets)
+				System.out.println(" \t value="+zset+",score="+jedis.zcard(zset));
+		}else if ("set".equals(type))
+		{
+			Set<String> values=jedis.smembers(key); 
+			System.out.println("\t value== \t ");
+			for(String value:values)
+				System.out.println(" \t value="+value);
+		}else if("list".equals(type))
+		{
+			List<String> values=jedis.lrange(key, 0, -1); 
+			System.out.println("\t value== \t ");
+			for(String value:values)
+				System.out.println(" \t value="+value);
+		}else if("hash".equals(type))
+		{
+			Set<String> hkeys=jedis.hkeys(key); 
+			System.out.println("value== \t ");
+			for(String hkey:hkeys)
+				System.out.println(" \t \t "+hkey+"="+jedis.hget(key, hkey));
+		}else if("string".equals(type))
+		{
+			String value=jedis.get(key); 
+			System.out.println("\t value ="+value);
+		}else
+		{
+			System.out.println("\t value =...." );
+		}
+	}
+}
 		
-		
+jedis.close();
+jedis.shutdown();//会把redis服务器关了 
+	
 ---------------------------------Redis client redisson	  分布式锁的实现 
+<dependency>
+    <groupId>org.redisson</groupId>
+    <artifactId>redisson</artifactId>
+    <version>3.7.5</version>
+</dependency>
+
+https://github.com/redisson/redisson/wiki/ 有中文的文档
+
 //redisson  依赖于netty,fasterxml的jackson
 
 
 Config config = new Config();
 //--单机 
 //SingleServerConfig singConfig= config.useSingleServer();
-//singConfig.setAddress(ipPort);//ip:port
+//singConfig.setAddress("redis://127.0.0.1:6379");
 
 //--cluster配置
-MasterSlaveServersConfig  msConfig=config.useMasterSlaveConnection();
+MasterSlaveServersConfig  msConfig=config.useMasterSlaveServers();
 msConfig.setMasterAddress(masterIPPort);
 msConfig.addSlaveAddress(slaveIPPort);//可传多个node
 
-//Redisson redisson = Redisson.create();//默认  127.0.0.1:6379
-Redisson redisson = Redisson.create(config);
+//RedissonClient redisson = Redisson.create();//默认 redis://127.0.0.1:6379
+RedissonClient redisson = Redisson.create(config);
+RKeys keys=redsson.getKeys();
+ Iterable<String> iter=keys.getKeys();
+ iter.forEach(new Consumer<String>()  //回调的要等才行
+ {
+	@Override
+	public void accept(String key) {
+		System.out.println("key="+key);  
+	}
+});
 
 //---Distributed Object storage example
 RBucket<AnyObject> bucket = redisson.getBucket("anyObject");
 //bucket.set(new AnyObject());//单机OK,但cluster master 卡住???
 bucket.setAsync(new AnyObject());//单机OK,但cluster master get时卡住???
 AnyObject obj = bucket.get();
+
+redisson.shutdown();
 
 ------------TDDL
 
@@ -5044,6 +5294,13 @@ public class MyRequest {
 
 
 -------------JSON  已经有 javax.json
+<dependency>
+    <groupId>net.sf.json-lib</groupId>
+    <artifactId>json-lib</artifactId>
+	<classifier>jdk15</classifier>
+    <version>2.4</version>
+</dependency>
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -5144,12 +5401,17 @@ UserJson user=mapper.readValue(str, UserJson.class);
 
 import com.alibaba.fastjson.JSON;
 
-String jsonString=JSON.toJSONString(user);
-UserJson user=JSON.parseObject(str,UserJson.class);
+String jsonString=JSON.toJSONString(user);  //Object ->JSON
+UserJson user=JSON.parseObject(str,UserJson.class);//JSON ->Object
 
-List<OrderJson> res=JSON.parseArray(jsonString, OrderJson.class);
-
+List<OrderJson> res=JSON.parseArray(jsonString, OrderJson.class);//JSON Array -> List<Object>
 		
+JSONObject  jsonObject = JSONObject.parseObject(jsonStr); //JSON->Map
+Map<String,Object> map = (Map<String,Object>)jsonObject;
+
+JSONObject json = new JSONObject(map); //Map->JSON
+
+
 ============ZkClient
 <dependency>
 	<groupId>com.101tec</groupId>
@@ -5219,7 +5481,8 @@ zkClient.unsubscribeDataChanges(childPath, changeListender);
 zkClient.unsubscribeChildChanges(rootPath, childListender);
 
 System.out.println("所有建立的节点删除了");
-============curator
+============curator 
+一个Zookeeper客户端
 
 <dependency>
 	<groupId>org.apache.curator</groupId>
@@ -5568,6 +5831,32 @@ p2.onSuccess(new Consumer<Float>() { //p1.onSuccess
 deferred1.accept("182.2");
 
 
--------------Reactor 
- 
+-------------Reactor  上
+
+-------------OAuth 2.0  
+Open Authorization
+
+resource owner  最终用户
+resource server	 是API服务器 使用access token,返回保护的资源
+client			应用
+authorization server 保存用户密码的服务器
+---client
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -7,17 +7,16 @@ http://www.runoob.com/react/react-tutorial.html
 https://reactjs.org/
 https://github.com/facebook/react/releases   目前版本是 16.2.0
 
-UI框架有 
-Material UI   组件比较多，日历像是面向移动的
+UI框架有 https://reactjs.org/community/ui-components.html
 
-AmazeUI React 国产的
+Ant Design 蚂蚁金服的
+Material UI   组件比较多,实现google android 的Material风格，日历像是面向移动的
+
 react-toolbox  https://react.rocks/example/react-toolbox 有示例
 material-components-web
 Belle
 React Bootstrap 
-Elemental UI 
-https://github.com/react-component  阿里 
-
+Elemental UI  
 
 
 npm init  会提示回车生成package.json文件

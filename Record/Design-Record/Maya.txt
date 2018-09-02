@@ -2,12 +2,18 @@
 	Downloads 标签-> 找 Download & Install Maya Product Help (文档下载,注不是developer-help)
 	Getting Started 标签-> 找  Maya Documentation  在线文档 
 
- 
+写脚本用 Python(2),MEL
+C++/.Net 
 
-windows 7中文系统 , 默认安装后是中文，设置环境变量 MAYA_UI_LANGUAGE 为 en_US 就OK
+windows 7/10 中文系统 , 默认安装后是中文，设置环境变量 MAYA_UI_LANGUAGE 为 en_US 就OK
 
+maya 2018 自带 Arnold for Maya, Bifrost for Maya
 
+带 Arnold renderer 
 
+检测
+OpenGL 
+openCL
 
-
-
+window->general editor->script editor
+	在script editor中,点击history->echo all commands 这样的话 ,你在maya里执行每一个菜单命令,都能从中看到那个命令是怎样写的 

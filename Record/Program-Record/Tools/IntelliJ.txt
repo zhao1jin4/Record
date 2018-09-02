@@ -62,7 +62,7 @@ File->Settings->Editor->File Types  在ignore files and folders 中加*.iml;dubb
 		集成Tomcat和eclipse不一样的是,如果程序中(一个进程)开了新的线程Intellij并不是多个线程同时运行,通过调试可以看出,
 		集成maven Jetty 也是一样的,说明是intellij 的问题,可以找到源代码
 		
-		tomcat配置在 ${user.home}/.IntelliJIdea/system/tomcat 目录下 Unnamed_<project>\conf\Catalina\localhost\ROOT.xml
+		tomcat配置在 ${user.home}/.IntelliJIdea<version>/system/tomcat 目录下 Unnamed_<project>\conf\Catalina\localhost\ROOT.xml
  
 	
 Community版本 不能集成Tomcat,不太好用,
@@ -161,13 +161,30 @@ Perferences...  ->  Editor  ->General->  Editor Tabs 调整 Tab Closing Policy �
 
 
 intellij edea 一个main方法只可启动一次，如要多在配置启动项中取消  single instance only
+自带.ftl插件
+.properties 文件做国际化不能转换 settings->Editor->File Encodings 在面板的properties file 区设置编码UTF-8,选中transaprent natvie-to-ascii conversion 
 
+
+列选择模式 选择多行光标会变高
+右击-> column selection  mode (alt + shift + insert)
 
 ====================IntelliJ IDEA plugin 
 scala 
 jd-gui
+JRebel 热部署插件（收费） 修改Mybatis的Mapping.xml也可立即生效
+lombok 插件 
+	可自动生成代码，settings->Buile,Execution,Deployment->Compilier->Annotaion process->复选 enable annotaion process
+	就可以在getter/setter类前加 @Data ,会在很多类前加@Log4j,代码中就可以直接使用log.info();
+	pom.xml中加 打包时可以生成getter/setter
+	<dependency>
+		<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		<version>1.16.20</version>
+	</dependency>
 
 ---------DataGrip 2018
+破解用 http://idea.toocruel.net
+
 MySQL 8 jdbc
 zeroDateTimeBehavior 要设置为CONVERT_TO_NULL
 serverTimezone	 要设置为 UTC

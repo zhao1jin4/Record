@@ -6,7 +6,12 @@
 1、MySQL ：LIKE CONCAT('%',#{empname},'%' ) 或者 LIKE CONCAT('%',‘${empname}’,'%' )
 2、Oracle：LIKE '%'||#{empname}||'%'
 
+<bind name="pattern" value="'%' + _parameter.getUsername() + '%'" /> 
 
+<bind name="pattern" value="'%' + username  + '%'" /> <!-- 如为Map参数 ,如为null是不行的， 不能放在<if >中使用 -->
+username  like #{pattern} 
+
+ 
 mybatis-3-config.dtd 和 mybatis-3-mapper.dtd 在 org.apache.ibatis.builder.xml
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -105,7 +110,10 @@ System.out.println("sql:==>"+boundSql.getSql());
             Object parameterObject = boundSql.getParameterObject();
             MetaObject metaObject = configuration.newMetaObject(parameterObject);
             //--上 为 @ 配置
-			
+			if(parameterMappings.size()==0)
+            {
+            	return invocation.proceed();
+            }
             for (int i = 0; i < parameterMappings.size(); i++) 
             {
                 ParameterMapping parameterMapping = parameterMappings.get(i);
@@ -135,6 +143,55 @@ System.out.println("sql param:==>"+param.toString());
 		 return Plugin.wrap(target, this);
 	}
 }
+
+//打印SQL日志 ,做通用分页功能用
+{
+//		Map<String,Object> param=new HashMap<>();
+//		param.put("username", "li");
+//		String mapperId="org.zhaojin.mybatis.ns.queryAllEmployeeByPage";
+//		RowBounds rowBounds=new RowBounds(offset,limit);//对于MySQL其实就是limit 对于查询中有 <collection> 是不准的
+		//-------------
+		Configuration  configuration=sessionFactory.getConfiguration();
+		Collection<String> stateNames=configuration.getMappedStatementNames();
+		MappedStatement mapStatment=configuration.getMappedStatement(mapperId);
+	
+		BoundSql boundSql=mapStatment.getBoundSql(param);
+		String sql=boundSql.getSql();
+		System.out.println("sql=>"+sql);//里面没有limit,使用 RowBounds
+		String countSql="select count(*) from ("+sql+") A";
+		System.out.println("count sql=>"+countSql);
+		
+		List<ParameterMapping> list=boundSql.getParameterMappings(); 
+		MetaObject metaObject=configuration.newMetaObject(param);
+		Map<String,Object> sqlParam=new HashMap<>();
+		for(ParameterMapping parameterMapping :list)
+		{
+			Object value=metaObject.getValue(parameterMapping.getProperty());
+			sqlParam.put(parameterMapping.getProperty(),value);
+		}
+		System.out.println("parm=>"+sqlParam);
+		
+		//org.apache.ibatis.annotations.ResultMap
+		List<org.apache.ibatis.mapping.ResultMap> results=mapStatment.getResultMaps();
+		if(results!=null&&results.size()>0)
+		{
+			Class<?> resClass=results.get(0).getType();
+			System.out.println("resClass= "+resClass);
+		}
+		
+		/*对应于配置 
+		  <typeHandlers>
+        		<typeHandler>
+		 */
+		TypeHandlerRegistry typeHandlerRegistry=	configuration.getTypeHandlerRegistry();
+		boolean isHave=typeHandlerRegistry.hasTypeHandler(param.getClass());
+		//<T>  
+		List<Employee> res=sqlSessionTemplate.selectList(mapperId, param, rowBounds);
+		
+}		
+		
+
+
 
 可以传递一个List或Array类型的对象作为参数,MyBatis会自动的将List或Array对象包装到一个Map对象中,List类型对象会使用list作为键名,而Array对象会用array作为键名。
 parameterType="list" 或者不写也可以
@@ -177,6 +234,7 @@ parameterType="list" 或者不写也可以
 	</select>
 	
 	<select id="dynSelectEmployee" parameterType="Employee" resultType="Employee" >  
+		<bind name="pattern" value="'%' + _parameter.getUsername() + '%'" /> <!-- _parameter 相当于内置变量 -->
 		select id as id ,username as username,password as password ,birthday as birthday 
 		from employee
 		<where>
@@ -184,11 +242,18 @@ parameterType="list" 或者不写也可以
 			<if test="username != null and username != '' ">username = #{username} </if>  
 			<if test="department_id != null">AND department_id = #{department_id} </if>
 			 -->
+			 
+			 <if test="@mybatis_xml.MyOgnlUtil@isNotBlank(username)"> 
+			 	or username = '${@mybatis_xml.MyOgnlUtil@map.get("j")}'
+			 </if>
+			  or  username  like #{pattern} 
+			<!--
 			<choose>
 				<when test="username != null">username = #{username}</when>
 				<when test="department_id != null">department_id = #{department_id}</when>
 				<otherwise>department_id = 10</otherwise>
 			</choose>
+			-->
 		</where>
 	</select>
 	<!-- 
@@ -751,7 +816,55 @@ web.xml 中加
   
  http://127.0.0.1:8080/J_SpringMVC/druid  登录密码就是web.xml中配置的
  
-
+ 
+ 
+配置文件从远程http服务器中读取,数据库用户名密码就只有部分人知道
+	 <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		 init-method="init" destroy-method="close">
+		 <property name="filters" value="config" />
+		 <property name="connectionProperties" value="config.file=http://127.0.0.1/druid-pool.properties" />
+	 </bean>
+	 也可启动时指定 java -Ddruid.filters=config ....
+ 
+数据库连接密码加密 
+	java -cp druid-1.1.10.jar com.alibaba.druid.filter.config.ConfigTools <password>
+	会输出
+	privateKey:    
+	publicKey: 
+	password:
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		 init-method="init" destroy-method="close">
+		 <property name="url" value="${url}" />
+		 <property name="username" value="${username}" />
+		 <property name="password" value="${password}" />
+		 <property name="filters" value="config" />
+		 <property name="connectionProperties" value="config.decrypt=true;config.decrypt.key=${publickey}" />
+	</bean>
+	
+也可重写 PropertyPlaceholderConfigurer来加密指定配置字段 
+public class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {
+	private String[] encryptPropNames = { "usernameEnc", "passwordEnc" };
+	@Override
+	protected String convertProperty(String propertyName, String propertyValue) {
+		if (isEncryptProp(propertyName)) 
+		{ 
+			String decryptValue = DESUtil.getDecryptString(propertyValue);//自己的加密解密类
+			return decryptValue;
+		} else 
+		{
+			return propertyValue;
+		}
+	}
+	private boolean isEncryptProp(String propertyName) 
+	{
+		for (String encryptpropertyName : encryptPropNames) 
+		{
+			if (encryptpropertyName.equals(propertyName))
+				return true;
+		}
+		return false;
+	}
+}
 -------MyBatis3 Spring集成
 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
@@ -878,6 +991,12 @@ List<Employee> items=...
 batchItemWriter.setAssertUpdates(false);//如是insert设置为false
 batchItemWriter.write(items);//看源码是使用  ExecutorType.BATCH的SqlSessionTemplate
 
+
+
+import org.springframework.data.domain.PageRequest;
+
+
+
 --------MapperFactoryBean
 
 public interface XMLEmployeeInterface {
@@ -960,23 +1079,21 @@ mybatis默认是启用cache的,如不使用cache  <select        useCache="false
 
 
 =====mybatis generator 生成 XML配置  或 @配置 
-
-<dependency>
+ <dependency>
     <groupId>org.mybatis.generator</groupId>
-    <artifactId>mybatis-generator</artifactId>
-    <version>1.3.2</version>
+    <artifactId>mybatis-generator-core</artifactId>
+    <version>1.3.7</version>
 </dependency>
-
 
 --generatorConfig.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE generatorConfiguration   PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
                                       "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 <generatorConfiguration>
-     <classPathEntry location="D:/eclipse_java_workspace/WEB_LIB/WebContent/WEB-INF/lib/mysql-connector-java-5.1.21-bin.jar" />
-     <context id="MySQLTables" targetRuntime="MyBatis3">
+      <classPathEntry location="D:/eclipse_java_workspace/WEB_LIB/WebContent/WEB-INF/lib/mysql-connector-java-8.0.11.jar" />
+		<context id="MySQLTables" targetRuntime="MyBatis3">
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-			connectionURL="jdbc:mysql://localhost:3306/mydb?useUnicode=true&amp;characterEncoding=UTF-8"
+			connectionURL="jdbc:mysql://localhost:3306/mydb?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC"
 			userId="user1"
 			password="user1">
 		</jdbcConnection>
@@ -998,7 +1115,7 @@ mybatis默认是启用cache的,如不使用cache  <select        useCache="false
 		  <property name="enableSubPackages" value="true" />
 		</javaClientGenerator>
 
-	<!-- 二选一 , 1.3.2 生成的使用类是 过时的  SqlBuilder.BEGIN ,(现在是1.3.6版本)
+	<!-- 二选一 , 1.3.7 版本 生成的使用类是  @org.apache.ibatis.annotations.Delete  
 		也有type="MIXEDMAPPER" 混合式,复杂的SQL用XML
         <javaClientGenerator type="ANNOTATEDMAPPER" targetPackage="org.project.annotate"  targetProject="project/src/main">
           <property name="enableSubPackages" value="true" />
@@ -1020,8 +1137,9 @@ mybatis默认是启用cache的,如不使用cache  <select        useCache="false
 </generatorConfiguration>
 
 要先建立 project/src/main 和 project/src/resources  目录
-java -jar mybatis-generator-core-1.3.2.jar -configfile generatorConfig.xml -overwrite
-
+md project\src\main
+md project\src\resources
+java -jar mybatis-generator-core-1.3.7.jar  -configfile generatorConfig.xml -overwrite
 
 <javaClientGenerator type="ANNOTATEDMAPPER" 
 

@@ -5,8 +5,7 @@ Log-Structured Merge-Trees (LSM)
 要linux环境运行
 构建在 Apache Hadoop和 Apache ZooKeeper之上
 
-phphbaseadmin
-
+phphbaseadmin 
 
 
 conf/hbase-site.xml 	 增加

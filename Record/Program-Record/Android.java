@@ -1,34 +1,9 @@
+Kotlin 也可开发Android
 
-Kotlin 成为 Android 官方开发语言
-
---------------OMA
-www.openmobilealliance.org  ->TECHNICAL INFORMATION->Current Release->OMA Device Management V2.0
-
-Android 手机安全 , 禁用应用仿问网络 , 读通讯录 , 读短信 , 读文件系统 , 读位置 , 禁用注册3G网络启动／停止监听 , 禁用推送
-
-
--------------Android 更新版本 下载,  
-
-Dalvik VM是Android平台的核心组成部分之一，它的名字来源于冰岛一个名为Dalvik的
-小渔村。Dalvik VM并不是一个Java虚拟机，它没有遵循Java虚拟机规范，不能直接执行Java
-的Class文件，使用的是寄存器架构而不是JVM中常见的栈架构。但是它与Java又有着千丝万
-缕的联系，它执行的dex（Dalvik Executable）文件可以通过Class文件转化而来
-
-
-
-windows/mac 下载多选  
-1. Intel x86 Emulator Accelerator(HAXM installer)( linux不用的)) 
-		HAXM=Hardware Accelerated Execution Manager
-		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat  (也可intelhaxm-android.exe)
-	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x 
-2. Android support Library
-3. Google Repository
-4. ConstraintLayout for Android
-5. Solver for ConstraintLayout
-	
-
+-------------Android 更新 下载
 http://www.androiddevtools.cn/ 有 可配置在SDK Manager 中镜像
-
+https://developer.android.google.cn
+ 
 大连东软信息学院镜像服务器地址 
 http://mirrors.neusoft.edu.cn 端口：80   下有 android目录  下还有其它的镜像站点,如centos , ubuntu-releases
 	   
@@ -38,49 +13,125 @@ http://mirrors.neusoft.edu.cn 端口：80   下有 android目录  下还有其�
 https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project (AOSP)
 
 翻墙方法 
-免费的   1. lattern 蓝灯 (可上google,但下载Android SDK 还要设置镜像地址mirrors.neusoft.edu.cn )  https://lanterncn.cn/
- 
----------------上  Android 更新版本 下载
- 
-Android SDK Manager -> Settings ->HTTP Proxy Server 输入  mirrors.neusoft.edu.cn (yourid.repository.bugly.qq.com),在HTTP Proxy Port 80 
-并且选中 Force  复选框->Close , Packages->Reload 
+免费的   1. lattern 蓝灯 (可上google,但下载Android SDK 还要设置镜像地址mirrors.neusoft.edu.cn )  
+-------------windows/mac 下载选择  
 
+1. Intel x86 Emulator Accelerator(HAXM installer)( linux不用的)) 
+		HAXM=Hardware Accelerated Execution Manager
+		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat  (也可intelhaxm-android.exe)
+	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x 
+2. google usb 可能些手机不能识别
+	右键单击[我的电脑] -> 属性 -> 设备管理器->右键单击[有问号的设备] -> 属性 -> 详细信息 -> “属性”下拉列表框选择：硬件 Id
+    右键单击选复制，如我的是
+		USB\VID_2717&PID_FF18&REV_0318&MI_01
+		USB\VID_2717&PID_FF18&MI_01
 
+	打开 extras\google\usb_driver\android_winusb.inf 在 [Google.NTx86] 或 [Google.NTamd64] 下面添加：
+		%SingleAdbInterface%        = USB_Install, USB\VID_2717&PID_FF18&MI_01
+		%CompositeAdbInterface%     = USB_Install, USB\VID_2717&PID_FF18&REV_0318&MI_01
+	指定搜索驱动目录,如果有无法验证该驱动的发布者提示，不管它只管安装就是了 
+	
+
+LLDB 是 a next generation, high-performance debugger. 
+CMake 是 cross-platform  , build, test and package
+GPU Debugging tools
+
+source 和 goole repository是android studio初始配置会下的
+模拟器要单独下载ware和tv的(table ,phone用真机行吗)
+
+在什么版本上运行可能就要什么版本的 build-tools,platforms  
+android-7.1.1 = api 25  platform-25(res/drawable ,layout) (新建选择minSDK25,app/build.gradle中修改targetSdkVersion 25,compileSdkVersion 25,原来是加1的26)	
+		对应的build-tools(dx,aapt)是 27.0.3 (androidStudio中已经有新版本不能下载旧版本)只能安装最新 28.0.2 后再下载要求的低版本 27.0.3
+
+---------------问题解决方法
+真机报 INSTALL_FAILED_USER_RESTRICTED 原因是在权限管理中的USB安装管理中已经拒绝安装了，删除就行了，因前面提示过没有看到后面就默认拒绝
+
+----真机root  未试?????
+得到root权限,bootloader加锁(刷机用)不影响得到root权限    
+设置中关闭 快速启动
+拔掉usb线,正常关机,然后按着  音量下键  + 开机键  不放约10秒 会进入bootloader (华为的bootloader加锁了进不了,得到root是不影响的)
+然后连接电脑
+fastboot devices  
+fastboot oem unlock  [解锁密码]   , 要在官方网申请
+fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
+ 检查  fastboot oem get-bootinfo
+ 
 ----- Android Studio
- 在 ~/.AndroidStudio3.0
+ AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8，自带Grale
+ AndroidStudio-3.1.4 支持JDK10
+
+ 3.1.4 在 ~/.AndroidStudio3.1
  默认安装目录 C:\Users\zhaojin\AppData\Local\Android\sdk 
 	linux: /home/zhaojin/Android/Sdk
  默认工作区  C:\Users\zhaojin\AndroidStudioProjects
  如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
  
-基于IntelliJ IDEA ,使用openJDK8 ,Gradle构建
+ AndroidStudio-3.1.4 首次配置AndroidSDK时会下载 android_m2repository_47.zip 放在extras\android\m2repository目录中
+	也会下载 google_m2repository_gms_v11_3_rc05_wear_2_0_5.zip 放在 extras\google\m2repository 目录,和 extras\m2repository ,extras\android\m2repository
+	也会再下载 source
+ 
+	
+ AndroidStudio-3.1.4 下载的是 gradle-4.4-all.zip 可开始下载时中断生成目录
+~/.gradle/wrapper/dists/gradle-4.4-all/9br9xq1tocpiv8o6njlyu5op1/   再放入gradle-4.4-all.zip  
+在path中找到gradle命令不会下载,再配置如下
+settings->Build,Execution,Deployment->Build Tool->Gradle->单选use Local Gradle,选择路径D:\Program\gradle-4.9
 
-android 3.1.2 下 载的是 gradle-4.4-all.zip 可开始下载时中断生成目录
-~/.gradle/wrapper/dists/gradle-4.4-all/9br9xq1tocpiv8o6njlyu5op1/  再放入gradle-4.4-all.zip 
 
 Linux: ~/.gradle/wrapper/dists 
-windows:   C:\users\{user name}\.gradle\wrapper\dists
+windows:   C:\users\zhaojin\.gradle\wrapper\dists
+
+
+AndroidStudio如果新版本兼容老版本生成代码有<android.support.constraint.ConstraintLayout>,如新建项目默认启动类是extends AppCompatActivity(Backforwards Compatibility),如取消extends Activity
+
 
 像Word一样的单文档,一个Studio只能打开一个项目,也可以建立Module,都是在gradel子目录中,都可以单独运行,使用同一个gradle构建,生成gradlew 等文件
+File-> new -> import module
+右击project视图空白区 -> load/unload moudels ...像eclipse的close
+File-> Project Structure ... (工具栏上有按钮，配置module)
  
-第一个项目的名字是默认生成的,如mobile,可以重命名,会修改settings.gradle中的内容
 
  File->Other Settings->Default Project Structure 中设置Android SDK位置,Android NDK,JDK 
  File-> Setting... ->Appearance & Behavior->System Settings-> Android SDK 可以下载SDK，镜像要在建立模拟器时下载，工具栏上也有的
  
- File-> Project Structure ...
 
 设置菜单字体大小   File->Setting...->Appearance & Behavior-> Appearance -> Override defaul fonts by (not recommaned) 后面设置为14 (字体SimHei)
 
 设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts->Font-> Save As ...后设置字体,16
 设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font  16
 
+右击目录(libs)的jar包->add as library...
+建立项目自带的libs目录,放入jar包不会在AndroidStudio中显示,要重启才生效
+ 
 
-<project>\App\build\generated\source\r\debug\<package>\R.java
-<project>\App\build\generated\source\r\AndroidTest\debug\<package>\R.java
+<application>\App(Module)\build\generated\source\r\debug\<package>\R.java
+<application>\App(Module)\src\androidTest
+<application>\App(Module)\src\main(同maven)
+<application>\App(Module)\src\test(同maven)
+<application>\App(Module)\libs
+ 
+ ----Gradle Android 
+ gradle-wrapper.properties
+	中有 distributionUrl=https\://services.gradle.org/distributions/gradle-4.4-all.zip
 
-Tools > Android > Android Device Monitor 会启动tools\monitor  可以传文件 
-
+第一个项目的名字app是默认生成的,可以重命名,会修改 settings.gradle 中的内容 include:'app','otherproject'
+Application级
+	local.properties 
+		sdk.dir=D\:\\software\\android_\\tools_r28.0.2-windows
+	gradle.properties 	
+		org.gradle.jvmargs=-Xmx1536m
+	build.gradle
+		仓库的配置
+Moudlue 级	
+	build.gradle api版本的配置
+		android {
+			 compileSdkVersion 28
+			  defaultConfig {
+				minSdkVersion 25
+				targetSdkVersion 28
+			  }
+		} 
+		
+		
 build.gradle文件在android括号中加
  productFlavors
             {
@@ -105,8 +156,6 @@ task printVariantNames{
 
 执行 gradlew printVariantNames  (也可以使用 gradlew pVN 的形式)结果就是arrogantDebug,arrogantRelease及friendly,obsequious
 
-右击目录(libs)的jar包->add as library...
-建立项目自带的libs目录,放入jar包不会在AndroidStudio中显示,要重启才生效
 
 多个jar都有 META-INF/LICENSE 会报 DuplicateFileException 
 build.gradle中  android { }内部增加
@@ -117,44 +166,60 @@ build.gradle中  android { }内部增加
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
+	  
+
+======手机HTML,JS,CSS调试方法
+
+AndroidManifest.xml    <application  android:debuggable="true">   相当于在IDE中打开debug
+
+
+
+-------使用Chrome,在android 上远程调度 ,手机可以通过 USB 连接电脑仿问网络
+https://developers.google.com/chrome-developer-tools/docs/remote-debugging
+
+windows 要安装USB driver(win7 进资源管理器->找到自己的手机(Android Composite ADB) 右击->更新驱动程序软件->浏览选择  <sdk>\extras\google\usb_driver\ ,下载时要选择Google USB Driver)
+Ubuntu 打开调试  建立文件 /etc/udev/rules.d/51-android.rules    (udev rule)
+	SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", GROUP="plugdev" 
+	#0bb4 是手机厂商ID, 	Huawei 是 12d1
+	#,MODE读写权限,GROUP是操作系统的组
+chmod a+r /etc/udev/rules.d/51-android.rules
+
+---手机
+	打开  USB Debugging 模式, 如为4.2以上版本 Settings > About phone -> Build number ,点7次返回上个屏幕有  Developer options
+	手机Chrome中->设置->开发者工具->USB网页调试->打开 (新版本中没了???)
 	
-
-LLDB 是 a next generation, high-performance debugger. 
-CMake 是 cross-platform  , build, test and package
-GPU Debugging tools
-
-
-
------ 
- android-sdk-windows\tools\monitor.bat 会启动界面 ,即老的ADT插件里的DDMS,有File Explorer
- 
-tools\android.bat update sdk --no-ui  新版本会调用 tools\bin\sdkmanager  --update  没有界面
-新版本建议使用sdkmanager.bat avdmanager.bat 命令
-
-sdkmanager.bat   --list  显示同界面所有sdk列表
-
-老版本的 tools_r25.2.3-windows\android.bat  还是有界面的,安装更新到8.1 版本后就不行了 
- 
-tools\bin\sdkmanager --update --proxy=http  --proxy_host=mirrors.neusoft.edu.cn  --proxy_port=80 --no_https   还是找不到.xml文件
-Android Studio 配置成这个 http://mirrors.neusoft.edu.cn/android/repository/repository-12.xml
-
-
-emulator: ERROR:This AVD's configuration is missing a kernel file!!
-是因为android所在路径太长了
-
-
-http://developer.android.com/develop/index.html
-samples\android-19\legacy\ApiDemos  运行后 app,drawable,view中的是可见的,Content,Preference,Animation
+---电脑
+	adb forward tcp:9919 localabstract:chrome_devtools_remote
+	Chrome 的URL中输入 about:inspect  (也可 工具->检查设备),要可以看到自己的手机中Chrome打开的页
+	
+	Chrome http://localhost:9919/ 也打开手机中的网页
+	
+	port forward 按钮->弹出对话框中,每一行是一对端口转发,第一列的android手机上的端口号8080,第二列是电脑上的IP:端口,localhost:8181,复选enable port forwarding
+	
+	在手机中chrome输入127.0.0.1:8080 (只127.0.0.1)会跳到电脑chrome的 localhost:8181,手机USB直接连接电脑,可不用wifi同网断 
+	可在电脑中输入手机网页,打开,点页旁边的inspect ,但好像一直打不开????
  
 
-添加环境变量 ANDROID_SDK_HOME
-PATH指向tools 目录,tools/bin/ ,platform-tools目录下有adb命令
+------Firefox 调试 OK
+https://developer.mozilla.org/en-US/docs/Tools/Remote_Debugging/Firefox_for_Android
 
-Android 使用的是　dalvik 虚拟机
+手机和电脑在同一个wifi网络中,手机中输电脑IP(也可外部如m.taobao.com)
+USB连线手机
 
-AVD（Android Virtual Device）
-OMS(Open Mobile System)
-DDMS(Dalvik Debug Monitor Service)
+--Anroid 中打开 开发调试
+Firefox for Android中点菜单->设置->开发者工具->打开远程调试
+	about:config 中搜索  devtools 查看 devtools.debugger.remote-enabled 已经修改为true了,port默认6000 
+
+--PC 中 
+Tools->Web Developer->Toggle Tools 单击设置按钮->最下面的enable remote debugging已经复选 
+		about:config 中查  devtools.debugger.remote-enabled 已经修改为true了,port默认6000 
+
+adb forward tcp:6000 localfilesystem:/data/data/org.mozilla.firefox/firefox-debugger-socket
+adb forward tcp:6000 tcp:6000
+tools->web developer->connect...连接后android手机有提示是否连接,PC的firefox中可以看到Android中的Firefox打开的网页,点击后可在PC的DeveloperTools中打JS断点调试
+ 
+
+-----模拟器
 
 按"HOME"->点屏幕中的箭头->"Settings"->Language & Input ->locale (有谷歌拼音输入法)->中文简体,
 Setting->Language & Input ->Language->选择 中文(简体) ,  界面变成中文
@@ -172,14 +237,50 @@ ctrl+f12 模拟器变为横向,要关金山词霸
 
 长按Home键->显示所有正在运行的程序,可以一次性清空,模拟器在选一个长按->delete
 
+真机Wifi可以设置代理,长按连接的wifi->修改网络->复选显示高级选项,代理设置为手动,输入IP和端口,用户名密码要在自带浏览器或Chrome中输入,都可以保存
+Firefox代理 的about:config->输入proxy搜索->network.proxy.http 设置IP,network.proxy.http_port 对应端口,设置network.proxy.type为1,默认是5
+
+真机Wifi可以设置VPN,如客户端是Cisco AnyConnect的VPN,android选择类型为IPSec Xauth PSK,输入服务器的地址,IPSec标识符的值为Group的值,如NN,IPSec预共享密钥的值为Group的密码,即NN的密码,保存后再连接输入用户名 和 密码前缀+动态密码
+
+
+模拟器设置上网代理
+Settings->WIRELESS & NEWORKS下的More...->Mobile Networks->Access Point Names(APN)->选择已有的->有设置proxy,port,username,password
+
+真机要打开debug, adb devices才可看到,设置->开发人员选项-> 选中 “USB调试”
+android 4.2 以后版本打开调试 Settings > About phone 点 Build number 七次,再前面的屏幕中有 Developer options
+
+ 
+----- 命令行工具
+老版本的 tools_r25.2.3-windows\android.bat  还是有界面的,安装更新到8.1 版本后就不行了 
+新版本建议使用sdkmanager.bat avdmanager.bat 命令
+tools\bin\sdkmanager  --update  没有界面
+
+
+tools\bin\sdkmanager --update --proxy=http  --proxy_host=mirrors.neusoft.edu.cn  --proxy_port=80 --no_https   还是找不到.xml文件
+Android Studio 配置成这个 http://mirrors.neusoft.edu.cn/android/repository/repository-12.xml
+
+
+android-sdk-windows\tools\monitor.bat 会启动界面 ,即DDMS,有File Explorer
+ 
+sdkmanager.bat   --list  显示同界面所有sdk列表
+  
+
+添加环境变量 ANDROID_SDK_HOME
+PATH指向tools 目录,tools/bin/ ,platform-tools目录下有adb命令
+
+Android 使用的是　dalvik 虚拟机
+
+AVD（Android Virtual Device）
+OMS(Open Mobile System)
+DDMS(Dalvik Debug Monitor Service)
+
 
 run configuration...新建一个Android,来运行
 右击Android 项目->运行,如已经启动模拟器,会自动安装apk包
 
 导入sample,新建 Android项目->选择create project from exist source ,选目录后,会自动写Package name:的值
 
-
-
+ 
 -------android命令
 列出模拟器类型:	( android list targets 老命令)
 使用 			avdmanager list target 看到SDK 版本
@@ -249,29 +350,6 @@ adb shell am start -n "org.zhaojin.cordova7/org.zhaojin.cordova7.MainActivity" -
 adb logcat *:W 显示日志,比在eclipse中显示的消息要长,会一直监控
 
 
-真机Wifi可以设置代理,长按连接的wifi->修改网络->复选显示高级选项,代理设置为手动,输入IP和端口,用户名密码要在自带浏览器或Chrome中输入,都可以保存
-Firefox代理 的about:config->输入proxy搜索->network.proxy.http 设置IP,network.proxy.http_port 对应端口,设置network.proxy.type为1,默认是5
-
-真机Wifi可以设置VPN,如客户端是Cisco AnyConnect的VPN,android选择类型为IPSec Xauth PSK,输入服务器的地址,IPSec标识符的值为Group的值,如NN,IPSec预共享密钥的值为Group的密码,即NN的密码,保存后再连接输入用户名 和 密码前缀+动态密码
-
-
-模拟器设置上网代理
-Settings->WIRELESS & NEWORKS下的More...->Mobile Networks->Access Point Names(APN)->选择已有的->有设置proxy,port,username,password
-
-真机要打开debug, adb devices才可看到,设置->开发人员选项-> 选中 “USB调试”
-android 4.2 以后版本打开调试 Settings > About phone 点 Build number 七次,再前面的屏幕中有 Developer options
-
-buildTools多一个版本为23.0.3 是为NetBeans插件NBAndroid准备的
-
-----真机得到root权限,bootloader加锁(刷机用)不影响得到root权限     未试?????
-设置中关闭 快速启动
-拔掉usb线,正常关机,然后按着  音量下键  + 开机键  不放约10秒 会进入bootloader (华为的bootloader加锁了进不了,得到root是不影响的)
-然后连接电脑
-fastboot devices  
-fastboot oem unlock  [解锁密码]   , 要在官方网申请
-fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
- 检查  fastboot oem get-bootinfo
- 
 ----打包
 aapt package -m -J gen -M AndroidManifest.xml -S res -I D:\android-sdk-windows\platforms\android-16\android.jar
 //这句命令主要是重新自动生成R.java文件
@@ -316,59 +394,9 @@ dex反编译
 所有文件都放在同一个目录下
 apktool d XXX.apk （目标文件夹）      反编译 geek.apk到文件夹test
 apktool d *.apk ./src  测试OK
- 
-
-======手机HTML,JS,CSS调试方法
-
-AndroidManifest.xml    <application  android:debuggable="true">   相当于在IDE中打开debug
 
 
-
--------使用Chrome,在android 上远程调度 ,手机可以通过 USB 连接电脑仿问网络
-https://developers.google.com/chrome-developer-tools/docs/remote-debugging
-
-windows 要安装USB driver(win7 进资源管理器->找到自己的手机(Android Composite ADB) 右击->更新驱动程序软件->浏览选择  <sdk>\extras\google\usb_driver\ ,下载时要选择Google USB Driver)
-Ubuntu 打开调试  建立文件 /etc/udev/rules.d/51-android.rules    (udev rule)
-	SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", GROUP="plugdev" 
-	#0bb4 是手机厂商ID, 	Huawei 是 12d1
-	#,MODE读写权限,GROUP是操作系统的组
-chmod a+r /etc/udev/rules.d/51-android.rules
-
----手机
-	打开  USB Debugging 模式, 如为4.2以上版本 Settings > About phone -> Build number ,点7次返回上个屏幕有  Developer options
-	手机Chrome中->设置->开发者工具->USB网页调试->打开 (新版本中没了???)
-	
----电脑
-	adb forward tcp:9919 localabstract:chrome_devtools_remote
-	Chrome 的URL中输入 about:inspect  (也可 工具->检查设备),要可以看到自己的手机中Chrome打开的页
-	
-	Chrome http://localhost:9919/ 也打开手机中的网页
-	
-	port forward 按钮->弹出对话框中,每一行是一对端口转发,第一列的android手机上的端口号8080,第二列是电脑上的IP:端口,localhost:8181,复选enable port forwarding
-	
-	在手机中chrome输入127.0.0.1:8080 (只127.0.0.1)会跳到电脑chrome的 localhost:8181,手机USB直接连接电脑,可不用wifi同网断 
-	可在电脑中输入手机网页,打开,点页旁边的inspect ,但好像一直打不开????
- 
-
-------Firefox 调试 OK
-https://developer.mozilla.org/en-US/docs/Tools/Remote_Debugging/Firefox_for_Android
-
-手机和电脑在同一个wifi网络中,手机中输电脑IP(也可外部如m.taobao.com)
-USB连线手机
-
---Anroid 中打开 开发调试
-Firefox for Android中点菜单->设置->开发者工具->打开远程调试
-	about:config 中搜索  devtools 查看 devtools.debugger.remote-enabled 已经修改为true了,port默认6000 
-
---PC 中 
-Tools->Web Developer->Toggle Tools 单击设置按钮->最下面的enable remote debugging已经复选 
-		about:config 中查  devtools.debugger.remote-enabled 已经修改为true了,port默认6000 
-
-adb forward tcp:6000 localfilesystem:/data/data/org.mozilla.firefox/firefox-debugger-socket
-adb forward tcp:6000 tcp:6000
-tools->web developer->connect...连接后android手机有提示是否连接,PC的firefox中可以看到Android中的Firefox打开的网页,点击后可在PC的DeveloperTools中打JS断点调试
-
-------
+--------------
 
 R类是Resource的缩写
 android.util.Log.v ,d,i,w,e 对应下面
@@ -2822,6 +2850,9 @@ adb -s  A49947194A9B reboot  #或在shell中reboot
 adb remount  #system分区从 只读 -> 可写 ,只有获得了root权限才可能运行
 
 ------------NDK
+CMake  本地代码构建工具,也可用 ndk-build  
+LLDB  可用Android Studio 调试本地代码
+
 cygwin的一些命令
 cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make
 cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make

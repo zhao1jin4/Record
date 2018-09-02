@@ -1,23 +1,34 @@
 
-=========================Spring Security 3.1 (老的是ACegi)　安全   5.0.5
-要使用Spring 3.x
+=========================Spring Security  5.0.5
+ 
 CAS (JA-SIG Central Authentication Service)流行的开源单点登录系统  org.springframework.security.cas
+	https://github.com/apereo/cas  gradle 构建
 OpenID		OpenID4Java			org.springframework.security.openid
 ACL
 Kerberos
 
 http://www.family168.com/tutorial/springsecurity3/html/preface.html
 
+
+
+/*
+入口类 WebSecurityConfiguration 的 springSecurityFilterChain 方法  对应于web.xml配置
+  有这个类就不能在web.xml中配置 springSecurityFilterChain
+ servlet-3 Spring 自己的  WebApplicationInitializer
+ */
+public class SecurityWebApplicationInitializer
+	extends AbstractSecurityWebApplicationInitializer {
+
+	public SecurityWebApplicationInitializer() {
+		super(WebSecurityConfig.class);
+	}
+}
+
+xml配置debug得到的是 FilterChainProxy 官方文档强调了filter顺序
+
 reference/springsecurity.html 是指南的首页
 有示例代码
-spring-security-samples-contacts-3.1.0.RELEASE.war
-spring-security-samples-tutorial-3.1.0.RELEASE.war
-
-spring-security-web-3.1.0.RELEASE.jar
-spring-security-core-3.1.0.RELEASE.jar
-spring-security-config-3.1.0.RELEASE.jar
-spring-security-taglibs-3.1.0.RELEASE.jar
-
+ 
 web.xml
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
@@ -37,8 +48,20 @@ web.xml
         <url-pattern>/*</url-pattern>		*/
     </filter-mapping>
 
+网上查源码 HttpSecurityBeanDefinitionParser 中的registerFilterChainProxyIfNecessary方法中 最后一行
+registerAlias(BeanIds.FILTER_CHAIN_PROXY,  //org.springframework.security.filterChainProxy
+				BeanIds.SPRING_SECURITY_FILTER_CHAIN);//对应于web.xml中的 springSecurityFilterChain
+	在 new 	AuthenticationConfigBuilder 时注册了很多Filter
+	在 new HttpConfigurationBuilder 时注册了很多Filter
+	  都使用 SecurityFilters 类定义了Filter,按这个顺序在排序 都存在 DefaultSecurityFilterChain 类中
+	<security:http pattern="/js/*" security="none"></security:http> 也是创建了 DefaultSecurityFilterChain
 
-spring会自动生成登录页,也可自己指定 <form-login login-page="/login.jsp"/>必须是 
+spring会自动生成登录页,也可自己指定 <form-login login-page="/login.jsp"
+				username-parameter="j_username"
+			    password-parameter="j_password"
+			    login-processing-url="/j_spring_security_check"
+
+/>必须是 
 	
 	${sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message}
 	<form action="../j_spring_security_check">
@@ -47,9 +70,9 @@ spring会自动生成登录页,也可自己指定 <form-login login-page="/login
 		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 	</form>
 
-国际化在 spring-security-core-3.1.x.jar中org.spring.framework.security下
-AbstractUserDetailsAuthenticationProvider.badCredentials的key是登录失败的错误信息,覆盖默认的 
- ${sessionScope.	.message}显示
+国际化在 spring-security-core-5.0.5.jar/org/spring/framework/security/message.properites  
+AbstractUserDetailsAuthenticationProvider.badCredentials 的key是登录失败的错误信息,覆盖默认的 
+ 使用${sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message}显示
 
 <bean id="tokenRepository" class="org.springframework.security.web.csrf.CookieCsrfTokenRepository"
 	p:cookieHttpOnly="false"/
@@ -57,7 +80,7 @@ AbstractUserDetailsAuthenticationProvider.badCredentials的key是登录失败的
 <security:ldap-server />  为测试用途,在应用内部启动一个内嵌LDAP服务器,比配置一个 Apache Directory Server 要简单得多
 
 
-<security:http auto-config="true" use-expressions="true" access-denied-page="/auth/denied.mvc" >
+<security:http auto-config="true" use-expressions="true" > <!-- 新版本无 access-denied-page="/auth/denied.mvc" -->
 	<security:intercept-url pattern="/auth/login.mvc" access="permitAll"  requires-channel="http"  method="GET"/>  <!-- permitAll是 SecurityExpressionRoot类中的方法名字 ,有http,https,any-->
 	<security:intercept-url pattern="/main/test*"  access="hasAnyRole('ROLE_USER','ROLE_ADMIN')" />
 	<security:intercept-url pattern="/main/admin.mvc" access="hasRole('ROLE_ADMIN')"/>
@@ -66,19 +89,33 @@ AbstractUserDetailsAuthenticationProvider.badCredentials的key是登录失败的
 	<!-- 方式二,自定义页面 -->	
 	<security:form-login login-page="/auth/login.mvc"
 		 authentication-failure-url="/auth/login.mvc?error=true" 
-			     default-target-url="/main/common.mvc"/>
+			     default-target-url="/main/common.mvc"
+				  authentication-success-handler-ref="myAuthenticationSuccessHandler"
+				 /><!-- myAuthenticationSuccessHandler implements AuthenticationSuccessHandler 会替代  default-target-url 的值 -->
 	
 	<security:logout  invalidate-session="true" 
 					  logout-success-url="/auth/login.mvc" 
-							  logout-url="/auth/logout.mvc"/><!-- 对应页面中的退出的链接 -->
-	<security:session-management>		
-		<security:concurrency-control max-sessions="1" error-if-maximum-exceeded="true"/> <!-- 只可有一个会话用户在线, 要配<listener-class>HttpSessionEventPublisher -->
+					  logout-url="/securityLogout"/><!--  对应页面中的退出的链接不用.mvc , 无效的原因是LogoutFilter源码要求POST提交  -->
+	<security:session-management invalid-session-url="/auth/invalidSession.mvc">		
+		<security:concurrency-control max-sessions="1" error-if-maximum-exceeded="true"/>
+		<!--  max-sessions="1"   可防止一个用户登录多次， error-if-maximum-exceeded="true" 表示不可以第二次登录(false则是可以，前面登录的退出)，如有跳到form的 authentication-failure-url 
+		 如第二次登录是用remember-me 返回401或者定义session-authentication-error-url
+		 要配<listener-class>HttpSessionEventPublisher -->
 		<!-- 跳到  authentication-failure-url 指定面,使用 ${sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message}显示
-		国际化 ConcurrentSessionControlAuthenticationStrategy.exceededAllowed  -->
+		国际化 ConcurrentSessionControlAuthenticationStrategy.exceededAllowed  
+		在 spring-security-core-5.0.5.jar/org/spring/framework/security/message.properites  
+		-->
 	</security:session-management>
 	
 	<security:csrf token-repository-ref="tokenRepository"/> <!--  对应于 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/> -->
 </security:http>
+	
+	
+<form method="post" action="<%=request.getContextPath()%>/securityLogout">
+	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+	<input type="submit" value="退出登录提交"/>
+</form>
+	
 	
 <!-- 用户,角色,密码的存储方式 -->
 <bean id="customUserDetailsService" class="org.liukai.tutorial.service.CustomUserDetailsService"/>	<!--  implements UserDetailsService --> 
@@ -253,11 +290,7 @@ FilterChainProxy
 </bean>
 
 <http>
-	<security:logout 
-				invalidate-session="true" 
-				logout-success-url="/auth/login" 
-				logout-url="/auth/logout"/> //这个是界面中手工注销的地址
-				
+	 		
 				
 //外部系统验证登录,告诉SpringSecurity验证成功
 <security:password-encoder  ref="myPassWordEncoder"  /> //不加密实现
@@ -268,11 +301,14 @@ FilterChainProxy
  token.setDetails(new WebAuthenticationDetails(request));
  Authentication auth=authenticationManager.authenticate(token);
  //会调用<security:authentication-provider user-service-ref="customUserDetailsService" > loadUserByUsername
+//和 PasswordEncoder 的matches
 
  SecurityContext context= SecurityContextHolder.getContext();
- context.setAuthentication(auth);	//告诉Spring Security 登录完成			
+ context.setAuthentication(auth);//告诉Spring Security 登录完成 ??
  SessionAuthenticationStrategy authenticationStrategy=new NullAuthenticatedSessionStrategy();
-authenticationStrategy.onAuthentication(auth, request, response
+ authenticationStrategy.onAuthentication(auth, request, response);//告诉Spring Security 登录完成???
+//不能让spring认为已经登录了？？？？，如权限不够会报 Access is denied
+//有用的系统这里是SessionFixationProtectionStrategy，而我是CompositeSessionAuthenticationStrategy？？？？
 
 =========================上 Spring Security
 =========================Spring Security OAuth2 
@@ -281,7 +317,11 @@ authenticationStrategy.onAuthentication(auth, request, response
     <artifactId>spring-security-oauth</artifactId>
     <version>2.3.3.RELEASE</version>
 </dependency>
-
+<dependency>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-oauth2-client</artifactId>
+	<version>5.0.5.RELEASE</version>
+</dependency>
 
 
 

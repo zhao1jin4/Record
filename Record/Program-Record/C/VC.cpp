@@ -8,53 +8,63 @@ Windows Assessment and Deployment Kit (Windows ADK)
 Windows Driver Kit (WDK, formerly DDK)  ,  WDK 8.1 Update (for Windows 8.1, 8, and 7 drivers) 依赖于 VS 2013 
 WinDbg 
 Windows Remote Debugging (Windows RD) 
- 
+
+
+vs2015.ent_enu.iso\packages\vcRedistD14\VC_redist.x64.exe				Visual C++ Redistributable Packages for Visual Studio 2015
+vs2015.ent_enu.iso\packages\dotNetFramework\dotNetFx-x86-x64-AllOS-ENU.exe
  
 Tools->Error lookup 可以输入错误号,查看错误文本描述 C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools\errlook.exe 
 
 
 VC2010 设置环境变量
-path=C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE;C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin;
-lib=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib;C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\lib
-include=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include;C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include
+	   path=C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE;
+		lib=C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib
+	include=C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include
 
-VC2015 设置环境变量
-path=C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin
-lib=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\lib
-include=C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include;C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include
 
-//C:\Program Files (x86)\Windows Kits\10\Include\10.0.10150.0\ucrt
-//C:\Program Files (x86)\Microsoft SDKs\Windows\ 有更高版本的 v10.0A但目录中只有bin目录
- 					
-VS 2015 安装后的启动路径  C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe
-VS 2015 带的Anroid SDK 在 C:\Program Files (x86)\Android\android-sdk
-	Help->add remove help content 打开Help View,看到默认MSDN位置 C:\ProgramData\Microsoft\HelpLibrary2\Catalogs\VisualStudio14
-		把VisualStudio14重命名,把下载的离线MSDN解压在这有中文的,也可其它位置,这里修改提向解压目录,目录中有启动快捷方式
+VS2015  update 3 最后一版ISO文件
+	http://download.microsoft.com/download/6/4/7/647EC5B1-68BE-445E-B137-916A0AE51304/vs2015.ent_enu.iso
+	http://download.microsoft.com/download/B/8/F/B8F1470D-2396-4E7A-83F5-AC09154EB925/vs2015.ent_chs.iso
+	断网 激活密钥：HM6NR-QXX7C-DFW2Y-8B82K-WTYJV
+	安装时不能选择安装目录,只选择C++,安装过程很慢,不如VC2010快,安装后有(C有MFC,ATL,CLR),C#,VB都有并且可以用,其它的虽然有但不能用
+	VS 2015 带的Anroid SDK(要选择安装) 在 C:\Program Files (x86)\Android\android-sdk
+	
+	VS 2015 安装后的启动路径  C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe
+	VC2015 设置环境变量(可不设)
+	   path=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE
+	    lib=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib;
+	include=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include;
+
+	//C:\Program Files (x86)\Windows Kits\10\Include\
+	//C:\Program Files (x86)\Microsoft SDKs\Windows\ 有更高版本的 v10.0A\bin\NETFX 4.6.1 Tools目录
+	
+	
+	Help->add remove help content 打开Help View-2.2,看到MSDN默认安装位置  C:\ProgramData\Microsoft\HelpLibrary2\Catalogs\VisualStudio14 
+		把VisualStudio14重命名,把下载的离线MSDN解压在这,有中文的
 	help->set help preference->lanch in help view (文档内容中英文和HelpView的界面语言相同)
+		
+
+VS 2017.15.8 下载离线版本 
+	 C++ desktop development  	安装时多选  MFC (在Visual Studio扩展开发组选中,再选中MFC 会安装C#.Net)
+		
+	也可双击出现界面选择要安装组件，选择下载保存目录，在安装的时候有选择语言包，不选择中文就行
 	
-
-VS2017 下载离线版本 
-all features 用 vs_community.exe --layout c:\vs2017layout --lang en-US
-	可选的 zh-CN
-如ent版本会下Android开头(有Xamarin)的目录达10G  ,其它达20G
-vs_enterprise__1568944658.1507519638.exe  --layout E:\NEW\VS2017LayoutEnt_en-US --lang en-US
-删所有Android开头目录达10G
-删Cocoas2D,CPython,Microsoft.Azure,Microsoft.PythonTools,Unity3d,Xamarin,JavaJDK,Microsoft.Net.4.7以前的版本,Microsoft.Windows.81SDK , Anaconda 是一个 Python 发行版,GitV2
-
-
-C++ desktop development 用 				 vs_community.exe --layout c:\vs2017layout --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended --lang en-US 
-.NET desktop and Office development   用 vs_community.exe --layout c:\vs2017layout --add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Workload.Office --includeOptional --lang en-US 
-.NET web and .NET desktop development 用 vs_community.exe --layout c:\vs2017layout --add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Workload.NetWeb --add Component.GitHub.VisualStudio --includeOptional --lang en-US 
-
-离线安装
-如果下载使用
-vs_community.exe --layout c:\vs2017layout --add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Workload.NetWeb --add Component.GitHub.VisualStudio --includeOptional --lang en-US
-那么安装用
-c:\vs2017layout\vs_community.exe 		  --add Microsoft.VisualStudio.Workload.ManagedDesktop --add Microsoft.VisualStudio.Workload.NetWeb --add Component.GitHub.VisualStudio --includeOptional
-
- 
-
+	Tools->enviroment->international setting(区域设置),只有安装时的语言
 	
+	D:\Program\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.exe 是启动文件(默认安装在C:\Program Files (x86)\下)
+	   path=D:\Program\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.15.26726\bin\Hostx64\x64
+		lib=D:\Program\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.15.26726\lib\x64
+	include=D:\Program\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.15.26726\include
+	
+	 
+	安装后就不能多增加组件了，再安装总是提示安装目录不为空???
+	不能建立MFC项目，BUG????????????????
+	
+	https://docs.microsoft.com/en-us/
+	https://docs.microsoft.com/en-us/cpp/
+	
+项目删无用目录<Solution_Name>.VC.db 和所有的Debug目录
+
 #pragma comment (lib, "glew32.lib") //cl编译器读.lib
 
 cl /I "C:\temp\glut\include" /c  helloOpenGL.c
@@ -2637,220 +2647,99 @@ TCHAR* sp=ver.szCSDVersion;//Server Pack n
 
 //如何知道windows的位数????
 getchar();
-
-=============IE 插件开发
-
-Content Extensions 的 ActiveX Control
-http://msdn.microsoft.com/en-us/library/aa751968%28v=vs.85%29.aspx
-
-Browser Extensions 的Browser Helper Objects(BHO),Toolbars,Shortcut menu extensions. 
-http://msdn.microsoft.com/en-us/library/aa753587%28v=vs.85%29.aspx
-
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Browser Helper Objects
-
-//-----自己新加的
-// http://arlon.iteye.com/blog/845775
-// http://support.microsoft.com/kb/161873/en-us
-// http://support.microsoft.com/kb/168371/en-us
-/*
-右击项目->properties->Configuration Properties->General->Configuration type选择static library
-C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat运行,就可以用makecert
-在 C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin
-
-PVK文件(私人密匙文件)
-makecert -sk IEActiveX IEActiveX.pvk -n CN=my.com
-
-CER 公司证书
-makecert -sk IEActiveX.pvk IEActiveX.cer 
-
-SPC 软件出版商证明书
-cert2spc IEActiveX.cer IEActiveX.spc
-*/
-const CATID CATID_SafeForScripting     =	{0x7dd95801,0x9882,0x11cf,{0x9f,0xa9,0x00,0xaa,0x00,0x6c,0x42,0xc4}};
-const CATID CATID_SafeForInitializing  =	{0x7dd95802,0x9882,0x11cf,{0x9f,0xa9,0x00,0xaa,0x00,0x6c,0x42,0xc4}};
-const GUID CDECL BASED_CODE _ctlid =		{0x43bd9e45, 0x328f, 0x11d0,{ 0xa6, 0xb9, 0x0, 0xaa, 0x0, 0xa7, 0xf, 0xc2 } };
-//IMPLEMENT_OLECREATE_EX
-
-//-----自己新加的
-//-----自己新加的方法 
- HRESULT CreateComponentCategory(CATID catid, WCHAR* catDescription)
-{
-    ICatRegister* pcr = NULL ;
-    HRESULT hr = S_OK ;
-
-    hr = CoCreateInstance(CLSID_StdComponentCategoriesMgr,
-                        NULL,
-                        CLSCTX_INPROC_SERVER,
-                        IID_ICatRegister,
-                        (void**)&pcr);
-    if (FAILED(hr))
-    return hr;
-
-    // Make sure the HKCR\Component Categories\{..catid...}
-    // key is registered
-    CATEGORYINFO catinfo;
-    catinfo.catid = catid;
-    catinfo.lcid = 0x0409 ; // english
-
-    // Make sure the provided description is not too long.
-    // Only copy the first 127 characters if it is
-    int len = wcslen(catDescription);
-    if (len>127)
-    len = 127;
-    wcsncpy(catinfo.szDescription, catDescription, len);
-    // Make sure the description is null terminated
-    catinfo.szDescription[len] = '\0';
-
-    hr = pcr->RegisterCategories(1, &catinfo);
-    pcr->Release();
-
-    return hr;
-}
-
- //-----自己新加的方法 
-// Helper function to register a CLSID as belonging to a component
-// category
-HRESULT RegisterCLSIDInCategory(REFCLSID clsid, CATID catid)
-{
-    // Register your component categories information.
-    ICatRegister* pcr = NULL ;
-    HRESULT hr = S_OK ;
-    hr = CoCreateInstance(CLSID_StdComponentCategoriesMgr,
-                        NULL,
-                        CLSCTX_INPROC_SERVER,
-                        IID_ICatRegister,
-                        (void**)&pcr);
-    if (SUCCEEDED(hr))
-    {
-    // Register this category as being "implemented" by
-    // the class.
-    CATID rgcatid[1] ;
-    rgcatid[0] = catid;
-    hr = pcr->RegisterClassImplCategories(clsid, 1, rgcatid);
-    }
-
-    if (pcr != NULL)
-    pcr->Release();
-
-    return hr;
-}
- //-----自己新加的方法 
-// 卸载组件种类     
-HRESULT UnRegisterCLSIDInCategory(REFCLSID clsid, CATID catid)   
-{      
-    ICatRegister* pcr = NULL ;      
-    HRESULT hr = S_OK ;      
-    hr = CoCreateInstance(CLSID_StdComponentCategoriesMgr,      
-            NULL, CLSCTX_INPROC_SERVER, IID_ICatRegister, (void**)&pcr);      
-    if (SUCCEEDED(hr)) {      
-      // Unregister this category as being "implemented" by the class.      
-      CATID rgcatid[1] ;      
-      rgcatid[0] = catid;      
-      hr = pcr->UnRegisterClassImplCategories(clsid, 1, rgcatid);      
-    }      
-    if (pcr != NULL) pcr->Release();      
-    return hr;      
-}      					
-//---DllRegisterServer 自己新加的 
-     if (FAILED( CreateComponentCategory(
-                  CATID_SafeForScripting,
-                  L"Controls that are safely scriptable") ))
-                return ResultFromScode(SELFREG_E_CLASS);
-
-          if (FAILED( CreateComponentCategory(
-                  CATID_SafeForInitializing,
-                  L"Controls safely initializable from persistent data") ))
-                return ResultFromScode(SELFREG_E_CLASS);
-
-          if (FAILED( RegisterCLSIDInCategory(
-                  _ctlid, CATID_SafeForScripting) ))
-                return ResultFromScode(SELFREG_E_CLASS);
-
-          if (FAILED( RegisterCLSIDInCategory(
-                  _ctlid, CATID_SafeForInitializing) ))
-                return ResultFromScode(SELFREG_E_CLASS);
-
-
-//-----DllUnregisterServer 自己新加的 
-	HRESULT hr;
-	 // 删除控件初始化安全入口.      
-    hr=UnRegisterCLSIDInCategory(BASED_CODE _tlid , CATID_SafeForInitializing);      
-    if (FAILED(hr)) return hr;      
-    // 删除控件脚本安全入口     
-    hr=UnRegisterCLSIDInCategory(BASED_CODE _tlid , CATID_SafeForScripting);      
-    if (FAILED(hr)) return hr;      
-
-http://msdn.microsoft.com/zh-cn/library/599w5e7x.aspx  ATL IE插件三角形教程
+ 
 
 =============edge 插件开发
 https://code.msdn.microsoft.com/How-to-add-a-Hello-World-4af3463b
 
 地址栏输入  about:flags
-开发者设置 ->选中 开发人员扩展功能(这可能让设备处于危险之中) 
+开发者设置 ->选中 启用开发人员扩展功能(这可能让设备处于危险之中) ->重启edge生效
+
 ...按钮->扩展->加载扩展->选择目录 
 
+在一个目录中建立文件
 ---manifest.json  文件 
-  
-{ 
-  "author": "Microsoft OCOS Team", 
-  "description": "Get information of the active tab.", 
-  "icons": 
-    { 
-      "48": "icons/microsoft.png", 
-      "96": "icons/microsoft-96.png" 
-    }, 
-  "manifest_version": 2, 
-  "name": "HelloWorld", 
-  "version": "1.0", 
-  "permissions": [ 
-    "tabs" 
-  ], 
-  "browser_action": { 
-    "default_icon": { 
-      "30": "icons/microsoft-30.png" 
-    }, 
-    "default_title": "HelloWorld", 
-    "default_popup": "GetTabInfo.html" 
-  } 
+ {
+  "author": "Microsoft OCOS Team",
+  "description": "Get information of the active tab.",
+  "icons":
+    {
+      "48": "icons/microsoft.png",
+      "96": "icons/microsoft-96.png"
+    },
+  "manifest_version": 2,
+  "name": "HelloWorld",
+  "version": "1.0",
+  "permissions": [
+    "tabs"
+  ],
+  "browser_action": {
+    "default_icon": {
+      "30": "icons/microsoft-30.png"
+    },
+    "default_title": "HelloWorld",
+    "default_popup": "GetTabInfo.html"
+  }
 }
 
 ---GetTabInfo.js 文件 
-document.addEventListener("click", function(e) { 
-    if (!e.target.classList.contains("tabInfo")) { 
-        return; 
-    } 
- 
-    var root = document.getElementById("info"); 
-    root.innerHTML = ""; 
-    browser.tabs.query({ active: true, currentWindow: true }, function (tabs) { 
-        browser.tabs.get(tabs[0].id, function (tab) { 
-            var node = document.createElement("div"); 
-            var textnode = document.createTextNode("Url: " + tab.url); 
-            node.appendChild(textnode); 
-            root.appendChild(node); 
-            var node2 = document.createElement("div"); 
-            var textnode2 = document.createTextNode("Title: " + tab.title); 
-            node2.appendChild(textnode2); 
-            root.appendChild(node2); 
-        }); 
-        root.style.display = "block"; 
-    }); 
+document.addEventListener("click", function(e) {
+    if (!e.target.classList.contains("tabInfo")) {
+        return;
+    }
+
+    var root = document.getElementById("info");
+    root.innerHTML = "";
+    browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        browser.tabs.get(tabs[0].id, function (tab) {
+            var node = document.createElement("div");
+            var textnode = document.createTextNode("Url: " + tab.url);
+            node.appendChild(textnode);
+            root.appendChild(node);
+            var node2 = document.createElement("div");
+            var textnode2 = document.createTextNode("Title: " + tab.title);
+            node2.appendChild(textnode2);
+            root.appendChild(node2);
+        });
+        root.style.display = "block";
+    });
 });
 ----GetTabInfo.html
-<!DOCTYPE html> 
-<html> 
-  <head> 
-    <meta charset="utf-8"> 
-      <link rel="stylesheet" href="GetTabInfo.css" /> 
-  </head> 
- 
-  <body> 
-    <div class="tabInfo">Get Tab Info</div> 
-    <div id="info" style="display:none"></div> 
-    <script src="GetTabInfo.js" ></script> 
-  </body> 
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <link rel="stylesheet" href="GetTabInfo.css" />
+  </head>
+	<!-- copy from  https://code.msdn.microsoft.com/How-to-add-a-Hello-World-4af3463b-->
+  <body>
+    <div class="tabInfo">Get Tab Info</div>
+    <div id="info" style="display:none"></div>
+    <script src="GetTabInfo.js" ></script>
+  </body>
 </html>
 
+--GetTabInfo.csshtml {
+  width: 350px;
+}
+
+.tabInfo {
+  margin: 3% auto;
+  padding: 4px;
+  text-align: left;
+  font-size: 1.5em;
+  background-color: #E5F2F2;
+  cursor: pointer;
+}
+
+.tabInfo:hover {
+  background-color: #CFF2F2;
+}
+#info{
+    border:2px solid black;
+}
+
+目录文件 icons/microsoft.png   microsoft-30.png  microsoft-96.png
 
 ...按钮->扩展->就有一个HelloWorld插件了， 可以开启显示在地址栏旁显示按钮
 

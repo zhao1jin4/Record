@@ -2,8 +2,21 @@
 ========================Spring Boot
 http://start.spring.io/
 
-spring boot读META－INF/spring.factories 文件
+spring-boot-config 中有 META－INF/spring.factories,定义了  Initializers,Listeners 的Auto Configure区定义了很多@ 和对应的配置类
+spring-boot-start-freemarker , spring-boot-start-activemq,spring-boot-start-web,spring-boot-start-test,spring-boot-start-logging  
+mybatis-spring-boot-starter
+没有源码,只有配置 META－INF/spring.providers
 
+SpringApplication 加载 application.properties 或applicaion.yml 的顺序
+		A /config subdirectory of the current directory
+		The current directory
+		A classpath /config package
+		The classpath root
+
+也可不叫application.properties  
+$ java -jar myproject.jar --spring.config.name=myproject  
+也可同时指定位置和名字
+$ java -jar myproject.jar --spring.config.location=classpath:/default.properties,classpath:/override.properties	
 
 #logging.file=my.log  日志输入到当前目录下的文件名
 logging.file=/tmp/springBoot.log
@@ -179,7 +192,10 @@ templates 目录下放ftl文件即可，如有图片,js,css放static目录 使�
 
 spring.mvc.view.suffix=.jsp
 spring.mvc.view.prefix=/WEB-INF/jsp/
-
+#i18n  
+spring.messages.basename=jsp.error_messages,jsp.form_messages
+spring.messages.cache-duration=36000
+ 
 
 <packaging>war</packaging>    要用tomcat启动才行
 
@@ -197,7 +213,16 @@ public class ServletInitalizer extends SpringBootServletInitializer {
 }
 src/webapp/WEB-INF/js/index.jsp 
 <c:out value="c_cout_hello"/>
-测试 OK
+
+国际化： <spring:message code="welcome" arguments="小王,2018"   /> <br/>
+提示：<spring:message code="try"    /> <br/>
+  
+@Autowired
+private MessageSource messageSource;
+
+  Locale locale = RequestContextUtils.getLocale(request);
+ this.messageSource.getMessage("try", null, Locale.CHINESE); //war 启动OK，jar就不行
+	
 
 --spring boot  redis
 <dependency>
@@ -728,4 +753,32 @@ public class SampleController {
     }
 
 }
+---spring boot security
+
+spring-boot-starter-security
+
+@EnableWebSecurity
+public class SecurityConfig {
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		auth.inMemoryAuthentication().withUser(User.withUsername("user")
+				.password("{noop}password").roles("USER").build());
+	}
+}
+//会建立  springSecurityFilterChain 的bean  对应于web.xml配置
+public class SecurityWebApplicationInitializer
+	extends AbstractSecurityWebApplicationInitializer {
+
+	public SecurityWebApplicationInitializer() {
+		super(WebSecurityConfig.class);
+	}
+}
+--- OAuth2 server
+--- OAuth2 client
+
+
+
+
+
+
 

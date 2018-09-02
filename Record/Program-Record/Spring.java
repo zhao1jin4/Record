@@ -1,8 +1,8 @@
 下载   http://repo.spring.io/libs-release/
 
 <properties>
-	<spring.version>5.0.3.RELEASE</spring.version>
-	<spring-security.version>5.0.3.RELEASE</spring-security.version>
+	<spring.version>5.0.5.RELEASE</spring.version>
+	<spring-security.version>5.0.5.RELEASE</spring-security.version>
 </properties>
 <parent>
     <groupId>org.springframework.boot</groupId>
@@ -15,7 +15,7 @@
 		<groupId>org.aspectj</groupId>
 		<artifactId>aspectjweaver</artifactId>
 		<version>1.7.4</version>
-	</dependencyr
+	</dependency>
 		
 	<dependency>
 		<groupId>org.springframework</groupId>
@@ -132,10 +132,10 @@
         <version>2.1.2.RELEASE</version>
     </dependency>
 	<dependency>
-		<groupId>org.springframework.data</groupId>
-		<artifactId>spring-data-mongodb</artifactId>
-		<version>1.7.0.RELEASE</version>
-	</dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-mongodb</artifactId>
+        <version>2.0.9.RELEASE</version>
+    </dependency>
 	
 	<dependency>
 		<groupId>org.springframework.data</groupId>
@@ -2185,8 +2185,8 @@ HbaseTemplate
 <dependency>
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-redis</artifactId>
-	<version>2.0.5.RELEASE</version>
-</dependency>  <!-- 要spring 5.0-->
+	<version>2.0.4.RELEASE</version>
+</dependency>  <!-- 要spring 5.0 -->
 
 import org.springframework.data.redis.cache.RedisCacheManager;
 
@@ -2233,13 +2233,19 @@ conn.close();
 		</bean>
 	</constructor-arg> 
 </bean>
+<bean id="stringRedisSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer"/>  
 <bean id="jedisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
 	  p:connectionFactory-ref="jedisConnectionFactory">
-	<property name="keySerializer">  
-		<bean class="org.springframework.data.redis.serializer.StringRedisSerializer"/>  
-	</property>  
-	<property name="valueSerializer">  
-		<bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>  
+	<property name="keySerializer" ref="stringRedisSerializer"/>  
+    <property name="hashKeySerializer"  ref="stringRedisSerializer"/> 
+ 	<property name="valueSerializer">  
+		 <!--   
+		  <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>   
+		  <bean class="org.springframework.data.redis.serializer.OxmSerializer"/> 不行的
+		  <bean class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer"/>  
+		  <ref bean="stringRedisSerializer"/>
+		  -->
+	   <bean class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer"/>   
 	</property>  
  </bean>
  
@@ -2376,37 +2382,64 @@ public static void springDataLettuce()
  
  
  
-=========================Spring Data Mongodb
-依赖 spring-data-commons-1.9.2.RELEASE.jar
+=========================Spring Data Mongodb 2.0.9
+依赖 spring-data-commons-x.RELEASE.jar
 public interface CustomerRepository extends MongoRepository<String, String> {
 }
 
+ 
+<!--
+  <mongo:mongo-client  id="mongoClient" host="127.0.0.1" port="27017"  credentials="rootUser:rootPass@admin"  >
+	<mongo:client-options connections-per-host="8"
+			   threads-allowed-to-block-for-connection-multiplier="4"
+			   connect-timeout="1000"
+			   max-wait-time="1500" 
+			   socket-keep-alive="true"
+			   socket-timeout="1500"    />
+</mongo:mongo-client>
 
-
-<!-- 新版本无　mongo-client　标签　
-	  <mongo:mongo-client  id="mongo" host="127.0.0.1" port="47017" credentials="user:password@database"  >
-	    <mongo:client-options write-concern="NORMAL" />
-	</mongo:mongo-client>
--->
-<mongo:mongo  id="mongo" host="127.0.0.1" port="47017" write-concern="NORMAL" ></mongo:mongo>
-	
-
-  <!-- 二选一 
-<bean id="mongo" class="org.springframework.data.mongodb.core.MongoFactoryBean">
+二选一 --> 
+<bean id="mongoClient" class="org.springframework.data.mongodb.core.MongoClientFactoryBean">
 	<property name="host" value="localhost" />
 	<property name="port" value="27017" />
-</bean>
- -->
-<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
-	<constructor-arg name="mongo" ref="mongo" />
-	<constructor-arg name="databaseName" value="nature" />
+	<property name="credentials"  >
+		<list>
+			<bean class="com.mongodb.MongoCredential" factory-method="createCredential">
+				<constructor-arg name="userName" value="zh"></constructor-arg>
+				<constructor-arg name="password" value="123"></constructor-arg>
+				<constructor-arg name="database" value="reporting"></constructor-arg>
+			</bean>
+		</list>
+	</property>
 </bean>
 
+
+<mongo:db-factory  id="mongoDbFactory" dbname="reporting" mongo-ref="mongoClient"/>
+
+<bean id="mongoMappingContext" class="org.springframework.data.mongodb.core.mapping.MongoMappingContext"> 
+</bean>
+
+<bean id="defaultMongoTypeMapper" class="org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper"> 
+</bean>
+
+<bean id="mappingConverter" class="org.springframework.data.mongodb.core.convert.MappingMongoConverter">
+	<constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>
+	 <constructor-arg name="mappingContext" ref="mongoMappingContext"/> 
+	 <property name="typeMapper" ref="defaultMongoTypeMapper" ></property>
+</bean>
+
+<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+	<constructor-arg name="mongoDbFactory" ref="mongoDbFactory" />
+	<constructor-arg name="mongoConverter" ref="mappingConverter"/>
+</bean>
+ 
  <bean id="natureRepository"  class="springdata_mongodb.MyMongoRepositoryImpl">
 	<property name="mongoTemplate" ref="mongoTemplate" />
 </bean>
-	
-  
+<!-- 方式二 -->
+<mongo:repositories base-package="springdata_mongodb.repo"></mongo:repositories>
+<mongo:mapping-converter base-package="springdata_mongodb.model" db-factory-ref="mongoDbFactory"></mongo:mapping-converter>
+
 
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -2435,7 +2468,7 @@ public class MyMongoRepositoryImpl {
 				Customer.class);
 	}
 
-	public WriteResult updateObject(String id, String lastName) {
+	public UpdateResult updateObject(String id, String lastName) {
 		return mongoTemplate.updateFirst(
 				new Query(Criteria.where("id").is(id)),
 				Update.update("lastName", lastName), Customer.class);
@@ -2458,13 +2491,21 @@ public class MyMongoRepositoryImpl {
 		}
 	}
 }
+
+package springdata_mongodb.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document
+@Document(collection="mo_customer")
 public class Customer {
     @Id
     private String id;
+	
+	@Field(value="first_name")
+    private String firstName;
+	
+	//getter/setter
 }
 
 repository.dropCollection();
@@ -2481,6 +2522,20 @@ System.out.println(repository.getAllObjects());
 repository.deleteObject("2");
 
 
+
+//方式二  extends MongoRepository<Customer,String> //<Bean,ID>
+MyCustomerRepository customerRepository = context.getBean(MyCustomerRepository.class);
+for(int i=0;i<20;i++)
+{
+	Customer item = new Customer("lisi"+i, "李四"+i);
+	customerRepository.save(item);  
+}
+
+package springdata_mongodb.repo;
+@Repository
+public interface  MyCustomerRepository extends MongoRepository<Customer,String>//<Bean,ID>
+{
+}
 ---spring boot mongodb
 <dependency>
 	<groupId>org.springframework.boot</groupId>
@@ -2787,10 +2842,46 @@ ctx.close();//如果不关，就不退出
 <dependency>
     <groupId>org.springframework.ldap</groupId>
     <artifactId>spring-ldap-core</artifactId>
-    <version>2.3.1.RELEASE</version>
+    <version>2.3.2.RELEASE</version>
 </dependency>
 
+--未测试？？
+<!--   
+<bean id="ldapContextSource" class="org.springframework.ldap.core.support.LdapContextSource">
+	<property name="url" value=""/>
+	<property name="userDn" value=""/>
+	<property name="password" value=""/>
+	<property name="pooled" value=""/>
+</bean>
 
+ <bean id="ldapTemplate"  class="org.springframework.ldap.core.LdapTemplate">
+	<property name="contextSource" value="ldapContextSource"/> 
+	<property name="ignorePartialResultException" value="true"/> 
+</bean>
+-->
+<ldap:context-source
+	  url="ldap://localhost:389"
+	  base="dc=example,dc=com"
+	  username="cn=Manager"
+	  password="secret" />
+
+<ldap:ldap-template id="ldapTemplate" />
+
+<bean id="personRepo" class="spring_ldap.PersonRepoImpl">
+  <property name="ldapTemplate" ref="ldapTemplate" />
+</bean>
+
+public List<String> getAllPersonNames() {
+  return ldapTemplate.search(
+	 query().where("objectclass").is("person"),
+	 new AttributesMapper<String>() {
+		public String mapFromAttributes(Attributes attrs)
+		   throws NamingException {
+		   return attrs.get("cn").get().toString();
+		}
+	 });
+}
+   
 ======================AspectJ
 .aj 文件
 ----拦截
@@ -2859,4 +2950,7 @@ public aspect World
 
 ======================上 AspectJ
 
-org.springframework.beans.BeanUtils.copyProperties(model, entity);
+org.springframework.beans.BeanUtils.copyProperties(model, entity);// commons.beanutils 和 spring都有
+----------------Kotlin
+
+

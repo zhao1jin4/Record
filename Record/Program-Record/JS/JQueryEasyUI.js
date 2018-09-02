@@ -3,8 +3,10 @@ https://www.insdep.com/document/page/easyui/index/init
 
 Insdep UI-2.x For EasyUI 是基于EasyUI 1.5.x 的一款免费的UI工具库,EasyUI组件美化
 https://www.insdep.com  国产的
-=================================================jQuery插件 easyUI-1.3.5
+=================================================jQuery插件 easyUI-1.5.5.6 free
 1.5 有免费版本带源码
+
+有为AugularJS 和 Vue
 
 GPL License,开源,布局,树,表格,表单(select可输入选择)
 
@@ -15,7 +17,7 @@ GPL License,开源,布局,树,表格,表单(select可输入选择)
 <script type="text/javascript" src="${webRoot}/js/jquery.easyui.min.js"></script> 
 <script type="text/javascript" src="${webRoot}/js/easyui-lang-zh_CN.js"></script>  <!-- 导入后验证等的信息就为中文了 -->
  
-//---表单  
+//---------表单  
 $.extend($.fn.validatebox.defaults.rules, 
 	{
 		equals://自定义方法
@@ -51,9 +53,9 @@ function submitForm(){
 	<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">Submit</a>		
   </form>
  </div>
-//---日期
+//---------日期
 <input class="easyui-datetimebox" required style="width:150px">
-//---表格
+//---------表格
 var mytoolbar = [{
 		text:'增加',
 		iconCls:'icon-add',
@@ -296,11 +298,11 @@ function myBarRemoveByCheckBox() //table 的 singleSelect:true
 			onCancelEdit:myCancelEdit,
 			toolbar:'#tb'"> <!-- toolbar:mytoolbar 读全局变量  mytoolbar ,toolbar:'#tb' 引用 DIV   -->
 	<thead>
-		<tr>
-			<th data-options="checkbox:true"></th> <!-- 选择的复选框 -->
-			<th field="id" width="80">ID</th> <!-- field的值是JSON对象的属性名 -->
-			<th field="username" width="100" data-options="editor:{type:'validatebox',options:{required:true}}">用户名</th>
-			<th field="language" width="100" data-options="editor:{
+		<tr> <!-- 老版本的   <th field="id">是不行的   -->
+			<th data-options="field:'x',checkbox:true"></th> <!-- 选择的复选框 -->
+			<th  width="80" data-options="field:'id'" 	>ID</th> <!-- field的值是JSON对象的属性名 -->
+			<th  width="100" data-options="field:'username',editor:{type:'validatebox',options:{required:true}}">用户名</th>
+			<th width="100" data-options="field:'language',editor:{
 						type:'combobox',
 						options:{
 							valueField:'langValue',
@@ -309,11 +311,11 @@ function myBarRemoveByCheckBox() //table 的 singleSelect:true
 							required:true
 						}
 					}">用语言</th>
-			<th field="salary" width="80"  data-options="editor:{type:'numberbox',options:{precision:1,required:true}}">工资</th> <!--editor:'numberbox'  -->
-			<th field="isMan" width="80" data-options="formatter:myGenderFormatter,editor:{type:'checkbox',options:{on:'true',off:'false'}}">是否为男</th>
-			<th field="birthday" width="90"  data-options="editor:{type:'datebox',options:{required:true}}">生日</th>
-			<th field="comment" width="120"  data-options="editor:'textarea'">comment</th>
-			<th field="action"  width="120" data-options="formatter:myActionFormatter" >操作</th>
+			<th width="80"  data-options="field:'salary',editor:{type:'numberbox',options:{precision:1,required:true}}">工资</th> <!--editor:'numberbox'  -->
+			<th width="80" data-options="field:'isMan',formatter:myGenderFormatter,editor:{type:'checkbox',options:{on:'true',off:'false'}}">是否为男</th>
+			<th width="90"  data-options="field:'birthday',editor:{type:'datebox',options:{required:true}}">生日</th>
+			<th width="120"  data-options="field:'comment',editor:'textarea'">comment</th>
+			<th width="120" data-options="field:'action',formatter:myActionFormatter" >操作</th>
 		</tr>
 	</thead>
 </table>
@@ -332,10 +334,19 @@ int pageNO=Integer.parseInt(request.getParameter("page"));
 int pageSize=Integer.parseInt(request.getParameter("rows"));
 long start=(pageNO-1)*pageSize+1;//pageNO*pageSize-pageSize+1
 long end=pageNO*pageSize;
+
+
+
+JsonObjectBuilder root=bf.createObjectBuilder() ;
+root.add("rows", array);//easyUI 固定
+root.add("total",totalCount);//easyUI 固定
+
 //DataGrid返回JSON格式
 {"total":"28","rows":[  //固定
 	{"id":101}
 ]}
+response.setContentType("application/json;charset=UTF-8");
+
 --
 JSONObject obj = new JSONObject();
 obj.put("statusCode", 200);
@@ -347,6 +358,147 @@ if("save".equals(command))
 	obj.put("additionObject",newId);
 }
 response.getWriter().write(obj.toString());
+
+//--------------comboBox
+//-- 不可输入 
+<input id="noInput" name="dept" value="aa">  
+<script type="text/javascript">
+//HTML id="cc" 要在JS前面
+  $('#noInput').combobox({
+      url:'../demo/comboBox/combobox_data1.json',
+      valueField:'id',
+      textField:'text',
+     editable: false // editable: false是combo的属性 ,不可输入
+  });
+ </script>
+ 
+ //----没有下箭头按钮,
+<select id="noArrow" class="easyui-combobox" name="dept" style="width:200px;">  <br/>
+       <option value="aa">aitem1</option>
+       <option>bitem2</option>
+       <option>bitem3</option>
+   </select>   <br/>
+<script type="text/javascript">
+  $('#noArrow').combobox({
+      url:'../demo/comboBox/combobox_data1.json',
+      valueField:'id',
+      textField:'text', 
+      hasDownArrow:false //没有下箭头按钮,是combo的属性 
+  });
+ </script>
+<input id="testComboBox" class="easyui-combobox" data-options="
+		valueField: 'label',
+		textField: 'value',
+		onSelect:function(record){
+              console.log('onSelect:' +record.text);
+          },
+          onChange:function(newValue,oldValue)
+          {
+          	console.log('changed newValue :'+newValue+',old value='+oldValue);
+          },
+          onHidePanel:myHidePanel " 
+		 />  
+ //  输入一半不选还在 要自定入onHidePanel的函数 <br/>
+  <script type="text/javascript">
+  $(function (){
+	  var data=[{
+			label: 'java',
+			value: 'Java'
+		},{
+			label: 'c/c++',
+			value: 'cpp'
+		}];
+	  $('#testComboBox').combobox('loadData',data);
+	  $('#testComboBox').combobox('select','cpp');
+    
+  });
+  function myHidePanel()
+  {
+	  //var allSelectData= jqCombox.combobox('getValues');//为多选准备
+      var valueField = $(this).combobox("options").valueField;
+      var val = $(this).combobox("getValue");  
+      var allData = $(this).combobox("getData"); 
+      var rightVal = false;  
+      
+      for (var i = 0; i < allData.length; i++)
+      {
+          if (val == allData[i][valueField])
+		  {
+        	  rightVal = true;
+              break;
+          }
+      }
+      if (!rightVal) {
+          $(this).combobox("clear");
+      }
+  }
+  </script>
+ //----JSONP 中文不按空格时也算输入？？？ <br/>
+    <div class="easyui-panel" style="width:100%;max-width:400px;padding:30px 60px;">
+        <div style="margin-bottom:20px">
+            <input class="easyui-combobox" style="width:100%;" data-options="
+                    loader: myloader,
+                    mode: 'remote',
+                    valueField: 'id',
+                    textField: 'text',
+                    label: 'State:',
+                    labelPosition: 'top'
+                    ">
+        </div>
+    </div>
+    <script type="text/javascript">
+        var myloader = function(param,mysuccess,myerror){
+            var q = param.q || '';//param在用户输入的情况下有值 ，eayUI传入参数名为q
+            if (q.length <  2) //至少2个字母请求服务器
+             	return false;
+            $.ajax({
+            	//浏览器如是localhost,用127.0.0.1就是跨域
+            	//url:'http://localhost:8080/S_jQueryEasyUI/easyUI/combbBoxJsonp',
+            	url:'http://127.0.0.1:8080/S_jQueryEasyUI/easyUI/combbBoxJsonp',
+            	data:{input:q},
+                dataType: 'jsonp',
+                jsonp: "callback",//默认为:callback，传到服务端的参数名
+                jsonpCallback:"myFunc",//传到服务端的参数值,即函数名(也可不传jquery自动生成名字),JS端生成这个函数调用success
+                success: function(data){
+                    var items = $.map(data, function(item,index){
+                        return {
+                            id: item.value,
+                            text: item.name
+                        };
+                    });
+                    mysuccess(items);
+                },
+                error: function(){
+                	myerror.apply(this, arguments);
+                }
+            });
+        }
+    </script>
+	servlet端
+		String searchName=request.getParameter("input"); 
+		String callback=request.getParameter("callback"); 
+		
+		JsonBuilderFactory bf = Json.createBuilderFactory(null); 
+		JsonArrayBuilder array=bf.createArrayBuilder();
+		for(long i=1;i<=3;i++)
+		{
+			JsonObjectBuilder obj=bf.createObjectBuilder() ;
+			obj.add("value", 100+i);
+			obj.add("name",searchName+i);
+			array.add(obj);
+		}
+		String respStr=callback+"( "+array.build().toString() +");"; 
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(respStr);
+
+//------ 
+
+
+
+
+
+
+
 =================================================eastUI Extension
 -----detailView
 <script type="text/javascript" src="datagrid-detailview.js"></script>

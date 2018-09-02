@@ -1,14 +1,17 @@
+
 从5.7.21 windows安装版开始  自带samples and Examples 的目录 C:\Program Files (x86)\MySQL\Samples and Examples 5.7\Sample Databases中有 Sakila和World
 https://dev.mysql.com/doc/index-other.html MySQL  Sample Database
 https://dev.mysql.com/doc/employee/en/ Employees    https://launchpad.net/test-db  https://github.com/datacharmer/test_db
 
 PHPMyAdmin
+SQL Diagnostic Manager (www.idera.com)
+
 SQLyog(MySQL GUI & Admin)	windows only
-Monyog(MySQL Monitor)
 MySQLFront   				windows only
-dbForge Studio for MySQL	windows only
+dbForge Studio for MySQL	windows only  debug
 
-
+  用 employees 示例数据库
+  https://dev.mysql.com/doc/employee/en/employees-installation.html
    -- 2001年 工资>80000的员工,及所在部门及领导 ,一个部门会有2个领导
    
   select concat(e.first_name,e.last_name ,' ') as emp_name   ,
@@ -113,9 +116,8 @@ where
  
  
  
- 
+-- 对现有的自连接数据，如员工表有一个上级经理，找出上级的上级到最顶级，(或者找出下级的下级到最低级,像oracle 的 start with ,connect ty )
 show variables  like 'max_sp_recursion_depth';
-
 
 create table sc
 (sno int,
@@ -158,7 +160,6 @@ CREATE FUNCTION `getChildLst`(rootId INT)
 select getChildLst(1);//
 
 
-
 drop function IF EXISTS  getParentLst  //
 CREATE FUNCTION `getParentLst`(rootId INT)
   RETURNS varchar(1000)
@@ -174,7 +175,8 @@ CREATE FUNCTION `getParentLst`(rootId INT)
     WHILE sTempParent !=0 DO
       set depth=depth+1;
       SET sTemp = concat(sTempParent,'/',sTemp);
-      SELECT group_concat(pid) INTO sTempParent FROM treeNodes where FIND_IN_SET(id,sTempParent)>0;
+     -- SELECT group_concat(pid) INTO sTempParent FROM treeNodes where FIND_IN_SET(id,sTempParent)>0;
+	  SELECT pid INTO sTempParent FROM treeNodes where  id=sTempParent ;
     END WHILE;
     RETURN  concat('/',sTemp,'$',depth);
   END;
@@ -190,6 +192,65 @@ select t.*,
 from treenodes t,(SELECT @tmpStr:='') r
 
 delimiter;
+delimiter  //
+
+
+--  带name的
+
+drop function if exists getOrgParentLst  //
+CREATE FUNCTION `getOrgParentLst`(rootId INT)
+  RETURNS varchar(1000)
+  BEGIN
+    DECLARE sIdRes VARCHAR(1000);
+    DECLARE sIdParent VARCHAR(1000);
+    DECLARE sNameRes VARCHAR(1000);
+    DECLARE sNameParent VARCHAR(1000);
+    declare depth int;
+    set depth=0;
+    SET sIdRes = '';
+    SET sIdParent =rootId  ; -- cast(rootId as CHAR)
+    set sNameRes='';
+    set sNameParent='';
+  --  WHILE sTempChd is not null DO
+    WHILE sIdParent !=0 DO
+      set depth=depth+1;
+      SET sIdRes = concat(sIdParent,'.',sIdRes);
+      -- SELECT group_concat(pid) INTO sTempParent FROM treeNodes where FIND_IN_SET(id,sTempParent)>0;
+      SELECT pid,nodename INTO sIdParent ,sNameParent FROM treeNodes where  id=sIdParent ;
+      SET sNameRes = concat(sNameParent,'/',sNameRes);
+
+    END WHILE;
+    RETURN  concat(sIdRes,'$','/',sNameRes,'$',depth);
+  END;
+  //
+select getOrgParentLst(7);
+
+
+select
+   @tmpStr:=getOrgParentLst(t.id) as res,
+  substr(@tmpStr,1,instr(@tmpStr,'$')-1  ) as path,
+   substring_index(substring_index(@tmpStr, '$', 2  ),'$',-1) as pathname,
+  substring_index(@tmpStr, '$', -1  ) as depth
+from  treeNodes t, (SELECT @tmpStr:='') r;
+
+
+
+--不用 group_concat 实现
+
+CREATE table stu_score(id int ,stu_id int ,score int );
+insert into stu_score  values(1,1001,80);
+insert into stu_score values(2,1002,81);
+insert into stu_score values(3,1001,82);
+insert into stu_score values(4,1002,83);
+
+select distinct t.stu_id,
+concat(
+        (select score from stu_score where stu_id=t.stu_id order by score desc limit 1 )
+        ,',',
+        (select score from stu_score  where stu_id=t.stu_id order by score asc limit 1)
+) as res
+from stu_score  t
+
 
 
 --------------------------------------使用
@@ -288,7 +349,7 @@ mysql,oracle 都有 current_date 和 current_timestamp
 select date_format(now(),'%Y-%m-%d  %H:%i:%s') 
 SELECT STR_TO_DATE('01,5,2013 12:22:32','%d,%m,%Y %H:%i:%s');
 
-select ("11"+0)*3  
+select ("11"+0)*3  // 33  字符向数字转换
 SELECT CAST(123 AS CHAR); 
 SELECT CAST("+111" AS UNSIGNED); 
   
@@ -342,36 +403,32 @@ SUBSTRING(str,pos)
 SUBSTRING(str FROM pos) 
 SUBSTRING(str,pos,len),pos从1开始
 subString(date_time2,1,13)
-
+ 
 
 select locate('$','/1/3/6/7/$4') //返回10 找字符下标
 
 select substr('/1/3/6/7/$4',1,instr('/1/3/6/7/$4','$')-1)
 select substr('/1/3/6/7/$4',locate('$','/1/3/6/7/$4')+1)
 
+select substring_index('www.sqlstudy.com.cn', '.', 2);  -- 截取第二个 '.' 之前的所有字符。  
+select substring_index('www.sqlstudy.com.cn', '.', -2);  -- 截取第二个 '.' （倒数）之后的所有字符。 
 
+ select
+   @tmpStr:='/1/3/6/7/$/a/b/c$4' as res,
+   substr(@tmpStr,1,instr(@tmpStr,'$')-1  ) as path,
+   substring_index(substring_index(@tmpStr, '$', 2  ),'$',-1) as pathname,
+  substring_index(@tmpStr, '$', -1  ) as depth
+from  (SELECT @tmpStr:='') r
 
+ 
 CHARACTER_LENGTH(group_concat(dest_mobile  SEPARATOR  ';'))/14 
 GROUP_CONCAT(busiType order by sTerm asc SEPARATOR ',')  中可加order by ,
 
+SELECT FIND_IN_SET('b','a,b,c,d');
+-> 2
 
-
---不用 group_concat 实现
-
-CREATE table stu_score(id int ,stu_id int ,score int );
-insert into stu_score  values(1,1001,80);
-insert into stu_score values(2,1002,81);
-insert into stu_score values(3,1001,82);
-insert into stu_score values(4,1002,83);
-
-select distinct t.stu_id,
-concat(
-        (select score from stu_score where stu_id=t.stu_id order by score desc limit 1 )
-        ,',',
-        (select score from stu_score  where stu_id=t.stu_id order by score asc limit 1)
-) as res
-from stu_score  t
-
+SELECT INSTR('foobarbar', 'bar');
+-> 4
 
 SUBSTR() 是 SUBSTRING 的别名
 right(str,len); -- 从右向左取最多长度的字串
@@ -457,6 +514,58 @@ select * from v(
 ( select * from a  limit 2000,1000 )
 	union 
 ( select * from a limit 2000,1000  )
+
+
+-- limit分页性能问题
+select *
+from employees 
+where birth_date >'1952-02-01' 
+limit  300000 ,24 -- 216 ms
+
+id 顺序+1的好办 
+-- 511 ms 更慢？？？？
+select *
+from employees
+where  birth_date >'1952-02-01'
+ and emp_no in
+(
+  select emp_no
+  from employees
+  where birth_date >'1952-02-01'
+)
+limit  300000 ,24  --  limit不能在子查询中
+
+-- 223ms 
+-- 要求id是递增的
+select * from employees 
+where birth_date >'1952-02-01' and
+	emp_no >= (select emp_no from employees 
+			where birth_date >'1952-02-01' 
+			limit 300000,1) 
+limit 24;
+--   可以解决mybatis <collection> 式查询,麻烦最好换做法
+select * from employees 
+where birth_date >'1952-02-01'
+and
+	emp_no >= (select emp_no from employees 
+			where birth_date >'1952-02-01' 
+			limit 300000,1)
+	and 
+	(
+		not exists(
+			select emp_no from employees 
+			where birth_date >'1952-02-01' 
+			limit 300010,1
+		)
+		or
+		emp_no < (
+			select emp_no from employees 
+			where birth_date >'1952-02-01' 
+			limit 300010,1
+		)
+		
+	) 
+
 
 多表关联的条件要加索引,on后面的
 
@@ -879,14 +988,31 @@ mysql> CREATE PROCEDURE simpleproc (OUT param1 INT)
 call simpleproc(@y);
 
 
-CREATE PROCEDURE demo_in_parameter (IN p_in int)
-BEGIN   
-  SELECT p_in;   
-  SET p_in=2;   
-  SELECT p_in;   
- END//
+delimiter  //
+drop  FUNCTION if exists hello //
+CREATE FUNCTION hello (s CHAR(20))
+  RETURNS CHAR(50) DETERMINISTIC  -- Function dbForge一定要有DETERMINISTIC
+  BEGIN
+    DECLARE res VARCHAR(30);
+   SET res =CONCAT('Hello, ',s,'!');
+  RETURN  res;
+    END;//
+delimiter  ;
 
- SHOW CREATE PROCEDURE   demo_in_parameter;
+
+delimiter  //
+drop  PROCEDURE if exists  demo_inout_parameter ; //
+CREATE PROCEDURE demo_inout_parameter (inout cnt int)
+BEGIN 
+  SET cnt=cnt+1; 
+ END//
+delimiter  ;
+
+set @cnt=10
+call demo_inout_parameter(@cnt);
+select @cnt
+
+ SHOW CREATE PROCEDURE   demo_inout_parameter;
 SHOW   PROCEDURE   status;
 
  CREATE PROCEDURE p24 ()
@@ -1000,6 +1126,8 @@ SET GLOBAL event_scheduler = 1;
 alter table myTable drop primary key  ; -- 如是auto_increment的不能删主键，好像也没办法只删auto_incremnt,但可删列
 	   
 drop index INX_depId on myTable;
+alter table myTable drop index INX_depId;
+
 CREATE INDEX part_of_name ON customer (name(10)); 可以只对前几个字符做索引
 create UNIQUE index INX_PK  on myTable(dep_id,emp_id)  using BTREE
 mysql 不支持函数索引,如 subString(l.listId,1,3) 

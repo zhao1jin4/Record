@@ -8,9 +8,9 @@ https://javaee.github.io/javaee-spec/javadocs/
 <listener>
  	<listener-class>myservlet.listener.MyContextAttributeListener</listener-class>
 </listener>
-<error-page><!-- JSP中有  isErrorPage="true"  -->
+<error-page><!-- JSP中 可有  isErrorPage="true" ,request.getAttribute("javax.servlet.error.exception"); -->
 	<error-code>404</error-code>
-	<location>/notfound.jsp</location>
+	<location>/WEB-INF/jsp/error/notFound.jsp</location>
 </error-page>
 <error-page>
 	<exception-type>java.lang.RuntimeException</exception-type>
@@ -302,6 +302,7 @@ public class WebConfiguration implements ServletContainerInitializer {
     } 
 }
 
+${jar}/META-INF/resources/被视为根目录
 
 ==================================JSP
 内置对象
@@ -309,6 +310,7 @@ page,pageContext,request,response,session,out,exception
 application 是 ServletContext
 config  是  ServletConfig
 
+request.getLocalPort();
 
 String realpath=request.getSession().getServletContext().getRealPath("/");//有项目名
 String project=request.getContextPath();// 只项目名/
@@ -1227,7 +1229,13 @@ Javax.mail.internet.MimeMessage
 		transport.close();
 	}
 
-================================JMS 
+================================JMS  
+<dependency>
+    <groupId>javax.jms</groupId>
+    <artifactId>jms</artifactId>
+    <version>1.1</version>
+</dependency>
+
 SoupUI 可JMS
 
 

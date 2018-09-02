@@ -4,7 +4,7 @@ redis-desktop-manager-0.9.1  可以监控，可写命令好用
 
 redisclient-win32.x86_64.2.0.jar
 RedisStudio-en-0.1.5.exe  不能写命令，不能看数据值
-
+phpredisadmin   有Docker 镜像
 ---------Codis
 Codis 3.2.2  (go 1.9.2) 基于 Redis 3.2.8
 支持 Docker 部署
@@ -37,9 +37,11 @@ codis-admin
 同一个业务集群而言，同一个时刻 codis-dashboard 只能有 0个或者1个 
 对集群的修改都必须通过 codis-dashboard 完成
 
+
+============== Redis-4.0.8 版本编译安装 CentOS 7
 windows 版 redis-3.2.100
 https://github.com/MicrosoftArchive/redis/releases
-============== Redis-4.0.8 版本编译安装 CentOS 7
+
 
 cd src 
 make    OK
@@ -104,7 +106,8 @@ redis-server /usr/local/etc/redis.conf
 >save   保存到文件(默认 dump.rdb 可以在线保存导出给另一个redis,failover是这样实现的)
 	append only file 以aof结尾(appendonly.aof) 配置文件中加 　appendonly yes
 
-	
+>info 可以看到服务器版本，及很多信息，有replication
+
 >shutdown 关闭服务端
 >exit 退出本客户端
 

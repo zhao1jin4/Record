@@ -123,11 +123,6 @@ protected void onNewIntent(Intent intent) //对应launchMode="singleTask"
 }
 	
 
-//------OAuth 2.0
-resource owner  最终用户
-resource server	 是API服务器 使用access token,返回保护的资源
-client			应用
-authorization server 保存用户密码的服务器
 
 //------Ksoap 2
 //测试 http://localhost:8080/J_CXF_Spring/ws/HelloWorld?wsdl
@@ -813,18 +808,6 @@ MainViewController.m中的webViewDidFinishLoad方法是UIWebViewDelegate的实�
 
              */
 
-//---------------Baidu Map
-要生成keystore并保存下来
-keytool -genkey -alias lisi      -keystore C:/temp/clientKeystore  -dname "CN=lisi,OU=tcs,O=tata,L=Harbin,ST=HeiLongJian,C=CN"     -keypass lisikeypass     --storepass clientkeystorepass
-keytool -list -v -keystore C:/temp/clientKeystore -storepass clientkeystorepass 来查看  SHA1的值  C9:68:E9:39:60:40:B5:43:03:F4:A5:4A:66:8B:69:3E:59:55:85:3D
-
-示例的包名要固定 org.zhaojin.baiduMap
-
-public static final String strKey = "";
-
-申请key失败???
- 
-
 //--------------zxing
 mvn install 生成 core-3.0.0-SNAPSHOT.jar 
 
@@ -872,6 +855,21 @@ if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 	}
 	Toast.makeText(GenerateQRCodeActivity.this, "二维码图片已保存到:"+filename.getAbsolutePath(), Toast.LENGTH_LONG).show();
 }
+
+//---------------Baidu Map
+要生成keystore并保存下来
+keytool -genkey -alias lisi      -keystore C:/temp/clientKeystore  -dname "CN=lisi,OU=tcs,O=tata,L=Harbin,ST=HeiLongJian,C=CN"     -keypass lisikeypass     --storepass clientkeystorepass
+keytool -list -v -keystore C:/temp/clientKeystore -storepass clientkeystorepass 来查看  SHA1的值  C9:68:E9:39:60:40:B5:43:03:F4:A5:4A:66:8B:69:3E:59:55:85:3D
+
+示例的包名要固定 org.zhaojin.baiduMap
+
+public static final String strKey = "";
+
+申请key失败???
+ 
+//---React Native 在另一个文件中
+//---Unity 在另一个文件中
+
 //---android 解析二维码(QR)
 
 
@@ -881,9 +879,9 @@ if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 
 //---android  推送消息
 
-MQTT协议
+MQTT 协议 即时通讯协议
 
-XMPP协议实现androidpn 
+XMPP 协议(聊天工具)实现 androidpn 
 
- 
+在线视频直播
 

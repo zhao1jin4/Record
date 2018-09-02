@@ -188,8 +188,6 @@ sort->more...->Date created 创建日期(也是复制过来的日期)
 
 
 win7 有一个 snippingtool 截图工具,StikyNot 便利贴,关闭后再次打开,会记住,但还要记住去打开
-ver 命令　看到windows 7 系统的版本是6.1
-win10是 Microsoft Windows [版本 10.0.16299.125] 自动更新2017-12-19 大的更新 1709版本
 
 windows 7 禁用自动播放
 地址栏上 粘贴 控制面板\硬件和声音\自动播放  取消复选[为所有媒体和设备使用自动播放],列表中全部选择[不执行操作]
@@ -676,6 +674,10 @@ echo %time%
  p就是扩充到路径
  
 ---常用命令
+winver 弹出窗口显示版本 2018-08月是 1803版本
+ver 命令　看到windows 7 系统的版本是6.1 ,win10在 2018-08月 10.0.17134.228(内部版本) 
+可在最近安装更新中查看版本
+
 where java  相当于linux which
 whoami 
 dir
@@ -886,7 +888,7 @@ win10 安装中文语言包,官方说要  控制面板 增加语言后->option->
                       C:\Users\zhaojin\Desktop
 					  
 IE-11 自带Flash Player
-自带windows Defender 杀毒软件,设置中取消 [启用实时保护]
+自带windows Defender 杀毒软件,设置中取消 [启用实时保护] .金山毒霸可以让windows Defender 服务停止.
 android-4.4 (android-sdk_r22.3-windows) 在 win8.1 上不能运行.exe文件 是因没有安装JDK,可以JDK8u20
 
 拖动标题栏 晃动几下,所有的其它窗口最小化,再次晃动还原

@@ -1882,10 +1882,9 @@ http_access allow all
 浏览器设置代理  10.0.0.1  3128
 
 
-============== Nginx 比Squid 强
-最新版本1.12.2
-有windows 版本.zip文件 
-
+============== Nginx 比 Squid 强
+最新稳定版本1.14  有windows 版本.zip文件 
+Nginx Plus 收费版本
 
 如何 https ,TLSV1.2,TLS( Transport Layer Security )
 
@@ -1912,13 +1911,15 @@ make install
 
 
 /usr/local/nginx/sbin/nginx 启动  默认监听80端口
-/usr/local/nginx/sbin/nginx -s stop   (-s signal)
-/usr/local/nginx/sbin/nginx  -t 检查配置文件语法正确性
-stop — fast shutdown
-quit — graceful shutdown
-reload — reloading the configuration file,如果配置有错,就停止worker(处理完正处理的连接)进程
-reopen — reopening the log files
+/usr/local/nginx/sbin/nginx -s stop   (-s signal)快速退出 ，reload重读配置文件 ，quit 和平退出
+	stop — fast shutdown
+	quit — graceful shutdown
+	reload — reloading the configuration file,如果配置有错,就停止worker(处理完正处理的连接)进程
+	reopen — reopening the log files
 
+/usr/local/nginx/sbin/nginx  -t 检查配置文件语法正确性
+nginx -v  (version)
+nginx -h  (help)
  
 --/usr/local/nginx/conf/nginx.conf   
 每个server块以listen和server_name做区分
@@ -1934,7 +1935,9 @@ http{
 	 }
 }
 
-server 
+配置层级结构 http->server->location , events 和http同级
+
+server   
 {
 	listen 8080;
 	root /data/up1;   页面所在本地目录
@@ -1942,6 +1945,8 @@ server
 	}
 }
 
+#一个server下可有多个location
+#一个http下可有多个 server,同时http和https
 server {
 	location / {
 		proxy_pass http://localhost:8080;   代理
@@ -1952,19 +1957,85 @@ server {
 	}
 }
 server 组中
-location ~ \.(gif|jpg|png)$ {     正则表达式以~.开头表示,(\.是转义)  ,即以.gif,.jpg,.png结尾的
+location ~ \.(gif|jpg|png)$ {     #正则表达式以~.开头表示,(\.是转义)  ,即以.gif,.jpg,.png结尾的的请求到指定目录去读
 	root /data/images;
 }
 
  
-upstream  nginx支持4种算法
+upstream  nginx支持4种Load Balancing算法，要在http组中
 
-1 轮询(默认)   每个请求按时间顺序分配到不同的后端服务器了，后端服务器down掉，自动切除。
-2 weight 		设定服务器权值 
+1 Round Robin 轮询(默认)    有两台机器测试下来,每台机器执行两次后再切换机器,后端服务器down掉，自动切除。
+	upstream backend {
+	   server backend1.example.com;
+	   server backend2.example.com;
+	}
+	location / {
+		proxy_pass http://backend;
+		proxy_buffering off; #默认on打开的,会使请求变慢 !!!!!
+	}
+2. Least Connections  ,最小的； 最少的little的最高级  
+	upstream backend {
+		least_conn;
+		server backend1.example.com;
+		server backend2.example.com;
+	}
+
 3 ip_hash 		每个请求按访问ip的hash结果分配，每个访客有固定的后端服务器，可以解决session问题
-4 fair			（第三方） 按后端服务器的响应时间来分配，响应时间短的优先分配
-5 url_hash  	按访问的url的hash结果分配，使每个url定向到同一个后端服务器，后端为缓存服务器比较有效。
+	upstream backend {
+		ip_hash;
+		server backend1.example.com;
+		server backend2.example.com;
+		server backend3.example.com down; 临时下线
+	}
+4 Generic Hash  按用户定义的key 如URL，按访问的url的hash结果分配，使每个url定向到同一个后端服务器，后端为缓存服务器比较有效。
+	upstream backend {
+		hash $request_uri consistent;  # ketama 一致性hash
+		server backend1.example.com;
+		server backend2.example.com;
+	} 
+Round Robin 方式参数 
+	weight 		设定服务器权值 ,默认weight=1
+		upstream backend {
+			server backend1.example.com weight=5;
+			server backend2.example.com;
+			server 192.0.0.1 backup;#只有其它服务无效时才接收请求
+		}
+	   
 
+固定Session方式  可使用上面的hash or ip_hash 
+	
+设置最大连接数 max_conns=3;超出放queue,如果其它工作进程打开了 keepalive 这个参数会被忽略
+upstream backend {
+    server backend1.example.com max_conns=3;
+    server backend2.example.com;
+    queue 100 timeout=70;
+}
+
+#被动健康检查 max_fails=3 fail_timeout=30s;
+upstream backend {
+    server backend1.example.com;
+    server backend2.example.com max_fails=3 fail_timeout=30s;
+    server backend3.example.com max_fails=2;
+}
+#活动健康检查 NGINX Plus 支持
+http {
+    upstream backend {
+        zone backend 64k;
+        server backend1.example.com;
+        server backend2.example.com;
+        server backend3.example.com;
+        server backend4.example.com;
+    }
+    server {
+        location / {
+            proxy_pass http://backend;
+            health_check;
+        }
+    }
+}
+
+
+示例
 upstream http_server 
 {
 　　ip_hash;
@@ -2007,26 +2078,60 @@ server {
 ------nginx  fastcgi  PHP
 CGI(Commmon Gateway Interface)
 fastcgi应用程序(可以使用使用C/C++,python,PHP编写),
-	单独的进程(出错不影响ngnix)一直启动着(老的CGI是每次用的时候启动,性能差)
+	单独的进程(出错不影响nginx)一直启动着(老的CGI是每次用的时候启动,性能差)
 	apache是把cgi嵌入进来 (SAPI就是Server API 就是合并到服务器中,语言开发有限制,即apache的php模块只能用C/C++) 
 
 	
 PHP 编译加 --enable-fastcgi ,--enable-fpm (fastcgi process manager 有配置文件php-fpm.conf 有配置listen_address,allowed_clients ,php-fpm start)
 
+#windows PHP 打开配置修改
+extension_dir = "D:/software/php-7.2.8-Win32-VC15-x64/ext"
+extension=mysqli
+cgi.force_redirect = 1 
+cgi.fix_pathinfo = 1 
+cgi.rfc2616_headers = 1
+
+#windows (D:\software\php-5.6.37-Win32-VC11-x64>)用 php-cgi.exe -b 127.00.1:9000 -c php.ini 启动
+
+
+
 用 ngx_http_fastcgi_module 模块
 
+#配置文件中也有示例,打开#后做修改
 location ~ \.php$ {
-	#root  			html;
+	#root  			html;    		#修改目录,windows以/分隔, 同location / {root  xx的值;}
     fastcgi_pass  localhost:9000;  #php-fpm 的listen_address
     fastcgi_index index.php;
 
-    fastcgi_param SCRIPT_FILENAME /home/www/scripts/php/$fastcgi_script_name;  #对方机器的指定目录找php文件
-    fastcgi_param QUERY_STRING    $query_string;
+    #fastcgi_param SCRIPT_FILENAME /home/www/scripts/php/$fastcgi_script_name;  #对方机器的指定目录找php文件
+	fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;   # 原/scripts为修改 $document_root 即root的值
+    
+	fastcgi_param QUERY_STRING    $query_string;
     fastcgi_param REQUEST_METHOD  $request_method;
     fastcgi_param CONTENT_TYPE    $content_type;
     fastcgi_param CONTENT_LENGTH  $content_length;
+	include        fastcgi_params;
+ 
 }
 
+D:\software\nginx-1.14.0\nginx-1.14.0> nginx.exe -p D:\software\nginx-1.14.0\nginx-1.14.0
+-p(prefix)
+
+<?php
+phpinfo();
+?>
+测试成功
+
+----- rockmongo  
+
+进入首页提示下载php_mongo.dll (http://pecl.php.net/package/mongo) 放在php安装解压的ext目录中 
+注意支持的PHP版本,如php_mongo-1.6.16-5.6-ts-vc11-x64 支持 PHP5.6  
+php.ini中增加  extension=php_mongo.dll
+可以进入页面, 但好像不能对Mongo4 上面用??? 
+
+----phphbaseadmin
+	报PHP(php-5.6.37)语法错误
+	
 ------nginx https ssl 
 http ssl 默认端口443
 

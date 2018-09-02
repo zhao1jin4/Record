@@ -205,28 +205,32 @@ firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下�
 	firefox　主页被修改　　about:support  显示有user.js　在　C:\Users\zhaojin\AppData\Roaming\Mozilla目录下
 
 
-firefox27可用的插件
-	FireBug-1.12.7 (加大字体,tools ->web developer->Firebug->text size->increase text size)
-	DownThemAll-2.0.16,ColorZilla-2.8  新firefox57 不兼容了？？？？
-	FireFTP-2.0.18(Connection标签选择SFTP)
-	FireSSH-0.94.4(在Tools->Web Developer下,ls --color 才变色,ls 中文是根据系统字符集自动匹配view->character encoding来查看,手工设置LANG无效)
-	chmfox-2.9(file->open)
-	cacheviewer-0.7.6(Tools->Web Developer->CacheViewer)
-	HttpRequester  新firefox57 不兼容了？？？？
-	EPUBReader  用于读epub文件 mongodb doc   
-	RESTClient  发POST请求
-	--黑客工具
-	Poster-3.1 发POST请求  新firefox57 不兼容了？？？？
-		有Base64 编码	tools->poster  (可以设置HTTP头,注意RefControl可以覆盖poster),必须在单独界面发起
+firefox  插件
+	RESTClient  发POST请求 
+ 
 	Modify Headers-0.7.1.1 		可以个性Http头, tools->web developer->Modify Headers,设置后start
 		RefControl 	设置http请求头referer的值tools-> RefControl options..    
 		User Agent Switcher 个性本地浏览器	tools -> default user agent     手机开发
-	Cookies Manager-1.5.2 在 tools->Cookies Manager
-	修改内容体用firebug就OK
 	
-	--安全工具		
+	Cookies Manager 不兼容firefox 61 在 tools->Cookies Manager
+	修改内容体用firebug就OK
+	 	
 	Self-Destructing Cookies-0.4.6  关闭tab时删cookie,localstorage 安装后在工具栏上
 	开发使用 Exploit-Me  工具集  XSS-Me, SQL Inject Me
+	
+	EPUBReader  用于读epub文件 mongodb doc  
+	
+	--- 新firefox 没了？？
+	HttpRequester
+	Poster-3.1 发POST请求  没了？？
+		有Base64 编码	tools->poster  (可以设置HTTP头,注意RefControl可以覆盖poster),必须在单独界面发起
+	DownThemAll-2.0.16,ColorZilla-2.8  新firefox57 不兼容了？？？？
+	cacheviewer-0.7.6(Tools->Web Developer->CacheViewer)
+	chmfox-2.9(file->open)
+	FireFTP-2.0.18(Connection标签选择SFTP)
+	FireSSH-0.94.4(在Tools->Web Developer下,ls --color 才变色,ls 中文是根据系统字符集自动匹配view->character encoding来查看,手工设置LANG无效)
+
+	
 	
 要当前没有打开Firefox,
 firefox.exe" -profilemanager  或者用 -p  会打开［选择用户配置文件］对话框，来［创建配置文件］
@@ -240,6 +244,7 @@ Developer toolbar(shift+f2)的命令,提示功能很好,子命令可按回车提
 	dbg list  		
 	pagemod replace group goups123   true    修改页,把Group替换为group123 ,忽略大小写
 	pagemod remove element h3
+ 
  
 禁用JS 地址栏输入 about:config  ->  搜索 javascript.enabled 双击 把这个true修改为false
 
@@ -293,8 +298,10 @@ Chrome查看版本的方法  chrome://version
 ctrl+shift+N 以隐身模式上网,不会保留浏览历史和Cookie
 Settins-> Privacy and Security->Content Settings->Cookies-> 在All Cookies and Site data组中可以看到Cookie
 Settins-> Download 可以打开 Ask where to save each file before downloading
+ChromeDeveloper设置字体大小 ctrl+滚轮
 
 插件   应用组的 Postman   https://www.getpostman.com/  安装后是一个单独的程序
+
 -------------Edge --------
 安装目录 
 C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe
