@@ -44,7 +44,7 @@ $("myid") 和document.getElementById("myid") 相同
 	</convert>
 
 <create javascript="jsuser" creator="new"> 
-	 <filter class="org.zhaojin.dwr.MyDWRFilter">
+	 <filter class="org.zh.dwr.MyDWRFilter">
    		 	<param name="myValue" value="Filter值 "></param>
 	 </filter>
 	<!-- 实现 org.directwebremoting.AjaxFilter 接口的类,creator="new/spring" 都可以的
@@ -81,7 +81,7 @@ DWR @ 要在web.xml 中初始化---OK
 
 <init-param>
 	<param-name>classes</param-name>
-	<param-value>org.zhaojin.service.DWRService,org.zhaojin.vo.Student</param-value>
+	<param-value>org.zh.service.DWRService,org.zh.vo.Student</param-value>
 </init-param>
 内部类使用$ ,如java.util.Map$Entry
 这样的话项目中的dwr.xml对于这个例子就没有作用了 

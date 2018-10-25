@@ -1,7 +1,7 @@
 ﻿
 ============================Netbeans-8.1===============================
-C:\Users\zhaojin\AppData\Roaming\NetBeans
-C:\Users\zhaojin\AppData\Local\NetBeans\Cache  里面很大
+C:\Users\zh\AppData\Roaming\NetBeans
+C:\Users\zh\AppData\Local\NetBeans\Cache  里面很大
 
 ------------ 
 在FreeBSD上运行正常，如果gnome 界面语言是english,那么 netbeans也是英语 ,	运行时有一个UnkowHostException   InetAddress.getLocalHost();不影响运行,是由hostname 的值空造成的
@@ -266,7 +266,7 @@ SourceTree 安装之后需要使用账号登陆以授权，以前是可以不登
 
 这个两种方式不行的
 C:\Program Files\TortoiseGit\bin
-C:\Users\zhaojin\AppData\Local\Programs\Git\mingw64\bin\  安装不能是git bash方式
+C:\Users\zh\AppData\Local\Programs\Git\mingw64\bin\  安装不能是git bash方式
 
 工具-> 选项->一般->SSH 客户端->可选 openSSH
 
@@ -343,7 +343,7 @@ VC 2015 编译器配置在path 环境变量中,NetBeans也检查不到  ,而ecli
 离线安装  下载 nbandroid-15-11-01-171517.zip  Tools->plugins -> downloaded ->解压,选择所有的.nbm文件  (没有提示选择安装位置) 
 
 如果把解压的netbeans文件全删,再重新解压,再启动netbeans已经安装的 NBAndroid 还在，说明模块安装在外部,看netbeans.conf说明
-windows在  C:\Users\zhaojin\AppData\Roaming\NetBeans\8.1\modules  (在线安装和离线安装都在这)
+windows在  C:\Users\zh\AppData\Roaming\NetBeans\8.1\modules  (在线安装和离线安装都在这)
 
 Tools->options -> Miscellaneous -> 多了一个 Adroid 标签
 
@@ -497,7 +497,7 @@ SHOW FULL COLUMNS FROM MyTable
 SHOW  CREATE TABLE MyTable
 
 一种数据库可以保存多个连接
-
+=============  DataGrip 基于 Intellij Idea
 
 =============  PL/SQL Developer ============= 
 在登录界面中数据选择中支持输入  127.0.0.1/xe  或 127.0.0.1:1521/xe  
@@ -684,7 +684,8 @@ select @cnt
 数据表格的上方工具栏有一个 switch to card view 
 =============Mongodb工具    Toad Extension for Eclipse  好用,带语法提示的
 
-=============Mongodb工具  Robo Studio 3T for Mongodb
+=============Mongodb工具  Robo Studio 3T for Mongodb 收费的 ,有 Robo 3T 免费
+
 =============Mongodb工具  NoSQL Manager for MongoDB-4.9.8
 
 ------------Tortoise SVN工具
@@ -772,7 +773,7 @@ Tools >   Options  > Connections -> 打开 Allow remote computers to connect
 Tools >   Options  > HTTPS -> 复选Decrypt HTTPS Traffic  复选Ignore server certifcate errors(unsafe)
 
 ------------ Hemes JMS
-启动后会在C:\下生成一个 C:\Users\zhaojin\.hermes 目录 所有的配置存在那里
+启动后会在C:\下生成一个 C:\Users\zh\.hermes 目录 所有的配置存在那里
 
 Options->Configuration->下方的Providers标签->右击 add group->输入名如weblogic group
 	右击->Library按钮->add Jars->选择weblogic.jar  ->因包大 选择Don't scan(如ActiveMQ activemq-all-5.11.1.jar 可scan)->OK
@@ -864,13 +865,21 @@ source port 中写本地端口如8888 ,Destination写远程如192.168.190.134:80
 Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到文本中不会换行如mysql一行数据较长
 当然缺点是不能用sz ,rz 不能建立常用命令快捷方式
 
-----------firebug
+----------firebug 
 	可以动态内firefox中增加,删除,修改,DOM内容  (注意自己的网站安全)
 	如MySQL使用了 google的jQuery,因不能下载js,导致表单不能提交
 	先手工复制html 如 <input type="submit" value="submit"/> 
 	Inspect按 选择选择要修改的元素,如<form> (切换到HTML组下)   右击它 ->past HTML->as  last child
 
 	字体变大 , 点图标 -> Text Size-> increse text Size
+----Firefox 的 Web Developer (Web开发者)
+	network 标签 disable cache 禁用缓存
+	字体变大 ????
+
+---- ChromeDeveloper 
+	设置字体大小 ctrl+滚轮
+	network 标签 disable cache 禁用缓存
+	
 	
 ---------zabbix 性能监视工具
  

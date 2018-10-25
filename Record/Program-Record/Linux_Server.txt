@@ -156,8 +156,8 @@ new   IN  CNAME     www            #如www变了,new这个别名也变了
 
 
 
-/etc/resolv.conf文件中的   search zhaojin.com 
-表示   host www 时会www.zhaojin.com
+/etc/resolv.conf文件中的   search example.com 
+表示   host www 时会www.example.com
 
 
 127.0.0的反向区
@@ -822,11 +822,11 @@ ScriptAlias /cgi-bin/ "/usr/local/apache2/cgi-bin/"
 
 NameVirtualHost 192.168.1.104:80	#这三个ＩＰ地址是一样的　 两域名，相同IP，
 <VirtualHost 192.168.1.104>		#这三个ＩＰ地址是一样的
-	ServerAdmin	root@zhaojin.com
+	ServerAdmin	root@example.com
 	DocumentRoot /var/www
-	ServerName	zhaojin.com   ###可以用DNS解析到IP(可IP),会替换ServerName 的设置
-	ErrorLog  logs/zhaojin_error.log
-	CustomLog logs/zhaojin.log common
+	ServerName	example.com   ###可以用DNS解析到IP(可IP),会替换ServerName 的设置
+	ErrorLog  logs/example_error.log
+	CustomLog logs/example.log common
 	ErrorDocument 404 http://cooling.ape-tech.com/bbs
 </VirtualHost>
 
@@ -1244,16 +1244,16 @@ GitStack 说是开源,30天后变为基本版本,网页形式的Server,http://lo
 GitLab (linux) 收费的，有管理界面
 
 
-C:\Users\zhaojin\AppData\Local\Programs\Git\mingw64\bin\git.exe
+C:\Users\zh\AppData\Local\Programs\Git\mingw64\bin\git.exe
 
-Git-2.15.1.2-64-bit.exe 如非管理员安装，默认安装在 C:\Users\zhaojin\AppData\Local\Programs\Git
+Git-2.15.1.2-64-bit.exe 如非管理员安装，默认安装在 C:\Users\zh\AppData\Local\Programs\Git
  选择使用notepad++为默认编辑器 
  
  
 C:\Program Files\Git\mingw64\etc\gitconfig
 	[credential]
 		helper = manager
-C:\Users\zhaojin\.gitconfig
+C:\Users\zh\.gitconfig
 	[gui]
 	
 C:\Program Files\Git\mingw64\share\doc\git-doc 下有文档
@@ -1276,14 +1276,14 @@ http://git-scm.com/book/zh
 
 gitconfig 文件中  #或者;  是注释
 [user]
-	name = Li Zhaojin
-	email = zhao1jin4@sina.com
+	name = user
+	email = userId@sina.com
 	
 配置的是你个人的用户名称和电子邮件地址,提交时用
 git config --global core.autocrlf true
 
-$ git config --global user.name "Li Zhaojin"  (windows下是保存在用户主目录.gitconfig 文件)
-$ git config --global user.email zhaojin.li@example.com
+$ git config --global user.name "User"  (windows下是保存在用户主目录.gitconfig 文件)
+$ git config --global user.email userId@example.com
 $ git config --global core.editor vi		文本编辑器
 $ git config --global merge.tool vimdiff	差异分析工具
 git config --global alias st "status"  定义st 是status 的别名,就可以用git st=git status
@@ -1474,26 +1474,26 @@ echo "# Record" >> README.md
 git init
 git add README.md
 git commit -m "first commit"
-git remote add origin https://github.com/zhao1jin4/Record.git
+git remote add origin https://github.com/userId/Record.git
 git push -u origin master
 
 …or push an existing repository from the command line
 
-git remote add origin https://github.com/zhao1jin4/Record.git
+git remote add origin https://github.com/userId/Record.git
 git push -u origin master
 
 --网页上建立github的项目Record,自己的操作记录
-cd C:\temp\Record2017-01-24__14
+cd C:\temp\Record
 git init
 git add Record
-git commit -m "2017-02-13 record version"
-git remote add origin https://github.com/zhao1jin4/Record.git
+git commit -m "xxx record version"
+git remote add origin https://github.com/userId/Record.git
 git push -u origin master
 
-如果在空目录中取代码 git clone https://github.com/zhao1jin4/Record.git
+如果在空目录中取代码 git clone https://github.com/userId/Record.git
 修改更新,加新文件
-git config --global user.email "zhao1jin4@sina.com"   (windows中保存在用户主目录/.gitconfig)
-git config --global user.name "Li Zhaojin"
+git config --global user.email "userId@sina.com"   (windows中保存在用户主目录/.gitconfig)
+git config --global user.name "User"
 git add *
 git commit  -m "2017-05-18 record version" 
 git push 弹出UI 要输入用户名密码   (windows下密码保存在控制面板-》用户-》Creddentail manager)
@@ -2481,7 +2481,7 @@ info eorakk, showch
 		Oracle SCN号 System Change NO   ,可以把SCN号转换为时间
 		select to_char(scn_to_timestamp(592464),'YYYY-MM-DD HH24:MI:SS') from dual;
 
-		insert into tcustmer values('li' 'zhaojin','shanghia','SH');
+		insert into tcustmer values('li' 'si','shanghia','SH');
 		select start_scn from v$transaction  ; 当有事务运行时可查SCN号
 		594725
 		

@@ -359,7 +359,7 @@ GarageBrand 音乐制作工具  ,Audio MIDI Setup
 			"缩放图像"   ->再点 "运行"  ,也可以录制操作,在播放时也是真实的播,其它是记录鼠标,键盘,时间是一样的,环境应该是一样的,要不然就会出错
 
 iTunes 中 右击播放列表->刻录(可能要有歌曲才行)
-iTunes 应用会下载到 /Users/zhaojin/Music/iTunes/iTunes Media/Mobile Applications/下的.ipa文件
+iTunes 应用会下载到 /Users/zh/Music/iTunes/iTunes Media/Mobile Applications/下的.ipa文件
 
 右击safari打开的网页,->在dash board中打开,选择网页的区域,会多一个在dashboard中
 
@@ -380,9 +380,9 @@ iPhoto 可“import”到Mac,右击~/Pictures/“iPhoto图库.photolibrary"->Sho
 -------SSH
 Mac  下su - root
 /usr/sbin/sshd ,要绝对路径 后就有22端口监听 netstat -an | grep .22
-Mac 共享中打开 “远程登录“,会提示使用ssh lizhaojin@192.168.100.128 ，注意用户名是全名，点锁应用修改，也会自动sshd
+Mac 共享中打开 “远程登录“,会提示使用ssh zh@192.168.100.128 ，注意用户名是全名，点锁应用修改，也会自动sshd
 
-scp ./xxx lizhaojin@192.168.100.128:~/Downloads
+scp ./xxx zh@192.168.100.128:~/Downloads
 
 ------VNC
 共享中打开 “屏幕共享“ 就是VNC,可以设置VNC密码，提示使用vnc://＜IP＞
@@ -403,11 +403,11 @@ scp ./xxx lizhaojin@192.168.100.128:~/Downloads
 
 NFS Manager工具收费，不可试用
 /etc/exports文件格式
-/Users/lizhaojin/Downloads -ro
+/Users/zh/Downloads -ro
 nfsd enable 启动服务后netstat -an | grep .2049就有监听了
 
 showmount -e 后就可看到本机的设置
-mount -t nfs 127.0.0.1:/Users/lizhaojin/Downloads /mymnt 是可用的
+mount -t nfs 127.0.0.1:/Users/zh/Downloads /mymnt 是可用的
 ----蓝牙 bluetooth
 共享中打开 蓝牙
 

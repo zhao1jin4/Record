@@ -52,7 +52,7 @@ sun的实现 没有<listener>和<filter>
     version="2.0">
 	<managed-bean>
 		<managed-bean-name>student</managed-bean-name>
-		<managed-bean-class>org.zhaojin.jsf.vo.Student</managed-bean-class>
+		<managed-bean-class>org.zh.jsf.vo.Student</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope><!-- request,session -->
 		<managed-property><!-- 这里也可以设置属性 -->
 			<property-name>loginId</property-name>   
@@ -117,18 +117,18 @@ welcome.jsp
 
 <converter>
 	<converter-id>LocaleConverter</converter-id>
-	<converter-class>org.zhaojin.jsf.converter.LocaleConverter</converter-class>
+	<converter-class>org.zh.jsf.converter.LocaleConverter</converter-class>
 </converter>
 <application>
 	<locale-config>
 		<default-locale>en</default-locale>
 		<supported-locale>zh_CN</supported-locale>
 	</locale-config>
-	<message-bundle>org.zhaojin.jsf.resource.message</message-bundle>
+	<message-bundle>org.zh.jsf.resource.message</message-bundle>
 </application>
 <validator>
 	<validator-id>PasswordValidator</validator-id>
-	<validator-class>org.zhaojin.jsf.validator.PasswordValidator</validator-class>
+	<validator-class>org.zh.jsf.validator.PasswordValidator</validator-class>
 </validator>
 
 public class PasswordValidator implements Validator 
@@ -200,14 +200,14 @@ public class LoginListener implements ActionListener
 		</h:inputSecret><!-- required="false" 如为true,更新国际化无效 -->
 		
 		<h:commandButton  value="#{msg.login}" action="#{student.login}">
-			<f:actionListener type="org.zhaojin.jsf.listener.LoginListener"/> <!-- 可配置多个 -->
+			<f:actionListener type="org.zh.jsf.listener.LoginListener"/> <!-- 可配置多个 -->
 		</h:commandButton>
 		
 		<h:selectOneMenu value="#{student.locale}">
 			<f:selectItem  itemValue="en" itemLabel="#{msg.Enghlis}"/>
 			<f:selectItem  itemValue="zh_CN" itemLabel="#{msg.Chinese}"/>
 			<f:converter converterId="LocaleConverter"/>
-			<f:valueChangeListener type="org.zhaojin.jsf.listener.LocaleValueChangeListener"/>
+			<f:valueChangeListener type="org.zh.jsf.listener.LocaleValueChangeListener"/>
 		</h:selectOneMenu>
 	</h:panelGrid>
 	
@@ -308,7 +308,7 @@ temporaryDirectory = (File)request.getSession().getServletContext().getAttribute
 
 <h:panelGroup>1</h:panelGroup><!--独占一个单元格 -->
 
-<f:loadBundle basename="org.zhaojin.jsf.resource.message" var="msg"/>
+<f:loadBundle basename="org.zh.jsf.resource.message" var="msg"/>
 <h:outputText value="#{msg.username}:"/>  <h:outputText value="#{msg['username']}" />
  
 <%---可用国际化消息,可以使用#{ }  --%>
@@ -404,7 +404,7 @@ faces-config.xml
     </navigation-case>
 </navigation-rule>
 <lifecycle>
-	<phase-listener>org.zhaojin.jsf.listener.PermissionPhraseLister</phase-listener>
+	<phase-listener>org.zh.jsf.listener.PermissionPhraseLister</phase-listener>
 </lifecycle>
 
 
@@ -432,7 +432,7 @@ LifecycleFactory factory= (LifecycleFactory) FactoryFinder.getFactory(FactoryFin
 Lifecycle lifecycle =factory.getLifecycle(LifecycleFactory.DEFAULT_LIFECYCLE);
 lifecycle.addPhaseListener(...)
 
-<f:phaseListener type="org.zhaojin.jsf.listener.TagPhraseLister"/>
+<f:phaseListener type="org.zh.jsf.listener.TagPhraseLister"/>
  
 panelGroup 标签生成一个 <div> 或 <span>
 panelGrid 标签生成<table><tr><td>

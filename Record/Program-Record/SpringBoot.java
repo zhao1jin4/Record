@@ -1,5 +1,13 @@
-
+Ratpack 构建简单高效的 HTTP 微服务 ,基于Netty 来开发
 ========================Spring Boot
+
+spring-boot-devtools 可以实现页面和代码的热部署
+<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-devtools</artifactId>
+		<optional>true</optional>
+	</dependency>
+
 http://start.spring.io/
 
 spring-boot-config 中有 META－INF/spring.factories,定义了  Initializers,Listeners 的Auto Configure区定义了很多@ 和对应的配置类
@@ -309,6 +317,46 @@ public class SessionConfig {
 }
  
  
+---spring boot mongodb
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-data-mongodb</artifactId>
+</dependency>
+
+
+#spring.data.mongodb.uri=mongodb://zh:123@127.0.0.1:27017/reporting 
+# or 
+spring.data.mongodb.host=127.0.0.1
+spring.data.mongodb.port=27017
+spring.data.mongodb.database=reporting
+#spring.data.mongodb.authentication-database=
+spring.data.mongodb.username=zh
+spring.data.mongodb.password=123
+
+import org.springframework.data.mongodb.MongoDbFactory;
+import com.mongodb.client.MongoDatabase;
+
+
+@Autowired
+private  MongoDbFactory mongo;
+
+MongoDatabase db = mongo.getDb();
+
+---spring boot neo4j
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-data-neo4j</artifactId>
+</dependency>
+
+spring.data.neo4j.uri=http://127.0.0.1:7474
+spring.data.neo4j.username=neo4j
+spring.data.neo4j.password=myneo4j
+
+@Autowired
+private Neo4jTemplate neo4jTemplate;
+
+
 --spring boot  mybatis 
 
 
@@ -773,6 +821,13 @@ public class SecurityWebApplicationInitializer
 		super(WebSecurityConfig.class);
 	}
 }
+
+
+---spring boot websocket
+spring-boot-starter-websocket
+
+
+
 --- OAuth2 server
 --- OAuth2 client
 

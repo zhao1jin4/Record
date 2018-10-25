@@ -693,6 +693,7 @@ winow.event.srcElement.
 
 window.location='initAdd?id=${id}';
 window.location.href='';
+window.location.reload();//刷新
 
 =====位置坐标
 style.offsetTop=event.srcElement.offsetTop
@@ -1017,7 +1018,7 @@ $(function(){
 
 
 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Map
-
+//-------Map
 var myMap = new Map();
  
 var keyObj = {},
@@ -1064,12 +1065,148 @@ myMap.forEach(function(value, key) {
 
 var kvArray = [["key1", "value1"], ["key2", "value2"]];
 var myMap = new Map(kvArray);
-console.log(uneval([...myMap])); //uneval只对firefox有效，结果为 [["key1", "value1"], ["key2", "value2"]]
-console.log(uneval([...myMap.keys()])); 
+//console.log(uneval([...myMap])); //uneval只对firefox有效，结果为 [["key1", "value1"], ["key2", "value2"]]
+//console.log(uneval([...myMap.keys()])); 
 
 keys() 返回一个新的 Iterator 对象,有next()
 
+ 	
+//===========WeakMap
+//key 只能是 Object 类型。 原始数据类型 是不能作为 key 的
+//WeakMap中,每个键对自己所引用对象的引用是 "弱引用"
+	var wm1 = new WeakMap(),
+    wm2 = new WeakMap(),
+    wm3 = new WeakMap();
+var o1 = {},
+    o2 = function(){},
+    o3 = window;
 
+wm1.set(o1, 37);
+wm1.set(o2, "azerty");
+wm2.set(o1, o2); // value可以是任意值,包括一个对象
+wm2.set(o3, undefined);
+wm2.set(wm1, wm2); // 键和值可以是任意对象,甚至另外一个WeakMap对象
+wm1.get(o2); // "azerty"
+wm2.get(o2); // undefined,wm2中没有o2这个键
+wm2.get(o3); // undefined,值就是undefined
+
+wm1.has(o2); // true
+wm2.has(o2); // false
+wm2.has(o3); // true (即使值是undefined)
+
+wm3.set(o1, 37);
+wm3.get(o1); // 37
+
+wm3.get(o1); // undefined,wm3已被清空
+wm1.has(o1);   // true
+wm1.delete(o1);
+wm1.has(o1);   // false
+
+//=========Set
+const set1 = new Set([1, 2, 3,3, 4, 5]);
+
+console.log(set1.has(1));//true
+console.log(set1.has(6));//false
+
+let mySet = new Set();
+
+mySet.add(1); // Set(1) {1}
+mySet.add(5); // Set(2) {1, 5}
+mySet.add(5); // Set { 1, 5 }
+mySet.add("some text"); // Set(3) {1, 5, "some text"}
+var o = {a: 1, b: 2};
+mySet.add(o);
+
+mySet.add({a: 1, b: 2}); // o 指向的是不同的对象，所以没问题
+
+mySet.has(1); // true
+mySet.has(3); // false
+mySet.has(5);              // true
+mySet.has(Math.sqrt(25));  // true
+mySet.has("Some Text".toLowerCase()); // true
+mySet.has(o); // true
+
+mySet.size; // 5
+
+mySet.delete(5);  // true,  从set中移除5
+mySet.has(5);     // false, 5已经被移除
+
+mySet.size; // 4, 刚刚移除一个值
+console.log(mySet); // Set {1, "some text", Object {a: 1, b: 2}, Object {a: 1, b: 2}}
+
+//迭代整个set
+//按顺序输出：1, "some text" 
+for (let item of mySet) console.log(item);
+
+//按顺序输出：1, "some text" 
+for (let item of mySet.keys()) console.log(item);
+
+//按顺序输出：1, "some text" 
+for (let item of mySet.values()) console.log(item);
+
+//按顺序输出：1, "some text" 
+//(键与值相等)
+for (let [key, value] of mySet.entries()) console.log(key);
+
+ 
+
+//转换Set为Array  
+var myArr = Array.from(mySet); // [1, "some text"]
+
+//如果在HTML文档中工作，也可以：
+mySet.add(document.body);
+mySet.has(document.querySelector("body")); // true
+
+//Set 和 Array互换
+mySet2 = new Set([1,2,3,4]);
+mySet2.size; // 4
+[...mySet2]; // [1,2,3,4] 用...(展开操作符)操作符将Set转换为Array
+
+ 
+set2 = new Set([ 2,4,6]);
+
+//intersect can be simulated via 
+var intersection = new Set([...set1].filter(x => set2.has(x)));
+
+//difference can be simulated via
+var difference = new Set([...set1].filter(x => !set2.has(x)));
+
+//用forEach迭代
+mySet.forEach(function(value) {
+	console.log(value);
+});
+ 
+for (var elem of mySet) {
+	console.log(elem);
+}
+
+//===========WeakSet
+
+//只能存放对象引用, 不能存放值,而 Set 对象都可以.
+//如果没有其他的变量或属性引用这个对象值, 则这个对象值会被当成垃圾回收掉. 正因为这样, WeakSet 对象是无法被枚举的, 没有办法拿到它包含的所有元素
+var ws = new WeakSet();
+var obj = {};
+var foo = {};
+
+ws.add(window);
+ws.add(obj);
+
+ws.has(window); // true
+ws.has(foo);    // false, 对象 foo 并没有被添加进 ws 中 
+
+ws.delete(window); // 从集合中删除 window 对象
+ws.has(window);    // false, window 对象已经被删除了
+ 
+ 
+//========Array
+
+function myFunction(value, index) {
+  demoP.innerHTML = demoP.innerHTML + "index[" + index + "]: " + value + "<br>"; 
+}
+var arr=["one","two"];
+(function (array){
+	 array.forEach( myFunction);//Array 的 forEach
+})(arr); //像匿名内部函数 
 
 =========HTML5 JS
  

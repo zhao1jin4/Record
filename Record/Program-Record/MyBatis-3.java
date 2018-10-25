@@ -11,6 +11,8 @@
 <bind name="pattern" value="'%' + username  + '%'" /> <!-- 如为Map参数 ,如为null是不行的， 不能放在<if >中使用 -->
 username  like #{pattern} 
 
+MySQL 有bit类型做boolean  
+MyBatis有JdbcType.BIT   存取到java的 boolean类型测试OK
  
 mybatis-3-config.dtd 和 mybatis-3-mapper.dtd 在 org.apache.ibatis.builder.xml
 

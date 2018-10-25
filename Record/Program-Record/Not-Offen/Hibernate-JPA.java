@@ -545,12 +545,12 @@ Employee端
 Student.hbm.xml
 	 <set name="courses" table="score" inverse="false" lazy="true" cascade="save-update">
            <key column="stu_id" not-null="false"></key> 
-			<many-to-many class="org.zhaojin.school.Course" column="cour_id" ></many-to-many> 
+			<many-to-many class="org.zh.school.Course" column="cour_id" ></many-to-many> 
      </set>	
 Course.hbm.xml
 	 <set name="students" table="score" inverse="true" lazy="true" cascade="save-update">
              <key column="cour_id" not-null="false"></key> 
-			<many-to-many class="org.zhaojin.school.Student" column="stu_id" ></many-to-many> 
+			<many-to-many class="org.zh.school.Student" column="stu_id" ></many-to-many> 
       </set>
 
 
@@ -610,7 +610,7 @@ List,Set,Map 都是线程不安全的，Hashtable是安全的,用 Collections.sy
 	//以下属性必须可以为 null,只对较少字段，不经常改表结构
 
 2.每子类一张表，多表的主外键
-<joined-subclass name="org.zhaojin.vo.hbm.sub.Skiller"  table="skiller_hbm" >
+<joined-subclass name="org.zh.vo.hbm.sub.Skiller"  table="skiller_hbm" >
 	<key column="emp_id"></key>
 	.....
 </joined-subclass>
@@ -618,14 +618,14 @@ List,Set,Map 都是线程不安全的，Hashtable是安全的,用 Collections.sy
 
 
 3.单表　和　每子类一张表　结合使用
-<subclass name="org.zhaojin.vo.hbm.sub.Sale" discriminator-value="1">
+<subclass name="org.zh.vo.hbm.sub.Sale" discriminator-value="1">
 	<join table="sale_hbm">
 		<key column="emp_id"></key>
 		...
 	//如报type列找到，是因为employee表不能删除， 因有sales外键，可以drop database,
 
 4.子类表含父类表字段,
-	<union-subclass name="org.zhaojin.vo.hbm.sub.Skiller" table="skiller_hbm">
+	<union-subclass name="org.zh.vo.hbm.sub.Skiller" table="skiller_hbm">
 		<property name="professional"></property>
 
 	//多个表的id不能相同,父类(多态)给一个id,从多张表中查只能返回一个,主键生成方式不能为native,可以为hilo,多一张hibernate_unique_key表,next_hi存主键
@@ -659,7 +659,7 @@ session.clear() ;
 	<property name="hibernate.cache.use_second_level_cache">true</property> //默认是true
 	<property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
 	
-	<class-cache class="org.zhaojin.vo.hbm.Student" usage="read-only"/>   //二级缓存什么类
+	<class-cache class="org.zh.vo.hbm.Student" usage="read-only"/>   //二级缓存什么类
 														"read-write",
 														"transactional"//OScache没有这种功能
 

@@ -215,11 +215,11 @@ route add default 192.168.1.1
 vi /etc/resolv.conf 中加入nameserver 192.168.1.1
 
 
-/etc/hostname.pcn0  (pcn0是网上接口)  里存主机名  zhaojin和/etc/inet/ipnodes对应
+/etc/hostname.pcn0  (pcn0是网上接口)  里存主机名  zh和/etc/inet/ipnodes对应
 
 /etc/inet/netmasks	中有本机IP 192.168.1.0 255.255.255.0  
 
-/etc/hosts指向/etc/inet/ipnodes 	中有本机IP 192.168.1.27 zhaojin  loghost
+/etc/hosts指向/etc/inet/ipnodes 	中有本机IP 192.168.1.27 zh  loghost
 
 
 # svcadm disable physical
@@ -808,7 +808,7 @@ mountall -l (本地文件vfstab中mount on boot 为yes的)
 	-r (远程文件vfstab中mount on boot 为yes的)
 	-F ufs (所有ufs类型的vfstab中mount on boot 为yes的)
 
-share -F nfs -o rw(ro)=root:zhaojin /user/local  只对两个用户可以读写
+share -F nfs -o rw(ro)=root:zh /user/local  只对两个用户可以读写
 
 也可以写入/etc/dfs/dfstab文件中 (shareall/unshareall 也会读这个文件)  /etc/init.d/nfs.server
 

@@ -6,9 +6,9 @@ Eclipse只有GTK的,Firefox基于GTK
 gtkmm C++版的GTK SuSE Linux: 用 yast 安装 gtkmm3-devel.
 
 
-zhaojin@linux-hlbo:~> pkg-config --cflags --libs gtk+-3.0
+zh@linux-hlbo:~> pkg-config --cflags --libs gtk+-3.0
 -pthread -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/freetype2 -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/libpng12 -I/usr/include/libpng14  -lgtk-3 -lgdk-3 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo-gobject -lpango-1.0 -lcairo -lgobject-2.0 -lglib-2.0  
-zhaojin@linux-hlbo:~> 
+zh@linux-hlbo:~> 
  
 
 .cproject中的部分

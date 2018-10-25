@@ -200,7 +200,7 @@ http://www.mssqltips.com/tip.asp?tip=1687  参考
 
 
 
-非cluster的SQL Server登录时不能使用IP,使用主机名，如lizhaojin\sqlexpress(对非cluster要有\),完整版默认实例是MSSQLSERVER
+非cluster的SQL Server登录时不能使用IP,使用主机名，如zhHost\sqlexpress(对非cluster要有\),完整版默认实例是MSSQLSERVER
 本节点连接cluster时,只用xe(是安装输入的[SQL Server 网络名称])
 测试客户端要加入域只用xe,也可用xe.test.com
 不加域用,只用xe.test.com(设DNS) 也可以,直接输入解析的IP也可以(但IP可能会变)
@@ -410,9 +410,9 @@ select id,name from @tableVar
 
 
 
---under test->Security->Users->zhaojin
+--under test->Security->Users->zh
 --under test->Security->Schemas->myschema
-create schema myschema authorization zhaojin
+create schema myschema authorization zh
 drop  schema myschema -- cascade or restrict无效
 
 --create domain persion_name varchar(20)

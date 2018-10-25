@@ -37,7 +37,7 @@ host    all         all         192.168.1.25/24         trust(密码错误也可
 /usr/local/pgsql/bin/postgres -i -D /usr/local/pgsql/data > ~/logfile 1>&2 &
 
 select * from user 显示当前用户;
-/usr/local/pgsql/bin/createuser -W(--password)  -s (--superuser) zhaojin
+/usr/local/pgsql/bin/createuser -W(--password)  -s (--superuser) zh
 -P --pwprompt
 
 

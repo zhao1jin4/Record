@@ -49,7 +49,7 @@ IProject[] projects = wsroot.getProjects();
 
 
 
-eclipse中建立 Plug-in Development/[Plug-in Project]  在project name:中输入org.zhaojin.myplugin是插件ID->下一步
+eclipse中建立 Plug-in Development/[Plug-in Project]  在project name:中输入org.zh.myplugin是插件ID->下一步
 输入版本号->下一步->选择一个模板[HelloWorld]->下一步->输入包名,类名
 会自动生成 META-INF/MANIFEST.MF,build.properties,pluin.xml
 

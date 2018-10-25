@@ -1,4 +1,5 @@
 http://doc.javanb.com 中文JDK6API
+https://docs.oracle.com/en/java/javase/11/
 
 C:\ProgramData\Oracle\Java\javapath  目录中有java,javaw
 
@@ -687,6 +688,8 @@ LinkedHashSet
 JDK 7新的排序 DualPivotQuicksort (在Arrays.sort方法中有使用)
 
 --------------------------正则
+str.replaceAll("\\p{Alpha}",""); //字母删除
+
  boolean a=Pattern.matches("^CB.*", "CB123");是否以什么开头要加.* ,而JS 不用加.*
  
  boolean b = Pattern.matches("a*b", "aaaaab");
@@ -760,7 +763,7 @@ resXml.replaceFirst(startTag+"(.)*"+endTag ,  startTag+singStr+endTag);//修改�
  }
 ----------------
 
-InputStream is=this.getClass().getResourceAsStream("/mysqlJDBC.properties"); /是classes目录下的文件
+InputStream is=this.getClass().getResourceAsStream("mysqlJDBC.properties"); //JDK8中不能以/开头
 Properties props=new Properties();
 props.load(is);  //会过虑以#开头的注释 .properties文件
 
@@ -871,129 +874,7 @@ appendToSystemClassLoaderSearch(JarFile jarfile)
 ---------
 
 
---------------------------JDK1.5新特性
-class Persion<T1,T2 extends List>   //接口或类都用extends(T1 extends Object)
-	Persion <String,ArraryList> p=new Persion <String,ArraryList> //只可以是ArraryList
-class Persion<T>
-      Persion<? extends List> x=null;   //?代表　一个变量可以指向List 所有子类 ，要先定义Persion<T> ，？只在使用中
-	x=new Persion<ArrayList>
-	x=new Persion<LinkedList>
-	 Persion<? super List> x=null;　　只可是List的父类Object
-		x=new Persion<Object>
-
-Persion<?> 和Persin<? extends Object>效果相同  
-
-
-
-Persion<String> p1=new Persion<String>();
-Persion<?> p2=p1;
-p2.setX(null);//对用?，? extends 的,只可以取得，设为null,不可以改为其它的,编译器不知道放进去的是什么类型，如要向转换，失去泛型的意义
-
-public class Child<T1,T2,T3> extend Parent<T1,T2> //表子类的T1传给父类的T1 可以和定义时不同class Parent<X1,X2>
-
-
-for (int x : array)
-{
-}
-
-enum 对象　有values()和valueOf()
-
-enum Color
-{
-red,bule;　　　//red是Color的实例  public static final Color red=new Color();
-}
-
-Color color
-	
-enum Color
-{
-    red(1), //1是给自己red 的实例
-	bule("a") ,
-	;  //这部分要放在最前面
-	
-    private int num;
-    private String str;
-    Color(int n)    //自己的构造方法,不能加public
-    {
-        this.num=n;
-    }
-    Color(String s)
-    {
-        this.str=s;
-    }
-}
-全部继承自java.lang.Enum
-compareTo()方法
-Enum  .orinal() 返回当初声明属性的顺序的位置,从0开始
-
-
-EnumSet<Color> cset=EnumSet.of(Color.red,Color.bules) 构造有两个元素的Set
-EnumSet.complementOf(cset);返回一个 EnumSet<Color>里面是cset没有的
-EnumSet.copyOf(Collection)
-Enumset.noneOf(Color.class) //创建一个空的用指定的类别
-	add(xx);
-
-
-EnumMap<Color,String> map=new EnumMap(Color.class); //key是enum类型Color
-会根据enum的顺序来排序Map
-
-import static com.xxx.STANT 或是static 方法名
-直接用STANT
-
-int sum(int ... num)  //可变的函数参数 是三个点 左右空格可有,可无 ，这个参数必须放放在最后，只可有一个
-{
-   for (int i = 0; i < num.length; i++)
-   {
-	  System.out.println(num[i]);
-   }
-}
-JDK内嵌的Annotation
-@Override   可以正确的
-@Deprecated 标明该方法是不被推荐使用的
-@SuppressWarnings({"unchecked","deprecation"});  不显示警告
-
-
-enum Color{ bule,yello,red};//定义一个enum类型
-
-//默认annotation是信息是保存在.class文件中,JVM不读取,只被其它工具使用
-@Retention(RetentionPolicy.RUNTIME)//默认是CLASS(放class文件中),RUNTIME(放JVM 可反射来读),SOURCE(不编译)
-publci @interface MyInerface  //JVM 自动实现 Annotation 接口,,不能在extends,implements任何其它的
-{
-	String value();//定一个变量名是value 类型是String,(类型可是String ,基本,Class,Annotation,Enum及这些类型的一维数组)
-	String[] name() default {"lisi","aa"};//有默认值,使用时就可以不赋值
-	Color co() default Color.red;
-}
-
-@MyInterface(value="hello") //如果属性名是value,可以不加属性名,数组多个加{},一个可以不加{}
-
-  
-java.lang.relect.AnnotatedElement 接口 很多常用的反射类都实现了
-Method m.isAnnotationPresent(MyAnnotation.class) //当前CLASS,METHOD类上是否有指定的Annotation
-MyAnnotation a=	m.getAnnotation(MyAnnotation.class)//返回一个Annotation  有annotationType().getName()
-a.value() ,a.hello() 来得到在@中定义的属性值
-a.annotationType()返回一个 Class<? extends Annotation>对象,一定是Annotaion 的子类(即用@interface隐式声明的)
-Class 的getAnnotations();返回所有的包括父类的
-	getDeclareAnnotations 返回本类中所有的
-
-@SuppressWarnings是 RetentionPolicy.SOURCE   所以  m.getAnnotations() 没有
-
-
-java.lang.annotation.Target    value要一个ElementType[] .METHOD只可把@放在方法前面
-默认是任何地方都可以的
-@Target({ElementType.METHOD,ElementType.TYPE})放在 public @interface My 之前 表示My可以放在方法前,类,接口前
-
-
-
-
-javadoc默认不会把自己写的类前, 方法前的@,生成javadoc文档中
-eclipse中project->generate javadoc
-把@Document 放在public @interface Xxx之前,就可以了
-
-默认子类不是也继承父类的@,如要继承,则要把@Inherited 放在 public @interface Xx 前,就可以了( 只对放在类的前面可以继承,方法前也可以继承,) 也会被覆盖
-子类可以覆盖父类的方法和@( @Override)
-接口前加@xx ,是不可以继承@xx
-Junit,Spring,Hibernate ,都有@的形式来开发
-
+--------------------------JDK 11 新特性
 
 
 --------------------------JDK9新特性
@@ -1124,7 +1005,7 @@ jshell>/imports 列出已经导入的包：//默认import的有
 
 
 
-//----JDK8 新特性
+--------------JDK8 新特性
 //@FunctionalInterface //即只可有一个未实现的方法,如不加这个默认就是
 interface IntegerMath {
 	int operation_(int a, int b);
@@ -1204,7 +1085,7 @@ javac 的-profile 选项
 compact1< compact2 <  compact3 < JavaSE
 javac -profile compact1 Hello.java
  
- Nashorn JS 引擎 ,使用 jjs 命令调用
+ Nashorn JS 引擎 ,使用 jjs 命令调用, JDK11不推荐用,未来删除
 jjs 后可输入JS来测试,也可 jss  x.js
 jjs> typeof java.lang.System == "function"
 jjs> var intNum = 10
@@ -1367,6 +1248,133 @@ ConcurrentSkipListMap 是一个SortedMap
 
 SynchronousQueue 是一个阻塞队列,每次的插入必须有取时才会插入,否则等有人来取,可以有多个来取
 Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>(64))
+
+
+--------------------------JDK1.5新特性
+class Persion<T1,T2 extends List>   //接口或类都用extends(T1 extends Object)
+	Persion <String,ArraryList> p=new Persion <String,ArraryList> //只可以是ArraryList
+class Persion<T>
+      Persion<? extends List> x=null;   //?代表　一个变量可以指向List 所有子类 ，要先定义Persion<T> ，？只在使用中
+	x=new Persion<ArrayList>
+	x=new Persion<LinkedList>
+	 Persion<? super List> x=null;　　只可是List的父类Object
+		x=new Persion<Object>
+
+Persion<?> 和Persin<? extends Object>效果相同  
+
+
+
+Persion<String> p1=new Persion<String>();
+Persion<?> p2=p1;
+p2.setX(null);//对用?，? extends 的,只可以取得，设为null,不可以改为其它的,编译器不知道放进去的是什么类型，如要向转换，失去泛型的意义
+
+public class Child<T1,T2,T3> extend Parent<T1,T2> //表子类的T1传给父类的T1 可以和定义时不同class Parent<X1,X2>
+
+
+for (int x : array)
+{
+}
+
+enum 对象　有values()和valueOf()
+
+enum Color
+{
+red,bule;　　　//red是Color的实例  public static final Color red=new Color();
+}
+
+Color color
+	
+enum Color
+{
+    red(1), //1是给自己red 的实例
+	bule("a") ,
+	;  //这部分要放在最前面
+	
+    private int num;
+    private String str;
+    Color(int n)    //自己的构造方法,不能加public
+    {
+        this.num=n;
+    }
+    Color(String s)
+    {
+        this.str=s;
+    }
+}
+全部继承自java.lang.Enum
+compareTo()方法
+Enum  .orinal() 返回当初声明属性的顺序的位置,从0开始
+
+
+EnumSet<Color> cset=EnumSet.of(Color.red,Color.bules) 构造有两个元素的Set
+EnumSet.complementOf(cset);返回一个 EnumSet<Color>里面是cset没有的
+EnumSet.copyOf(Collection)
+Enumset.noneOf(Color.class) //创建一个空的用指定的类别
+	add(xx);
+
+
+EnumMap<Color,String> map=new EnumMap(Color.class); //key是enum类型Color
+会根据enum的顺序来排序Map
+
+import static com.xxx.STANT 或是static 方法名
+直接用STANT
+
+int sum(int ... num)  //可变的函数参数 是三个点 左右空格可有,可无 ，这个参数必须放放在最后，只可有一个
+{
+   for (int i = 0; i < num.length; i++)
+   {
+	  System.out.println(num[i]);
+   }
+}
+JDK内嵌的Annotation
+@Override   可以正确的
+@Deprecated 标明该方法是不被推荐使用的
+@SuppressWarnings({"unchecked","deprecation"});  不显示警告
+
+
+enum Color{ bule,yello,red};//定义一个enum类型
+
+//默认annotation是信息是保存在.class文件中,JVM不读取,只被其它工具使用
+@Retention(RetentionPolicy.RUNTIME)//默认是CLASS(放class文件中),RUNTIME(放JVM 可反射来读),SOURCE(不编译)
+publci @interface MyInerface  //JVM 自动实现 Annotation 接口,,不能在extends,implements任何其它的
+{
+	String value();//定一个变量名是value 类型是String,(类型可是String ,基本,Class,Annotation,Enum及这些类型的一维数组)
+	String[] name() default {"lisi","aa"};//有默认值,使用时就可以不赋值
+	Color co() default Color.red;
+}
+
+@MyInterface(value="hello") //如果属性名是value,可以不加属性名,数组多个加{},一个可以不加{}
+
+  
+java.lang.relect.AnnotatedElement 接口 很多常用的反射类都实现了
+Method m.isAnnotationPresent(MyAnnotation.class) //当前CLASS,METHOD类上是否有指定的Annotation
+MyAnnotation a=	m.getAnnotation(MyAnnotation.class)//返回一个Annotation  有annotationType().getName()
+a.value() ,a.hello() 来得到在@中定义的属性值
+a.annotationType()返回一个 Class<? extends Annotation>对象,一定是Annotaion 的子类(即用@interface隐式声明的)
+Class 的getAnnotations();返回所有的包括父类的
+	getDeclareAnnotations 返回本类中所有的
+
+@SuppressWarnings是 RetentionPolicy.SOURCE   所以  m.getAnnotations() 没有
+
+
+java.lang.annotation.Target    value要一个ElementType[] .METHOD只可把@放在方法前面
+默认是任何地方都可以的
+@Target({ElementType.METHOD,ElementType.TYPE})放在 public @interface My 之前 表示My可以放在方法前,类,接口前
+
+
+
+
+javadoc默认不会把自己写的类前, 方法前的@,生成javadoc文档中
+eclipse中project->generate javadoc
+把@Document 放在public @interface Xxx之前,就可以了
+
+默认子类不是也继承父类的@,如要继承,则要把@Inherited 放在 public @interface Xx 前,就可以了( 只对放在类的前面可以继承,方法前也可以继承,) 也会被覆盖
+子类可以覆盖父类的方法和@( @Override)
+接口前加@xx ,是不可以继承@xx
+Junit,Spring,Hibernate ,都有@的形式来开发
+
+
+
 -------------------------------------------反射
 Class a;
 a.isAssignableFrom(Class b) 

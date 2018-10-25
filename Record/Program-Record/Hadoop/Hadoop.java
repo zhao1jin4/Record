@@ -302,8 +302,8 @@ etc/hadoop/log4j.properties
 
 
 NameNode 的metadata信息在启动后加载到内存,对应磁盘文件是fsimage
-/tmp/hadoop-zhaojin/dfs/name/current/ 有fsimage_* 开头的文件 和 edits_* 开对的文件
-/tmp/hadoop-zhaojin/dfs/data/current/BP-[nn]-[hostname]-[nn]/current/rbw/ 下有blk_* 开头的文件(存放数据的),及.meta结尾的文件
+/tmp/hadoop-zh/dfs/name/current/ 有fsimage_* 开头的文件 和 edits_* 开对的文件
+/tmp/hadoop-zh/dfs/data/current/BP-[nn]-[hostname]-[nn]/current/rbw/ 下有blk_* 开头的文件(存放数据的),及.meta结尾的文件
 
 
 
@@ -323,7 +323,7 @@ FileSystem fs=  FileSystem.get(conf);
 Path path=new Path("/java") 
 fs.delete(path,true);//recursive
 fs.mkdirs();
-fs.copyFromLocalFile(new Path("/home/zhaojin/.ssh/known_hosts"), path);
+fs.copyFromLocalFile(new Path("/home/zh/.ssh/known_hosts"), path);
 DistributedFileSystem dfs =(DistributedFileSystem)fs;//要使用hadoop jar 运行才可
 DatanodeInfo[] infos=dfs.getDataNodeStats();//所有群集中的节点
 for(DatanodeInfo info:infos)
@@ -347,8 +347,8 @@ System.out.println("----block-size:"+status.getBlockSize());
 (启动yarn)bin/hadoop jar  xx.jar 	执行后就会建立目录(bin/hdfs dfs -ls / 查看),如jar包中没有Main-Class: ,要在xx.jar后加全类名
 
 
-// bin/hdfs dfs -rm -r -f /user/zhaojin/myout
-//eclipse 带参数 hdfs://127.0.0.1:9000/user/zhaojin/myin hdfs://127.0.0.1:9000/user/zhaojin/myout
+// bin/hdfs dfs -rm -r -f /user/zh/myout
+//eclipse 带参数 hdfs://127.0.0.1:9000/user/zh/myin hdfs://127.0.0.1:9000/user/zh/myout
 // hadoop jar xx.jar myin myout
 ToolRunner.run(new Configuration(),new MainMapReduce1(), args);//调用TestHDFS2的run方法
 
@@ -432,7 +432,7 @@ bin/mapred job -list
    
 
 ---------------------------------hadoop 子项目 Hive
-export HADOOP_HOME=/home/zhaojin/hadoop-2.4.0
+export HADOOP_HOME=/home/zh/hadoop-2.4.0
 启动 $HADOOP_HOME/sbin/start-dfs.sh
 
 $HADOOP_HOME/bin/hadoop fs -mkdir       /tmp
@@ -448,7 +448,7 @@ hive>ALTER TABLE pokes ADD COLUMNS (new_col INT);
 hive>DROP TABLE pokes;
 
 --可以不启动服务
-export HIVE_HOME=/home/zhaojin/apache-hive-0.13.0-bin
+export HIVE_HOME=/home/zh/apache-hive-0.13.0-bin
 cp conf/hive-default.xml.template  conf/hive-site.xml
 	<property>
 	  <name>hive.exec.mode.local.auto</name>
@@ -607,15 +607,15 @@ ambari-agent start
 ===========Sqoop   工具 为Hadoop  和 关系型数据库 导入导出 , Quest  Data Connector for Oracle and Hadoop 是为Sqoop的插件
 
 ./server/conf/catalina.properties  文件 
-	common.loader= 中多加如下配置项 /home/zhaojin/hadoop-2.4.0/share/hadoop/common/*.jar,
-	/home/zhaojin/hadoop-2.4.0/share/hadoop/common/lib/*.jar,
-	/home/zhaojin/hadoop-2.4.0/share/hadoop/mapreduce/*.jar							*/
+	common.loader= 中多加如下配置项 /home/zh/hadoop-2.4.0/share/hadoop/common/*.jar,
+	/home/zh/hadoop-2.4.0/share/hadoop/common/lib/*.jar,
+	/home/zh/hadoop-2.4.0/share/hadoop/mapreduce/*.jar							*/
 
 cp hadoop-2.4.0/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.4.0.jar  sqoop-1.99.3-bin-hadoop200/server/webapps/sqoop/WEB-INF/lib
 cp hadoop-2.4.0/share/hadoop/yarn/*.jar  sqoop-1.99.3-bin-hadoop200/server/webapps/sqoop/WEB-INF/lib/				*/
 
 
-./server/conf/sqoop.properties 修改值 为/etc/hadoop/conf/为正确有路径 /home/zhaojin/hadoop-2.4.0/etc/hadoop/
+./server/conf/sqoop.properties 修改值 为/etc/hadoop/conf/为正确有路径 /home/zh/hadoop-2.4.0/etc/hadoop/
 
 ./bin/sqoop.sh server start 启动提示 (stop) 
 	Setting SQOOP_HTTP_PORT:     12000

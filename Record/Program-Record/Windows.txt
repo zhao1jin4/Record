@@ -278,12 +278,12 @@ gpedit.msc->计算机配置->Windows设置->安全设置->帐户策略->密码�
 
 wmic 命令可以交互
 wmic UserAccount set PasswordExpires=True 
-wmic UserAccount where Name='zhaojin' set PasswordExpires=True 
+wmic UserAccount where Name='zh' set PasswordExpires=True 
 
 net accounts /maxpwage:UNLIMITED    密码永不过期
 /maxpwage=max password age设置用户帐户密码有效天数的最大值
 
-net user zhaojin 看到密码永不过期
+net user zh 看到密码永不过期
 
 
 
@@ -466,7 +466,7 @@ msconfig中[启动中]项中有所的 注册表项CU=CURRENT_USER,LM=LOCAL_MACHI
 HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run (win10 同任务管理器中)
 HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
 HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run
-shell:startup 进入(当前用户) C:\Users\zhaojin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup 目录
+shell:startup 进入(当前用户) C:\Users\zh\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup 目录
 (所有用户)C:\Users\All Users\Microsoft\Windows\Start Menu\Programs\Startup
 C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
 
@@ -828,6 +828,7 @@ Key：该密码用于对无线网进行安全的WPA2加密,至少8位
 手机连接时要手工设置IP为192.168.168.2,网关为192.168.168.1
 
 win10 启用FTP服务器
+桌面 显示 控制面板
 在控制面板(进入方式 设置->应用->下拉到底的 程序和功能)->程序 -> 启动关闭windows服务->Internet Information Service 中 要选择IIS管理控制台 和 FTP的全部服务
 在计算机管理->服务和应用程序->IIS 管理器->右侧展开 右击网站->增加FTP站点-> 起名,设置目录,无SSL->身份验证选择基本,授权选择所有用户,权限选读和写
 
@@ -883,9 +884,9 @@ win10 安装中文语言包,官方说要  控制面板 增加语言后->option->
 
 开始菜单,向下的箭头,展开所有,按ctrl+选中应用 出现菜单->固定到开始菜单
 
-开始菜单(win10不太准) 快捷方式位置 C:\Users\zhaojin\AppData\Roaming\Microsoft\Windows\Start Menu\Programs
-任务栏   快捷方式位置 C:\Users\zhaojin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
-                      C:\Users\zhaojin\Desktop
+开始菜单(win10不太准) 快捷方式位置 C:\Users\zh\AppData\Roaming\Microsoft\Windows\Start Menu\Programs
+任务栏   快捷方式位置 C:\Users\zh\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
+                      C:\Users\zh\Desktop
 					  
 IE-11 自带Flash Player
 自带windows Defender 杀毒软件,设置中取消 [启用实时保护] .金山毒霸可以让windows Defender 服务停止.

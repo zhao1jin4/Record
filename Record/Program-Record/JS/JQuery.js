@@ -12,11 +12,23 @@ Chrome 可以看到某个元素是否被动态增加了事件,有一个EventList
 
 ----jquery其它插件
 Highcharts ,HighStock 收费的
+		https://www.hcharts.cn/download  可下载包
+
 jqPlot 免费的
 Sparklines  免费的
 	https://omnipotent.net/jquery.sparkline/#s-about
-InsDep
-https://www.insdep.com/
+
+
+InsDep  国产的
+	https://www.insdep.com/
+miniUI 	 国产普加 
+	http://miniui.com/
+
+甘特图框架
+jQueryGantt   https://github.com/robicch/jQueryGantt
+dhtmlxGantt   https://dhtmlx.com/docs/products/dhtmlxGantt/
+PlusGantt 	  国产普加 
+
 ---css
 #myid 
 {
@@ -125,7 +137,8 @@ firefox ->firebug中以选中一个区域 (如是encodeURI("test.jsp?username=�
 
 	.click(fun);
 	.keyup(fun);
-	.addClass('css');
+	.addClass('css'); 
+$( "#mydiv" ).hasClass( "foo" )
 	.removeClass('css');
 	
 	//看文档
@@ -169,13 +182,36 @@ array.add(obj);
 resp.getWriter().write(array.toString());
 //[{"username":"李","password":123}]
 
-var fields = $( "form" ).serializeArray();//select多选和checkbox会生成多个相同的key
+var fields = $( "form" ).serializeArray();//select多选和checkbox会生成多个相同的key,返回 JSON 数据结构数据
 console.log(JSON.stringify(fields));
 
  var formData=$("#theQueryForm").serialize();//就是组装成name=val&age=22的形式
  $( "form" ).submit(function( event ) {
   console.log( $( this ).serializeArray() );
   }
+  
+  //表单快速得到JSON值
+$.fn.serializeObject=function()
+{
+	var obj={};
+	var arrayField=$(this).serializeArray();
+	$.each(arrayField,function()
+	{
+		if(obj[this.name])//重复出现放数组
+		{
+			if(!obj[this.name].push)
+				obj[this.name]=[ obj[this.name] ]; //第一次建数组 ,存原来的值 
+			 //在存新值 
+			 obj[this.name].push(this.value); 
+		}else
+			obj[this.name]=this.value;
+		
+	});
+	return obj;
+} 
+console.log($("#myForm").serializeObject());
+ 
+
   //全局
 	$.ajaxSetup({
 		//timeout: 3000,
@@ -210,21 +246,51 @@ console.log(JSON.stringify(fields));
 
 $.ajax({
    type: "POST",
-   url:"listServlet",
-   dataType:"json",
- //data: "name=John&location=Boston",  
- //data:formData
+	url:root+"/jQueryAjaxJsonList",
+   dataType:"json",//返回是json
+   data: "one=一",
    success: function(json)
    {
 		$(json).each(function(i)//里每个是对象返回数组的index
 		{ 
-				alert(decodeURI(json[i].username));
-				alert(json[i].password); 
+				$("#result").append(json[i].username+"<br/>");
 		});
    }
 });
- 	
-		
+
+$.post(root+"/jQueryAjaxJsonList","one=一" , function(json)
+				  {
+						$(json).each(function(i)
+						{ 
+							$("#result").append(json[i].username+"<br/>");
+						});
+				  },'json');
+				  
+$.getJSON(root+"/jQueryAjaxJsonList", { one: "一" },
+	  function(json) 
+	  { 
+		$(json).each(function(i)
+		{ 
+			//$("#result").append(decodeURI(json[i].username)+"<br/>");
+			$("#result").append(json[i].username+"<br/>");
+		});
+	});
+$.get( root+'/jQuery/Ajax?username='+ encodeURI(user) , null, 
+		function(response)
+		{
+			$("#result").html(response);
+		})
+	.fail(function(e) 
+	{
+		alert(e.statusText); //有错误可能是,js和server不在一个项目的原因
+	})
+	.done(function() {
+	alert( "second success" );
+	}) 
+	.always(function() {
+	alert( "finished" );
+	});	 
+	
 var config=
 {
 	type: 'POST',
@@ -240,8 +306,22 @@ var config=
 };
 $.ajax (config);
 
+$("mydiv").load(xx.jsp);//ajax请求
+ 
+$.post("xxx?name="+username,[data],mycallback,'json');//data可以是对象
+
+$.ajaxSetup(//ajax全局设置,以后再用$.ajax()做时可以省写这里的参数
+{
+url:"xx.jsp"
+})
+
+
 
 $("input[name='myName']")//<input name="myName"/>
+$("input[name=status]" ).each(function(i){ //type radio
+		if($(this).val()=='red')
+			$(this).prop("checked",true); //attr第三次调用就不行了???? 可能要和 removeAttr一起用,用 prop
+	});
 
 
 // 跨域 jsonp 
@@ -337,6 +417,13 @@ $("p:last").html("<a>x<a>")
 $("texarea:first").val(""); 
 $("img.eq(0)").clone().appendTo($("p"))//复制,是前(子)加到后(父)中
 
+var array=[{id:123,name:'wang'}];
+//var newArray=$(array).clone(); //jQuery clone报错
+var newArray=$.map( array, function(obj){
+return $.extend(true,{},obj);//返回对象的深拷贝
+});
+
+
 $("img").bind("click",function(){ //加事件
 $("#myspanId").append("xxx");
 }).bind()	//可多次bind
@@ -369,9 +456,7 @@ $.browser.version	firefox是rv:内核版本
 
 $.boxModel?"标准W3c盒子模型":"IE";//查检盒子模型
 
-对IE 如加 <!DOCTYPE 声明就会变以为标准W3c盒子模型
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhml1/DTD/xhtml1-transitional.dtd">
-
+对IE 如加 <!DOCTYPE HTML> 声明就会变以为标准W3c盒子模型
 
 var myArray={"one","two"};
 $.each(myArray,function(iNum,value))//iNum是序号　,value
@@ -388,20 +473,12 @@ myArray.join();//数组转字串 "a,b"
 var res=$.map(myArray,function(value,index)//map函数,自定义数组转换字串,也可只第一个参数value,function(value){..}
 						{return value+inex ;});
 
-$("mydiv").load(xx.jsp);//ajax请求
-$.post("xxx?name="+username,[data],mycallback,type);//data可以是对象
-
-$.ajaxSetup(//ajax全局设置,以后再用$.ajax()做时可以省写这里的参数
-{
-url:"xx.jsp"
-})
-
 
 
 --------------------------
 $("#myid1").click(function()
 	{
-		$("#myid2").trigger('click');
+		$("#myid2").trigger('click');//模拟人单击
 	});
 
 
@@ -478,6 +555,7 @@ jQuery请求下载文件
 //extend(dest,src1,src2,src3...);//它的含义是将src1,src2,src3...合并到dest中,
 	var ori={};
 	var result=$.extend(ori,{name:"Tom",age:21},{name:"Jerry",sex:"Boy"});
+	//执行后ori和result是相同的
 	console.log('ori='+JSON.stringify(ori)+",result="+JSON.stringify(result));
 	
 	
@@ -487,7 +565,7 @@ jQuery请求下载文件
 	$.hello();
 		  
 	$.fn.extend({
-	  hello2:function(){console.log('hello2');} //该方法将src合并到jquery的实例对象中去，如:
+	  hello2:function(){console.log('hello2');} //将hello2方法合并到jquery的实例对象中去 
 	 });
 	
 	$("#myDiv").hello2();

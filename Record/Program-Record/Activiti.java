@@ -67,7 +67,7 @@ ProcessEngine engine = config.buildProcessEngine();
 默认使用Mybatis连接数据库
 
 //方式二
-ProcessEngineConfiguration config =ProcessEngineConfiguration.createProcessEngineConfigurationFromResource("classpath:org/zhaojin/acitiviti/spring_activiti.xml");
+ProcessEngineConfiguration config =ProcessEngineConfiguration.createProcessEngineConfigurationFromResource("classpath:org/zh/acitiviti/spring_activiti.xml");
 ProcessEngine engine=config.buildProcessEngine();
 		
 //mysql 
@@ -118,8 +118,8 @@ Deployment deployment=deploymentBuilder.deploy();
  Deployment deployment=processEngine.getRepositoryService() 
 				.createDeployment() 
 				.name("helloword")
-				.addClasspathResource("org/zhaojin/activiti/hello.bpmn") 
-		       .addClasspathResource("org/zhaojin/activiti/hello.png") 
+				.addClasspathResource("org/zh/activiti/hello.bpmn") 
+		       .addClasspathResource("org/zh/activiti/hello.png") 
 		       .deploy();
 			   
 			   

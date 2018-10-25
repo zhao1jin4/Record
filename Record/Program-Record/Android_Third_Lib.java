@@ -885,3 +885,8 @@ XMPP 协议(聊天工具)实现 androidpn
 
 在线视频直播
 
+蓝牙低功耗(BLE)
+OKhttp = httpClient
+Retrofit = httpClient
+MVP ~ MVC
+Android图片缓存之Glide 

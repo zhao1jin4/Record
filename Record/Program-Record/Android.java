@@ -22,15 +22,17 @@ https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project
 	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x 
 2. google usb 可能些手机不能识别
 	右键单击[我的电脑] -> 属性 -> 设备管理器->右键单击[有问号的设备] -> 属性 -> 详细信息 -> “属性”下拉列表框选择：硬件 Id
-    右键单击选复制，如我的是
-		USB\VID_2717&PID_FF18&REV_0318&MI_01
-		USB\VID_2717&PID_FF18&MI_01
+    右键单击选复制，如我的RedMi 5A 是 
+		USB\VID_2717&PID_FF48&REV_0318&MI_01
+		USB\VID_2717&PID_FF48&MI_01
 
-	打开 extras\google\usb_driver\android_winusb.inf 在 [Google.NTx86] 或 [Google.NTamd64] 下面添加：
-		%SingleAdbInterface%        = USB_Install, USB\VID_2717&PID_FF18&MI_01
-		%CompositeAdbInterface%     = USB_Install, USB\VID_2717&PID_FF18&REV_0318&MI_01
+	打开 extras\google\usb_driver\android_winusb.inf 在 [Google.NTamd64] 下面添加
+		%SingleAdbInterface%        = USB_Install, USB\VID_2717&PID_FF48&MI_01
+		%CompositeAdbInterface%     = USB_Install, USB\VID_2717&PID_FF48&REV_0318&MI_01
+
 	指定搜索驱动目录,如果有无法验证该驱动的发布者提示，不管它只管安装就是了 
 	
+	有的手机(Huawei) 设置ID显示有???号可以使用 360驱动.如果能识别会提示(ADB Interface)点击安装的
 
 LLDB 是 a next generation, high-performance debugger. 
 CMake 是 cross-platform  , build, test and package
@@ -45,6 +47,21 @@ android-7.1.1 = api 25  platform-25(res/drawable ,layout) (新建选择minSDK25,
 
 ---------------问题解决方法
 真机报 INSTALL_FAILED_USER_RESTRICTED 原因是在权限管理中的USB安装管理中已经拒绝安装了，删除就行了，因前面提示过没有看到后面就默认拒绝
+	   INSTALL_FAILED_USER_RESTRICTED错误  小米手机关闭usb安装管理：打开开发者选项---打开USB安装(允许通过USB安装应用)
+
+
+wifi 密码存储在
+#Android8.0（Oreo）之前版本
+/data/misc/wifi/wpa_supplicant.conf
+
+#Android8.0（Oreo）之后版本
+/data/misc/wifi/WifiConfigStore.xml
+ 
+adb shell>
+cat /data/misc/wifi/*.conf  小米的权限被拒 */
+ 
+拨号  *#*#4636#*#*  出界面-> wlang info->wlang config->
+
 
 ----真机root  未试?????
 得到root权限,bootloader加锁(刷机用)不影响得到root权限    

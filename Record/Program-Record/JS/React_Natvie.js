@@ -7,17 +7,25 @@ http://www.runoob.com/react/react-tutorial.html
 https://reactjs.org/
 https://github.com/facebook/react/releases   目前版本是 16.2.0
 
+
+React_Flux实现Facebook
+https://facebook.github.io/flux/
+http://www.ruanyifeng.com/blog/2016/01/flux.html
+
 UI框架有 https://reactjs.org/community/ui-components.html
 
-Ant Design 蚂蚁金服的
-Material UI   组件比较多,实现google android 的Material风格，日历像是面向移动的
+Material UI  适用移动端,实现google android 的Material风格(Storybook生成Material UI主题 )
+React Bootstrap (Bootstrap 4 components built with React) 桌面端
 
 react-toolbox  https://react.rocks/example/react-toolbox 有示例
 material-components-web
 Belle
-React Bootstrap 
 Elemental UI  
 
+Amaze UI React  国产 
+Ant Design 蚂蚁金服的
+
+-----
 
 npm init  会提示回车生成package.json文件
 npm install --save browser-sync   //--save存在package.json文件中  安装 browser-sync,是一个服务器监控修改生效

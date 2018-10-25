@@ -166,7 +166,7 @@ import org.apache.spark.api.java.function.Function;
 
 public class TestSpark {
  public static void main(String[] args) {
-   String logFile = "/home/zhaojin/spark-1.0.0-bin-hadoop2/README.md";
+   String logFile = "/home/zh/spark-1.0.0-bin-hadoop2/README.md";
    SparkConf conf = new SparkConf().setAppName("Simple Application");//如加.setMaster("local[4]");表示本地用4个线程跑,就可在eclipse中运行
    JavaSparkContext sc = new JavaSparkContext(conf);
    JavaRDD<String> logData = sc.textFile(logFile).cache();//textFile方法第二个参数可加配置分割文件数量,但不能小块大小,HDFS默认是64M
@@ -188,7 +188,7 @@ public class TestSpark {
  
  public static void main(String[] args) throws Exception 
  {
-	String logFile = "/home/zhaojin/spark-1.0.0-bin-hadoop2/README.md";
+	String logFile = "/home/zh/spark-1.0.0-bin-hadoop2/README.md";
     SparkConf sparkConf = new SparkConf().setAppName("JavaWordCount").setMaster("local[4]");
     JavaSparkContext ctx = new JavaSparkContext(sparkConf);
     JavaRDD<String> lines = ctx.textFile(logFile, 1);

@@ -26,8 +26,8 @@ console.dir(process)//显示process对象,有很多信息
 NPM (像linux的 yum  )
 npm install mongodb
 npm install -g mongodb //安装为一个全局使用的模块,
-默认安装在 C:\Users\zhaojin\AppData\Roaming\npm\node_modules 
-C:\Users\zhaojin\AppData\Roaming\npm-cache  目录很多文件
+默认安装在 C:\Users\zh\AppData\Roaming\npm\node_modules 
+C:\Users\zh\AppData\Roaming\npm-cache  目录很多文件
 //设置NODE_PATH环境变量为
 
 npm init   会提示回车生成package.json文件
@@ -412,7 +412,7 @@ client.on('end', function() {
 });
 
 //-----nodeJs mongoDB模块
-npm install -g mongodb //安装为一个全局使用的模块,设置NODE_PATH环境变量为C:\Users\zhaojin.li\AppData\Roaming\npm\node_modules
+npm install -g mongodb //安装为一个全局使用的模块,设置NODE_PATH环境变量为C:\Users\zh\AppData\Roaming\npm\node_modules
 //linux 在	/usr/local/lib/node_modules/brunch/node_modules/
 //  		~/.npm/
 npm install mongodb   //在线安装到当前目录,当前js文件同目录下要有node_modules\mongodb 

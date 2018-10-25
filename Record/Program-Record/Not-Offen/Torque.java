@@ -35,7 +35,7 @@ torque.defaults.connection.password =  hr
 torque.database.my_myc3p0.adapter=oracle
 
 # # Using c3p0
-torque.dsfactory.my_myc3p0.factory=org.zhaojin.My_TorqueC3P0DataSourceFactory
+torque.dsfactory.my_myc3p0.factory=org.zh.My_TorqueC3P0DataSourceFactory
 #<!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 --> 
 torque.dsfactory.my_myc3p0.pool.acquireIncrement=2
 #<!--定义在从数据库获取新连接失败后重复尝试的次数。Default: 30 --> 
@@ -75,7 +75,7 @@ torque.dsfactory.my_myc3p0.connection.password = hr
 //-------------------------------------------
 
 
-package org.zhaojin;
+package org.zh;
 import javax.sql.DataSource;
 
 import org.apache.commons.configuration.Configuration;
@@ -132,7 +132,7 @@ public class My_TorqueC3P0DataSourceFactory extends AbstractDataSourceFactory
 
 
 //----------------------------------------
-package org.zhaojin;
+package org.zh;
 
 import java.io.InputStream;
 import java.util.List;

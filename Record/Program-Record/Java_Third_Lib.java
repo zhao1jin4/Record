@@ -369,7 +369,7 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
  
 ----settings.xml
 默认读配置文件 ${user.home}/.m2/settings.xml (用户级,和安装目录的做合并,相同项用户级高),可从安装目录复制
-默认仓库是位于 ${user.home}/.m2/repository/ 即 C:\Users\zhaojin.li\.m2  MAVEN_REPO 的变量来修改
+默认仓库是位于 ${user.home}/.m2/repository/ 即 C:\Users\zh\.m2  MAVEN_REPO 的变量来修改
 可以修改配置<localRepository>/path/to/local/repo/</localRepository>
 设置 proxy ,但没说什么协议,如没有办法设置 http://主机:端口/文件  形式的代理 , [文件]的部分没办法给,)
 
@@ -414,8 +414,8 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 	  <properties>
 		<!-- <url>http://repo1.maven.org/maven2/</url>  这里是配置公用的第三方包 http://search.maven.org/#browse
 					http://central.maven.org/maven2
-					http://repo.spring.io/libs-release/
-					http://repo.spring.io/libs-milestone/
+					http://repo.spring.io/libs-release/ 
+					http://maven.aliyun.com/nexus/content/groups/public
 			-->
 		<release_deployment_url>http://localhost:8080/my/repo</release_deployment_url>
 		<snapshot_deployment_url>http://localhost:8080/my_snapshot/repo</snapshot_deployment_url>
@@ -585,10 +585,10 @@ artifactId 是自己的项目名
 		  
 		  
 	官方文档
-	 <plugin>
+	 <plugin>  <!-- OK -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.1</version>
+        <version>3.7.0</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
@@ -1094,7 +1094,7 @@ task wrapper (type:Wrapper)  // 就可以直接使用 gradle wrapper ,而不用�
 } 
 // task后是定义的任务名
 会自动下载其它依赖的包,在~/.gradle\caches\modules-2\files-2.1目录下
-C:\Users\zhaojin\.gradle\caches\modules-2\files-2.1  
+C:\Users\zh\.gradle\caches\modules-2\files-2.1  
 
 gradle wrapper --gradle-version 3.2.1  会生成 gradlew 可执行文件和gradle/wrapper目录 在项目目录下,gradle-wrapper.properties文件中下载gradle对应版本的URL
 
@@ -1285,6 +1285,9 @@ public class CalculatorTestSuit
 
 }
 ---------------------------JMockit 更强 
+
+SpringMVC 有 mockito
+
 ---------------------------EasyMock  
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
@@ -1474,6 +1477,24 @@ spring-mockmvc.xml 只有
 	<context:component-scan base-package="test_mockmvc"></context:component-scan>
 
 --------------------------iText
+https://developers.itextpdf.com/   
+	有 7 community API https://itextsupport.com/apidocs/itext7/latest/
+	Examples
+	Download 7 version
+
+<dependency>
+  <groupId>com.itextpdf</groupId>
+  <artifactId>itextpdf</artifactId>
+  <version>5.5.13</version>
+</dependency>
+<dependency>
+  <groupId>com.itextpdf</groupId>
+  <artifactId>itext-asian</artifactId>
+  <version>5.2.0</version>
+</dependency>
+
+pdfHTML 基于HTML生成 7 版本是收费的 , 有Community
+
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Font;
@@ -1503,16 +1524,36 @@ document.addCreator("myCreator ");
 
 PdfWriter.getInstance(document, new FileOutputStream("C:\\HelloWorld.pdf"));
 document.open();
-document.add(new Paragraph("Hello World"));
+Paragraph p1=new Paragraph("_Hello 你好_",font);
+p1.setIndentationLeft(10f);
+p1.setIndentationRight(10f);
+document.add(p1);
+document.newPage();   //换页 
 document.close();
 --表格
-PdfPCell title=new PdfPCell(new  Paragraph(10,"hello world"))  //P 代表Paragraph,Paragraph可带字体
+String ttf=dirPrefix+"/eclipse_java_workspace/J_JavaThirdLib/src/pdf_itext/simhei.ttf";
+//String ttf="c:\\WINDOWS\\Fonts\\SIMHEI.TTF";
+BaseFont chineseFont = BaseFont.createFont(ttf ,BaseFont.IDENTITY_H,BaseFont.NOT_EMBEDDED);
+Font font = new Font(chineseFont, 12, Font.BOLD,new GrayColor(0.9f));
+
+PdfPCell title=new PdfPCell(new  Paragraph(10,"hello world",font))   
 //new PdfPCell(new Phrase("Cell with rowspan 2"));
 title.setColspan(2);
 title.setRowspan(2);
-title.setBackgroundColor(Color.RED);
-PdfPTable table=new PdfPTable(int numColumns)
-table.addCell(title)
+title.setBackgroundColor(BaseColor.GREEN);
+
+		
+PdfPTable table=new PdfPTable(numColumns)
+table.addCell(title);
+
+PdfPCell  cell = new PdfPCell(new Phrase("cn 中文 ,row 1; cell 1",font));
+cell.setUseAscender(true);
+cell.setMinimumHeight(20f);
+cell.setHorizontalAlignment(1);
+cell.setVerticalAlignment(5);
+cell.setNoWrap(false);
+table.addCell(cell);
+
 document.add(table);
 ---图片
 document.newPage();   //换页   
@@ -1569,12 +1610,13 @@ for (int i=1; i<=reader.getNumberOfPages(); i++)
 	  over.stroke();
 
 }
+ 
 stamper.close();
 //---
-List list = SimpleBookmark.getBookmark ( reader ) ;
-for ( Iterator i = list.iterator () ; i.hasNext () ; ) 
+List<HashMap<String, Object>> list = SimpleBookmark.getBookmark ( reader ) ;
+for ( Iterator<HashMap<String, Object>> i = list.iterator () ; i.hasNext () ; ) 
 {
-	showBookmark (( Map ) i.next ()) ;
+	showBookmark (i.next ()) ;
 }
 private static void showBookmark ( Map bookmark ) 
 {
@@ -1587,6 +1629,86 @@ private static void showBookmark ( Map bookmark )
 		showBookmark (( Map ) i.next ()) ;
 	}
 }	
+ 
+//-----
+
+Map<String,String> param =new HashMap<>();
+param.put("my_username", "张三");
+param.put("my_age", "20");
+
+//world 创建模板文件 另存为(libreOffice导出) pdf  -> Adobe Acrobat Reader Proc DC  再编辑 PDF 
+//		->准备表单->工具栏上 添加"文本"域 ,拖出一个区域, 设置变量,itext程序就可以赋值 
+//设置模板变量
+AcroFields form=stamper.getAcroFields();
+String ttf=dirPrefix+"/eclipse_java_workspace/J_JavaThirdLib/src/pdf_itext/simhei.ttf";
+//String ttf="c:\\WINDOWS\\Fonts\\SIMHEI.TTF";
+BaseFont chineseFont = BaseFont.createFont(ttf ,BaseFont.IDENTITY_H,BaseFont.EMBEDDED);
+form.addSubstitutionFont(chineseFont);
+for(String key :param.keySet())
+{
+	form.setField(key, param.get(key));
+}
+stamper.close();
+//----
+
+String[] files=new String[] {"d:/temp/template_user_res.pdf","d:/temp/HelloWorld.pdf"};
+String res="d:/temp/merge_res.pdf";
+PdfReader pdfReader=new PdfReader(files[0]);
+//pdf合并
+Rectangle rect=pdfReader.getPageSize(1);
+Document document = new Document(rect);
+PdfCopy copy=new PdfCopy(document,new FileOutputStream(res));
+document.open();
+for(int i=0;i<files.length;i++)
+{
+	PdfReader  reader=new PdfReader(files[i]);
+	int n=reader.getNumberOfPages();
+	for(int j=1;j<=n;j++)
+	{
+		document.newPage();
+		PdfImportedPage page=copy.getImportedPage(reader, j);
+		copy.addPage(page);
+	} 
+	reader.close();
+}
+document.close();
+pdfReader.close();
+//---- 背景文字
+String fromFile="d:/temp/merge_res.pdf";
+String bgFile="d:/temp/merge_res_bg.pdf";
+String markText="背景文字";
+
+String ttf=dirPrefix+"/eclipse_java_workspace/J_JavaThirdLib/src/pdf_itext/simhei.ttf";
+//String ttf="c:\\WINDOWS\\Fonts\\SIMHEI.TTF";
+BaseFont chineseFont = BaseFont.createFont(ttf ,BaseFont.IDENTITY_H,BaseFont.EMBEDDED);
+Font font = new Font(chineseFont, 12, Font.NORMAL);
+
+PdfReader  reader=new PdfReader(fromFile);
+PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(bgFile));
+int n=reader.getNumberOfPages();
+Phrase phrase=new Phrase(markText,font);
+for(int i=1;i<=n;i++)
+{
+	//PdfContentByte over=stamper.getOverContent(i);//水印在文本之上
+	PdfContentByte over=stamper.getUnderContent(i); //水印在文本之下
+	over.saveState();
+	PdfGState state=new PdfGState();
+	state.setFillOpacity(0.2f);
+	over.setGState(state);
+	float beginPositionX=10,beginPositionY=70,distance=175;
+	for(int i2=0;i2<4;i2++)
+	{
+		for(int j=0;j<4;j++)
+		{
+			ColumnText.showTextAligned(over, Element.ALIGN_LEFT,
+						phrase, beginPositionX+distance*i2, beginPositionY+distance*j, 25);
+		}
+	}
+	over.restoreState();
+}
+stamper.close();
+reader.close(); 
+
 
 ----web中应用
 
@@ -1646,7 +1768,73 @@ JFreeChart 和 iText
 将 DefaultFontMapper mapper = new DefaultFontMapper();语句替换为
    AsianFontMapper mapper = new AsianFontMapper("STSong-Light","UniGB-UCS2-H");
 
-   
+
+======================PdfBox=============================
+依赖于commons-logging,fontbox
+<dependency>
+  <groupId>org.apache.pdfbox</groupId>
+  <artifactId>pdfbox</artifactId>
+  <version>2.0.11</version>
+  <type>bundle</type>
+</dependency>
+
+要基于HTML生成，要支持中文 
+---1.8 
+import org.apache.pdfbox.exceptions.COSVisitorException;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.util.PDFTextStripper;
+
+---读
+boolean sort = false;
+String textFile = null;
+String pdfFile = "D:/my/Spring_源码分析.pdf";
+PDDocument document = PDDocument.load(new File(pdfFile));
+if (pdfFile.length() > 4) {
+	textFile = pdfFile.substring(0, pdfFile.length() - 4) + ".txt";
+}
+// 文件输出流，写入文件到textFile
+Writer output = new OutputStreamWriter(new FileOutputStream(textFile),"UTF-8");
+// PDFTextStripper来提取文本
+PDFTextStripper stripper = new PDFTextStripper();//可加GBK,但中文OK
+stripper.setSortByPosition(sort);
+stripper.setStartPage(1);
+stripper.setEndPage(20);
+// 调用PDFTextStripper的writeText提取并输出文本
+stripper.writeText(document, output);
+output.close();
+document.close();
+//---
+PDFParser parser = new PDFParser(new RandomAccessFile(new File(pdfFile),"rw"));  
+parser.parse();  
+PDDocument pdfdocument = parser.getPDDocument();  
+PDFTextStripper stripper = new PDFTextStripper();  
+String result = stripper.getText(pdfdocument);  
+System.out.println(result);  
+---写
+PDDocument document = new PDDocument();
+PDPage page = new PDPage();
+document.addPage( page );
+
+// Create a new font object selecting one of the PDF base fonts
+PDFont font = PDType1Font.HELVETICA_BOLD;//中文不行
+
+// Create a new font object by loading a TrueType font into the document
+//PDFont font = PDTrueTypeFont.loadTTF(document, "c:\\WINDOWS\\Fonts\\SIMHEI.TTF");//中文不正常
+
+PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+contentStream.beginText();
+contentStream.setFont( font, 12 );
+contentStream.newLineAtOffset( 100, 700 );
+contentStream.showText( "Hello World_中__" );
+contentStream.endText();
+contentStream.close();
+document.save( "d:/temp/Hello World.pdf");
+document.close();
 =================================Lucene-6.4================================
   
  最新的 luke-src-4.0.0 最近更新是2012年7月
@@ -2432,30 +2620,32 @@ GET index/type/1
  <dependency>
     <groupId>org.mongodb</groupId>
     <artifactId>mongodb-driver</artifactId>
-    <version>3.8.0</version>
+    <version>3.8.2</version>
 </dependency>
 <dependency>
 	<groupId>org.mongodb</groupId>
 	<artifactId>mongodb-driver-core</artifactId>
-	<version>3.8.0</version>
+	<version>3.8.2</version>
 </dependency>
 <dependency>
 	<groupId>org.mongodb</groupId>
 	<artifactId>mongodb-driver-async</artifactId>
-	<version>3.8.0</version>
+	<version>3.8.2</version>
 </dependency>
 <dependency>
     <groupId>org.mongodb</groupId>
     <artifactId>bson</artifactId>
-    <version>3.8.0</version>
+    <version>3.8.2</version>
 </dependency>
 
 3.8 支持MongoDB 4.0 的事务
-
-mongodb-driver-3.8.0.jar
-mongodb-driver-async-3.8.0.jar
-	mongodb-driver-core-3.8.0.jar
-bson-3.8.0.jar
+Multi-document transactions are available for replica sets only. 
+Transactions for sharded clusters are scheduled for MongoDB 4.2
+ 
+mongodb-driver-3.8.2.jar
+mongodb-driver-async-3.8.2.jar
+	mongodb-driver-core-3.8.2.jar
+bson-3.8.2.jar
 
 http://mongodb.github.io/mongo-java-driver/3.4/
 	
@@ -2529,7 +2719,44 @@ public class MongoTest
 		   cursor.close();
 		}
 	}
-	 
+	public static void transaction(  )
+	{
+ 
+//		Multi-document transactions are available for replica sets only. 
+//		Transactions for sharded clusters are scheduled for MongoDB 4.2
+	
+		MongoCredential credential = MongoCredential.createCredential("zh", "reporting", "123".toCharArray());
+		MongoClientOptions opts= new MongoClientOptions.Builder().build();
+		ServerAddress[] addrs=	new ServerAddress[] {
+				new ServerAddress("127.0.0.1", 37017),
+				new ServerAddress("127.0.0.1", 37018),
+				new ServerAddress("127.0.0.1", 37019),};
+		MongoClient mongoClient  = new MongoClient(Arrays.asList(addrs), credential,opts );  
+	
+//		db.employees.insert({employee:3,status:'none'})
+//		db.events.insert({})
+		MongoCollection<Document> employeesCollection = mongoClient.getDatabase("reporting").getCollection("employees");
+	    MongoCollection<Document> eventsCollection = mongoClient.getDatabase("reporting").getCollection("events");
+	    ClientSession clientSession = mongoClient.startSession();
+	    try   {
+	        clientSession.startTransaction();
+
+	        employeesCollection.updateOne(clientSession,
+	                Filters.eq("employee", 3),
+	                Updates.set("status", "Inactive"));
+	        eventsCollection.insertOne(clientSession,
+	                new Document("employee", 3).append("status", new Document("new", "Inactive").append("old", "Active")));
+
+	        clientSession.commitTransaction();
+	    
+	    }catch(Exception e)
+		{
+	    	e.printStackTrace();
+	    	clientSession.abortTransaction();
+		}finally {
+			clientSession.close();
+		}
+	}
 	public static void main(String[] args) throws Exception
 	{
 		//MongoClient mongoClient = new MongoClient( "localhost" , 27017 );
@@ -2684,14 +2911,235 @@ collection.bulkWrite(
 );
    
    
+==============================Neo4j   JavaClient
 
+<dependency>
+    <groupId>org.neo4j.driver</groupId>
+    <artifactId>neo4j-java-driver</artifactId>
+    <version>1.6.3</version>
+</dependency>
+
+支持JDK8,不支持9
+
+ NoSQL  图 数据库  Cypher Query Language
+
+
+import org.neo4j.driver.v1.AuthTokens;
+import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.GraphDatabase;
+import org.neo4j.driver.v1.Session;
+import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.Transaction;
+import org.neo4j.driver.v1.TransactionWork;
+import static org.neo4j.driver.v1.Values.parameters;
+
+public class HelloWorldExample implements AutoCloseable
+{
+    private final Driver driver;
+
+    public HelloWorldExample( String uri, String user, String password )
+    {
+        driver = GraphDatabase.driver( uri, AuthTokens.basic( user, password ) );
+    }
+
+    @Override
+    public void close() throws Exception
+    {
+        driver.close();
+    }
+
+    public void printGreeting( final String message )
+    {
+        try ( Session session = driver.session() )
+        {
+            String greeting = session.writeTransaction( new TransactionWork<String>()
+            {
+                @Override
+                public String execute( Transaction tx )
+                {
+                    StatementResult result = tx.run( "CREATE (a:Greeting) " +
+                                                     "SET a.message = $message " +
+                                                     "RETURN a.message + ', from node ' + id(a)",
+                            parameters( "message", message ) );
+                    return result.single().get( 0 ).asString();
+                }
+            } );
+            System.out.println( greeting );
+        }//try
+    }
+    public static void main( String... args ) throws Exception
+    {
+        try ( HelloWorldExample greeter = new HelloWorldExample( "bolt://localhost:7687", "neo4j", "myneo4j" ) )
+        {
+            greeter.printGreeting( "hello, world" );
+        }
+    }
+}
+
+try (Transaction tx = session.beginTransaction())
+{
+	tx.run("MERGE (a:Person {name: {x}})", parameters("x", name));
+	tx.success();  // Mark this write as successful.
+}
+
+ StatementResult result = session.run(
+		"MATCH (a:Person) WHERE a.name STARTS WITH {x} RETURN a.name AS name",
+		parameters("x", initial));
+// Each Cypher execution returns a stream of records.
+while (result.hasNext())
+{
+	Record record = result.next(); 
+	System.out.println(record.get("name").asString());
+}
+
+
+
+
+============================== neo4j-ogm 
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-core</artifactId>
+    <version>3.1.4</version>
+</dependency>
+
+<dependency> 
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-http-driver</artifactId>
+    <version>3.1.4</version>
+</dependency>
+
+<dependency> 
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-bolt-driver</artifactId>
+    <version>3.1.4</version>
+</dependency>
+<dependency>
+    <groupId>org.neo4j</groupId>
+    <artifactId>neo4j-ogm-embedded-driver</artifactId>
+    <version>3.1.4</version> 
+</dependency> <!-- 运行依赖于 org.neo4j.graphdb.GraphDatabaseService -->
+
+neo4j-ogm-core-3.1.4.jar
+	neo4j-ogm-api-3.1.4.jar
+	fast-classpath-scanner-2.18.1.jar
+neo4j-ogm-bolt-driver-3.1.4.jar
+neo4j-ogm-http-driver-3.1.4.jar
+
+
+------ neo4j-ogm.properties
+URI=http://neo4j:myneo4j@localhost:7474
+
+#
+#URI=http://localhost:7474
+#username="neo4j"
+#password="myneo4j"
+
+
+String classpathFile="nosql_neo4j_ogm/neo4j-ogm.properties";//JDK 8 不能以/开头
+Properties properties = new Properties();
+InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(classpathFile)   ;
+properties.load(is);
+is.close();
+ 
+Configuration configuration = new Configuration.Builder()
+		.uri("bolt://localhost")
+		.credentials("neo4j", "myneo4j")
+ //--
+		 // .uri("http://neo4j:myneo4j@localhost:7474")
+ //--
+		 //.uri("file:///D:/software/neo4j/neo4j-community-3.4.8-windows/neo4j-community-3.4.8/data/databases/graph.db")
+		 //ClassNotFoundException: org.neo4j.graphdb.GraphDatabaseService ???
+		  
+ .build();
+//--------
+//ConfigurationSource props = new ClasspathConfigurationSource(classpathFile);
+//ConfigurationSource props = new FileConfigurationSource("D:\\NEW_\\eclipse_java_workspace/J_JavaThirdLib/src/nosql_neo4j_ogm/neo4j-ogm.properties");
+//Configuration configuration = new Configuration.Builder(props).build();
+SessionFactory sessionFactory = new SessionFactory(configuration, "nosql_neo4j_ogm.domain");//packages
+
+
+/*
+org.neo4j.driver.v1.Driver nativeDriver = GraphDatabase.driver( "bolt://localhost:7687", AuthTokens.basic( "neo4j", "myneo4j") );
+Driver ogmDriver = new BoltDriver(nativeDriver);
+SessionFactory sessionFactory = new SessionFactory(ogmDriver, "nosql_neo4j_ogm.domain");//packages
+
+ */		
+
+ Session session = sessionFactory.openSession();
+
+ 
+ 
+Movie movie = new Movie("The Matrix", 1999);
+Actor keanu = new Actor("Keanu Reeves");
+keanu.actsIn(movie);
+
+session.save(movie); 
+Movie matrix = session.load(Movie.class, movie.getId()); 
+for(Actor actor : matrix.getActors()) {
+	System.out.println("Actor: " + actor.getName());
+}
+
+package nosql_neo4j_ogm.domain;
+@NodeEntity(label="lbl_Movie") 
+public class Movie {
+ 
+	@Id @GeneratedValue
+	private Long id;
+
+	@Property(name="one_title")
+	private String title;
+	
+	 @Transient //不存储
+	private int released;
+
+	@Relationship(type = "ACTS_IN",  
+			 direction=Relationship.INCOMING
+			 )
+	Set<Actor> actors=new HashSet<>();
+
+	 
+	public Movie() { //类必须有空的公有构造器
+	}
+
+	public Movie(String title, int year) {
+		this.title = title;
+		this.released = year;
+	}
+	//getter/setter
+}
+ 
+@NodeEntity
+public class Actor {
+ 
+	@Id @GeneratedValue
+	private Long id;
+
+   @Property(name="fullName")
+   private String name ;
+
+	@Relationship(type = "ACTED_IN", direction=Relationship.OUTGOING)
+	private Set<Movie> movies = new HashSet<>();
+
+	public Actor() {
+	}
+
+	public Actor(String name) {
+		this.name = name;
+	}
+
+	public void actsIn(Movie movie) {
+		movies.add(movie);
+		movie.getActors().add(this);
+	}
+   //getter/setter
+}
 -------------------- Kafaka在hadoop中
 
 -------------------------------------------- RabbitMQ  3.7.7
 .exe安装版要 ERLang语言,RabbitMQ,启动停止可在services.msc中做也可使用命令启动
 配置文件 是 rabbitmq.config  
 D:\Program\RabbitMQ Server\rabbitmq_server-3.7.7\etc\rabbitmq.config.example 复制修改
-#C:\Users\zhaojin\AppData\Roaming\RabbitMQ\rabbitmq.config.example
+#C:\Users\zh\AppData\Roaming\RabbitMQ\rabbitmq.config.example
 默认端口  {tcp_listeners, [5672]},
 
 linux 下解压有sbin目录 rabbitmqctl 要 erl  ,安装erlang不太容易 CentOS 7 下 yum install erlang根本没有
@@ -2707,9 +3155,9 @@ linux sbin目录下
 看控制台默认日志在 解压的 rabbitmq_server-3.7.7/var/log/rabbitmq/rabbit@<hostname>.log
  
 windows zip 设置 ERLANG_HOME=D:\Program\erl9.3\ 变量  
-看控制台默认日志 C:\Users\zhaojin\AppData\Roaming\RabbitMQ\log
-看界面默认配置文件 c:/Users/zhaojin/AppData/Roaming/RabbitMQ/rabbitmq.config
-看界面默认数据目录 C:\Users\zhaojin\AppData\Roaming\RabbitMQ\db\RABBIT~1
+看控制台默认日志 C:\Users\zh\AppData\Roaming\RabbitMQ\log
+看界面默认配置文件 c:/Users/zh/AppData/Roaming/RabbitMQ/rabbitmq.config
+看界面默认数据目录 C:\Users\zh\AppData\Roaming\RabbitMQ\db\RABBIT~1
 看界面默认amp端口是 5672
 看界面默认clustering端口是 25672
 
@@ -3135,69 +3583,6 @@ Push and Pull model,
 TAG 可以用同一个topic 发不同的消息
 
 
-======================PdfBox=============================
-依赖于commons-logging,fontbox
-<dependency>
-  <groupId>org.apache.pdfbox</groupId>
-  <artifactId>pdfbox</artifactId>
-  <version>2.0.0</version>
-</dependency>
----1.8 
-import org.apache.pdfbox.exceptions.COSVisitorException;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.util.PDFTextStripper;
-
----读
-boolean sort = false;
-String textFile = null;
-String pdfFile = "D:/my/Spring_源码分析.pdf";
-PDDocument document = PDDocument.load(new File(pdfFile));
-if (pdfFile.length() > 4) {
-	textFile = pdfFile.substring(0, pdfFile.length() - 4) + ".txt";
-}
-// 文件输出流，写入文件到textFile
-Writer output = new OutputStreamWriter(new FileOutputStream(textFile),"UTF-8");
-// PDFTextStripper来提取文本
-PDFTextStripper stripper = new PDFTextStripper();//可加GBK,但中文OK
-stripper.setSortByPosition(sort);
-stripper.setStartPage(1);
-stripper.setEndPage(20);
-// 调用PDFTextStripper的writeText提取并输出文本
-stripper.writeText(document, output);
-output.close();
-document.close();
-//---
-PDFParser parser = new PDFParser(new RandomAccessFile(new File(pdfFile),"rw"));  
-parser.parse();  
-PDDocument pdfdocument = parser.getPDDocument();  
-PDFTextStripper stripper = new PDFTextStripper();  
-String result = stripper.getText(pdfdocument);  
-System.out.println(result);  
----写
-PDDocument document = new PDDocument();
-PDPage page = new PDPage();
-document.addPage( page );
-
-// Create a new font object selecting one of the PDF base fonts
-PDFont font = PDType1Font.HELVETICA_BOLD;//中文不行
-
-// Create a new font object by loading a TrueType font into the document
-//PDFont font = PDTrueTypeFont.loadTTF(document, "c:\\WINDOWS\\Fonts\\SIMHEI.TTF");//中文不正常
-
-PDPageContentStream contentStream = new PDPageContentStream(document, page);
-
-contentStream.beginText();
-contentStream.setFont( font, 12 );
-contentStream.newLineAtOffset( 100, 700 );
-contentStream.showText( "Hello World_中__" );
-contentStream.endText();
-contentStream.close();
-document.save( "d:/temp/Hello World.pdf");
-document.close();
 
 --------------------------------- POI excel xls,xlsx 
  <dependency>
@@ -3271,6 +3656,10 @@ Graphics2D g=buffImg.createGraphics();
 g.drawImage(...);
 g.dispose();
 //CODEC的全称=Coder and Decoder ,apache
+
+
+
+
 ---------------------------------Log4j 1
 
 －X号: X信息输出时左对齐；
@@ -3373,11 +3762,19 @@ Logger rootLog=Logger.getRootLogger();//根
         <artifactId>log4j-core</artifactId>
         <version>2.11.0</version>
       </dependency>
+	  
+	<dependency>
+	  <groupId>org.apache.logging.log4j</groupId>
+	  <artifactId>log4j-slf4j-impl</artifactId>
+	  <version>2.11.1</version>
+	</dependency>
+
     </dependencies>
 	
 log4j-api-2.1.jar
 log4j-core-2.1.jar
 log4j-slf4j-impl-2.1.jar  如用slf4j
+ 
 
 classpath下名为 log4j2.xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -3454,6 +3851,12 @@ Logger logger = LogManager.getLogger(TestLog4j2.class);
 ---------------------------------SLF4J
 替代 Spring 使用的 commons-logging 加 jcl-over-slf4j-1.7.6.jar
 
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-api</artifactId>
+  <version>1.7.25</version>
+</dependency>
+
 使用SLF4J(Simple Logging Facade for Java)做日志,为多种日志框架,默认是log4j
 import org.slf4j.Logger;  
 import org.slf4j.LoggerFactory; 
@@ -3465,6 +3868,18 @@ logger.error("文件找不到",new FileNotFoundException("/test.txt"));//传入T
 
 ---------------------------------logback 依赖于 SLF4J
 可以把 org.springframework.context 简化为o.s.c   ,INFO 变为 I , 日志量变少
+
+<dependency>
+    <groupId>ch.qos.logback</groupId>
+    <artifactId>logback-core</artifactId>
+    <version>1.2.3</version>
+</dependency>
+<dependency>
+    <groupId>ch.qos.logback</groupId>
+    <artifactId>logback-classic</artifactId>
+    <version>1.2.3</version> 
+</dependency>
+
 
 依赖 slf4j-api-1.7.6.jar , logback-core-1.1.2.jar  ,logback-classic-1.1.2.jar  直接实现了SLF4J API
 如果用<if condition ,要 Janino 库 janino-2.7.5.jar 依赖 commons-compiler-2.7.5.jar
@@ -3601,10 +4016,19 @@ logback-examples\src\main\java\chapters\appenders\conf\logback-sizeAndTime.xml
 %.-1level  把INFO 变为  I
 
 logback可以把日志推送给logstash 
+
+<dependency>
+  <groupId>net.logstash.logback</groupId>
+  <artifactId>logstash-logback-encoder</artifactId>
+  <version>5.2</version>
+</dependency>
+
 <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
 	<destination>IP:port</destination>
 	<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder"/>
 </appender>
+
+
 -------------------------------JSCH
 jCraft的一个项目,是sftp实现
 
@@ -3705,23 +4129,56 @@ Base64.decodeBase64(data);
 
 ---------------------------------commons beanutils
 import org.apache.commons.beanutils.BeanUtils;
-
-UserVO user=new UserVO();
-user.setBirthday(new Date());
-user.setCreateTime(new Timestamp(new Date().getTime()));
-user.setId(100);
-user.setName("王");
-user.setSalary(10000.80);
-
-UserVO dest=new UserVO();
-UserVO orig=user;
-
-BeanUtils.copyProperties(dest, orig); // 不行？？？ commons.beanutils 和 spring都有
-
-ConvertUtils.register(new  SqlDateConverter(null), java.sql.Date.class);
-ConvertUtils.register(new  SqlDateConverter(null), java.util.Date.class);
-ConvertUtils.register(new  SqlTimestampConverter(null),  java.sql.Timestamp.class);
-
+ 
+PersonBean dest = new PersonBean();
+UserBean orig =new UserBean();
+orig.setAge(20);
+orig.setBirthday(new Date());
+orig.setName("lisi");
+ 
+BeanUtils.copyProperties(dest, orig); // commons.beanutils 和 spring都有，双方不同类都有匹配不上的字段也可正常用
+ 	
+ ConvertUtils.register(new Converter()
+	 {
+		  
+		 @Override
+		 public Object convert(Class arg0, Object arg1)
+		 {
+			 if(arg1 == null)
+			 {
+				 return null;
+			 }
+			 if(!(arg1 instanceof String))
+			 {
+				 throw new ConversionException("只支持字符串转换 !");
+			 }
+			  
+			 String str = (String)arg1;
+			 if(str.trim().equals(""))
+			 {
+				 return null;
+			 }
+			  
+			 SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			 try {
+				return sd.parse(str);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			 return null;
+		 }
+		  
+	 }, java.util.Date.class);//map要只字串，可转成日期
+	 
+	PersonBean person = new PersonBean();
+	Map<String, Object> mp = new HashMap<String, Object>();
+	mp.put("name", "Mike");
+	mp.put("age", 25);
+	mp.put("mN", "male");
+	mp.put("birthday", "2017-08-20 14:20:10");	
+	BeanUtils.populate(person, mp); //org.apache.commons.beanutils
+  
+  
 //也可用 java.beans.Introspector 做  Map --> Bean , Bean -> Map
 BeanUtils.populate(obj, map); // Map --> Bean 
 
@@ -3974,6 +4431,12 @@ response.getOutputStream();
 
 
 -----------------------------http client
+<dependency>
+  <groupId>org.apache.httpcomponents</groupId>
+  <artifactId>httpclient</artifactId>
+  <version>4.5.6</version>
+</dependency>
+
 public static void proxyTest() throws Exception //测试OK,注意看日志
 {
 	DefaultHttpClient httpclient = new DefaultHttpClient();
@@ -4244,6 +4707,8 @@ org.quartz.threadPool.threadCount: 10
 Clustering 配置 org.quartz.jobStore.isClustered: true
 	
 ---------------------------------Netty
+Ratpack 基于 Netty (event-driven)
+
 JBoss的 NIO  很少类基于 java nio
 NioServerSocketChannel , NioSocketChannel 用了 java nio
 //---- Netty-4.1
@@ -5352,11 +5817,19 @@ System.out.println("userMap: "+ userMap);
     <artifactId>jackson-annotations</artifactId>
     <version>2.9.6</version>
 </dependency>
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-public class UserJson {
+import org.springframework.data.annotation.Id;
 
+public class UserJson {
+	
+	@Id
+	@JsonSerialize(using=MyJSonSerializer.class) 
+	private ObjectId id; //mongo的
+	
 	@JsonProperty("userName")
     private String userName;
 	
@@ -5367,6 +5840,7 @@ public class UserJson {
     private String password;
     
     @JsonProperty("favorite")
+	@JsonInclude(JsonInclude.Include.NON_NULL) 	 //字段范围,如果该属性为NULL,生成joson没有该字段 
     private List<String> favorite;
 
     @JsonProperty("order")
@@ -5376,10 +5850,19 @@ public class UserJson {
 	
 	//getter/setter
 }
-
+public class MyJSonSerializer extends JsonSerializer<ObjectId>{
+	@Override
+	public void serialize(ObjectId objId, JsonGenerator gen, SerializerProvider provider) throws IOException {
+		 if(objId==null)
+			 gen.writeNull();
+		 else
+			 gen.writeString(objId.toString());
+	} 
+}
 //--- 对象 到 JSON字串
 ObjectMapper mapper = new ObjectMapper();
 mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);//全局范围，如果该属性为NULL,生成joson没有该字段 
 String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user);
 System.out.println(jsonString);
 
@@ -5726,7 +6209,7 @@ hello.sayHello("王");
 <dependency>
 	<groupId>io.projectreactor</groupId>
 	<artifactId>reactor-core</artifactId>
-	<version>3.1.8.RELEASE</version>
+	<version>3.2.0.RELEASE</version>
 </dependency>
 <dependency>
     <groupId>com.lmax</groupId>
@@ -5744,6 +6227,8 @@ hello.sayHello("王");
     <version>7.0.3</version>
 </dependency>
 jsr166e-1.0.jar
+
+//---1 或 2 版本的老代码 ??????????????
 Environment env = new Environment();
 Reactor reactor = Reactors.reactor()
 		  .env(env)  
@@ -5829,9 +6314,92 @@ p2.onSuccess(new Consumer<Float>() { //p1.onSuccess
 	}
 });
 deferred1.accept("182.2");
+//--------------3版本的新代码
 
+// https://www.infoq.com/articles/reactor-by-example/
+public class Reactor3Example {
+  private static List<String> words = Arrays.asList(
+        "the",
+        "quick",
+        "brown",
+        "fox",
+        "jumped",
+        "over",
+        "the",
+        "lazy",
+        "dog"
+        );
+
+  @Test
+  public void simpleCreation() {
+     Flux<String> fewWords = Flux.just("Hello", "World");
+     Flux<String> manyWords = Flux.fromIterable(words);
+
+     fewWords.subscribe(System.out::println);
+     System.out.println();
+     manyWords.subscribe(System.out::println);
+  }
+  
+  
+  @Test
+  public void findingMissingLetter() {
+    Flux<String> manyLetters = Flux
+          .fromIterable(words)
+          .flatMap(word -> Flux.fromArray(word.split("")))
+          .distinct()
+          .sort()
+          .zipWith(Flux.range(1, Integer.MAX_VALUE),
+                (string, count) -> String.format("%2d. %s", count, string));
+
+    manyLetters.subscribe(System.out::println);
+  }
+  @Test
+  public void restoringMissingLetter() {
+    Mono<String> missing = Mono.just("s");
+    Flux<String> allLetters = Flux
+          .fromIterable(words)
+          .flatMap(word -> Flux.fromArray(word.split("")))
+          .concatWith(missing)
+          .distinct()
+          .sort()
+          .zipWith(Flux.range(1, Integer.MAX_VALUE),
+                (string, count) -> String.format("%2d. %s", count, string));
+
+    allLetters.subscribe(System.out::println);
+  }
+  @Test
+  public void shortCircuit() {
+    Flux<String> helloPauseWorld = 
+                Mono.just("Hello")
+                    .concatWith(Mono.just("world") );
+
+    helloPauseWorld.subscribe(System.out::println);
+  }
+  
+  @Test
+  public void blocks() {
+    Flux<String> helloPauseWorld = 
+      Mono.just("Hello")
+          .concatWith(Mono.just("world") );
+
+    helloPauseWorld.toStream()
+                   .forEach(System.out::println);
+  }
+ 
+}
 
 -------------Reactor  上
+-------------ThymeLeaf 3.x
+<dependency>
+    <groupId>org.thymeleaf</groupId>
+    <artifactId>thymeleaf</artifactId>
+    <version>3.0.9.RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>org.thymeleaf</groupId>
+    <artifactId>thymeleaf-spring5</artifactId>
+    <version>3.0.9.RELEASE</version>
+</dependency>
 
 -------------OAuth 2.0  
 Open Authorization
@@ -5840,7 +6408,8 @@ resource owner  最终用户
 resource server	 是API服务器 使用access token,返回保护的资源
 client			应用
 authorization server 保存用户密码的服务器
----client
+---client sparklr2
+
 
 
 

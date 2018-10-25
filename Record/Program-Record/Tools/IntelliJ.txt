@@ -56,7 +56,9 @@ File->project stucture ->选择Modules标签 可以Import或者Add 多个,默认
 右击.iml文件-> subversion->ignore->*.iml
 File->Settings->Editor->File Types  在ignore files and folders 中加*.iml;dubboregistry
 
-收费版 File->Settings->Build,Executeion,Deployment->Application Server-> + 一个Tomcat,就可以Run中建立,deployment中+ 个我Artifact..->选择xx:war exploded
+收费版 File->Settings->Build,Executeion,Deployment->Application Server-> + 一个Tomcat,就可以Run中建立,
+		deployment标签中+ 个我Artifact..->选择xx:war exploded
+		server标签可以在on upate action 下拉选择 update resource或者update classes, 也可在运行时的Debug视图点刷新图标也会提示
 		(对应于project structure...->Artifact  + 一个 Web Application Exploed -> From modules->),设置context,启动时注意左侧的连接图标
 		注意不要修改tomcat中的catalina.bat 如设置内存,
 		集成Tomcat和eclipse不一样的是,如果程序中(一个进程)开了新的线程Intellij并不是多个线程同时运行,通过调试可以看出,
@@ -105,7 +107,8 @@ View->tool windows->project 显示项目视图
 				2018版	File->Setting...->Editor -> Color Scheme-> Color Scheme Font   16
 设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font  16
 				 2018版	File->Setting...->Editor -> Color Scheme-> Console Font  16
-Code -> reformat code 格式化代码
+Code -> reformat code 格式化代码 (ctrl+alt+L)
+Edit->join lines (ctrl+shift+j) 把选中的代码压缩成一行
 Code -> Generate...生成getter,setter  ( alter+insert  )
 code -> completation -> basic   ( ctrl+ 空格  要修改 Setting->Keymap->Main menu中修改也可搜索 )代码提示 
 code -> completation -> smart type   (   ctrl+shift+空格 代码提示  )
@@ -114,6 +117,7 @@ view -> Tool Buttons
 code -> optimize import (ctrl+alt+o) 
 	如有import xx.*; 会去无用的import ,并不会自动替换,这点不如eclipse好用
 标放在没有导入的类上, 按 alter + enter (同eclipse的ctrl+1) 提示import
+code->folding->collapse all(ctrl+shift+-) 对JS太多很有用
 
 自动批量导入
 Editor>General>Auto Import-> Java组中 复选 add unambiguous imports on the fly选项
@@ -152,7 +156,7 @@ Perferences...  ->  Editor  ->General->  Editor Tabs 调整 Tab Closing Policy �
  File->invalidate cache/restart  可以把本地的版本历史记录清除,加快响应速度
 
 
- C:\Users\zhaojin\.IntelliJIdea2017\idea64.exe.vmoptions  默认不存在，内存不足时有提示会生成
+ C:\Users\zh\.IntelliJIdea2017\idea64.exe.vmoptions  默认不存在，内存不足时有提示会生成
 	-Xmx750m
 	-XX:MaxMetaspaceSize=200m
 	-XX:ReservedCodeCacheSize=240m
@@ -168,6 +172,14 @@ intellij edea 一个main方法只可启动一次，如要多在配置启动项�
 列选择模式 选择多行光标会变高
 右击-> column selection  mode (alt + shift + insert)
 
+tools-> http client->test resetful web service 像firefox的reset client工具
+
+
+Settings->Editor->Code Style->Java /JavaScript->Wapping and  Braces -> Braces Placesment 组中全部修改为 next line
+
+
+ctrl + y 是删除当前行
+
 ====================IntelliJ IDEA plugin 
 scala 
 jd-gui
@@ -182,8 +194,7 @@ lombok 插件
 		<version>1.16.20</version>
 	</dependency>
 
----------DataGrip 2018
-破解用 http://idea.toocruel.net
+---------DataGrip 2018 
 
 MySQL 8 jdbc
 zeroDateTimeBehavior 要设置为CONVERT_TO_NULL

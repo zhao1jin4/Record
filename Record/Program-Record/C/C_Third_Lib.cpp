@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 //#pragma comment(lib, "sqlite.lib")//我把sqlite编译成了一个静态的lib文件。
 // 源码安装sqlite 不要删make的文件夹，eclipse-debug时可以打开源码.c
 
-//#define DB_FILE "/home/zhaojin/sqliteDB"
+//#define DB_FILE "/home/zh/sqliteDB"
 #define DB_FILE "c:/temp/sqliteDB"
 
 void error_exit(sqlite3 *db, char *message)
@@ -131,7 +131,7 @@ void testOne()
 		sleep(1);
 	}
 	sqlite3_exec(handle,"create table student (id int,name varchar(20))",0,0,&error_msg);
-	sqlite3_exec(handle,"insert into student(id,name)values(1,'zhaojin')",0,0,&error_msg);
+	sqlite3_exec(handle,"insert into student(id,name)values(1,'lisi')",0,0,&error_msg);
 	sqlite3_exec(handle,"insert into student(id,name)values(2,'李')",0,0,&error_msg);
 	sqlite3_exec(handle,"insert into student(id,name)values(3,'王')",0,0,&error_msg);
 	status = sqlite3_exec(handle, "COMMIT TRANSACTION", NULL, NULL, &error_msg);//提交，解锁
@@ -155,7 +155,7 @@ void testOne()
 	if (status != SQLITE_OK) error_exit(handle, "sqlite3_bind_text/mydi");
 
 
-	status=sqlite3_bind_text(stmt_insert,name_index,"zhaojin",sizeof("zhaojin"),SQLITE_TRANSIENT);//对text
+	status=sqlite3_bind_text(stmt_insert,name_index,"zh",sizeof("zh"),SQLITE_TRANSIENT);//对text
 	if (status != SQLITE_OK) error_exit(handle, "sqlite3_bind_text/myname");
 
 	status=sqlite3_step(stmt_insert);
@@ -285,7 +285,7 @@ int callback(void *NotUsed, int argc, char **values, char **col_name)
 	return 0;
 	/*
 	id = 1
-	name = zhaojin
+	name = zh
 
 	id = 2
 	name = 李
@@ -1105,7 +1105,7 @@ http://blog.csdn.net/zougangx/article/category/693231
 windows 10 要用 Visual Studio 2015 
 
 npm install -g cordova
-cordova create E:/tmp/VS2015_Cordova7 org.zhaojin VS2015_Cordova7
+cordova create E:/tmp/VS2015_Cordova7 org.zh VS2015_Cordova7
 cd E:/tmp/VS2015_Cordova7
 cordova platform add  windows      
 

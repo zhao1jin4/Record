@@ -4,15 +4,21 @@ C++语言编写
 工具用  Toad Extension for Eclipse 带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
 Toad for Eclipse-2.4.4 可以支持mongo-3.2版本,3.4版本打开js文件连接不成功,
 Robo  Studio 3T  2018.2.5 (收费的)
+Robo 3T  1.2 免费的zip(linux,mac)
+
 NoSQL Manager for MongoDB-4.9.9.2 支持MongoDB 4.0  (只windows,下freeware安装 )
 MongoDB 页面管理工具: Rockmongo
+	
+TreeSoft 国产的 http://www.treesoft.cn/
+	TreeDMS 页面管理工具 即可连接  MySQL 又可连接 MongoDB,  v2.2.7 连接mongo,如有数据某个字段是集合类型没办法显示 
+	TreeNMS for Redis 
+	
 官方的Mongo Compass
 
 https://docs.mongodb.com/
-https://docs.mongodb.com/manual/
-http://docs.mongoing.com/manual-zh/
+https://docs.mongodb.com/manual/   最下方可下载离线版本 , The manual is also available as HTML tar.gz and EPUB
 
-3.2文档 是epub格式 ,用Adobe Digital Editor-4.5打开后,但不能复制代码,使用Calibre 就可以复制,还可前进后退,点右上角可以切换翻页和滚页模式,还有Mac 版本的
+4.0 文档 epub 格式 ,Edge能打开,用Adobe Digital Editor-4.5.9(有Mac版本) 打开后,但不能复制代码,使用Calibre 就可以复制,还可前进后退,点右上角可以切换翻页和滚页模式
 3.3 的html文档 有仿问google的js打不开
 
 JSON (JavaScript Object Notation 标记法)
@@ -42,6 +48,14 @@ net:
 
 setParameter:
    enableLocalhostAuthBypass: false
+   
+replication:
+   replSetName: "rs0" 
+   
+security:
+  keyFile: <path-to-keyfile>   
+// openssl rand -base64 756 > <path-to-keyfile>
+// chmod 400 <path-to-keyfile>
 -----------
  $./mongod --help
  
@@ -56,10 +70,11 @@ windows命令 md C:\mongodb\data\db
 
  
 客户端工具
-mongo.exe   --port 47017 // 默认连接 27017 端口 
+mongo.exe   --host localhost --port 47017 // 默认连接 27017 端口 
 mongo   127.0.0.1:27017/admin   来建立管理员用户 
 mongo -u zh -p 123  127.0.0.1:27017/reporting  ##/后面是数据名    默认不验证用户名要启动时加 --auth ,建立用户时不加--auth
-
+-u [ --username ]     
+-p [ --password ]  
 
 >db.test.save( { a: 1 } )
 >db.test.find()
@@ -531,6 +546,7 @@ db.bios.find( { _id : 4} )   //过虑条件,多个有,分隔,数值可用$lt,$gt
 			$or: [ { qty: { $gt: 100 } },{ price: { $lt: 9.95 } } ]
 			{ tags: [ 'fruit', 'food', 'citrus' ] } //数组必须按顺序匹配
 			{ tags: 'fruit' } //数组要包含元素
+			 
 			{ 'tags.0' : 'fruit' } //数组第一个元素要是
 			 { 'memos.0.by': 'shipping' }//数组第一个元素的子元素by要为
 			 { 'memos.by': 'shipping' } //数组至少一个素的子元素by要为
@@ -545,6 +561,9 @@ db.bios.find( { _id : 4} )   //过虑条件,多个有,分隔,数值可用$lt,$gt
 							by: 'shipping'
 					   }
                      }
+  .find({array:{$elemMatch:{$ne:null}}}) //查数组不为空的
+  .find({array:{$size:0}})
+  
 db.collection.find().sort( { age: -1 } ); //负数是降序,正数表示升序
 db.posts.find( {}, { comments: { $slice: 5 } } )//对comments数组只取前5个
 db.posts.find( {}, { comments: { $slice: -5 } } )//对comments数组只取后5个
@@ -794,7 +813,8 @@ oplog (operations log)
 
 md c:\mongodb\data\rs0_one
 mongod --replSet "rs0"  --dbpath c:\mongodb\data\rs0_one  --port  37017 --smallfiles --oplogSize 128 //rs0是名字  默认端口 27017, --smallfiles为开发机
-//也可在linux,windows间做,以指定--keyFile 文件内容是明文的密码,设置权限chmod 600,两个实例用不同的keyFile文件
+//也可在linux,windows间做,以指定--keyFile 长度6 到 1024 字付,may only contain characters in the base64 set
+	//设置权限chmod 600,两个实例用不同的keyFile文件
 再建立一个
 md c:\mongodb\data\rs0_two
 mongod --replSet "rs0"  --dbpath c:\mongodb\data\rs0_two   --port 37018  --smallfiles --oplogSize 128
@@ -808,7 +828,7 @@ mongo --port  37017	启动后用客户端连上
 	_id: "rs0",
 	members: [{
 		_id: 0,
-		host: "localhost:37017"
+		host: "localhost:37017"  //可为127.0.0.1:37017
 	}]
 }
 >rs.initiate( rsconf )  	//后提示符变为rs0:PRIMARY>  如为 rs0:OTHER>要再按回车刷新
@@ -818,24 +838,23 @@ rsconf = {
 	_id: "rs0",
 	members: [{
 		_id: 0,
-		host: "localhost:37017"
+		host: "localhost:37017" //可为127.0.0.1:37017
 		,priority:1
 	}
 	,
 	{  
 		_id: 1,
-		host: "localhost:37018"
+		host: "localhost:37018" //可为127.0.0.1:37017
 		,priority:2
 	}
 	]
 }
-rs.initiate( rsconf )// 所有的主机必须为 localhost
-
-
+rs.initiate( rsconf )
 //>rs.initiate() 			//使用默认配置
-rs0:PRIMARY> rs.conf() 		//显示只一个, 如启动加 --keyFile ,不能执行(show collections/dbs也不行),报not authorized on test to execute command?????
-rs0:PRIMARY> rs.status()	//显示哪个primary,哪个SECONDARY ,临时可能为STARTUP2
-rs0:PRIMARY> rs.add("localhost:37018")  // 所有的主机必须为 localhost
+
+rs0:PRIMARY> rs.conf()     //显示只一个, 如启动加 --keyFile ,不能执行(show collections/dbs也不行),报not authorized on test to execute command?????
+rs0:PRIMARY> rs.status()	//  "stateStr" : "PRIMARY", 显示哪个primary,哪个SECONDARY ,临时可能为STARTUP2
+rs0:PRIMARY> rs.add("localhost:37018")  //可为127.0.0.1:37017  
 rs0:PRIMARY> rs.add("localhost:37019")
 rs0:PRIMARY> rs.conf()		//变两个
 
@@ -975,6 +994,18 @@ for (var i=1;i<=500;i++){
 	 db.bios.insert({ "_id":i , name:"lisi"+i })
 }
  ==========Transaction 4.0 新功能 多文档事务
+ 
+ Multi-document transactions are available for replica sets only. 
+ Transactions for sharded clusters are scheduled for MongoDB 4.2
+ 
+  maxTransactionLockRequestTimeoutMillis 默认 5
+ db.adminCommand( { setParameter: 1, maxTransactionLockRequestTimeoutMillis: 20 } )
+ mongod --setParameter maxTransactionLockRequestTimeoutMillis=20  
+ 
+ 
+ 
+ 
+ 
  
  
  

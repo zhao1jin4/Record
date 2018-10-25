@@ -13,12 +13,12 @@ https://angular.io/
 node.js 安装  Angular CLI       
 npm install -g @angular/cli
 
-C:\Users\zhaojin\AppData\Roaming\npm\ng
+C:\Users\zh\AppData\Roaming\npm\ng
 
 ng new my-app   还要git 命令，建立项目node_modules大小超 200MB
 cd my-app 
 ng serve --open  启动服务器,--open表示启动后自动打开 http://localhost:4200/
 
-WebStorm 建项目是 node.exe C:\Users\zhaojin\AppData\Roaming\npm\node_modules\@angular\cli\bin\ng new untitled --dir=.
+WebStorm 建项目是 node.exe C:\Users\zh\AppData\Roaming\npm\node_modules\@angular\cli\bin\ng new untitled --dir=.
 
 

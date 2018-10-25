@@ -72,7 +72,7 @@ SID_LIST_LISTENER =   #####LISTENER是对应上面的,中要加多个(SID_LIST =
 SID_LIST_LISTENER1 =
   (SID_LIST =
      (SID_DESC =
-       (GLOBAL_DBNAME = zhaojin)
+       (GLOBAL_DBNAME = zh)
        (ORACLE_HOME = c:\oracle\product\10.1.0\db_1)  
        (SID_NAME = orcl)
      )
@@ -86,7 +86,7 @@ SID_LIST_LISTENER1 =
 ---上OK
 
 initSID.ora初始参数文件中
-	service_names=('orcl3','zhaojin')	#相当于listener.ora中 如上的多个GLOBAL_DBNAME的配置
+	service_names=('orcl3','zh')	#相当于listener.ora中 如上的多个GLOBAL_DBNAME的配置
 	instance_name=orcl3			#相当于listener.ora中   (SID_NAME = orcl)
 	##以上OK必须用LISTENER做名,否则定义local_listener参数
 	local_listener='(ADDRESS = (PROTOCOL=TCP)(HOST=localhost)(PORT=1521))'	##如果监听不是LISTENER , 指定它的值, Listener启动后要等一会才能连上OK
@@ -130,14 +130,14 @@ sqlnet.ora中
 	names.directory_path=(HOSTNAME)  ###如是tnsname ,使用文件tnsnames.ora来解析@后的
 	sqlnet.authentication_services=(NTS)
 
-	lizhaojin是主机名 ,以下必须是相同的 要/etc/hosts ,来解析IP
-	sqlplus hr/hr@"lizhaojin"    
-	listener.ora 中的SID_LIST_LISTENER中必须是GLOBAL_DBNAME=lizhaojin  ##也可是lizhaojin.test.com,但要加在
+	zhHost 是主机名 ,以下必须是相同的 要/etc/hosts ,来解析IP
+	sqlplus hr/hr@"zhHost"    
+	listener.ora 中的SID_LIST_LISTENER中必须是GLOBAL_DBNAME=zhHost  ##也可是 zhHost.test.com,但要加在
 	C:\WINDOWS\system32\drivers\etc
-	192.168.1.108      	lizhaojin.test.com	 lizhaojin	
+	192.168.1.108      	zhHost.test.com	 zhHost	
 
-	要用这样来连接 sqlplus hr/hr@lizhaojin/orcl  或者 sqlplus hr/hr@192.168.1.108/orcl //OK
-	names.directory_path=(HOSTNAME,TNSNAMES),listener.ora 中的SID_LIST_LISTENER多加一个  (SID_DESC =  (GLOBAL_DBNAME = zhaojin),就可使用两种方式  //OK
+	要用这样来连接 sqlplus hr/hr@zhHost/orcl  或者 sqlplus hr/hr@192.168.1.108/orcl //OK
+	names.directory_path=(HOSTNAME,TNSNAMES),listener.ora 中的SID_LIST_LISTENER多加一个  (SID_DESC =  (GLOBAL_DBNAME = zh),就可使用两种方式  //OK
 
 
 col xx format a20
@@ -150,7 +150,7 @@ DEDICATED
 SHARED   ##sysdba用户必须用独占服务模式,要有Dispatcher,不同的协议 不同的Dispatcher 
 	服务器端启用Dispatcher,  alter system set dispatchers='(protocol=tcp)(dispatchers=3)'  
 	
-	如不能连接要(SERVICE_NAME = zhaojin)改为  (SID= orcl)DEDICATED也可
+	如不能连接要(SERVICE_NAME = zh)改为  (SID= orcl)DEDICATED也可
 
 共享服务 Dispatcher把请求放入请求队列,多个共享服务器进程去读并处理,把结果送入响应队列,Dispatcher再把结果送入用户
 所有人共享一个请求队列,每个用户有一个响应队列

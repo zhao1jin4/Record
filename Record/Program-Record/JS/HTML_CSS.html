@@ -23,6 +23,7 @@ http://www.runoob.com/  ,像w3shool
 
 HPlus(H+) 美工使用的工具
 
+<!DOCTYPE html> 每个页面必须要有
 
 <meta http-equiv="pragma" content="no-cache">
 <meta http-equiv="cache-control" content="no-cache">
@@ -357,6 +358,16 @@ h1 > strong {color:red;}
 紧接在 h1 元素后出现的段落的上边距，可以这样写：
 h1 + p {margin-top:50px;}
 
+margin:10px 5px 15px 20px;
+	上外边距是 10px
+    右外边距是 5px
+    下外边距是 15px
+    左外边距是 20px
+
+margin:10px 5px;
+    上外边距和下外边距是 10px
+    右外边距和左外边距是 5px
+	
 伪类
 a:link {color: #FF0000}		/* 未访问的链接 */
 a:visited {color: #00FF00}	/* 已访问的链接 */
@@ -437,6 +448,18 @@ oDiv2.style.cssFloat =sValue2;//兼容火狐
 	<li><div style="border-radius:50%;background:blue;color:white;width:20px;height:20px;text-align:center;line-height:20px" >2</div></li>
 	<li><div style="border-radius:50%;background:blue;color:white;width:20px;height:20px;text-align:center;line-height:20px" >3</div></li> 
 </ul> 
+
+
+禁用a标签
+<style>
+	a.disabled {
+		pointer-events: none;
+		filter: alpha(opacity=50); /*IE滤镜，透明度50%*/
+		-moz-opacity: 0.5; /*Firefox私有，透明度50%*/
+		opacity: 0.5; /*其他，透明度50%*/
+	}
+</style> 
+<a class="disabled"></a>
 
 
 ===================SVG

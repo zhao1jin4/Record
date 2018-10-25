@@ -727,11 +727,11 @@ mail 看邮件  /var/spool/mail/root  ,如 cron 任务语法错误
 00 23 28-31 * * [`date -d tomorrow +\%e` -eq 1] && do-something		每月的最后一天的23点做do-something,%e表示第一天用 1表示同%_d,%d就是01 
 
 /etc/crontab 中的配置
-@daily     zhaojin  find $HOME -type f -name '.#*' -print -delete
+@daily     zh  find $HOME -type f -name '.#*' -print -delete
 #要加用户名,Mac修改文件都是彩色配置才是正确的,修改文件立即生效,contab -l 查不到
 
 crontab -e 当前用户增加/修改  文件存在/var/spool/cron/<user>文件中 
-crontab -u zhaojin -l 来查看
+crontab -u zh -l 来查看
 crontab -r 删除当前用户全部
 Mac记录在 cat /usr/lib/cron/tabs/<用户> 文件中
 	
@@ -821,14 +821,14 @@ date后可中文
 
 modprobe usb-storage  USB存储器的驱动  会认为sd类型的
 
-mount -t vfat -o ro,utf8,uid=zhaojin,gid=zhaojin /dev/....
+mount -t vfat -o ro,utf8,uid=zh,gid=zh /dev/....
 -o      iocharset=gb2312
 	iocharset=utf8(可省为utf8)
 	uid=xx,gid=xxxx,umask=0077
 -a 会读/etc/fstab文件 ( -a -t vfat 会/etc/fstab 中有所的vfat类型的) 
 wheel组为root组
 
-mount -o iocharset=utf8,uid=zhaojin  -t vfat /dev/sda7 /media/E/
+mount -o iocharset=utf8,uid=zh  -t vfat /dev/sda7 /media/E/
 fat32 要加iocharset=utf8 ,文件名是按linux正常显示中文的，ntfs就不用了只ro
   要指定uid 普通用户才能有权限写
 
@@ -856,16 +856,23 @@ linux-q50c:~ # lspci | grep VGA
 01:00.0 VGA compatible controller: ATI Technologies Inc Whistler [AMD Radeon HD 6600M Series] (rev ff)
 
 openSUSE-13.2不用了,只是DynOff
-linux-cxfp:/home/zhaojin # cat /sys/kernel/debug/vgaswitcheroo/switch
+linux-cxfp:/home/zh # cat /sys/kernel/debug/vgaswitcheroo/switch
 0:IGD:+:Pwr:0000:00:02.0
 1:DIS: :DynOff:0000:01:00.0
-linux-cxfp:/home/zhaojin # echo OFF > /sys/kernel/debug/vgaswitcheroo/switch 
-linux-cxfp:/home/zhaojin # cat /sys/kernel/debug/vgaswitcheroo/switch
+linux-cxfp:/home/zh # echo OFF > /sys/kernel/debug/vgaswitcheroo/switch 
+linux-cxfp:/home/zh # cat /sys/kernel/debug/vgaswitcheroo/switch
 0:IGD:+:Pwr:0000:00:02.0
 1:DIS: :DynOff:0000:01:00.0
  
 
 -------------
+lsusb   等同于 lspci | grep USB
+lsblk
+ethtool eth0
+lsblk
+lscpu
+
+
 (一个硬盘 主分区（包括扩展分区）的最大个数是四个)
 一个硬盘最多可以有 4 个 Primary + Extended 的扇区
 
@@ -1521,7 +1528,7 @@ quotacheck -ug /home
 
 quotaoff -a
 
-edquota -u zhaojin 增加配额  
+edquota -u zh 增加配额  
 -p login   把login用户配额信息复制给 -u指定的用户
 
 requota -a 显示报告
@@ -1757,7 +1764,7 @@ smbtree -b 表示广播
 smbtree -D 只查域,工作组
 	-U username%password
 hostname 
-nmblookup lizhaojin ##查找网上邻居的主机是lizhaojin的IP,可能有多个IP
+nmblookup zhHost ##查找网上邻居的主机是 zhHost 的IP,可能有多个IP
 			发送.255的广播地址
 nmblookup \*      ##看所有活动的主机
 
@@ -2353,4 +2360,10 @@ open files                      (-n) 1024
 yum   install  lrzsz  就可以用 rz ,sz 
 
 
+====== extundelete   ext3或者ext4  误删的恢复
+
+debugfs  是linux系统自带工具, 恢复Ext3的文件系统中被rm、rm -f 掉的文件 
+
+extundelete 主页 http://extundelete.sourceforge.net/
+extundelete-0.2.4.tar.bz2
 

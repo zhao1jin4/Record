@@ -9,7 +9,7 @@ db2 客户端  IBM Data Server Runtime Client 有  DB2 Command Line Processor (C
 
 -----------windows 安装
 db2admin 操作系统用户
-响应文件名: C:\Users\zhaojin\Documents\PROD_EXPC.rsp
+响应文件名: C:\Users\zh\Documents\PROD_EXPC.rsp
 实例名:DB2
 服务名称:db2c_DB2
 端口号:50000
@@ -136,7 +136,7 @@ $ db2 "select * from syscat.bufferpools"  --双引号可有,可无  显示数据
 
 select current schema from sysibm.dual 查当前schema  显示就是 db2instl
 select schemaname from syscat.schemata  查所有schema
-set current schema zhaojin  设置当前schema
+set current schema zh  设置当前schema
 
 SELECT distinct TABSCHEMA FROM SYSCAT.TABLES   --查所有存在的schema
 select * from sysstat.TABLES  -- view 
@@ -183,7 +183,7 @@ db2look -d <数据库别名> -e -o the_ddl.sql -td @  -i <identiti_user> -w <pas
 				 -e：抽取 DDL 文件，复制数据库需要此文件
 				-t：对指定的表
 				-z : schema
-db2look -d sample -e -o myTable.sql -z zhaojin -t myTable
+db2look -d sample -e -o myTable.sql -z zh -t myTable
 				
 ----------DB2客户端连接服务端的方法
 $ db2set –all 显示概要文件注册表设置 
@@ -213,7 +213,7 @@ db2c_DB2	50000/tcp
 
 db2 catalog tcpip node zhNode remote   10.1.2.60 server 50000 ostype NT
 db2 catalog db sample as zhSamp at node zhNode
-db2 connect to zhSamp user zhaojin using abs
+db2 connect to zhSamp user zh using 123
 -------
 db2look工具
 

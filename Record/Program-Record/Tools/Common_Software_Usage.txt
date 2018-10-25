@@ -132,7 +132,7 @@ shilft+insert=paste
 
 
 ----OneNote-2010
-C:\Users\zhaojin.li\Documents\OneNote Notebooks\Personal
+C:\Users\zh.li\Documents\OneNote Notebooks\Personal
 可对Section 做 Section Group 会建立一个文件夹
 
 File->Save as ->page只是当前书的当前页(.one)　,section是当前书(.one) ,　Notebook是所有的书,会解压的(.onepkg)
@@ -148,8 +148,8 @@ windows+shift+n 打开 OneNote
 打开outlook-2016 要.pst文件 ，如没有,打开outlook-2016不会自动创建，要选择目录，点击打开按钮自动创建，再次选择.pst文件 
 
 Outlook 数据文件  .pst 和 .ost
-数据文件存放在  C:\Users\zhaojin\Documents\Outlook Files\ 
- C:\Users\zhaojin\AppData\Local\Microsoft\Outlook
+数据文件存放在  C:\Users\zh\Documents\Outlook Files\ 
+ C:\Users\zh\AppData\Local\Microsoft\Outlook
 
 帐户配置不知道在哪？？？
  
@@ -161,7 +161,7 @@ More setting...按钮->outgoing Server 复选Myoutgoing server(SMTP) requires au
 如选择的是pop3  还在Advanced标签中复选  Leave a copy of message on the server ,取消复选Remove from server after 14 days
 
 
-联系人: tools->address book->输入 li zhaojin
+联系人: tools->address book->输入 user name
 会议:Calendar中->new appointment
 
 外出:可能要使用Exchange Server才行
@@ -202,7 +202,7 @@ firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下�
 	显示加载的插件	about:plugins
 	可修改配置	about:config 
 	help->TroubleShooting Information 即		about:support
-	firefox　主页被修改　　about:support  显示有user.js　在　C:\Users\zhaojin\AppData\Roaming\Mozilla目录下
+	firefox　主页被修改　　about:support  显示有user.js　在　C:\Users\zh\AppData\Roaming\Mozilla目录下
 
 
 firefox  插件
@@ -238,7 +238,7 @@ firefox.exe" -profilemanager  或者用 -p  会打开［选择用户配置文件
 
 ctrl+shift+k 打开高度控制台(替代firebug)
 
-Developer toolbar(shift+f2)的命令,提示功能很好,子命令可按回车提示
+Developer toolbar (shift+f2)的命令,提示功能很好,子命令可按回车提示
 	screenshot xx 截屏png格式保存到Downloads目录(win7)
 	screenshot --clipboard
 	dbg list  		
@@ -262,15 +262,17 @@ about:support 查看有 browser.newtab.url 有值 ,在about:config 中删除其�
 	1. 查看桌面快捷方式属性是否有设置,可以去除
 	2. about:support 中查有 browser.startup.homepage  的设置 ,如有值使用about:config把配置移除
 		也可点Show Fold按钮打开文件夹中把user.js中的和prefs.js配置删除  
-	任务栏的参数也要去除   C:\Users\zhaojin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
+	任务栏的参数也要去除   C:\Users\zh\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
 
 	检查浏览器插件
 	
 ctrl+shift+P 以隐身(Private)模式上网,不会保留浏览历史和Cookie
 Tools->options->Privacy  -> remove individual cookies ->可以看到Cookie
 
+------- 蓝灯 下载URL  https://github.com/getlantern/lantern
+
 -------------Chrome
-下载URL
+Chrome 下载URL  https://www.google.cn/chrome/ 
 
 https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg  mac最新版本
 https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm  linux 最新版本
@@ -298,8 +300,9 @@ Chrome查看版本的方法  chrome://version
 ctrl+shift+N 以隐身模式上网,不会保留浏览历史和Cookie
 Settins-> Privacy and Security->Content Settings->Cookies-> 在All Cookies and Site data组中可以看到Cookie
 Settins-> Download 可以打开 Ask where to save each file before downloading
-ChromeDeveloper设置字体大小 ctrl+滚轮
 
+按ctlr+f5 chrome 强制刷新 或者右击刷新按钮出菜单->清空缓存并硬性重新加载
+	
 插件   应用组的 Postman   https://www.getpostman.com/  安装后是一个单独的程序
 
 -------------Edge --------
@@ -313,7 +316,7 @@ IE中 强制刷新快捷键是CTLR+F5.
 主页被修改 
 桌面快捷方式 后的参数去除
 开始菜单 
-任务栏的参数也要去除  C:\Users\zhaojin\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
+任务栏的参数也要去除  C:\Users\zh\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
 		
 		
 检查浏览器插件
@@ -398,7 +401,7 @@ IE8 查看历史
 配置联系人服务器IP,Contacts->Advanced->Connections->点击new的下拉菜单->Server Connection
 	复选 TCPIP,Server name:输入SGSINM02/TCS,Advanced标签中->Destination server address:172.17.10.185(sgsinm02.tcs.com)
 
-联系人:在Calender中的工具栏上->Browse for Contact,Directory  中选择TCS's Directory ,View By中选择List By name,  Find names Starting中输入li , zhaojin,注意的是不区分大小写,逗号两边各一个空格
+联系人:在Calender中的工具栏上->Browse for Contact,Directory  中选择TCS's Directory ,View By中选择List By name,  Find names Starting中输入 user, name,注意的是不区分大小写,逗号两边各一个空格
 
 外出:在Mail工具栏上有一个more->out of office...
 会议:Calendar中的工具栏上->new ->meeting/appointment
@@ -446,6 +449,9 @@ UltraISO 打开可启动的iso文件后(如winPE,win7,一键Ghost光盘版) ,启
 大白菜制件U盘启winPE,会所U盘空间变显示变小,"界面有还原U盘空间"会格式化
 
 Adobe Reader 如点链接后,想返回,按alt+左键
+world 创建模板文件 另存为(libreOffice导出) pdf  -> Adobe Acrobat Reader Proc DC  再编辑 PDF 
+	->准备表单->工具栏上 添加"文本"域 ,拖出一个区域, 设置变量,itext程序就可以赋值 
+
 -------------GIMP
 工具箱 m 移动工具
 工具箱 shift + t 变形

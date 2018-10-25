@@ -229,7 +229,7 @@ List 和数组是同样的处理  List<File> file;
 <constant name="struts.custom.i18n.resources" value="basename"/>  是读src目录下的文件
 <constant name="struts.i18n.encoding" value="gbk"/> 
  
-<s:i18n name="basename"> 只对特指的文件去找，最好在根目录下，其它目录下 org.zhaojin.message
+<s:i18n name="basename"> 只对特指的文件去找，最好在根目录下，其它目录下 org.zh.message
 	<s:text name="key">
 		<s:param></s:param> 给{0}
 	</s:text>

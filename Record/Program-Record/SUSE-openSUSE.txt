@@ -180,7 +180,7 @@ net.ipv4.ip_local_port_range = 1024 65000
 
 root 运行 /opt/oracle/oraInventory/orainstRoot.sh
 	/opt/oracle/product/root.sh
-https://zhaojin.com:1158/em  是enterprise manager
+https://zhHost.com:1158/em  是enterprise manager
 
 
 不用安装java  ,用自带java 命令
@@ -530,7 +530,7 @@ export QT_IM_MODULE=fcitx
 （注销后无线网络，就不对了，要按fn键禁用再启用）
 
 /etc/vfstab 中
-/home/zhaojin/Documents/openSUSE-12.2.iso       /mnt/iso        iso9660 ro,loop 0       0
+/home/zh/Documents/openSUSE-12.2.iso       /mnt/iso        iso9660 ro,loop 0       0
 
 
 ----Grub2

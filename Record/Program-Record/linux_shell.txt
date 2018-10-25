@@ -740,7 +740,7 @@ stty $savestty
 
 
 
-su - zhaojin 会使用zhaojin用户的环境变量,而不是使用当前用户
+su - zh 会使用 zh 用户的环境变量,而不是使用当前用户
 
 ls -t 是按修改时排序 -r 反向
 ls -rlth *.zip | awk '{ printf "unzip -d ./all_unzip %s\n",$8;}' | head -n 10 | /bin/bash

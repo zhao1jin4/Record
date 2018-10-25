@@ -345,7 +345,7 @@ public class SessionController
 }
 
 
-
+ //JSON无效
 @InitBinder	//需要处理Date的时候,自动调用这个方法
 public void initBinder(WebDataBinder binder)//要用 WebDataBinder
 {
@@ -552,6 +552,13 @@ public String login(@ModelAttribute("account") Account account)//表单对应的
 	<property name="validationMessageSource" ref="messageSource"/> <!-- 如果不加默认到 使用classpath下的 ValidationMessages.properties -->
 </bean>
 
+就可以用
+@Autowired
+private Validator validator; //配置了 LocalValidatorFactoryBean
+
+LocaleContextHolder.setLocale(locale);//Spring 会自动切换验证错误的语言
+
+	
 import javax.validation.ConstraintValidator;
 public class EqualAttributesValidator implements ConstraintValidator<EqualAttributes, Object>
 {
@@ -559,14 +566,9 @@ public class EqualAttributesValidator implements ConstraintValidator<EqualAttrib
 	private String secondAttribute;
 	@Override
 	public void initialize(final EqualAttributes constraintAnnotation)
-	{
-		Assert.notEmpty(constraintAnnotation.value());
-		Assert.isTrue(constraintAnnotation.value().length == 2);
+	{ 
 		firstAttribute = constraintAnnotation.value()[0];
-		secondAttribute = constraintAnnotation.value()[1];
-		Assert.hasText(firstAttribute);
-		Assert.hasText(secondAttribute);
-		Assert.isTrue(!firstAttribute.equals(secondAttribute));
+		secondAttribute = constraintAnnotation.value()[1]; 
 	}
 
 	@Override
@@ -905,7 +907,7 @@ jackson-databind-2.2.3.jar
 <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
 	<property name="messageConverters">
 		<list>
-			<ref bean="mappingJacksonHttpMessageConverter" />
+			<ref bean="mappingJackson2HttpMessageConverter" />
 			<bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/> <!-- XML 为 @ResponseBody produces="application/xml" -->
 			<bean class="org.springframework.http.converter.StringHttpMessageConverter"/>  <!--为 @ResponseBody 的 text/*     */--> 
 			<!-- <bean class="org.springframework.http.converter.FormHttpMessageConverter"/>   application/x-www-form-urlencoded  -->
@@ -918,8 +920,8 @@ jackson-databind-2.2.3.jar
 </bean>
 
 
-<!-- 	<bean id="mappingJacksonHttpMessageConverter"  class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> JSON 简配置-->
-		<bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+<!-- 	<bean id="mappingJackson2HttpMessageConverter"  class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> JSON 简配置-->
+		<bean id="mappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
 			<property name="objectMapper">
 				<bean class="com.fasterxml.jackson.databind.ObjectMapper">
 					<property name="dateFormat">
@@ -930,13 +932,16 @@ jackson-databind-2.2.3.jar
 				</bean>
 			</property>
 		  </bean>
-也可以这样配置 　@Valid 是有效的
+		  对enum类型中有的自定义属性会忽略，只转换每一个分号前的值
+		  
+		  
+<!-- 也可以这样配置 　@Valid 是有效的，但converter无效？？？
  <mvc:annotation-driven>
  	<mvc:message-converters>
- 		<ref bean="mappingJacksonHttpMessageConverter" />
+ 		<ref bean="mappingJackson2HttpMessageConverter" />
  	</mvc:message-converters>
  </mvc:annotation-driven>
-	
+-->
 	
 //MyWebBindingInitializer -> @ControllerAdvice -> @Controller 
 public class MyWebBindingInitializer implements WebBindingInitializer 
@@ -944,30 +949,53 @@ public class MyWebBindingInitializer implements WebBindingInitializer
 	@Override
 	public void initBinder(WebDataBinder binder) {
 		System.out.println("调用 MyWebBindingInitializer ");
-		//binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd"), true));
+		//binder.registerCustomEditor(java.util.Date.class, new CustomDateEditor(new SimpleDateFormat("yyyy-MM-dd"), true));//JSON格式无效
 		binder.registerCustomEditor(Date.class,new  MyPropertyEditor());
 	}
 }
 
-//如果JSON日期 实体某个属性日期格式不一样 未测试????
-@DateTimeFormat(pattern="yyyy-MM-dd")   
-@JsonSerialize(using=JsonDateSerializer.class)  
-private Date returnBillDepartureTime;
+import org.springframework.format.annotation.DateTimeFormat;
+import com.fasterxml.jackson.annotation.JsonFormat;
+public class  Employee{
+	//JSON 类级别的单独日期格式化  方式一
+	@DateTimeFormat(pattern="yyyy-MM-dd") //是将String转换成Date，一般前台给后台传值时用
+	@JsonFormat(pattern="yyyy-MM-dd")//将Date转换成String 一般后台传值给前台时
+	private Date birthDay;
 
-class JsonDateSerializer extends JsonSerializer<Date> 
- {
+	// JSON 类级别的单独日期格式化 方式二
+	@JsonSerialize(using = MyDateJsonSerializer.class)    
+	public Date getBirthDay() {
+		return birthDay;
+	}
+	@JsonDeserialize(using = MyDateJsonDeserializer.class)    
+	public void setBirthDay(Date birthDay) {
+		this.birthDay = birthDay;
+	}
+ }
+//
+public class MyDateJsonSerializer extends JsonSerializer<Date> {
 	@Override
-	public void serialize(Date date, JsonGenerator gen, SerializerProvider provider)
-	{
-		SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd");
-		String value = dateFormat.format(date);
-		 try {
-			  gen.writeString(value);
-		  } catch (IOException e) {
-			  e.printStackTrace();
-		  }
+	public void serialize(Date date, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
+			throws IOException, JsonProcessingException {
+		jsonGenerator.writeString(new SimpleDateFormat("yyyy-MM-dd").format(date));
 	}
 }
+public class MyDateJsonDeserializer extends JsonDeserializer<Date>
+{    
+    public Date deserialize(JsonParser jp, DeserializationContext ctxt)  
+    {    
+        try {
+			return new SimpleDateFormat("yyyy-MM-dd").parse(jp.getText());
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+        return null;
+    }    
+}  
+
+
+
+
 	
 @Controller
 @RequestMapping("/json") 
@@ -984,6 +1012,20 @@ public class JSONController //OK
 	    public ResponseEntity<EmployeeResult> testJson2(HttpEntity<Employee> entity)
 	    {  
 			System.out.println(entity.getBody().getEmployee_id());
+		}
+		
+		
+		@RequestMapping(value="/paramList",method=RequestMethod.POST)
+		@ResponseStatus(HttpStatus.OK)
+		@ResponseBody 
+		//如@RequestBody  List<Employee> emps 可以进方法，Spring3 List中的是Map类型
+		//@RequestBody  Employee[] emps  是可以的
+		//public EmployeeResult paramList(HttpServletRequest request, @RequestBody  Employee[] emps)//OK
+		public EmployeeResult paramList(HttpServletRequest request, @RequestBody  List<Employee> emps)//Spring5 是实体类 OK ,Spring3 是Map
+		{
+			System.out.println(emps.size());
+			//System.out.println(emps.length);
+		
 		}
 }
 function ajaxJSONRequest()//OK
@@ -1012,14 +1054,34 @@ function jQueryJSONRequest() //OK
 		contentType:'application/json;charset=UTF-8',//请求是JSON   
 		dataType: 'json',//响应是JSON
 		url:root+'/json/queryEmployeeVO.mvc' ,
-		//data:JSON.stringify({employee_id:'123',first_name:'李四'}),//OK  发送的必须是字串,不能JS object
-		data:'{"employee_id":123,"first_name":"李四"}',//OK,内部Key必须是" 
+		data:JSON.stringify(
+					{employee_id:'123',first_name:'李四'
+					//,birthDay:'2010-03-15 18:10:20'  
+						,birthDay:'' //服务端为null(只用全局配置和只用类级配置)
+					}), 
+		//data:'{"employee_id":123,"first_name":"李四"}',//OK,内部Key必须是字串 ,不能JS object
 		success:function(response)
 		{
-			alert("success:"+response.allClothes[1]);
+			alert("success:"+response.underEmp[0].birthDay); 
 		}
 	};
 	$.ajax (config);
+}
+
+function jQueryJSONListRequest()  
+{
+	var paramList=[];
+	for(var i=0;i<3;i++)
+	{
+		var emp=
+		{
+			employee_id:'50'+i,
+			first_name:'李四'+i
+			,birthDay:'2010-03-15 18:10:20'  
+			//,birthDay:'' //服务端为null(只用全局配置和只用类级配置)
+		 };
+		paramList.push(emp);
+	}
 }
 
 spring-web-4.0.6.RELEASE.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中是 SpringServletContainerInitializer (实现了标准的servlet类 ServletContainerInitializer ),

@@ -12,6 +12,25 @@ dbForge Studio for MySQL	windows only  debug
 
   用 employees 示例数据库
   https://dev.mysql.com/doc/employee/en/employees-installation.html
+  
+ 
+--不用 group_concat 实现，这只能实现每组两条，如多条？？？
+
+CREATE table stu_score(id int ,stu_id int ,score int );
+insert into stu_score  values(1,1001,80);
+insert into stu_score values(2,1002,81);
+insert into stu_score values(3,1001,82);
+insert into stu_score values(4,1002,83);
+
+select distinct t.stu_id,
+concat(
+        (select score from stu_score where stu_id=t.stu_id order by score desc limit 1 )
+        ,',',
+        (select score from stu_score  where stu_id=t.stu_id order by score asc limit 1)
+) as res
+from stu_score  t
+
+  
    -- 2001年 工资>80000的员工,及所在部门及领导 ,一个部门会有2个领导
    
   select concat(e.first_name,e.last_name ,' ') as emp_name   ,
@@ -117,24 +136,24 @@ where
  
  
 -- 对现有的自连接数据，如员工表有一个上级经理，找出上级的上级到最顶级，(或者找出下级的下级到最低级,像oracle 的 start with ,connect ty )
+
+ create table treeNodes
+  (
+   id int primary key,
+   nodename varchar(20),
+   pid int
+  );
+insert into treenodes(id,nodename,pid) values(1,'A',0);
+insert into treenodes(id,nodename,pid) values(2,'B',1);
+insert into treenodes(id,nodename,pid) values(3,'C',1);
+insert into treenodes(id,nodename,pid) values(4,'D',2);
+insert into treenodes(id,nodename,pid) values(5,'E',2);
+insert into treenodes(id,nodename,pid) values(6,'F',3);
+insert into treenodes(id,nodename,pid) values(7,'G',6);
+insert into treenodes(id,nodename,pid) values(8,'H',0);
+insert into treenodes(id,nodename,pid) values(9,'I',8);
+
 show variables  like 'max_sp_recursion_depth';
-
-create table sc
-(sno int,
-cno int,
-score int);
-
-insert into sc values (1,1,100);
-insert into sc values (2,1,80);
-insert into sc values (3,1,25);
-insert into sc values (4,1,45);
-insert into sc values (5,1,67);
-insert into sc values (1,2,25);
-insert into sc values (2,2,77);
-insert into sc values (3,2,78);
-insert into sc values (4,2,69);
-insert into sc values (5,2,24);
-
 
 delimiter //
 drop function IF EXISTS getChildLst  //
@@ -235,22 +254,6 @@ from  treeNodes t, (SELECT @tmpStr:='') r;
 
 
 
---不用 group_concat 实现
-
-CREATE table stu_score(id int ,stu_id int ,score int );
-insert into stu_score  values(1,1001,80);
-insert into stu_score values(2,1002,81);
-insert into stu_score values(3,1001,82);
-insert into stu_score values(4,1002,83);
-
-select distinct t.stu_id,
-concat(
-        (select score from stu_score where stu_id=t.stu_id order by score desc limit 1 )
-        ,',',
-        (select score from stu_score  where stu_id=t.stu_id order by score asc limit 1)
-) as res
-from stu_score  t
-
 
 
 --------------------------------------使用
@@ -301,7 +304,7 @@ CHAR ,VARCHAR,BINARY,VARBINARY,BLOB,TEXT,ENUM , SET	 类型
 	
 CREATE TABLE data_type
 (
-	my_bit bit, -- 只能0或1, 可以多位 
+	my_bit bit, -- 只能0或1, 可以多位,做boolean类型 
 	my_blob blob,
 	my_binary BINARY(3),
 	my_enum ENUM('red','orange','black'),
@@ -543,29 +546,86 @@ where birth_date >'1952-02-01' and
 			where birth_date >'1952-02-01' 
 			limit 300000,1) 
 limit 24;
---   可以解决mybatis <collection> 式查询,麻烦最好换做法
-select * from employees 
-where birth_date >'1952-02-01'
-and
-	emp_no >= (select emp_no from employees 
-			where birth_date >'1952-02-01' 
-			limit 300000,1)
-	and 
+--   可以解决mybatis <collection> 式查询分页 
+select * 
+from employees e ,  -- 或inner join 无on
 	(
-		not exists(
-			select emp_no from employees 
+		select emp_no 
+		from employees 
+		where birth_date >'1952-02-01'  
+		limit 1020,1  -- 如查不到值,结就没记录？？？？？
+	)endView  
+where  e.birth_date >'1952-02-01'
+and e.emp_no >= 
+		(   select emp_no from employees 
 			where birth_date >'1952-02-01' 
-			limit 300010,1
+			limit 1000,1  
 		)
-		or
-		emp_no < (
-			select emp_no from employees 
-			where birth_date >'1952-02-01' 
-			limit 300010,1
-		)
-		
-	) 
+and  if(	endView.emp_no is null,
+		1=1,
+		e.emp_no <= endView.emp_no
+	  )  -- if可用在where中
 
+//----	  
+ select d.dept_no,
+		d.dept_name,
+		e.last_name as  manager,
+		e.emp_no, 
+		e.birth_date 
+from 
+dept_manager  dm 
+inner join 
+departments d on  dm.dept_no=d.dept_no
+inner join 
+employees e on dm.emp_no=e.emp_no 
+
+where  d.dept_no like 'd%'  
+and  d.dept_no >= 
+		(   select dept_no 
+			from departments 
+			where dept_no like 'd%'  
+			limit 2,1  
+		)
+--  /* 
+ and
+        (
+			not exists
+			(	
+				select dept_no 
+				from departments 
+				where dept_no like 'd%'  
+				limit 7,1  -- 7,1  10,1
+			)
+			or 
+			d.dept_no <= 
+			(
+				select dept_no 
+				from departments 
+				where dept_no like 'd%'  
+				limit  7,1  -- 7,1  10,1
+			)
+        )
+   */     
+-- 二选 一		
+and    if(  
+			( -- 如何放在变量中共用 ???
+				select dept_no 
+				from departments 
+				where dept_no like 'd%'  
+				limit  7,1  -- 7,1  10,1
+			)  is null,
+			1=1,
+			d.dept_no <= 
+			(
+				select dept_no 
+				from departments 
+				where dept_no like 'd%'  
+				limit  7,1  -- 7,1  10,1
+			)
+		)
+        
+
+	  
 
 多表关联的条件要加索引,on后面的
 
@@ -918,8 +978,8 @@ END LOOP label1;
 
  
  所有与null的操作运算都返回null
-
-IF(expr1,expr2,expr3)
+ 
+IF(expr1,expr2,expr3) 可以入在where中使用,如 where if(tab.col1 is null,1=1,tab.Id>3)
 如果 expr1 是真 (expr1 <> 0 and expr1 <> NULL) 返回expr2 否则返回expr3 
 if(p.industryTypeId is null,'Z',substr(p.industryTypeId,1,1)) //用is null
 

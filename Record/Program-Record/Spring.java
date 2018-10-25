@@ -77,7 +77,7 @@
 		<artifactId>spring-webmvc</artifactId>
 		<version>${spring.version}</version>
 	</dependency>
-	
+ 
 	<!-- security -->
 	<dependency>
 		<groupId>org.springframework.security</groupId>
@@ -132,17 +132,21 @@
         <version>2.1.2.RELEASE</version>
     </dependency>
 	<dependency>
-        <groupId>org.springframework.data</groupId>
-        <artifactId>spring-data-mongodb</artifactId>
-        <version>2.0.9.RELEASE</version>
-    </dependency>
+	  <groupId>org.springframework.data</groupId>
+	  <artifactId>spring-data-mongodb</artifactId>
+	  <version>2.1.1.RELEASE</version>
+	</dependency>
 	
 	<dependency>
 		<groupId>org.springframework.data</groupId>
 		<artifactId>spring-data-redis</artifactId>
 		<version>2.0.5.RELEASE</version>
 	</dependency>
-	
+	 <dependency>
+        <groupId>org.springframework.data</groupId>
+        <artifactId>spring-data-neo4j</artifactId>
+        <version>5.1.0.RELEASE</version>
+    </dependency>
 	
 	<dependency>
 	  <groupId>org.springframework.data</groupId>
@@ -259,8 +263,9 @@ web.xml中
     xmlns:security="http://www.springframework.org/schema/security"
     xmlns:redis="http://www.springframework.org/schema/redis"
     xmlns:mongo="http://www.springframework.org/schema/data/mongo"
-    xmlns:hdp="http://www.springframework.org/schema/hadoop"
     xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:neo4j="http://www.springframework.org/schema/data/neo4j"
+    xmlns:hdp="http://www.springframework.org/schema/hadoop"	
     xmlns:batch="http://www.springframework.org/schema/batch"
 	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
 	xmlns:ldap="http://www.springframework.org/schema/ldap"
@@ -302,10 +307,12 @@ web.xml中
                         http://www.springframework.org/schema/redis/spring-redis.xsd
                         http://www.springframework.org/schema/data/mongo
                         http://www.springframework.org/schema/data/mongo/spring-mongo.xsd 
-                        http://www.springframework.org/schema/hadoop
-                        http://www.springframework.org/schema/hadoop/spring-hadoop.xsd
-                        http://www.springframework.org/schema/data/jpa
+						http://www.springframework.org/schema/data/jpa
                         http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+						http://www.springframework.org/schema/data/neo4j    
+                        http://www.springframework.org/schema/data/neo4j/spring-neo4j.xsd
+						http://www.springframework.org/schema/hadoop
+                        http://www.springframework.org/schema/hadoop/spring-hadoop.xsd
                         http://www.springframework.org/schema/batch
                         http://www.springframework.org/schema/batch/spring-batch.xsd
 						http://www.springframework.org/schema/rabbit 
@@ -576,8 +583,8 @@ class Config
 		copier = BeanCopier.create(sourceObj.getClass(), target.getClass(), useConverter);
 		cache.putIfAbsent(key, copier);
 	}
-	copier.copy(sourceObj, target, null);//是调用的getter/setter方法
-	//网上查cglib 的BeanCopier 性能还不错 
+	copier.copy(sourceObj, target, null);//是调用的getter/setter方法,双方不同类都有匹配不上的字段也可正常用
+	//网上查cglib 的BeanCopier 性能还不错 ,还有commons beanutils
 	return target;
 }
 ------Hibernate 3 集成
@@ -2383,6 +2390,10 @@ public static void springDataLettuce()
  
  
 =========================Spring Data Mongodb 2.0.9
+
+
+
+
 依赖 spring-data-commons-x.RELEASE.jar
 public interface CustomerRepository extends MongoRepository<String, String> {
 }
@@ -2505,6 +2516,7 @@ public class Customer {
 	@Field(value="first_name")
     private String firstName;
 	
+	private String lastName;
 	//getter/setter
 }
 
@@ -2530,38 +2542,40 @@ for(int i=0;i<20;i++)
 	Customer item = new Customer("lisi"+i, "李四"+i);
 	customerRepository.save(item);  
 }
-
+Customer  cu=customerRepository.findByFirstNameAndLastName("lisi0" , "李四0");
+List<Customer>  cus=customerRepository.findCustomersByTwoParam("lisi0" , "李四0");
+	
 package springdata_mongodb.repo;
+import org.springframework.data.mongodb.repository.Query;
+
 @Repository
 public interface  MyCustomerRepository extends MongoRepository<Customer,String>//<Bean,ID>
 {
-}
----spring boot mongodb
-<dependency>
-	<groupId>org.springframework.boot</groupId>
-	<artifactId>spring-boot-starter-data-mongodb</artifactId>
-</dependency>
+	//JPA 命名规范   findBy (eclipse,idea都会提示)开头 关键字 And 相当于 where firstName= ? and lastName =?
+	public  Customer  findByFirstNameAndLastName(String firstName,String lastName);
+	
+	@Query("{'first_name' : ?0 , 'lastName' : ?1}") //?0表示第一个参数
+	public List<Customer> findCustomersByTwoParam(String first,String last);
+	
+} 
 
+// 
+MongoTemplate mongoTemplate =  context.getBean(MongoTemplate.class);
+MongoTemplate mongoTemplate =  context.getBean(MongoTemplate.class);
+Criteria c=new Criteria();
+c.orOperator(new Criteria[] {Criteria.where("first_name").regex("lisi")});
+Query  query =new   Query(c); 
+query.skip(2);
+query.limit(10);//分页
+Sort sort=new Sort(Sort.Direction.ASC,"createTime");
+query.with(sort);
 
-#spring.data.mongodb.uri=mongodb://zh:123@127.0.0.1:27017/reporting 
-# or 
-spring.data.mongodb.host=127.0.0.1
-spring.data.mongodb.port=27017
-spring.data.mongodb.database=reporting
-#spring.data.mongodb.authentication-database=
-spring.data.mongodb.username=zh
-spring.data.mongodb.password=123
+List<Customer> list=mongoTemplate.find(query, Customer.class);
+long cnt=mongoTemplate.count(query, Customer.class);
 
-import org.springframework.data.mongodb.MongoDbFactory;
-import com.mongodb.client.MongoDatabase;
-
-
-@Autowired
-private  MongoDbFactory mongo;
-
-MongoDatabase db = mongo.getDb();
-
-
+=========================Spring Data Neo4j
+使用 neo4j-ogm-core.jar
+ogm= Object-Graph mapping
 
 =========================Spring Data Hadoop-2.1
 

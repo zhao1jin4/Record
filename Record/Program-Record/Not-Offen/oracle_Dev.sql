@@ -209,7 +209,7 @@ blob类型 PL/SQL Developer 可以查看图片
 ---------------------------------------Oracle 导出Blob 到文件
 
 create or replace directory BLOB_DIR as '/tmp/blob_dir';
-grant read,write on directory BLOB_DIR to zhaojin;
+grant read,write on directory BLOB_DIR to zh;
 
 CREATE OR REPLACE PROCEDURE read_blob (db_name varchar2,new_name varchar2) IS
    l_file      UTL_FILE.FILE_TYPE;
@@ -983,7 +983,7 @@ select * from v$version;
 
 
 --------------物化视图
-grant create materialized view to zhaojin; 
+grant create materialized view to zh; 
 create materialized view my_view as select ....  
    as
   select ... from ...

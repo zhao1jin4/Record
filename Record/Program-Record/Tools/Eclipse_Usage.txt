@@ -258,7 +258,7 @@ eclipse 主题修改为黑色General->Apprance-> Theme 选Dark ,代码字体 有
 修改界面语言 eclipse.ini 文件中尾添加参数： -Duser.language=en
  
 开始->IBM Installation Manager
-单独安装完 WebSphere后,再启动RSA会自动安装插件,要先建立web项目,才会激活web工作区 (但在 C:\Users\zhaojin\IBM\SDP 下 , 这个目录再破解)
+单独安装完 WebSphere后,再启动RSA会自动安装插件,要先建立web项目,才会激活web工作区 (但在 C:\Users\zh\IBM\SDP 下 , 这个目录再破解)
 
 ------
 插件安装方式1
@@ -445,11 +445,15 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 		取消 JBoss Runtime Drools Detector Developer  依赖于 org.jboss.tools.common.core      在JBOSS Tools-4.3.1中没有????
 		
 			
-SpringToolSuite-3.6.3  (要下sts,不要下ggts 即不要groovy和grails)
+SpringToolSuite-3.6.3 
+
 	取消 Fabric tc Server , Integeration , Extensions
 	只选Spring IDE Core 
 		依赖于 eclipse.org 提供的 org.json 0.0.0 ,从springToolSuite中复制 org.json_1.0.0.jar , org.jsoup_1.7.2.jar放dropsin目录
 		依赖于 com.google.gson  ,从springToolSuite中复制 com.google.gson_2.1.0.jar 放dropsin目录
+		
+		
+---SpringToolSuite-4 不能建立 web项目
  
 ----SVN插件subclipse-4.4.2
  二进制版本 URL  https://github.com/subclipse/subclipse/wiki 去 SVNKit Client Adapter

@@ -375,7 +375,7 @@ static 构造函数 只执行一次,而且在最先执行,也可以和 非 stati
 :this (xx) //调用本类的其它构造 
 :base(xx) //调用父类的构造
 int.Parse("") //字符转 整型
-namespace 中可以有点,org.zhaojin
+namespace 中可以有点,org.zh
 namespace 中可以嵌套 namespace
 名称空间别名  using MY=System.Text; //别名
 
@@ -707,7 +707,7 @@ using System.Web.Services;   //添加引用System.Web.Service
 using System.Web.Services.Description;
 using Microsoft.CSharp;
 
-string @namepsace="org.zhaojin";
+string @namepsace="org.zh";
 WebClient wc=new WebClient();
 Stream stream=wc.OpenRead(url +"?WSDL");
 ServiceDescription sd=ServiceDescription.Read(stream);

@@ -137,7 +137,7 @@ select column_name, type_name, remarks from "SYSIBM"."SQLCOLUMNS" where table_na
 通过 SYSCAT.INDEXES JOIN SYSCAT.INDEXCOLUSE
  
 SYSCAT 只读视图
-select * from syscat.indexes where tabschema=upper('zhaojin') and tabname =upper('department')
+select * from syscat.indexes where tabschema=upper('zh') and tabname =upper('department')
 
 select index_name,uniqueness from USER_INDEXES where table_name =upper('department')  --兼容 Oracle
 select constrant_name,contraint_type,r_constrant_name from  user_constraints  where table_name =upper('department')  --兼容 Oracle ,R=reference,P=primary,C=check
@@ -147,7 +147,7 @@ select constrant_name,contraint_type,r_constrant_name from  user_constraints  wh
 可通过 SYSCAT.TABCONST JOIN SYSCAT.KEYCOLUSE来查询
 
 带 default 的列,工具在DDL中可以看到
-db2look -d sample -e -o myTable.sql -z zhaojin -t myTable
+db2look -d sample -e -o myTable.sql -z zh -t myTable
 
 
 COALESCE ( expression, expression [ , ...] )返回列表中的第一个非空表达式。 

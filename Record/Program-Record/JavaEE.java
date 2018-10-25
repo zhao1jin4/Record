@@ -302,8 +302,17 @@ public class WebConfiguration implements ServletContainerInitializer {
     } 
 }
 
-${jar}/META-INF/resources/被视为根目录
-
+x.jar/META-INF/resources/ 被视为web根目录,如下
+x.jar/META-INF/resources/WEB-INF/web.xml
+x.jar/META-INF/resources/WEB-INF/web-fragment.xml  即 web.xml的模块化
+	根元素为<web-fragment>
+	<name></name> <!-- 表示模块名称  -->
+	  <ordering>
+              <before>
+                    <others/>   <!-- 表示第一个加载 -->
+              </before>
+			<!--  <after><name>A</name></after> 表示比A后面加载  -->
+       </ordering>
 ==================================JSP
 内置对象
 page,pageContext,request,response,session,out,exception
@@ -333,7 +342,9 @@ ImageIO.write(image, "JPEG", response.getOutputStream());
 
 	
 <%@include file="one.jsp" %> <!--指令, 先引入文件再编译,可能有变量名重定义的错误 -->
-<jsp:include page="one.jsp"></jsp:include><!--动作 , 引入文件的执行后的静态结果 -->
+<jsp:include page="one.jsp">
+	<jsp:param name="" value=""/>
+</jsp:include><!--动作 , 引入文件的执行后的静态结果 -->
 
 
 <jsp:useBean id="my" class="myservlet.MySessionUser" scope="request" >

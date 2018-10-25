@@ -32,7 +32,7 @@ datadir=D:\\Program\\mysql-8.0.11-winx64\\data
 
 
 
-MySQL8 安装后老的UI工具报 Authentication plugin 'caching_sha2_password' cannot be loaded 的解决方式 
+MySQL8 安装后老的UI(DbVisualizer-10.0.15)工具报 Authentication plugin 'caching_sha2_password' cannot be loaded 的解决方式 
 ALTER USER zh@localhost IDENTIFIED WITH mysql_native_password   BY '123';
 ALTER USER zh@'%'  IDENTIFIED WITH mysql_native_password   BY '123';
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';  
@@ -111,12 +111,12 @@ grant lock tables on mydb.*    to user1@'%';
 
 没有用户会自动创建,密码为123 ,''号必须要有,drop user bugs@localhhost  ,mysql -ubugs -p123
 
- create user zhaojin  identified by 'zhaojin';
+ create user zh  identified by 'zh';
  改密码：
 	mysqladmin -uroot -proot password newpassword
 	mysqladmin -u用户名 -p旧密码 password 新密码		
 	root 改其它用户的  SET PASSWORD [FOR user] = PASSWORD('some password');##linux源码安装这样无效？？？？？0行影响
-	update mysql.user set password=password('zhaojin') where user='zhaojin';
+	update mysql.user set password=password('zh') where user='zh';
  
 use mysql;
 select user,host from user;  host字段为%表示可以在所有主机上登录mysql(看root用户有全部)

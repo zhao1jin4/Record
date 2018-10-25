@@ -43,7 +43,7 @@ ftp://ooopackages.good-day.net/pub/OpenOffice.org/FreeBSD/2.4.1/i386/     OpenOf
 /bin/sh 没有bash  ,安装了Xorg,gnome 在/usr/local/bin/bash
 adduser 来加用户
 
-pw usermod zhaojin -s /usr/local/bin/bash  (修改用户)
+pw usermod zh -s /usr/local/bin/bash  (修改用户)
 
 安装时有linux 二进制兼容
 
@@ -171,7 +171,7 @@ pkg_info -L /var/db/pkg/bash    检查这个软件包所有的安装文件
 
 su - root 不可以
 
-pw usermod zhaojin -g wheel
+pw usermod zh -g wheel
 可以使用如下命令给普通用户su - root的权力：
 
 

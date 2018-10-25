@@ -1,8 +1,8 @@
-EasyUI 主题包 Insdep Theme
-https://www.insdep.com/document/page/easyui/index/init
-
-Insdep UI-2.x For EasyUI 是基于EasyUI 1.5.x 的一款免费的UI工具库,EasyUI组件美化
-https://www.insdep.com  国产的
+ http://www.jeasyui.net/ EasyUI 中文网
+ 有 themebuilder
+ 有 EasyUI for Angular
+    EasyUI for Vue
+Demo 有Mobile的
 =================================================jQuery插件 easyUI-1.5.5.6 free
 1.5 有免费版本带源码
 
@@ -53,8 +53,80 @@ function submitForm(){
 	<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">Submit</a>		
   </form>
  </div>
+ 
 //---------日期
 <input class="easyui-datetimebox" required style="width:150px">
+
+
+
+$.fn.datebox.defaults.formatter = function(date){  //全部是今天的值????
+	var y = date.getFullYear();
+	var m = date.getMonth()+1;
+	var d = date.getDate();
+	m=(m<10)?'0'+m:m;
+	//return m+'/'+d+'/'+y;
+	return y+'='+m+'='+d;
+}
+ 
+var buttons = $.extend([], $.fn.datebox.defaults.buttons);
+buttons.splice(1, 0, {
+	text: '清除',
+	handler: function(target){
+	  $(target).combo('setText',''); 
+	}
+});
+<input class="easyui-datebox" label="Date With 3 Buttons:" labelPosition="top" data-options="buttons:buttons" style="width:100%;">
+  	
+
+//--------- alert
+	$.messager.alert({
+		title: 'My Title',
+		msg: 'Here is a message!',
+		icon:'info',
+		fn: function(){
+			console.log('after click button');
+		}	
+	});
+	
+	//中心显示,会自动消失
+	 $.messager.show({
+			title:'My Title',
+			msg:'Message will be closed after 2 seconds.',
+			timeout:1000,
+			showType:'fade',
+			style:{
+				right:'', 
+				bottom:''
+			}
+		});
+		
+//---------dialog	
+//   要初始化 $(function (){ 才能正常显示  
+	 $('#dlg2').dialog({
+	 	    title: 'My Dialog',
+	 	    width: 400,
+	 	    height: 200,
+	 	    modal: true,
+	 	    toolbar:[{
+	 			text:'Edit',
+	 			iconCls:'icon-edit',
+	 			handler:function(){alert('edit')}
+	 		},{
+	 			text:'Help',
+	 			iconCls:'icon-help',
+	 			handler:function(){alert('help')}
+	 		}]
+	  	}); 
+	 $('#dlg2').dialog('close'); 
+	 
+//--------- tooltip
+
+ <a href="#" 
+       title="<div style='width:80px;background-color:orange'>This is the tooltip message. This is the tooltip message. This is the tooltip message.</div>" 
+       class="easyui-tooltip" 
+        >Hover me</a>
+		
+		
 //---------表格
 var mytoolbar = [{
 		text:'增加',
@@ -130,7 +202,7 @@ function myAfterEdit(index,row)
 					row.id=response.additionObject;//newId
 					updateActions(index);
 				}
-				$.messager.alert('提示','操作成功','info');
+				$.messager.alert('提示','操作成功','info');//可用的有 error,question,info,warning.
 				/* jQueryUI
 				$("<div>操作成功</div>").dialog({
 					 modal: true,
@@ -169,7 +241,7 @@ function myEditrow(target){
 }
 function mySaveUpdateRow(target){
 	$('#dg').datagrid('endEdit', getRowIndex(target));//调用onAfterEdit:myAfterEdit
-}
+} 
 function myCancelUpdateRow(target){
 	$('#dg').datagrid('cancelEdit', getRowIndex(target));
 }
@@ -181,7 +253,7 @@ function myInsert()
 	} else {
 		index = 0;
 	}
-	$('#dg').datagrid('insertRow', {
+	$('#dg').datagrid('insertRow', {//也有appendRow
 		index: index,
 		row:{
 			isMan:"true",
@@ -238,16 +310,74 @@ function myActionFormatter(value,row,index)
 		return e+d;
 	}
 }
+function myLangFormatter(value,row,index)
+{
+	for(var i in myLanguages)
+	{
+		if(myLanguages[i].langValue==value)
+			return myLanguages[i].langLabel;
+	} 
+}
+function mycomboBoxItemFormatter(row)
+{
+	var opts = $(this).combobox('options');
+	var val=row[opts.valueField];
+	var text=row[opts.textField];
+	if(val=='C')
+	{ 
+		return '<span style="background-color: red;color: yellow">--'+text+'---</span>';
+	}
+	else
+		return text;
+}
 
 function mySearch()
 {
 	 $('#dg').datagrid('load',{
+		  selectStatus: selectedArray ,//可传数组，服务端用request.getParameterValues("selectStatus[]")
 		date_from: $('#date_from').datebox('getValue'),//日期类型得值 
 		date_to: $('#date_to').datebox('getValue'),
 		 lang:$('#lang').val(),
 		 user:$('#user').val()
 		 });
 	 
+}
+//-------Tool Bar
+var myIndex=undefined;
+function myClickRow(index)
+{
+	myIndex=index;
+	//$('#dg').datagrid('selectRow', index);
+}
+function myBarEdit()//同 myEditrow
+{
+	$('#dg').datagrid('beginEdit',myIndex);
+}
+function myBarSave() // 同 mySaveUpdateRow
+{
+	$('#dg').datagrid('endEdit',myIndex); 
+	var changes=$('#dg').datagrid('getChanges');//得到变化的,可传第二个参数 type,可选值 为inserted,deleted,updated 
+	console.log(changes);
+}
+function myBarUndo() //同  myCancelUpdateRow
+{
+	$('#dg').datagrid('cancelEdit', myIndex);
+}
+function myBarRemove() //类似 myDeleterow 
+{
+	var row = $('#dg').datagrid('getSelected');
+	if(row)
+	{
+		$.messager.confirm('确认','你真的要删除吗?',function(r)
+		{
+			if (r)
+			{
+				//调ajax
+				$.messager.alert('提示','Remove操作ID='+row.id,'info');
+				$('#dg').datagrid('deleteRow', myIndex);//放后面
+			}
+		});
+	}
 }
 function myBarRemoveByCheckBox() //table 的 singleSelect:true
 {
@@ -258,15 +388,23 @@ function myBarRemoveByCheckBox() //table 的 singleSelect:true
 	});               
 	console.log(deleteIds.join(","));
 }
+function myBarReload()
+{
+	$('#dg').datagrid('reload');
+}
+
+
+
 所有的iconCls 的取值在icon.css中	
 <div id="tb" style="padding:5px;height:auto">
 	<div style="margin-bottom:5px">
-		<a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true"></a>
-		<a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true"></a> <!-- 加 plain="true" 按钮没有立体感 -->
-		<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true"></a>
-		<a href="#" class="easyui-linkbutton" iconCls="icon-undo" plain="true"></a>
-		<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true"></a>
-		<a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true"></a>
+		<a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="myInsert()"></a>
+		<a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="myBarEdit()"></a> <!-- 加 plain="true" 按钮没有立体感 -->
+		<a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="myBarSave()">保存</a>
+		<a href="#" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="myBarUndo()"></a>
+		<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="myBarRemove()">删除高亮选中行</a>
+		<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="myBarRemoveByCheckBox()">删除CheckBox选中行</a>
+		<a href="#" class="easyui-linkbutton" iconCls="icon-reload" plain="true" onclick="myBarReload()"></a>
 	</div>
 	<div><!-- 因使用JSON不能用form -->
 		User:	<input id="user" type="text">
@@ -303,14 +441,19 @@ function myBarRemoveByCheckBox() //table 的 singleSelect:true
 			<th  width="80" data-options="field:'id'" 	>ID</th> <!-- field的值是JSON对象的属性名 -->
 			<th  width="100" data-options="field:'username',editor:{type:'validatebox',options:{required:true}}">用户名</th>
 			<th width="100" data-options="field:'language',editor:{
-						type:'combobox',
-						options:{
-							valueField:'langValue',
-							textField:'langLabel',
-							data:myLanguages,
-							required:true
-						}
-					}">用语言</th>
+							type:'combobox',
+							options:{
+								valueField:'langValue',
+								textField:'langLabel',
+								data:myLanguages,
+								required:true,
+								formatter: mycomboBoxItemFormatter
+							}
+						},styler: function(value,row,index){
+							if(value=='C')
+								return 'background-color:#ffee00;color:red;';
+						},formatter:myLangFormatter
+						">用语言</th>
 			<th width="80"  data-options="field:'salary',editor:{type:'numberbox',options:{precision:1,required:true}}">工资</th> <!--editor:'numberbox'  -->
 			<th width="80" data-options="field:'isMan',formatter:myGenderFormatter,editor:{type:'checkbox',options:{on:'true',off:'false'}}">是否为男</th>
 			<th width="90"  data-options="field:'birthday',editor:{type:'datebox',options:{required:true}}">生日</th>
@@ -359,7 +502,7 @@ if("save".equals(command))
 }
 response.getWriter().write(obj.toString());
 
-//--------------comboBox
+//--------------comboBox 继承自 combo
 //-- 不可输入 
 <input id="noInput" name="dept" value="aa">  
 <script type="text/javascript">
@@ -386,6 +529,12 @@ response.getWriter().write(obj.toString());
       hasDownArrow:false //没有下箭头按钮,是combo的属性 
   });
  </script>
+ 
+ 
+<input id="inputComboBox" class="easyui-combobox" data-options="
+		valueField: 'label',
+		textField: 'value',
+		limitToList : true" /> 输入一半不选还在,使用 limitToList就可以了   <br/>
 <input id="testComboBox" class="easyui-combobox" data-options="
 		valueField: 'label',
 		textField: 'value',
@@ -410,16 +559,20 @@ response.getWriter().write(obj.toString());
 		}];
 	  $('#testComboBox').combobox('loadData',data);
 	  $('#testComboBox').combobox('select','cpp');
+	  
+	  $('#inputComboBox').combobox('loadData',data);
+	  $('#inputComboBox').combobox('select','cpp');
     
   });
   function myHidePanel()
   {
+	  //jqCombox=$(this);
 	  //var allSelectData= jqCombox.combobox('getValues');//为多选准备
-      var valueField = $(this).combobox("options").valueField;
-      var val = $(this).combobox("getValue");  
+	  var val = $(this).combobox("getValue");  
       var allData = $(this).combobox("getData"); 
-      var rightVal = false;  
       
+      var valueField = $(this).combobox("options").valueField;
+      var rightVal = false;  
       for (var i = 0; i < allData.length; i++)
       {
           if (val == allData[i][valueField])
@@ -430,7 +583,7 @@ response.getWriter().write(obj.toString());
       }
       if (!rightVal) {
           $(this).combobox("clear");
-      }
+      } 
   }
   </script>
  //----JSONP 中文不按空格时也算输入？？？ <br/>
@@ -490,13 +643,347 @@ response.getWriter().write(obj.toString());
 		String respStr=callback+"( "+array.build().toString() +");"; 
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(respStr);
+		
+//--------------tagBox 继承自 comboBox
+function myTagBoxHidePanel() //输入一半不选就清除
+  {
+	  var allSelectData= $(this).tagbox('getValues');// 多选 
+	  var allData = $(this).tagbox("getData"); 
+	  $(this).tagbox("setValues", allSelectData);
+	  //$(this).tagbox("clear");//会再次触发这个函数，不能用 
+  }
+  <input class="easyui-tagbox" label="Add a tag" style="width:100%" data-options="
+		url: 'tagbox_data1.json',
+		method: 'get',
+		value: '3',
+		valueField: 'id',
+		textField: 'text',
+		limitToList: true,
+		onHidePanel:myTagBoxHidePanel,
+		hasDownArrow: true,
+		prompt: 'Select a Language'
+		">
+		
+---ajax tagbox
+    <input id="myTagBox" class="easyui-tagbox" label="Add a tag" style="width:100%" data-options="
+                    valueField: 'id',
+                    textField: 'text',
+                    multiple:true,
+                    hasDownArrow: true,
+                    prompt : 'Select a Language',
+                    limitToList: true,
+                    
+                     events : {input:myOnInput,
+                    		compositionstart:myStart,
+                    		compositionend:myEnd
+                    		} ,
+              		onSelect : myOnSelect ,
+              		onRemoveTag : myOnRemoveTag 
+                  
+				
+                    ">		
+ var selectedTagBox={};
+ var isEnd=true;
+ function  myStart(e) //是对输入中文的情况下
+ {
+	 console.log('myStart'+e);
+	 isEnd=false;
+ }
+ function  myEnd(e) //是对输入中文的情况下,表示中文输入完成
+ {
+	 console.log('myEnd'+e);
+	 isEnd=true;
+ }
+ function  myOnInput(e)
+ {
+	 if(!isEnd)
+		 return;
+	var newValue= e.target.value;
+	 console.log(newValue);
+	   if (newValue.length <  2) //至少2个字母请求服务器
+			return false;
+		  
+	 var root="/S_jQueryEasyUI";
+	 $.ajax({
+			method:'get',
+			url:root+'/easyUI/tagBoxJson',
+			 data:{input:newValue},
+			  dataType: 'json', 
+			  success: function(data)
+			  {
+				  // selectedTagBox -> data 带有老的选择的
+				  $.each(selectedTagBox,function(id,obj){ 
+					  data.push(obj);
+				  });
+				//tagbox,combobox都可以
+				 $('#myTagBox').tagbox('loadData', data);
+				 $("#myTagBox").tagbox('setText',newValue);//如不调用就清空输入的值 ，也变老的选择的,还要前面加载已经选择的
+			  } 
+		  });
+ }
 
-//------ 
+ function myOnSelect(record)
+ {
+	 console.log('myOnSelect：'+record);
+	
+	 if(!selectedTagBox[record.id])
+		 selectedTagBox[record.id]=record;
+ }
+ function myOnRemoveTag(value)
+ {
+	 console.log('myOnRemoveTag'+value);
+	 delete selectedTagBox[value]; // 还可这样删属性
+ }
+	
+//--------------treeGrid
+服务端加载数据，服务端分页
+var editId=undefined;
+	function myOnDblClickRow (row) //不同于 datagrid的参数
+	{
+		$(this).treegrid('beginEdit',row.myid)//idField的字段,不同于 datagrid是第索引
+		editId=row.myid;
+	}
+	function myOnClickRow( row)//不同于 datagrid的参数
+	{
+		$(this).treegrid('endEdit',editId) 
+	}
+	function myOnAfterEdit(row,changes)
+ 	{
+ 		$(this).treegrid('checkNode', row.myid);
+ 	}
+ 	 <table title="Products" class="easyui-treegrid" style="width:700px;height:300px"
+                data-options="
+                    url: '/S_jQueryEasyUI/easyUI/treeGridPage',
+                    rownumbers: true,
+                    pagination: true,
+                    pageSize: 10,
+                    pageList: [2,10,20],
+                    checkbox: true,
+                    idField: 'myid', 
+					treeField: 'name2',
+					onDblClickRow:myOnDblClickRow,
+                    onClickRow:myOnClickRow,
+					onAfterEdit:myOnAfterEdit,
+                    onBeforeLoad: function(row,param){
+                        if (!row) {    // load top level rows
+                            param.id = 0;    // set id=0, indicate to load new page rows
+                        }
+                    }
+                "> 
+			<!-- 
+				,
+				onBeforeLoad: function(row,param){
+					if (!row) {    // load top level rows
+						param.id = 0;    // set id=0, indicate to load new page rows
+					}
+				}
+		
+			
+			treeField: 'name2' 一定是表格中存在的
+			-->
+            <thead>
+                <tr>
+                    <th field="name" width="250" formatter="nameFormater" >Name</th>
+					<th field="name2" width="250">Name2</th>
+                    <th field="quantity" width="100" align="right" editor="numberspinner">Quantity</th>
+                    <th field="price" width="150" align="right" formatter="formatDollar" editor="numberbox">Price</th>
+                    <th field="total" width="150" align="right" formatter="formatDollar">Total</th>
+                </tr>
+            </thead>
+        </table>
+        <script>
+            function formatDollar(value){
+                if (value){
+                    return '$'+value;
+                } else {
+                    return '';
+                }
+            }
+			
+			var saveFunc=[];
+			function nameFormater(value,row,index)
+			{
+				var key='btnClick'+row.myid;
+				saveFunc[key]=rowClick.bind(this,row);//row也会存到数组中,第一个参数this必传
+				var  strFunc="saveFunc['"+key+"'](this)";//这里this可以省略
+				return '<button onclick="'+strFunc+'">'+value+'</button>';
+				//return '<button onclick="rowClick(row)">'+value+'</button>';//这样单击时得到不row的值，要存起来
+			}
+			function rowClick(row)
+			{
+				console.log(row);
+			}
+			function addChange()
+			{
+				// update (beginEdit也不行) 后 getChanges 得不到变化的！！！,只能是更新UI
+				$("#myTreegrid").treegrid('update',{
+					 id:10,
+					 row:{
+						 myid:theId,
+						 name:'李0001', 
+						 name2: "张0001", 
+						 price: "1000", 
+						 quantity: "2", 
+						 state: "closed", 
+						 total: 2000
+					 }			 
+				}); 
+			}
+			function showCheckedAndLevel()
+			{
+				var checkedArray=$("#myTreegrid").treegrid('getCheckedNodes');
+				
+				console.log(checkedArray);
+				for(var i in checkedArray)
+				{
+					var row=checkedArray[i];
+					var level=$("#myTreegrid").treegrid('getLevel',row.myid);//得到级别
+					console.log("name2="+row.name2+",myId="+row.myid+",level="+level);
+				} 
+			}
+        </script>
+
+
+response.setContentType("application/json;charset=UTF-8");
+response.setCharacterEncoding("UTF-8");
+
+String reqPageNO=request.getParameter("page");//easyUI 固定
+String reqPageSize=request.getParameter("rows");//easyUI 固定
+String id=request.getParameter("id");//easyUI 固定,展开的ID, 并不是idField的值
+//如页面没有设置为0，初始时(没展开时)这是null
+
+JsonBuilderFactory bf = Json.createBuilderFactory(null); 
+if("0".equals(id)   //0是 页面中设置的（当为空时设置为0），即第一次进入页时，没有手工展开
+	 ||id ==null
+)
+	JsonArrayBuilder array=bf.createArrayBuilder();
+	for(long i=start;i<=end*10;i+=10)
+	{
+		JsonObjectBuilder obj=bf.createObjectBuilder() ;
+		obj.add("myid", 10+i+"");
+		obj.add("name","李"+i);
+		obj.add("name2","张"+i);
+		if(i%20==0)
+		{
+			obj.add("state","closed");//表示文件夹关闭，否则是普通文件，open
+		}else
+		 {
+			obj.add("checked",true); //表示是否复选
+			obj.add("iconCls","icon-ok"); //图标
+			int quantity=new Random().nextInt();
+			double price=new Random().nextDouble();
+			
+			obj.add("quantity",quantity);
+			obj.add("price",price); 
+			obj.add("total",price*quantity);
+		 }
+		array.add(obj);
+	}
+
+	JsonObjectBuilder root=bf.createObjectBuilder() ;
+	root.add("rows", array);//easyUI 固定
+	root.add("total",totalCount);//easyUI 固定
+	System.out.println(root.build().toString());
+
+	response.getWriter().write(root.build().toString());
+	response.flushBuffer();
+//	response.getOutputStream().write(root.build().toString().getBytes());
+}else
+{ //展开请求
+	int idVal=Integer.parseInt(id);
+	JsonArrayBuilder array=bf.createArrayBuilder();
+	for(long i=idVal+1;i<=idVal+5;i+=1)
+	{
+		JsonObjectBuilder obj=bf.createObjectBuilder() ;
+		obj.add("myid", i);
+		
+		if(i%20==0)
+			obj.add("state","closed");//表示文件夹关闭，否则是普通文件，open
+		 else
+			 obj.add("checked",true); //表示是否复选
+		
+		obj.add("name","李"+i);
+		obj.add("name2","张"+i);
+		int quantity=new Random().nextInt();
+		double price=new Random().nextDouble();
+		
+		obj.add("quantity",quantity);
+		obj.add("price",price); 
+		obj.add("total",price*quantity);
+		array.add(obj);
+	} 
+	//单独展开的请求不能返回rows属性 ,只能是数组
+	response.getWriter().write(array.build().toString());
+	response.flushBuffer();
+}
+
+//treegrid中editor自定义为tagbox,为选人 
+$.extend($.fn.treegrid.defaults.editors,{//新增的editor,系统中的editor还是存在的
+		 SelectUser: {
+              init: function(container, options){
+                  var input = $('<input class="easyui-tagbox" style="width: 100%;" type="text" id="SelectUser">').appendTo(container);
+                  return initTagBoxWithSelectUser("SelectUser",false,"SelectUser");//单独的组件
+              },
+              destroy: function(target){
+                  $("#SelectUser").tagbox('destroy');
+              },
+              getValue: function(target){
+            	  var userIdVal=$("#SelectUser").tagbox('getValue');
+                  $("#myTreegrid").treegrid('find',editId).userid=userIdVal;
+                  return $(".datagrid-editable .tagbox-label").text();
+              },
+              setValue: function(target, value){
+				  //已 经有值,先调init后,再调setValue
+            	  $("#SelectUser").tagbox('loadData',{
+            		  id:value,
+            		  text:value//查DB？？？ 或者拿到row.         			
+            	  });
+                  $("#SelectUser").tagbox('setValue',value); 
+              },
+              resize: function(target, width){
+                  var input = $("#SelectUser");
+                  if ($.boxModel == true) {
+                      input.width(width - (input.outerWidth() - input.width()));
+                  } else {
+                      input.width(width);
+                  } 
+          }} //editors
+			
+		
+	});//extend
+
+treegrid 再加 ,editor:"SelectUser"
+
+//treegrid是getData，datagrid是getRows
+var newData=$("#myTreegrid").treegrid('getData' );//是修改后的值
 
 
 
+function expandLevel2(){
+	var datas=$("#tg").treegrid('getData');//即使数据格式是　_parentId,这里得到的数据也是children格式,每一项数据也多加(如源数据没用)_parentId
+	recursiveExpand(datas,2);
+}
+function recursiveExpand(datas,level)
+{
+	for(var i in datas)
+	{
+		if(datas[i].level==level)//数据中有level,id
+		{
+			$('#tg').treegrid('expandTo',datas[i].id).treegrid('select',datas[i].id);
+			return;
+		}else if(datas[i].children)
+		{
+			recursiveExpand(datas[i].children,level)
+		}
+	} 
+}
+
+//--------------comboTree
 
 
+//--------------comboGrid
+
+//--------------ComboTreeGrid
 
 
 =================================================eastUI Extension
