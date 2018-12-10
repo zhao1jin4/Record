@@ -13,8 +13,9 @@ Grumpy 不支持C扩展，没有 CPython 的全局解释器锁——它被认为
 https://golang.org/  要翻墙才能出去(Google 的语言) 
 支持多个平台,windows ,linux(有linux ARMv6),mac,freeBSD
 
+https://golang.google.cn国内可以仿问的
 
-windows 1.9.2 安装后会自动设置环境变量
+windows 1.11.2 安装后会自动设置环境变量
 GOROOT=C:\Go
 PATH 增加 C:\Go\bin
 

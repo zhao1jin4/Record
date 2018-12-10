@@ -1,10 +1,11 @@
 ﻿函数式编程 FP
 Scala-2.12.4  不支持JDK9
 
-
-eclipse_4.5_plugin_Scala IDE-4.4.1   可以dropsin安装  
 eclipse_4.6.3_plugin_Scala IDE-4.5   dropsin安装无效  about->Installation details...按钮 ->Configuration标签->View Error Log 按钮 
 (不能help安装,只能MarketPlace在线安装版本老点,或者输入网址在线安装 支持play  )
+
+ScalaIDE
+IntellijIDEA Scala plugin
 
 
 高性应该比Java 高, 运行在JVM上,也就是最后还是生成.class文件

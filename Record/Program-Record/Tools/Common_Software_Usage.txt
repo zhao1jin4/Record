@@ -132,7 +132,7 @@ shilft+insert=paste
 
 
 ----OneNote-2010
-C:\Users\zh.li\Documents\OneNote Notebooks\Personal
+%HOMEPATH%.li\Documents\OneNote Notebooks\Personal
 可对Section 做 Section Group 会建立一个文件夹
 
 File->Save as ->page只是当前书的当前页(.one)　,section是当前书(.one) ,　Notebook是所有的书,会解压的(.onepkg)
@@ -148,8 +148,8 @@ windows+shift+n 打开 OneNote
 打开outlook-2016 要.pst文件 ，如没有,打开outlook-2016不会自动创建，要选择目录，点击打开按钮自动创建，再次选择.pst文件 
 
 Outlook 数据文件  .pst 和 .ost
-数据文件存放在  C:\Users\zh\Documents\Outlook Files\ 
- C:\Users\zh\AppData\Local\Microsoft\Outlook
+数据文件存放在  %HOMEPATH%\Documents\Outlook Files\ 
+ %HOMEPATH%\AppData\Local\Microsoft\Outlook
 
 帐户配置不知道在哪？？？
  
@@ -193,6 +193,8 @@ Office 2016 的Word 在win7 上运行,打开一个文件,内存增长很快?????
  
 Settings -> Automatic Replies
 
+------- 蓝灯 下载URL  https://github.com/getlantern/lantern
+
 -------------FireFox--------
 英文版本 , 独立安装版本下载地址
 
@@ -204,29 +206,31 @@ firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下�
 	help->TroubleShooting Information 即		about:support
 	firefox　主页被修改　　about:support  显示有user.js　在　C:\Users\zh\AppData\Roaming\Mozilla目录下
 
-
-firefox  插件
-	RESTClient  发POST请求 
- 
-	Modify Headers-0.7.1.1 		可以个性Http头, tools->web developer->Modify Headers,设置后start
-		RefControl 	设置http请求头referer的值tools-> RefControl options..    
-		User Agent Switcher 个性本地浏览器	tools -> default user agent     手机开发
+	不能显示Cookie内容
+	会记住网站密码，在 Cookies and Site Data 和History区清除没用的
+	包括建设银行密码，清除密码要在 Form & Password组中 Saved Logins...中Remove 清才行!!!!!!!,还能显示密码!!!!!!!,在exception...中增加 ccb.com.cn
 	
-	Cookies Manager 不兼容firefox 61 在 tools->Cookies Manager
-	修改内容体用firebug就OK
-	 	
-	Self-Destructing Cookies-0.4.6  关闭tab时删cookie,localstorage 安装后在工具栏上
+	
+firefox63  插件 只能在线安装了
+	React Developer Tools
+	RESTClient  发 POST 请求  可带JSON 
+	
+	修改HTTP头插件   手机开发 ,如 User-Agent , Referer 
+		simple-modify-headers
+		Modify Header Value (HTTP Headers)也有chrome,opera插件
+	
+	Cookies Manager   在工具栏右侧有按钮 
+	
+	Self-Destructing Cookies (WebEx)  关闭tab时删cookie 安装后在工具栏上(不能localstorage)
 	开发使用 Exploit-Me  工具集  XSS-Me, SQL Inject Me
 	
-	EPUBReader  用于读epub文件 mongodb doc  
+	Base64 Encoder and Decoder
+	EPUBReader 安装后在工具栏上 用于读epub文件 mongodb doc  
+	CHM
 	
-	--- 新firefox 没了？？
-	HttpRequester
-	Poster-3.1 发POST请求  没了？？
-		有Base64 编码	tools->poster  (可以设置HTTP头,注意RefControl可以覆盖poster),必须在单独界面发起
+	--- 新firefox 没了？？ 
 	DownThemAll-2.0.16,ColorZilla-2.8  新firefox57 不兼容了？？？？
 	cacheviewer-0.7.6(Tools->Web Developer->CacheViewer)
-	chmfox-2.9(file->open)
 	FireFTP-2.0.18(Connection标签选择SFTP)
 	FireSSH-0.94.4(在Tools->Web Developer下,ls --color 才变色,ls 中文是根据系统字符集自动匹配view->character encoding来查看,手工设置LANG无效)
 
@@ -269,15 +273,14 @@ about:support 查看有 browser.newtab.url 有值 ,在about:config 中删除其�
 ctrl+shift+P 以隐身(Private)模式上网,不会保留浏览历史和Cookie
 Tools->options->Privacy  -> remove individual cookies ->可以看到Cookie
 
-------- 蓝灯 下载URL  https://github.com/getlantern/lantern
 
 -------------Chrome
-Chrome 下载URL  https://www.google.cn/chrome/ 
+Chrome 下载URL  https://www.google.cn/chrome/  在线版本
 
-https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg  mac最新版本
-https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm  linux 最新版本
+https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg  mac最新离线版本
+https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm  linux 最新离线版本
 
-win64 最新版本
+win64 最新离线版本
 https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B8CBF8931-A5A5-3DF2-204C-0834AED5FC82%7D%26lang%3Den%26browser%3D3%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3Dx64-stable-statsdef_1%26installdataindex%3Ddefaultbrowser/update2/installers/ChromeStandaloneSetup64.exe
  
 
@@ -298,18 +301,33 @@ Chrome查看版本的方法  chrome://version
 的URL中输入 about:inspect  (也可 工具->检查设备),要可以看到自己的手机(android手机打开  USB Debugging 模式,windows下安装USB Driver,都装Chrome)
 
 ctrl+shift+N 以隐身模式上网,不会保留浏览历史和Cookie
-Settins-> Privacy and Security->Content Settings->Cookies-> 在All Cookies and Site data组中可以看到Cookie
+Settins-> Privacy and Security->Content Settings->Cookies-> 在 see all Cookies and Site data组中可以看到Cookie内容 
 Settins-> Download 可以打开 Ask where to save each file before downloading
 
 按ctlr+f5 chrome 强制刷新 或者右击刷新按钮出菜单->清空缓存并硬性重新加载
-	
+
+clear browser data 在要advance标签中选中password
+在Pepole组 passwords-> 可以查看哪些网站做了保存密码,只要输入系统管理员密码,就可查看密码!!!!
+
 插件   应用组的 Postman   https://www.getpostman.com/  安装后是一个单独的程序
 
+chrome://about/  列出所有的连接工具
+Chrome工具 自带的工具 chrome://net-internals/  
+
 -------------Edge --------
+2018年  EdgeHTML 17
 安装目录 
 C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe
 
+清除浏览历史 可以选择密码项 
+	高级设置 -> 自动填充设置区->保存密码 开，管理密码 按钮-> 不能查看密码
+	
+	也不能查看Cookie
+
+
 -------------IE --------
+
+清除
 IE中 强制刷新快捷键是CTLR+F5.
 ###在有iFrame的网页中,在iframe区域 右击->查看源 可以只看iFrame中的源码(Firefox和Chrome)
 
@@ -317,9 +335,12 @@ IE中 强制刷新快捷键是CTLR+F5.
 桌面快捷方式 后的参数去除
 开始菜单 
 任务栏的参数也要去除  C:\Users\zh\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
-		
-		
+
 检查浏览器插件
+
+IE11 可查看缓存和Cookie
+%HOMEPATH%\AppData\Local\Microsoft\Windows\INetCache  
+	文件名 或 Internet地址 列 以cookie:开头的 格式cookie:<os_user>@<websit.com>/ 
 
 ----------UltraEdit
 

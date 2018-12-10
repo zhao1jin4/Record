@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 //#pragma comment(lib, "sqlite.lib")//我把sqlite编译成了一个静态的lib文件。
 // 源码安装sqlite 不要删make的文件夹，eclipse-debug时可以打开源码.c
 
-//#define DB_FILE "/home/zh/sqliteDB"
+//#define DB_FILE "~/sqliteDB"
 #define DB_FILE "c:/temp/sqliteDB"
 
 void error_exit(sqlite3 *db, char *message)

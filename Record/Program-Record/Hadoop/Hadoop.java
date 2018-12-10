@@ -53,7 +53,7 @@ cat output/*			*/ 显示的是output/part-r-00000文件, 内容为		1       dfsa
 要配置成不用输入密码登录  ssh localhost
 $ ssh-keygen -t dsa -P '' -f ~/.ssh/id_dsa
 $ cat ~/.ssh/id_dsa.pub >> ~/.ssh/authorized_keys
-$ export HADOOP_PREFIX=/home/zh/hadoop/hadoop-2.7.0
+$ export HADOOP_PREFIX=~/hadoop/hadoop-2.7.0
 测试 ssh localhost 不用密码
  
 vi etc/hadoop/hadoop-env.sh 设置JAVA_HOME=具体目录
@@ -323,7 +323,7 @@ FileSystem fs=  FileSystem.get(conf);
 Path path=new Path("/java") 
 fs.delete(path,true);//recursive
 fs.mkdirs();
-fs.copyFromLocalFile(new Path("/home/zh/.ssh/known_hosts"), path);
+fs.copyFromLocalFile(new Path("~/.ssh/known_hosts"), path);
 DistributedFileSystem dfs =(DistributedFileSystem)fs;//要使用hadoop jar 运行才可
 DatanodeInfo[] infos=dfs.getDataNodeStats();//所有群集中的节点
 for(DatanodeInfo info:infos)
@@ -432,7 +432,7 @@ bin/mapred job -list
    
 
 ---------------------------------hadoop 子项目 Hive
-export HADOOP_HOME=/home/zh/hadoop-2.4.0
+export HADOOP_HOME=~/hadoop-2.4.0
 启动 $HADOOP_HOME/sbin/start-dfs.sh
 
 $HADOOP_HOME/bin/hadoop fs -mkdir       /tmp
@@ -448,7 +448,7 @@ hive>ALTER TABLE pokes ADD COLUMNS (new_col INT);
 hive>DROP TABLE pokes;
 
 --可以不启动服务
-export HIVE_HOME=/home/zh/apache-hive-0.13.0-bin
+export HIVE_HOME=~/apache-hive-0.13.0-bin
 cp conf/hive-default.xml.template  conf/hive-site.xml
 	<property>
 	  <name>hive.exec.mode.local.auto</name>
@@ -607,15 +607,15 @@ ambari-agent start
 ===========Sqoop   工具 为Hadoop  和 关系型数据库 导入导出 , Quest  Data Connector for Oracle and Hadoop 是为Sqoop的插件
 
 ./server/conf/catalina.properties  文件 
-	common.loader= 中多加如下配置项 /home/zh/hadoop-2.4.0/share/hadoop/common/*.jar,
-	/home/zh/hadoop-2.4.0/share/hadoop/common/lib/*.jar,
-	/home/zh/hadoop-2.4.0/share/hadoop/mapreduce/*.jar							*/
+	common.loader= 中多加如下配置项 ~/hadoop-2.4.0/share/hadoop/common/*.jar,
+	~/hadoop-2.4.0/share/hadoop/common/lib/*.jar,
+	~/hadoop-2.4.0/share/hadoop/mapreduce/*.jar							*/
 
 cp hadoop-2.4.0/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.4.0.jar  sqoop-1.99.3-bin-hadoop200/server/webapps/sqoop/WEB-INF/lib
 cp hadoop-2.4.0/share/hadoop/yarn/*.jar  sqoop-1.99.3-bin-hadoop200/server/webapps/sqoop/WEB-INF/lib/				*/
 
 
-./server/conf/sqoop.properties 修改值 为/etc/hadoop/conf/为正确有路径 /home/zh/hadoop-2.4.0/etc/hadoop/
+./server/conf/sqoop.properties 修改值 为/etc/hadoop/conf/为正确有路径 ~/hadoop-2.4.0/etc/hadoop/
 
 ./bin/sqoop.sh server start 启动提示 (stop) 
 	Setting SQOOP_HTTP_PORT:     12000

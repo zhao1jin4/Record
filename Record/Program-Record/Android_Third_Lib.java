@@ -1,64 +1,3 @@
-//------Google Map
-android-sdk-windows\add-ons\addon-google_apis-google-16
-
-https://developers.google.com/maps/documentation/android/hello-mapview?hl=zh-CN
- 
-用户主目录/.android/debug.keystore 是用于开发使用自动生成的
-keytool -list -v -keystore  debug.keystore  -storepass  android  查看信息MD5的值,复制到
-https://developers.google.com/android/maps-api-signup?hl=zh-CN 生成API key
-
-<uses-permission android:name="android.permission.INTERNET"/>
-<application 
-   <uses-library android:name="com.google.android.maps" />
-
-
-<com.google.android.maps.MapView
- 	    android:layout_width="fill_parent" 
- 	    android:layout_height="fill_parent"
- 	    android:enabled="true"
- 		android:clickable="true"
- 		android:apiKey="@string/map_api_key"
- 	    />
-extends MapActivity
-
-Overlay 抽象类,是透明的图层
-ItemizedOverlay 是Overlay的子类,可以放很多的 OverlayItem 标记
-MapView 有getOverlayes 把自己的加进去
-
-MapView mapView = (MapView) findViewById(R.id.mapView);
-mapView.setBuiltInZoomControls(true);//使用缩放工具
-projection =mapView.getProjection();
-
-List <Overlay> allOverlay=mapView.getOverlays();
-allOverlay.add(new PointOverlay(begin));//把自己的加进去
-
-MapController controller=mapView.getController();
-controller.animateTo(begin);
-controller.setZoom(12);
-
-
-PointOverlay extends  Overlay
-{
-    public void draw(Canvas canvas, MapView mapView, boolean shadow)
-	{
-		projection.toPixels(geoPoint, point);//把GeoPoint纬经度 转换为屏幕坐标	
-		//画已有图
-		Bitmap bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-		Paint paint=new Paint();
-		canvas.drawBitmap(bitmap , point.x , point.y , paint);
-		
-		//画线
-		Paint paint=new Paint();
-		paint.setColor(Color.BLUE);
-		paint.setStyle(Paint.Style.FILL_AND_STROKE);
-		paint.setStrokeWidth(2);
-		Path path=new Path();
-		path.moveTo(begin.x,begin.y);
-		path.lineTo(end.x,end.y);
-		canvas.drawPath(path, paint);
-	}
-	
-}
 
 //------OAuth 
 signpost-commonshttp4-1.2.1.2.jar
@@ -194,6 +133,57 @@ public void onCreate(Bundle savedInstanceState)
 }
 
 
+//--------------zxing
+
+mvn install 生成 core-3.0.0-SNAPSHOT.jar 
+
+//---android 生成二维码(QR)
+final int BLACK = 0xFF000000;
+final int WHITE = 0xFFFFFFFF; 
+int size=350;
+String contentString="http://www.baidu.com";
+Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();    
+hints.put(EncodeHintType.CHARACTER_SET, "utf-8");   
+BitMatrix matrix = new MultiFormatWriter().encode(contentString, BarcodeFormat.QR_CODE, size, size,hints);  
+int width = matrix.getWidth();  
+int height = matrix.getHeight();  
+int[] pixels = new int[width * height];  
+  
+for (int y = 0; y < height; y++) 
+{  
+	for (int x = 0; x < width; x++) 
+	{  
+		if (matrix.get(x, y))  
+			pixels[y * width + x] = BLACK;  
+		else
+			pixels[y * width + x] = WHITE; 
+	}  
+}    
+ //android 没有 java.awt.image.BufferedImage 要使用  android.graphics.Bitmap
+Bitmap bitmap = Bitmap.createBitmap(width, height,Bitmap.Config.ARGB_8888);  
+bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+//(int[] pixels, int offset, int stride, int x, int y, int width, int height) 
+qrImageView.setImageBitmap(bitmap);
+
+//---写手机上
+if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+{
+	File filename= new File(Environment.getExternalStorageDirectory(), "qrCode.png");
+	try {
+		FileOutputStream outStream=new FileOutputStream(filename);
+		//FileOutputStream outStream = GenerateQRCodeActivity.this.openFileOutput(filename, Context.MODE_PRIVATE);//MODE_APPEND,MODE_WORLD_READABLE,MODE_WORLD_WRITEABLE
+		bitmap.compress(CompressFormat.PNG, 80, outStream);
+		outStream.flush();
+		outStream.close();
+	} catch (Exception e) {
+		Toast.makeText(GenerateQRCodeActivity.this, "错误发生,原因为:"+e.getMessage(), Toast.LENGTH_LONG).show();
+		return ;
+	}
+	Toast.makeText(GenerateQRCodeActivity.this, "二维码图片已保存到:"+filename.getAbsolutePath(), Toast.LENGTH_LONG).show();
+}
+
+//---android 解析二维码(QR) 
+//---android 解析条形码
 //===============Cordova  Anroid 访问真机
 
 设置PATH 环境变量为android-sdk-windows\tools 目录(有android命令) 和 android-sdk-windows\platform-tools目录(有adb命令)
@@ -224,10 +214,10 @@ cd E:\Program\cordova-android-6.3.0\package\framework
 -------------在线
 要下载安装 node-v8.6 的msi安装包, 运行 npm install -g cordova 在线安装
 命令安装到 
-C:\Users\zhaojin\AppData\Roaming\npm\cordova 是PATH位置
-C:\Users\zhaojin\AppData\Roaming\npm\node_modules\cordova\bin\cordova
+ %HOMEPATH%\AppData\Roaming\npm\cordova 是PATH位置
+ %HOMEPATH%\AppData\Roaming\npm\node_modules\cordova\bin\cordova
 
-C:\Users\zhaojin\AppData\Roaming\npm\node_modules\cordova\node_modules 有全部的模块
+ %HOMEPATH%\AppData\Roaming\npm\node_modules\cordova\node_modules 有全部的模块
 
 
 
@@ -808,53 +798,17 @@ MainViewController.m中的webViewDidFinishLoad方法是UIWebViewDelegate的实�
 
              */
 
-//--------------zxing
-mvn install 生成 core-3.0.0-SNAPSHOT.jar 
+=============React Native 
+写JS会生成 iOS 和 Android 的本地代码,但各平台还有差异，可以做到热更新(缓存转换的本地程序,只有当服务端更新变化时更新)
 
-//---android 生成二维码(QR)
-final int BLACK = 0xFF000000;
-final int WHITE = 0xFFFFFFFF; 
-int size=350;
-String contentString="http://www.baidu.com";
-Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();    
-hints.put(EncodeHintType.CHARACTER_SET, "utf-8");   
-BitMatrix matrix = new MultiFormatWriter().encode(contentString, BarcodeFormat.QR_CODE, size, size,hints);  
-int width = matrix.getWidth();  
-int height = matrix.getHeight();  
-int[] pixels = new int[width * height];  
-  
-for (int y = 0; y < height; y++) 
-{  
-	for (int x = 0; x < width; x++) 
-	{  
-		if (matrix.get(x, y))  
-			pixels[y * width + x] = BLACK;  
-		else
-			pixels[y * width + x] = WHITE; 
-	}  
-}    
- //android 没有 java.awt.image.BufferedImage 要使用  android.graphics.Bitmap
-Bitmap bitmap = Bitmap.createBitmap(width, height,Bitmap.Config.ARGB_8888);  
-bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
-//(int[] pixels, int offset, int stride, int x, int y, int width, int height) 
-qrImageView.setImageBitmap(bitmap);
+注意：不要使用 cnpm！cnpm 安装的模块路径比较奇怪，packager 不能正常识别！
+npm install -g react-native-cli
+react-native init  A_ReactNative 
+生成文件中android和ios目录 
 
-//---写手机上
-if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
-{
-	File filename= new File(Environment.getExternalStorageDirectory(), "qrCode.png");
-	try {
-		FileOutputStream outStream=new FileOutputStream(filename);
-		//FileOutputStream outStream = GenerateQRCodeActivity.this.openFileOutput(filename, Context.MODE_PRIVATE);//MODE_APPEND,MODE_WORLD_READABLE,MODE_WORLD_WRITEABLE
-		bitmap.compress(CompressFormat.PNG, 80, outStream);
-		outStream.flush();
-		outStream.close();
-	} catch (Exception e) {
-		Toast.makeText(GenerateQRCodeActivity.this, "错误发生,原因为:"+e.getMessage(), Toast.LENGTH_LONG).show();
-		return ;
-	}
-	Toast.makeText(GenerateQRCodeActivity.this, "二维码图片已保存到:"+filename.getAbsolutePath(), Toast.LENGTH_LONG).show();
-}
+Python2
+
+如不使用 Android 可使用 Nuclide(facebookr的不能下载) + Atom (可调试)
 
 //---------------Baidu Map
 要生成keystore并保存下来
@@ -865,18 +819,8 @@ keytool -list -v -keystore C:/temp/clientKeystore -storepass clientkeystorepass 
 
 public static final String strKey = "";
 
-申请key失败???
+申请key失败??? 
  
-//---React Native 在另一个文件中
-//---Unity 在另一个文件中
-
-//---android 解析二维码(QR)
-
-
-//---android 解析条形码
-
-
-
 //---android  推送消息
 
 MQTT 协议 即时通讯协议
@@ -890,3 +834,10 @@ OKhttp = httpClient
 Retrofit = httpClient
 MVP ~ MVC
 Android图片缓存之Glide 
+
+Flutter是谷歌的移动UI框架，可以快速在iOS和Android上构建高质量的原生用户界面 免费、开源
+
+Weex 是阿里开源的一款跨平台移动开发工具
+ 
+
+

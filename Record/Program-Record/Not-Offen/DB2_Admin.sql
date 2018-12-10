@@ -9,7 +9,7 @@ db2 客户端  IBM Data Server Runtime Client 有  DB2 Command Line Processor (C
 
 -----------windows 安装
 db2admin 操作系统用户
-响应文件名: C:\Users\zh\Documents\PROD_EXPC.rsp
+响应文件名: %HOMEPATH%\Documents\PROD_EXPC.rsp
 实例名:DB2
 服务名称:db2c_DB2
 端口号:50000

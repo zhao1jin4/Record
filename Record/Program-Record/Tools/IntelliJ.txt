@@ -1,5 +1,6 @@
 ﻿
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
+IDEA 2018.2.6 版本可以支持 JDK11
 
 File->project stucture ->project -> 配置JDK
 
@@ -64,7 +65,8 @@ File->Settings->Editor->File Types  在ignore files and folders 中加*.iml;dubb
 		集成Tomcat和eclipse不一样的是,如果程序中(一个进程)开了新的线程Intellij并不是多个线程同时运行,通过调试可以看出,
 		集成maven Jetty 也是一样的,说明是intellij 的问题,可以找到源代码
 		
-		tomcat配置在 ${user.home}/.IntelliJIdea<version>/system/tomcat 目录下 Unnamed_<project>\conf\Catalina\localhost\ROOT.xml
+		tomcat配置在 ${user.home}/.IntelliJIdea<version>/system/tomcat 
+				目录下 Unnamed_<project>\conf\Catalina\localhost\<project>.xml 有配置就是target目录<project>-<version>目录就是项目目录
  
 	
 Community版本 不能集成Tomcat,不太好用,
@@ -156,7 +158,7 @@ Perferences...  ->  Editor  ->General->  Editor Tabs 调整 Tab Closing Policy �
  File->invalidate cache/restart  可以把本地的版本历史记录清除,加快响应速度
 
 
- C:\Users\zh\.IntelliJIdea2017\idea64.exe.vmoptions  默认不存在，内存不足时有提示会生成
+ %HOMEPATH%\.IntelliJIdea2017\idea64.exe.vmoptions  默认不存在，内存不足时有提示会生成
 	-Xmx750m
 	-XX:MaxMetaspaceSize=200m
 	-XX:ReservedCodeCacheSize=240m
@@ -181,8 +183,26 @@ Settings->Editor->Code Style->Java /JavaScript->Wapping and  Braces -> Braces Pl
 ctrl + y 是删除当前行
 
 ====================IntelliJ IDEA plugin 
-scala 
+
+IDEA 2018.2.6 也可以建立Android 项目(android SDK只可用JDK8),指定android SDK位置,有新建向导,不能和AndroidStudio同时使用同一个Android SDK
+Gradle配置成 JDK 1.8 Settings->Buld,Execution,Deployment->Build Tools->Gradle在Gradle JVM中选择正确的JDK
+app目录下的build.gradle 中注意 compileSdkVersion/(minSdkVersion/targetSdkVersion)  和  Build Tools revision  和指定android SDK版本
+
+Tools->Android->AVD Manager 
+Tools->Android->SDK Manager
+Tools->Android->Theme Editor
+Tools->Android->Layout Inspect可以看到手机屏幕
+有Logcat视图,Android profiler视图窗口
+
+Manifest.xml文件 没有界面
+minSdkVersion 25 (Build Tools 27.0.3,Android 7.1.1) 真机测试OK,模拟器api-28(android9.0)测试O
+
+---IDEA 2018.2.6 插件scala 2018.2.6 
+	建立项目时选择IDEA (选择SBT要下载的) 测试OK
+---
+findbug
 jd-gui
+
 JRebel 热部署插件（收费） 修改Mybatis的Mapping.xml也可立即生效
 lombok 插件 
 	可自动生成代码，settings->Buile,Execution,Deployment->Compilier->Annotaion process->复选 enable annotaion process
@@ -194,11 +214,23 @@ lombok 插件
 		<version>1.16.20</version>
 	</dependency>
 
----------DataGrip 2018 
+---------DataGrip 2018  可以不要 IntellijIDEA 也有这此功能,也有 WebStorm ,Android 功能
 
 MySQL 8 jdbc
 zeroDateTimeBehavior 要设置为CONVERT_TO_NULL
 serverTimezone	 要设置为 UTC
 
 右击连接 -> database tools ...->manage show schemas->current schema
+
+---------CLion 2018 
+windows 下可 Cygwin/MinGW/Visual Studio
+
+下载的 Cygwin_x64 , 2018-11-22时cygcheck -c cygwin  显示为  2.11.2-1
+	64位的 gcc-7.3.0-3 (mingw64-x86_64-gcc-core-6.4.0-2),gcc-g++ (mingw64-x86_64-gcc-g++)  , gcc-objc  (mingw64-x86_64-gcc-objc)
+		gdb-8.0.1-1
+		make-4.2.1-2
+Settings->Build,Execution,Deployment->ToolChains->选择Cygwin 右则点...配置Cyginw home 可自动检测,测试OK
+
+
+
 

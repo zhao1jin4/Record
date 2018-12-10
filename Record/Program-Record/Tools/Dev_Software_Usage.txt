@@ -1,7 +1,7 @@
 ﻿
 ============================Netbeans-8.1===============================
-C:\Users\zh\AppData\Roaming\NetBeans
-C:\Users\zh\AppData\Local\NetBeans\Cache  里面很大
+%HOMEPATH%\AppData\Roaming\NetBeans
+%HOMEPATH%\AppData\Local\NetBeans\Cache  里面很大
 
 ------------ 
 在FreeBSD上运行正常，如果gnome 界面语言是english,那么 netbeans也是英语 ,	运行时有一个UnkowHostException   InetAddress.getLocalHost();不影响运行,是由hostname 的值空造成的
@@ -266,7 +266,7 @@ SourceTree 安装之后需要使用账号登陆以授权，以前是可以不登
 
 这个两种方式不行的
 C:\Program Files\TortoiseGit\bin
-C:\Users\zh\AppData\Local\Programs\Git\mingw64\bin\  安装不能是git bash方式
+%HOMEPATH%\AppData\Local\Programs\Git\mingw64\bin\  安装不能是git bash方式
 
 工具-> 选项->一般->SSH 客户端->可选 openSSH
 
@@ -343,7 +343,7 @@ VC 2015 编译器配置在path 环境变量中,NetBeans也检查不到  ,而ecli
 离线安装  下载 nbandroid-15-11-01-171517.zip  Tools->plugins -> downloaded ->解压,选择所有的.nbm文件  (没有提示选择安装位置) 
 
 如果把解压的netbeans文件全删,再重新解压,再启动netbeans已经安装的 NBAndroid 还在，说明模块安装在外部,看netbeans.conf说明
-windows在  C:\Users\zh\AppData\Roaming\NetBeans\8.1\modules  (在线安装和离线安装都在这)
+windows在  %HOMEPATH%\AppData\Roaming\NetBeans\8.1\modules  (在线安装和离线安装都在这)
 
 Tools->options -> Miscellaneous -> 多了一个 Adroid 标签
 
@@ -685,9 +685,11 @@ select @cnt
 =============Mongodb工具    Toad Extension for Eclipse  好用,带语法提示的
 
 =============Mongodb工具  Robo Studio 3T for Mongodb 收费的 ,有 Robo 3T 免费
-
+	同样的用户zh 能 看到reporting库的集合
+	
 =============Mongodb工具  NoSQL Manager for MongoDB-4.9.8
-
+	同样的用户zh 不能 看到reporting库的集合 ??
+	
 ------------Tortoise SVN工具
 
 建立Tag
@@ -773,7 +775,7 @@ Tools >   Options  > Connections -> 打开 Allow remote computers to connect
 Tools >   Options  > HTTPS -> 复选Decrypt HTTPS Traffic  复选Ignore server certifcate errors(unsafe)
 
 ------------ Hemes JMS
-启动后会在C:\下生成一个 C:\Users\zh\.hermes 目录 所有的配置存在那里
+启动后会在C:\下生成一个 %HOMEPATH%\.hermes 目录 所有的配置存在那里
 
 Options->Configuration->下方的Providers标签->右击 add group->输入名如weblogic group
 	右击->Library按钮->add Jars->选择weblogic.jar  ->因包大 选择Don't scan(如ActiveMQ activemq-all-5.11.1.jar 可scan)->OK
@@ -911,12 +913,49 @@ Maven项目
 --------- starUML
 Model->Add Diagram->Sequence Diagram
  
+================Visual Studio Code 
+
+VSCodeUserSetup-x64-1.28.2.exe 离线安装 免费 有linux ,mac版本
+也有zip包  VSCode-win32-x64-1.28.2.zip 直接解压就可用
+
+自带Git,HTML,PHP
+
+File->preferences-> extensions  
+可以在线安装 各种语言的 如 JavaScript(React),Python,Go,C/C++(MinGW C++),Java(Maven),SpringBoot,Kubernetes,Scala,Kotlin
+ 
+
+默认安装目录
+%HOMEPATH%\AppData\Local\Programs\Microsoft VS Code
+
+File->Open Folder...
+
+%HOMEPATH%\AppData\Local\Microsoft\TypeScript\3.1\node_modules\@types\react-dom
+										   项目目录\node_modules\@types\react
+https://code.visualstudio.com/docs/nodejs/reactjs-tutorial
+
+extension 
+	Debugger for Chrome
+
+================atom 1.32.2
+
+ https://github.com/atom/atom  有windows,mac,linux版本
+ 
+ windows版本依赖于.NetFramework4.5 , win7要安装
+	vs2015.ent_enu.iso\packages\dotNetFramework\dotNetFx-x86-x64-AllOS-ENU.exe 版本 4.6
+win10可能也要安装,自带.NetFramework3.5的不行
+ 
+ ---plugin
+ 
+ ---家用网不行,国内网的问题  
+	 path 环境变量加  %HOMEPATH%\AppData\Local\atom\app-1.32.2\resources\app\apm\bin
+	 apm config set registry https://registry.npm.taobao.org   //会修改 %HOMEPATH%\.atom\atomrc 文件 strict-ssl=false
+	 apm install --check 不行???
+
+	 
+开发react native 0.366.0 如不用Android Studio,可安装facebook的 Nuclide 插件(apm install nuclide) ,还可以chrome调试
+apm install nuclide 提示会安装到 %HOMEPATH%\.atom\packages 目录    网络不行??? 
 
 
-
-
-
-
-
-
-
+ open-in-browser  0.5.2 
+ 右击代码区 ->open in browser
+ 

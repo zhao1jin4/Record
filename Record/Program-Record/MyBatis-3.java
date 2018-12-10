@@ -685,10 +685,10 @@ public class MyXMLTypeHandler extends BaseTypeHandler<List<String>>
 	
 -----c3p0
 ComboPooledDataSource dataSource= new  ComboPooledDataSource();//c3p0
-dataSource.setDriverClass("org.h2.Driver");
-dataSource.setJdbcUrl("jdbc:h2:tcp://localhost/~/test");
-dataSource.setUser("sa");
-dataSource.setPassword("");
+dataSource.setDriverClass("com.mysql.cj.jdbc.Driver");
+dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/mydb?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC");
+dataSource.setUser("zh");
+dataSource.setPassword("123");
 dataSource.setInitialPoolSize(5);
 dataSource.setMinPoolSize(5);
 dataSource.setMaxPoolSize(20);
@@ -707,6 +707,7 @@ Configuration configuration = new Configuration(environment);
 configuration.addMapper(BlogMapper.class);
 configuration.setCacheEnabled(true);
 SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+ 
 
 -----Druid
 https://github.com/alibaba/druid

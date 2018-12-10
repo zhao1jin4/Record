@@ -714,7 +714,11 @@ select *  into dumpfile '/tmp/myTable.dump' from myTable where id=1  -- 文件�
 	 在 INSERT 语句的开头和结尾增加 /*!40000 ALTER TABLE table DISABLE KEYS */  和 /*!40000 ALTER TABLE table ENABLE KEYS */ 
 	 这能大大提高插入语句的速度,默认打开,使用 --skip-disable-keys 禁用
 
---hex-blob
+--hex-blob          (BINARY, VARBINARY, BLOB类型以十六进制字串导出) 数据格式为 0xFF00000000000000
+可用HEX函数
+	SELECT X'616263', HEX('abc'), UNHEX(HEX('abc'));
+	SELECT HEX(255), CONV(HEX(255),16,10);
+
 --routines -R 		导出存储过程以及自定义函数。
 --triggers  		同时导出触发器。该选项默认启用，用 --skip-triggers 禁用它
 -q, --quick         Don't buffer query, dump directly to stdout. (Defaults to on; use --skip-quick to disable.)

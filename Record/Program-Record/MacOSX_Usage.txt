@@ -1,17 +1,21 @@
 ﻿
-==========================Mac OS Finder
+==========================Mac OS X (Macintosh)
 
-安装完成后,注意取消自动更新
-系统偏好设置->(App Store)软件更新->取消 "检查更新"   安全性与隐私->通用标签->取消 自动更新安全下载列表
-Yosemite 中在系统偏好设置->app Store->取消automatically check for updates
+安装完成后,注意取消自动更新 App Store  系统偏好设置->软件更新->取消 "检查更新"   
+
+
 ===================快捷键
 连续多选文件使用shift键,不连续使用command键
 
 command + 单击dock上图标,打开文件所在位置
 
-ctrl+space  激活右上角的搜索图标 
-command + 空格 ,只和先前使用的输入法两个切换,可长按一会弹出界面,可鼠标或者上下键选择
-command + option+空格 ,循环切换输入法
+输入法入法(High Sierra)
+System preferences->keyboard->shortcuts->input source选中快捷键才行
+ctrl + space 只和先前使用的输入法两个切换,可长按一会弹出界面,可鼠标或者上下键选择
+ctrl + option + space  循环切换输入法
+
+command + space  激活右上角的搜索图标 
+
 command+option+拖动, 可创建替身(快捷方式)
 可把文件拖到左边"位置栏中",command+option再拖是删除
 可把文件拖到左边"工具栏中",command+再拖是删除,也可修改位置
@@ -73,7 +77,8 @@ option+command+D 显示隐藏  Dock
 fn+delete 删光标后面的内容
  
 切换最大化窗口（在不同的桌面中，command+tab）
-=================== Finder的使用
+=================== Finder 的使用
+Finder偏好设置->边栏->把硬盘 和用户主目录 选上
 
 加中文输入法
 系统偏好设置->语言与文本->输入源标签->选择 中文简体的输入法,option(alt)+command+space直接切换(注意option的表示符号)
@@ -99,7 +104,7 @@ root用户默认是被禁用的
 
 	sudo -i
 	
-Macintosh安装后分区的四个目录,资源库(/Library),用户(/Users),系统(下只有一个资源库,/System/Library),应用程序 (显示为.app,/Applications)
+Macintosh 安装后分区的四个目录,资源库(/Library),用户(/Users),系统(下只有一个资源库,/System/Library),应用程序 (显示为.app,/Applications)
 
 安装.dmg文件,只要双击,会被解压pkg或mpkg,删除dmg文件前,要在Finder中设置栏,挂载的镜像弹出才可删
 
@@ -112,8 +117,6 @@ Macintosh安装后分区的四个目录,资源库(/Library),用户(/Users),系�
 
 打开"字体册",把自己的字体拖入到"字体册"中
 
-
-Finder偏好设置->边栏->把硬盘选上
 跳格多选择文件,按command
 
 
@@ -586,7 +589,7 @@ $ lsnrctl status listenername
 
 
 brew install mongodb 在线下载安装
-----------TextWrangler （不兼容 macOS 10.13 (High Sierra)）新版本改为 BBEdit-12
+----------TextWrangler （不兼容 macOS 10.13 (High Sierra)）新版本改为 BBEdit-12 是收费的
 TextWrangler  中 view->Hide/Show File   ,打开文件时要把文件拖到左边的(File)窗口中
 TextWrangler  中 preferences->Application标签->取消 Reopen Documents that were open at last quit
 TextWrangler  中 File->Reopen with encoding->Chinese GBK 可以对打开的文件是乱码做修改 （保存时可选择文件编码）
@@ -638,7 +641,7 @@ MplayeX 播放器Quicktime应该不支持wmv,播放.mov文件不显示画面
 
 SafariCacheExplorer	Safari缓存导出工具
 WBIM		万寿果五笔
-FIT			五笔输入法
+FIT			五笔输入法 2.3		http://www.funinput.com/mac
 mac 百度五笔
 
 iCHM 读.chm文件

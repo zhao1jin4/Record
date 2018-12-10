@@ -53,8 +53,13 @@ cd Xcode.app/Contents/Developer/Documentation/DocSets/
  也没什么效果？？？？
 
 
----------
+---------Xcode-9.2 (Mac OS X 10.13 High Sierrah上最高Xcode-9.2)
+Xcode_9.2.xip 文件 5.1G 解压后 5.7G
+有iphone X模拟器，Xcode-9.2 deploy target 11.2(iOS)
 
+
+
+---
 不安装docset 也可以直接使用alt+点击 类名，看文档 
 
 

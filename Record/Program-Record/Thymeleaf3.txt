@@ -1,0 +1,109 @@
+﻿
+<dependency>
+    <groupId>org.thymeleaf</groupId>
+    <artifactId>thymeleaf</artifactId>
+    <version>3.0.11.RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>org.thymeleaf</groupId>
+    <artifactId>thymeleaf-spring5</artifactId>
+    <version>3.0.11.RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>org.thymeleaf.extras</groupId>
+    <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+    <version>3.0.4.RELEASE</version>
+</dependency>
+
+ --- thymeleaf-3.0.11.RELEASE.jar 
+		ognl-3.1.12.jar
+		javassist-3.20.0-GA.jar
+		attoparser-2.0.5.RELEASE.jar
+		unbescape-1.1.6.RELEASE.jar
+
+
+ServletContextTemplateResolver resolver = new ServletContextTemplateResolver(servletContext);
+resolver.setPrefix("/WEB-INF/thymeleaf/");
+resolver.setCharacterEncoding("UTF-8");
+resolver.setTemplateMode(TemplateMode.HTML);
+resolver.setCacheable(false);//默认是true,即缓存的,false只用于开发使用
+//resolver.getCacheablePatternSpec().addPattern("/users/*");
+//resolver.setCacheTTLMs(60000L);// 1 minute
+
+TemplateEngine engine = new TemplateEngine();
+engine.setTemplateResolver(resolver);
+//engine存在servletContext中,用于取
+
+
+WebContext context = new WebContext(request, response, request.getServletContext());        
+response.setCharacterEncoding("utf-8");
+context.setVariable("name", "李四");
+
+
+Employee emp=new Employee();
+emp.setEmployee_id(100);
+emp.setFirst_name("张");
+emp.setLast_name("三");
+emp.setSalary(8000.00);
+
+Calendar calendar= Calendar.getInstance();
+calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH)-1);
+
+DateRange range=new DateRange();
+range.setBeginTime(calendar.getTime());
+range.setEndTime(new Date());
+emp.setCreateTimeRange(range);
+context.setVariable("currentUser", emp);
+engine.process("index.html", context, response.getWriter());
+
+---/WEB-INF/thymeleaf/index.html
+ 标准方言 以th前缀开头的属性 , 模板是有缓存的<br/>
+ <p>
+	 Hello <span th:text="${name}"></span>!
+ </p>
+ 
+ <div>
+	beginTime: <span th:text="${currentUser.createTimeRange.beginTime}"></span>
+ </div>
+ 
+ <div th:object="${currentUser}"> 
+	first_name:  <span th:text="*{first_name}"> </span> *{ 是上面的th:object属性的${子级  ,像JS的 with(currentUser) 
+ </div>
+  
+ <a th:href="@{/jfreechart.jsp?id=1&name=中 }"> ${@ 带上下文路径  & 会被转议</a> <br/>
+ <a th:href="@{~/contents/main}"> @{~ 没有上下文路径</a>  <br/> 
+ <a th:href="@{//mycompany.com/res/initial}">@{// 协议 http,https 同浏览器 </a> <br/>
+  
+
+---- 定义代码片段  <br/>
+ <div th:fragment="advertArea">
+		这里是广告区
+</div>
+
+----引用代码片  <br/>
+<div th:insert="common.html :: headerArea"></div>
+<div th:insert="~{this :: advertArea}"></div>  ~{}是可选的,this是本页面
+<div th:include="~{:: advertArea}"></div> this是可选的, include 只包括子标签内容  <br/>
+<span th:replace="common.html :: headerArea"></span>th:replace  表示 不要自己的主标签，保留th:fragment的主标签  <br/>
+
+=====common.html
+<!--定义代码片段 -->
+<div th:fragment="headerArea">
+ 	common header Area 头部区(不支持中文)
+</div>
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 	

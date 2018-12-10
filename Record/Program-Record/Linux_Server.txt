@@ -1244,16 +1244,16 @@ GitStack 说是开源,30天后变为基本版本,网页形式的Server,http://lo
 GitLab (linux) 收费的，有管理界面
 
 
-C:\Users\zh\AppData\Local\Programs\Git\mingw64\bin\git.exe
+%HOMEPATH%\AppData\Local\Programs\Git\mingw64\bin\git.exe
 
-Git-2.15.1.2-64-bit.exe 如非管理员安装，默认安装在 C:\Users\zh\AppData\Local\Programs\Git
+Git-2.15.1.2-64-bit.exe 如非管理员安装，默认安装在 %HOMEPATH%\AppData\Local\Programs\Git
  选择使用notepad++为默认编辑器 
  
  
 C:\Program Files\Git\mingw64\etc\gitconfig
 	[credential]
 		helper = manager
-C:\Users\zh\.gitconfig
+%HOMEPATH%\.gitconfig
 	[gui]
 	
 C:\Program Files\Git\mingw64\share\doc\git-doc 下有文档
@@ -1904,8 +1904,22 @@ reverse proxy：反向代理
 
 源码编译,要C++编译器 yum list| grep gcc-c++, 依赖于  PCRE (Perl Compatible Regular Expressions)库(不是2版本) 
 
+http://nginx.org/packages/ 有二进制包
+http://nginx.org/packages/centos/7/x86_64/RPMS/nginx-1.14.0-1.el7_4.ngx.x86_64.rpm  下载不了，网站问题
+http://nginx.org/packages/rhel/7/x86_64/RPMS/nginx-1.14.0-1.el7_4.ngx.x86_64.rpm   下载OK
+/usr/sbin/nginx ,man nginx 默认配置文件 /etc/nginx/nginx.conf
+
+
+也可/etc/yum.repos.d/nginx.repo 
+[nginx]
+name=nginx repo
+baseurl=http://nginx.org/packages/OS/OSRELEASE/$basearch/
+gpgcheck=0
+enabled=1
+
+
 默认安装在/usr/local/nginx,包括日志
-./confure   --with-pcre=../pcre-8.41  (CentOS7自带 pcre-8.32 , apache也是用这个)
+./confure   --with-pcre=../pcre-8.41  (CentOS7自带 pcre-8.32 apache也是用这个,如用 --with-pcre=/usr   --with-zlib=/usr可能不行)
 make
 make install
 
@@ -2061,8 +2075,15 @@ server {
 		proxy_pass http://localhost:8000;
 	}
 }
+------nginx  HTTP2
+源码编译增加
+--with-http_v2_module 选项
+--with-http_ssl_module
 
---nginx Memcached
+---nginx.conf
+listen 443 ssl http2 default_server;  未试
+
+------nginx Memcached
 server {   
     location / {
         set            $memcached_key "$uri?$args";
@@ -2212,7 +2233,7 @@ yum install mrtg
 =============Sphinx  SQL 的全文搜索  可MySQL
 Coreseek 带有中文分词
 
-CentOS 最新版本 7
+
 
 
 
@@ -2258,7 +2279,7 @@ vi  myogg.rsp
 
 su ogg
 . /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
-./runInstaller -silent -nowait -responseFile  /home/zh/ogg/myogg.rsp  命令行下安装 (必须绝对路径,必须普通用户,也可不加-silent)
+./runInstaller -silent -nowait -responseFile  ~/ogg/myogg.rsp  命令行下安装 (必须绝对路径,必须普通用户,也可不加-silent)
 
 -nowait 会后台安装
 

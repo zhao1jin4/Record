@@ -71,7 +71,7 @@ systemctl disable docker.service
 
 docker --version
 
-windows 10 版本使用  Hyper-V ,只用于开发
+windows 10 版本使用  Hyper-V ,只用于开发(要求windows 10 pro or enterprise,windows server 2016)
 最新版 windows 提示 You must be in the "docker-users" group. 
 net user docker  /add /active:yes /expires:never /passwordchg:yes /fullname:"the-docker" /comment:"docker used"
 net localgroup "docker-users" docker /add

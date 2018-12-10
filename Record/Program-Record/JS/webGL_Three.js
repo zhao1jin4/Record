@@ -1,11 +1,5 @@
 
-
-Mozilla Firefox的网页排版引擎Gecko在互联网中是最流行的排版引擎之一，
-其流进程度仅次于Trident（用于Windows版的Internet Explorer4.0版本开始），
-其后尚有WebKit（用于Safari以及Google Chrome）以及Presto（用于Opera）。
-V8是一个由 Google开发的开源JavaScript引擎，用于Google Chrome中
-V8在执行之前将JavaScript编译成了机器码，而非字节码或是直译它
-
+Unity
 
 ===========webGL
 https://developer.mozilla.org/en-US/docs/WebGL
@@ -21,6 +15,7 @@ code    https://github.com/gpjt/webgl-lessons <br/>
 设定“webgl.osmesalib”为您OSMesa分享库的地址（通常像这样/usr/lib/libOSMesa.so）
 http://www.mesa3d.org/ 下载 ftp://ftp.freedesktop.org/pub/mesa/
 
+ 
 var gl;
 function init()
 {

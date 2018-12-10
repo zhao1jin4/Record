@@ -23,7 +23,7 @@ GPL (General Public License)
 
 linux硬件兼容支持,显示设备XFree86
 
-
+cat /etc/os-release 显示系统信息，包括哪种linux系统
 lsb_release -a
 cat /etc/issue
 
@@ -166,6 +166,9 @@ lsof -c mongod  查看这个字符开头的命令所打开的文件
 write root pts/2 对方只显示,不能回复,要双方都使用write
 talk  135.251.27.76  pts/1  #可能要安装talk-server
 talk  user@135.251.27.76  pts/1
+
+bc   计算器   5^3=125
+cal  日历
 
 zip -r filename.zip filesdir 创建zip
 zip -s 4m filename.zip --out filename_part 可以把zip文件分卷压缩,文件以z01,z02结尾
@@ -623,10 +626,10 @@ ssh-keygen 会要求输入密码(可不输),有 -t rsa 和 -t dsa
 收到别人的公钥后 追加写入自己机器的 ~/.ssh/authorized_keys 文件,别人就可(使用建立密钥时的密码或无)连接自己机器
 自己的机器有公钥,对方连我不用密码
 
-接收方 tail -f   /var/log/secure 看日志 如报 Authentication refused: bad ownership or modes for file /home/zh/.ssh/authorized_keys
-chmod 700 /home/zh/.ssh/
-chmod 700 /home/zh/.ssh/authorized_keys
-chmod 600 /home/zh/.ssh/authorized_keys
+接收方 tail -f   /var/log/secure 看日志 如报 Authentication refused: bad ownership or modes for file ~/.ssh/authorized_keys
+chmod 700 ~/.ssh/
+chmod 700 ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
 
 
 
@@ -856,11 +859,11 @@ linux-q50c:~ # lspci | grep VGA
 01:00.0 VGA compatible controller: ATI Technologies Inc Whistler [AMD Radeon HD 6600M Series] (rev ff)
 
 openSUSE-13.2不用了,只是DynOff
-linux-cxfp:/home/zh # cat /sys/kernel/debug/vgaswitcheroo/switch
+# cat /sys/kernel/debug/vgaswitcheroo/switch
 0:IGD:+:Pwr:0000:00:02.0
 1:DIS: :DynOff:0000:01:00.0
-linux-cxfp:/home/zh # echo OFF > /sys/kernel/debug/vgaswitcheroo/switch 
-linux-cxfp:/home/zh # cat /sys/kernel/debug/vgaswitcheroo/switch
+# echo OFF > /sys/kernel/debug/vgaswitcheroo/switch 
+# cat /sys/kernel/debug/vgaswitcheroo/switch
 0:IGD:+:Pwr:0000:00:02.0
 1:DIS: :DynOff:0000:01:00.0
  
@@ -2051,6 +2054,28 @@ modinfo ext3
 modprob (依赖安装,如失败会卸载整组的模块)
 rmmod
 
+============================CentOS 专用的
+CentOS 最新版本 7.5
+http://mirrors.huaweicloud.com/centos/7.5.1804/os/x86_64/Packages/
+http://mirrors.huaweicloud.com/centos/7/updates/x86_64/Packages/  只有新版本的
+
+https://www.centos.org/download/mirrors/  
+http://mirrors.huaweicloud.com/centos/7/os/x86_64/Packages/
+
+有 gcc-c++-4.8.5-28.el7_5.1.x86_64.rpm   
+	->gcc-4.8.5-28.el7_5.1.x86_64.rpm
+	->libstdc++-4.8.5-28.el7_5.1.x86_64.rpm
+	->libstdc++-devel-4.8.5-28.el7_5.1.x86_64.rpm  
+	->cpp-4.8.5-28.el7_5.1.x86_64.rpm
+	-> kernel-headers-3.10.0-862.9.1.el7.x86_64.rpm     
+	-> libmpc-1.0.1-3.el7.x86_64.rpm  
+	
+	-> glibc-devel-2.17-222.el7.x86_64.rpm   
+		->glibc-2.17-222.el7.x86_64.rpm       
+		->glibc-headers-2.17-222.el7.x86_64.rpm  
+		->glibc-common-2.17-222.el7.x86_64.rpm   
+	   
+	
 ============================Redhat专用的
 镜像地址  
 	
@@ -2093,6 +2118,9 @@ rpm -q --requires pam-1.1.8-12.el7.i686 查已安装包的依赖
 rpm -q --requires -p pam-1.1.8-12.el7.i686.rpm 查指定包的依赖
 --requires 可以-R ,即 rpm -qR pam-1.1.8-12.el7.i686
 
+rpm -qpR gcc-c++-7-lp150.1.50.x86_64.rpm 查看包的依赖 (-p,--package  -R,--requires)
+    gcc = 7
+    gcc7-c++
 ----------- Fedora11不能使用root用户登录的解决办法
  修改 /etc/pam.d/gdm 中下面这行
 auth       required    pam_succeed_if.so user != root quiet
@@ -2365,5 +2393,55 @@ yum   install  lrzsz  就可以用 rz ,sz
 debugfs  是linux系统自带工具, 恢复Ext3的文件系统中被rm、rm -f 掉的文件 
 
 extundelete 主页 http://extundelete.sourceforge.net/
-extundelete-0.2.4.tar.bz2
+extundelete-0.2.4.tar.bz2 (2013年的,到2018年底不有更新)
+
+extundelete-0.2.4
+    可以恢复 ext3、ext4文件系统下被误删除的文件
+    并且支持单个文件恢复、单个目录恢复、inode恢复、block恢复、完整磁盘恢复等
+    
+     openSUSE-15 DVD  中有 libext2fs2-1.43.8-lp150.2.24.x86_64.rpm  
+     http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/
+        libext2fs-devel-1.43.8-lp150.2.24.x86_64.rpm
+            libcom_err-devel-1.43.8-lp150.2.24.x86_64.rpm
+         
+  ./configure    
+  make
+  make install
+  安装 OK  安装在 /usr/local/bin/extundelete
+  http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/
+		extundelete-0.2.4-lp150.1.4.x86_64.rpm
+   
+   在数据被误删除后，第一时间要做的是卸载被删除数据所在的磁盘或者磁盘分区，如果是系统根分区的数据遭到误删除，就需要将系统进入单用户，并且将根分区以只读模式挂载
+  
+ mkdir /data
+ mkfs.ext4 /dev/sdx1 102400  (单位是KB ,100MB)
+ mount /dev/sdx1 /data/
+ cp /etc/passwd /data/
+cp -r /etc/init.d /data/
+echo "my 我的"> /data/my.txt
+rm -rf /data/*
+
+cd ~
+umount /data/
+/usr/local/bin/extundelete /dev/sdx1 --inode 2   查分区可恢复的数据信息 （根目录的inode一般为2）
+
+恢复单个文件
+/usr/local/bin/extundelete /dev/sdx1 --restore-file passwd   
+在文件恢复成功后，extundelete命令默认会在执行命令的当前目录下创建一个RECOVERED_FILES目录
+ls RECOVERED_FILES/
+测试失败没有文件？？？？ 日志提示 No undeleted copies found in the journal.
+
+恢复单个目录
+/usr/local/bin/extundelete /dev/sdx1 --restore-directory init.d
+测试失败没有文件？？？？
+
+恢复所有删除数据
+/usr/local/bin/extundelete /dev/sdx1 --restore-all
+测试失败没有文件？？？？
+
+date -d"-1 day" "+%Y%m%d"   是昨天
+date -d"-1 day"  +%s 
+    1544018945
+/usr/local/bin/extundelete --after 1544018945 --restore-all /dev/sdx1 
+测试失败没有文件？？？？
 

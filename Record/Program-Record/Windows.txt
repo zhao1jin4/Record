@@ -466,7 +466,7 @@ msconfig中[启动中]项中有所的 注册表项CU=CURRENT_USER,LM=LOCAL_MACHI
 HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run (win10 同任务管理器中)
 HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
 HKLM\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run
-shell:startup 进入(当前用户) C:\Users\zh\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup 目录
+shell:startup 进入(当前用户) %HOMEPATH%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup 目录
 (所有用户)C:\Users\All Users\Microsoft\Windows\Start Menu\Programs\Startup
 C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
 
@@ -615,6 +615,8 @@ gpedit.msc 用户设置->管理模板->Windows 组件->Internet Explorer-> 找�
 %USERPROFILE%\AppData\Local\XXX应用和 Temp
 %USERPROFILE%\AppData\Roaming\XXX应用
 %APPDATA%=C:\Users\%USERNAME%\AppData\Roaming
+
+%HOMEPATH% 用户主目录
 ---------------windows 批处理 bat
 
 FOR /L %variable IN (start,step,end) DO command [command-parameters] ##示例如下
@@ -884,9 +886,9 @@ win10 安装中文语言包,官方说要  控制面板 增加语言后->option->
 
 开始菜单,向下的箭头,展开所有,按ctrl+选中应用 出现菜单->固定到开始菜单
 
-开始菜单(win10不太准) 快捷方式位置 C:\Users\zh\AppData\Roaming\Microsoft\Windows\Start Menu\Programs
-任务栏   快捷方式位置 C:\Users\zh\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
-                      C:\Users\zh\Desktop
+开始菜单(win10不太准) 快捷方式位置 %HOMEPATH%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs
+任务栏   快捷方式位置 %HOMEPATH%\AppData\Roaming\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar 
+                      %HOMEPATH%\Desktop
 					  
 IE-11 自带Flash Player
 自带windows Defender 杀毒软件,设置中取消 [启用实时保护] .金山毒霸可以让windows Defender 服务停止.
@@ -897,7 +899,6 @@ android-4.4 (android-sdk_r22.3-windows) 在 win8.1 上不能运行.exe文件 是
 
 ===========上 win8==========
 =========== win 10 ==========
-如是win7升级到win10 可以一个月内再回退到win7的(设置->更新和安全->恢复 中)
 
 win10 任务管理器中CPU 使用图表, 多核显示一个图形,右击->将图表修改为->逻辑处理器
 
@@ -914,7 +915,7 @@ C:\Windows\SystemApps 是 win10 系统应用
 修改默认字体
 
 
-Windows Defender 总是占用磁盘100%  
+Windows Defender (MsMpEng.exe)总是占用磁盘100%  
 	关闭它 网上说用gpedit.msc (但家庭版没有)
 	HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services 下面的WinDefend 删除它 注册表项目
 	reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1
@@ -924,6 +925,9 @@ Windows Defender 总是占用磁盘100%
  打开计算机，任意磁盘右键打开属性->工具->优化->关闭优化计划
 禁止服务HomeGroup Listener，HomeGroup Provider
 
+svchost.exe(LocalSystemNetworkRestricted -p)总是占用磁盘100%  
+
+
 
 
 阿里旺旺亮灯服务模块ww开头(删了文件,禁用服务后还会自动开启),
@@ -931,9 +935,9 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\wwbizsrv 删除也不行，
 任务计划 有 当任何用户登录时
  
 服务Windows FireWall,Security Center,Windows Search ,Office
-windows 商店 ，总是开机自启,停服务Appx  ,Cortana 一直在
-
-
+windows 商店 ，总是开机自启,停服务 Appx  ,Cortana 一直在
+wsappx 进程是windows 商店的(可以在windows 商店中关闭自动更新)
+ 
  
 TASKLIST  命令显示进程
 TASKLIST | find /C ".exe"   ,/C 表示计数

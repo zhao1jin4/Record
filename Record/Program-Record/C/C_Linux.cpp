@@ -369,7 +369,7 @@ strace -e trace=process -f sh -c "hello; echo $?" > /dev/null
 
 
 C 语言的开头加一个 extern "C"
-nm /home/zh/eclipse_workspace/SynDB/egg_lib/libegg.so   来看so文件中有哪些方法
+nm ~/eclipse_workspace/SynDB/egg_lib/libegg.so   来看so文件中有哪些方法
 nm 可查看目标文件和程序库的符号地址 //有哪些方法   nm hello.o
 
 

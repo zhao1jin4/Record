@@ -16,7 +16,7 @@ https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project
 免费的   1. lattern 蓝灯 (可上google,但下载Android SDK 还要设置镜像地址mirrors.neusoft.edu.cn )  
 -------------windows/mac 下载选择  
 
-1. Intel x86 Emulator Accelerator(HAXM installer)( linux不用的)) 
+1. Intel x86 Emulator Accelerator(HAXM installer)(mac有,但不能Mac运行在虚拟机中,linux不可用) 
 		HAXM=Hardware Accelerated Execution Manager
 		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat  (也可intelhaxm-android.exe)
 	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x 
@@ -42,13 +42,18 @@ source 和 goole repository是android studio初始配置会下的
 模拟器要单独下载ware和tv的(table ,phone用真机行吗)
 
 在什么版本上运行可能就要什么版本的 build-tools,platforms  
-android-7.1.1 = api 25  platform-25(res/drawable ,layout) (新建选择minSDK25,app/build.gradle中修改targetSdkVersion 25,compileSdkVersion 25,原来是加1的26)	
+android-7.1.1 = api 25  platform-25(res/drawable ,layout) 
+		(新建选择minSDK25,app/build.gradle中minSdkVersion 25 ,targetSdkVersion 28,compileSdkVersion 28)	
 		对应的build-tools(dx,aapt)是 27.0.3 (androidStudio中已经有新版本不能下载旧版本)只能安装最新 28.0.2 后再下载要求的低版本 27.0.3
+android-9.0=api 28
 
 ---------------问题解决方法
-真机报 INSTALL_FAILED_USER_RESTRICTED 原因是在权限管理中的USB安装管理中已经拒绝安装了，删除就行了，因前面提示过没有看到后面就默认拒绝
-	   INSTALL_FAILED_USER_RESTRICTED错误  小米手机关闭usb安装管理：打开开发者选项---打开USB安装(允许通过USB安装应用)
+真机报
+INSTALL_FAILED_USER_RESTRICTED 错误  小米手机关闭usb安装管理：打开开发者选项---打开USB安装(允许通过USB安装应用)
+INSTALL_FAILED_USER_RESTRICTED 原因是在权限管理中的USB安装管理中已经拒绝安装了，删除就行了，或因前面提示过没有看到后面就默认拒绝
 
+报 device unauthorized. This adb server's $ADB_VENDOR_KEYS is not set 原因是初次连接时提示的指纹没有选到，要断开手机关debug,adb kill-server
+再adb start-server ，插手机，打开debug就会再次提示接受指纹
 
 wifi 密码存储在
 #Android8.0（Oreo）之前版本
@@ -75,28 +80,31 @@ fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
  
 ----- Android Studio
  AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8，自带Grale
- AndroidStudio-3.1.4 支持JDK10
-
+ AndroidStudio-3.2.1 支持JDK10 linux 下可以安装KVM
+ 
  3.1.4 在 ~/.AndroidStudio3.1
- 默认安装目录 C:\Users\zhaojin\AppData\Local\Android\sdk 
-	linux: /home/zhaojin/Android/Sdk
- 默认工作区  C:\Users\zhaojin\AndroidStudioProjects
+ 默认安装目录 windows: %HOMEPATH%\AppData\Local\Android\sdk 
+				linux: ~/Android/Sdk
+				Mac: ~/Library/Android/sdk
+ 默认工作区   %HOMEPATH%\AndroidStudioProjects
  如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
  
  AndroidStudio-3.1.4 首次配置AndroidSDK时会下载 android_m2repository_47.zip 放在extras\android\m2repository目录中
 	也会下载 google_m2repository_gms_v11_3_rc05_wear_2_0_5.zip 放在 extras\google\m2repository 目录,和 extras\m2repository ,extras\android\m2repository
 	也会再下载 source
+
+ AndroidStudio-3.2.1 下载的是 gradle-4.6-all.zip  可开始下载时中断生成目录 ,不能手工指定更高的版本
+		  ~/.gradle/wrapper/dists/gradle-4.6-all/<uuid>/   再放入gradle-4.6-all.zip  
+ %HOMEPATH%/.gradle/wrapper/dists/gradle-4.6-all/<uuid>/
  
-	
- AndroidStudio-3.1.4 下载的是 gradle-4.4-all.zip 可开始下载时中断生成目录
-~/.gradle/wrapper/dists/gradle-4.4-all/9br9xq1tocpiv8o6njlyu5op1/   再放入gradle-4.4-all.zip  
 在path中找到gradle命令不会下载,再配置如下
-settings->Build,Execution,Deployment->Build Tool->Gradle->单选use Local Gradle,选择路径D:\Program\gradle-4.9
-
-
-Linux: ~/.gradle/wrapper/dists 
-windows:   C:\users\zhaojin\.gradle\wrapper\dists
-
+settings->Build,Execution,Deployment->Build Tool->Gradle->单选use Local Gradle, Gradle home:选择路径D:\Program\gradle-4.6-all\gradle-4.6
+-----build.gradle文件
+	repositories { 
+	//最前面增加镜像
+	maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+	maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
+	}
 
 AndroidStudio如果新版本兼容老版本生成代码有<android.support.constraint.ConstraintLayout>,如新建项目默认启动类是extends AppCompatActivity(Backforwards Compatibility),如取消extends Activity
 
@@ -2867,6 +2875,9 @@ adb -s  A49947194A9B reboot  #或在shell中reboot
 adb remount  #system分区从 只读 -> 可写 ,只有获得了root权限才可能运行
 
 ------------NDK
+
+https://github.com/googlesamples/android-ndk/tree/master
+
 CMake  本地代码构建工具,也可用 ndk-build  
 LLDB  可用Android Studio 调试本地代码
 

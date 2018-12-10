@@ -1323,15 +1323,16 @@ public class GreetingController
 
 
 
-==============Swagger框架
-
+==============Swagger 框架  1.x(SpringMVC)
 swagger-springmvc-1.0.2.jar
 swagger-models-1.0.2.jar
 swagger-annotations-1.3.11.jar
 guava-17.0.jar
 swagger-spring-mvc-ui-0.4.jar  不可自定义界面
 
-  
+
+
+
 import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 @Controller
@@ -1393,10 +1394,22 @@ properties/apiInfo.properties
 
 
 http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp 
-
- 使用 http://127.0.0.1:8080/J_SpringMVC/api-docs.mvc  或者修改   <url-pattern>/</url-pattern>
+ 页面中使用 http://127.0.0.1:8080/J_SpringMVC/api-docs.mvc  或者修改   <url-pattern>/</url-pattern>
 
 页面中 Data Type 组选    Model Schema 
+-------------Swagger 2.x  OpenAPI-3.x  可以用YAML或JSON编写 JAX-RS (CXF)
+<dependency>
+  <groupId>io.swagger.core.v3</groupId>
+  <artifactId>swagger-jaxrs2</artifactId>
+  <version>2.0.6</version>
+</dependency>
+<dependency>
+  <groupId>io.swagger.core.v3</groupId>
+  <artifactId>swagger-jaxrs2-servlet-initializer</artifactId>
+  <version>2.0.6</version>
+</dependency>
+
+
 
 ------------ RestTemplate
 

@@ -301,18 +301,19 @@ CHAR ,VARCHAR,BINARY,VARBINARY,BLOB,TEXT,ENUM , SET	 类型
 	
  CREATE SCHEMA 是 CREATE DATABASE 的同义词
  
-	
+  
 CREATE TABLE data_type
 (
 	my_bit bit, -- 只能0或1, 可以多位,做boolean类型 
 	my_blob blob,
-	my_binary BINARY(3),
+	my_binary BINARY(8), 
+	my_varbinary  varbinary(20),
 	my_enum ENUM('red','orange','black'),
 	my_set  SET('a', 'b', 'c', 'd')  -- 一格中有相同值时,保存会去重复
 );
 一个 SET 列最多有 64 个不重复的值
-insert into data_type(my_bit,my_blob,my_binary,my_enum,my_set)
-values(1,1,0,'black','a,b,c');
+insert into data_type(my_bit,my_blob,			my_binary,			my_varbinary,my_enum,my_set)
+values				(1, UNHEX(HEX('616263')), 0xFF000000,UNHEX(HEX(255)),'black','a,b,c');
 	
 text 类型对应的就有tinytext,mediumtext,longtext
 	
@@ -1191,6 +1192,13 @@ alter table myTable drop index INX_depId;
 CREATE INDEX part_of_name ON customer (name(10)); 可以只对前几个字符做索引
 create UNIQUE index INX_PK  on myTable(dep_id,emp_id)  using BTREE
 mysql 不支持函数索引,如 subString(l.listId,1,3) 
+
+create table authorities (
+    username varchar(50) not null,
+    authority varchar(50) not null,
+    constraint fk_authorities_users foreign key(username) references users(username)
+);
+create unique index ix_auth_username on authorities (username,authority);
 
 innodb 和 MyISAM 只支持 BTREE 索引
 

@@ -64,7 +64,7 @@ scala>mapRdd.collect  // 执行collect方法,返回Array
 scala>mapRdd   //看
 scala>val filterRdd=mapRdd.filter( _>5) //过滤 >5 的
 scala>val filterRdd2=sc.parallelize(List(1,2,3,4,5,6)).map(2 * _).filter( _>5) // 一行式写法，scala
-scala>var rdd1=sc.textFile("/home/zh/world.txt") // 以空格分格的字母文件,路径如C:是不行的，不会立即读数据
+scala>var rdd1=sc.textFile("~/world.txt") // 以空格分格的字母文件,路径如C:是不行的，不会立即读数据
 scala>rdd1.cache
 scala>rdd1.count
 scala>val worldCount=rdd1.flatMap(_.split(' ')).map((_,1)).reduceByKey(_+_)	  
@@ -77,7 +77,7 @@ scala> worldCount.map(t=>(t._1,t._2.sum))
 scala> worldCount.mapValues(_.sum) 
 scala>worldCount.collect
 scala>worldCount.collect.toBuffer   //ArrayBuffer
-scala>worldCount.saveAsTextFile("/home/zh/output_dir") //windows下不行，不能chmod
+scala>worldCount.saveAsTextFile("~/output_dir") //windows下不行，不能chmod
 scala>
 scala>var result = rdd union udd2   //可能要相同类型的
 scala>var result = rdd join udd2   //可能要相同类型的
@@ -166,7 +166,7 @@ import org.apache.spark.api.java.function.Function;
 
 public class TestSpark {
  public static void main(String[] args) {
-   String logFile = "/home/zh/spark-1.0.0-bin-hadoop2/README.md";
+   String logFile = "~/spark-1.0.0-bin-hadoop2/README.md";
    SparkConf conf = new SparkConf().setAppName("Simple Application");//如加.setMaster("local[4]");表示本地用4个线程跑,就可在eclipse中运行
    JavaSparkContext sc = new JavaSparkContext(conf);
    JavaRDD<String> logData = sc.textFile(logFile).cache();//textFile方法第二个参数可加配置分割文件数量,但不能小块大小,HDFS默认是64M
@@ -188,7 +188,7 @@ public class TestSpark {
  
  public static void main(String[] args) throws Exception 
  {
-	String logFile = "/home/zh/spark-1.0.0-bin-hadoop2/README.md";
+	String logFile = "~/spark-1.0.0-bin-hadoop2/README.md";
     SparkConf sparkConf = new SparkConf().setAppName("JavaWordCount").setMaster("local[4]");
     JavaSparkContext ctx = new JavaSparkContext(sparkConf);
     JavaRDD<String> lines = ctx.textFile(logFile, 1);

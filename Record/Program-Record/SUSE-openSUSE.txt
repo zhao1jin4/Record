@@ -1,27 +1,40 @@
 http://doc.opensuse.org/
 
 
-openSUSE-leap-15-DVD有
+openSUSE-leap-15-DVD有  
 	chromium-66.0.3359.170-lp150.1.1.x86_64.rpm
 		git-2.16.3-lp150.1.1.x86_64.rpm
 openSUSE-leap-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,cheese摄像,Totem播放器,pidgin(可MSN,GTalk都测试过的),brasero(DVD工具)
 	Firefox
 	GStreamer是在Linux下创建流媒体的应用程序框架
 	ibus,fcitx,cyrus,TiggerVNC
-	Mesa(openGL)
-
+	Mesa(openGL) 
+	
 http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
+	 gcc-c++-7-lp150.1.50.x86_64.rpm (要用这个)
+        gcc7-c++-7.3.1+r258812-lp150.2.10.x86_64.rpm  (这个安装的是g++-7命令) 
+            libstdc++6-devel-gcc7-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			
 	go-1.9.4-lp150.1.1.x86_64.rpm
 	redis-4.0.9-lp150.2.8.x86_64.rpm
  	docker-17.09.1_ce-lp150.4.2.x86_64.rpm
 	sysstat (iostat)
-	mysql-workbench-6.3.10-lp150.3.1.x86_64.rpm
+	
+	
+	lsb-4(chrome依赖)
+
+	extundelete-0.2.4-lp150.1.4.x86_64.rpm
+	
+	java-1_8_0-openjdk-1.8.0.161-lp150.1.24.x86_64.rpm
+	java-11-openjdk-11.0.0.0~13-lp150.1.1.x86_64.rpm
+	anjuta-3.28.0-lp150.1.4.x86_64.rpm
+	glade-3.20.4-lp150.1.4.x86_64.rpm
+	
+	mysql-workbench-6.3.10-lp150.3.1.x86_64.rpm (有新的8.x)
 		mysqlworkbench 启动要 libproj.so , 连接要 /usr/lib64/mysql/plugin/caching_sha2_password.so  没有，绝对路径??? 
 		做 ln -s  /usr/lib64/libproj.so.12.0.0 /usr/lib64/libproj.so  无用??
 		官方doc 说在8.0中默认使用caching_sha2_password已经集成在 libmysqlclient中了
-	anjuta,glade
-	lsb-4(chrome依赖)-> libqt4,qt3
-
+		
 http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 noarch/ 
 	iotop 
 	--lsb-4依赖
@@ -33,7 +46,14 @@ http://download.opensuse.org/distribution/leap/15.0/repo/non-oss/  下的 x86_64
 
 cat /etc/SUSE-brand  
 
+openSUSE-leap-15安装时必须要建立Partition ID为 Bios Boot Partition 类型 的分区(不要选格式化,大于2MB默认8MB,默认是第一个分区) 
+默认其它分区类型是 /是 BrtFS  /home是 XFS
+如用VMWare版本要15
+U盘是openSUSE-15分区类型是fuseblk ,windows是NTFS,可以写数据
+
 https://software.opensuse.org/download.html?project=server%3Adatabase&package=mysql-workbench
+
+
 
 ------------------------硬盘安装SUSE-Desktop-10-DVD
 (用isoemu,硬盘安装SUE不行,要用grub4dos)
@@ -62,17 +82,22 @@ scim 五笔可以删除一些其它语言，［scim 设置］－＞全局设置�
 
 ------------SSH
 /etc/ssh/sshd_config   
-PermitRootLogin改成yes，
-PasswordAuthentication就是把no改为yes
+PermitRootLogin 改成yes 
+PasswordAuthentication 就是把no改为yes
+
+chkconfig sshd on
+即目录 /usr/lib/systemd/system 有sshd.service 也可 systemctl start  sshd  会弹出UI 输入密码
+
 service sshd start
 service -staus-all显示所有服务状态
-chkconfig sshd on
+ss -atr | grep ssh
+
 
 
 有防火墙的
 
 iptables -L
-iptables -F
+iptables -F 就可ssh登录了
 iptables -P INPUT  ACCEPT
 iptables -P OUTPUT  ACCEPT
 iptables -P FORWARD  ACCEPT
@@ -137,9 +162,12 @@ ip link set dev eth0 down
 激活 eth0 
 ip link set dev eth0 up
 
- (无 netstat,,net-tools 不再维护)
+ (无 netstat,net-tools 不再维护)
 ss 命令（Socket Statistics）
-ss -atr | grep ssh
+ss -atr | grep ssh  
+-a all
+-t tcp
+-r resolve hostname
 	
 
 iwlist、iwconfig
@@ -407,9 +435,7 @@ grub>boot
  
 SuSE中在/etc/init.d/boot.local文件中添加命令  ,Red Hat系统的对应文件是/etc/rc.d/rc.local。
 
- 
-chkconfig sshd on
-
+  
 
 mount FAT32分区时,中文文件名显示??
 mount -t vfat -o iocharset=utf8 /dev/sda7 /media/F/
@@ -530,7 +556,7 @@ export QT_IM_MODULE=fcitx
 （注销后无线网络，就不对了，要按fn键禁用再启用）
 
 /etc/vfstab 中
-/home/zh/Documents/openSUSE-12.2.iso       /mnt/iso        iso9660 ro,loop 0       0
+~/Documents/openSUSE-12.2.iso       /mnt/iso        iso9660 ro,loop 0       0
 
 
 ----Grub2
@@ -598,6 +624,35 @@ Mono
 
 	
 ===================要手工下载安装的软件
+-----chrome 70
+依赖于 lsb_release 
+libappindicator3.so  DVD中有的
+cd /run/media/zh/openSUSE-Leap-15.0-DVD-x86_64267/x86_64
+rpm -ivh libappindicator3-1-12.10.1+bzr20170215-lp150.3.1.x86_64.rpm  libdbusmenu-glib4-16.04.0-lp150.2.1.x86_64.rpm  libdbusmenu-gtk3-4-16.04.0-lp150.2.1.x86_64.rpm  libindicator3-7-16.10.0+bzr20171205-lp150.1.1.x86_64.rpm
+
+rpm -ivh lsb-4.0-lp150.2.1.x86_64.rpm    OK(chrome 70) 
+    DVD中只有这些
+    rpm -ivh at-3.1.20-lp150.2.27.x86_64.rpm  libHX28-3.22-lp150.1.7.x86_64.rpm  libfl2-2.6.4-lp150.2.48.x86_64.rpm 
+    rpm -ivh ed-1.14.2-lp150.1.16.x86_64.rpm 
+    rpm -ivh bc-1.07.1-lp150.1.46.x86_64.rpm
+    
+    http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/
+        patch-2.7.6-lp150.2.7.x86_64.rpm
+        libjpeg62-62.2.0-lp150.3.4.x86_64.rpm
+        spax-1.5.3-lp150.1.8.x86_64.rpm  是 zypper install spax (cnf pax的结果)
+             star-1.5.3-lp150.1.8.x86_64.rpm
+    http://download.opensuse.org/distribution/leap/15.0/repo/oss/noarch/
+        glibc-i18ndata is needed by lsb-4.0-lp150.2.1.x86_64
+/opt/google/chrome/chrome 命令
+
+---extundelete openSUSE deps
+	openSUSE-15 DVD  中有 libext2fs2-1.43.8-lp150.2.24.x86_64.rpm  
+	http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/
+	libext2fs-devel-1.43.8-lp150.2.24.x86_64.rpm
+		libcom_err-devel-1.43.8-lp150.2.24.x86_64.rpm
+	
+	http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/
+		extundelete-0.2.4-lp150.1.4.x86_64.rpm
 ---stardict 安装 运行OK，但取词 取不到，要安装库
 要点左下角的退出，才是真的退出
 
@@ -630,6 +685,7 @@ cp ~/libflashplayer.so ~/.mozilla/plugins
 -----Komodo-Edit-11  运行install.sh提示安装位置~/Komodo-Edit-11,运行OK 
  右击工具栏－>show menu bar
 -----Robo  Studio 3T 
+
 ====node.js源码安装
 ./configure
 make
@@ -651,16 +707,6 @@ mpalyer 1.1 可以播放avi视频，但没有声音，打开后提示audio_setup
 pageup,pagedown是快进10分，上下键快进1分
 ＊增大音量  ／减小音量
  
------chrome 26 运行OK
-依赖于 lsb>=4.0
-# rpm -ivh lsb-4.0-20.1.1.x86_64.rpm
-error: Failed dependencies:
-	glibc-i18ndata is needed by lsb-4.0-20.1.1.x86_64
-	qt3 >= 3.3.5 is needed by lsb-4.0-20.1.1.x86_64
-	xorg-x11-libs is needed by lsb-4.0-20.1.1.x86_64
-
-面板中找 chrome 自带flashplayer-11.6
-	
 
 ---------openSUSE-12.3 SMB Client
 

@@ -3,8 +3,11 @@ Business Process Model and Notation (BPMN) 		Version 2.0
 
 有 Docker images
 
-
-----------------------JBPM-7.5
+----------------------jbpm-server-7.14.0  只有一个独立的包了，集成wildfly-14 和示例
+	文档说可以做war包部署,SpringBoot
+	主页有引用google,所以报错
+	
+----------------------JBPM-7.7 是有单独的bin包的
 ORM 使用 Hibernate JPA 5.1 , 引擎核心 Drool
 
 drool	流口水

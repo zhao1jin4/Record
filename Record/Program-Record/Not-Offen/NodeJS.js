@@ -1,8 +1,11 @@
 ﻿
 http://nodejs.gamesys.net/node-js
 
-下载msi文件,安装后把bin放入Path中
-如下.exe就一个文件 
+下载msi文件,安装。也可下载.zip包解压 (最好下载LTS版本  Long Time Support)
+
+把bin放入Path中 如下.exe就一个文件 
+
+
 
 node 命令
 >console.log("Hello world")
@@ -21,14 +24,33 @@ for(var i=0;i<args.length;i++) {
 }
 console.dir(process)//显示process对象,有很多信息
 
+默认的npm install很慢，可以使用国内的
+npm config set registry https://registry.npm.taobao.org
+//npm config set registry http://registry.cnpmjs.org
+npm config get registry  验证
+npm install -g react react-dom   就很快了
+
+也可安装淘宝镜像提供的cnpm工具
+npm install -g cnpm --registry=https://registry.npm.taobao.org
+cnpm install [name] 
+注意：不要使用 cnpm！cnpm 安装的模块路径比较奇怪，packager 不能正常识别！
+
+也可用bower工具安装  npm install -g bower
+bowner install react
+
+cnpm 可以搭建公司私有npm服务 https://cnpmjs.org/ 国产的
+Sinopia 搭建私有的npm仓库
+
+npm info <express>
 
 
 NPM (像linux的 yum  )
 npm install mongodb
 npm install -g mongodb //安装为一个全局使用的模块,
-默认安装在 C:\Users\zh\AppData\Roaming\npm\node_modules 
-C:\Users\zh\AppData\Roaming\npm-cache  目录很多文件
 //设置NODE_PATH环境变量为
+默认安装在 %HOMEPATH%\AppData\Roaming\npm\node_modules 
+解压式目录 D:\Program\nodejs\node_modules\npm\node_modules 
+
 
 npm init   会提示回车生成package.json文件
 npm install --save browser-sync   //--save存在package.json文件中  安装 browser-sync,是一个服务器监控修改生效
@@ -38,6 +60,11 @@ npm install --save browser-sync   //--save存在package.json文件中  安装 br
   },
   
 npm run dev   会启动 http://localhost:3000
+ 
+package.json文件中有 dependencies字段,表示依赖的模块, 用 npm install 就会安装所有的依赖
+
+通过node_modules目录来加载
+  
 
 //----未测试
 npm update packname
@@ -46,11 +73,8 @@ npm find socket
 npm install -g socket.io   //-g 全局使用的模块,如没有当前目录下安装模块
 npm info express
 
-
-package.json文件中有 dependencies字段,表示依赖的模块
-
-通过node_modules目录来加载
  
+
 var myModule1 = require('./mymodeule');
 
 //---circle.js 自定义模块

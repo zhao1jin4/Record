@@ -64,10 +64,12 @@ spring会自动生成登录页,也可自己指定 <form-login login-page="/login
 />必须是 
 	
 	${sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message}
+	<!--  默认三个参数名是username,password,remember-me   提交默认 /login-->
 	<form action="../j_spring_security_check">
 		<input type="text"   name="j_username">
 		<input type="password" name="j_password">
 		<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+	    <input type="checkbox"  name="j_remember-me" />
 	</form>
 
 国际化在 spring-security-core-5.0.5.jar/org/spring/framework/security/message.properites  
@@ -106,8 +108,13 @@ AbstractUserDetailsAuthenticationProvider.badCredentials 的key是登录失败�
 		在 spring-security-core-5.0.5.jar/org/spring/framework/security/message.properites  
 		-->
 	</security:session-management>
-	
 	<security:csrf token-repository-ref="tokenRepository"/> <!--  对应于 <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/> -->
+	
+	<security:remember-me remember-me-parameter="j_remember-me" user-service-ref="myDBUserService"  remember-me-cookie="my_remember-me-cookie" />
+			<!--  data-source-ref="dataSource"  remember-me-cookie 默认 "remember-me-cookie"  -->
+	
+	<security:custom-filter ref="myFilter" after="FIRST" /> <!-- Servlet Filter 可以使用before="FIRST" ,"ANONYMOUS_FILTER" ...-->
+
 </security:http>
 	
 	
@@ -122,6 +129,8 @@ AbstractUserDetailsAuthenticationProvider.badCredentials 的key是登录失败�
  <bean id="myUserDetailsService" class="org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl"> 
 	<property name="dataSource" ref="dataSource"/>
 </bean>
+<security:jdbc-user-service id="myDBUserService"  data-source-ref="dataSource"/>
+
 <security:authentication-manager>
 	<security:authentication-provider user-service-ref="customUserDetailsService" >
 		<!--方式一,自定义取用户密码方式,使用user-service-ref="customUserDetailsService" ,就不可有XML子节点
@@ -179,13 +188,13 @@ public void destroy();
 
 //---SQL 为 JDBC implementation of the UserDetailsService (JdbcDaoImpl) 或 <jdbc-user-service data-source-ref= >
 create table users(
-      username varchar_ignorecase(50) not null primary key,
-      password varchar_ignorecase(50) not null,
+      username varchar(50) not null primary key, -- varchar_ignorecase
+      password varchar(50) not null,
       enabled boolean not null);
 
 create table authorities (
-  username varchar_ignorecase(50) not null,
-  authority varchar_ignorecase(50) not null,
+  username varchar(50) not null,
+  authority varchar(50) not null,
   constraint fk_authorities_users foreign key(username) references users(username));
   create unique index ix_auth_username on authorities (username,authority);
   
@@ -195,6 +204,12 @@ insert into users(username,password,enabled)values('admin','21232f297a57a5a74389
 insert into authorities(username,authority)values('user','ROLE_USER');
 insert into authorities(username,authority)values('admin','ROLE_ADMIN');
 insert into authorities(username,authority)values('admin','ROLE_USER');
+-- for <remember-me data-source-ref="dataSource">
+create table persistent_logins (username varchar(64) not null,
+                                series varchar(64) primary key,
+                                token varchar(64) not null,
+                                last_used timestamp not null);
+								
 //---  
  
 <authentication-provider ref='myAuthenticationProvider'/>
@@ -226,8 +241,7 @@ Session固定攻击，， 恶意攻击者可以创建一个session访问一个�
 程序中取到配置
 OpenIDAuthenticationToken token = (OpenIDAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 List<OpenIDAttribute> attributes = token.getAttributes();
-<http>
-	<custom-filter ref="" after="LAST" />可以使用before="FIRST" ,"ANONYMOUS_FILTER" ...
+ 
 
 
 <global-method-security>

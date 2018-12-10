@@ -39,7 +39,12 @@ $(function()
 });
 
 function submitForm(){
-	$('form').form('submit');
+	$('form').form('submit' ,
+		{   onSubmit:function()
+			{
+				return $(this).form('enableValidation').form('validate');
+			}
+		});
 }
 
 <div class="icon-tip" style="width:20px;height:20px"></div>灯图标
@@ -82,7 +87,7 @@ buttons.splice(1, 0, {
 	$.messager.alert({
 		title: 'My Title',
 		msg: 'Here is a message!',
-		icon:'info',
+		icon:'info', // error,question,info,warning
 		fn: function(){
 			console.log('after click button');
 		}	
@@ -758,7 +763,14 @@ var editId=undefined;
                     pagination: true,
                     pageSize: 10,
                     pageList: [2,10,20],
-                    checkbox: true,
+                    //checkbox: true,
+					checkbox: function(row) //条件是否有复选框
+				   {
+						 if(row.myid%2==0)
+							 return true;
+						 else 
+							 return false;
+					},
                     idField: 'myid', 
 					treeField: 'name2',
 					onDblClickRow:myOnDblClickRow,

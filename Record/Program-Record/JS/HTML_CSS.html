@@ -6,12 +6,19 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference
 https://developer.mozilla.org/en-US/docs/WebGL
 https://developer.mozilla.org/en-US/docs/DOM
 ---
-https://developer.mozilla.org/en-US/docs/CSS/CSS_Reference
+https://developer.mozilla.org/en-US/docs/Web/CSS/Reference
 https://developer.mozilla.org/en-US/docs/Gecko_DOM_Reference
 
+IE APi
+https://msdn.microsoft.com/library/hh828809
+
+Edge文档 ,也是跳到MDN
+https://docs.microsoft.com/en-us/microsoft-edge/
+https://docs.microsoft.com/zh-cn/microsoft-edge/dev-guide/whats-new/javascript-version-information  IE EdgeHTML-12 支持查询
+windows10(2018-11-24)是EdgeHTML17版本
+https://docs.microsoft.com/zh-cn/microsoft-edge/dev-guide/whats-new/edgehtml-17   EdgeHTML17新功能
 
 http://www.w3.org/DOM/Activity                             w3c手册
-
 http://www.w3school.com.cn/html5/html5_reference.asp HTML 5
 http://www.w3school.com.cn/tags/html_ref_ascii.asp  ASCII
 
@@ -22,6 +29,10 @@ http://www.w3school.com.cn/css/css_reference.asp   CSS手册
 http://www.runoob.com/  ,像w3shool
 
 HPlus(H+) 美工使用的工具
+
+
+https://developer.mozilla.org/zh-CN/docs/Tools#Performance_Tools(%E6%80%A7%E8%83%BD%E5%B7%A5%E5%85%B7) 
+
 
 <!DOCTYPE html> 每个页面必须要有
 
@@ -137,13 +148,37 @@ function onlyFileName(inputFile )
 
 
 ===================HTML5
+
+<html manifest="demo.appcache">
+<!-- demo.appcache文件内容的格式,第一字符是#,表示注释
+#CACHE MANIFEST第一行,是必须出现的,表示下面列出第一次请求后就缓存
+CACHE MANIFEST       
+/theme.css
+/logo.gif
+/main.js 
+
+
+#表示下面列出从来不要缓存,支持*
+NETWORK:		
+login.asp
+
+
+#如果网面不能仿问,把offline.html存放到/html5库(目录)下,分两列
+FALLBACK:		
+/html5/ /offline.html
+-->
+
+<meta charset="utf-8"> <!-- HTML5 -->
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!-- HTML4 -->
+<!-- 只对移动 -->
+<meta name="viewport" content="width=device-width,height=device-height, initial-scale=1, user-scalable=yes">
+	
+	<section>
+	
+	</section>
 <button> 未加 type 值时,在 <form>中的<button>单击会提交表单
 type可取值为 button , reset ,submit
-
-	
-<meta charset="utf-8">
-
-目前 Chrome浏览器支持较好
+ 
 
 <video src="movie.ogg" width="320" height="240" controls="controls">
 	你的浏览器不支持HTML5,或者OGG格式
@@ -167,42 +202,6 @@ loop="loop"
 </audio>
 
 
-//======Canvas
- 
-<canvas id="myCanvas" width="200" height="100" style="border:1px solid #FF0000;">  overflow:scroll(一直显示滚动条) 或 auto(只有需要时才显示滚动条)
-	Your browser does not support the canvas element.
-</canvas>
-
-<script type="text/javascript">
-
-	var c=document.getElementById("myCanvas");
-	var cxt=c.getContext("2d");
-	cxt.fillStyle="#FFFF00";
-	cxt.fillRect(0,0,150,90); //起点,宽,高
-	//-----------
-	cxt.moveTo(10,10);
-	cxt.lineTo(10,50);
-	cxt.stroke(); //开始画线
-	//--------
-	cxt.beginPath();
-	cxt.arc(70,18,15,0,Math.PI*2,true);//x,y,radius,startAngle,endAngle,anticlockwise
-	cxt.closePath();
-	cxt.fill(); //画圆
-	//---
-	var grd=cxt.createLinearGradient(0,0,175,50);
-			createLinearGradient(x0, y0, x1, y1) start point (x0, y0) and end point (x1, y1) 
-
-	grd.addColorStop(0,"#FF0000");
-	grd.addColorStop(1,"#00FF00");
-	cxt.fillStyle=grd;
-	cxt.fillRect(0,0,175,50);//渐变
-	//---
-	var img=new Image()
-	img.src="flower.png"
-	cxt.drawImage(img,0,0);
-
-</script>
-//======
 
 localStorage 方法存储的数据没有时间限制
 localStorage.lastname="Smith";
@@ -324,13 +323,60 @@ document.getElementsByTagName('head')[0].appendChild(script);
 </script>
   
 <!-- 浏览器如是localhost,用127.0.0.1就是跨域
- //凡是拥有"src"这个属性的标签都拥有跨域的能力，比如<script>、<img>、<iframe>，Websocket跨域
+ //凡是拥有"src"这个属性的标签都拥有跨域的能力，比如<script>、<img>, <a>、<iframe>，Websocket跨域
 方式一
 <script type="text/javascript" src="http://127.0.0.1:8080/S_HTML5CSS3/js/remote.js"></script>
  <script type="text/javascript" src="http://localhost:8080/S_HTML5CSS3/js/remote.js"></script>
   -->
 ---remote.js
 localHandler({"result":"我是远程js带来的数据"});
+
+
+
+
+<h2> ------ subtitle 字幕 --------  </h2>
+<style type="text/css">
+	/* edge报错 ,Chrome and Firefox OK */
+	video::cue {
+		font-size: 1rem;   
+		background-image: linear-gradient(to bottom, yellow, blue);
+		color: red;
+	}
+	/* 字幕中的 b 标签样式 chrome有效，Firefox无效 */
+	video::cue(b) { 
+	  color: orange;
+	} 
+</style>
+<video controls width="250"
+       src="assets/friday.mp4">
+    <track default kind="captions"
+           srclang="en"
+           src="assets/friday.vtt"/>
+    Sorry, your browser doesn't support embedded videos.
+</video>
+vtt 文件格式，如有中文文件要为UTF-8编码， MIME 类型是 text/vtt 
+注释行首用NOTE 后面是空格(单行)或者换行符(多行)，注释不能有 --> 或 小于号，可用&lt;
+字幕样式名字 video::cue,  
+文件第一行要是 WEBVTT 第二行要是空行
+第三开始，后是而时间 用 -->分隔
+line:80% 表示从上到下第多少行上
+position:50% 表示从左到右的位置
+vertical:lr 中国古代竖排文件，从左向右
+
+--friday.vtt
+WEBVTT
+
+NOTE
+multi line comment
+this is not show
+
+00:00:00.000 --> 00:00:00.999  line:80%
+Hildy!
+
+00:00:01.000 --> 00:00:01.499 line:10% position:50% size:50% 
+How are <b> you </b>.?
+
+
 
 ===================CSS  CSS 3
 <table border="1"  style="table-layout:fixed;word-wrap:break-word;"> 为<td>内容换行 
@@ -434,7 +480,12 @@ a[src*="abc"] 	选择其 src 属性中包含 "abc" 子串的每个 <a> 元素。
 
 
 div#row2 { color: red;display: inline }  //可以让DIV不换行，但div如果有子DIV默认所有的子DIV都继承这个，也可用 float:left ,right
- 
+
+display:block
+display:none 隐藏后空间也会没有了，如想继续占用原来的空间要用visibility，如用 opacity:0 容器中的按钮还可以点
+   visibility:hidden;
+   visibility:visible;
+   
 <div id="row1">第一个div</div>   
 <div id="row2">第二个div不换行</div>
  
@@ -450,6 +501,17 @@ oDiv2.style.cssFloat =sValue2;//兼容火狐
 </ul> 
 
 
+<!-- 
+display: flex;
+flex-direction: column;" 容器中的组件按列排
+align-items: center 垂直（纵轴）居中对齐
+justify-content: center 水平居中对齐
+  -->
+ <div style="width:300px;height:200px;display: flex;flex-direction: column;justify-content: center;align-items: center"  > 
+ 	<a >链接1</a>
+ 	<a >链接2</a>
+ </div> 
+ 
 禁用a标签
 <style>
 	a.disabled {
@@ -461,7 +523,74 @@ oDiv2.style.cssFloat =sValue2;//兼容火狐
 </style> 
 <a class="disabled"></a>
 
+a标签download属性 要去base标签
+<a href="/S_HTML5CSS3/download?fileId=101" download="HTML文件名.txt"> 服务端返回不存在  以download值为文件名 ,如不加则跳转到页面中显示</a>  <br/>
+
+
+<div style="width:200px;height:200px;background: linear-gradient(0deg, blue , green 20% ,yellow ); ">
+		表示0度，按左下角为中心圆角度画线做为开始，图形的20%处开始为绿色
+</div>
+<div style="width:200px;height:200px;background: linear-gradient(to left top,yellow 40%, blue 60%, red 85%); ">
+	to left top 表示左上角是终点，%只是递增
+</div>
+
+//======Canvas
+ 
+<canvas id="myCanvas" width="200" height="100" style="border:1px solid #FF0000;">  overflow:scroll(一直显示滚动条) 或 auto(只有需要时才显示滚动条)
+	Your browser does not support the canvas element.
+</canvas>
+
+<script type="text/javascript">
+
+	var c=document.getElementById("myCanvas");
+	var cxt=c.getContext("2d");
+	cxt.fillStyle="#FFFF00";
+	cxt.fillRect(0,0,150,90); //起点,宽,高
+	//-----------
+	cxt.moveTo(10,10);
+	cxt.lineTo(10,50);
+	cxt.stroke(); //开始画线
+	//--------
+	cxt.beginPath();
+	cxt.arc(70,18,15,0,Math.PI*2,true);//x,y,radius,startAngle,endAngle,anticlockwise
+	cxt.closePath();
+	cxt.fill(); //画圆
+	//---
+	var grd=cxt.createLinearGradient(0,0,175,50);
+			createLinearGradient(x0, y0, x1, y1) start point (x0, y0) and end point (x1, y1) 
+
+	grd.addColorStop(0,"#FF0000");
+	grd.addColorStop(1,"#00FF00");
+	cxt.fillStyle=grd;
+	cxt.fillRect(0,0,175,50);//渐变
+	//---
+	var img=new Image()
+	img.src="flower.png"
+	cxt.drawImage(img,0,0);
+
+</script> 
 
 ===================SVG
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="190">
+	  <polygon points="100,10 40,180 190,60 10,60 160,180"
+	  style="fill:lime;stroke:purple;stroke-width:5;fill-rule:evenodd;" />
+	  <path d="M37,17v15H14V17H37z" fill="#ff0000"/>
+	   <!-- 字母大写绝对坐标，小写相对坐标 (屏幕左上角为0,0)
+	  	M代表moveTo 
+	  	L代表lineTo 	v垂直画线   	h水平画线
+	  	z关闭
+	   -->
+	    <!-- 把所有需要再次使用的引用元素定义在defs元素里面。这样做可以增加SVG内容的易读性和可访问性  -->
+	     <defs>
+		    <linearGradient id="Gradient01">
+		      <stop offset="20%" stop-color="#39F" />
+		      <stop offset="90%" stop-color="#F3F" />
+		    </linearGradient>
+		  </defs>
+		 <rect x="0" y="0" width="60" height="10"   fill="url(#Gradient01)"  />
+</svg>
+
+
 
 

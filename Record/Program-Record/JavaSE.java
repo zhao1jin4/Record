@@ -147,6 +147,13 @@ jconsole 命令可以查看JVM 的性能　监控
 set JAVA_OPTS=-Xss256K -Xms256m -Xmx1024m   -XX:NewSize=128m -XX:MaxNewSize=256m -XX:SurvivorRatio=8 -XX:NewRatio=2
 	
 
+----ZGC jdk11 experimental feature 
+-----Epsilon GC 也是 experimental 的 No-Op GC
+
+
+
+
+
  
 ===所有JVM标准实现选项
 -agentlib:hprof=help  ( Heap and CPU Profiling Agent (JVMTI Demonstration Code))
@@ -322,7 +329,6 @@ set JAVA_OPTS=-Xss256K -Xms256m -Xmx1024m   -XX:NewSize=128m -XX:MaxNewSize=256m
  
 -XX:+CheckEndorsedAndExtDirs    检查 java.ext.dirs 或者 java.endorsed.dirs 变量, 	lib/endorsed目录存在并不为空 , 	lib/ext 目录有jar包
 -XX:+DisableAttachMechanism   默认是禁用的,即能使用像jcmd,jstack,jmap,jinfo,设置后不能使用
--XX:+UnlockCommercialFeatures 
 -XX:-FlightRecorder
 -XX:FlightRecorderOptions=parameter=value
 
@@ -379,7 +385,9 @@ jdk 10 对docker容器运行java 的改善, -XX:-UseContainerSupport
 jvisualvm  界面工具
 
 JDK8 的jmc (Java Mission Control)->"飞行记录器"->提示对要监控的JVM要加参数  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder 
-记录器会在一段时间内做记录(一分钟),保存到 C:\Users\zhaojin\.jmc\5.3.0\xxx.jfr ,用于事后查看
+记录器会在一段时间内做记录(一分钟),保存到 %HOMEPATH%\.jmc\5.3.0\xxx.jfr ,用于事后查看
+JDK11去除jmc要单独下载
+
 
 jps命令显示所有Java进程的ID号 和 类名 ,像ps
 jps 返回vmid。为了获得更好的效果，采用 -Dcom.sun.management.jmxremote 属性集启动 Java 进程(JDK 1.5 加, 1.6 )
@@ -628,7 +636,7 @@ eclipse 也可以把第三方jar包中class解包放到自己的jar中( extract 
 jar -m Manifest文件
 
 wsimport -s c:/tmp/ws_code -p org.zhaojin.ws -keep  http://localhost:8000/helloWorld?wsdl 生成webservice代码
-
+JDK 11 去除了 wsimport
 -----------------远程 调试
 作为调试服务器的目标 VM
 	-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8765        8453
@@ -874,7 +882,92 @@ appendToSystemClassLoaderSearch(JarFile jarfile)
 ---------
 
 
---------------------------JDK 11 新特性
+--------------------------JDK11 新特性
+//javax.jws.WebService web;//JDK 11没有这个类 
+//删java.xml.ws , java.xml.bind  ,java.xml.ws.annotation 
+//删命令 wsimport,wsgen
+//删Java Mission Control (JMC) ，JavaFx
+//不推荐用  Nashorn JavaScript Engine 
+
+    HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://foo.com/"))
+                .timeout(Duration.ofMinutes(2))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofFile(Paths.get("file.json")))
+                .build();
+
+
+        HttpClient client = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(20))
+                .proxy(ProxySelector.of(new InetSocketAddress("proxyIP", 80)))
+                .authenticator(Authenticator.getDefault())
+                .build();
+
+        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenAccept(System.out::println);
+
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.statusCode());
+        System.out.println(response.body());
+
+
+
+
+--------------------------JDK10 新特性
+var str=new String("abc123");//var 类型推断
+		
+StringReader reader=new StringReader(str);
+StringWriter writer=new StringWriter();
+try {
+	reader.transferTo(writer);//JDK 10 new 
+} catch (IOException e) {
+	e.printStackTrace();
+}
+System.out.println(writer.toString());
+System.out.println(Runtime.version());//JDK 9
+System.out.println(Runtime.version().feature());//输出JDK版本，JDK 10
+System.out.println(Runtime.version().update());//输出JDK更新，JDK 10
+System.out.println(Runtime.version().interim());
+System.out.println(Runtime.version().patch());
+
+var list=new ArrayList<String>();
+list.add("one");
+var cloneList=List.copyOf(list);//JDK 10
+
+List<String> list2 = cloneList.stream()
+		  // .map(Person::getName)
+		   .collect(Collectors.toUnmodifiableList());//JDK 10
+//list2.add("two");//报错
+
+var set =new HashSet<String>();
+set.add("one");
+var cloneSet=Set.copyOf(set);//JDK 10
+var set2=cloneSet.stream().collect(Collectors.toUnmodifiableSet() );//JDK 10 
+
+var map =new HashMap<String,Object>();
+map.put("one", "一");
+var cloneMap=Map.copyOf(map);//JDK 10
+		
+//G1 并行化
+//删 javah
+//java doc 增强
+//增强 Docker  默认打开，可禁用-XX:-UseContainerSupport  CPU数  -XX:ActiveProcessorCount=count
+ // -XX:InitialRAMPercentage  -XX:MaxRAMPercentage -XX:MinRAMPercentage
+ 
+StampedLock stampedLock=new StampedLock();
+long stamp = stampedLock.writeLock();
+
+StampedLock.isLockStamp(stamp);//JDK 10
+StampedLock.isOptimisticReadStamp(stamp);
+StampedLock. isReadLockStamp(stamp);
+StampedLock. isWriteLockStamp(stamp);
+
+ 
+StackWalker.getInstance( StackWalker.Option.RETAIN_CLASS_REFERENCE).forEach(System.out::println);//JDK9
 
 
 --------------------------JDK9新特性
@@ -905,14 +998,19 @@ FileInputStream resource2 = new FileInputStream("c:/tmp/input2.txt");
 		}
 
  
-//		JDK9 中  
-//		包javax.jws 		          在 java.xml.ws 模块 下
-//		包javax.annotation 		      在java.xml.ws.annotation 模块 下 JDK 10 中 
-//		module J_JavaSE
-//		 {
-//			 requires java.xml.ws; 
-//			requires java.xml.ws.annotation; //JDK 10 中 
-//		 }
+//--- module-info.java    JDK9   
+module J_JavaSE
+{
+	requires java.base;
+	requires java.desktop;
+	requires java.sql;
+	requires java.sql.rowset;
+	requires java.rmi;
+	requires java.instrument;
+	requires java.naming;
+	requires java.compiler;
+	requires java.xml;//在javax.xml.parsers.DocumentBuilderFactory;模块 
+}
 
 import java.util.concurrent.SubmissionPublisher;
 try (SubmissionPublisher<Long> pub = new SubmissionPublisher<>()) { 
@@ -1114,6 +1212,11 @@ System.out.println(new String(decoded));
 
 Base64.getUrlEncoder();
 
+List<String> names=new ArrayList<>();
+names.add("1");
+names.add("2");
+names.add("3");
+System.out.println(String.join("-", names));
 --------------------------JDK 7 新特性
 File fileDire = new File("/home/test");// 在windows上是建立在,当C:盘上没有权限时,会D:盘上建立
 boolean isOK = fileDire.mkdirs();
@@ -3508,7 +3611,27 @@ Selector 异步 IO 的核心类，它能检测一个或多个通道 (channel) �
 ---server
 ServerSocketChannel ssc = ServerSocketChannel.open();//.close();
 
-InetAddress.getLocalHost().getHostAddress();//获得本机IP
+InetAddress.getLocalHost().getHostAddress();//获得本机IP,只对windows有用，linux总是127.0.0.1
+//linux下多网卡
+Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+InetAddress ip = null;
+while (allNetInterfaces.hasMoreElements())
+{
+	NetworkInterface netInterface =  allNetInterfaces.nextElement();
+	if (netInterface.isLoopback() || netInterface.isVirtual() || !netInterface.isUp()) {
+		continue;
+	}
+	//System.out.println(netInterface.getName());
+	Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+	while (addresses.hasMoreElements())
+	{
+		ip =  addresses.nextElement();
+		if (ip != null && ip instanceof Inet4Address)
+		{
+			System.out.printf("本机 网卡%s 的 IP是 %s %n" ,netInterface.getName(), ip.getHostAddress());
+		}
+	}
+}
 
 ssc.configureBlocking(false); 
 InetSocketAddress isa = new InetSocketAddress(InetAddress.getLocalHost(), port);
@@ -3972,7 +4095,7 @@ root.appendChild(doc.createElement("person"));//是<person/>格式
 doc.appendChild(root);
 		
 DOMSource   source=   new   DOMSource(doc);//如写Element 会丢失namespace,dom4j会保留namespace
-StreamResult   stream   =   new   StreamResult( "test.xml");
+StreamResult   stream   =   new   StreamResult( "test.xml");//参数可以为OutputStream
 transformer.transform(source,stream); 
 
 ---------XML SAX1  读

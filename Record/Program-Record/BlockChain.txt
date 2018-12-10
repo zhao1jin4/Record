@@ -1,0 +1,16 @@
+﻿
+区块链 以太坊(Ethereum blockchain )　https://www.ethereum.org/　　　　
+
+通过web3j进行以太坊区
+bootnode 私有链(共三种方式建私有链  接近真实环境)
+
+geth   https://geth.ethereum.org/downloads/
+https://github.com/ethereum/go-ethereum
+
+
+
+	
+	
+	
+	
+	

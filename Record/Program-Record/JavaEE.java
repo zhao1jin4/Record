@@ -1,5 +1,13 @@
-https://javaee.github.io/glassfish/documentation
-https://javaee.github.io/javaee-spec/javadocs/
+https://javaee.github.io/glassfish/documentation Java EE 8 many
+https://javaee.github.io/javaee-spec/javadocs/  JavaEE 8 API
+
+<dependency>
+    <groupId>javax.annotation</groupId>
+    <artifactId>javax.annotation-api</artifactId>
+    <version>1.3.2</version>
+</dependency>
+
+
 ==================================web.xml
 <context-param>
 	<param-name>life-name</param-name>
@@ -313,7 +321,66 @@ x.jar/META-INF/resources/WEB-INF/web-fragment.xml  即 web.xml的模块化
               </before>
 			<!--  <after><name>A</name></after> 表示比A后面加载  -->
        </ordering>
-==================================JSP
+	   
+	   
+==================================Servlet 4 要 Tomcat 9
+Tomcat 9 配置打开HTTP 2 
+
+tomcat9/logs/localhost_access_log.x.txt  显示是 HTTP/2.0
+Chrome network 标签打开protocol列值是h2
+//Chrome工具 自带的工具 chrome://net-internals/  -> HTTP/2->点表格中的ID列的值->复选一行
+ 看报文    HTTP2_SESSION_RECV_PUSH_PROMISE 有 
+	  --> id = 1
+      --> promised_stream_id = 2
+	  
+//---PushBuilder
+PushBuilder publishBuilder=req.newPushBuilder();
+PushBuilder pushBuilder=req.newPushBuilder();//如果不支持返回null
+if (pushBuilder != null)
+{  //push 非阻塞
+   pushBuilder.path("img/bing.png").push();
+   pushBuilder.path("js/md5.js").push(); 
+} 
+getServletContext().getRequestDispatcher("/servlet4.jsp").forward(req, resp);
+
+//servlet4.jsp 中有引用  img/bing.png 和 js/md5.js 文件
+
+//---HttpServletMapping
+@WebServlet({"/path/*", "*.ext"})
+
+ HttpServletMapping mapping = request.getHttpServletMapping();
+MappingMatch extension= MappingMatch.EXTENSION;
+MappingMatch path= MappingMatch.PATH;
+String map = mapping.getMappingMatch().name();
+//如请求是 path/servlet4 值是PATH
+//如请求是 servlet4.ext 值是EXTENSION
+
+String value = mapping.getMatchValue();
+//如请求是 path/servlet4 值是 servlet4
+//如请求是 servlet4.ext  值是 servlet4
+
+String pattern = mapping.getPattern();
+//如请求是 path/servlet4 值是 /path/*
+//如请求是 servlet4.ext 值是*.ext
+
+String servletName = mapping.getServletName();//servlet4_new.Servlet4Mapping
+
+--servlet 4 other
+新加两个类 HttpFilter extends GenericFilter //看源码其实很简单
+
+
+int sessionTimeout=req.getServletContext().getSessionTimeout();
+req.getServletContext().setSessionTimeout(sessionTimeout+10);
+
+String enc=req.getServletContext().getRequestCharacterEncoding();
+req.getServletContext().setRequestCharacterEncoding("UTF-8");
+
+req.getServletContext().addJspFile("servletName", "/jspFile");
+ServletRegistration reg= req.getServletContext().getServletRegistration("servletName");//servlet 3
+reg.getInitParameters();
+reg.getMappings();
+
+==================================JSP 2.0
 内置对象
 page,pageContext,request,response,session,out,exception
 application 是 ServletContext
@@ -2622,7 +2689,39 @@ keytool -genkey -alias tomcat -keyalg RSA -keystore C:/temp/.keystore
 并加入keystoreFile="C:/temp/.keystore"
 默认是读用户主目录下的.keystore文件
 	
+
+---- Tomcat 9 打开HTTP 2(只能在https下运行)  
+下载 tomcat-native-1.2.18-openssl-1.1.1-win32-bin.zip 解压后的bin/x64/下的 tcnative-1.dll 放PATH中能找到的地方(如Tomcat/bin下)
+bin/openssl 命令可用 (Cygwin也有)
+    openssl genrsa -out server.key 2048
+    openssl rsa -in server.key -out server.key
+    openssl req -new -x509 -key server.key -out ca.crt -days 3650
 	
+	浏览器认为是不可信的
+	
+把生成的文件放tomcat/conf目录
+修改tomcat 9 server.xml中打开
+<Connector port="8443" protocol="org.apache.coyote.http11.Http11AprProtocol"
+               maxThreads="150" SSLEnabled="true" >
+	<UpgradeProtocol className="org.apache.coyote.http2.Http2Protocol" />
+	<SSLHostConfig>
+		<Certificate certificateKeyFile="conf/localhost-rsa-key.pem"
+					 certificateFile="conf/localhost-rsa-cert.pem"
+					 certificateChainFile="conf/localhost-rsa-chain.pem"
+					 type="RSA" />
+	</SSLHostConfig>
+</Connector>
+修改证书路径 为
+	    <Certificate certificateKeyFile="conf/server.key"
+                         certificateFile="conf/ca.crt"/>
+
+https://localhost:8443/ 访问项目就是HTTP2协议了,  注意是https ,端口是8443
+Chrome network 标签打开protocol列值是h2
+Firefox network 标签打开protocol列值是HTTP/2.0
+
+
+tomcat9/logs/localhost_access_log.x.txt  显示是 HTTP/2.0
+----
 ---tomcat路径文件名支持中文
 <Connector port="8080" protocol="HTTP/1.1" 
     connectionTimeout="20000" redirectPort="8443" URIEncoding="utf-8"  />
@@ -2679,7 +2778,27 @@ linux 下Tomcat会一直向catalina.out这个文件写(windows下就不会)
 catalian.sh 脚本中　对 CATALINA_OUT 的说明,
 手工设置　CATALINA_OUT="$CATALINA_BASE"/logs/catalina.`date +"%Y-%m-%d"`.out　在判断后加,为了CATALINA_BASE存在值 ,这样只能在重启时是新文件
 
+--优化
+-Xmx2048m
 
+maxThreads 客户请求最大线程数
+ 
+compression="on"   打开压缩功能
+
+关闭 AJP
+
+下载apr ,Http11AprProtocol
+HttpNioAprProtocol
+
+内核参数
+
+--安全
+<Host  
+	unpackWARs="true" autoDeploy="true"> 
+关闭war自动部署 unpackWARs="false" autoDeploy="false"
+隐藏tomcat版本
+	解压catalina.jar之后按照路径\org\apache\catalina\util\ServerInfo.properties找到文件
+修改listings 为 false
 =============================WebSphere full profile for Developer 8.5 版本
 C:\Program Files (x86)\IBM\WebSphere\AppServer\bin\ProfileManagement下
 开始 ->WebSphere Customerization Toolbox(wct.ba) 工具 ,Profile Management Tool(pmt.bat)

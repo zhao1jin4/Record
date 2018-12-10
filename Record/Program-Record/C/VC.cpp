@@ -1,3 +1,5 @@
+https://msdn.microsoft.com/en-us/library/ms123401.aspx  首页
+
 MFC=Mirosoft Foundation Class
 http://msdn.microsoft.com/en-us/library/ff468925%28v=VS.85%29.aspx   windows SDK
 http://msdn.microsoft.com/zh-cn/library/d06h2x6e.aspx				 MFC 最新的类库,只是部分中文
@@ -11,7 +13,7 @@ Windows Remote Debugging (Windows RD)
 
 
 vs2015.ent_enu.iso\packages\vcRedistD14\VC_redist.x64.exe				Visual C++ Redistributable Packages for Visual Studio 2015
-vs2015.ent_enu.iso\packages\dotNetFramework\dotNetFx-x86-x64-AllOS-ENU.exe
+vs2015.ent_enu.iso\packages\dotNetFramework\dotNetFx-x86-x64-AllOS-ENU.exe  版本 4.6
  
 Tools->Error lookup 可以输入错误号,查看错误文本描述 C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools\errlook.exe 
 

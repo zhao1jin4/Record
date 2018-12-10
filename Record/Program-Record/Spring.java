@@ -243,6 +243,9 @@ web.xml中
 		<url-pattern>*.mvc</url-pattern>
 </filter-mapping>
 
+spring tools suite 3.x 新建文件选 spring/Spring Bean Definition 可以选择名称空间
+Intellij Idea 没有
+
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -383,6 +386,7 @@ ClassPathResource ("xml文件");
 <props>
 	<prop key="max">200</prop>
 </props>
+<!-- util:properties 就是用 PropertiesFactoryBean -->
 <util:properties>
 	<prop key="max">200</prop>
 </util:properties>
@@ -1515,10 +1519,10 @@ public EntityManager em; //JPA
 
 ----示例c3p0配置
 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-		<property name="driverClass" value="${driver}" />
-		<property name="jdbcUrl" value="${url}" />
-		<property name="user" value="${username}" />
-		<property name="password" value="${password}" />
+		<property name="driverClass" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
                 <!-- 初始化连接池时连接数量为5个 -->
 		<property name="initialPoolSize" value="5" />
                 <!-- 允许最小连接数量为5个 -->
@@ -1550,10 +1554,10 @@ public EntityManager em; //JPA
 	</dependency> 
 	
 	ComboPooledDataSource dataSource= new  ComboPooledDataSource();
-	dataSource.setDriverClass("org.h2.Driver");
-	dataSource.setJdbcUrl("jdbc:h2:tcp://localhost/~/test");
-	dataSource.setUser("sa");
-	dataSource.setPassword("");
+	dataSource.setDriverClass("com.mysql.cj.jdbc.Driver");
+	dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/mydb?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC");
+	dataSource.setUser("zh");
+	dataSource.setPassword("123");
 	dataSource.setInitialPoolSize(5);
 	dataSource.setMinPoolSize(5);
 	dataSource.setMaxPoolSize(20);
@@ -1592,6 +1596,9 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         //return "dataSource"; 
     }
 }
+=========================  Druid 见 MyBatis
+ 
+
 =========================spring 单元测试
  AbstractTransactionalDataSourceSpringContextTests
  
@@ -1993,31 +2000,65 @@ parser.parseExpression("random number is #{T(java.lang.Math).random()}", new Tem
 =========================Spring Cache
 java map
 
+
 <bean id="simpleCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
 <property name="caches"> 
   <set> 
 	<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
-	  p:name="default" /> 
-	<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
-	  p:name="accountCache" /> 
+	  p:name="default" />  
+	 <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean"
+          p:name="accountCache" /> 
   </set> 
 </property> 
 </bean> 
 
+<cache:annotation-driven cache-manager="simpleCacheManager"/>
+
+<!--  cache无效？？
+  <cache:annotation-driven cache-manager="cacheManager"/>
+   -->
 <bean id="cacheManager" class="org.springframework.cache.support.CompositeCacheManager">
-<property name="cacheManagers">
-	<list>
-		<bean class="org.springframework.cache.support.NoOpCacheManager" />
-		<ref bean="simpleCacheManager" />
-	</list>
-</property>
-<property name="fallbackToNoOpCache" value="true" /> <!--  禁用缓存 @Cache* 无效  -->
-</bean>
+	<property name="cacheManagers">
+		<list>
+			<bean class="org.springframework.cache.support.NoOpCacheManager" />
+			<ref bean="simpleCacheManager" />
+		</list>
+	</property>
+	<property name="fallbackToNoOpCache" value="true" /> <!--  禁用缓存 @Cache*  -->
+</bean> 
 
 
+@Cacheable(value = "accountCache",key="#userName",condition="#userName.length() <= 4") 
+public Account getAccountByName(String userName) {
+	System.out.println("real query account." + userName);
+	 return new Account( userName); 
+}
+@CacheEvict(value="accountCache",key="#account.getName()")
+	 // Key 是SpEL 表达式，这里因为我们保存的时候用的是 account 对象的 name 字段
+	 public void updateAccount(Account account) {
+		 System.out.println("updateAccount");
+} 
+@CacheEvict(value = "accountCache", allEntries = true // 清空 accountCache 缓存
+			,beforeInvocation=false) //beforeInvocation，缺省为 false 期间如果执行方法出现异常，则会导致缓存清空不被执行 
+public void reload() {
+	System.out.println("清空 accountCache 缓存");
+}
 
-
-
+@Cacheable(value="accountCache",key="#userName.concat(#password)") 
+public Account getAccount(String userName,String password,boolean sendLog) {  
+	System.out.println("getAccount multi param");
+	return new Account( userName+password); 
+}
+//既要保证方法被调用，又希望结果被缓存
+@CachePut(value="accountCache",key="#account.getName()") 
+public Account updateAccount2(Account account) {  
+	 System.out.println("updateAccount @CachePut ");
+	 return new Account(account.getName()); 
+} 
+public Account getAccountByNameInvalid(String userName) {
+	System.out.println("getAccountByNameInvalid." + userName);
+	 return getAccountByName( userName); //相同的类里，相当于this ,这里不走AOP
+}	
 自定义 cache
 <bean id="cacheManager" class="spring_cache_map.MyCacheManager">
     <property name="caches"> 
@@ -2040,7 +2081,7 @@ public class MyCacheManager extends AbstractCacheManager
 import org.springframework.cache.Cache;
 public class MyCache implements Cache 
 
-
+--cache ehcache
 对方法如果每次的参数相同,缓存后,就不执行方法,直接返回缓存的结果
 public class ReadOnlyCache {
 	@Cacheable(value = "DEFAULT_CACHE" ,key="#param")//对应于ehcache.xm中的配置,#引用参数变量
@@ -2103,12 +2144,14 @@ Ehcache ehcache=(Ehcache)context.getBean("ehcache2");
 ehcache.put(new Element("key", "obj"));
 Element element=ehcache.get("key");
 Object obj=element.getObjectValue();
-String tmpDir=System.getProperty("java.io.tmpdir");//C:\Users\zhaojin\AppData\Local\Temp\
+String tmpDir=System.getProperty("java.io.tmpdir");// %HOMEPATH%\AppData\Local\Temp\
 //		 Set<String> allKeys = new HashSet<String>();
 //		 Map<Object, Element> localMap = ehCache.getAll(allKeys);
 
  
---- 还有 caffeine 和 jcache (JSR 107 )
+--- 还有 caffeine 和 jcache(ehcache 3.x) (JSR 107 )
+
+
 
 =========================Spring OXM
 import javax.xml.transform.stream.StreamResult;
@@ -2213,6 +2256,12 @@ public RedisConnectionFactory redisConnectionFactory( )
 	JedisConnectionFactory factory2=new JedisConnectionFactory(standConfig) ;
 	return factory2;
 }
+或用XML
+<bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager"  factory-method="create"  >
+	<constructor-arg index="0" ref="jedisConnectionFactory"></constructor-arg>
+</bean>
+ <cache:annotation-driven cache-manager="cacheManager" />   
+ 
  
 RedisConnectionFactory redisConnectionFactory = context.getBean(RedisConnectionFactory.class);
 RedisConnection conn=redisConnectionFactory.getConnection();
@@ -2411,8 +2460,6 @@ public interface CustomerRepository extends MongoRepository<String, String> {
 
 二选一 --> 
 <bean id="mongoClient" class="org.springframework.data.mongodb.core.MongoClientFactoryBean">
-	<property name="host" value="localhost" />
-	<property name="port" value="27017" />
 	<property name="credentials"  >
 		<list>
 			<bean class="com.mongodb.MongoCredential" factory-method="createCredential">
@@ -2421,6 +2468,28 @@ public interface CustomerRepository extends MongoRepository<String, String> {
 				<constructor-arg name="database" value="reporting"></constructor-arg>
 			</bean>
 		</list>
+	</property>
+	
+	<!--
+	<property name="host" value="localhost" />
+	<property name="port" value="27017" />
+	-->
+	<!--  为事务用 -->
+	<property name="replicaSetSeeds" > 
+		<array>
+			<bean class="com.mongodb.ServerAddress" >
+				<constructor-arg index="0" value="127.0.0.1"/>
+				<constructor-arg index="1" value="37017"/> 
+			</bean>
+			<bean class="com.mongodb.ServerAddress" >
+				<constructor-arg index="0" value="127.0.0.1"/>
+				<constructor-arg index="1" value="37018"/> 
+			</bean>
+			<bean class="com.mongodb.ServerAddress" >
+				<constructor-arg index="0" value="127.0.0.1"/>
+				<constructor-arg index="1" value="37019"/> 
+			</bean>
+		</array>
 	</property>
 </bean>
 
@@ -2561,7 +2630,9 @@ public interface  MyCustomerRepository extends MongoRepository<Customer,String>/
 
 // 
 MongoTemplate mongoTemplate =  context.getBean(MongoTemplate.class);
-MongoTemplate mongoTemplate =  context.getBean(MongoTemplate.class);
+mongoTemplate.update(Customer.class).matching(query(where("first_name").is("li"))).
+		apply(Update.update("lastName", "四22")).all() ; 
+
 Criteria c=new Criteria();
 c.orOperator(new Criteria[] {Criteria.where("first_name").regex("lisi")});
 Query  query =new   Query(c); 
@@ -2572,6 +2643,47 @@ query.with(sort);
 
 List<Customer> list=mongoTemplate.find(query, Customer.class);
 long cnt=mongoTemplate.count(query, Customer.class);
+
+public static void transactionSpring(ConfigurableApplicationContext context)
+{ 
+	MongoDbFactory  dbFactory=context.getBean(MongoDbFactory.class);
+	MongoTemplate mongoTemplate =  context.getBean(MongoTemplate.class);
+	
+	MongoTransactionManager txManager=new MongoTransactionManager(dbFactory);
+	TransactionTemplate txTemplate = new TransactionTemplate(txManager);         
+	
+	try {
+		txTemplate.execute(new TransactionCallbackWithoutResult() {
+			@Override
+			protected void doInTransactionWithoutResult(TransactionStatus status) {     
+				 
+				Customer lisi = new Customer("li", "四"); 
+				lisi.setId("2");
+				mongoTemplate.insert(lisi); 
+				
+				if(1==1)
+					 throw new RuntimeException("模拟回滚" ) ; //OK
+					 
+				OperHistory his = new OperHistory();
+				his.setCreateTime(new Date());
+				his.setDescription("登录操作");
+				his.setIp("127.0.0.1");
+				his.setModule("用户模块");
+				his.setOperType("SELECT");
+				his.setUserId("2");
+				
+				mongoTemplate.insert(his);  
+			 
+			}
+		});
+	
+	}catch(Exception e)
+	{
+		System.out.println("出错事务回滚");	
+	}
+}
+
+
 
 =========================Spring Data Neo4j
 使用 neo4j-ogm-core.jar
@@ -2965,6 +3077,10 @@ public aspect World
 ======================上 AspectJ
 
 org.springframework.beans.BeanUtils.copyProperties(model, entity);// commons.beanutils 和 spring都有
+
+//spring把@Controller中的所有的@RequestMapping的方法
+Map<RequestMappingInfo, HandlerMethod> methods = requestMappingHandlerMapping.getHandlerMethods();
+
 ----------------Kotlin
 
 

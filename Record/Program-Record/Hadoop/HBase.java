@@ -11,7 +11,7 @@ phphbaseadmin
 conf/hbase-site.xml 	 增加
 	<property>
 		<name>hbase.rootdir</name>
-		<value>file:///home/zhaojin/hbase-0.98.3-hadoop2/</value>
+		<value>file://~/hbase-0.98.3-hadoop2/</value>
 	</property>
 	<property>
 		<name>hbase.zookeeper.property.dataDir</name>
@@ -83,8 +83,8 @@ hadoop soft/hard nproc 32000
  
 分布式模式 ,hbase.rootdir 使用 hdfs:// 
 分布式Hadoop版本jar文件替换HBase lib目录下的Hadoop jar文件
-hbase-env.sh 中修改 HBASE_CLASSPATH=/home/zhaojin/hadoop-2.4.0/etc/hadoop/  使用HDFS
-ln -s /home/zhaojin/hadoop-2.4.0/etc/hadoop/hdfs-site.xml  /home/zhaojin/hbase-0.98.3-hadoop2/conf/
+hbase-env.sh 中修改 HBASE_CLASSPATH=~/hadoop-2.4.0/etc/hadoop/  使用HDFS
+ln -s ~/hadoop-2.4.0/etc/hadoop/hdfs-site.xml  ~/hbase-0.98.3-hadoop2/conf/
 
 hbase-common-1.0.1.jar	 中有 hbase-default.xm
 
@@ -124,8 +124,8 @@ hbase org.apache.hadoop.hbase.io.hfile.HFile -v -f hdfs://<ip>/xfile
 String tableName = "myTable";
 Configuration config = HBaseConfiguration.create();
 config.set("hbase.zookeeper.quorum", "localhost");
-config.set("hbase.rootdir", "file:///home/zhaojin/hbase-0.98.3-hadoop2"); 
-config.set("hbase.zookeeper.property.dataDir", "/home/zhaojin/hbase-0.98.3-hadoop2/data"); 
+config.set("hbase.rootdir", "file://~/hbase-0.98.3-hadoop2"); 
+config.set("hbase.zookeeper.property.dataDir", "~/hbase-0.98.3-hadoop2/data"); 
 config.set("zookeeper.znode.parent", "/hbase"); // 默认是　/hbase
  
 HBaseAdmin admin = new HBaseAdmin(config);   

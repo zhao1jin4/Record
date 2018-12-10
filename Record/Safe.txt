@@ -26,10 +26,13 @@ OAuth 2    没有绑定token，token 没有绑定用户 ，抓其它人包中的
 OAuth 强制 授权访问 ，在像 大众点评网 使用 QQ登录时 ，正常是会有框弹出提示大众网可以访问QQ的什么权限，如联系人等，但这个框不提示后台选中所有的
 
 /x  /u 编码
-Cross-Site Scripting (XSS)
-Universal  XSS(UXSS)
-CSRF
+Cross-Site Scripting (XSS)   指令当数据 将 document.cookie 信息传到指定服务器即可
+//凡是拥有"src"这个属性的标签都拥有跨域的能力，比如<script>、<img>, <a>、<iframe>，Websocket跨域
 
+Universal  XSS(UXSS)
+CSRF  	危险网站<img src="http//请求安全网站?xxx,已经登录未登出并产生cookie"/>或<form action="http://"/>
+		解决用token
+	
 http://labs.securitycompass.com/exploit-me/  有工具 用来检测XSS，SQL Inject和Access缺陷
 
 -----beef 工具 是EXTJS的UI工具 ，有很多种DB

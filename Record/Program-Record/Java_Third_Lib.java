@@ -369,7 +369,7 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
  
 ----settings.xml
 默认读配置文件 ${user.home}/.m2/settings.xml (用户级,和安装目录的做合并,相同项用户级高),可从安装目录复制
-默认仓库是位于 ${user.home}/.m2/repository/ 即 C:\Users\zh\.m2  MAVEN_REPO 的变量来修改
+默认仓库是位于 ${user.home}/.m2/repository/ 即 %HOMEPATH%\.m2  MAVEN_REPO 的变量来修改
 可以修改配置<localRepository>/path/to/local/repo/</localRepository>
 设置 proxy ,但没说什么协议,如没有办法设置 http://主机:端口/文件  形式的代理 , [文件]的部分没办法给,)
 
@@ -1057,7 +1057,7 @@ Spring 和 Android使用 ,可以构建 C++
 bin 目录入 PATH 环境变量下,初次运行 gradle 命令会在~\.gradle下生成文件
 
 spring 有 gradle 示例
-项目中有 src\main\java\包名  (同 maven)
+项目中有 src\main\java\包名  (同 maven,web项目手工增加webapp目录 apply plugin: 'war')
 项目中有 build.gradle 文件 
 		如有 apply plugin: 'java' 
 
@@ -1067,22 +1067,40 @@ gradle tasks 命令可看到所有可用的 build任务
   
 ---build.gradle  文件
 
-//apply plugin: 'java' 
-apply plugin: 'application'
+Gradle设置全局仓库 创建文件 ~/.gradle/init.gradle 
+( 或者命令行加 -I or --init-script，或GRADLE_HOME/init.d/目录以.gradle结尾的文件)
+
+	allprojects {
+		repositories {
+			mavenLocal()
+			maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+			maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
+			maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} 
+		}
+	}
+---上未何没用呢？？？可能因为自己的项目有 allprojects的配置
+
+
+apply plugin: 'java' 
+apply plugin: 'war'  //打成war包
+//apply plugin: 'com.android.application'  //Android 
 mainClassName = 'hello.HelloWorld'  //可以使用  ./gradlew run 来运行
 
-repositories {
+repositories { 
+	//增加镜像  放最前，有顺序的
+	maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+	maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
+	maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} 
 	//mavenLocal()
-	//jcenter()  //会从  https://jcenter.bintray.com/com/ 下载
-	mavenCentral()
-	maven { url 'http://repo.spring.io/libs-release/' }
-	 
+	//mavenCentral()
+	//jcenter()  //会从  https://jcenter.bintray.com/com/ 下载 
 }
 dependencies {
-    compile 'org.springframework:spring-context:4.3.4.RELEASE'
-	testCompile "junit:junit:4.12"
-	//也有providedCompile
-	classpath 'com.android.tools.build:gradle:2.3.3'
+    compile group: 'org.springframework', name: 'spring-core', version: '5.1.2.RELEASE'
+	providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+    providedCompile group: 'javax.servlet', name: 'jsp-api', version: '2.0'
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+	classpath 'com.android.tools.build:gradle:3.2.0' //Adnroid
 } 
 jar {
     baseName = 'my-project'  //生成jar包的名字为my-project-0.1.0.jar
@@ -1093,8 +1111,15 @@ task wrapper (type:Wrapper)  // 就可以直接使用 gradle wrapper ,而不用�
 	gradleVersion = 3.2 //只可有一个小数点
 } 
 // task后是定义的任务名
+如果想让父模块配置可以所有子模块去用，父模块最外层增加 allprojects {}
+IDEA可以建立子模块项目 ,setting.gradle文件中自动增加 include 'childTwo'
+  自己的模块间相互引用 在dependencies中增加 compile project(":childTwo")
+  
 会自动下载其它依赖的包,在~/.gradle\caches\modules-2\files-2.1目录下
-C:\Users\zh\.gradle\caches\modules-2\files-2.1  
+				%HOMEPATH%\.gradle\caches\modules-2\files-2.1  
+可以和MAVEN仓库共用位置, 新建环境变量 GRADLE_USER_HOME=D:/MVN_REPO  (IDEA 显示在Service directory path:中 )
+(IDEA 的gradle视图(同maven)-展开tasks->build->双击jar,)
+
 
 gradle wrapper --gradle-version 3.2.1  会生成 gradlew 可执行文件和gradle/wrapper目录 在项目目录下,gradle-wrapper.properties文件中下载gradle对应版本的URL
 
@@ -2661,6 +2686,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoIterable;
+import com.mongodb.client.ClientSession;
+
 public class MongoTest
 {
 	public static void insert(MongoDatabase db)
@@ -2726,17 +2753,26 @@ public class MongoTest
 //		Transactions for sharded clusters are scheduled for MongoDB 4.2
 	
 		MongoCredential credential = MongoCredential.createCredential("zh", "reporting", "123".toCharArray());
-		MongoClientOptions opts= new MongoClientOptions.Builder().build();
+	
+		//replication set 事务OK
 		ServerAddress[] addrs=	new ServerAddress[] {
 				new ServerAddress("127.0.0.1", 37017),
 				new ServerAddress("127.0.0.1", 37018),
-				new ServerAddress("127.0.0.1", 37019),};
-		MongoClient mongoClient  = new MongoClient(Arrays.asList(addrs), credential,opts );  
+				new ServerAddress("127.0.0.1", 37019)};
+		
+		//单机不支持事务
+//		ServerAddress[] addrs=	new ServerAddress[] { new ServerAddress("127.0.0.1", 27017) };
+		MongoClientOptions opts= new MongoClientOptions.Builder().build();
+	 	MongoClient mongoClient  = new MongoClient(Arrays.asList(addrs), credential,opts );  
 	
 //		db.employees.insert({employee:3,status:'none'})
 //		db.events.insert({})
 		MongoCollection<Document> employeesCollection = mongoClient.getDatabase("reporting").getCollection("employees");
+		employeesCollection.drop();
+		employeesCollection.insertOne(new Document("employee",3).append("status", "none"));
 	    MongoCollection<Document> eventsCollection = mongoClient.getDatabase("reporting").getCollection("events");
+	    eventsCollection.drop();
+	    eventsCollection.insertOne(new Document());
 	    ClientSession clientSession = mongoClient.startSession();
 	    try   {
 	        clientSession.startTransaction();
@@ -3139,7 +3175,7 @@ public class Actor {
 .exe安装版要 ERLang语言,RabbitMQ,启动停止可在services.msc中做也可使用命令启动
 配置文件 是 rabbitmq.config  
 D:\Program\RabbitMQ Server\rabbitmq_server-3.7.7\etc\rabbitmq.config.example 复制修改
-#C:\Users\zh\AppData\Roaming\RabbitMQ\rabbitmq.config.example
+#%HOMEPATH%\AppData\Roaming\RabbitMQ\rabbitmq.config.example
 默认端口  {tcp_listeners, [5672]},
 
 linux 下解压有sbin目录 rabbitmqctl 要 erl  ,安装erlang不太容易 CentOS 7 下 yum install erlang根本没有
@@ -3155,9 +3191,9 @@ linux sbin目录下
 看控制台默认日志在 解压的 rabbitmq_server-3.7.7/var/log/rabbitmq/rabbit@<hostname>.log
  
 windows zip 设置 ERLANG_HOME=D:\Program\erl9.3\ 变量  
-看控制台默认日志 C:\Users\zh\AppData\Roaming\RabbitMQ\log
-看界面默认配置文件 c:/Users/zh/AppData/Roaming/RabbitMQ/rabbitmq.config
-看界面默认数据目录 C:\Users\zh\AppData\Roaming\RabbitMQ\db\RABBIT~1
+看控制台默认日志 %HOMEPATH%\AppData\Roaming\RabbitMQ\log
+看界面默认配置文件 %HOMEPATH%/AppData/Roaming/RabbitMQ/rabbitmq.config
+看界面默认数据目录 %HOMEPATH%\AppData\Roaming\RabbitMQ\db\RABBIT~1
 看界面默认amp端口是 5672
 看界面默认clustering端口是 25672
 
@@ -4384,6 +4420,8 @@ while (iter.hasNext())
 	} else {
 			String fieldName = item.getFieldName();//form 的名字
 			String pathName = item.getName();//只有IE 带C:/   浏览器可以和request.setCharacterEncoding("UTF-8");一起使用
+			if("".equals(pathName))
+			    continue;
 			String correctName=pathName.substring(pathName.lastIndexOf(File.separator)+1);//浏览器对中文名OK
  			//String contentType = item.getContentType();
 			//long sizeInBytes = item.getSize();
@@ -4427,8 +4465,28 @@ response.getOutputStream();
     <version>2.6.0</version>
 </dependency>
 
+GenericObjectPoolConfig  (jedis使用这个)
 
+GenericObjectPoolConfig<StringBuffer> config=new GenericObjectPoolConfig<StringBuffer>();
 
+config.setMaxTotal(20);
+config.setMaxIdle(10);
+config.setMinEvictableIdleTimeMillis(300000);
+config.setNumTestsPerEvictionRun(3);
+config.setTimeBetweenEvictionRunsMillis(60000);
+config.setTestOnBorrow(false);
+config.setBlockWhenExhausted(false);//连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
+//逐出连接的最小空闲时间 默认
+config.setMinEvictableIdleTimeMillis(20*60*1000);//20分
+
+GenericObjectPool<StringBuffer> pool=new GenericObjectPool<StringBuffer>(new StringBufferFactory(),config);
+StringBuffer buf = pool.borrowObject();
+//....
+pool.returnObject(buf);
+
+PooledObject<Connection> obj=new DefaultPooledObject<Connection>(conn);
+Connection conn= obj.getObject();
+obj.getObject().close();
 
 -----------------------------http client
 <dependency>
@@ -4844,6 +4902,7 @@ openCV , Android人脸识别 (Face++)
 openSURF  基于 OpenCV
 
 ---------------------------------Ehcache 2.9
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -4908,11 +4967,104 @@ ehcache.put(element);
 Element valElement = ehcache.get("key1");
 Object value = valElement.getObjectValue();
 
+----------------ehcache 3.x (org.ehcache支持分布式)
+ 
+<dependency>
+  <groupId>org.ehcache</groupId>
+  <artifactId>ehcache</artifactId>
+  <version>3.6.1</version>
+</dependency>
+
+ //JCache (JSR-107)
+
+ <dependency>
+  <groupId>javax.cache</groupId>
+  <artifactId>cache-api</artifactId>
+  <version>1.1.0</version>
+</dependency>
+static void echcache3x()
+{
+	//classpath 中不能有ehcache 2.9
+	 org.ehcache.CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
+					  .withCache("preConfigured",
+						   CacheConfigurationBuilder.newCacheConfigurationBuilder(Long.class, String.class,
+														  ResourcePoolsBuilder.heap(100))
+						   .build())
+					  .build(true);
+
+	 org.ehcache.Cache<Long, String> preConfigured
+					  = cacheManager.getCache("preConfigured", Long.class, String.class);
+
+	 org.ehcache.Cache<Long, String> myCache = cacheManager.createCache("myCache",
+					  CacheConfigurationBuilder.newCacheConfigurationBuilder(Long.class, String.class,
+													ResourcePoolsBuilder.heap(100)).build());
+				  myCache.put(1L, "da one!");
+				  String value = myCache.get(1L);
+
+				  cacheManager.close();
+}
+
+ static void jcache()
+{
+	 //JCache (JSR-107) classpath中不有多个实现，去 redisson.jar
+	CachingProvider provider = Caching.getCachingProvider();  
+	
+	//---CacheManager 方式一
+	DefaultConfiguration defConfiguration = new DefaultConfiguration(provider.getDefaultClassLoader(),
+			  new DefaultPersistenceConfiguration(new File("/tmp/ehcache_dist/"))); 
+	javax.cache.CacheManager cacheManager =provider.getCacheManager(provider.getDefaultURI(),provider.getDefaultClassLoader());  
+	 
+	//---CacheManager 方式 二
+	//javax.cache.CacheManager cacheManager = provider.getCacheManager();   
+	
+	
+	MutableConfiguration<Long, String> configuration =
+		new MutableConfiguration<Long, String>()  
+			.setTypes(Long.class, String.class)   
+			.setStoreByValue(false)   
+			.setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(javax.cache.expiry.Duration.ONE_MINUTE));  
+	javax.cache.Cache<Long, String> cache = cacheManager.createCache("jCache", configuration); 
+	cache.put(1L, "one"); 
+	String value = cache.get(1L); 
+}
+-------------------------------caffeine  cache
+
+ 
+compile 'com.github.ben-manes.caffeine:caffeine:2.6.2'
+<dependency>
+	<groupId>com.github.ben-manes.caffeine</groupId>
+	<artifactId>caffeine</artifactId>
+	<version>2.6.2</version>  
+</dependency>
+
+ 扩展中也提供 JCache 实现
+compile 'com.github.ben-manes.caffeine:jcache:2.6.2'
+<dependency>
+	<groupId>com.github.ben-manes.caffeine</groupId>
+	<artifactId>jcache</artifactId>
+	<version>2.6.2</version>  
+</dependency>
+
+LoadingCache<String, Object> graphs = Caffeine.newBuilder()
+	.maximumSize(10_000)
+	.expireAfterWrite(5, TimeUnit.MINUTES)
+	.refreshAfterWrite(1, TimeUnit.MINUTES)
+	.build(new  CacheLoader<String, Object>() {
+		@Override
+		public Object load(String arg0) throws Exception {
+			
+			return null;
+		}
+	});
+	//.build(key -> createExpensiveGraph(key));
+	
 ---------------------------------Guava 缓存部分
+Caffeine is a Java 8 rewrite of Guava’s cache
+
 <dependency>
 	<groupId>com.google.guava</groupId>
 	<artifactId>guava</artifactId>
-	<version>24.1-jre</version>   <!--  24.1-jre , 24.1-android -->
+	<version>27.0-jre</version>   <!--  27.0-jre , 27.0-android -->
 </dependency>
 
 LoadingCache<String,Object> dictCache = CacheBuilder.newBuilder()
@@ -5220,6 +5372,10 @@ config.setMaxTotal(30);
 config.setMaxWaitMillis(5*1000);
 config.setTestOnBorrow(false);
 config.setBlockWhenExhausted(false);//连接耗尽时是否阻塞, false报异常,ture阻塞直到超时, 默认true
+//逐出连接的最小空闲时间 默认
+config.setMinEvictableIdleTimeMillis(20*60*1000);//20分
+
+
 
 JedisShardInfo shardInfo =new JedisShardInfo(ip,port);//passwd
 ShardedJedisPool shardedPool=new ShardedJedisPool(config,Arrays.asList(shardInfo)) ;
@@ -5323,11 +5479,12 @@ jedis.close();
 jedis.shutdown();//会把redis服务器关了 
 	
 ---------------------------------Redis client redisson	  分布式锁的实现 
+ //JCache (JSR-107)
 <dependency>
-    <groupId>org.redisson</groupId>
-    <artifactId>redisson</artifactId>
-    <version>3.7.5</version>
-</dependency>
+   <groupId>org.redisson</groupId>
+   <artifactId>redisson</artifactId>
+   <version>3.9.1</version>
+</dependency>  
 
 https://github.com/redisson/redisson/wiki/ 有中文的文档
 
@@ -5363,8 +5520,7 @@ bucket.setAsync(new AnyObject());//单机OK,但cluster master get时卡住???
 AnyObject obj = bucket.get();
 
 redisson.shutdown();
-
-------------TDDL
+ 
 
 ------------ Hessian(二进制RPC协议) 可二进制做 webservice (dubbo 有用)
 //--servlet server
@@ -5834,6 +5990,7 @@ public class UserJson {
     private String userName;
 	
 	@JsonProperty("joinDate")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date joinDate;
 	
     @JsonIgnore
@@ -5876,6 +6033,8 @@ String str= json2String();
 UserJson user=mapper.readValue(str, UserJson.class);
 
 ============alibaba JSON 用 FasterXml
+https://github.com/alibaba/fastjson
+
 <dependency>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
@@ -5884,6 +6043,16 @@ UserJson user=mapper.readValue(str, UserJson.class);
 
 import com.alibaba.fastjson.JSON;
 
+public class MyIgnoreObject {
+	@JSONField(name="_userName")
+    private String userName;
+    
+	@JSONField(name="_joinDate",format="yyyy-MM-dd HH:mm:ss") 
+    private Date joinDate;
+
+    @JSONField(serialize=false,deserialize=false)
+    private String password;
+}
 String jsonString=JSON.toJSONString(user);  //Object ->JSON
 UserJson user=JSON.parseObject(str,UserJson.class);//JSON ->Object
 
@@ -6112,28 +6281,586 @@ client.close();
   <groupId>org.apache.shiro</groupId>
   <artifactId>shiro-core</artifactId>
   <version>1.3.2</version>
-</dependency>
- 	
-
+</dependency> 
 <dependency>
   <groupId>org.apache.shiro</groupId>
   <artifactId>shiro-web</artifactId>
   <version>1.3.2</version>
-</dependency>
-
-
+</dependency> 
 <dependency>
   <groupId>org.apache.shiro</groupId>
   <artifactId>shiro-spring</artifactId>
   <version>1.3.2</version>
+</dependency> 
+<dependency>
+  <groupId>org.apache.shiro</groupId>
+  <artifactId>shiro-ehcache</artifactId>
+  <version>1.3.2</version>
 </dependency>
-
 
 UsernamePasswordToken token = new UsernamePasswordToken("user", "pass");
 Subject currentUser = SecurityUtils.getSubject();
 currentUser.login(token);//当使用外部系统验证成功后告诉Shiro已经登录
 
 
+
+//iniLogin("classpath:shiro_main/shiro.ini");
+//iniLogin("classpath:shiro_main/shiro-realm.ini");
+//iniLogin("classpath:shiro_main/shiro-cryptography.ini");
+//--- 
+//iniLogin("classpath:shiro_main/shiro-permisson.ini");
+//hasRole(); 
+//hasPermission();//没有缓存，每次都重新取数据
+//---
+iniLogin("classpath:shiro_main/shiro-permisson-realm.ini");
+hasRole();
+hasPermission();
+ 
+
+public static void iniLogin(String configFile) {
+	Factory<org.apache.shiro.mgt.SecurityManager> factory = new IniSecurityManagerFactory(configFile);
+	org.apache.shiro.mgt.SecurityManager securitManger = factory.getInstance();
+	SecurityUtils.setSecurityManager(securitManger);
+	Subject subject = SecurityUtils.getSubject();
+	
+	org.apache.shiro.session.Session  session=subject.getSession();
+	session.setAttribute("myAttr", "myVal");
+	System.out.println(session.getAttribute("myAttr"));
+	
+	UsernamePasswordToken token = new UsernamePasswordToken("lisi", "123");
+	token.setRememberMe(true);
+	
+	try {
+		subject.login(token);// 看源码
+	} catch (UnknownAccountException userError) {
+		System.err.println("user not exits");
+	} catch (IncorrectCredentialsException passError) {
+		System.err.println("password error ");
+	} catch (Exception e) {
+		e.printStackTrace();
+	}
+	System.out.println("login OK?" + subject.isAuthenticated());
+	subject.logout();
+	System.out.println("login OK?" + subject.isAuthenticated());
+}
+public static void hasRole()
+{  
+	Subject subject = SecurityUtils.getSubject();
+	System.out.println(subject.hasRole("role1"));//看源码
+	List<String> list=new ArrayList<>();
+	list.add("role1");
+	list.add("role2");
+	list.add("role3");
+	System.out.println(Arrays.toString(subject.hasRoles(list))); //返回boolean数组
+	System.out.println(subject.hasAllRoles(list));
+	//subject.checkRole("role3");//如没角色报错
+}
+public static void hasPermission()
+{
+	Subject subject = SecurityUtils.getSubject();
+	System.out.println(subject.isPermitted("user:delete"));//看源码
+	System.out.println(subject.isPermittedAll("user:delete","user:update"));
+	subject.checkPermission("user:query");//如没 报错
+}
+ 
+public static void encPassword() {
+	String password="123";
+	Md5Hash md5Hash=new Md5Hash(password);
+	System.out.println(md5Hash);//散列算法有MD5 和SHA
+	
+	Md5Hash md5Hash1=new Md5Hash(password,"saltKey");//加盐
+	System.out.println(md5Hash1);
+	
+	Md5Hash md5Hash2=new Md5Hash(password,"saltKey",3);//散列3次
+	System.out.println(md5Hash2);//3e751882a57e7f803dcc9c47eeda7be2
+	
+	/* ini config file
+	org.apache.shiro.authc.credential.HashedCredentialsMatcher credntialMatcher=new HashedCredentialsMatcher();
+	credntialMatcher.setHashAlgorithmName("md5");
+	credntialMatcher.setHashIterations(3);
+	
+	EncPasswordRealm realm=new EncPasswordRealm();
+	realm.setCredentialsMatcher(credntialMatcher);
+	*/
+} 
+---shiro_main/shiro.ini
+[users]
+#comment
+lisi=123
+wang=456
+
+
+---shiro_main/shiro-realm.ini
+myRealm=shiro_main.MyRealm
+securityManager.realms=$myRealm
+
+
+// AuthorizingRealm 带认证和制授权 
+public class MyRealm extends AuthorizingRealm
+{
+	@Override
+	public String getName() {
+		return "MyRealm";
+	}
+	// 授权  (对于配置 shiro-realm.ini 文件)
+	@Override
+	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+		//String username=(String)principals.getPrimaryPrincipal();//可是放session中的对象 ,这里用户名
+		UserInfo userInfo=(UserInfo)principals.getPrimaryPrincipal();
+		
+		//模拟查数据库为用户加角色，权限,不是使用配置文件方式
+		
+		List<String> roles=new ArrayList<>();
+		roles.add("role1");
+		
+		List<String> permissions=new ArrayList<>();
+		permissions.add("user:create");
+		
+		SimpleAuthorizationInfo auInfo=new SimpleAuthorizationInfo();
+		auInfo.addRoles(roles);
+		auInfo.addStringPermissions(permissions);//有addObjectPermissions
+		return auInfo;
+	}
+	//认证
+	@Override
+	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+		System.out.println("MyRealm,"+token);
+		String username=(String)token.getPrincipal();
+		//查数据库
+		if(!"lisi".equals(username))//模拟无此用户
+			return null;
+		
+		// (对于配置 shiro.ini 文件)
+		String password="123"; 
+		UserInfo userInfo=new UserInfo();
+		userInfo.setUserAccount(username);
+		userInfo.setFullName("李四");
+		userInfo.setMobilePhone("130111122222");
+		userInfo.setUserId("1001");
+		SimpleAuthenticationInfo authInfo=new SimpleAuthenticationInfo(userInfo,password,getName());
+		//SimpleAuthenticationInfo authInfo=new SimpleAuthenticationInfo(username,password,getName());//username可是放session中的对象 ,这里用户名
+		
+		// (对于配置 shiro-cryptography.ini 文件)
+		String saltKey="saltKey";
+		Md5Hash md5Hash2=new Md5Hash(password,saltKey,3);//散列3次
+		String saltPassword=md5Hash2.toString();//模拟数据库取出的
+		
+		SimpleAuthenticationInfo authInfo=new SimpleAuthenticationInfo(username,
+				saltPassword,ByteSource.Util.bytes(saltKey), //盐是什么要告诉shiro,3次在配置文件中
+				getName());
+				
+		return authInfo;
+	}
+}
+
+----shiro-cryptography.ini
+[main]
+credntialMatcher=org.apache.shiro.authc.credential.HashedCredentialsMatcher
+credntialMatcher.hashAlgorithmName=md5
+credntialMatcher.hashIterations=3
+
+myRealm=shiro_main.EncPasswordRealm
+myRealm.credentialsMatcher=$credntialMatcher
+securityManager.realms=$myRealm
+
+----shiro-permisson.ini
+[users]
+#comment
+lisi=123,role1,role2
+wang=456,role1
+
+[roles]
+#表示对资源user有create权限
+role1=user:create,user:update
+role2=user:delete
+role3=user:*
+role4=user:update:101
+role5=user:*:101
+#第三列101表示实例,像某条记录
+ 
+----shiro web
+
+web.xml
+  <context-param>
+  	<param-name>shiroEnviromentClass</param-name>
+  	<param-value>org.apache.shiro.web.env.IniWebEnvironment</param-value>
+  </context-param>
+   <context-param>
+  	<param-name>shiroConfigLocations</param-name>
+  	<param-value>classpath:shiro_web/shiro.ini</param-value>
+  </context-param>
+   <!--  读上面两个param-name,调用IniWebEnvironment的 init 方法会创建SecurityManager 放 servletContext 中供Filter使用 -->
+  <listener>
+  	<listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
+  </listener>
+  
+  <filter>
+  	<filter-name>shiro_web</filter-name>
+  	<filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+  </filter>
+  <filter-mapping>
+  	<filter-name>shiro_web</filter-name>
+  	<url-pattern>/*</url-pattern>  */
+	<dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+    <dispatcher>ERROR</dispatcher>
+  </filter-mapping>
+
+  
+// anon 定义在 DefaultFilter 中
+   
+---shiro_web/shiro.ini  
+[main]
+authc.loginUrl=/login.ser
+#如没登录跳转页,要和登录表单提交地址一样才知道从哪取到用户名密码
+#authc就是 FormAuthenticationFilter  页中用户名要为username,密码为passsword,修改方法(类中有) 
+authc.usernameParam=j_username
+authc.passwordParam=j_password
+authc.rememberMeParam=j_rememberMe
+
+roles.unauthorizedUrl=/noRole.jsp
+#如没有要求的角色跳转页
+perms.unauthorizedUrl=/noPerm.jsp
+#如没有权限的角色跳转页
+logout.redirectUrl=/web/login.jsp
+#退出后的跳转页
+
+#perms.enabled=false
+#表示不使用这个过滤器
+
+[users] 
+lisi=123,adminRole
+wang=456,queryRole
+
+[roles]
+adminRole=employee:*
+queryRole=employee:query
+
+[urls]
+#=后是过滤器的顺序 ，路径也是从上到下的顺序匹配
+/js/**=anon
+/img/**=anon
+/web/main.jsp=anon
+#/web/login.jsp=anon 
+#可以不用配置 logout.redirectUrl已经做了
+
+#anon 是shiro的匿名过滤器
+#authc 过滤器 表示必须要登录 ,roles 角色过滤器 
+
+/employee/create.ser=authc,roles[adminRole]
+/employee/query.ser=authc,roles[queryRole]
+/web/query.jsp=authc,roles[adminRole]
+#.jsp也能拦截的,web.xml配置了FORWARD拦截不到
+
+/employee/delete.ser=perms[employee:delete]
+#perms 权限过滤器
+
+/logout.ser=logout
+#logout 退出过滤器,会清session,页面直接请求这个地址,不用自己实现
+
+#登录表单提交地址要authc
+/login.ser=authc
+#/**=authc
+
+
+
+ 
+
+*/
+
+
+@WebServlet("/login.ser")
+public class LoginServlet extends HttpServlet 
+{
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
+		/*
+		#登录表单提交地址要authc
+		/login.ser=authc
+		#/**=authc
+		*/
+		String exceptClassName=(String) request.getAttribute("shiroLoginFailure");
+		if(exceptClassName!=null)
+		{
+			if(UnknownAccountException.class.getName().equals(exceptClassName))
+			{
+				request.setAttribute("error","用户名不存在");
+			}else if(IncorrectCredentialsException.class.getName().equals(exceptClassName))
+			{
+				request.setAttribute("error","密码错误");
+			}else if(IncorrectCredentialsException.class.getName().equals(exceptClassName))
+			{
+				request.setAttribute("error","系统异常");
+			}
+		}
+		//如登录成功会直接跳到登录前的页面，如没有登录前的页面默认请求/
+		request.getRequestDispatcher("/web/login.jsp").forward(request, response);
+	}		
+}
+----- /web/login.jsp
+<form action="<%=request.getContextPath()%>/login.ser" method="post">
+	<section>
+		<label for="j_username">Username</label> <input  name="j_username" type="text" />
+	</section>
+	<section>
+		<label for="j_password">Password</label> <input  name="j_password" type="password" />
+	</section>
+	<section>
+		<label for="j_rememberMe">remeber me?</label> <input  name="j_rememberMe" type="checkbox" />
+	</section>
+	<section>
+		<input type="submit" value="Login" />
+	</section>
+</form>
+
+----main.jsp
+<%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags" %> 
+<shiro:guest>
+	你没有登录，点击 <a href="<%=request.getContextPath()%>/login.ser">这里</a> 登录
+</shiro:guest>  <br/>
+
+<a href="${pageContext.request.contextPath}/logout.ser">logout   </a> <br/>
+
+Hello, <shiro:principal/> <br/>
+Hello, <%= SecurityUtils.getSubject().getPrincipal()  %> <br/>
+
+<shiro:hasPermission name="employee:delete">
+	<a href="<%=request.getContextPath()%>/employee/delete.ser">delete employee ,Permission employee:delete</a> <br/>
+</shiro:hasPermission>
+<shiro:lacksPermission name="employee:delete">
+	你没有 employee:delete 权限
+</shiro:lacksPermission>
+
+<shiro:hasRole name="adminRole">
+	<a href="<%=request.getContextPath()%>/employee/create.ser">add new employee , adminRole</a> <br/>
+</shiro:hasRole>
+
+----shiro spring  
+
+--web.xml
+ <filter>
+    <filter-name>shiroFilter</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    <init-param>
+        <param-name>targetFilterLifecycle</param-name>
+        <param-value>true</param-value>
+    </init-param>
+ </filter>
+   
+  <filter-mapping>
+    <filter-name>shiroFilter</filter-name>
+    <url-pattern>/*</url-pattern>   */
+  </filter-mapping>
+
+  <servlet>
+    <servlet-name>spring_mvc</servlet-name>
+    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    <init-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring_mvc.xml</param-value><!--  MVC相关的配置  -->
+	</init-param>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>spring_mvc</servlet-name>
+    <url-pattern>*.mvc</url-pattern>
+  </servlet-mapping>
+    
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>/WEB-INF/spring_shiro.xml</param-value><!-- Shiro相关的Bean注入配置  -->
+  </context-param>
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+
+ ---spring_mvc.xml
+    <context:annotation-config/>
+    <context:component-scan base-package="shiro_spring" />
+    <mvc:annotation-driven/> 
+    <mvc:default-servlet-handler/>
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+		p:prefix="/WEB-INF/jsp/" p:suffix=".jsp" />
+	<bean  class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="org.apache.shiro.authz.UnauthorizedException">redirect:/noPerm.jsp</prop>
+				<prop key="org.apache.shiro.authz.UnauthenticatedException">redirect:/login.mvc</prop>  
+			</props>
+		</property>
+	</bean>
+	<!-- 使用  @RequiresRoles,@RequiresPermissions  生效   -->
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/> 
+ 	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
+ 		<property name="proxyTargetClass" value="true"></property>
+ 	</bean>
+  <!-- 方式二  对spring aop版本有要求
+  	<aop:config proxy-target-class="true"></aop:config>
+   -->
+
+---spring_shiro.xml
+<bean id="hashedCredentialsMatcher" class ="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+	<property name="hashAlgorithmName" value="md5"></property>
+	<property name="hashIterations" value="3"></property> 
+</bean>
+<bean id="mySpringRealm" class="shiro_spring.MySpringRealm" >
+	<property name="credentialsMatcher" ref="hashedCredentialsMatcher"></property>
+</bean>
+<bean id="mySpringRealm2" class="shiro_spring.MySpringRealm2" >
+	<property name="credentialsMatcher" ref="hashedCredentialsMatcher"></property>
+</bean>
+<bean id="myModularAuthen" class="org.apache.shiro.authc.pam.ModularRealmAuthenticator">
+	<property name="authenticationStrategy" >
+		<bean class="org.apache.shiro.authc.pam.AllSuccessfulStrategy"></bean>
+		<!-- 默认 AtLeastOne 只要一个realm成功就算成功
+		<bean class="org.apache.shiro.authc.pam.AtLeastOneSuccessfulStrategy"></bean>
+		<bean class="org.apache.shiro.authc.pam.FirstSuccessfulStrategy"></bean>
+		 -->
+	</property>
+	<property name="realms" >
+		<list >
+			 <ref bean="mySpringRealm"/>
+			 <ref bean="mySpringRealm2"/>
+		</list>
+	</property>
+</bean>
+<bean id="myModularAuthor" class="org.apache.shiro.authz.ModularRealmAuthorizer">
+	<property name="realms" >
+		<list >
+			 <ref bean="mySpringRealm"/>
+			 <ref bean="mySpringRealm2"/>
+		</list>
+	</property>
+</bean>
+
+<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+	<property name="cacheManager" ref="cacheManager"></property>
+	<!-- 
+	<property name="realm" ref="mySpringRealm" />
+	 -->
+	 <!-- 
+	<property name="realms" >
+		<list >
+			 <ref bean="mySpringRealm"/>
+			 <ref bean="mySpringRealm2"/>
+		</list>
+	</property>
+	 -->
+	 <property name="authenticator" ref="myModularAuthen"></property>
+	 <property name="authorizer" ref="myModularAuthor"></property>  
+</bean>
+
+<bean id ="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+	<property name="cacheManager" ref="ehcacheManager" ></property>
+</bean>
+
+<bean id="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+	<property name="configLocation" value="classpath:shiro_spring/ehcache.xml"></property>
+	<property name="shared" value="true"></property>
+</bean>
+
+<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+	<property name="securityManager" ref="securityManager" />
+	<property  name="loginUrl" value="/login.mvc"/> 
+	<property name="successUrl" value="/main.mvc"/> 
+	<property name="unauthorizedUrl" value="/noPerm.jsp"/>
+	<property name="filters"> 
+		<util:map> 
+			 <entry key="authc" value-ref="formAuthenticationFilter" />
+		</util:map> 
+	</property> 
+	<property name="filterChainDefinitions">
+		<value>
+			#=后是过滤器的顺序 ，路径也是从上到下的顺序匹配
+			/js/**=anon
+			/img/**=anon
+			/main.mvc=anon
+			/logout.mvc=logout
+			#logout 退出过滤器,会清session,页面直接请求这个地址,不用自己实现
+			
+		<!-- /employee/create.mvc=authc,roles[adminRole]
+			/employee/query.mvc=authc,roles[queryRole]
+			/employee/delete.mvc=perms[employee:delete]
+		-->
+			#登录表单提交地址要authc
+			/login.mvc=authc
+			#/**=authc
+		</value>
+		*/
+	</property>
+</bean>
+
+ 
+<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+	<property name="securityManager" ref="securityManager"/>
+</bean>
+	
+<bean id="formAuthenticationFilter"    class="org.apache.shiro.web.filter.authc.FormAuthenticationFilter">
+	<property name="usernameParam" value="j_username" />
+	<property name="passwordParam" value="j_password" />
+	<property name="rememberMeParam" value="j_rememberMe"/> 
+</bean> 
+ 
+
+--controller
+@RequiresAuthentication
+@RequiresRoles({"adminRole"})
+//结合不显示按钮一起用更更安全(对未配置这个地址)
+//也可用于service方法,如没权限报异常,要配置SimpleMappingExceptionResolver (unauthorizedUrl没用)
+@RequestMapping(value = "/create" )
+public void create( HttpServletRequest requset,HttpServletResponse response) throws Exception {
+	UnauthorizedException exp;
+	response.getWriter().write("employee/create");
+
+}
+@RequiresAuthentication
+@RequiresPermissions({"employee:delete"})
+@RequestMapping(value = "/delete" )
+public void delete(  HttpServletResponse response ) throws Exception {
+	response.getWriter().write("employee/delete");
+}
+//@RequiresGuest 
+
+
+//spring把@Controller中的所有的@RequestMapping的方法
+Map<RequestMappingInfo, HandlerMethod> methods = requestMappingHandlerMapping.getHandlerMethods();
+for(HandlerMethod method:methods.values())
+{
+	RequiresAuthentication auth=method.getMethodAnnotation(RequiresAuthentication.class);
+	if(	auth!=null   )
+		System.out.println("must be login");
+	RequiresPermissions perm=method.getMethodAnnotation(RequiresPermissions.class);
+	if(	perm!=null   )
+		System.out.println("has perm "+Arrays.toString(perm.value()));
+	RequiresRoles role=method.getMethodAnnotation(RequiresRoles.class);
+	if(	role!=null   )
+		System.out.println("has role "+Arrays.toString(role.value()));
+}
+--- MySpringRealm
+
+//清除登录用户的角色权限信息，不是登录信息，要手动调用 
+public void myClearCache() 
+{
+	PrincipalCollection principalCollection=SecurityUtils.getSubject().getPrincipals();
+	super.clearCache(principalCollection);//super=AuthorizingRealm
+}
+
+
+<shiro:authenticated> <!-- 如不加 进入页时 报nullpoint -->
+	Hello, <shiro:principal type="shiro_main.UserInfo" property="fullName"/>  相当于取session对象的属性名 	<br/>
+</shiro:authenticated>
+
+login.mvc 代码与 login.ser 代码相同
+<form action="<%=request.getContextPath()%>/login.mvc" method="post">
+</form>
+
+也可以用 
+<form action="<%=request.getContextPath()%>/submitLoginNoFilter.mvc" method="post">
+</form>
+Subject subject = SecurityUtils.getSubject();
+UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+subject.login(token);//只能自己控制跳转页
 
 ============FastDFS
 跟踪服务和存储服务，跟踪服务控制，调度文件以负载均衡的方式访问；存储服务包括：文件存储，文件同步，提供文件访问接口，同时以key value的方式管理文件的元数据
@@ -6204,6 +6931,110 @@ targetClass.addMethod(method);
 Class<IHello> clazz=targetClass.toClass();
 IHello  hello=clazz.newInstance();
 hello.sayHello("王");
+
+-------------Jasypt 
+可配置文件加密 密码 ENC(xxx)
+
+<dependency>
+    <groupId>org.jasypt</groupId>
+    <artifactId>jasypt</artifactId>
+    <version>1.9.2</version>
+</dependency>
+
+ Spring Framework 3.1 and newer 
+<dependency>
+    <groupId>org.jasypt</groupId>
+    <artifactId>jasypt-spring31</artifactId>
+    <version>1.9.2</version>
+</dependency>
+
+jasypt-springsecurity3 for Spring Security 3.x and newer 
+
+<dependency>
+    <groupId>org.jasypt</groupId>
+    <artifactId>jasypt-springsecurity3</artifactId>
+    <version>1.9.2</version>
+</dependency>
+
+//可配置文件加密 密码 ENC(xxx)
+
+
+static String KEY="theKey";
+//PBEWithMD5AndDES
+public static String  encode(String thePass) {
+	BasicTextEncryptor encryptor=new BasicTextEncryptor();
+	encryptor.setPassword(KEY);
+	String enc= encryptor.encrypt(thePass);
+	return enc;
+}
+//PBEWithMD5AndDES
+public static String  decode(String enc) {
+//		StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+//	    encryptor.setAlgorithm(StandardPBEByteEncryptor.DEFAULT_ALGORITHM);//PBEWithMD5AndDES
+
+	BasicTextEncryptor encryptor=new BasicTextEncryptor();
+	encryptor.setPassword(KEY);
+	String dec= encryptor.decrypt(enc);
+	return dec;
+}
+
+public static void main(String[] args) {
+	
+	String enc=encode("thePass");
+	System.out.println("enc="+enc);//DaarVCtqChPzfrYGDc/IYA==
+	String dec=decode(enc);
+	System.out.println("dec="+dec); 
+}
+
+spring
+<!--  PBEWithMD5AndDES , PBEWithMD5AndTripleDES -->
+<bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+	<property name="algorithm">
+		<value>PBEWithMD5AndDES</value>
+	</property>
+	<property name="password">
+		<value>theKey</value>
+	</property>
+</bean>
+ 
+ 
+<bean id="configProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+	<property name="locations">
+		<list>
+			<value>classpath:/spring_jasypt/dev.properties</value>
+			<value>classpath:/spring_jasypt/devOver.properties</value> <!-- 相同属性后面的会覆盖前面的 -->
+		</list>
+	</property>
+</bean>
+<bean id="propertyConfigurer" class="org.jasypt.spring31.properties.EncryptablePropertyPlaceholderConfigurer">
+	<constructor-arg ref="configurationEncryptor" />
+	<property name="properties" ref="configProperties"></property>
+	<!-- 
+	<property name="locations">
+		<list>
+			<value>classpath:/spring_jasypt/dev.properties</value> 
+		</list>
+	</property>
+	 -->
+</bean>
+
+@Value("${redis.password}")
+private String redisPass;//是解密的thePass
+@Value("#{configProperties.redis_password}") //自己的key不能有点
+private String redisPass2;
+	
+---dev.properties 加密的
+redis.password=ENC(DaarVCtqChPzfrYGDc/IYA==)
+redis_password=P
+
+---devOver.properties 
+redis_password=overP_
+
+-------------jCIFS   samba SMB
+	apache commons VFS2 库的CIFS协议 其实是用 jCIFS 
+
+
+
 
 -------------Reactor 
 <dependency>

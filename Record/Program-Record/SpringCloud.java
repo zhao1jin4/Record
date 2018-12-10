@@ -21,8 +21,9 @@ https://springcloud.cc/spring-cloud-dalston.html
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
             <version>Dalston.SR1</version>  
-			<!-- Dalston.SR4    要和spring-boot-starter-parent  1.5.2.RELEASE 对应
-				Finchley.RELEASE  要和spring-boot-starter-parent 2.0.1.RELEASE 对应 
+			<!--Dalston.SR4   要和spring-boot 1.5.x. 对应 目前 1.5.18
+				Finchley.SR2  要和spring-boot 2.0.x. 对应 目前 2.0.7
+				Greenwich.M3  要和spring-boot 2.1.x  对应 目前 2.1.1
 			-->
             <type>pom</type>
             <scope>import</scope>

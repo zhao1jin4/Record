@@ -538,3 +538,24 @@ redis-cli -p 7002 debug segfault 表示 让7002端口的应用掉电
 ./redis-trib.rb del-node 127.0.0.1:7006 <node-id>    也会停止这个节点的服务,删了的节点不能再加????
 
 
+-------
+查询redis允许的最大连接数
+CONFIG GET maxclients
+
+
+当前的redis连接数
+info clients   
+	看 connected_clients:xx
+	
+	
+最大占用内存
+maxmemory <bytes>
+info 看 used_memory
+
+配置
+slowlog-log-slower-than    微秒(microsecond，1秒 = 1,000,000 微秒)
+slowlog-max-len				它决定 slow log 最多能保存多少条日志
+
+SLOWLOG GET 命令 有执行命令，执行时间，耗时
+SLOWLOG LEN
+SLOWLOG RESET 清空
