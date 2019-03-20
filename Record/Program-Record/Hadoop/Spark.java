@@ -4,6 +4,8 @@
 可运行在hadoop yarn ,Kubernetes,可从HBase上读数据
 spark streaming实时计算
 
+MongoDB Spark Connector
+
 spark-2.3.0-bin-hadoop2.7 
  
 <dependency>

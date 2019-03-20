@@ -1,3 +1,4 @@
+MariaDB windows 安装版本 自带 HeidiSQL 客户端工具(只有windwos版本) 会显示界面的输出命令，学习很好
 
 从5.7.21 windows安装版开始  自带samples and Examples 的目录 C:\Program Files (x86)\MySQL\Samples and Examples 5.7\Sample Databases中有 Sakila和World
 https://dev.mysql.com/doc/index-other.html MySQL  Sample Database
@@ -796,7 +797,7 @@ alter table boss_agent add [column] total_balance(新列) int after balance(老�
 alter table boss_agent modify [column] total_balance bigint comment '' after balance  
 ALTER TABLE  customer_his MODIFY  [column] create_time timestamp DEFAULT current_timestamp ;  -- 修改整列中带默认值,值是函数只能这样用
 
-ALTER TABLE users MODIFY  [column] create_time timestamp DEFAULT now() COMMENT '创建时间'; --必须指定类型
+ALTER TABLE users MODIFY  [column] create_time timestamp DEFAULT now() COMMENT '创建时间' first; --必须指定类型 modify 可用first,after xx
  -- 如列为 timestamp 类型,不设置default,也自动加 NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,当 add column时也会加值
 alter table users MODIFY column create_time timestamp null comment '创建时间' ; -- 会改default为null
 
@@ -907,10 +908,10 @@ delete from mytable where id in
  group by main_id,sub_id having count(*)>1 
 );
 
-MySQL 删除重复记录方法2,不用in,重复的只要一条
+MySQL 删除重复记录方法2,不用in,重复的只要一条(id最小的)
 delete a from user a left join 
 (
-  select userId from user
+  select min(userId) as userId from user
   group by user_Name,password
 )b
 on a.userId=b.userId 
@@ -1225,7 +1226,7 @@ select  后可加 for update 对innoDB的表行级锁 ,也对索引加锁,和 tx
     select * from myTable for update 如不加where条件就是表级锁,不能 insert ,注意!!!
 	
 查询哪些表,在锁中(行级锁)	show OPEN TABLES where In_use > 0;
-
+show status like 'Table%'; 
 
 
 

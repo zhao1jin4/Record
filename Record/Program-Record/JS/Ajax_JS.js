@@ -544,10 +544,68 @@ book.sayworld();
 
   result(); // 1000
   
+
+  
+
+
+----bind
    
+this.a = 1;
+var module = {
+    a : 2,
+    getA:function() {
+    return this.a;    
+    }
+};
+console.log("in method="+module.getA());//2
 
+var getA1 = module.getA;
+// getA在外部调用，此时的this指向了全局对象
+console.log("in global="+getA1());//1
+
+// 再把getA1方法绑定到module环境上
+var getA2 = getA1.bind(module);//bind有返回值而且是一个函数，而clall无返回值
+console.log("after bind="+getA2()); //2 
+
+
+ 
+   
+  
+  
+  
+function initTable()
+{
+	//var myTable=document.getElementById("myTable");
+	var myTable=document.querySelector("#myTable");
+	for(var i=0;i<10;i++)
+	{
+		var row={myid:i,name:"name"+i};
+		var tr=document.createElement("tr");
+		
+		var htmlName=nameFormater(row.name,row,i); 
+		tr.innerHTML="<td>"+i+"</td><td>"+htmlName+"</td>"
+		myTable.appendChild(tr);
+	}
+}
+//下面是easyUI代码
+var saveFunc=[];
+function nameFormater(value,row,index)
+{
+	var key='btnClick'+row.myid;
+	saveFunc[key]=rowClick.bind(this,row);//row也会存到数组中,第一个参数this必传
+	var  strFunc="saveFunc['"+key+"'](this)";//这里this可以省略
+	return '<button onclick="'+strFunc+'">'+value+'</button>';
+	//return '<button onclick="rowClick(row)">'+value+'</button>';//这样单击时得到不row的值，要存起来
+}
+function rowClick(row)
+{
+	console.log(row);
+}
 </script>
-
+<body  onload="initTable();"> 
+	<table id="myTable"> 
+	</table>
+</body> 
  
 
 testObj = {
@@ -752,7 +810,8 @@ document.getElementsByTagName("BUTTON")[0].hasAttribute("onclick");
 document.body.hasAttributes() //false
 
 document.getELementsByName();//只document有
-getElementsByTagName元素有
+getElementsByTagName 元素有
+getElementsByClassName()
 
 children 是无素
 childNodes 有无素和空格的文本
@@ -1650,7 +1709,7 @@ object1.property2 = 44;//不会报错，但是不成功
 console.log(object1.property2);//undefined
 
 console.log(Object.isSealed(object1));
-
+ 
 
 ======ECMA Script 2016  2017 
 
@@ -2460,6 +2519,10 @@ try {
   console.log(e); 
 }
 ------------
+
+
+
+JSON.parse('{"one":"１"}');
 
 
 

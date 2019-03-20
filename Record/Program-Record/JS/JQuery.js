@@ -190,7 +190,7 @@ console.log(JSON.stringify(fields));
   console.log( $( this ).serializeArray() );
   }
   
-  //表单快速得到JSON值
+  //表单快速得到JSON值,对checkbox取值没有判断是否选中
 $.fn.serializeObject=function()
 {
 	var obj={};
@@ -358,6 +358,13 @@ Servlet端
 		
  
  
+ 
+ jQuery.getScript( url [, success ] )//效果同下面
+ $.ajax({
+  url: url,
+  dataType: "script",
+  success: success
+});
  
 //-->
 </script>

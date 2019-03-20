@@ -353,7 +353,7 @@ param.setDepartment_id(10);
 List<Employee> emps2 =  session.selectList("org.zhaojin.mybatis.ns.dynSelectEmployee", param); 
 //内存分页,必须要用<where>才行,H2支持的, new RowBounds( (current-1)*pageSize , pageSize)
  
-<!-- 关联父类,只select -->
+<!-- 关联父类 -->
 <resultMap id="employeeWithDept" type="Employee">
 	<id property="id" column="e_id" />
 	<result property="username" column="e_name"/>
@@ -363,16 +363,39 @@ List<Employee> emps2 =  session.selectList("org.zhaojin.mybatis.ns.dynSelectEmpl
 	</association>
 </resultMap>
 <select id="selectEmloyeeWithDept" parameterType="int" resultMap="employeeWithDept">
-	select e.id as e_id, 
-		e.username as e_name,
-		d.id as d_id ,
-		d.dep_name as d_name
-	from employee e left outer join department d 
-	on e.department_id = d.id
-	where e.id = #{id}
+	select 
+		   e.id 		as e_id, 
+			e.username 	as e_name,
+			d.id 		as d_id ,
+			d.dep_name 	as d_name
+		from 
+		employee e 
+			left outer join 
+		department d  on e.department_id = d.id
+		where e.id = #{value}
 </select>
 
-<!-- 关联子集合,只select -->
+<!-- 一对一的映射 -->
+<resultMap id="employeeOne2OneDept" type="Employee">
+	<id property="id" column="e_id" />
+	<result property="username" column="e_name"/>
+	<result property="department.id" column="d_id"/>
+	<result property="department.name" column="d_name"/> 
+</resultMap>
+<select id="selectAllEmloyeeWithDept"   resultMap="employeeOne2OneDept">
+	select 
+		 e.id 		as e_id, 
+		e.username 	as e_name,
+		d.id 		as d_id ,
+		d.dep_name as d_name
+	from 
+	employee e 
+		left outer join 
+	department d  on e.department_id = d.id
+</select>
+	
+	
+<!-- 关联子集合  -->
 <resultMap id="departmentWithEmps" type="Department">
 	<id property="id" column="id" />
 	<result property="name" column="d_name"/>
@@ -388,9 +411,26 @@ List<Employee> emps2 =  session.selectList("org.zhaojin.mybatis.ns.dynSelectEmpl
 		d.dep_name as d_name
 	from department d   left outer join  employee e
 	on e.department_id = d.id
-	where d.id = #{id}
+	where d.id = #{value}
 </select>
 
+
+<!-- 关联子集合,只select ，每一条记录 再做一次子级查询-->
+<resultMap id="departmentWithSubQueryEmps" type="Department">
+	<id property="id" column="id" />
+	<result property="name" column="dep_name"/>
+	<collection property="emps" ofType="Employee" select="queryEmployeeByDeptId" column="id"> <!-- select 对应哪个查询，column哪列值做为参数 -->
+	</collection>
+</resultMap>
+<select id="queryEmployeeByDeptId"  resultType="Employee" >
+	select e.*
+	from employee e 
+	where e.department_id = #{value}
+</select>
+<select id="selectDepartmentWithSubEmps"  resultMap="departmentWithSubQueryEmps">
+	select d.*
+	from department d 
+</select>
 
 <!-- discriminator -->
 <resultMap id="EmployeeKind" type="Employee">

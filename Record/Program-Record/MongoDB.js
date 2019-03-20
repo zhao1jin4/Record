@@ -70,7 +70,7 @@ windows命令 md C:\mongodb\data\db
 
  
 客户端工具
-mongo.exe   --host localhost --port 47017 // 默认连接 27017 端口 
+mongo.exe   --host localhost --port 27017 // 默认连接 27017 端口 
 mongo   127.0.0.1:27017/admin   来建立管理员用户 
 mongo -u zh -p 123  127.0.0.1:27017/reporting  ##/后面是数据名    默认不验证用户名要启动时加 --auth ,建立用户时不加--auth
 -u [ --username ]     
@@ -138,8 +138,6 @@ db.shutdownServer(); 停服务
 logpath=c:\mongoData\log\mongod.log
 dbpath=c:\mongoData\db
 port=27017
-httpinterface=true
-rest=true
 auth=true
 replSet=rs0
 #fork=true 只linux才有
@@ -253,7 +251,13 @@ db   //查当前是哪个数据库
 show collections //显示db.xx.insert中的xx  ,别名 show tables
 db.xx.find()
 
+Date()　　显示当前的时间 显示GMT+8
+new Date　　构建一个格林尼治时间   可以看到正好和Date()相差8小时
+ISODate()　　也是格林尼治时间
 
+new Date("<YYYY-mm-dd>") 
+new Date("<YYYY-mm-ddTHH:MM:ss>")
+new Date("<YYYY-mm-ddTHH:MM:ssZ>") 
 
 database -> collection -> document
 

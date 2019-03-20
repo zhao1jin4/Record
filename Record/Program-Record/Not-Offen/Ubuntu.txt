@@ -1,5 +1,8 @@
---------------- ubuntu-8.04.1   DVD-------------- debian ----
-Ubuntu 新一些，Debian 太老了
+ 基于　debian 的
+ 
+Ubuntu 18.04.1 LTS 的Ｄesktop DVD 1.8G　(18.04 叫 Bionic 仿生学的)
+
+lsb_release  -a　查看代号
 
 apt-get install gcc
 apt-get install g++

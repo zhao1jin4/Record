@@ -98,6 +98,26 @@ VBoxManage setextradata "VM name" VBoxInternal2/EfiGopMode 2
 
 0,1,2,3,4 referring to the 640x480, 800x600, 1024x768, 1280x1024, 1440x900
 
+ 
+VirtualBox 6.0.x 新建时最高可选择 Mac OS X 10.13 High Sierra 客户机
+ 可以选择支持虚拟化 Enable VT-X/AMD-V
+
+openSUSE-leap-15
+
+rpm -ivh  /mnt/iso/x86_64/libQt5OpenGL5-5.9.4-lp150.4.8.x86_64.rpm
+rpm -ivh /mnt/iso/x86_64/libQt5PrintSupport5-5.9.4-lp150.4.8.x86_64.rpm
+rpm -ivh VirtualBox-6.0-6.0.4_128413_openSUSE150-1.x86_64.rpm 
+
+ 
+Creating group 'vboxusers'. VM users must be member of that group!
+/etc/vbox/vbox.cfg
+
+
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxdrv.service → /usr/lib/systemd/system/vboxdrv.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxballoonctrl-service.service → /usr/lib/systemd/system/vboxballoonctrl-service.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxautostart-service.service → /usr/lib/systemd/system/vboxautostart-service.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxweb-service.service → /usr/lib/systemd/system/vboxweb-service.service.
+
 
 --------------VMWare Workstation
 网卡可限制下传下载速度
@@ -122,14 +142,16 @@ mks.noBeep = "TRUE"
 ---------VMware Workstation Pro 15 安装 Mac OS High Sierra  10.13  测试OK
 
 https://github.com/DrDonk/unlocker
-macOS Unlocker V3.0 for VMware Workstation 测试  Vmware Workstation 11/12/14/15 on Windows and Linux
+macOS Unlocker V3.0 for VMware Workstation  15 on Windows and Linux
 要用 Python 2.7 (windows下可用 PyInstaller)安装后PATH中可找python
 
 如有老版本必须先卸载
 右击win-install.cmd-> 以管理员运行,不能有错误(会自动下载VMware Tools)。
+root运行./lnx-install.sh
+
 选择中已经有Mac OS 10.14 , 这里选择Mac OS 10.13 
 
-CPU设置为1个处理器2核
+CPU设置为1个处理器2核 (如用anroid模拟器 可以选择支持虚拟化Intel VT-x/EPT or AMD-V/RVI)
 网络不连接
 磁盘类型修改为选择SCSI  ,将虚拟磁盘存储为单个文件(40G)
 完成后 设置虚拟机 光驱->高级->修改为SCSI 其它空闲的 ,指定镜像 OS 10.13 HSierra.cdr

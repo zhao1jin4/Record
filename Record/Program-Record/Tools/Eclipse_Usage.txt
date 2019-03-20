@@ -1,4 +1,4 @@
-﻿eclipse 4.9.0(2018-09版本) compile level 还没有JDK11 可选
+﻿Eclipse 2018-12 (4.10.0) 支持JDK 11版本，eclipseEE 版本带 Gradle
 
 =======================================eclipse==========================
 快捷键
@@ -250,12 +250,22 @@ Package Explorer 对 working set 有效果,top level ->working set
 Project Explorer 对maven的父子项目可以 project presentation->hierarchical
 
 eclipse 主题修改为黑色General->Apprance-> Theme 选Dark ,代码字体 有太多的彩色了,类名 ,变例也有 
+
+列选择模式  edit->toggle block selection 
+
+XML文件折叠 右击左侧行号 -> fording -> collapse all
+
+---maven
+eclipse的preferences->maven->installation 要配置最新的Maven3.x版本,User Settings 中选择对应maven版本的配置文件settings.xml
+eclipse的preferences->maven->可选择Download Artifact Sources/JavaDocs 
+eclipse 中 全选所有项目->maven->update projext ... 会更新pom.xml中新的版本配置,下载依赖包(可关闭项目再打开)
+
 =======================================up eclipse==========================
 ------Rational Software Architect Designer V9.6 是 eclipse-4.6.1
 可下载for websphere的包
 
 带  CDT,BPMN2,UML2.2,Data Design(像power designer),Data Tools Platorm
-无  SVN,SpringToolSuite,Mylyn,Maven,PropEdit(links,dropsin安装要用jp.gr.java_conf.ussiy.app.propedit_6.0.3.zip如6.0.5就总提示日文 )
+无  SVN,SpringToolSuite,Mylyn,Maven,PropEdit(links,dropins安装要用jp.gr.java_conf.ussiy.app.propedit_6.0.3.zip如6.0.5就总提示日文 )
 
 安装目录在 C:\Program Files\IBM\SDP  (Software Delivery Platform)
 修改界面语言 eclipse.ini 文件中尾添加参数： -Duser.language=en
@@ -285,6 +295,30 @@ eclipse 主题修改为黑色General->Apprance-> Theme 选Dark ,代码字体 有
  
 eclipse自带CXF插件
 
+
+=======================================eclipse-4.4.2(Luna) 插件  CDT-8.6 
+依赖于 RSE-runtime-3.5-GA  要links 或 dropins  安装才行
+TM=Target Management 
+http://www.eclipse.org/tm/
+http://download.eclipse.org/tm/downloads/index.php
+ 
+CDT 插件 help->install安装选择zip  ,  取消选择optional下的  C/C++ Autotools support 和 Remote CDT Services
+		 都依赖于 org.eclipse.remote.core 1.0.0
+		 
+======================================= Eclipse Mars 4.5.2 插件 CDT 8.8.1 
+ 
+CDT 插件 help->install安装选择zip
+		取消选择optional下的  C/C++ Autotools support 和 Remote CDT Services  都依赖于 org.eclipse.remote.core 1.0.0
+		取消选择 Preview 下的 Arduino C++ Tools  
+		取消选择 optional 下  C/C++ Docker Container Launch Support  依赖于 linuxtools  http://www.eclipse.org/linuxtools/downloads.php
+					可使用Jboss Tools中的Docker Tooling  但是依赖于org.glassfish.hk2.locator 2.3.0 
+	
+ 
+====================================== eclipse-4.10(2018-12) 插件　CDT-9.6.0
+CDT 插件 help->install安装选择zip
+	取消Qt Development Tools
+	
+报少 osgi.bundle  org.eclipse.remote.core
 
 -------------CDT与MinGW集成----------------------------
 PATH=  D:\program\MinGW\bin
@@ -316,10 +350,11 @@ CDT与CygWin集成	  PATH=C:/cygwin64/bin
 
 ------------cygwin 使用
 
-下载的 Cygwin_x64 , 2018-11-22时cygcheck -c cygwin  显示为  2.11.2-1
-	64位的 gcc-7.3.0-3 (mingw64-x86_64-gcc-core-6.4.0-2),gcc-g++ (mingw64-x86_64-gcc-g++)  , gcc-objc  (mingw64-x86_64-gcc-objc)
+下载的 Cygwin_x64 , 2019-01-03 时cygcheck -c cygwin  显示为  2.11.2-1
+	64位的 gcc-7.4.0-1 (mingw64-x86_64-gcc-core-7.4.0-1),gcc-g++ (mingw64-x86_64-gcc-g++)  , gcc-objc  (mingw64-x86_64-gcc-objc)
 		gdb-8.0.1-1
 		make-4.2.1-2
+		curl-7.59.0
 	下面可选
 		automake
 		autoconf
@@ -334,7 +369,7 @@ cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make
 cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make
 cygcheck -c cygwin  显示当前Cygwin 安装的版本	
 
-eclipse-3.7.2 CDT-8.0.2 使用Cygwin  测试时,Debug默认是不能显示源码的,报错,/cygdrive/d/Program/
+使用Cygwin  测试时,Debug默认是不能显示源码的,报错,/cygdrive/d/Program/
 要设置 Window -> Preferences -> C/C++ -> Debug->Source Lookup Path -> Add->Path Mapping->Add->
 输入 \cygdrive\d	对应 d:\,就OK了
 
@@ -393,25 +428,6 @@ help->install   选择 wtp4x-repo-R-3.6.3-20150216091848.zip   ->  可不选择(
 =======================================eclipse-4.6.3(Neon) 插件  WTP-3.8.2
 
 
-=======================================eclipse-4.4.2(Luna) 插件  CDT-8.6 
-依赖于 RSE-runtime-3.5-GA  要links 或 dropins  安装才行
-TM=Target Management 
-http://www.eclipse.org/tm/
-http://download.eclipse.org/tm/downloads/index.php
- 
-CDT 插件 help->install安装选择zip  ,  取消选择optional下的  C/C++ Autotools support 和 Remote CDT Services
-		 都依赖于 org.eclipse.remote.core 1.0.0
-		 
-======================================= Eclipse Mars 4.5.2 插件 CDT 8.8.1 
- 
-CDT 插件 help->install安装选择zip
-		取消选择optional下的  C/C++ Autotools support 和 Remote CDT Services  都依赖于 org.eclipse.remote.core 1.0.0
-		取消选择 Preview 下的 Arduino C++ Tools  
-		取消选择 optional 下  C/C++ Docker Container Launch Support  依赖于 linuxtools  http://www.eclipse.org/linuxtools/downloads.php
-					可使用Jboss Tools中的Docker Tooling  但是依赖于org.glassfish.hk2.locator 2.3.0 
-	
-======================================= CDT 9.4.3 for Eclipse Oxygen
-
 =======================================eclipse 其它插件
 -----dropins 目录安装 ,好处是不会复制插件到eclipse自己的plugins和features目录中
 也可以放自己的插件名目录(要求有eclipse/plugins,eclipse/features目录)
@@ -434,7 +450,7 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 	jBoss Application Development 
 			freemarker IDE 
 			Hibernate Tools 依赖于 eclipse.com 提供的 SLF4J API ,org.slf4j.api-1.7.2 
-				从springToolSuite中复制org.slf4j.api_1.7.2.jar,org.slf4j.impl.log4j12_1.7.2.jar 放dropsin目录
+				从springToolSuite中复制org.slf4j.api_1.7.2.jar,org.slf4j.impl.log4j12_1.7.2.jar 放dropins目录
 	--jBoss Maven support  依赖于Maven的
 	--jBoss Mobile Development(要jetty) -> Cordova Simulator , Mobile Browser Simulator
 	
@@ -459,11 +475,16 @@ SpringToolSuite-3.6.3
 
 	取消 Fabric tc Server , Integeration , Extensions
 	只选Spring IDE Core 
-		依赖于 eclipse.org 提供的 org.json 0.0.0 ,从springToolSuite中复制 org.json_1.0.0.jar , org.jsoup_1.7.2.jar放dropsin目录
-		依赖于 com.google.gson  ,从springToolSuite中复制 com.google.gson_2.1.0.jar 放dropsin目录
-		
-		
----SpringToolSuite-4 不能建立 web项目 只能用Maven,有Server标签但不能建立Tomcat !!!
+		依赖于 eclipse.org 提供的 org.json 0.0.0 ,从springToolSuite中复制 org.json_1.0.0.jar , org.jsoup_1.7.2.jar放dropins目录
+		依赖于 com.google.gson  ,从springToolSuite中复制 com.google.gson_2.1.0.jar 放dropins目录
+
+SpringToolSuite-3.9.7(eclipse 4.10.0)
+
+
+---SpringToolSuite-4.1(eclipse 4.10.0) 不能建立 web项目 !!! 
+	有 Spring Boot->Spring Starter
+	只能用Maven,
+	有Server标签能建立Tomcat
  
 ----SVN插件subclipse-4.4.2
  二进制版本 URL  https://github.com/subclipse/subclipse/wiki 去 SVNKit Client Adapter
@@ -514,14 +535,11 @@ git status 也找不出哪些要push???
 
 ---- eclipse_4.4 插件 MarketPlace Client (MPC)-1.3.1
 	依赖于  org.eclipse.equinox.p2.discovery.feature.feature.group [1.0.0. 
-	 equinox-SDK-LunaSR2  dropsin安装无效,help->install没有可选择的, 手工复制也不行(feature标签中没有????,只能在线安装了)
+	 equinox-SDK-LunaSR2  dropins安装无效,help->install没有可选择的, 手工复制也不行(feature标签中没有????,只能在线安装了)
 
-----Maven插件m2e-1.5  可把文件下载本地,help->install->local选择下载目录,只选择maven integration 
-		依赖于 org.slf4j.api 1.6.2 (1.7.2)  从springToolSuite中复制org.slf4j.api_1.7.2.jar,org.slf4j.impl.log4j12_1.7.2.jar 放dropsin目录
-		依赖于 org.eclipse.equinox.p2.ui.discovery  ???
-		
-		只右击maven项目->update project ...
-		preferences->maven->Installations 和 User settings
+----Maven插件  
+	只右击maven项目->update project ...
+	preferences->maven->Installations 和 User settings
 		
 ---Eclipse Jetty 3.8.0  在线 marketPlace 安装, 右击web项目->run configure ... 设置context path 为  /<project-name>
 ---RunJettyRun  google.com不能仿问了
@@ -549,7 +567,7 @@ sourceforge 的 JadClipse
 
 --Hadoop 插件 
 https://github.com/winghc/hadoop2x-eclipse-plugin 是源码,插件版本是2.2,编译也要hadoop-2.2版本
-现成的jar包可以放在dropsin目录,
+现成的jar包可以放在dropins目录,
 
 
 MemoryAnalyzer-1.5 分析jmap导出文件,插件认.hprof格式文件 
@@ -574,26 +592,26 @@ findbugs-3.0.1	(eclipse插件和单独版本)
 	右击项目->findbugs,findbus工作区
 	file->export->java->bug counts
 
-SonarQube (要建立服务器端,可以看web页式的单元测试覆盖率)
+SonarQube (要建立服务器端,可以看web页式的单元测试覆盖率,也可做代码扫描即findbug功能)
 	preferences->sonarQube->server 配置URL,username,password
 	右击项目->configure-> associate SonarQube->在SonarQube Project 中输入对自动弹出下拉提示,对应sonar-project.properties的sonar.projectName项
 	右击项目->configure-> analyze 也可找出代码bug问题,也可找代码规范问题
-	
-sonarqube-5.2 服务器 bin/windows-x86-64/StartSonar.bat启动监听9000端口	,  http://localhost:9000  -> login -> admin/admin 多了Administration 菜单
-	默认使用嵌入式DB ,H2, 
-	也可以配置 MySQL ,在conf/sonar.properties 一条配置
-	#sonar.jdbc.url=jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance
-	#sonar.jdbc.username=sonar
-	#sonar.jdbc.password=sonar
-	#sonar.web.port=9000
-可选操作 加配置 sonar.jdbc.driver=com.mysql.jdbc.Driver 在extensions\jdbc-driver\目录中建立mysql目录放mysql-connector.jar
-	#sonar.web.context=
-	
-	CREATE DATABASE sonar  CHARACTER SET utf8 COLLATE utf8_general_ci; 
-	CREATE USER 'sonar 'IDENTIFIED BY 'sonar' ; 
-	GRANT ALL ON sonar.* TO 'sonar'@'%' IDENTIFIED BY 'sonar'; 
-	GRANT ALL ON sonar.* TO 'sonar'@'localhost' IDENTIFIED BY 'sonar';
-	FLUSH PRIVILEGES;
+		
+	sonarqube-5.2 服务器 bin/windows-x86-64/StartSonar.bat启动监听9000端口	,  http://localhost:9000  -> login -> admin/admin 多了Administration 菜单
+		默认使用嵌入式DB ,H2, 
+		也可以配置 MySQL ,在conf/sonar.properties 一条配置
+		#sonar.jdbc.url=jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance
+		#sonar.jdbc.username=sonar
+		#sonar.jdbc.password=sonar
+		#sonar.web.port=9000
+	可选操作 加配置 sonar.jdbc.driver=com.mysql.jdbc.Driver 在extensions\jdbc-driver\目录中建立mysql目录放mysql-connector.jar
+		#sonar.web.context=
+		
+		CREATE DATABASE sonar  CHARACTER SET utf8 COLLATE utf8_general_ci; 
+		CREATE USER 'sonar 'IDENTIFIED BY 'sonar' ; 
+		GRANT ALL ON sonar.* TO 'sonar'@'%' IDENTIFIED BY 'sonar'; 
+		GRANT ALL ON sonar.* TO 'sonar'@'localhost' IDENTIFIED BY 'sonar';
+		FLUSH PRIVILEGES;
 
 	
 	
@@ -611,11 +629,22 @@ sonarqube-5.2 服务器 bin/windows-x86-64/StartSonar.bat启动监听9000端口	
 	sonar-runner -Dsonar.projectKey=my-project -Dsonar.sources=src
 	sonar-runner -Dproject.settings=../myproject.properties
 
+	eclipse插件 help->marketplace->SonarLint
+
+eclemma-3.1.1.zip  JUnit/TestNG/Scala  代码覆盖率  (eclipse插件 ,官方提示可dropins安装,测试无效(可能是目录错误), help->install就可以)
+	EclEmma 是基于 JaCoCo 的一个 Eclipse 插件
 	
-eclemma-2.3.zip  JUnit代码覆盖率  (eclipse插件 ,dropins 安装无效)
-	help->install 安装 ,在debug按钮边多了一个按钮,Coverage视图可删所有提示(红色未覆盖,青色已覆盖)
+	help->install 安装,eclipse-2018-12(4.10)测试OK  
+	
+	在Run按钮边多了一个Coverage按钮,Coverage视图可删所有提示(红色未覆盖,青色已覆盖)
+	preferences -> Java -> code coverage
+	
 	file->export->java->Coverage Report,选择目录生成HTML
-	
+
+cobertura-2.11 代码覆盖率(使用Ant,mavn,Gradle一起用,command line ,可集成到jenkins )基于 jcoverage 
+
+
+
 Checkstyle 代码规范检查,作用不大  (eclipse-PMD 较老)
 	eclispe-cs-5.7 ,复制到eclipse目录OK, (dropins 安装无效 )
 	右击项目->Checkstyle->check code with checkstyle/clear checkstyle violation,
@@ -623,7 +652,7 @@ Checkstyle 代码规范检查,作用不大  (eclipse-PMD 较老)
 	preferences->Checkstyle
 	每次修改都会生成,可deactive项目
 	
-cobertura ,JUnit代码覆盖率(使用Ant,可以和jenkins,mavne一起用)
+
 Confluence 是一个Wiki工具
 Jira , Mantis BT
 
@@ -636,34 +665,33 @@ TODO  FIXME   XXX 注释的代码会被task 视图收集
 Toad for Eclipse-2.4.4 可以支持mongo-3.2版本, 到3.4版本打开js文件连接不成功 ???
 
 -- eclipse Scala 插件 Scala IDE-4.4.1   
-eclipse_4.5 可以dropsin安装  
+eclipse_4.5 可以dropins安装  
 eclipse-4.7 要下载单独scalaIDE版本，无离线包，  在线安装
--- Intellij Idea 插件  Scala-2018.1.9
    
 -- eclipse Python 插件 PyDev
 marketplace安装  Python 插件 PyDev-5.4 ,安装时不会提示版本兼容,当使用时提示要eclipse-4.6 才行
 
 官方看版本对应关系(Eclipse 4.5, Java 8: PyDev 5.2.0)
 下载PyDev离线安装包
-https://sourceforge.net/projects/pydev/files/pydev/    可以dropsin安装
+https://sourceforge.net/projects/pydev/files/pydev/    可以dropins安装
 
 可以debug
 
 代码提示很好,ctrl+1有很多功能
 shift+enter 自动换行缩进
-
-----问题
-eclipse-4.6.2版本,为class指定源码,如以目录方式的源码无效果???  IntelliJ可以的
-
----windows 下 oxgen 版本和前面的版本 总报错Unhandled event loop exception No more handles
-安装eclipse windows builder,也没用????
-配置开机不启动 Catalyst Control Center ,也没用????
-有的说是team viewer的原因,可我已经卸载了
-发现在是目录太深了,删除安装目录时就时提示了，目录变浅还是不行？？
+------TestNG
+Eclipse Market Place 安装 TestNG 
+	 离线版本安装https://github.com/cbeust/testng-eclipse 
+	 版本6.14.0可正常help->install安装的eclipse-2018-21(4.10)上
+	
+安装后new file->有testng组
 
 
-
-
+------ JRebel 热部署插件（收费）
+   eclipse marketplace上有, 也可官方下载离线版
+   http://update.zeroturnaround.com/update-site/update-site.zip
+   JRebel-2018.2.4 版本要求eclipse-3.6+
+   
 
 
 

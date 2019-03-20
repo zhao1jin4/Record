@@ -10,7 +10,7 @@ spring-boot-devtools 可以实现页面和代码的热部署
 
 http://start.spring.io/
 
-spring-boot-config 中有 META－INF/spring.factories,定义了  Initializers,Listeners 的Auto Configure区定义了很多@ 和对应的配置类
+spring-boot-autoconfigure.jar 中有 META－INF/spring.factories,定义了  Initializers,Listeners 的Auto Configure区定义了很多@ 和对应的配置类
 spring-boot-start-freemarker , spring-boot-start-activemq,spring-boot-start-web,spring-boot-start-test,spring-boot-start-logging  
 mybatis-spring-boot-starter
 没有源码,只有配置 META－INF/spring.providers
@@ -21,6 +21,8 @@ SpringApplication 加载 application.properties 或applicaion.yml 的顺序
 		A classpath /config package
 		The classpath root
 
+在application.yml再建一个配置文件 , 语法是三个横线
+ 
 也可不叫application.properties  
 $ java -jar myproject.jar --spring.config.name=myproject  
 也可同时指定位置和名字
@@ -73,10 +75,14 @@ java org.springframework.boot.loader.JarLauncher  --spring.profiles.active=test 
 
 spring.profiles.active=dev
 server.servlet.context-path=/J_SpringBoot
-
+ 
+//@ConditionalOnBean(RedisTemplate.class)//存在某个Bean时
+//@ConditionalOnMissingBean(CacheManager.class) 
+//@ConditionalOnJava(range=ConditionalOnJava.Range.EQUAL_OR_NEWER,value=JavaVersion.NINE)//当Java版本>=9.0
+@ConditionalOnProperty(name="useMyprop",havingValue="yes",matchIfMissing=true)//如没有配置，就是havingValue配置的值yes
 
 @PropertySource(value = "classpath:test.properties") 
-@ConfigurationProperties(prefix = "my")
+@ConfigurationProperties(prefix = "my") //推荐增加 spring-boot-configuration-processor
 @Component
 public class ConfigBean {
 
@@ -100,7 +106,7 @@ public class DemoApplication {
 //测试 OK
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes=MybatisSpringBoot.class) //本类的所在包名无所谓
-@SpringBootConfiguration
+//@SpringBootConfiguration
 @ContextConfiguration
 public class SpringBootJunitTest {
 
@@ -119,7 +125,7 @@ public class SpringBootJunitTest {
 <parent>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-parent</artifactId>
-	<version>1.5.8.RELEASE</version>
+	<version>2.1.1.RELEASE</version> <!-- 2.0.2.RELEASE 2.0.7.RELEASE 2.1.1.RELEASE -->
 	<relativePath/> 
 </parent>
  
@@ -192,10 +198,41 @@ public class DemoResetController {
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-freemarker</artifactId>
 </dependency>
-默认是true
+默认是启用freemarker 下面都是默认值
 spring.freemarker.enabled=true
+spring.freemarker.cache=false
+spring.freemarker.content-type=text/html
+#spring.freemarker.charset=UTF-8  #offical api old error
+spring.freemarker.encoding=UTF-8
+spring.freemarker.template-loader-path=classpath:/templates/
+spring.freemarker.prefix=
+spring.freemarker.suffix=.ftl
+
 
 templates 目录下放ftl文件即可，如有图片,js,css放static目录 使用@Controller 返回ModelAndView 即可
+
+---spring boot 	thymeleaf
+thymeleaf和freemarker只同时打开一个maven
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+
+默认是启用thymeleaf
+spring.thymeleaf.enabled=true
+#spring.thymeleaf.cache=true
+spring.thymeleaf.cache=false
+spring.thymeleaf.servlet.content-type=text/html
+spring.thymeleaf.encoding=UTF-8
+spring.thymeleaf.mode=HTML
+
+spring.thymeleaf.prefix=classpath:/templates/ 
+#spring.thymeleaf.suffix=.html
+spring.thymeleaf.suffix=.xhtml
+
+总是报视图找不到？？？？？？？
+
 ---spring boot jsp
 
 spring.mvc.view.suffix=.jsp
@@ -224,6 +261,9 @@ src/webapp/WEB-INF/js/index.jsp
 
 国际化： <spring:message code="welcome" arguments="小王,2018"   /> <br/>
 提示：<spring:message code="try"    /> <br/>
+  
+@ServletComponentScan (basePackages= {"jsp"}) //就可以自动把@WebServlet,@WebListener,@WebFilter 等servlet自动注册 
+ 
   
 @Autowired
 private MessageSource messageSource;
@@ -295,7 +335,7 @@ application.properties加
 
 #created Bean named springSessionRepositoryFilter ,replacing   HttpSession
 spring.session.store-type=redis
-server.servlet.session.timeout=600 
+server.servlet.session.timeout=30m
 
 再加redis的配置就可以了 , HttpSession setAttribute getAttribute 实际存在了redis中
 
@@ -349,13 +389,39 @@ MongoDatabase db = mongo.getDb();
 	<artifactId>spring-boot-starter-data-neo4j</artifactId>
 </dependency>
 
+<dependency>
+	<groupId>org.apache.httpcomponents</groupId>
+	<artifactId>httpcore</artifactId>
+	<version>4.4.10</version>
+</dependency>
+<dependency>  
+	<groupId>org.neo4j</groupId>
+	<artifactId>neo4j-ogm-http-driver</artifactId>
+	<version>3.1.4</version>
+</dependency>
+ 
 spring.data.neo4j.uri=http://127.0.0.1:7474
 spring.data.neo4j.username=neo4j
 spring.data.neo4j.password=myneo4j
-
+ 
 @Autowired
-private Neo4jTemplate neo4jTemplate;
+private org.neo4j.ogm.session.Session session;
 
+
+
+
+@EnableNeo4jRepositories
+public interface Neo4jMovieRepository extends Neo4jRepository<Movie, Long> {
+	
+	/**
+	 * findOne 必须有一个结果，如无报错 
+	 */
+	Optional<Movie> findOneByTitle(@Param("one_title")String title);
+	
+	@Query("MATCH (e: lbl_Movie) WHERE e.one_title =~ ('.*'+{name}+'.*')  RETURN e")
+    Collection<Movie> findByNameContaining(@Param("name") String name);
+ 
+}
 
 --spring boot  mybatis 
 
@@ -421,7 +487,8 @@ mybatis.config-locations=classpath:mapper/config/Config.xml
 spring.datasource.url=jdbc:mysql://localhost:3306/mydb?useSSL=true&useUnicode=true&amp;characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
 spring.datasource.username=root
 spring.datasource.password=root
-spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+#spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 	
 c3p0.jdbcUrl=jdbc:mysql://localhost:3306/mydb
 c3p0.user=root
@@ -435,6 +502,15 @@ c3p0.driverClassName=com.mysql.jdbc.Driver
  
  
 --spring boot  rabbitmq
+
+spring.rabbitmq.host=localhost
+spring.rabbitmq.port=5672
+spring.rabbitmq.username=zh
+spring.rabbitmq.password=123
+#spring.rabbitmq.virtualHost=/  
+spring.rabbitmq.virtual-host=/
+
+
 @Configuration  
 public class AmqpConfig {  
     public static final String EXCHANGE   = "spring-boot-exchange";  
@@ -822,11 +898,230 @@ public class SecurityWebApplicationInitializer
 	}
 }
 
-
+---
+		 <dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId> spring-boot-starter-data-elasticsearch</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId> spring-boot-starter-data-solr</artifactId>
+		</dependency>
+		
 ---spring boot websocket
 spring-boot-starter-websocket
 
+--　https://spring.io/guides/gs/messaging-stomp-websocket/　有示例代码
 
+使用
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>sockjs-client</artifactId>
+    <version>1.1.2</version>
+</dependency>
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>stomp-websocket</artifactId>
+    <version>2.3.3</version>
+</dependency>
+
+  
+@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("topic");
+        config.setApplicationDestinationPrefixes("/app");
+    }
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("gs-guide-websocket")
+								.addInterceptors(new HttpSessionHandshakeInterceptor())
+								 //.setHandshakeHandler(handshakeHandler())
+								.withSockJS() /浏览器不支持websocket用socketjs 模拟
+								;
+    } 
+}
+@Controller
+public class GreetingController { 
+    @MessageMapping("hello")
+    @SendTo("topic/greetings")
+    public Greeting greeting(HelloMessage message) throws Exception {
+        Thread.sleep(1000); // simulated delay
+        return new Greeting("Hello, " + HtmlUtils.htmlEscape(message.getName()) + "!");
+    } 
+}
+
+
+<dependency>
+   <groupId>org.webjars</groupId>
+   <artifactId>bootstrap</artifactId>
+   <version>4.2.1</version>
+</dependency>
+<dependency>
+   <groupId>org.webjars</groupId>
+   <artifactId>jquery</artifactId>
+   <version>3.3.0</version>
+</dependency>
+
+<link href="webjars/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
+ <script src="webjars/jquery/3.3.0/jquery.min.js"></script>
+ <script src="webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+ <script src="webjars/stomp-websocket/2.3.3/stomp.min.js"></script>
+var stompClient = null;
+
+function setConnected(connected) {
+    $("#connect").prop("disabled", connected);
+    $("#disconnect").prop("disabled", !connected);
+    if (connected) {
+        $("#conversation").show();
+    }
+    else {
+        $("#conversation").hide();
+    }
+    $("#greetings").html("");
+}
+
+function connect() {
+    var socket = new SockJS('gs-guide-websocket');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        setConnected(true);
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('topic/greetings', function (greeting) {
+            showGreeting(JSON.parse(greeting.body).content);
+        });
+    });
+}
+
+function disconnect() {
+    if (stompClient !== null) {
+        stompClient.disconnect();
+    }
+    setConnected(false);
+    console.log("Disconnected");
+}
+
+function sendName() {
+    stompClient.send("app/hello", {}, JSON.stringify({'name': $("#name").val()}));
+}
+
+function showGreeting(message) {
+    $("#greetings").append("<tr><td>" + message + "</td></tr>");
+}
+
+$(function () {
+    $("form").on('submit', function (e) {
+        e.preventDefault();
+    });
+    $( "#connect" ).click(function() { connect(); });
+    $( "#disconnect" ).click(function() { disconnect(); });
+    $( "#send" ).click(function() { sendName(); });
+});
+
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+                	classes=SockjsStompApp.class)
+public class GreetingIntegrationTests {
+
+    @LocalServerPort
+    private int port;
+
+    private SockJsClient sockJsClient;
+
+    private WebSocketStompClient stompClient;
+
+    private final WebSocketHttpHeaders headers = new WebSocketHttpHeaders();
+
+    @Before
+    public void setup() {
+        List<Transport> transports = new ArrayList<>();
+        transports.add(new WebSocketTransport(new StandardWebSocketClient()));
+        this.sockJsClient = new SockJsClient(transports);
+
+        this.stompClient = new WebSocketStompClient(sockJsClient);
+        this.stompClient.setMessageConverter(new MappingJackson2MessageConverter());
+    }
+
+    @Test
+    public void getGreeting() throws Exception {
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<Throwable> failure = new AtomicReference<>();
+
+        StompSessionHandler handler = new TestSessionHandler(failure) {
+
+            @Override
+            public void afterConnected(final StompSession session, StompHeaders connectedHeaders) {
+                session.subscribe("topic/greetings", new StompFrameHandler() {
+                    @Override
+                    public Type getPayloadType(StompHeaders headers) {
+                        return Greeting.class;
+                    }
+
+                    @Override
+                    public void handleFrame(StompHeaders headers, Object payload) {
+                        Greeting greeting = (Greeting) payload;
+                        try {
+                            assertEquals("Hello, Spring!", greeting.getContent());
+                        } catch (Throwable t) {
+                            failure.set(t);
+                        } finally {
+                            session.disconnect();
+                            latch.countDown();
+                        }
+                    }
+                });
+                try {
+                    session.send("app/hello", new HelloMessage("Spring"));
+                } catch (Throwable t) {
+                    failure.set(t);
+                    latch.countDown();
+                }
+            }
+        };
+
+        this.stompClient.connect("ws://localhost:{port}/J_SpringBoot/gs-guide-websocket", this.headers, handler, this.port);
+
+        if (latch.await(3, TimeUnit.SECONDS)) {
+            if (failure.get() != null) {
+                throw new AssertionError("", failure.get());
+            }
+        }
+        else {
+            fail("Greeting not received");
+        }
+
+    }
+
+    private class TestSessionHandler extends StompSessionHandlerAdapter {
+
+        private final AtomicReference<Throwable> failure;
+
+
+        public TestSessionHandler(AtomicReference<Throwable> failure) {
+            this.failure = failure;
+        }
+
+        @Override
+        public void handleFrame(StompHeaders headers, Object payload) {
+            this.failure.set(new Exception(headers.toString()));
+        }
+
+        @Override
+        public void handleException(StompSession s, StompCommand c, StompHeaders h, byte[] p, Throwable ex) {
+            this.failure.set(ex);
+        }
+
+        @Override
+        public void handleTransportError(StompSession session, Throwable ex) {
+            this.failure.set(ex);
+        }
+    }
+}
 
 --- OAuth2 server
 --- OAuth2 client

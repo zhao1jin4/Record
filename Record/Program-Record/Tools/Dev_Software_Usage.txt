@@ -1,5 +1,7 @@
 ﻿
-============================Netbeans-8.1===============================
+============================Netbeans-8.2 最后一个oracle版本===============================
+10版本(apache下)支持JDK11
+
 %HOMEPATH%\AppData\Roaming\NetBeans
 %HOMEPATH%\AppData\Local\NetBeans\Cache  里面很大
 
@@ -25,10 +27,12 @@ linux  是	/usr/share/fonts/truetype/
 netbeans-javaee 要用./bin/netbeans --jdkhome /usr/local/diablo-jdk1.6.0 来运行 如没有设置JAVA_HOME
 
 Tools -> Java Platfrom 配置JDK.即JAVA_HOME,多个JDK 以系统环境变量为默认 ，
-Tools -> Server 配置 Tomcat  ,配置后这里来改密码 ,也可配置deploy timeout
-如是maven 的web项目，右击项目->Run/Debug 启动时默认是运单测试的，
-右击项目-> Properties->Action -> 选择Run/Debug Project ,在set profiles中add->skip tests
+Tools -> Server 配置 Tomcat(netbeans-10要安装server plugin)  ,配置后这里来改密码 ,也可配置deploy timeout
+
+如是maven 的web项目，右击项目->Run/Debug 启动时默认是运行单元测试的，
+右击项目-> Properties->Action -> 选择Run/Debug Project ,在set properties 中add->skip tests
 tools -> options-> Java -> Maven-> Execution标签中选中Skip Tests....
+
 右击项目-> Properties->Run ->Context Path中修改为正确的
 
 重新可用部署cargo maven插件，打开pom.xml,在navigator视图-> 下拉选择navigator goals 可以右击 cargo reploy -> execute goal
@@ -371,7 +375,7 @@ buildTools为23.0.3(24就不行了) 的 Android 7 NBAndroid 启动时logcat,也�
 ============= NetBeans 8.1 安装 NB SpringBoot 插件/模块  
 Tools -> Plugins
 
-============= NetBeans   FindBugs
+============= NetBeans  FindBugs
 
 ============= NetBeans 8.1 安装  nbscala-1.8.1.2  插件/模块  
 http://plugins.netbeans.org/   下载文件 1465275768_nbscala-1.8.1.2.zip
@@ -388,8 +392,16 @@ netbeans解压目录下会产生  nbscala\modules 目录 (离线安装)
 安装 Tools -> Plugins -> Downloaded -> Add Plugins... 选择 .nbm 
 会在Services  视图中多一个 MongoDB,右击->New Connection,可以按数据库的行显示,但没有地方写脚本
 
+============= NetBeans  JRebel-2018.2.4
 
 =============  DbVisualizer(所有平台) 使用JDBC all DB  ============= 
+除支持流行的Oracle,SQLServer,DB2,MySQL 还支持SyBase,Maria,PostgreSQL, SQLite,H2
+
+
+DbVisualizer 10.0.16 支持MySQL-8  , 要求 JDK 8 openSUSE-leap-15下默认的OpenJDK10是可行的
+Mac DbVisualizer 右击->show package Content->Contents->Resources->app->lib
+
+
 Oracle是自动提交的，不同PL/SQL Developer
 
 在软件目录的jdbc目录自带一些JDBC(所在目录,最好不要有中文,空格)
@@ -402,7 +414,7 @@ Tools->Driver Manager, 子窗口Drvier菜单->JDB Driver Finder (点start 再次
 如同时显示多个表的查询,右击标签->pin tab(也可单击标签的图标来开关),也可右击表->open in new tab
 
 界面中文显示方块(乱码)的解决方式 ,脚本重启会变？
-在Tools->tool Properties->General->Appearance->Fonts->SQL Editor/Text Editor 选择 宋体(SimSun), 同时把Grid,Other L&FS 也修改
+在Tools->tool Properties->General->Appearance->Fonts-> Text Editor 选择 宋体, 同时把Grid 也修改
 File-> Save as 选择UTF-8, Tools->General->File Encoding->改为UTF-8 但未保存的脚本重启也正常了
 
 
@@ -445,7 +457,12 @@ where c.table_name=t.table_name;
 如使用  describe table myTable命令是不行的,要用 Toad for DB2
 如有语法错误,不能显示出错误的原因 , 用Toad For DB2就有
 
-=============  Navicat Premium (linux,mac)可MySQL,PostGreSQL,Oracle,SQLServer,SQLite ============= 
+=============  Navicat Premium (linux,mac)
+不支持DB2,SyBase,H2
+除支持流行的Oracle,SQLServer,MySQL 还支持Maria,PostgreSQL, SQLite
+特别的支持MongoDB 要 12.1 的版本才有
+
+
 	 右下角有一个form view按钮
 	 输入SQL时会有相关提示,如表名,字段名(有时无效)
 	 mysqldump导出的脚本有时会有中文错误,在导入中会中断,使用 Navicat for MySQL导入,有错误也可继续,但速度慢 ,不如mysql 中使用source快
@@ -459,7 +476,7 @@ where c.table_name=t.table_name;
 	Oracle 使用SQL时 \\ 才代表一个\ 
 	substr(asciistr(op_user),0,1)!='\\'
 	
-	
+-----MariaDB windows 安装版本 自带 HeidiSQL客户端工具 会显示界面的输出命令，学习很好
 	
 =============  SqlDbx Personal-4.17 免费  Professional 收费 使用ODBC all DB 
 
@@ -687,6 +704,12 @@ select @cnt
 =============Mongodb工具  Robo Studio 3T for Mongodb 收费的 ,有 Robo 3T 免费
 	同样的用户zh 能 看到reporting库的集合
 	
+	日期显示默认是 GMT时间,应该+8h才是正确的
+	Options->display dates in ->默认选中UTC 修改为 LocalTimeZone
+	
+	显示行号
+	Options->Show line numbers by default
+	
 =============Mongodb工具  NoSQL Manager for MongoDB-4.9.8
 	同样的用户zh 不能 看到reporting库的集合 ??
 	
@@ -839,6 +862,8 @@ ip.addr == 192.168.0.1 包括源和目标
 
 ------------Xmanager
 Xmanager 5版本中, 没有xshell  可选择xterm的终端类型
+Xbrowser 5 中 file-> new XDMCP session...->
+
 XShell 或者 putty都 username中可以这样写  <firstUser>@<SecondUser>@<secondIP>  表示连接每一台后再跑到第二台上 (可能是服务器上做的配置,手工测试用户名如无@直接断开)
 XShell  工具-> 发送键到所有会话,可以实现同时打开多个窗口,在一个窗口写的任务命令都可能同步到其它窗口中
 XShell 工具-> 如已经连接上一个服务器 , 右击标签-> duplicate SSH  ,自动建立新窗口并连接
@@ -877,7 +902,7 @@ Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到�
 ----Firefox 的 Web Developer (Web开发者)
 	network 标签 disable cache 禁用缓存
 	字体变大 ????
-
+	
 ---- ChromeDeveloper 
 	设置字体大小 ctrl+滚轮
 	network 标签 disable cache 禁用缓存
@@ -919,6 +944,11 @@ VSCodeUserSetup-x64-1.28.2.exe 离线安装 免费 有linux ,mac版本
 也有zip包  VSCode-win32-x64-1.28.2.zip 直接解压就可用
 
 自带Git,HTML,PHP
+
+取消自动打开上次文件 
+File->preferences->windows 标签->Restore Windows 选择none
+
+会自动提示已经写过的内容
 
 File->preferences-> extensions  
 可以在线安装 各种语言的 如 JavaScript(React),Python,Go,C/C++(MinGW C++),Java(Maven),SpringBoot,Kubernetes,Scala,Kotlin

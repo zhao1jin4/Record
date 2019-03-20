@@ -31,6 +31,7 @@ QQ 微信 备份聊天记录(复制tencent 目录,再恢复时QQ可以恢复,但
 去拍照声音,进入/system/media/audio/ui目录,将里面的文件camera_click.ogg 改名或者删掉 ,VideoRecord.ogg 是录像开始,VideoRecordEnd.ogg是录像结束
 去对焦声音  
 ------------Anroid app list
+wineHQ
 ---HuaWei自带 
 文件管理,
 电子邮件,

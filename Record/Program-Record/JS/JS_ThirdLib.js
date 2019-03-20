@@ -883,10 +883,19 @@ ClassicEditor.create( document.querySelector( '#editor' ) )
 	} );
 </script>
 
+=============dhtmlx Gantt 
 
+=============国产 LayUI  2.1.5 免费   见 LayUI.js
 
+==============国产 Hplus(H+) 收费 bootstrap 一些组件
 
+==============国产 Insdep  收费 只是一个easyui的样式没用
 
+==============国产 ZCell   免费和收费 页面中excel
+
+==============国产 plusproject 收费 普加 甘特图  
+	基于自己(普加)的 jQuery MiniUI 开发
+	使用 phantomjs 打印生成页面截图
 
 
 

@@ -23,19 +23,24 @@ GPL (General Public License)
 
 linux硬件兼容支持,显示设备XFree86
 
-cat /etc/os-release 显示系统信息，包括哪种linux系统
-lsb_release -a
-cat /etc/issue
 
-cat /etc/SUSE-release
+lsb_release -a
+cat /etc/os-release 显示系统信息，包括哪种linux系统
+
+cat /etc/issue
 cat /etc/oracle-release
 cat /etc/redhat-release
+
+cat /etc/SUSE-brand
+
 ========================Gnome-3 界面
 
 要多个图形用户同时登录  锁机 -> login another user
 
-totem 命令打开播放器
-cheese 命令是一个载图软件
+totem　命令打开播放器,3.26版本 播放mp4提示要MPEG-4 ACC decoder plugin,H.264(Main profile) decoder
+gstreamer-plugins-xxx
+
+Cheese摄像头
 
 
 
@@ -48,28 +53,45 @@ cheese 命令是一个载图软件
 /usr/share/applications/bcompare.desktop  左侧的工具栏图标  
 	
 
-ctrl+小写L 在文件浏览器就有地址栏
+ctrl+L (小写L) 在文件浏览器就有地址栏
 Alt+F2,打开“运行应用程序”对话框
 super(win)+a 快速打开所有应用
 super +h 隐藏窗口
+alter+拖动文件  有提示  link here
+Setting->Devices->keyboard->Hide all Normal window 默认没有，设置windows+D显示Super+D
+
 shift + print 会选择区域截图
  
 alter+上键，向上 
 #gconf-editor 配置界面没有gedit的项,类似windows的注册表一样的东西
-gedit 打开文件时可以选择GBK编码,一下次再打开这个文件就会记录,自动选择正确的中文编码，而不是手工选择，？？
 
 Ctrl+Shift+Alt+R    开始屏幕录像,上方栏中有红点,再按结束,会生成文件 ~/Vides/screencase-时间.webm   使用Totem Movie Player 3.2.1来播放,但好像没有声音
 
-在 文件浏览器中  ctrl+alt +backspace 可以注销
+在 文件浏览器中  ctrl+alt +backspace 可以注销 (openSUSE-leap-15不行的)
+
+ctrl+alt+左/右键  与 Intellij Idea 快捷键 冲突 
+ctrl+alt + 上下键   可以切换桌面
+alt+shift+` 切换同一应用打开的多窗口 类似Mac 是command+shift+` 
+Super+` 快捷键在实例之间切换
+
+Super+A：显示应用程序菜单
+
+ 
+gnome3 桌面上不能放文件 ，gnome-tweak-tool (Activies -> Utilities->Tweaks) -> Desktop ->把 把所有的都打开,就可以在桌面上放文件了 
+左侧的工具栏图标   /usr/share/applications/bcompare.desktop
 
 
+gedit tab空格数由8修改为4 ->preference-> Editor->tab with 修改为４
 gedit 打开自动换行->preference-> not select "Enable text wrapping"
+gedit 打开文件时可以选择GBK编码,一下次再打开这个文件就会记录,自动选择正确的中文编码，而不是手工选择，？？
+gedit -3 在打开文件时有选择编码 
 
 用  "CD/DVD创建者"打开*.iso文件
 
+ dconf-editor 图表配置工具　为配置 dconf
+	
+ 字体  在	/usr/share/fonts/truetype/   ,ecipse chrome等默认字体为mono space
  
- 
-
 ========================命令
 !ps 表示调用历史命令中以最近的 ps开头的
 
@@ -80,7 +102,7 @@ init 5 可以成功,OK
 runlevel 看
 systemctl get-default
 
-/etc/inittab 提示
+/etc/inittab 提示(openSUSE-leap-15没有这个文件,用systemd)
 systemctl set-default multi-user.target 是在 runlevel 3下
 systemctl set-default graphical.target  是在 runlevel 5下	运行命令后 提示 建立 symlink 从 /etc/systemd/system/default.target 到 /usr/lib/systemd/system/graphical.target
 
@@ -105,6 +127,19 @@ dd if=bootdisk.img of=/dev/fd0  ##备份引导分区到时软盘 if(input file )
  
 挂载ISO  mount -t  iso9660  -o loop,ro XXX.iso /mnt/some-dir
 
+dd if=/dev/zero of=myfile.img bs=1024 count=102400
+losetup -f (find 打印第一个没使用loop设备)
+losetup -f myfile.img 文件关联这个loop 设备
+losetup -d /dev/loop0 (detach)
+fdisk /dev/loop0 建两个分区后, p显示 分区名为/dev/loop0p1  /dev/loop0p2 也生成了文件
+partx /dev/loop0 显示分区表 
+partprob /dev/loop0  分区表的改变信息
+cat /proc/partitions 
+kpartx  -a /dev/loop0   (-a Add partition mappings) 会在  /dev/mapper/下生成 loop0p1 loop0p2
+grub-install --boot-directory=<DIR>  /dev/loop0
+
+
+
 du -sh 目录名   来看这个目录一共占用的空间
 
 uname -r内核版本 -o 操作系统 -a 全部信息
@@ -127,13 +162,16 @@ rmmod pcspkr 可以将该命令写到 /etc/rc.local 这样下次系统启动的�
 vi /etc/shells文件中显示这个系统有哪些shell 
 /bin/csh    退出shell 用exit(shell中运行子shell)
 bash是默认的,   help命令
-
+bash -x xx.sh 可以显示命令和参数
+bash -n xx.sh 检查语法错误
 
 kernel 中加single 时入单例用户
 
 
 加swap分区  （count 等于想要的块大小。 ）
 	#dd if=/dev/zero of=/home/swap bs=1024 count=1024000    ##bs(bytes),1G
+	seek=10 , 在输出中跳过10个开始写
+	
 	#mkswap /home/swap
 	#swapon /home/swap
 	free -m  看swap 分区
@@ -306,8 +344,8 @@ mesg n 表示不想接收消息 ,
 mesg y 开启
 
   
-export TZ=GMT
-date后时间就变了
+export TZ=GMT  (openSUSE 显示时间不准的解决方法)
+date后 时间就变对了
 
 ntpdate time.windows.com 时间同步
 
@@ -384,6 +422,7 @@ cdrecord dev=b,t,l -v -dao schillix-0.1.iso
  
 alias ls='ls --color=always -ahl'
 unalias 
+
 
 ip link set dev eth0 down
 #ifconfig eth0 down
@@ -528,7 +567,7 @@ fdisk /dev/sda
 	m->p
 	m->l
 
-
+mke2fs -t ex4
 mkfs -t ext3 /dev/hda
 fsck  不能对已挂载的
 
@@ -551,8 +590,7 @@ ln	 软链接可跨分区
 du -h 显示目录使用的空间
 whereis  ls  比which 多显示man文件
 
-find /usr/ -name core -exec rm {} \;
-find /usr/ *.so
+find /usr/ -name core -exec rm {} \;     #注　\前有空格　\后无空格
 find /usr/ -name '*.so'
 
 find ./ -name  *.h -type f | xargs grep "xxx"
@@ -858,6 +896,9 @@ linux-q50c:~ # lspci | grep VGA
 00:02.0 VGA compatible controller: Intel Corporation 2nd Generation Core Processor Family Integrated Graphics Controller (rev 09)
 01:00.0 VGA compatible controller: ATI Technologies Inc Whistler [AMD Radeon HD 6600M Series] (rev ff)
 
+DIS 即 Discrete Display 独立显卡 
+IGD 即Integrated Display 集成显卡
+
 openSUSE-13.2不用了,只是DynOff
 # cat /sys/kernel/debug/vgaswitcheroo/switch
 0:IGD:+:Pwr:0000:00:02.0
@@ -904,10 +945,88 @@ f() # 定义函数
 “\x6e\x2f\x73\x68\x00\x2d\x63\x00″  是表示可能表示 一个破坏的命令
 --------------------------
 -----wine
-用wine PlSqlDev.exe 来安装PL／SQL Devolope  (可以成功安装在～/.wine/drive_c/Program Files/PLSQL Developer 下)
-			 ~/.local/share/applications/wine/Programs/PLSQL\ Developer/ 下也有文件 (像是windows下的桌面,可以双击运行它)
-进入 安装目录 wine plsqldev.exe 就可以成功的运行 了，但是界面上的工具栏上的图标不能显示（右击图标－＞customer...显示 全部不能显示）
+wine --version
+wine64　是对64位的
  
+cd ~/.wine/drive_c/Program\ Files\ \(x86\)/
+
+Activites -> configure wine 可以配置D 盘指向哪里
+
+https://wiki.winehq.org/Mono
+http://dl.winehq.org/wine/wine-mono/
+下载的 wine-mono-4.7.5.msi  文件放在 /usr/share/wine/mono   
+Wine 1.5.6　 会自动下载Wine-Mono,会搜索  MSI 在/usr/share/wine/mono   目录
+
+
+为运行html
+https://wiki.winehq.org/Gecko
+下载的 wine_gecko-2.47-x86.msi , wine_gecko-2.47-x86_64.msi 文件放在 /usr/share/wine/gecko 
+gecko 壁虎
+
+如是 .msi  文件运行
+wine msiexec /i whatever.msi   或者 wine start whatever.msi
+
+安装界面中文乱码解决方法
+env LC_ALL=zh_CN.UTF-8 wine BaiduNetdisk_6.7.0.8.exe
+
+------wine 安装过的应用
+
+---微信
+Activites -> configure wine 可以配置D 盘指向哪里,所有使用的用户都要运行winecfg 配置才会生效，在使用微信时配置总是会被还原？？？
+wine 安装微信找不到文件所在目录 可能是C盘没权限,重新配置D盘就可以了
+
+----PlSqlDev
+用wine PlSqlDev.exe 来安装PL／SQL Devolope  (可以成功安装在 ~/.wine/drive_c/Program Files/PLSQL Developer 下)
+			 ~/.local/share/applications/wine/Programs/PLSQL\ Developer/ 下也有文件 (像是windows下的桌面,可以双击运行它)
+进入 安装目录 wine plsqldev.exe 就可以成功的运行了,但是界面上的工具栏上的图标不能显示（右击图标 -> customer...显示 全部不能显示）
+
+---Navicat_Keygen
+chmod u+x  Navicat_Keygen_Patch_v4.3_By_DFoX.exe 
+wine Navicat_Keygen_Patch_v4.3_By_DFoX.exe 才可运行
+
+---StarUML
+wine msiexec /i  StarUML-v2.8.1.msi 
+cd ~/.wine/drive_c/Program\ Files\ \(x86\)/StarUML
+wine StarUML.exe 出界面提示错误
+
+---PowerDesigner
+cd ~/.wine/drive_c/Program\ Files\ \(x86\)/Sybase/PowerDesigner\ 16/
+wine PdShell16.exe 　 报Wine Mono is not installed,安装了mono-core-5.10.1-lp150.1.6.x86_64.rpm　报EXCEPTION
+
+----安装Viso2016不行的
+
+ 
+---------mono　社区的
+开发出了 Xamarin  , Xamarin Studio　6.3时最后一个版本,因Visual Studio支持Mac版本
+MonoDevelop     跨平台免费Ｃ#开发工具,　Visual Studio for Mac builds on top of MonoDevelop, macOS下VS开源
+Rider (jetbrains intellij)跨平台收费C#开发工具
+
+-----.NET Core 2.2　　微软官方的
+.NET Framework与Mono将基于.NET Core重新构建
+.NET Framework将成为.NET Core在Windows上的一个发行版
+Mono将成为.NET Core的一个跨平台发行版。
+
+ 2019-02-12 放出的　Runtime 2.2.2　,　　SDK 2.2.104
+
+支持 Linux, Windows,  macOS
+https://dotnet.microsoft.com/
+下载　dotnet-sdk-2.2.104-linux-x64.tar.gz
+或者
+#sudo zypper install libicu　　报错
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+wget -q https://packages.microsoft.com/config/opensuse/42.2/prod.repo
+sudo mv prod.repo /etc/zypp/repos.d/microsoft-prod.repo
+sudo chown root:root /etc/zypp/repos.d/microsoft-prod.repo
+
+也可
+yast2 建立仓库　输入　https://packages.microsoft.com/opensuse/42.2/prod　　　
+也可直接在地址中下载 dotnet-sdk-2.2.104-x64.rpm
+ 
+https://packages.microsoft.com/config/opensuse/15/prod.repo   
+ 　文件内容有　https://packages.microsoft.com/opensuse/15/prod/　　　  , 15还不行没有rpm
+
+dotnet 命令
+
 ==========IPv6
 ==========vi================
 
@@ -1186,7 +1305,7 @@ set fileencodings=utf-8,gbk
 gvimtutor 命令有vim 的学习命令(中文的)
 
 
-gedit -3 在打开文件时有选择编码 
+
 
 vim 源码安装 make & make instll
 
@@ -1228,10 +1347,51 @@ ctrl+T 当前字与前一个字对换,并移动一下一字符
 ctrl+o 执行当前行,取得上一和行
 　
 ===============grub 
-引导 windows 
+grub 1 引导 windows 
 rootnoverify (hd0,0)
 chainloader +1
 boot
+
+-- grub2  rescue
+openSUSE-leap 15和windows 装在一起，如在windows下修改了分区，重启时就会进入grub rescue模式
+ls 命令查各个分区号是什么,如(hd0,msdos11)
+依次  ls (hd0,X)/ ,X是上面的11，如 ls (hd0,11)/   如显示有grub2目录
+ls (hd0,11)/grub2 显示有i386-pc
+ls (hd0,11)/grub2/i386-pc 有很多.mod文件
+对boot是单独的分区的情况下
+
+set root=(hd0,11)
+set prefix=(hd0,11)/grub2
+insmod /grub2/i386-pc/normal.mod
+normal 就可以进入grub2 引导界面，如分区是可恢复以前形式，就进入windows修改成以前分区形式即可 (亲测试成功),openSUSE不能成功进入系统
+
+分区有一个UUID,使用 　ls -l /dev/disk/by-uuid 查看
+网上还有说如果boot分区不是单独分区就 insmod 修改路径 /boot/grub2/i386-pc/normal.mod 就行
+
+grub>search --help
+-f --file
+-n --no-floppy
+
+grub> search -f -n --set=root /openSUSE.iso
+grub> echo $root
+hd0,gpt5
+
+新电脑是支持EFI的路径 是 /boot/grub2/x86_64-efi/normal.mod
+
+windows 10的grub2引导文件 
+	insmod part_gpt
+	insmod fat
+	set root='hd0,gpt1'
+	chainloader /efi/Microsoft/Boot/bootmgfw.efi
+
+fdisk -l 显示Disklabel type: gpt
+gparted界面工具
+	view ->	device information 看partition table 是gpt
+
+--grub2引导iso未成功
+loopback loop0 /path/to/image
+ls (loop0)/
+--
 
 
 
@@ -1251,6 +1411,9 @@ hiddenmenu  ##不显示grub菜单
 1.进入 rescue 模式		   # grub-install /dev/hda 
 	find /boot/grub/stage1 来得到boot分区在hd0,x 中
 2.进入 grub 模式(linux rescue)	grub>setup (hd0,0);
+
+grub-install --boot-directory=<DIR>  <DEVICE> 
+	安装在<DEVICE>的<DIR>/grub2  
 
 
 
@@ -1306,7 +1469,7 @@ iptables -F (flush)    清空规则
 -X 删自己的链
 -P 大P 改变默认
 -p 小p 协议 可用! 来排除
--s 
+-s --sport 源 
 -d
 --line-numbers 显示链的编号
 
@@ -1317,7 +1480,7 @@ iptables -F (flush)    清空规则
 iptables -A INPUT  -p tcp   (-d 127.0.0.1)   --dport 22 -j ACCEPT  () 中可省,INPUT的目标地址,OUTPUT的源地址是本机IP
 iptables -A OUTPUT -p tcp   (-s 127.0.0.1)   --sport 22 -j ACCEPT
 
--s 源 --sport
+
 iptables -P INPUT DROP  改变默认 -P 所有的 INPUT 都DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP
@@ -1355,8 +1518,6 @@ iptables -D OUTPUT 1
 iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT   (--dport)
 iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 
-
-
 service iptables save
 systemctl list-unit-files | grep firewall 有 firewalld.service 
 systemctl stop firewalld
@@ -1371,16 +1532,53 @@ firewall-cmd --zone=public --add-port=27017/tcp --permanent      mongodb
 
 firewall-cmd --zone=public --add-port=2181/tcp --permanent       zookeeper
 firewall-cmd --zone=public --add-port=60010/tcp --permanent 	 hbase
-firewall-cmd --zone=public --add-port=6627/tcp --permanent 		 storm
-
+firewall-cmd --zone=public --add-port=6627/tcp --permanent 		 storm   对应的有 --remove-port
+firewall-cmd --zone=public --add-service=ssh --permanent  对应的有--remove-service
 
 
 firewall-cmd --reload 
-
+firewall-cmd --state
 
 firewall-cmd --zone=public --list-ports  查开了哪些端口
 
+存在配置文件中 /etc/firewalld/zones/public.xml
 
+firewall-cmd --get-default-zone  查哪个是默认zone，默认是public
+存在配置文件中 /etc/firewalld/firewalld.conf
+
+firewall-cmd --list-all-zones
+firewall-cmd --get-services
+
+在同一台服务器上将 80 端口的流量转发到 12345 端口
+firewall-cmd --zone="public" --add-forward-port=port=80:proto=tcp:toport=12345
+
+端口转发到另外一台服务器上
+1在需要的区域中激活 masquerade 
+	firewall-cmd --zone=public --add-masquerade  对应的就有 --remove-masquerade
+2添加转发规则。例子中是将本地的 80 端口的流量转发到 IP 地址为 ：123.456.78.9 的远程服务器上的  8080 端口 
+	firewall-cmd --zone="public" --add-forward-port=port=80:proto=tcp:toport=8080:toaddr=123.456.78.9
+
+sudo firewall-cmd --zone=dmz --add-interface=eth0
+
+
+firewall-cmd --list-rich-rules
+
+允许来自主机 192.168.0.14 的所有 IPv4 流量
+firewall-cmd --zone=public --add-rich-rule 'rule family="ipv4" source address=192.168.0.14 accept'
+	对应的就有 --remove-rich-rule 'rule family="ipv4" source address=192.168.0.14 accept'
+
+拒绝来自主机 192.168.1.10 到 22 端口的 IPv4 的 TCP 流量 
+    sudo firewall-cmd --zone=public --add-rich-rule 'rule family="ipv4" source address="192.168.1.10" port port=22 protocol=tcp reject'
+
+允许来自主机 10.1.0.3 到 80 端口的 IPv4 的 TCP 流量，并将流量转发到 6532 端口上 
+    sudo firewall-cmd --zone=public --add-rich-rule 'rule family=ipv4 source address=10.1.0.3 forward-port port=80 protocol=tcp to-port=6532'
+	
+将主机 172.31.4.2 上 80 端口的 IPv4 流量转发到 8080 端口（需要在区域上激活 masquerade） 
+	sudo firewall-cmd --zone=public --add-rich-rule 'rule family=ipv4 forward-port port=80 protocol=tcp to-port=8080 to-addr=172.31.4.2'
+
+	 
+	
+	
 iptablse -A INPUT -p tcp -dport 22 -j  LOG --log-level 5 --log-prefix "iptables::" ###记录日志 --prefix 并不是最前的
 要确保前方没有DROP, 或者ACCEPT 的规则对应的包,并在其它对应的ACCEP规则的前面才有效 
 
@@ -1578,7 +1776,7 @@ rqm -ql raidtools
 man 5 raidtab
 
 1. 写配置/etc/raidtab文件 (可以复制安装包中的)
-2.为硬盘分区(fdisk ->n(new),w(write))
+2.为硬盘分区(fdisk m帮助,p打印 ->n(new),w(write))
 3.mkraid /dev/md0   //md0 是配置文件中的  
 4.mkfs.ext3 /dev/md0 格式化
 5.mount /dev/md0 /opt
@@ -2006,12 +2204,12 @@ openSUSE-15
 		 DisallowTCP=false 
 			AllowRoot=true 
 			AllowRemoteRoot=true
-											
+
 修改/etc/X11/xdm/Xsetup_0的属性为755(openSUSE-15无)
 
 systemctl  restart xdm
 
-ss -atr 没有监听177端口？？重启linux,关win,linux防火墙也一样
+ss -atr 没有监听177端口????   重启linux,关win,linux防火墙也一样
 Xbrowser 5 ->new XDMCP session ->secure XDMCP 有输入用户密码(sshd)，但无界面
 
 -------------上 XDMCP-----------
@@ -2053,8 +2251,107 @@ depmod
 modinfo ext3
 modprob (依赖安装,如失败会卸载整组的模块)
 rmmod
+============================fedora 专用的
+--fedora mirror
+ http://mirrors.fedoraproject.org/publiclist 其实是redhat的包
+	http://download.fedoraproject.org/pub/fedora/linux/releases
+	默认跳到 http://mirrors.163.com/fedora/releases/
+		http://mirrors.163.com/fedora/releases/29/Everything/x86_64/os/Packages/
+ 
 
+默认安装了ibus下面包
+ibus-1.5.19-4.fc29.x86_64
+ibus-qt-1.3.3-20.fc29.x86_64
+ibus-libs-1.5.19-4.fc29.x86_64
+ibus-rawcode-1.3.2-13.fc29.x86_64
+ibus-gtk2-1.5.19-4.fc29.x86_64 
+ibus-libzhuyin-1.8.92-3.fc29.x86_64
+ibus-gtk3-1.5.19-4.fc29.x86_64 
+ibus-m17n-1.3.4-27.fc29.x86_64 
+ibus-kkc-1.5.22-10.fc29.x86_64
+ibus-setup-1.5.19-4.fc29.noarch 
+ibus-typing-booster-2.1.2-1.fc29.noarch
+ibus-hangul-1.5.1-2.fc29.x86_64
+ 
+没有ibus config应用, 没有拼音 五笔
+
+http://mirrors.163.com/fedora/releases/29/Everything/x86_64/os/Packages/i/ 
+		ibus-table-chinese-wubi-jidian-1.8.2-11.fc29.noarch.rpm
+				ibus-table-chinese-1.8.2-11.fc29.noarch.rpm
+							ibus-table-1.9.21-1.fc29.noarch.rpm
+		ibus-pinyin-1.5.0-15.fc29.x86_64.rpm
+				pyzy-0.1.0-19.fc29.x86_64.rpm
+						pyzy-db-android-0.1.0-19.fc29.noarch.rpm
+						pyzy-db-open-phrase-0.1.0-19.fc29.noarch.rpm
+一共就这些就能安装，注销用户再登录就可使用了
+
+
+http://mirrors.163.com/fedora/releases/29/Everything/x86_64/os/Packages/f/
+			fcitx-4.2.9.6-2.fc29.x86_64.rpm
+					fcitx-gtk2-4.2.9.6-2.fc29.x86_64.rpm
+					fcitx-gtk3-4.2.9.6-2.fc29.x86_64.rpm
+							imsettings-1.7.3-5.fc29.x86_64.rpm
+							imsettings-gsettings-1.7.3-5.fc29.x86_64.rpm
+							imsettings-libs-1.7.3-5.fc29.x86_64.rpm
+			
+			fcitx-pinyin-4.2.9.6-2.fc29.x86_64.rpm
+					fcitx-libs-4.2.9.6-2.fc29.x86_64.rpm
+						fcitx-data-4.2.9.6-2.fc29.noarch.rpm
+			
+			fcitx-table-chinese-4.2.9.6-2.fc29.noarch.rpm
+							fcitx-table-4.2.9.6-2.fc29.x86_64.rpm
+			fcitx-configtool-0.4.10-5.fc29.x86_64.rpm 就可以点fcitx config
+		一共就这些就能安装
+		
+vi /etc/profile 增加 
+	export INPUT_METHOD="fcitx"
+后重启也没有fcitx进程？？？ fcitx config也没有配置？？？
+
+touch /etc/profile.d/fcitx.sh 
+	export GTK_IM_MODULE=fcitx
+	export QT_IM_MODULE=fcitx
+	export XMODIFIERS="@im=fcitx"
+
+后重启也没有fcitx进程？？？ fcitx config也没有配置？？？
+
+sudo dnf install im-chooser  （dnf 是yum 的下一个版本,就依赖一个im-chooser-common）
+			win + a显示所有应用 ->sundry->input method selector 但报错
+			im-chooser 命令也启动不了,fcitx 命令后就有进程了,
+			
+			sudo dnf install gnome-tweaks (就依赖一个gnome-shell-extension-user-theme)
+					没有桌面Desktop 标签???
+					-> startup application增加一个开机启动  fcitx
+			
+			
+			gsettings list-schemas | grep keyboard
+			gsettings  list-keys org.gnome.settings-daemon.peripherals.keyboard
+
+			
+http://mirrors.163.com/fedora/releases/29/Everything/x86_64/os/Packages/s/
+			scim-tables-chinese-0.5.14-5.fc29.x86_64.rpm
+			scim-pinyin-0.5.92-14.fc29.x86_64.rpm
+
+
+
+---Fedora 29不能使用root用户登录的解决办法
+sudo vi /etc/gdm/custom.conf 在daemon区增加
+
+AutomaticLoginEnable=True
+AutomaticLogin=root
+
+用sudo passwd设置root密码
+就可 su root
+---
+systemctl start sshd 就可远程用root登录
+
+flatpak 类似 ubuntu 用的snaps
+
+cat /etc/redhat-release
+cat /etc/system-release
+cat /etc/os-release
 ============================CentOS 专用的
+
+	
 CentOS 最新版本 7.5
 http://mirrors.huaweicloud.com/centos/7.5.1804/os/x86_64/Packages/
 http://mirrors.huaweicloud.com/centos/7/updates/x86_64/Packages/  只有新版本的
@@ -2075,9 +2372,21 @@ http://mirrors.huaweicloud.com/centos/7/os/x86_64/Packages/
 		->glibc-headers-2.17-222.el7.x86_64.rpm  
 		->glibc-common-2.17-222.el7.x86_64.rpm   
 	   
-	
+---- centOS 只有ibus
+				ibus-table-chinese-wubi-jidian-1.4.6-3.el7.noarch.rpm
+				
 ============================Redhat专用的
-镜像地址  
+http://mirrors.fedoraproject.org/publiclist 找 China
+
+https://mirrors.ustc.edu.cn/epel/6/x86_64/Packages/i/ibus-table-chinese-1.4.6-1.el6.noarch.rpm
+https://mirrors.ustc.edu.cn/epel/6/x86_64/Packages/i/ibus-table-chinese-wubi-jidian-1.4.6-1.el6.noarch.rpm
+到7的版本就没有ibus-wubi,ibus-pinyin了
+
+https://mirrors.ustc.edu.cn/epel/7/x86_64/Packages/f/fcitx-4.2.9.6-1.el7.x86_64.rpm
+					fcitx-pinyin-4.2.9.6-1.el7.x86_64.rpm
+					fcitx-table-chinese-4.2.9.6-1.el7.noarch.rpm
+
+ 
 	
 ##netconfig 终端界面 
 setup     终端界面
@@ -2085,7 +2394,7 @@ ntsysv    终端界面来配置服务 类似chkconfig
 system-config-network  终端界面配置网络
 timeconfig 时区界面
 
-/etc/sysconfig/network-scripts/ifcfg-eth0　配置文件
+/etc/sysconfig/network-scripts/ifcfg-eth0　配置文件  可以复制出来 一个新的网卡
 ##IPV6INIT=no可以没有
 ##DEVICE=eth0 可以没有
 ##NAME=""  可以没有显示在界面上
@@ -2094,13 +2403,21 @@ BOOTPROTO=dhcp/none(none是可没有)
 ONBOOT=yes
 HWADDR=
 TYPE=Ethernet
+#TYPE=Bridge 可为桥接
 #以下对非DHPC
 DNSI=
 IPADDR=
 GATEWAY=
 PREFIX=24 ###NETMASK=  
-  
- 
+
+BRIDGE=<网卡名> 
+#表示交换机
+
+网络桥接不支持NetworkManager,禁用方法
+NM_CONTROLLED=yes 修改为 no
+chkconfig NetworkManager off
+chkconfig network on
+
 service iptables stop 
 service crond start/stop/restart/reload
 service network restart ##SSH会断
@@ -2115,19 +2432,13 @@ service iptables start/stop/restart/status/condrestart/panic/save
 临时关闭selinux模式 setenforce 0 
 
 rpm -q --requires pam-1.1.8-12.el7.i686 查已安装包的依赖
+rpm -q --requires pam-1.1.8-12.el7 可不要架构名
 rpm -q --requires -p pam-1.1.8-12.el7.i686.rpm 查指定包的依赖
 --requires 可以-R ,即 rpm -qR pam-1.1.8-12.el7.i686
 
 rpm -qpR gcc-c++-7-lp150.1.50.x86_64.rpm 查看包的依赖 (-p,--package  -R,--requires)
     gcc = 7
     gcc7-c++
------------ Fedora11不能使用root用户登录的解决办法
- 修改 /etc/pam.d/gdm 中下面这行
-auth       required    pam_succeed_if.so user != root quiet
-为
-auth       required    pam_succeed_if.so  quiet
-去掉 user != root
-
 ---------Redhat  修改主机名
 hostname myhost
 /etc/hostname
@@ -2193,7 +2504,7 @@ rpm -qf 文件名  显示文件属于哪个软件包
 rpm -e 卸载软件包
 useradd -d /u01/oracle  这是用户的默认主目录
 ------------
-----------------Redhat yum 自动安装光盘中软件包,相当于 SUSE的yast2
+----------------Redhat yum 自动安装光盘中软件包,相当于 SUSE 的 zyyper (界面的yast2)
 mount -t iso9660 -o ro,loop /dev/cdrom /mnt/cdrom
 cd /etc/yum.repos.d/
 mkdir bak
@@ -2222,7 +2533,7 @@ yum install gnome-session
 
 yum search gcc  模糊查找软件包名
 yum list |grep gcc  有gcc-c++
-
+yum list all |grep gcc 
 64位机 yum 安装32位 gcc ,yum search all gcc
 
 
@@ -2232,6 +2543,13 @@ yum list |grep gcc  有gcc-c++
 
 yum-config-manager   --add-repo    https://download.docker.com/linux/centos/docker-ce.repo
 yum-config-manager   --add-repo    https://copr.fedorainfracloud.org/coprs/vbatts/bazel/repo/epel-7/vbatts-bazel-epel-7.repo
+
+yum repolist 列出所有仓库
+yum install xen 如版本出来过新，想要老的
+yum install xen-4.1.3
+ 可能依赖的版本要老的，而现有的是新的
+yum install xen-4.1.3 xen-runtime-4.1.3 xen-libs-4.1.3
+
 
 ----------------
 -----------------硬盘安装RedhatEL5------------
@@ -2377,8 +2695,7 @@ ps axms
 ulimit -a
 open files                      (-n) 1024
 
-
-======linux KVM
+ 
 
 
 
@@ -2425,6 +2742,8 @@ cd ~
 umount /data/
 /usr/local/bin/extundelete /dev/sdx1 --inode 2   查分区可恢复的数据信息 （根目录的inode一般为2）
 
+ls -i 可以看 indoe信息
+
 恢复单个文件
 /usr/local/bin/extundelete /dev/sdx1 --restore-file passwd   
 在文件恢复成功后，extundelete命令默认会在执行命令的当前目录下创建一个RECOVERED_FILES目录
@@ -2444,4 +2763,21 @@ date -d"-1 day"  +%s
     1544018945
 /usr/local/bin/extundelete --after 1544018945 --restore-all /dev/sdx1 
 测试失败没有文件？？？？
+
+自己测试 真实的 /boot 分区 是可以恢复文件的(可能 mkfs.ext4 式就是不行的)
+
+
+==========windows 仿问linux
+Ext2Fsd-0.69.exe  只能读ext4分区,不能写
+
+在win10 下安装测试成功
+开始->  Ext2Fsd ->Ext2 Volume Manager 启动
+	双击需要安装的 EXT 分区
+	打开Volume Manager双击ext挂载的ext分区,复选 设置为只读,不可写 , 看到语种编码默认是utf8
+	复选 固定盘符：对固定磁盘建议采用此方式  , 下拉选择盘符 -> 保存并退出
+	
+	不要使用teraCopy工具
+	
+Ext2Read 文件名 ext2explore-2.2.71.zip 在windows 10 什么也看不到,win7看不到home和boot目录下的内容
+
 

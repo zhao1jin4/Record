@@ -1,4 +1,4 @@
-﻿	
+ Spring 5.0 WebFlux 基于 Reactive Stream ,而Reactive Stream 已经有JDK9的Flow实现了，刚出来就过时了
 =========================Spring MVC
 <servlet>
 	<servlet-name>spring_mvc</servlet-name>
@@ -178,6 +178,9 @@ System.out.println("i18nStr="+i18nStr);
 			<prop key="java.lang.RuntimeException">error/showError</prop>
 		</props>
 	</property>
+	<!--commons logging 的  LogFactory.getLog(loggerName);
+	如不配置这个，Controller抛异常错误不会在日志中显示  -->   
+	<property name="warnLogCategory" value="SpringExceptionResolver"></property> 
 </bean>
 <mvc:resources mapping="/error/**" location="/WEB-INF/views/error/" />
 
@@ -229,7 +232,7 @@ formBackingObject //方法 是打开页面,或者返回时调用 ,返回的是�
 	}
 }  
 //-------文件上传  下载
-<form enctype="multipart/form-data>
+<form enctype="multipart/form-data">
 
  <!-- 必须是 id="multipartResolver"  DispatcherServlet.MULTIPART_RESOLVER_BEAN_NAME -->  
 <bean  id="multipartResolver"  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
@@ -372,6 +375,23 @@ public String redirect()
 {
 	return "redirect:/other/returnVoid.mvc";//如返回  redirect:xx.mvc 表示是重定向
 }
+@RequestMapping("/forward")
+public String forward()
+{
+	return "forward:/other/returnVoid.mvc"; 
+}
+public String forwardServlet(HttpServletRequest request,HttpServletResponse response)
+{
+	try {
+		request.getRequestDispatcher("/session.jsp").forward(request, response);
+		//注意后面的代码还是会被执行的,但最终显示的页是RequestDispatcher的不是返回的view
+		System.out.println(1/0); 
+	} catch ( Exception e) {  
+		e.printStackTrace();
+	}
+	return "forward:/other/returnVoid.mvc"; 
+}
+	
 @RequestMapping("/returnObject") //默认根据请求路径来生成viewName
 //public Employee returnObject()
 //public List<Employee> returnObject()
@@ -687,6 +707,10 @@ public String handleException(final Exception e)
 
 @Required
 
+
+
+//JS端做一次encodeURI(),服务端SpringMVC自动做decodeURI转换为中文
+
 ------------------------Freemarker 
 
 
@@ -699,6 +723,9 @@ freemarker 文件中加<meta http-equiv="Content-Type" content="text/html; chars
 在classpath上放置一个文件 freemarker.properties，加入
 	default_encoding=UTF-8
 	locale=zh_CN
+	
+可以自己写个类实现 ViewResolver接口,注册到Spring中,FreeMarkerViewResolver 和 InternalResourceViewResolver 不配置suffix 
+返回视图就要加扩展名,如根据扩展名选择视图,就可以在项目使用同时使用.jsp和.ftl
 	
 <bean  class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
 	<property name="viewClass" 		value="org.springframework.web.servlet.view.freemarker.FreeMarkerView"/>
@@ -921,18 +948,40 @@ jackson-databind-2.2.3.jar
 
 
 <!-- 	<bean id="mappingJackson2HttpMessageConverter"  class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> JSON 简配置-->
-		<bean id="mappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-			<property name="objectMapper">
-				<bean class="com.fasterxml.jackson.databind.ObjectMapper">
-					<property name="dateFormat">
-						<bean class="java.text.SimpleDateFormat">
-							<constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"/>  <!-- JSON到SpringMVC日期格式-->
-						</bean>
-					</property>
-				</bean>
-			</property>
-		  </bean>
-		  对enum类型中有的自定义属性会忽略，只转换每一个分号前的值
+<bean id="mappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"> <!--  produces="application/json" -->
+		<property name="objectMapper" ref="jacksonObjectMapper2"> </property>
+	</bean>
+	<bean id="jacksonObjectMapper"  class="com.fasterxml.jackson.databind.ObjectMapper">
+          <property name="dateFormat">
+              <bean class="java.text.SimpleDateFormat">
+                  <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"/> 
+              </bean>
+          </property>
+     </bean>
+	<!--  对enum类型中有的自定义属性会忽略，只转换每一个分号前的值  -->
+	<bean id="jacksonObjectMapper2" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject">
+            <bean class="com.fasterxml.jackson.databind.ObjectMapper"> 
+                 <property name="dateFormat">
+                    <bean class="java.text.SimpleDateFormat">
+                        <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />
+                    </bean>
+                </property>
+               <!-- 为null字段时不显示 
+                <property name="serializationInclusion"> 
+                    <value type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
+                </property>
+                -->
+            </bean>
+        </property>
+        <property name="targetMethod" value="configure" />
+        <property name="arguments">
+            <list>
+                <value type="com.fasterxml.jackson.databind.DeserializationFeature">FAIL_ON_UNKNOWN_PROPERTIES</value>
+                <value>false</value><!--  反序列化遇到未知属性不报异常 -->
+            </list>
+        </property>
+    </bean>
 		  
 		  
 <!-- 也可以这样配置 　@Valid 是有效的，但converter无效？？？
@@ -1109,8 +1158,33 @@ public class BasePackageAdvice
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public String processUnauthenticatedException(NativeWebRequest request, RuntimeException e) {
-        System.out.println("===========应用到所有@RequestMapping注解的方法，在其抛出RuntimeException异常时执行");
-        return "showError"; //返回一个逻辑视图名
+    System.out.println("===========应用到所有@RequestMapping注解的方法，processUnauthenticatedException在其抛出异常类为:"+e.getClass()+",原因为:"+e.getMessage());
+    return "showError"; //返回一个逻辑视图名
+    }
+	
+	//地址栏要数字传字符即Controller方法参数@PathVariable("page")int pageNO接收数字会报MethodArgumentTypeMismatchException 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class) 
+    @ResponseBody
+    public  Map<String, Object> typeMismatch(NativeWebRequest request,HttpServletResponse response, RuntimeException e) {
+        System.out.println("===========应用到所有@RequestMapping注解的方法，typeMismatch在其抛出异常类为:"+e.getClass()+",原因为:"+e.getMessage());
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("status", "900");
+        map.put("reason", "不可转换为数字的字符");
+        return map;
+        //return "{status:'900',reason:'不可转换为数字的字符'}";//如返回字符串中文不支持？？？
+    }
+	//js中的salary写字符转服务端@RequestBody Employee 的数字 报HttpMessageNotReadableException
+    @ExceptionHandler(HttpMessageNotReadableException.class) 
+    @ResponseBody
+    public  Map<String, Object> notReadable(NativeWebRequest request,HttpServletResponse response, RuntimeException e) {
+    	System.out.println("===========应用到所有@RequestMapping注解的方法，notReadable在其抛出异常类为:"+e.getClass()+",原因为:"+e.getMessage());
+        response.setContentType("application/json;charset=UTF-8");
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("status", "901");
+        map.put("reason", "JSON不可转换为数字的字符");
+        return map;
+        //return "{status:'900',reason:'不可转换为数字的字符'}";//如返回字符串中文不支持？？？
     }
 }
 @RequestMapping(method=RequestMethod.POST,value="/asyncUpload")
@@ -1153,6 +1227,7 @@ public Map<String, Object> responseBodyJSON(HttpServletRequest request) {
 	map.put("status", "1231231");
 	map.put("reason", "原因");
 	return map;
+	//return "{status:'1231231',reason:'原因'}";//字符串中文支持
 }
 
 //配置 Jaxb2RootElementHttpMessageConverter
@@ -1226,40 +1301,147 @@ public UserDetails responseBodyXML() {
 
 	
 	
--------------mockMVC
+-------------mockITO  MockMvc 
+
+import org.mockito.Mock;
+
+import org.mockito.MockitoAnnotations;
 
 @RunWith(SpringJUnit4ClassRunner.class)  
 //@ActiveProfiles({"test"})
 //@Transactional
-@WebAppConfiguration //SpringMVC利用MockMvc进行单元测试 
+@WebAppConfiguration //可以注入 WebApplicationContext
 @ContextConfiguration(locations={
 		"classpath:test_mockmvc/spring-mockmvc.xml",
 		})
 public class MockITO_MockMvcTest  {
 
+	@Mock //方式一  可以不是 Spring的Bean 
+	private MyServiceBean myServiceBean;
+
+	@Autowired
+	private WebApplicationContext wac;
+
+	public MockMvc mockMvc;//org.springframework.test.web.servlet.MockMvc
+	
 	@Before
 	public void setup() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 		MockitoAnnotations.initMocks(this); 
+		
+		myServiceBean = mock(MyServiceBean.class);//方式二  可以不是 Spring的Bean 
 	}
- 
+	@Test
+ //@Sql("init.sql")
+	public void testService() throws Exception  //测试 OK 
+	{ 
+		//spring-mockmvc.xml 只有	<context:component-scan base-package="test_mockmvc"></context:component-scan>
+		List<Product> dataSet=new ArrayList<Product>();
+		for(int i=0;i<3;i++)
+		{
+			Product product=new Product();
+			product.setId(10+i);
+			product.setName("产品"+i);
+			product.setType("生活用品");
+			dataSet.add(product);
+		}
+		when(myServiceBean.queryData(any(Product.class))).thenReturn(dataSet); 
+		List<Product>  res=myServiceBean.queryData(new Product());//没有真实调用 
+		System.out.println(res);
+		
+		reset(myServiceBean);//重置指定的bean的所有录制  
+		
+	}
 	@Test
 	public void testMVC()throws Exception   
 	{
-		//spring-mockmvc.xml 有正启动的全部内容
+		/*
+		 spring-mockmvc.xml 有
+			<context:component-scan base-package="test_mockmvc"></context:component-scan>
+			<context:component-scan base-package="spring_jsp.annotation" /> 
+			<mvc:annotation-driven  validator="validator" />
+		*/
+  //不用http服务器
 		ResultActions resultActions = mockMvc.perform(
-				post("/json/queryEmployeeVO.mvc")
-				.characterEncoding("UTF-8")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content("{\"employee_id\":123,\"first_name\":\"李四\"}")
-				)
+					post("/json/queryEmployeeVO.mvc")
+					.characterEncoding("UTF-8")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("{\"employee_id\":123,\"first_name\":\"李四1\"}")
+				)//这里就开始调用了
 				.andExpect(status().isOk())
-				.andDo(print());
+				.andExpect(content().contentTypeCompatibleWith("application/json"))
+				//.andExpect(content().contentType("application/json")) //如用这个报 expected:<application/json> but was:<application/json;charset=UTF-8>
+				
+				.andExpect(jsonPath("$.underEmp[0].first_name").value("li"))
+				//依赖 com.jayway.jsonpath.Predicate ,   json-smart-2.3.jar , asm-1.0.2.jar(conflict-lib)
+				.andExpect(jsonPath("$.underEmp[?(@.first_name == 'li')]").exists())  
+				.andDo(print()); 
 		MvcResult mvcResult = resultActions.andReturn();
 		String result = mvcResult.getResponse().getContentAsString();
 		System.out.println(result);
 	}
+ @Test
+	public void testResetClient() //reset 的测试
+	{ 
+		RestTemplate restTemplate = new RestTemplate();
+		MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
+		mockServer.expect(requestTo("/greeting")).andRespond(withSuccess());
+  mockServer.verify();
+	}
 }
+ ----mock request
+ import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"file:src/test_mockRequest/spring-test.xml"})
+/**
+XML文件中只有
+<context:component-scan base-package="spring_jsp.annotation" /> 
+<mvc:annotation-driven  validator="validator"   />
+ */
+public class ControllerMockRequestTest 
+{
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
+    private MockServletContext context;
+    @Autowired
+    private JSONController jsonController;
+    
+    @Before  
+    public void setUp(){
+        String contextPath="/J_SpringMVC";
+		context=new MockServletContext();
+		context.setContextPath(contextPath);
+         
+        request = new MockHttpServletRequest(context);    
+        request.setCharacterEncoding("UTF-8");
+        
+        String rootPath=request.getServletContext().getRealPath("/");
+        System.out.println(rootPath);
+        
+        String reqContextPath=request.getServletContext().getContextPath();
+        System.out.println(reqContextPath);
+        
+        request.setRequestURI("http://127.0.0.1:/J_SpingMVC/page.mvc");
+        System.out.println(request.getRequestURI());//如不set就返回空串
+       
+        request.setContextPath(contextPath); 
+        response = new MockHttpServletResponse();
+		
+		 //web.xml中有filter,listener怎么办？
+    }
+    @Test
+    public void test() {
+        HttpSession session = request.getSession(true);
+        session.setAttribute("currentDate", new Date());
+        Employee emp=new Employee ();
+        
+        System.out.println(  request.getLocale() );
+        EmployeeResult res= jsonController.queryEmployeeVO(request, emp);
+        System.out.println(res);
+    }
+} 
+
 =========================上 Spring MVC
  
 
@@ -1409,9 +1591,143 @@ http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp
   <version>2.0.6</version>
 </dependency>
 
+-------------SwaggerUI 3.x  OpenAPI-3.x  
+https://github.com/swagger-api/swagger-ui   (v3.20.6) 下载项目把dist目录里的东西复制到项目里
+如放在swagger3/dist下 ，增加一个sample.json 文件 
+{
+	"swagger":"2.0",
+	"info":{
+		"description":"简单项目示例",
+		"version":"1.0",
+		"title":"某系统接口"
+		},
+	"basePath":"api/v1",
+	"tags": [{
+				"name": "orderGroup",
+				"description": "all order " 
+			}],	
+	"paths":{
+		"/order/{orderId}":
+		{
+			"get":
+			{
+				"tags": [ "orderGroup" ],
+				"summary":"得到订单详情",
+				"description":"根据ID查",
+				"parameters":
+				[{
+					"name":"orderId",
+					"in":"path",
+					"description":"订单ID",
+					"required":"true"
+				}],
+				"responsees":
+				{
+					"200":{
+						"description":"信息查询成功"
+					}
+				}
+				
+			}
+		},
+		"/order/query":
+		{
+			"get":
+			{
+				"tags": [ "orderGroup" ],
+				"summary":"查订单",
+				"description":"分页查",
+				"parameters":
+				[{
+					"name":"offset",
+					"in":"query", 
+					"description":"开始行号",
+					"required":"true"
+				},{
+					"name":"X-Request-ID",
+					"in":"header", 
+					"description":"",
+					"required":"true"
+				},{
+					"name":"orderName",
+					"in":"formData", 
+					"description":""
+				},{
+					"name":"orderFile",
+					"in":"formData", 
+					"type":"file",
+					"description":""
+				},{
+					"name":"orderDetail",
+					"in":"body",  
+					"description":"json信息",
+					"schema":{
+						"$ref":"#/definitions/order"
+					}
+				}
+				],
+				"responsees":
+				{
+					"200":{
+						"description":"信息查询成功"
+					}
+				}
+			}	
+		}
+	},
+	"definitions": {
+		"order": {
+			"type": "object",
+			"properties": {
+				"id": {
+					"type": "integer",
+					"format": "int64"
+				},
+				"name": {
+					"type": "string" 
+				}
+			}
+		}
+	},
+	"consumers": [ "application/x-www-form-urlencoded" ]
+}
+浏览器打开 
+http://localhost:8080/J_ThirdLibWeb/swagger3/dist/index.html
+最上方地址中输入	http://localhost:8080/J_ThirdLibWeb/swagger3/dist/sample.json  -> explorer 会显示出信息
 
+为了记住地址，可修改index.html中的 url: "https://petstore.swagger.io/v2/swagger.json" 为这个地址
+
+---Swagger CodeGen 3.x 
+
+<dependency>
+  <groupId>io.swagger.codegen.v3</groupId>
+  <artifactId>swagger-codegen-cli</artifactId>
+  <version>3.0.4</version>
+</dependency>
+
+java -jar swagger-codegen-cli-3.0.4.jar generate   -i http://petstore.swagger.io/v2/swagger.json -l java   -o /var/tmp/java_api_client
+是生成客户端代码,使用okhttp 和　google的gson
 
 ------------ RestTemplate
+
+------------ Spring整合Servlet
+
+ <!--Spring整合Servlet  Filter类中就可以注入Spring容器中的类 , WebApplicationContextUtils 不如这种方便 -->
+   <filter>
+    <filter-name>myFilterWithSpring</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>myFilterWithSpring</filter-name>
+    <url-pattern>/*</url-pattern> */
+  </filter-mapping>
+  
+@Component("myFilterWithSpring")
+public class MyFilterWithSpring implements Filter
+{
+	@Autowired
+	private Validator validator; //Filter类中就可以注入Spring容器中的类 ,WebApplicationContextUtils 不如这种方便
+}
 
 ------------spring session redis
  
@@ -1447,17 +1763,20 @@ http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp
 	 
 	 
   <context:annotation-config/> 
-	<!-- 
-	创建 springSessionRepositoryFilter,即是 SessionRepositoryFilter 的实例
+	<!-- 此配置可不用打开Spring ContextLoaderListener
+		创建 springSessionRepositoryFilter,即是 SessionRepositoryFilter 的实例
+	( @EnableRedisHttpSession 注解创建一个Bean名字为 springSessionRepositoryFilter 	)
 	RedisHttpSessionConfiguration 类的父类是带@Configuration中有一个方法名叫 springSessionRepositoryFilter 创建的  
 	-->
   <bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration">
       <property name="maxInactiveIntervalInSeconds" value="600"></property>
 	  <!-- spring session redis 设置  10分钟过期 -->
+	  <property name="redisNamespace" value="MyProject"></property> <!--redis 的key前缀为 MyProject:session -->
   </bean>
    
 
-  <!--   spring session 总开关, 如项目中有使用spring secruity 要放在    springSecurityFilterChain 前面 -->
+  <!--   spring session 总开关, 如项目中有使用spring security 要放在    springSecurityFilterChain 前面
+		, 如项目中有使用 Shiro 要放在    shiroFilter 前面-->
   <filter>
     <filter-name>springSessionRepositoryFilter</filter-name>
     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -1469,4 +1788,66 @@ http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp
   
   request.getSession().setAttribute("key","valu"); //就把session的值存放在redis中
   
-------------
+   
+<!-- 启用 HttpSessionListener 集成spring session会调用三次 sessionCreated ？？ -->
+	<bean id="sessionEventHttpSessionListenerAdapter" class="org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter">
+		<constructor-arg >
+			<list>
+				<bean class="myservlet.listener.MySessionListener"></bean>
+				<!--  只能是 HttpSessionListener ,不用在 servlet 中配置
+				<bean class="myservlet.listener.MySessionAttributeListener"></bean>
+				 -->
+			</list>
+		</constructor-arg>
+	</bean>
+  	<bean class="org.springframework.session.data.redis.RedisOperationsSessionRepository">
+  		<constructor-arg ref="jedisTemplate"></constructor-arg>
+  	</bean>
+	<bean id="stringRedisSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer"/>  
+	<bean id="jedisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+		  p:connectionFactory-ref="connectionFactory">
+		<property name="keySerializer" ref="stringRedisSerializer"/>  
+	    <property name="hashKeySerializer"  ref="stringRedisSerializer"/> 
+	 	<property name="valueSerializer">
+		   <bean class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer"/>   
+		</property>  <!-- 配置成JSON spring session redis中值也是二进制 -->
+	 </bean>
+
+------------spring websocket
+--sockJS　
+　WebSocket emulation　浏览器不支持websocket用socketjs 模拟
+ https://github.com/sockjs/sockjs-client/
+      的 dist目录有　sockjs.js　sockjs.map 文件 版本1.3.0 
+  spring 也有实现客户端和服务端
+
+
+--STOMP (Simple Text Oriented Messaging Protocol) 　
+ http://stomp.github.io/implementations.html
+ 服务端的实现有　RabbitMQ　  规范 1.0 ,1.1, 1.2 版本　
+  Apache的Apollo　(是ＡctiveMQ 的下一版本)   　规范 1.0 ,1.1, 1.2 版本　
+ 客户端Java实现(也有服务端实现)  Stampy     规范 1.2 版本
+  http://mrstampy.github.io/Stampy/
+  <dependency>
+   <groupId>asia.stampy</groupId>
+   <artifactId>stampy-NETTY-client-server-RI</artifactId>
+   <version>1.0-RELEASE</version>
+  </dependency>
+ 客户端JS实现   stomp.js    规范 1.0 , 1.1 版本 
+  http://jmesnil.net/stomp-websocket/doc/  有下载　 stomp.js　和 stomp.min.js
+  
+　也可使用
+ <dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>sockjs-client</artifactId>
+    <version>1.1.2</version>
+</dependency>
+<dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>stomp-websocket</artifactId>
+    <version>2.3.3</version>
+</dependency>
+
+见SpringBoot 
+
+
+

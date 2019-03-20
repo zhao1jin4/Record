@@ -6,6 +6,7 @@ Client (Driver) 有Python,JavaScript , .Net
 在下载 Neo4j Desktop 版本 的下方有 下载 Neo4j Server Commnity  版本
 解压  neo4j-community-3.4.8-windows.zip
 
+有　docker版本
 
 conf/neo4j.conf
 	打开才能远程连接

@@ -194,7 +194,7 @@ Finder 中 view->hide/show view options->选中Date Add,增加日期,对于复�
 打开/保存对框中,显示隐藏文件夹快捷键,command+shift+点(.),command+i打开info,也可用Finder中的comannd+shift+G 来粘贴路径,Command+shfit+n建立文件夹
 
 如使用command+c,command+v复制, Source目录中有文件夹A,Dest目录中也有文件夹A,两A的内容不同,如把source中A复制Dest目录中A, 选择replace按钮不能合并, Dest目录的A文件变为与Source目录中相同，原来的在Dest目录多出的文件被删除 !!!(有时会有merge按钮,有时没有)
-使用UltraCopier会提示merge,提示override同名文件, 使用 cp -r 是自动merge override同名文件, 不会删Dest中多的文件
+
 
 如选择多个文件(没有文件夹),复制到另一个目录中,如有同名文件,有时只提示 stop(如第一个同名,第二个文件就不会被复制,没有skip按钮),keep both(多加一个_2的文件),replace  三项
 cp 命令默认也会覆盖同名文件,要加-n 就不会覆盖同名文件
@@ -589,16 +589,12 @@ $ lsnrctl status listenername
 
 
 brew install mongodb 在线下载安装
-----------TextWrangler （不兼容 macOS 10.13 (High Sierra)）新版本改为 BBEdit-12 是收费的
+---TextWrangler （不兼容 macOS 10.13 (High Sierra)）新版本改为 BBEdit-12 是收费的
 TextWrangler  中 view->Hide/Show File   ,打开文件时要把文件拖到左边的(File)窗口中
 TextWrangler  中 preferences->Application标签->取消 Reopen Documents that were open at last quit
 TextWrangler  中 File->Reopen with encoding->Chinese GBK 可以对打开的文件是乱码做修改 （保存时可选择文件编码）
 TextWrangler  中 option + 上/下键 翻页
 
-
-Komodo-Edit   中 Edit->Current File Setting...->设置文件编码
-
-Mac UltraEdit 3.3  "文件" ->"比较文件...", 自带UltraCompare Lite 2.3.0.3
 
 VMware Fusion 右击Dock上图标->Vitual Machine Library 显示主窗口
 
@@ -606,11 +602,13 @@ MplayerX 取消播放时在最前端 ,preferences->general->keep window on top�
 
 Office 2011 Word 中 视图->侧栏->文档结构窗格
 Office 2011 Powerpoint 使用 上/下键 翻页 (不要选中元素)
-
-
 Office 2011 for Mac 自带MSN,没有我的分组信息,没有人名,对离线人,双击后提示是否邮件后,MSN就自动注销了
 还有一个用于Mac的连接windows的远程桌面工具,是可以用的,注意win7中要打开远程,防火墙设置,
 不要在VM中连接真实的win7,会屏,而且不能退出到VM中的Mac
+
+Mac-10.13 High Sirra 上安装 Office 2016(15.27),要占用7G空间, Outlook不能使用,其它的会要求登录,跳过后(可能破解了)可用
+Mac-10.13 High Sirra 上安装 Office 2019(16.17)  要占用9.4G空间 除Word,Excel,Powerpoint,Outlook 还有OneNote,OneDrive
+http://soft.macx.cn  Word,Outlook,OneNote三个使用要求登录(没破解不能跳过),Excel和Powerpoint两个没有要求登录可临时用
 
 cltools是mpkg包,如已经安装过,再安装不会提示卸载,是不知道的)
 
@@ -619,7 +617,7 @@ sudo rm -rf /Applications/Utilities/Adobe Application Manager
 
 
 
-Boot Camp  可以在Mac上安装Windows8.1 和 Visual Studio 2013
+Boot Camp  可以在Mac上安装Windows  
 http://msdn.microsoft.com/en-US/library/windows/apps/jj945423
 http://www.apple.com/cn/support/bootcamp/
 
@@ -648,6 +646,7 @@ iCHM 读.chm文件
 ScreenFlow 录像工具
 WineBottler-1.4.1
 VMWare Fusion  必须建立VM时指定光盘镜像文件
+VMWare Horizon client 4.10
 Parallels Desktop-10 虚拟机 
 
 TextWrangler  文本编辑器,语法高亮,右击文件->Services->open file in TextWrangle
@@ -657,8 +656,6 @@ DMGCanvas 制件.dmg格式文件,可加背景
 FreeDMG 制件.dmg格式文件,Images->create from folder...
 
 BetterZip	压缩工具,如多个rar包解压,少包是提示有密码的bug,右击文件->Services->compress with BetterZip
-MiniCopier	复制工具,是jar包
-UltraCopier	复制工具,复制相同目录时,会提示merge,提示override同名文件,Add Transfer->add files选多文件时,如有同名会提示skip还是override
 
 Versions 收费SVN
 SCPlugin	SVN 要把app文件放在工具栏上_选择文件夹后点它
@@ -714,9 +711,24 @@ PackageMarker 制作pkg,mpkg 包,没有找到哪,或者下载位置????
 魔方手机助手   用于在Mac OS下连接Android真机,真机要打开Debug,如不打开,只能打开手机的部分目录
 
 ------all mac
-
+TextMate
+bluefish
+Sublime 收费的
+Komodo-Edit
+Visual Studio 2017 for Mac version 7.8
+Visual Studio code
+atom
+DiffMerge
+UltraEdit 3.3  "文件" ->"比较文件...", 自带UltraCompare Lite 2.3.0.3
+Charles
+Wireshark
+conceptdraw Office, 带project项目管理工具
+LibreOffice
+Office 2019
+wineHQ
 
 RealPlayer SP
+VLC
 DivX 解码器
 Blender
 iTools  读iPhone,iPad设备(有windows的)
@@ -726,13 +738,7 @@ GIMP
 Paintbrush  类似windows画图
 IBM Notes , $HOME/Library/Application Support/IBM Notes Data 
 			$Home/Library/Preferences/Notes Preferences
-Charles
-Wireshark
-conceptdraw Office, 带project项目管理工具
-LibreOffice
-Office 2011 	带 MSN,连接windows的远程桌面
-Lync 2011
-SilverLight 为 Lync使用
+
 ----常用的
 QQ		聊天记录在	~/Library/Containers/com.tencent.qq/Data/Library/Application\ Support/QQ/
 飞信2012
@@ -746,8 +752,8 @@ Thunder
 金山词霸 
 有道词典
 五笔自带
-UltraEdit  自带 UlraCompare Lite
-Komodo Edit
+
+Editra 不更新了
 
 --------Java
 eclipse
@@ -768,6 +774,7 @@ VirtualBox
 Sqlite
 MySQL
 MySQL WorkBench
+DbVisualizer 10.0.16 要求  macOS 10.7.3+ JDK 8
 apache,vfstp,postfix,bind(dhcp)
 InstantClient
 MacOS 的绝种Oracle10gR2  ,安装时使用 runInstaller -J-d32强制启动32位JAVA环境来解决

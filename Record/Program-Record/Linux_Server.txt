@@ -1829,23 +1829,6 @@ cd /var/www/cgi-bin/openwebmail［Enter］　　// 进入openwebmail目录
 　　　./openwebmail-tool.pl -init［Enter］　　// 软件包初始化
 		当屏幕上显示"Please hit 'Enter' to continue or Ctrl-C to break."时，单击回车键继续。
 
-==========windows 仿问linux
-ext2fsd使用方法_测试OK
-	进入 Volume Manager ,双击需要安装的 EXT 分区,对话框中->点击更改盘符/装配点按钮->
-	对话框中 下拉列表中选择一个盘符->点击加载并退出 按钮,要重启之后的盘符才可以使用
-	重启后,打开Volume Manager双击ext挂载的ext分区,看到语种编码默认是utf8,复选了 设置为只读,不可写
-
-	虽然界面中显示的是ext3,但我用openSUSE12.2中的ext4分区,读是成功的
-	取消了只读后,可以向里面写数据,官方有说是支持ext的写操作的
-
-	我自己测试,写操作正常,但删除不是windows复制的文件,提示要everyone的权限
-
-	不要使用teraCopy工具
-	
-Ext2read_测试读ext4
-
-
-
 
 ==========Squid ,浏览器设置代理
 代理服务器和Web缓存服务器
@@ -1905,6 +1888,7 @@ reverse proxy：反向代理
 源码编译,要C++编译器 yum list| grep gcc-c++, 依赖于  PCRE (Perl Compatible Regular Expressions)库(不是2版本) 
 
 http://nginx.org/packages/ 有二进制包
+http://nginx.org/packages/sles/15/x86_64/RPMS/
 http://nginx.org/packages/centos/7/x86_64/RPMS/nginx-1.14.0-1.el7_4.ngx.x86_64.rpm  下载不了，网站问题
 http://nginx.org/packages/rhel/7/x86_64/RPMS/nginx-1.14.0-1.el7_4.ngx.x86_64.rpm   下载OK
 /usr/sbin/nginx ,man nginx 默认配置文件 /etc/nginx/nginx.conf
@@ -1986,6 +1970,7 @@ upstream  nginx支持4种Load Balancing算法，要在http组中
 	location / {
 		proxy_pass http://backend;
 		proxy_buffering off; #默认on打开的,会使请求变慢 !!!!!
+		
 	}
 2. Least Connections  ,最小的； 最少的little的最高级  
 	upstream backend {
@@ -2073,8 +2058,24 @@ server {
 	proxy_cache one;  用上面的名字
 	location / {
 		proxy_pass http://localhost:8000;
+		proxy_read_timeout  60s; --for reading a response from the proxied server
+		proxy_send_timeout 60s; -- for transmitting a request to the proxied server 没用
 	}
 }
+------上传文件大小限制
+location / {
+            root   html;
+            index  index.html index.htm;
+            client_max_body_size    500m;
+  } 
+-----自定义错误页
+放在    server 下和 location /  下
+
+	error_page  502   /50x.html;   #后台服务全部不可用时报 502 Bad Gateway
+	location = /50x.html {
+			root   html;  #windows下安装目录的html(linux是/usr/share/nginx/html)目录有/50x.html 
+	}
+	
 ------nginx  HTTP2
 源码编译增加
 --with-http_v2_module 选项
@@ -2142,6 +2143,16 @@ D:\software\nginx-1.14.0\nginx-1.14.0> nginx.exe -p D:\software\nginx-1.14.0\ngi
 phpinfo();
 ?>
 测试成功
+------nginx  限流
+添加limit_zone和limit_req_zone
+
+添加limit_conn 和limit_req
+
+1、limit_conn_zone
+
+2、limit_req_zone
+
+3、ngx_http_upstream_module
 
 ----- rockmongo  
 
@@ -2588,10 +2599,7 @@ ls dirdat 有文件了
 strings dirdat/rt000000 | grep    二进制文件中显示可打印字符
  
 -----   2 部分   自己手工做测试成功 
- 
- 
------------------------------  KVM
- 
+
  
  
  

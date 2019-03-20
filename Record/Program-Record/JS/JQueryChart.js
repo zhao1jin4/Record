@@ -182,4 +182,10 @@ Bar chart with dynamic data: <span class="dynamicbar">Loading..</span>
 Bar chart with inline data: <span class="inlinebar">1,3,4,5,3,5</span>
 </p>
 
-	
+
+=================jQueryGantt
+https://github.com/robicch/jQueryGantt
+
+
+
+

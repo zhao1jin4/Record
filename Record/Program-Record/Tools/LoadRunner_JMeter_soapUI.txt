@@ -198,6 +198,8 @@ Controller中可以拖Oracle 监视图，要用system用户，V$SYSSTAT中的par
 ==========================Tcpcopy 是一个分布式在线压力测试工具
 
 =========================JMeter
+5 版本要求  JDK8 或JDK9  不支持JDK10, 11
+
 第一步要建立一个线程组
 
 
@@ -524,7 +526,11 @@ http://www.soapui.org/Load-Testing/simulating-different-types-of-load.html
 
 --- logbase 登录监控抓屏，mstsc只启动 PL/SQL Developer ,可自动登录
 --- 还有一种是web页面登录，启动Xshell或者putty的,传文件用sz,rz
---- Selenium 浏览器自动化测试框架
+
+--- Selenium 浏览器自动化测试框架  使用Python
+
+--- AirtestIDE 网易的 使用python 可以测试anroid/ios游戏,也可web 用 Airtest-Selenium
+
 
 ---showdoc 在线文档工具  v1.8.6 
 PHP项目
@@ -535,6 +541,8 @@ https://github.com/star7th/showdoc/releases
 pinpoint 1.7.1 要求 HBase 1.2.x	 
 https://github.com/naver/pinpoint
 
- 
+
+
+
 
 

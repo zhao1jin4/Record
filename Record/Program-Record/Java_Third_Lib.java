@@ -1,4 +1,909 @@
 
+==============================Maven服务器 Nexus OSS 
+2.x版本有跨平台的 -bundle.zip解压 
+
+nexus-2.7.2-03\conf\nexus.properties 中有配置项目nexus-work 是 sonatype-work 目录,就是解压目录的 , 仓库存放位置 
+nexus-2.7.2-03\bin\jsw\windows-x86-64\ 以管理员运行 install-nexus.bat ,再 start-nexus.bat 
+nexus-2.14.1-01\bin\nexus.bat  会提示install (要以管理员运行,会在servces.msc中出现) ,start 
+
+http://localhost:8081/nexus  默认有一个用户 admin  密码 admin123  
+[Views/Repositories]->[Repositories]->选中仓库URL->[Configuration]-> 修改 Download Remote Indexes 设为 true
+
+
+hosted 本地资源库 ,部署自己的构件  , 有上传.jar包功能 
+proxy 代理资源仓库,它代理远程的公共资源仓库,如maven中央资源仓库
+group 资源仓库组,用来合并多个hosted/proxy资源仓库,配置maven依赖资源仓库组
+
+ 可以新建仓库，建立用户指定角色，角色指定权限
+
+ 可以设置是否可以 deployment,是release的还是snapshot的
+------Nexus Repository OSS 3.5.1
+	 没有 -bundle.zip了 unix版本 要求至少JDK 1.8 ,解压出现了sonatype-work
+	 可以运行在 Docker 上
+nexus-3.5.1-02/bin/nexus start
+ ./nexus run
+
+ tail -f sonatype-work/nexus3/log/nexus.log
+ 直接仿问 http://127.0.0.1:8081/ 默认有一个用户 admin  密码 admin123     
+		提示 max file descriptor至少65536(默认4096)
+		 /etc/security/limits.conf (Ubuntu 除外)
+			nexus - nofile 65536
+		重启 Nexus
+配置用
+http://127.0.0.1:8080/repository/maven-public/
+http://127.0.0.1:8080/repository/maven-releases/
+http://127.0.0.1:8080/repository/maven-snapshots/
+
+ 浏览包用
+ http://127.0.0.1:808/#browse/browse/components:maven-public 有目录级别
+ http://127.0.0.1:808/#browse/browse/assets:maven-public     子目录以/显示
+ 
+----------------------------------Maven
+
+设置PATH环境变量  
+
+mvn -version
+mvn -e		full stack trace of the errors
+
+如单元测试报错, 控制台没有原因,要进入target/surefire-report/中的txt文件 有错误 堆栈信息
+
+
+http://search.maven.org/ 可以搜索 Maven 依赖包 
+http://www.mvnrepository.com    会提示名字是老的哪个是新的 如jsp-api,log4j
+
+Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/maven-model-builder-3.3.9.jar/org/apache/maven/model/pom-4.0.0.xml 有配置 
+<repositories>  
+    <repository>  
+        <id>central</id>  
+        <name>Maven Repository Switchboard</name>  
+        <url>http://repo1.maven.org/maven2</url>  
+        <layout>default</layout>  
+        <snapshots>  
+            <enabled>false</enabled>  
+        </snapshots>  
+    </repository>  
+</repositories>  
+ 
+----settings.xml
+默认读配置文件 ${user.home}/.m2/settings.xml (用户级,和安装目录的做合并,相同项用户级高),可从安装目录复制
+默认仓库是位于 ${user.home}/.m2/repository/ 即 %HOMEPATH%\.m2  MAVEN_REPO 的变量来修改
+可以修改配置<localRepository>/path/to/local/repo/</localRepository>
+设置 proxy ,但没说什么协议,如没有办法设置 http://主机:端口/文件  形式的代理 , [文件]的部分没办法给,)
+
+<server>
+  <id>my_libs_snapshot</id>  <!-- id对应 pom.xml中的 <distributionManagement> 中的Id的值   -->
+  <username>xx</username>
+  <password>yy</password>
+</server>
+
+<mirrors>
+	<mirror>
+		<id>mirrorId</id>  
+		<mirrorOf>*</mirrorOf>  
+		<!-- 可为 *   或者 env_development,central (https://repo.maven.apache.org/maven2/) 
+	
+		表示如果仿问 central 也要通过个url仿问 -->
+		<url>http://192.168.0.141:8081/nexus/content/groups/public</url>    <!-- 应该是内网地址 -->
+	</mirror>
+</mirrors>
+
+<profiles>
+	<profile> 
+	  <id>env_development</id>	<!-- 对应下面的 activeProfile -->
+	  <repositories>
+		<repository>
+		  <snapshots>   <!-- snapshots -->
+			<enabled>false</enabled>
+		  </snapshots>
+		  <id>my_libs_release</id>
+		  <name>My Library Releases</name>
+		  <url>${release_deployment_url}</url>   <!-- 是下面的 properties中的标签名,是自己项目的存放位置-->
+		</repository>
+		<repository>
+		  <releases>	<!-- releases -->
+			<enabled>false</enabled>
+		  </releases>
+		  <id>my_libs_snapshot</id>
+		  <name>My Library Snapshots</name>
+		  <url>${snapshot_deployment_url}</url>
+		</repository>
+	  </repositories>
+	  <properties>
+		<!-- <url>http://repo1.maven.org/maven2/</url>  这里是配置公用的第三方包 http://search.maven.org/#browse
+					http://central.maven.org/maven2
+					http://repo.spring.io/libs-release/ 
+					http://maven.aliyun.com/nexus/content/groups/public
+			-->
+		<release_deployment_url>http://localhost:8080/my/repo</release_deployment_url>
+		<snapshot_deployment_url>http://localhost:8080/my_snapshot/repo</snapshot_deployment_url>
+	  </properties>
+	</profile>
+</profiles>
+
+<activeProfiles>
+	<activeProfile>env_development</activeProfile>   <!-- 对应上面 ,测试如不开mirror没有效果???? -->
+</activeProfiles>
+
+---------setting.xml示例    
+	<servers>
+		<!--  id对应 pom.xml中的 <distributionManagement> 中的Id的值  ( 官方说也有<repository> (测试pom.xml不能少配置)或者 <mirror>   )
+		<server>
+			<id>local_net_repo</id>  
+			<username>hrbb</username>
+			<password>pass123</password>
+		</server> 
+		--> 
+	</servers> 
+    
+	<mirrors>
+		<mirror>
+			<id>nexusMirror</id>
+			<mirrorOf>central</mirrorOf> <!-- central 或者 * -->
+			<url>http://10.1.5.228:8081/nexus/content/groups/public</url>
+		</mirror>
+	</mirrors>
+
+	<profiles>
+		<profile>
+			<id>centerProfile</id>
+			<repositories>
+				<repository>
+					<id>public_net_repo</id>
+					<url>http://repo1.maven.org/maven2/</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+		 </profile>
+		 
+		<profile>
+			<id>nexusProfile</id>
+			<repositories>
+		 		<repository>
+					<id>local_net_repo</id>
+					<url>http://10.1.5.228:8081/nexus/content/groups/public</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+		</profile>
+		
+	</profiles>
+ 
+	 
+	<activeProfiles>
+		<activeProfile>nexusProfile</activeProfile>
+	</activeProfiles>
+	
+
+----pom.xml 
+mvn dependency:tree 打印整个依赖树 
+ 
+Maven内置隐式变量 
+${basedir} 项目根目录
+${project.xxx} 当前pom文件的任意节点的内容 
+
+
+依赖关系 
+A-> L 1.0
+B-> L 2.0
+C->A,B 那么C最终依赖L 1.0 根据书写顺序A写在前面
+如C 也依赖于 L 3.0 ,那么最终依赖L 3.0,依赖找路径最近的  ,应该使用dependenceMangement
+
+
+groupId 是包名
+artifactId 是自己的项目名
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <!-- 对多个项目的分类,顶级是 <packaging>pom</packaging>
+	<parent>
+		<groupId>com.mycompany.myproject</groupId>
+		<artifactId>myproject</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+  -->
+  <name>MyProjectApp</name> <!-- 一些工具会显示为项目名,如NetBeans -->
+  <groupId>com.mycompany.myproject.app</groupId>
+  <artifactId>myproject_app</artifactId>  
+  <version>1.1.0-SNAPSHOT</version> 	<!-- 如有父版本,这里不用指定 -->
+  <packaging>jar</packaging>  <!-- jar,war,pom -->
+  <!-- 对  <packaging>pom</packaging> 时module是项目名,如deploy facade时,应把parent级 pom中其它的module注释，在parent级做deploy
+  <modules>
+	    <module>myproject-facade</module>
+  </modules>
+  --> 
+  <build> 
+	<finalName>${project.artifactId}-${project.version}</finalName>
+	<resources>
+		<resource>
+			<directory>src/main/resources</directory>
+			<excludes>
+				<exclude>dubbo.properties</exclude>
+			</excludes>
+		</resource>
+	</resources> <!-- 或者使用下面的war插件 -->
+	<plugins>
+		 <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-war-plugin</artifactId>
+			<version>3.2.2</version>
+			 <configuration>
+				<packagingExcludes>**/dubbo.properties</packagingExcludes>
+				<attachClasses>true</attachClasses><!-- 父项目,就会把classs打包会生成<project>-<version>-classes.jar (在不加<finalName>的情况下)-->
+				<archiveClasses>true</archiveClasses>
+			</configuration>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-war-plugin</artifactId>
+			<version>3.2.2</version>
+			<configuration>
+			<!--  
+			子项目中 先 dependency  <type>war</type> 
+					再依赖于<type>jar</type>
+   							<classifier>classes</classifier>
+				这个插件把依赖的war和这个war合并打包,会生成<项目>/overlays目录 存放依赖war的解压
+			-->
+			  <overlays>  
+				<overlay> 
+				  <groupId>com.example.projects</groupId>
+				  <artifactId>documentedprojectdependency</artifactId>
+				  <excludes>
+					<exclude>WEB-INF/classes/images/sampleimage-dependency.jpg</exclude>
+				  </excludes>
+				</overlay>
+			  </overlays>
+			</configuration>
+		  </plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.8.0</version>
+			<configuration>
+			  <verbose>true</verbose>
+			  <fork>true</fork>
+			  <executable>${JAVA_HOME}/bin/javac</executable>
+			  <compilerVersion>1.8</compilerVersion>
+			</configuration>
+			<!--
+			  <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+             </configuration>
+			-->
+		  </plugin>
+		  
+		  
+	官方文档
+	 <plugin>  <!-- OK -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>  
+	  或者 只加  <properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	
+	  
+		  
+		<!-- mvn package时 把所有依赖的jar解压放在一起,如果为.jar 指定 Main-Class: com.   ,如使用了spring,运行的机器又不能上网要加 AppendingTransformer  -->
+		<plugin> 
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>2.3</version>
+			<executions>
+				<execution>
+					<phase>package</phase>  <!-- 在哪个生命周期之后执行 -->
+					<goals>
+						<goal>shade</goal>  <!-- 目标名,插件提供的,看插件文档 -->
+					</goals>
+					<configuration> <!-- 里的所有配置都是对应插件的属性名,@parameter -->
+						<transformers>
+							<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+								<mainClass>com.MainApp</mainClass>
+							</transformer>
+							<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+								<resource>META-INF/spring.handlers</resource>
+							</transformer>
+							<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+								<resource>META-INF/spring.schemas</resource>
+							</transformer>
+						</transformers>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
+
+	   <plugin> <!--打包方式2,依赖jar包会放在目录下 -->
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-assembly-plugin</artifactId>
+			<version>2.4</version> 
+			<configuration> 
+				<descriptors>
+					<descriptor>assembly.xml</descriptor>
+				</descriptors>
+			</configuration>
+			<executions>
+				<execution>
+					<id>make-assembly</id>
+					<phase>package</phase>
+					<goals>
+						<goal>single</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+		<plugin> <!--打包方式3 要在jar外有lib目录,  但没有生成？？？？  --> 
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-jar-plugin</artifactId>
+			<configuration>
+				<source>1.8</source>
+				<target>1.8</target>
+				<archive>
+					<manifest>
+						<mainClass>com.xx.MainApp</mainClass>
+						<addClasspath>true</addClasspath>
+					<classpathPrefix>lib/</classpathPrefix>
+					</manifest> 
+				</archive>
+				<classesDirectory>
+				</classesDirectory>
+			</configuration>
+		</plugin>
+		
+	  
+		<plugin> <!-- 打包源码插件,生成-sources.jar  也可单独运行 mvn source:jar 但clean后就没了 -->
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-source-plugin</artifactId>
+			<version>2.2.1</version>
+			<executions>
+				<execution>
+					<id>attach-sources</id>
+					<goals>
+						<goal>jar</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<version>2.7.1</version> <!-- 只能2.7.1 版本才不会报找不到org/apache/commons/lang3/StringUtils-->
+			<configuration>
+			  <includes>
+				<include>test/coverage/RunAllCoverageTest.java</include> <!-- 指定入口类 @SuiteClasses -->
+			  </includes>
+			  <configuration>
+				<skip>true</skip>  <!-- 配置这个 相当于-DskipTests=true -->
+			  </configuration>
+			</configuration>
+      </plugin>
+	  
+	<plugin>
+	  <groupId>org.eclipse.jetty</groupId>
+	  <artifactId>jetty-maven-plugin</artifactId>
+	  <version>9.4.6.v20170531</version>
+	   <configuration>
+		  <scanIntervalSeconds>10</scanIntervalSeconds>
+		  <webApp>
+			<contextPath>/test</contextPath>
+		  </webApp>
+		</configuration>
+	</plugin>  <!-- 就可用 mvn jetty:run -->
+ 
+ 
+ <!--部署到tomcat,配置权限用户,  mvn cargo:redeploy 
+如tomat8,127.0.0.1就OK, 本机IP就不行,/conf/Catalina/localhost/目录下要加文件manager.xml （没有就新建） (CSRF) -->
+	<plugin>
+		    <groupId>org.codehaus.cargo</groupId>
+		    <artifactId>cargo-maven2-plugin</artifactId>
+		    <version>1.4.4</version> <!-- tomcat8 要1.4.4, tomcat9 要 1.5.1-->
+		    <configuration>
+		        <container>
+		            <containerId>tomcat8x</containerId>
+		            <type>remote</type>
+		        </container>
+		        <configuration>
+		            <type>runtime</type>
+		            <properties>
+		                <cargo.tomcat.manager.url>http://127.0.0.1:8080/manager</cargo.tomcat.manager.url>
+		                <cargo.remote.username>manager01</cargo.remote.username>
+		                <cargo.remote.password>manager01</cargo.remote.password>
+		                <cargo.servlet.port>8080</cargo.servlet.port>
+		                <cargo.hostname>127.0.0.1</cargo.hostname>
+		                <cargo.tomcat.ajp.port>8009</cargo.tomcat.ajp.port>
+		            </properties>
+		        </configuration>
+		    </configuration>
+		</plugin>
+		
+		
+	<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <id>compile</id>
+            <phase>compile</phase>
+            <configuration>
+              <target>
+                <property name="compile_classpath" refid="maven.compile.classpath"/>
+                <property name="runtime_classpath" refid="maven.runtime.classpath"/>
+                <property name="test_classpath" refid="maven.test.classpath"/>
+                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
+
+                <ant antfile="${basedir}/build.xml">
+                  <target name="antBuild"/>
+                </ant>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+	  <--  
+	   build.xml 
+		<project name="test">
+			<target name="antBuild">
+			  <echo message="compile classpath: ${compile_classpath}"/>
+			  <echo message="runtime classpath: ${runtime_classpath}"/>
+			  <echo message="test classpath:    ${test_classpath}"/>
+			  <echo message="plugin classpath:  ${plugin_classpath}"/>
+			  <property name="fromProject" value="baseProject"/>
+			  <property name="fromVersion" value="1.0.1"/>
+			  
+			  <copy  todir="${basedir}/target/classes"  overwrite="no" >  
+				<fileset dir="${basedir}/../${fromProject}/target/classes"/>
+			 </copy>
+			 <copy  todir="${basedir}/target/${ant.project.name}"  overwrite="no" >  
+				<fileset dir="${basedir}/../${fromProject}/target/${fromProject}-${fromVersion}"/>
+			 </copy>
+			</target>
+		</project>
+		更好的方案
+			==父war项目 maven-war-plugin 插件用 ,就会把classs打包会生成<project>-<version>-classes.jar
+			<attachClasses>true</attachClasses> 
+			<archiveClasses>true</archiveClasses> 
+			
+			== 子war项目依赖父<type>war</type>一次,在package时可以把父项目的webapp复制过来,如有overlay插件修改父项目pom.xml时,clean时也要把overlays目录删除
+					再第二次依赖父<type>jar</type>
+   								 <classifier>classes</classifier>会依赖<project>-<version>-classes.jar及所有子依赖,再复制WEB-INF/lib下,可以解决编译依赖类问题
+			如子项目与项目同名文件，子项目会覆盖父项目
+	-->
+	  
+   <plugin> <!--  对 <type>bundle</type>要加这个才行 -->
+			<groupId>org.apache.felix</groupId>  
+		    <artifactId>maven-bundle-plugin</artifactId>  
+		    <extensions>true</extensions>  
+		</plugin>
+  
+	</plugins>
+  </build>
+<profiles>  <!-- intellij IDE maven视图可以动态切换环境 -->
+	<profile>
+		<id>local</id>
+		<properties>
+			<env>dev</env>
+			<!-- 里面的是自己使用的自属性 spring 配置中可以使用${env} ,log4j.properties可用${loglevel}-->
+			<loglevel>DEBUG,Console</loglevel>
+		</properties>
+		<activation>
+			<activeByDefault>true</activeByDefault><!-- 项目目录下的 dev 目录成为classpath -->
+		</activation>
+	</profile>
+	<profile>
+		<id>test</id>
+		<properties>
+			<env>test</env>
+			<loglevel>DEBUG,Console</loglevel>
+		</properties>
+	</profile>
+</profiles>
+
+<!--就可以不从官方下载jar,速度快很多-->
+<repositories>  
+    <repository>  
+        <id>central</id>  
+        <name>Maven Repository Switchboard</name>  
+        <url>http://repo.spring.io/libs-release/</url>  
+        <layout>default</layout>  
+        <snapshots>  
+            <enabled>false</enabled>  
+        </snapshots>  
+    </repository>  
+</repositories>  
+<pluginRepositories>
+	<pluginRepository>
+		<id>dev_nexus</id>
+		<url>http://repo.spring.io/libs-release/</url>
+		<releases>
+			<enabled>true</enabled>
+		</releases>
+		<snapshots>
+			<enabled>true</enabled>
+		</snapshots>
+	</pluginRepository>
+</pluginRepositories>
+ 
+  <distributionManagement> <!-- 为mvn deploy时用使用id做对应  -->
+		<repository>
+			<id>releases</id>
+			<url>http://10.1.5.228:8081/nexus/content/repositories/releases</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<url>http://10.1.5.228:8081/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>  
+
+	<properties>  <!-- org.apache.maven.plugins  使用的-->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+	</properties> 
+	<dependencyManagement>
+	  <dependencies>
+		<dependency>
+		  <groupId>junit</groupId>
+		  <artifactId>junit</artifactId>
+		  <version>4.12</version> <!-- 现在有5的版本  可以不指定版本 在 <dependencyManagement> <dependencies> 中管理版本 -->
+		  <scope>test</scope> <!-- 只my_app/src/test/java中类可访问到-->
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.1</version> <!-- 3.0.1,4.0.1-->
+			<scope>provided</scope> <!-- 不会参与打包 ,默认是compile ,还有runtime不参与run -->
+		</dependency> 
+		<!-- A依赖B，B依赖C  当C是test或者provided时，C直接被丢弃，A不依赖C 也就会编译错误
+			<type>pom</type>
+			<scope>import</scope>
+		-->
+ 
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>javax.servlet.jsp-api</artifactId>
+			<version>2.3.3</version>
+			<scope>provided</scope>
+		</dependency>
+	<dependency>
+	    <groupId>javax.websocket</groupId>
+	    <artifactId>javax.websocket-api</artifactId>
+	    <version>1.1</version>
+	    <type>bundle</type>
+	 </dependency>
+		<dependency>
+         <groupId>ldapjdk</groupId>
+         <artifactId>ldapjdk</artifactId>
+         <scope>system</scope>  <!-- 指定jar包在本地系统中 -->
+         <version>1.0</version>
+         <systemPath>${basedir}\src\lib\ldapjdk.jar</systemPath>
+      </dependency>
+	  </dependencies>
+	 </dependencyManagement>
+	<dependencies>
+		<dependency>
+		  <groupId>junit</groupId>
+		  <artifactId>junit</artifactId> <!-- 这里只配置两个,其它就可以使用统一的配置如version,scope -->
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+		 </dependency> 
+		 
+		 <dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>${jedis}</version>
+			<optional>true</optional> <!-- 可选的 -->
+		</dependency>
+		
+	<!-- 防止报  Missing artifact jdk.tools:jdk.tools:jar:1.6      -->
+	 <dependency>  
+		<groupId>jdk.tools</groupId>
+		<artifactId>jdk.tools</artifactId>
+		<version>1.8</version>
+		<scope>system</scope>
+		<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
+	</dependency>
+	
+	</dependencies>
+ </project>
+
+
+
+----assembly.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>bin</id>
+    <includeBaseDirectory>false</includeBaseDirectory> 
+    <formats>
+        <format>zip</format>
+    </formats>
+ 
+    <dependencySets>
+        <dependencySet> 
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>query/lib</outputDirectory>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+
+    <fileSets> 
+        <fileSet>
+            <directory>${deploy.dir}/classes/</directory>
+            <outputDirectory>query/conf</outputDirectory>
+            <includes>
+                <include>*.xml</include>
+                <include>*.properties</include>
+            </includes>
+        </fileSet> 
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/query</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
+
+在test/java可以访问到依赖jar包中 my_app/src/main/java , my_app/src/main/resources
+
+----
+my_app/pom.xml
+my_app/src/main/java
+my_app/src/main/resources
+my_app/src/test/java
+my_app/src/test/resources
+my-webapp/src/main/webapp/WEB-INF/
+
+使用帮助 , 通常还是上网查方便
+mvn help:describe -DgroupId=org.apache.maven.plugins -DartifactId=maven-surefire-plugin  -Ddetail
+
+<scope> 如为 runtime 运行时依赖,如jdbc-driver，有provide,test,
+
+生命周期 ,对应插件里的<executions> <execution>  	<phase>package</phase>  的配置
+
+在pom.xml文件所在的目录,执行mvn命令
+  
+mvn clean 删target目录
+mvn compile  编译 			
+mvn test 编译test目录并运行,
+mvn package  打包,会先做 compile,对应pom.xml中的<packaging>jar</packaging> ,my-app/target  下生成.jar
+mvn deploy -Dmaven.test.skip=true  会先做 package,把新包部署到远程Maven仓库 ,pom.xml要配置 <distributionManagement> 密码配置在setting.xml
+	
+mvn install  也可 eclipse 中 run as ->maven install 会打新包到本地仓库
+mvn clean compile   可以几个目标一起执行
+mvn package -e 查看错误信息
+mvn clean package -Dmaven.test.skip=true    跳过编译测试类,生成.war包中的/lib/没有重复的.jar
+mvn install -DskipTests     跳过test的执行，但要编译  
+ --update-snapshots  更新snapshots的依赖包
+
+
+mvn archetype:generate  会提示输入groupId,groupId
+
+会生成pom.xml做模板使用 ,也可以使用eclipse mavne插件,建立maven项目来选择
+mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+对web项目
+mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-webapp -DinteractiveMode=false
+ 
+mvn -f xxx.pom   -s  settting.xml
+
+---sonar 覆盖率maven插件
+jenkins ->配置->构建后操作步骤->Sonar,Publish Coberutra Coverage Report
+mvn clean package sonar:sonar 测试覆盖率报告(要单独的服务器)
+
+---cobertura 覆盖率maven插件
+mvn clean package cobertura:cobertura   单独生成测试覆盖率报告   target/site/cobertura/index.html ,适用于每个项目的test 目录,只测试这个项目的main中的类
+
+
+可在父POM中增加,也可以不加
+ 
+<build>
+	<plugins>
+	  <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>cobertura-maven-plugin</artifactId>
+		<version>2.7</version>
+	  </plugin> 
+	</plugins>
+</build>
+<reporting>
+	<plugins>
+	  <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>cobertura-maven-plugin</artifactId>
+		<version>2.7</version>
+	  </plugin> 
+	</plugins>
+</reporting>
+ 
+
+----------------------------------Gradle
+http://avatarqing.github.io/Gradle-Plugin-User-Guide-Chinese-Verision/
+
+eclipse marketplace 插件 buildship gradle integration 3.0.2(STS 3.9.7自带)
+
+
+
+Spring 和 Android使用 ,可以构建 C++
+
+bin 目录入 PATH 环境变量下,初次运行 gradle 命令会在~\.gradle下生成文件
+
+spring 有 gradle 示例
+项目中有 src\main\java\包名  (同 maven,web项目手工增加webapp目录 apply plugin: 'war')
+项目中有 build.gradle 文件 
+		如有 apply plugin: 'java' 
+
+gradle tasks 命令可看到所有可用的 build任务
+就可用  gradle build 命令构建 ,会在当前目录下生成 build\libs,build\classes目录 
+  
+  
+---build.gradle  文件
+
+Gradle设置全局仓库 创建文件 ~/.gradle/init.gradle 
+ 或者命令行加 -I or --init-script，
+ 或GRADLE_HOME/init.d/目录以.gradle结尾的文件　　
+    eclipse配置 local installation directory:　(/init.d/xx.gradle) 优先于项目中的 build.gradle
+    idea 项目配置 Gradle Home:(/init.d/xx.gradle)    优先于项目中的 build.gradle
+   
+	allprojects {
+		repositories {
+			mavenLocal()
+			maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+			maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
+			maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} 
+		}
+	}
+---上未何没用 可能因为自己的项目有 allprojects的配置
+
+
+apply plugin: 'java' 
+apply plugin: 'war'  //打成war包
+//apply plugin: 'com.android.application'  //Android 
+mainClassName = 'hello.HelloWorld'  //可以使用  ./gradlew run 来运行
+
+repositories { 
+	//增加镜像  放最前，有顺序的
+	maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+	maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
+	maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} 
+	//mavenLocal()
+	//mavenCentral()
+	//jcenter()  //会从  https://jcenter.bintray.com/com/ 下载 
+}
+dependencies {
+    compile group: 'org.springframework', name: 'spring-core', version: '5.1.2.RELEASE'
+    compile("org.webjars:sockjs-client:1.0.2") //第二种写法
+	providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
+    providedCompile group: 'javax.servlet', name: 'jsp-api', version: '2.0'
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+	classpath 'com.android.tools.build:gradle:3.2.0' //Adnroid
+} 
+jar {
+    baseName = 'my-project'  //生成jar包的名字为my-project-0.1.0.jar
+    version =  '0.1.0'
+}
+task wrapper (type:Wrapper)  // 就可以直接使用 gradle wrapper ,而不用加--gradle-version 5.2
+{
+	gradleVersion = 5.2 //只可有一个小数点
+} 
+// task后是定义的任务名
+如果想让父模块配置可以所有子模块去用，父模块最外层增加 allprojects {}
+IDEA可以建立子模块项目 ,setting.gradle文件中自动增加 include 'childTwo'
+  自己的模块间相互引用 在dependencies中增加 compile project(":childTwo")
+  
+会自动下载其它依赖的包,在~/.gradle\caches\modules-2\files-2.1目录下
+				%HOMEPATH%\.gradle\caches\modules-2\files-2.1
+    
+    
+
+新建环境变量 GRADLE_USER_HOME=D:/GRADLE_REPO (不能和MAVEN仓库共用位置)
+IDEA 配置 Service directory path:　会在目录创建caches\modules-2\files-2.1  
+eclipse 配置gradle user home:　会在目录创建caches\modules-2\files-2.1
+
+ IDEA 的gradle视图(同maven)->展开tasks->build->双击jar
+eclipse 的gradle tasks 视图->展开build->双击jar,在build/libs目录生成
+
+gradle wrapper --gradle-version 5.2 会生成 gradlew 可执行文件和gradle/wrapper目录 在项目目录下,gradle-wrapper.properties文件中下载gradle对应版本的URL
+
+就可以执行 ./gradlew build 来构建项目
+
+gradle init --type java-application
+ Select build script DSL:
+   1: groovy
+   2: kotlin　如选择这个生成的是 build.gradle.kts , settings.gradle.kts
+ 后面还会提示选择Junit 还是ＴestNG
+ 
+ --------------build.gradle.kts
+ 和　build.gradle　格式不同
+ plugins {　
+    java
+ }
+ dependencies {　
+    implementation("com.google.guava:guava:27.0.1-jre")
+    testImplementation("org.testng:testng:6.14.3")
+ }
+ 
+application {
+    mainClassName = "org.myproj.App"
+}
+val test by tasks.getting(Test::class) {
+    useTestNG()
+}
+ 
+----------------------------------ANT
+ant build.xml
+ant -buildfile myBuilde.xml  或者  -f 或 -file
+	-d 是debug输出
+	
+<taskdef name="simpletask" classname="ant_xml_.MyTask" classpath="${build.dir}" />
+	用于自定义一些任务，为了可以在同一个构建过程中使用编译过的任务，<taskdef>必须出现在编译之后。
+
+可以重写execute方法，和init方法，也可加setSize，setDir(File dir)
+log("进入自定义任务的excecute---" , Project.MSG_INFO);
+Project proj=getProject();
+File base=proj.getBaseDir();
+
+<tstamp>
+	<format property="myDate" pattern="yyyy-MM-dd HH:mm:ss"/>
+</tstamp>	就可以用 "${DSTAMP}${TSTAMP}.war"
+<property enviroment="env"/>  就可以使用  "${env.JAVA_HOME}"
+<property file="aa.properties" prefix="props"/> 
+内置的一些 ${os.name},${ant.java.version},${ant.file}构建文件的绝对路径
+ *.* 表示当前目录下的所有文件
+ **表示当前目录及所有子目录的所有文件
+
+<simpletask size="30"   dir="${build.dir}">;
+
+
+<project name="platform" default="all" basedir=".">
+	<target name="all" description="build">
+	 <javac  destdir="classes" srcdir="src"   ></javac>   <!--对没有修改的java文件不会再次编译-->
+ 	 <copy  todir="classes"  overwrite="no" > <!--对没有修改xml文件不会再次复制-->
+	 	<fileset dir="src">
+	 		<include name="*.xml"></include>
+	 	</fileset>
+	 </copy>
+	</target>
+</project>
+
+可以弹出对话框,以下拉形式选择
+<input validargs="${default.templates}" defaultvalue="${extgen.template.default}" addproperty="input.template">
+Please choose a template for generation.
+Press [Enter] to use the default value
+</input>
+
+可以弹出对话框,让用户输入
+<input defaultvalue="${extgen.extension.name}" addproperty="input.name">
+Please choose the name of your extension. It has to start with a letter followed by letters and/or numbers.
+Press [Enter] to use the default value</input>
+
+ANT JUINT
+
+<macrodef  是定义任务的
+		<sequential>  it can contain other Ant tasks.
+		
 ==============================Dom4j
 ---------Dom4j 写
 Document document = DocumentHelper.createDocument();
@@ -25,6 +930,12 @@ xmlWriter.write(document);//有<?xml
 xmlWriter.close(); 
 
 ---------Dom4j SAX读
+<dependency>
+	<groupId>jaxen</groupId>
+	<artifactId>jaxen</artifactId>
+	<version>1.1.6</version>
+</dependency>
+	
 Document document = DocumentHelper.parseText(xmlSoapResponse.toString());
 Element soapenvNode = document.getRootElement().element("Body").element("respone1");//dom4j会保留名称空间,w3c的不会
 
@@ -302,883 +1213,6 @@ RunJettyRun-1.8 插件 当eclipe认为是web项目(有建立Servlet的界面)才
 
 ==============================Tomcat Embed
 
-==============================Maven服务器 Nexus OSS 
-2.x版本有跨平台的 -bundle.zip解压 
-
-nexus-2.7.2-03\conf\nexus.properties 中有配置项目nexus-work 是 sonatype-work 目录,就是解压目录的 , 仓库存放位置 
-nexus-2.7.2-03\bin\jsw\windows-x86-64\ 以管理员运行 install-nexus.bat ,再 start-nexus.bat 
-nexus-2.14.1-01\bin\nexus.bat  会提示install (要以管理员运行,会在servces.msc中出现) ,start 
-
-http://localhost:8081/nexus  默认有一个用户 admin  密码 admin123  
-[Views/Repositories]->[Repositories]->选中仓库URL->[Configuration]-> 修改 Download Remote Indexes 设为 true
-
-
-hosted 本地资源库 ,部署自己的构件  , 有上传.jar包功能 
-proxy 代理资源仓库,它代理远程的公共资源仓库,如maven中央资源仓库
-group 资源仓库组,用来合并多个hosted/proxy资源仓库,配置maven依赖资源仓库组
-
- 可以新建仓库，建立用户指定角色，角色指定权限
-
- 可以设置是否可以 deployment,是release的还是snapshot的
-------Nexus Repository OSS 3.5.1
-	 没有 -bundle.zip了 unix版本 要求至少JDK 1.8 ,解压出现了sonatype-work
-	 可以运行在 Docker 上
-nexus-3.5.1-02/bin/nexus start
- ./nexus run
-
- tail -f sonatype-work/nexus3/log/nexus.log
- 直接仿问 http://127.0.0.1:8081/ 默认有一个用户 admin  密码 admin123     
-		提示 max file descriptor至少65536(默认4096)
-		 /etc/security/limits.conf (Ubuntu 除外)
-			nexus - nofile 65536
-		重启 Nexus
-配置用
-http://127.0.0.1:8080/repository/maven-public/
-http://127.0.0.1:8080/repository/maven-releases/
-http://127.0.0.1:8080/repository/maven-snapshots/
-
- 浏览包用
- http://127.0.0.1:808/#browse/browse/components:maven-public 有目录级别
- http://127.0.0.1:808/#browse/browse/assets:maven-public     子目录以/显示
- 
-----------------------------------Maven
-
-设置PATH环境变量  
-
-mvn -version
-mvn -e		full stack trace of the errors
-
-如单元测试报错, 控制台没有原因,要进入target/surefire-report/中的txt文件 有错误 堆栈信息
-
-
-http://search.maven.org/ 可以搜索 Maven 依赖包 
-http://www.mvnrepository.com   
-
-Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/maven-model-builder-3.3.9.jar/org/apache/maven/model/pom-4.0.0.xml 有配置 
-<repositories>  
-    <repository>  
-        <id>central</id>  
-        <name>Maven Repository Switchboard</name>  
-        <url>http://repo1.maven.org/maven2</url>  
-        <layout>default</layout>  
-        <snapshots>  
-            <enabled>false</enabled>  
-        </snapshots>  
-    </repository>  
-</repositories>  
- 
-----settings.xml
-默认读配置文件 ${user.home}/.m2/settings.xml (用户级,和安装目录的做合并,相同项用户级高),可从安装目录复制
-默认仓库是位于 ${user.home}/.m2/repository/ 即 %HOMEPATH%\.m2  MAVEN_REPO 的变量来修改
-可以修改配置<localRepository>/path/to/local/repo/</localRepository>
-设置 proxy ,但没说什么协议,如没有办法设置 http://主机:端口/文件  形式的代理 , [文件]的部分没办法给,)
-
-<server>
-  <id>my_libs_snapshot</id>  <!-- id对应 pom.xml中的 <distributionManagement> 中的Id的值   -->
-  <username>xx</username>
-  <password>yy</password>
-</server>
-
-<mirrors>
-	<mirror>
-		<id>mirrorId</id>  
-		<mirrorOf>*</mirrorOf>  
-		<!-- 可为 *   或者 env_development,central (https://repo.maven.apache.org/maven2/) 
-	
-		表示如果仿问 central 也要通过个url仿问 -->
-		<url>http://192.168.0.141:8081/nexus/content/groups/public</url>    <!-- 应该是内网地址 -->
-	</mirror>
-</mirrors>
-
-<profiles>
-	<profile> 
-	  <id>env_development</id>	<!-- 对应下面的 activeProfile -->
-	  <repositories>
-		<repository>
-		  <snapshots>   <!-- snapshots -->
-			<enabled>false</enabled>
-		  </snapshots>
-		  <id>my_libs_release</id>
-		  <name>My Library Releases</name>
-		  <url>${release_deployment_url}</url>   <!-- 是下面的 properties中的标签名,是自己项目的存放位置-->
-		</repository>
-		<repository>
-		  <releases>	<!-- releases -->
-			<enabled>false</enabled>
-		  </releases>
-		  <id>my_libs_snapshot</id>
-		  <name>My Library Snapshots</name>
-		  <url>${snapshot_deployment_url}</url>
-		</repository>
-	  </repositories>
-	  <properties>
-		<!-- <url>http://repo1.maven.org/maven2/</url>  这里是配置公用的第三方包 http://search.maven.org/#browse
-					http://central.maven.org/maven2
-					http://repo.spring.io/libs-release/ 
-					http://maven.aliyun.com/nexus/content/groups/public
-			-->
-		<release_deployment_url>http://localhost:8080/my/repo</release_deployment_url>
-		<snapshot_deployment_url>http://localhost:8080/my_snapshot/repo</snapshot_deployment_url>
-	  </properties>
-	</profile>
-</profiles>
-
-<activeProfiles>
-	<activeProfile>env_development</activeProfile>   <!-- 对应上面 ,测试如不开mirror没有效果???? -->
-</activeProfiles>
-
----------setting.xml示例    
-	<servers>
-		<!--  id对应 pom.xml中的 <distributionManagement> 中的Id的值  ( 官方说也有<repository> (测试pom.xml不能少配置)或者 <mirror>   )
-		<server>
-			<id>local_net_repo</id>  
-			<username>hrbb</username>
-			<password>pass123</password>
-		</server> 
-		--> 
-	</servers> 
-    
-	<mirrors>
-		<mirror>
-			<id>nexusMirror</id>
-			<mirrorOf>central</mirrorOf> <!-- central 或者 * -->
-			<url>http://10.1.5.228:8081/nexus/content/groups/public</url>
-		</mirror>
-	</mirrors>
-
-	<profiles>
-		<profile>
-			<id>centerProfile</id>
-			<repositories>
-				<repository>
-					<id>public_net_repo</id>
-					<url>http://repo1.maven.org/maven2/</url>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-					</snapshots>
-				</repository>
-			</repositories>
-		 </profile>
-		 
-		<profile>
-			<id>nexusProfile</id>
-			<repositories>
-		 		<repository>
-					<id>local_net_repo</id>
-					<url>http://10.1.5.228:8081/nexus/content/groups/public</url>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-					</snapshots>
-				</repository>
-			</repositories>
-		</profile>
-		
-	</profiles>
- 
-	 
-	<activeProfiles>
-		<activeProfile>nexusProfile</activeProfile>
-	</activeProfiles>
-	
-
-----pom.xml 
-mvn dependency:tree 打印整个依赖树 
- 
-Maven内置隐式变量 
-${basedir} 项目根目录
-${project.xxx} 当前pom文件的任意节点的内容 
-
-
-依赖关系 
-A-> L 1.0
-B-> L 2.0
-C->A,B 那么C最终依赖L 1.0 根据书写顺序A写在前面
-如C 也依赖于 L 3.0 ,那么最终依赖L 3.0,依赖找路径最近的  ,应该使用dependenceMangement
-
-
-groupId 是包名
-artifactId 是自己的项目名
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                      http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <!-- 对多个项目的分类,顶级是 <packaging>pom</packaging>
-	<parent>
-		<groupId>com.mycompany.myproject</groupId>
-		<artifactId>myproject</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-  -->
-  <name>MyProjectApp</name> <!-- 一些工具会显示为项目名,如NetBeans -->
-  <groupId>com.mycompany.myproject.app</groupId>
-  <artifactId>myproject_app</artifactId>  
-  <version>1.1.0-SNAPSHOT</version> 	<!-- 如有父版本,这里不用指定 -->
-  <packaging>jar</packaging>  <!-- jar,war,pom -->
-  <!-- 对  <packaging>pom</packaging> 时module是项目名,如deploy facade时,应把parent级 pom中其它的module注释，在parent级做deploy
-  <modules>
-	    <module>myproject-facade</module>
-  </modules>
-  --> 
-  <build> 
-	<finalName>${project.artifactId}-${project.version}</finalName>
-	<resources>
-		<resource>
-			<directory>src/main/resources</directory>
-			<excludes>
-				<exclude>dubbo.properties</exclude>
-			</excludes>
-		</resource>
-	</resources> <!-- 或者使用下面的war插件 -->
-	<plugins>
-		 <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-war-plugin</artifactId>
-			<version>2.4</version>
-			 <configuration>
-				<packagingExcludes>**/dubbo.properties</packagingExcludes>
-				<attachClasses>true</attachClasses>  <!-- 就会把classs打包会生成<project>-<version>-classes.jar -->
-				<archiveClasses>true</archiveClasses>
-			</configuration>
-		</plugin>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-war-plugin</artifactId>
-			<version>3.2.2</version>
-			<configuration>
-			  <overlays>  
-				<overlay> <!-- 项目中先 dependency  <type>war</type> 加这个插件把依赖的war和这个war合并打包,会生成<项目>/overlays目录 存放依赖war的解压-->
-				  <groupId>com.example.projects</groupId>
-				  <artifactId>documentedprojectdependency</artifactId>
-				  <excludes>
-					<exclude>WEB-INF/classes/images/sampleimage-dependency.jpg</exclude>
-				  </excludes>
-				</overlay>
-			  </overlays>
-			</configuration>
-		  </plugin>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-compiler-plugin</artifactId>
-			<version>3.7.0</version>
-			<configuration>
-			  <verbose>true</verbose>
-			  <fork>true</fork>
-			  <executable>${JAVA_HOME}/bin/javac</executable>
-			  <compilerVersion>1.8</compilerVersion>
-			</configuration>
-			<!--
-			  <configuration>
-                <source>1.8</source>
-                <target>1.8</target>
-             </configuration>
-			-->
-		  </plugin>
-		  
-		  
-	官方文档
-	 <plugin>  <!-- OK -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>  
-	  或者 只加  <properties>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-	
-	  
-		  
-		<!-- mvn package时 把所有依赖的jar解压放在一起,如果为.jar 指定 Main-Class: com.   ,如使用了spring,运行的机器又不能上网要加 AppendingTransformer  -->
-		<plugin> 
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-shade-plugin</artifactId>
-			<version>2.3</version>
-			<executions>
-				<execution>
-					<phase>package</phase>  <!-- 在哪个生命周期之后执行 -->
-					<goals>
-						<goal>shade</goal>  <!-- 目标名,插件提供的,看插件文档 -->
-					</goals>
-					<configuration> <!-- 里的所有配置都是对应插件的属性名,@parameter -->
-						<transformers>
-							<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-								<mainClass>com.MainApp</mainClass>
-							</transformer>
-							<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-								<resource>META-INF/spring.handlers</resource>
-							</transformer>
-							<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-								<resource>META-INF/spring.schemas</resource>
-							</transformer>
-						</transformers>
-					</configuration>
-				</execution>
-			</executions>
-		</plugin>
-
-	   <plugin> <!--打包方式2,依赖jar包会放在目录下 -->
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-assembly-plugin</artifactId>
-			<version>2.4</version> 
-			<configuration> 
-					<descriptor>assembly.xml</descriptor>
-				</descriptors>
-			</configuration>
-			<executions>
-				<execution>
-					<id>make-assembly</id>
-					<phase>package</phase>
-					<goals>
-						<goal>single</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-		<plugin> <!--打包方式3 要在jar外有lib目录,  但没有生成？？？？  --> 
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-jar-plugin</artifactId>
-			<configuration>
-				<source>1.8</source>
-				<target>1.8</target>
-				<archive>
-					<manifest>
-						<mainClass>com.xx.MainApp</mainClass>
-						<addClasspath>true</addClasspath>
-					<classpathPrefix>lib/</classpathPrefix>
-					</manifest> 
-				</archive>
-				<classesDirectory>
-				</classesDirectory>
-			</configuration>
-		</plugin>
-		
-	  
-		<plugin> <!-- 打包源码插件,生成-sources.jar  也可单独运行 mvn source:jar 但clean后就没了 -->
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-source-plugin</artifactId>
-			<version>2.2.1</version>
-			<executions>
-				<execution>
-					<id>attach-sources</id>
-					<goals>
-						<goal>jar</goal>
-					</goals>
-				</execution>
-			</executions>
-		</plugin>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-surefire-plugin</artifactId>
-			<version>2.17</version>
-			<configuration>
-			  <includes>
-				<include>test/coverage/RunAllCoverageTest.java</include> <!-- 指定入口类 @SuiteClasses -->
-			  </includes>
-			  <configuration>
-				<skip>true</skip>  <!-- 配置这个 相当于-DskipTests=true -->
-			  </configuration>
-			</configuration>
-      </plugin>
-	  
-	<plugin>
-	  <groupId>org.eclipse.jetty</groupId>
-	  <artifactId>jetty-maven-plugin</artifactId>
-	  <version>9.4.6.v20170531</version>
-	   <configuration>
-		  <scanIntervalSeconds>10</scanIntervalSeconds>
-		  <webApp>
-			<contextPath>/test</contextPath>
-		  </webApp>
-		</configuration>
-	</plugin>  <!-- mvn jetty:run -->
- 
- 
- <!--部署到tomcat,配置权限用户,  mvn cargo:redeploy 
-如tomat8,127.0.0.1就OK, 本机IP就不行,/conf/Catalina/localhost/目录下要加文件manager.xml （没有就新建） (CSRF) -->
-	<plugin>
-		    <groupId>org.codehaus.cargo</groupId>
-		    <artifactId>cargo-maven2-plugin</artifactId>
-		    <version>1.4.4</version> <!-- tomcat8 要1.4.4, tomcat9 要 1.5.1-->
-		    <configuration>
-		        <container>
-		            <containerId>tomcat8x</containerId>
-		            <type>remote</type>
-		        </container>
-		        <configuration>
-		            <type>runtime</type>
-		            <properties>
-		                <cargo.tomcat.manager.url>http://127.0.0.1:8080/manager</cargo.tomcat.manager.url>
-		                <cargo.remote.username>manager01</cargo.remote.username>
-		                <cargo.remote.password>manager01</cargo.remote.password>
-		                <cargo.servlet.port>8080</cargo.servlet.port>
-		                <cargo.hostname>127.0.0.1</cargo.hostname>
-		                <cargo.tomcat.ajp.port>8009</cargo.tomcat.ajp.port>
-		            </properties>
-		        </configuration>
-		    </configuration>
-		</plugin>
-		
-		
-	<plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
-        <executions>
-          <execution>
-            <id>compile</id>
-            <phase>compile</phase>
-            <configuration>
-              <target>
-                <property name="compile_classpath" refid="maven.compile.classpath"/>
-                <property name="runtime_classpath" refid="maven.runtime.classpath"/>
-                <property name="test_classpath" refid="maven.test.classpath"/>
-                <property name="plugin_classpath" refid="maven.plugin.classpath"/>
-
-                <ant antfile="${basedir}/build.xml">
-                  <target name="antBuild"/>
-                </ant>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-	  <--  
-	   build.xml 
-		<project name="test">
-			<target name="antBuild">
-			  <echo message="compile classpath: ${compile_classpath}"/>
-			  <echo message="runtime classpath: ${runtime_classpath}"/>
-			  <echo message="test classpath:    ${test_classpath}"/>
-			  <echo message="plugin classpath:  ${plugin_classpath}"/>
-			  <property name="fromProject" value="baseProject"/>
-			  <property name="fromVersion" value="1.0.1"/>
-			  
-			  <copy  todir="${basedir}/target/classes"  overwrite="no" >  
-				<fileset dir="${basedir}/../${fromProject}/target/classes"/>
-			 </copy>
-			 <copy  todir="${basedir}/target/${ant.project.name}"  overwrite="no" >  
-				<fileset dir="${basedir}/../${fromProject}/target/${fromProject}-${fromVersion}"/>
-			 </copy>
-			</target>
-		</project>
-		更好的方案
-			==父war项目 maven-war插件用 ,就会把classs打包会生成<project>-<version>-classes.jar
-			<attachClasses>true</attachClasses> 
-			<archiveClasses>true</archiveClasses> 
-			
-			== 子war项目依赖父<type>war</type>一次,在package时可以把父项目的webapp复制过来,如有overlay插件修改父项目pom.xml时,clean时也要把overlays目录删除
-					再第二次依赖父<type>jar</type>
-   								 <classifier>classes</classifier>会依赖<project>-<version>-classes.jar及所有子依赖,再复制WEB-INF/lib下,可以解决编译依赖类问题
-			如子项目与项目同名文件，子项目会覆盖父项目
-	-->
-	  
-	</plugins>
-  </build>
-<profiles>  <!-- intellij IDE maven视图可以动态切换环境 -->
-	<profile>
-		<id>local</id>
-		<properties>
-			<env>dev</env><!-- 里面的是自己使用的自属性 spring 配置中可以使用${env} ,log4j.properties可用${loglevel}-->
-			<loglevel>DEBUG,Console</loglevel>
-		</properties>
-		<activation>
-			<activeByDefault>true</activeByDefault>
-		</activation>
-	</profile>
-	<profile>
-		<id>test</id>
-		<properties>
-			<env>test</env>
-			<loglevel>DEBUG,Console</loglevel>
-		</properties>
-	</profile>
-</profiles>
-
-<!--就可以不从官方下载jar,速度快很多-->
-<repositories>  
-    <repository>  
-        <id>central</id>  
-        <name>Maven Repository Switchboard</name>  
-        <url>http://repo.spring.io/libs-release/</url>  
-        <layout>default</layout>  
-        <snapshots>  
-            <enabled>false</enabled>  
-        </snapshots>  
-    </repository>  
-</repositories>  
-<pluginRepositories>
-	<pluginRepository>
-		<id>dev_nexus</id>
-		<url>http://repo.spring.io/libs-release/</url>
-		<releases>
-			<enabled>true</enabled>
-		</releases>
-		<snapshots>
-			<enabled>true</enabled>
-		</snapshots>
-	</pluginRepository>
-</pluginRepositories>
- 
-  <distributionManagement> <!-- 为mvn deploy时用使用id做对应  -->
-		<repository>
-			<id>releases</id>
-			<url>http://10.1.5.228:8081/nexus/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<url>http://10.1.5.228:8081/nexus/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>  
-
-	<properties>  <!-- org.apache.maven.plugins  使用的-->
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-	</properties> 
-	<dependencyManagement>
-	  <dependencies>
-		<dependency>
-		  <groupId>junit</groupId>
-		  <artifactId>junit</artifactId>
-		  <version>4.12</version> <!-- 现在有5的版本  可以不指定版本 在 <dependencyManagement> <dependencies> 中管理版本 -->
-		  <scope>test</scope> <!-- 只my_app/src/test/java中类可访问到-->
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>4.0.1</version> <!-- 2.5,3.0-->
-			<scope>provided</scope> <!-- 不会参与打包 ,默认是compile ,还有runtime不参与run -->
-		</dependency> 
-		<!-- A依赖B，B依赖C  当C是test或者provided时，C直接被丢弃，A不依赖C 也就会编译错误
-			<type>pom</type>
-			<scope>import</scope>
-		-->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.0</version> 
-			<scope>compile</scope>  
-		</dependency> 
-		<dependency>
-         <groupId>ldapjdk</groupId>
-         <artifactId>ldapjdk</artifactId>
-         <scope>system</scope>  <!-- 指定jar包在本地系统中 -->
-         <version>1.0</version>
-         <systemPath>${basedir}\src\lib\ldapjdk.jar</systemPath>
-      </dependency>
-	  </dependencies>
-	 </dependencyManagement>
-	<dependencies>
-		<dependency>
-		  <groupId>junit</groupId>
-		  <artifactId>junit</artifactId> <!-- 这里只配置两个,其它就可以使用统一的配置如version,scope -->
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-		 </dependency> 
-		 
-		 <dependency>
-			<groupId>redis.clients</groupId>
-			<artifactId>jedis</artifactId>
-			<version>${jedis}</version>
-			<optional>true</optional> <!-- 可选的 -->
-		</dependency>
-		
-	<!-- 防止报  Missing artifact jdk.tools:jdk.tools:jar:1.6      -->
-	 <dependency>  
-		<groupId>jdk.tools</groupId>
-		<artifactId>jdk.tools</artifactId>
-		<version>1.8</version>
-		<scope>system</scope>
-		<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
-	</dependency>
-	
-	</dependencies>
- </project>
-
-
-
-----assembly.xml
-<?xml version="1.0" encoding="UTF-8"?>
-<assembly>
-    <id>bin</id>
-    <includeBaseDirectory>false</includeBaseDirectory> 
-    <formats>
-        <format>zip</format>
-    </formats>
- 
-    <dependencySets>
-        <dependencySet> 
-            <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>query/lib</outputDirectory>
-            <unpack>false</unpack>
-        </dependencySet>
-    </dependencySets>
-
-    <fileSets> 
-        <fileSet>
-            <directory>${deploy.dir}/classes/</directory>
-            <outputDirectory>query/conf</outputDirectory>
-            <includes>
-                <include>*.xml</include>
-                <include>*.properties</include>
-            </includes>
-        </fileSet> 
-        <fileSet>
-            <directory>${project.build.directory}</directory>
-            <outputDirectory>/query</outputDirectory>
-            <includes>
-                <include>*.jar</include>
-            </includes>
-        </fileSet>
-    </fileSets>
-</assembly>
-
-在test/java可以访问到依赖jar包中 my_app/src/main/java , my_app/src/main/resources
-
-----
-my_app/pom.xml
-my_app/src/main/java
-my_app/src/main/resources
-my_app/src/test/java
-my_app/src/test/resources
-my-webapp/src/main/webapp/WEB-INF/
-
-使用帮助 , 通常还是上网查方便
-mvn help:describe -DgroupId=org.apache.maven.plugins -DartifactId=maven-surefire-plugin  -Ddetail
-
-<scope> 如为 runtime 运行时依赖,如jdbc-driver，有provide,test,
-
-生命周期 ,对应插件里的<executions> <execution>  	<phase>package</phase>  的配置
-eclipse 中 全选所有项目->maven->update projext ... 会更新pom.xml中新的版本配置,下载依赖包(可关闭项目再打开)
-
-在pom.xml文件所在的目录,执行mvn命令
-  
-mvn clean 删target目录
-mvn compile  编译 			
-mvn test 编译test目录并运行,
-mvn package  打包,会先做 compile,对应pom.xml中的<packaging>jar</packaging> ,my-app/target  下生成.jar
-mvn deploy -Dmaven.test.skip=true  会先做 package,把新包部署到远程Maven仓库 ,pom.xml要配置 <distributionManagement> 密码配置在setting.xml
-	
-mvn install  也可 eclipse 中 run as ->maven install 会打新包到本地仓库
-mvn clean compile   可以几个目标一起执行
-mvn package -e 查看错误信息
-mvn clean package -Dmaven.test.skip=true    跳过编译测试类,生成.war包中的/lib/没有重复的.jar
-mvn install -DskipTests     跳过test的执行，但要编译  
- --update-snapshots  更新snapshots的依赖包
-
-jenkins ->配置->构建后操作步骤->Sonar,Publish Coberutra Coverage Report
-mvn clean package cobertura:cobertura   单独生成测试覆盖率报告   target/site/cobertura/index.html ,适用于每个项目的test 目录,只测试这个项目的main中的类
-				  sonar:sonar 测试覆盖率报告(要单独的服务器)
-
-eclipse插件 m2eclipse中右击项目->maven->update project defination会设置eclipse项目引用maven下载的.jar包
-eclipse的preferences->maven->installation 要配置最新的Maven3.x版本,User Settings 中选择对应maven版本的配置文件settings.xml
-eclipse的preferences->maven->可选择Download Artifact Sources/JavaDocs 
-
-
-
-mvn archetype:generate  会提示输入groupId,groupId
-
-会生成pom.xml做模板使用 ,也可以使用eclipse mavne插件,建立maven项目来选择
-mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
-
-对web项目
-mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-webapp -DinteractiveMode=false
- 
- mvn -f xxx.pom   -s  settting.xml
- 
-
-<project> <!-- 未测试 -->
-   
-   <build>
-     
-    <plugins>
-      
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <instrumentation>
-            <ignores>
-              <ignore>com.example.boringcode.*</ignore>
-            </ignores>
-            <excludes>
-              <exclude>com/example/dullcode/**/*.class</exclude>
-              <exclude>com/example/**/*Test.class</exclude>
-            </excludes>
-          </instrumentation>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  
-   
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.6</version>
-      </plugin>
-    </plugins>
-  </reporting>
-</project>
-----------------------------------Gradle
-http://avatarqing.github.io/Gradle-Plugin-User-Guide-Chinese-Verision/
-
-eclipse marketplace 插件 buildship gradle integration 2.0
-
-
-
-Spring 和 Android使用 ,可以构建 C++
-
-bin 目录入 PATH 环境变量下,初次运行 gradle 命令会在~\.gradle下生成文件
-
-spring 有 gradle 示例
-项目中有 src\main\java\包名  (同 maven,web项目手工增加webapp目录 apply plugin: 'war')
-项目中有 build.gradle 文件 
-		如有 apply plugin: 'java' 
-
-gradle tasks 命令可看到所有可用的 build任务
-就可用  gradle build 命令构建 ,会在当前目录下生成 build\libs,build\classes目录 
-  
-  
----build.gradle  文件
-
-Gradle设置全局仓库 创建文件 ~/.gradle/init.gradle 
-( 或者命令行加 -I or --init-script，或GRADLE_HOME/init.d/目录以.gradle结尾的文件)
-
-	allprojects {
-		repositories {
-			mavenLocal()
-			maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-			maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
-			maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} 
-		}
-	}
----上未何没用呢？？？可能因为自己的项目有 allprojects的配置
-
-
-apply plugin: 'java' 
-apply plugin: 'war'  //打成war包
-//apply plugin: 'com.android.application'  //Android 
-mainClassName = 'hello.HelloWorld'  //可以使用  ./gradlew run 来运行
-
-repositories { 
-	//增加镜像  放最前，有顺序的
-	maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-	maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
-	maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} 
-	//mavenLocal()
-	//mavenCentral()
-	//jcenter()  //会从  https://jcenter.bintray.com/com/ 下载 
-}
-dependencies {
-    compile group: 'org.springframework', name: 'spring-core', version: '5.1.2.RELEASE'
-	providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
-    providedCompile group: 'javax.servlet', name: 'jsp-api', version: '2.0'
-	testCompile group: 'junit', name: 'junit', version: '4.12'
-	classpath 'com.android.tools.build:gradle:3.2.0' //Adnroid
-} 
-jar {
-    baseName = 'my-project'  //生成jar包的名字为my-project-0.1.0.jar
-    version =  '0.1.0'
-}
-task wrapper (type:Wrapper)  // 就可以直接使用 gradle wrapper ,而不用加--gradle-version 3.2
-{
-	gradleVersion = 3.2 //只可有一个小数点
-} 
-// task后是定义的任务名
-如果想让父模块配置可以所有子模块去用，父模块最外层增加 allprojects {}
-IDEA可以建立子模块项目 ,setting.gradle文件中自动增加 include 'childTwo'
-  自己的模块间相互引用 在dependencies中增加 compile project(":childTwo")
-  
-会自动下载其它依赖的包,在~/.gradle\caches\modules-2\files-2.1目录下
-				%HOMEPATH%\.gradle\caches\modules-2\files-2.1  
-可以和MAVEN仓库共用位置, 新建环境变量 GRADLE_USER_HOME=D:/MVN_REPO  (IDEA 显示在Service directory path:中 )
-(IDEA 的gradle视图(同maven)-展开tasks->build->双击jar,)
-
-
-gradle wrapper --gradle-version 3.2.1  会生成 gradlew 可执行文件和gradle/wrapper目录 在项目目录下,gradle-wrapper.properties文件中下载gradle对应版本的URL
-
-就可以执行 ./gradlew build 来构建项目
-
- 
-
-
-----------------------------------ANT
-ant build.xml
-ant -buildfile myBuilde.xml  或者  -f 或 -file
-	-d 是debug输出
-	
-<taskdef name="simpletask" classname="ant_xml_.MyTask" classpath="${build.dir}" />
-	用于自定义一些任务，为了可以在同一个构建过程中使用编译过的任务，<taskdef>必须出现在编译之后。
-
-可以重写execute方法，和init方法，也可加setSize，setDir(File dir)
-log("进入自定义任务的excecute---" , Project.MSG_INFO);
-Project proj=getProject();
-File base=proj.getBaseDir();
-
-<tstamp>
-	<format property="myDate" pattern="yyyy-MM-dd HH:mm:ss"/>
-</tstamp>	就可以用 "${DSTAMP}${TSTAMP}.war"
-<property enviroment="env"/>  就可以使用  "${env.JAVA_HOME}"
-<property file="aa.properties" prefix="props"/> 
-内置的一些 ${os.name},${ant.java.version},${ant.file}构建文件的绝对路径
- *.* 表示当前目录下的所有文件
- **表示当前目录及所有子目录的所有文件
-
-<simpletask size="30"   dir="${build.dir}">;
-
-
-<project name="platform" default="all" basedir=".">
-	<target name="all" description="build">
-	 <javac  destdir="classes" srcdir="src"   ></javac>   <!--对没有修改的java文件不会再次编译-->
- 	 <copy  todir="classes"  overwrite="no" > <!--对没有修改xml文件不会再次复制-->
-	 	<fileset dir="src">
-	 		<include name="*.xml"></include>
-	 	</fileset>
-	 </copy>
-	</target>
-</project>
-
-可以弹出对话框,以下拉形式选择
-<input validargs="${default.templates}" defaultvalue="${extgen.template.default}" addproperty="input.template">
-Please choose a template for generation.
-Press [Enter] to use the default value
-</input>
-
-可以弹出对话框,让用户输入
-<input defaultvalue="${extgen.extension.name}" addproperty="input.name">
-Please choose the name of your extension. It has to start with a letter followed by letters and/or numbers.
-Press [Enter] to use the default value</input>
-
-ANT JUINT
-
-<macrodef  是定义任务的
-		<sequential>  it can contain other Ant tasks.
 ----------------------------------Junit
 
 Junit 要求
@@ -1275,18 +1309,21 @@ TestSuite 和TestCase 都实现了Test 接口
 
 
 
-示例
+示例(带参数)
 @RunWith(value = Parameterized.class)
 public class CalculatorTest
 {
 	private int expected;
 	private int para1;
 	private int para2;
+	
 	@Parameterized.Parameters
 	public static Collection<Integer[]> getParameters()//返回Collection
 	{
-		return Arrays.asList(new Integer[][] { { 3, 3, 2 }, // expected, para1, para2
-											   { 1, 1, 1 } });// expected, para1, para2
+		return Arrays.asList(new Integer[][] { 
+			{ 3, 3, 2 }, //构造函数的参数类型必须全一样 
+			{ 1, 1, 1 }  
+		});
 	}
 	public CalculatorTest(int expected, int para1, int para2)//构造函数的参数类型必须全一样 
 	{
@@ -1304,14 +1341,12 @@ public class CalculatorTest
 
 //TestSuit 
 @RunWith(Suite.class)
-@SuiteClasses({CalculatorTest.class})
+@SuiteClasses({CalculatorTest.class})//可传多个测试类
 public class CalculatorTestSuit 
 {
 
 }
----------------------------JMockit 更强 
-
-SpringMVC 有 mockito
+---------------------------JMockit 更强  
 
 ---------------------------EasyMock  
 import org.easymock.EasyMock;
@@ -1394,6 +1429,8 @@ MyDao mockDao=mocksControl.createMock(MyDao.class);//是class 要 objenesis.jar
 EasyMock.expect(mockDao.insertData(dataSet)).andReturn((long)dataSet.size());
 
 ReflectionTestUtils.setField(bean, "dao", mockDao, MyDao.class);//用spring提供的方法注入aurowired的字段
+EasyMock.reset(mockDao);//不替换bean,直接 reset,BeanPostProcessor中已经是Mock的
+
 EasyMock.replay(mockDao);
 EasyMock.verify(mockDao);
 
@@ -1451,8 +1488,12 @@ Assert.assertEquals(dataSet.size(), bean.insertData(dataSet));
 <dependency>
     <groupId>org.mockito</groupId>
     <artifactId>mockito-core</artifactId>
-    <version>2.16.0</version>
-</dependency>
+    <version>2.23.4</version> <!-- 版本2.23.4 有依赖包有JDK9 module-info.class,2.22.0 就没有-->
+    <scope>test</scope>
+</dependency> 
+依赖json-path
+
+有android版本
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -1476,7 +1517,7 @@ import static org.mockito.Mockito.when;
 @RunWith(SpringJUnit4ClassRunner.class)  
 //@ActiveProfiles({"test"})
 //@Transactional
-@WebAppConfiguration //SpringMVC利用MockMvc进行单元测试 
+@WebAppConfiguration //可以注入 WebApplicationContext
 @ContextConfiguration(locations={"classpath:test_mockmvc/spring-mockmvc.xml"})
 public class MockITO_MockMvcTest  
 {
@@ -1496,10 +1537,614 @@ public class MockITO_MockMvcTest
 	{ 
 		when(myServiceBean.queryData(any(Product.class))).thenReturn(dataSet); 
 		List<Product>  res=myServiceBean.queryData(new Product());
+		
+		reset(myServiceBean);//重置指定的bean的所有录制  
 	}
 }
 spring-mockmvc.xml 只有
 	<context:component-scan base-package="test_mockmvc"></context:component-scan>
+-------------------------TestNG
+NG=Next Generation  (Not Good)
+
+比Junit强的地方是支持 组,依赖,参数功能更强,支持listener
+多支持下面的范围,JUnit-4 @BeforeClass 和 @AfterClass  必须声明静态方法 
+	@BeforeSuite
+	@AfterSuite
+	@BeforeTest
+	@AfterTest
+
+ 
+<dependency>
+  <groupId>org.testng</groupId>
+  <artifactId>testng</artifactId>
+  <version>6.10</version>
+  <scope>test</scope>
+</dependency>
+会依赖于 jcommander-1.48.jar 
+
+
+
+Eclipse Market Place 安装TestNG (或者下载离线版本(6.14.0) https://github.com/cbeust/testng-eclipse)
+	安装后new file->有testng组
+	
+	项目目录下会生成 test-output 目录
+	
+IDEA  是自带TestNG的 (要加maven依赖)
+
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+public class MyTestNG
+{
+	
+	@BeforeTest
+	public void beforeTest()// <test>
+	{		
+		System.out.println("@BeforeTest1");
+	}
+	@BeforeClass
+	public void beforeClass() // <class>
+	{		
+		System.out.println("@BeforeClass2");
+	}
+	@AfterClass
+	public void afterClass()
+	{		
+		System.out.println("@AfterClass3");
+	}
+	@AfterTest
+	public void afterTest()
+	{		
+		System.out.println("@AfterTest4");
+	}
+	  
+	@Test
+	public void testMethod1() {
+		String email="abc";
+		Assert.assertNotNull(email);
+		//Assert.assertEquals(email, "123@test.com");
+	}
+	@Test(enabled = true,expectedExceptions = {ArithmeticException.class},timeOut = 1000)
+    public void divisionWithException() {
+        int i = 1 / 0;
+        System.out.println("After division the value of i is :"+ i);
+    }
+	
+	//---group
+	@Test(groups = "nosql")
+	public void hbase() {
+		System.out.println("hbase()");
+	}
+	@Test(groups = {"nosql","database"})//可同时在多个组中
+	public void redis() {
+		System.out.println("redis");
+	}
+	@Test(dependsOnGroups = { "database", "nosql" })//组依赖
+	public void runFinal() {
+		System.out.println("runFinal");
+	}
+	
+	/*
+	//运行 testng_group.xml
+	@Test
+	@Parameters({ "param1", "param2" })//参数是在xml配置类级传入
+	public void testParam(String param1,String param2) {
+		System.out.println("param1="+param1+",param2="+param2);
+	}
+	*/
+	@Test(dataProvider = "provideNumbers")//provider参数形式 
+    public void testProviderParam(int number, int expected) {
+        Assert.assertEquals(number + 10, expected);
+    }
+    @DataProvider(name = "provideNumbers")
+    public Object[][] provideData() {
+        return new Object[][] { { 10, 20 }, { 100, 110 }, { 200, 210 } };
+    }
+	 //--一个provider用于多方法
+    @Test(dataProvider = "dataProvider")
+    public void test1(int number, int expected) {
+        Assert.assertEquals(number, expected);
+    }
+    @Test(dataProvider = "dataProvider")
+    public void test2(String email, String expected) {
+        Assert.assertEquals(email, expected);
+    }
+    @DataProvider(name = "dataProvider")
+    public Object[][] provideData(Method method)//一个provide为多个测试方法，参数是反射Method,得不到group
+    {
+        Object[][] result = null;
+        if (method.getName().equals("test1")) {
+            result = new Object[][] {
+                { 1, 1 }, { 200, 200 }
+            };
+        } else if (method.getName().equals("test2")) {
+            result = new Object[][] {
+                { "test@gmail.com", "test@gmail.com" },
+                { "test@yahoo.com", "test@yahoo.com" }
+            };
+        }
+        return result;
+    }
+	@Test(invocationCount = 12, threadPoolSize = 3)//压力测试,可结合Selenium
+    public void testThreadPools() {
+    	System.out.printf("Thread Id : %s%n", Thread.currentThread().getId());
+    }
+  
+  
+}
+
+
+public class SuiteConfig {
+
+	@BeforeSuite
+	public void beforeSuite() {
+		System.out.println("@BeforeSuite0");
+	}
+
+	@AfterSuite
+	public void afterSuite() {
+		System.out.println(" @AfterSuite5");
+	}
+}
+@Test(groups = "group1")//类级别的组
+public class Group1 {
+	
+}
+
+----testng_group.xml
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="GroupSuite" verbose="1" > 
+   <test name="MyTest">
+    <classes>
+	    <class name="testng.SuiteConfig"/> 
+        <class name="testng.MyTestNG">
+		   <parameter name="param1" value="value1" />
+       	   <parameter name="param2" value="22" />
+        	<methods>
+        		<!-- <include name=""></include>  -->	
+        		<exclude name="hbase"></exclude>
+        	</methods>
+        </class>
+    </classes>
+  </test>
+  <test name="GroupTest">
+    <classes>
+        <class name="testng.SuiteConfig"/>
+     	<class name="testng.Group1"/> 
+    </classes>
+  </test>
+  <!-- listener可以是 
+		  IAnnotationTransformer
+		  IAnnotationTransformer2
+		  IHookable
+		  IInvokedMethodListener
+		  IMethodInterceptor
+		  IReporter
+		  ISuiteListener
+		  ITestListener 
+   -->
+  <listeners>
+	<listener class-name="testng.listener.MyTransformer" />
+	<listener class-name="testng.listener.MyMethodInterceptor" />
+	<listener class-name="testng.listener.DotTestListener" />
+  </listeners>
+</suite>
+----testng_package.xml
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Suite1" verbose="1" >
+  <test name="Page1"   >
+    <packages>
+      <package name="testng" /> <!-- 只找有 @Test注解的类/方法 -->
+   </packages>
+ </test> 
+</suite>
+ 
+java org.testng.TestNG testng1.xml [testng2.xml testng3.xml ...]
+
+//如不在xml中配置listener也可在启动时指定 java org.testng.TestNG -listener testng.MyTransformer bin/testng/testng_group.xml
+public class MyTransformer implements IAnnotationTransformer {
+	public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
+		if (testMethod!=null && "mongodb".equals(testMethod.getName())) {
+			annotation.setInvocationCount(5);
+		}
+	}
+}
+public class MyMethodInterceptor implements IMethodInterceptor {
+	@Override
+	public List<IMethodInstance> intercept(List<IMethodInstance> methods, ITestContext context) {
+		List<IMethodInstance> result = new ArrayList<IMethodInstance>();
+		for (IMethodInstance m : methods) 
+		{
+			Test test = m.getMethod().getConstructorOrMethod().getMethod().getAnnotation(Test.class);
+			if(test ==null)
+			{
+				test=m.getClass().getAnnotation(Test.class);
+				if(test==null)
+				{
+					result.add(m);
+					continue;
+				}
+			}
+			Set<String> groups = new HashSet<String>();
+			for (String group : test.groups()) {
+				groups.add(group);
+			}
+			if (groups.contains("fast")) {//一个类中哪个先执行
+				result.add(0, m);
+			} else {
+				result.add(m);
+			}
+		}
+		return result;
+	}
+}
+public class DotTestListener extends TestListenerAdapter  //是ITestListener的子类
+{
+  private int m_count = 0;
+  @Override
+  public void onTestFailure(ITestResult tr) {
+    log("F");
+  }
+  @Override
+  public void onTestSkipped(ITestResult tr) {
+    log("S");
+  }
+  @Override
+  public void onTestSuccess(ITestResult tr) {
+    log(".");
+  }
+  private void log(String string) {
+    System.out.print(string);
+    if (++m_count % 40 == 0) {
+      System.out.println("");
+    }
+  }
+} 
+----testng_provider.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="ProviderSuite">
+    <test name="providerTest">
+        <groups>
+            <run>
+                <include name="groupA" /> <!-- groupB(方法test2)不会被测试 -->
+            </run>
+        </groups>
+        <classes>
+            <class name="testng.ProviderXmlTest" />
+        </classes>
+    </test>
+</suite>
+//只能用testng_provider.xml运行
+public class ProviderXmlTest {
+    @Test(dataProvider = "dataProvider1", groups = {"groupA"})
+    public void test1(int number) {
+        Assert.assertEquals(number, 1);
+    }
+    @Test(dataProvider = "dataProvider1", groups = "groupB")
+    public void test2(int number) {
+        Assert.assertEquals(number, 2);
+    }
+    @DataProvider(name = "dataProvider1")
+    public Object[][] provideData(ITestContext context) {//一个provide为多个测试方法，参数是ITestContext
+        Object[][] result = null;
+        System.out.println(context.getName());//providerTest
+        for (String group : context.getIncludedGroups()) { //<groups> 下的 <run>下的 <include
+            System.out.println("group : " + group);
+            if ("groupA".equals(group)) {
+                result = new Object[][] { { 1 } };
+                break;
+            }
+        }
+        if (result == null) {
+            result = new Object[][] { { 2 } };
+        }
+        return result;
+    }
+}
+
+public class TestNGAndSelenium {
+	WebDriver driver = new FirefoxDriver();
+
+	@BeforeTest
+	public void init()// TestNG可以结合Selenium一起用
+	{
+		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		driver.navigate().to("https://www.baidu.com");
+		driver.manage().window().maximize();
+	}
+
+	@AfterTest
+	public void destory() {
+		driver.close();
+	}
+
+	@Test
+	public void testOper() {
+		WebElement search_text = driver.findElement(By.id("kw"));
+		WebElement search_button = driver.findElement(By.id("su"));
+
+		search_text.sendKeys("Java");
+		search_text.clear();
+		search_text.sendKeys("Selenium");
+		// search_button.click();//二选一
+		search_text.submit();// 同输入回车
+	}
+}
+
+Selenium and TestNG
+----------Selenium  自动化测试
+支持C# , Python,
+也有 Android Driver 项目selendroid  是ebay的  http://selendroid.io/
+也有 iOS Driver   是ebay的 http://ios-driver.github.io/ios-driver/
+
+<dependency>
+  <groupId>org.seleniumhq.selenium</groupId>
+  <artifactId>selenium-java</artifactId>
+  <version>3.141.59</version> <!-- 版本 3.141.59 有 META-INF/versions/9/module-info.class  版本3.14.0就没有-->
+</dependency>
+  
+<dependency>
+    <groupId>com.codeborne</groupId>
+    <artifactId>phantomjsdriver</artifactId>
+    <version>1.4.4</version>
+</dependency>
+
+selenium-java-3.141.59.jar 空的 这个版本没有phantomjsdriver,  3.2.0 有 com.codeborne.phantomjsdriver 
+	selenium-api-3.141.59.jar
+	selenium-remote-driver-3.141.59.jar
+	okhttp-3.11.0.jar
+	okio-1.14.0.jar
+	commons-exec-1.3.jar
+	
+	selenium-chrome-driver-3.141.59.jar
+	selenium-firefox-driver-3.141.59.jar
+	
+	selenium-edge-driver-3.141.59.jar
+	selenium-ie-driver-3.141.59.jar
+	phantomjsdriver-1.4.4.jar (com.codeborne 组  	项目目录下会生成 .log文件)
+	selenium-safari-driver-3.141.59.jar
+
+selenium-server-standalone-3.9.1.jar  是为非maven项目，包括全部依赖在一个jar中
+
+
+源码地址，有API
+https://github.com/Selenium/selenium	
+ 
+镜像站点 下载 Selenium
+https://npm.taobao.org/mirrors/selenium/
+3.9/selenium-server-standalone-3.9.1.jar  
+
+---浏览器驱动
+safari driver 
+	High Sierra 和更新版本运行  safaridriver --enable 
+	
+chromedriver 镜像站点
+https://npm.taobao.org/mirrors/chromedriver
+72.0.3626.7
+
+chromedriver 官方
+http://chromedriver.storage.googleapis.com/index.html
+72.0.3626.7/
+
+firefox driver v0.23.0
+https://github.com/mozilla/geckodriver/releases
+
+
+edge 17134
+https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/
+
+ie 3.9.0 (2018-02-05)
+http://selenium-release.storage.googleapis.com/index.html
+
+---Selenium IDE 地址官方有，可以录制页面
+firefox 
+https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/
+
+chrome (chrome web store上)
+https://chrome.google.com/webstore/detail/selenium-ide/mooikfkahbdckldjjndioackbalphokd
+
+
+phantomjs 浏览器 
+	可以生成页面截图  
+	---./snapshot.js
+		var page = require('webpage').create();
+		var args = require('system').args;
+
+		var url = args[1];
+		var filename = args[2] || "snapshot.png";
+
+		var t = new Date();
+		page.open(url, function () {
+			window.setTimeout(function () {
+				page.render(filename);
+			console.log('time: '+(new Date() - t));	
+				phantom.exit();
+			}, 1000);
+		});
+	//phantomjs.exe --ignore-ssl-errors=yes ./snapshot.js https://www.baidu.com/  c:/tmp/my.png  命令测试OK 
+	
+将下载的浏览器驱动文件目录放入PATH环境变量中
+
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+ 
+//对chrome 放在PATH环境 ,也要加webdriver.chrome.driver 系统属性
+//java  -Dwebdriver.chrome.driver=D:\Program\seleniumDriver\chromedriver.exe
+// WebDriver driver = new ChromeDriver();//OK
+//WebDriver driver = new  FirefoxDriver();//OK firefox命令 要在PATH中可以找到
+//WebDriver driver = new   EdgeDriver(); //OK
+WebDriver driver = new PhantomJSDriver();//OK 用com.codeborne 组的 phantomjsdriver-1.4.4.jar
+//WebDriver driver = new InternetExplorerDriver();//NO 报连接不上端口
+//WebDriver driver = new SafariDriver();//未测试
+
+driver.get("http://www.itest.info");
+String title = driver.getTitle();
+System.out.printf(title);
+
+
+//		queryElement(driver);//自己的查元素
+//		browserOper(driver);//自己的浏览器操作
+//		manualInteract(driver);//自己的页面交互
+	    waitAjax(driver);//等待,为ajax使用
+
+driver.close();
+public static void queryElement(WebDriver driver) 
+{
+	WebElement element=driver.findElement(By.id("head")); //document.getELementById()
+	System.out.println("id="+element.getTagName());
+	
+	element=driver.findElement(By.name("ie")); //document.getELementByNames()
+	System.out.println("name="+element.getTagName());
+	
+	element=driver.findElement(By.className("fm")); //document.getElementsByClassName()
+	System.out.println("class="+element.getTagName());
+	
+	element=driver.findElement(By.tagName("b"));//document.getELementsByName()
+	System.out.println("tag="+element.getTagName());
+	
+	
+	element=driver.findElement(By.xpath("//form[@id='form']/input[@type='hidden' and @name='tn']"));
+	System.out.println("xpath="+element.getTagName()); 
+	
+	//css找不到？？？ 
+	
+	element=driver.findElement(By.linkText("新闻"));
+	System.out.println("linkText="+element.getTagName()); 
+	
+	element=driver.findElement(By.partialLinkText("地"));
+	System.out.println("partialLinkText="+element.getTagName()); 
+	
+	WebElement size = driver.findElement(By.id("kw"));
+	System.out.println("getSize="+size.getSize());
+
+	WebElement text = driver.findElement(By.id("cp"));
+	System.out.println("getText="+text.getText());
+	
+	WebElement ty = driver.findElement(By.id("kw"));
+	System.out.println("getAttribute="+ty.getAttribute("type"));
+	
+	WebElement display = driver.findElement(By.id("kw"));
+	System.out.println("isDisplayed="+display.isDisplayed());
+		
+}
+public static void browserOper(WebDriver driver) throws Exception {
+
+	driver.manage().window().maximize();
+	Thread.sleep(2000);
+
+	driver.get("https://m.baidu.cn");
+	driver.manage().window().setSize(new Dimension(480, 800));
+	Thread.sleep(2000);
+	
+	driver.get("https://www.baidu.com/");
+	driver.findElement(By.linkText("新闻")).click();//单击
+	System.out.printf("news url  %s \n", driver.getCurrentUrl());
+	 
+	driver.navigate().back();// 后退
+	System.out.printf("back to %s \n", driver.getCurrentUrl());
+	Thread.sleep(2000);
+   
+	driver.navigate().forward(); //前进
+	System.out.printf("forward to %s \n", driver.getCurrentUrl());
+	Thread.sleep(2000);
+	
+	driver.navigate().refresh();//刷新
+	System.out.printf("refresh page \n" );
+
+}
+public static void manualInteract(WebDriver driver) throws Exception {
+	driver.get("https://www.baidu.com/");
+
+	WebElement search_text = driver.findElement(By.id("kw"));
+	WebElement search_button = driver.findElement(By.id("su"));
+
+	search_text.sendKeys("Java");
+	search_text.clear();
+	search_text.sendKeys("Selenium");
+	//search_button.click();//二选一
+	search_text.submit();//同输入回车
+	
+	
+	//鼠标操作
+	WebElement search_setting = driver.findElement(By.linkText("设置"));
+	Actions action = new Actions(driver);
+	action.clickAndHold(search_setting).perform();
+/*
+	 // 鼠标右键点击指定的元素
+	 action.contextClick(driver.findElement(By.id("element"))).perform();
+
+	 // 鼠标右键点击指定的元素
+	 action.doubleClick(driver.findElement(By.id("element"))).perform();
+
+	 // 鼠标拖拽动作， 将 source 元素拖放到 target 元素的位置。
+	 WebElement source = driver.findElement(By.name("element"));
+	 WebElement target = driver.findElement(By.name("element"));
+	 action.dragAndDrop(source,target).perform();
+
+	 // 释放鼠标
+	 action.release().perform();
+  */  
+	
+	
+	//键盘操作
+	WebElement input = driver.findElement(By.id("kw"));
+	
+	//删除多输入的一个
+	input.sendKeys(Keys.BACK_SPACE);
+	Thread.sleep(2000);
+
+	//输入空格键+“教程”
+	input.sendKeys(Keys.SPACE);
+	input.sendKeys("教程");
+	Thread.sleep(2000);
+
+	//ctrl+a 全选输入框内容
+	input.sendKeys(Keys.CONTROL,"a");
+	Thread.sleep(2000);
+
+	//ctrl+x 剪切输入框内容
+	input.sendKeys(Keys.CONTROL,"x");
+	Thread.sleep(2000);
+
+	//ctrl+v 粘贴内容到输入框
+	input.sendKeys(Keys.CONTROL,"v");
+	Thread.sleep(2000);
+
+	//通过回车键盘来代替点击操作
+	input.sendKeys(Keys.ENTER);
+	Thread.sleep(2000);
+
+	 //获取第一条搜索结果的标题
+	 WebElement result = driver.findElement(By.xpath("//div[@id='content_left']/div/h3/a"));
+	 System.out.println(result.getText());
+
+}
+
+public static void waitAjax(WebDriver driver) throws Exception 
+{
+	 driver.get("https://www.baidu.com");
+ 
+ //显式等待， 针对某个元素等待
+	//超时秒数，间隔秒数
+	WebDriverWait wait = new WebDriverWait(driver,10,1);//要selenium-support-3.141.59.jar
+
+	wait.until(new ExpectedCondition<WebElement>(){
+	  @Override
+	  public WebElement apply(WebDriver text) {
+			return text.findElement(By.id("kw"));
+		  }
+	}).sendKeys("selenium");
+
+	driver.findElement(By.id("su")).click();
+	Thread.sleep(2000);
+	
+	
+}
+
 
 --------------------------iText
 https://developers.itextpdf.com/   
@@ -2559,6 +3204,7 @@ green：表示一切正常
 
 基centos7的Docker镜像
 docker pull docker.elastic.co/logstash/logstash:6.4.0
+docker pull docker.elastic.co/kibana/kibana:6.6.0
 
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch 
 增加如下文件
@@ -2614,6 +3260,12 @@ codec 插件支持 https://www.elastic.co/guide/en/logstash/current/codec-plugin
 	elasticsearch.url: "http://localhost:9200"
 	
  http://127.0.0.1:5601/   有界面
+ 
+索引 _index:值为pdpm-log-2018... 有可以选择的 pdpm-*
+
+ 页面中右上角可以选择日期范围，可选今天
+ 文本框输入 level:error && message:IAM LoginDone  可以查日志
+ 
  
  DevTools有Console  可以发送命令,带代码提示功能, 默认查全部的有 , 参数可有可无
  GET _search
@@ -2945,8 +3597,202 @@ collection.bulkWrite(
 	  new BulkWriteOptions().ordered(false),//批量不按顺序做,不加这个参数默认是按顺序做的
 	  printBatchResult
 );
-   
-   
+---------Querydsl MongoDB
+http://www.querydsl.com/static/querydsl/latest/reference/html/
+有Querying SQL,Querying Lucene, Querying Hibernate Search,Querying in Scala
+
+<dependency>
+    <groupId>com.querydsl</groupId>
+    <artifactId>querydsl-mongodb</artifactId>
+    <version>4.2.1</version>
+</dependency>
+<dependency>
+    <groupId>com.querydsl</groupId>
+     <artifactId>querydsl-core</artifactId>
+    <version>4.2.1</version>
+</dependency> 
+<dependency>
+  <groupId>com.mysema.commons</groupId>
+  <artifactId>mysema-commons-lang</artifactId>
+  <version>0.2.4</version>
+</dependency>
+<dependency>
+    <groupId>org.mongodb.morphia</groupId>
+    <artifactId>morphia</artifactId>
+    <version>1.3.2</version>
+</dependency>
+
+
+
+生成代码才用的
+<dependency>
+  <groupId>com.querydsl</groupId>
+  <artifactId>querydsl-apt</artifactId>
+  <version>4.2.1</version> 
+</dependency>
+<dependency>
+  <groupId>javax.annotation</groupId>
+  <artifactId>javax.annotation-api</artifactId>
+  <version>1.3.2</version>
+</dependency>
+<plugin>
+    <groupId>com.mysema.maven</groupId>
+    <artifactId>apt-maven-plugin</artifactId>
+    <version>1.1.3</version>
+    <executions>
+      <execution>
+        <goals>
+          <goal>process</goal>
+        </goals>
+        <configuration>
+          <outputDirectory>target/generated-sources/java</outputDirectory>
+          <processor>com.querydsl.apt.morphia.MorphiaAnnotationProcessor</processor>
+        </configuration>
+      </execution>
+    </executions>
+  </plugin>
+ 
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Field;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Index;
+import org.mongodb.morphia.annotations.Indexes;
+import org.mongodb.morphia.annotations.Property;
+import org.mongodb.morphia.annotations.Reference; 
+
+@Entity ("mo_customer") 
+public class Customer {
+    @Id
+    private String id;
+ 
+    @Property("first_name")
+    private String firstName; 
+}
+
+mvn clean install 在 target/generated-sources/java 目录生成 QCustomer.java
+ 
+import javax.annotation.Generated;
+import com.querydsl.core.types.dsl.DateTimePath;
+import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.core.types.dsl.EntityPathBase;
+
+@Generated("com.querydsl.codegen.EntitySerializer")
+public class QCustomer extends EntityPathBase<Customer> {
+  public final StringPath firstName = createString("firstName");
+  public final DateTimePath<java.util.Date> createTime = createDateTime("createTime", java.util.Date.class);
+  //....
+}
+
+
+
+@Entity("employees")
+@Indexes(
+		//@Index(value = "salary", fields = @Field("salary"))
+		@Index( fields = {@Field("salary")})
+)
+class Employee {
+    @Id
+    private ObjectId id;
+    private String name;
+    private Integer age;
+    @Reference
+    private Employee manager;
+    @Reference
+    private List<Employee> directReports = new ArrayList<Employee>();
+    @Property("wage")
+    private Double salary;
+}
+
+
+ 
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia; 
+
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress; 
+import com.querydsl.mongodb.morphia.MorphiaQuery;
+
+MongoCredential credential = MongoCredential.createCredential("zh", "reporting", "123".toCharArray());
+ServerAddress[] addrs=	new ServerAddress[] { new ServerAddress("127.0.0.1", 27017) };
+MongoClientOptions opts= new MongoClientOptions.Builder().build();
+MongoClient mongoClient  = new MongoClient(Arrays.asList(addrs),  credential ,opts );  
+	 	
+	 	
+Morphia morphia= new Morphia();
+Datastore datastore = morphia.createDatastore(mongoClient,"reporting");
+	  
+  //--Morphia employee 
+
+ datastore.ensureIndexes();
+
+ final Employee elmer = new Employee("Elmer Fudd", 50000.0);
+ datastore.save(elmer);
+
+ final Employee daffy = new Employee("Daffy Duck", 40000.0);
+ datastore.save(daffy);
+
+ final Employee pepe = new Employee("Pepé Le Pew", 25000.0);
+ datastore.save(pepe);
+
+ elmer.getDirectReports().add(daffy);//保存的是directReports数据，0是{$ref:"",$id:""}
+ elmer.getDirectReports().add(pepe);
+
+ datastore.save(elmer);
+
+ Query<Employee> query = datastore.find(Employee.class);
+ final long employees = query.count();
+  long underpaid = datastore.find(Employee.class)
+                          .filter("salary <=", 30000)
+                          .count();
+
+  underpaid = datastore.find(Employee.class)
+                     .field("salary").lessThanOrEq(30000)
+                     .count();
+  
+  
+ final Query<Employee> underPaidQuery = datastore.find(Employee.class)
+                                                 .filter("salary <=", 30000);
+ final UpdateOperations<Employee> updateOperations = datastore.createUpdateOperations(Employee.class)
+                                                              .inc("salary", 10000);
+
+final UpdateResults results = datastore.update(underPaidQuery, updateOperations);
+final Query<Employee> overPaidQuery = datastore.find(Employee.class)
+                                                     .filter("salary >", 100000);
+datastore.delete(overPaidQuery);
+  
+ //----------- 
+//        morphia.map(Customer.class);
+//        morphia.mapPackage("com.hoo.entity");
+		  
+ Customer cust=	new Customer("li","si_dsl_morphie"); 
+		datastore.save(cust);//会存一个className的字段
+  
+		DBObject dbObj=morphia.toDBObject(cust) ;
+		System.out.println(dbObj);
+		System.out.println("fromDBObject: " + morphia.fromDBObject(datastore,Customer.class, BasicDBObjectBuilder.start("lastName", "abc").get()));
+		System.out.println("getMapper: " + morphia.getMapper());
+		System.out.println("isMapped: " + morphia.isMapped(Customer.class));
+		//QCustomer customer = new QCustomer("customer");
+		QCustomer customer =   QCustomer.customer;
+  //依赖于 mysema-commons-lang-0.2.4.jar
+		MorphiaQuery<Customer> query = new MorphiaQuery<Customer>(morphia, datastore, customer);
+		List<Customer> list = query
+		    .where(customer.firstName.eq("li"))
+      .limit(5).offset(1)//跳过一个 
+		    .fetch();
+		System.out.println(list);
+
+
+
+
+
+//------querydsl-collections-4.2.1.jar
+import static com.querydsl.collections.CollQueryFactory.*; //delete,update,from
+import static com.querydsl.core.alias.Alias.$;
+import static com.querydsl.core.alias.Alias.alias;
+
 ==============================Neo4j   JavaClient
 
 <dependency>
@@ -3172,13 +4018,15 @@ public class Actor {
 -------------------- Kafaka在hadoop中
 
 -------------------------------------------- RabbitMQ  3.7.7
-.exe安装版要 ERLang语言,RabbitMQ,启动停止可在services.msc中做也可使用命令启动
+版本　3.7.7　要 ERLang语言(为分布式,erlc 编译语言)　版本至少 20.3
+ 
+RabbitMQ,启动停止可在services.msc中做也可使用命令启动
 配置文件 是 rabbitmq.config  
 D:\Program\RabbitMQ Server\rabbitmq_server-3.7.7\etc\rabbitmq.config.example 复制修改
 #%HOMEPATH%\AppData\Roaming\RabbitMQ\rabbitmq.config.example
 默认端口  {tcp_listeners, [5672]},
 
-linux 下解压有sbin目录 rabbitmqctl 要 erl  ,安装erlang不太容易 CentOS 7 下 yum install erlang根本没有
+linux 下解压有sbin目录 rabbitmqctl 要 erl　命令  ,安装erlang不太容易 CentOS 7 下 yum install erlang 根本没有
 centos 7
 su -c 'rpm -Uvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-10.noarch.rpm'
 su -c 'yum install erlang' 就可以了
@@ -3189,32 +4037,52 @@ linux sbin目录下
 ./rabbitmqctl stop   停止
 看界面默认配置文件 解压的 rabbitmq_server-3.7.7/etc/rabbitmq/rabbitmq.config  
 看控制台默认日志在 解压的 rabbitmq_server-3.7.7/var/log/rabbitmq/rabbit@<hostname>.log
+ 看界面默认数据目录     rabbitmq_server-3.7.11/var/lib/rabbitmq/mnesia/rabbit@<hostname>
  
 windows zip 设置 ERLANG_HOME=D:\Program\erl9.3\ 变量  
-看控制台默认日志 %HOMEPATH%\AppData\Roaming\RabbitMQ\log
+看控制台默认日志 %HOMEPATH%\AppData\Roaming\RabbitMQ\log  可配置环境变量 RABBITMQ_LOG_BASE
 看界面默认配置文件 %HOMEPATH%/AppData/Roaming/RabbitMQ/rabbitmq.config
 看界面默认数据目录 %HOMEPATH%\AppData\Roaming\RabbitMQ\db\RABBIT~1
 看界面默认amp端口是 5672
 看界面默认clustering端口是 25672
+ 
+ 
+windows安装版本服务启动 Cookie
+从 C:\Windows\System32\config\systemprofile\.erlang.cookie 复制到
+C:\Users\%USERNAME%\.erlang.cookie 
 
+右击RabbitMQ服务->登录->用户为安装时指定的管理员用户(日志文件也在这个管理员用户目录下)
+保证当前用户和管理用户的.erlang.cookie 都是从systemprofile目录复制过来的
+
+/var/lib/rabbitmq/.erlang.cookie (used by the server) 
+$HOME/.erlang.cookie (used by CLI tools)
+
+rabbitmqctl status
 rabbitmqctl  add_user zh 123  创建用户名密码 
 rabbitmqctl  list_users
 rabbitmqctl  change_password  zh  456
 rabbitmqctl  delete_user  zh
-rabbitmqctl  set_user_tags  zh  administrator  就可远程登录了
+rabbitmqctl  set_user_tags  zh  administrator  就有权限远程登录了
 
 rabbitmqctl  add_user mon 123 
-rabbitmqctl  set_user_tags  mon  monitoring  就可远程登录了
+rabbitmqctl  set_user_tags  mon  monitoring  就有权限远程登录了
 (policymaker，management)
 rabbitmqctl  list_user_permissions  mon
 rabbitmqctl list_queues
 
-rabbitmq-plugins.bat enable rabbitmq_management    开启网页管理界面   (windows要使用命令启动服务,才可仿问界面) 
+rabbitmq-plugins.bat enable rabbitmq_management    开启网页管理界面 15672 端口 (windows要使用命令启动服务,才可仿问界面，用户名要用安装时的管理员) 
 
 http://127.0.0.1:15672/     guest/guest  只可localhost登录 可以建立Queue
 还有其它工具
 http://127.0.0.1:15672/api
 http://127.0.0.1:15672/cli 
+
+STOMP 插件
+rabbitmq-plugins enable rabbitmq_stomp　　默认监听　61613　端口
+
+修改端口　rabbitmq.conf　新的是sysctl格式,即properties格式　(3.7 以前版本是rabbitmq.config　是json格式)
+stomp.listeners.tcp.1 = 12345
+
 
 还要在界面中配置 Admin-> Virtual Hosts 配置/ 虚拟机的用户仿问权限
 
@@ -3396,6 +4264,25 @@ args.put("x-dead-letter-routing-key", "some-routing-key");
 
 rabbitmqctl set_policy DLX ".*" '{"dead-letter-exchange":"my-dlx"}' --apply-to queue
 rabbitmqctl set_policy DLX ".*" "{""dead-letter-exchange"":""my-dlx""}" --apply-to queues //windows
+
+
+
+------RabbitMQ Cluster
+chef,puppet 自动配置管理工具
+
+RAM 节点和　DISK节点
+
+~/.erlang.cookie  存字串,集群中每个节点这个值是相同的,如不存在会创建
+
+rabbitmqctl stop_app  不停止rabbitmq进程,而是停止erlang的内部进程
+
+rabbitmqctl reset 重置内部数据
+rabbitmqctl join_cluster rabbit@<hostname>   这个名字在管理界面的Admin->Cluster中可以修改的
+rabbitmqctl start_app
+
+rabbitmqctl cluster_status
+
+
 
 ======================RocktMQ   alibaba 捐给了apache
 
@@ -4093,7 +4980,7 @@ sftp.ls("directory");
 sftp.rename("/upload.txt.tmp", "/testDir/upload.txt");//同 linux mv 可重命名,也可移动文件
 
 
--------------------------------commons lang
+-------------------------------commons-lang
 implements Serializable{ 
     private static final long serialVersionUID = 1L;
 	
@@ -4130,6 +5017,14 @@ public String toString() {
 }
 
 org.apache.commons.lang.StringUtils  isBlank
+									join(listArray,",");
+									
+-------------------------------commons-lang3
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-lang3</artifactId>
+  <version>3.8.1</version>
+</dependency>
 
 -------------------------------commons logging 
 import org.apache.commons.logging.Log;
@@ -4489,6 +5384,14 @@ Connection conn= obj.getObject();
 obj.getObject().close();
 
 -----------------------------http client
+httpcore -> httpclient
+
+<dependency>
+	<groupId>org.apache.httpcomponents</groupId>
+	<artifactId>httpcore</artifactId>
+	<version>4.4.10</version>
+</dependency>
+
 <dependency>
   <groupId>org.apache.httpcomponents</groupId>
   <artifactId>httpclient</artifactId>
@@ -5955,6 +6858,45 @@ System.out.println("userModel: "+ userModel);
 //String->Map
 Map userMap = (Map) JSONObject.toBean(JSONObject.fromObject(strJsonMap), Map.class);
 System.out.println("userMap: "+ userMap); 
+------------json-path
+<dependency>
+    <groupId>com.jayway.jsonpath</groupId>
+    <artifactId>json-path</artifactId>
+    <version>2.4.0</version>
+</dependency> 
+依赖于 json-smart-2.3.jar
+<dependency>
+    <groupId>net.minidev</groupId>
+    <artifactId>asm</artifactId>
+    <version>1.0.2</version>
+</dependency>
+
+import com.jayway.jsonpath.JsonPath;
+
+String json="...";
+ 
+//输出book[0]的author值
+String author = JsonPath.read(json, "$.store.book[0].author"); 
+
+//输出全部author的值，使用Iterator迭代
+List<String> authors = JsonPath.read(json, "$.store.book[*].author");
+
+//输出book[*]中category == 'reference'的book
+List<Object> books = JsonPath.read(json, "$.store.book[?(@.category == 'reference')]");        
+
+//输出book[*]中price>10的book
+books = JsonPath.read(json, "$.store.book[?(@.price>10)]");
+
+//输出book[*]中含有isbn元素的book
+books = JsonPath.read(json, "$.store.book[?(@.isbn)]");
+
+//输出该json中所有price的值
+List<Double> prices = JsonPath.read(json, "$..price");
+	
+//可以提前编辑一个路径，并多次使用它
+JsonPath path = JsonPath.compile("$.store.book[*]"); 
+books = path.read(json);
+
 
 ============FasterXml
 <dependency>
@@ -6146,6 +7088,11 @@ System.out.println("所有建立的节点删除了");
 	<artifactId>curator-recipes</artifactId>
 	<version>4.0.1</version>
 </dependency>
+<dependency>
+	<groupId>org.apache.curator</groupId>
+	<artifactId>curator-x-discovery</artifactId>
+	<version>4.0.1</version>
+</dependency>
 
 curator-client-4.0.1.jar
 
@@ -6271,6 +7218,90 @@ pathCache.getListenable().addListener(new PathChildrenCacheListener() {
 		}
 	}
 });
+client.checkExists().watched().forPath(nodePath);
+client.getCuratorListenable().addListener(new CuratorListener() {
+	@Override
+	public void eventReceived(CuratorFramework client, CuratorEvent event) throws Exception { 
+		CuratorEventType type=event.getType();
+		if(type==CuratorEventType.WATCHED)
+		{
+			WatchedEvent watchEvent=event.getWatchedEvent();//返回zookeeper的WatchedEvent
+			EventType evtType=watchEvent.getType();
+			System.out.println("watched path="+watchEvent.getPath());
+			client.checkExists().watched().forPath(nodePath);//还要再次wached
+		}
+		//CuratorEventType.EXISTS ,CuratorEventType.DELETE ,CuratorEventType.CREATE
+	}
+});
+
+//分布式锁应用,可以自己写一个aop拦截 @ClusterLock("/lock/order")来实现
+InterProcessMutex lock=new InterProcessMutex(client,nodePath);
+try 
+{
+	System.out.println("acquire lock ..."); 
+	if(lock.acquire(10,TimeUnit.SECONDS))
+	{
+		System.out.println("geted lock");
+		Thread.sleep(1000*3);//模拟使用时间  
+	}else
+	{
+		System.out.println("get lock timeout");
+	}
+}finally {
+	lock.release();
+}
+
+//要 curator-x-discovery-4.0.1.jar
+//服务描述
+ServiceInstanceBuilder<Map> service=ServiceInstance.builder();
+service.address("127.0.0.1");
+service.port(8080);
+service.name(serviceName);//他创建zk节点
+Map<String,String> payload=new HashMap<>();
+payload.put("url","/api/v3/book");
+service.payload(payload);//payload 放额外信息，可是任何类
+ServiceInstance<Map> instance=service.build();
+		
+ServiceDiscovery  discovery=ServiceDiscoveryBuilder.builder(Map.class)
+		.client(client)
+		.serializer(new JsonInstanceSerializer<Map>(Map.class))
+		.basePath("/service")
+		.build();
+//服务注册 
+discovery.registerService(instance);
+discovery.start();
+//ls /service/book
+//get /service/book/<uu-id>
+
+//查找服务
+ServiceDiscovery  discovery=ServiceDiscoveryBuilder.builder(Map.class)
+		.client(client)
+		.serializer(new JsonInstanceSerializer<Map>(Map.class))
+		.basePath("/service")
+		.build(); 
+discovery.start(); 
+Collection<ServiceInstance<Map>> all = discovery.queryForInstances(serviceName);
+if(all.isEmpty())
+	return null;
+else
+{
+	//这里只要第一个服务
+	ServiceInstance<Map>  service= new ArrayList<ServiceInstance<Map> >(all).get(0);
+	System.out.println(service.getPayload());
+	System.out.println(service.getAddress()); 
+	return   service;
+}
+
+//选leader
+LeaderSelectorListenerAdapter listener=new LeaderSelectorListenerAdapter() {
+	@Override
+	public void takeLeadership(CuratorFramework client) throws Exception {
+		//领导节点，方法结束后退出领导 。zk会再次重新选择领导
+	}
+};
+LeaderSelector selector=new LeaderSelector(client,"/schedule",listener);
+selector.autoRequeue();
+selector.start(); 
 
 System.in.read();
 client.close();
@@ -6862,6 +7893,11 @@ Subject subject = SecurityUtils.getSubject();
 UsernamePasswordToken token = new UsernamePasswordToken(username, password);
 subject.login(token);//只能自己控制跳转页
 
+------------shiro spring session
+
+
+
+
 ============FastDFS
 跟踪服务和存储服务，跟踪服务控制，调度文件以负载均衡的方式访问；存储服务包括：文件存储，文件同步，提供文件访问接口，同时以key value的方式管理文件的元数据
 跟踪和存储服务可以由1台或者多台服务器组成，同时可以动态的添加，删除跟踪和存储服务而不会对在线的服务产生影响
@@ -7220,18 +8256,6 @@ public class Reactor3Example {
 }
 
 -------------Reactor  上
--------------ThymeLeaf 3.x
-<dependency>
-    <groupId>org.thymeleaf</groupId>
-    <artifactId>thymeleaf</artifactId>
-    <version>3.0.9.RELEASE</version>
-</dependency>
-<dependency>
-    <groupId>org.thymeleaf</groupId>
-    <artifactId>thymeleaf-spring5</artifactId>
-    <version>3.0.9.RELEASE</version>
-</dependency>
-
 -------------OAuth 2.0  
 Open Authorization
 

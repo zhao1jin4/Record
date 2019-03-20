@@ -12,18 +12,20 @@ https://github.com/facebook/react/releases   目前版本是 16.2.0
 React_Flux实现Facebook
 https://facebook.github.io/flux/
 http://www.ruanyifeng.com/blog/2016/01/flux.html
-
 redux 是作者受  Flux 的影响
 
+
+
+EasyUI for React 
 ExtReact 收费(EXTJS)
-
-
 https://reacteasyui.github.io/ 国产的 组件样式依赖 Bootstrap 
 
-免费UI框架有 https://reactjs.org/community/ui-components.html
+官方免费UI框架有 https://reactjs.org/community/ui-components.html
 
 Material UI  适用移动端,实现google android 的Material风格(Storybook生成Material UI主题 ) 
 
+react-bootstrap(Bootstrap 4)   
+https://github.com/react-bootstrap/react-bootstrap  
 
 reactstrap: Simple Bootstrap 4 components built with tether
 https://reactstrap.github.io/
@@ -37,15 +39,10 @@ Grommet:  https://grommet.io/
 material-components-web
 Belle
 Elemental UI  饿了么的
-
 Amaze UI React  国产 
 Ant Design 蚂蚁金服的
 
-
-====后来页面上没有的项目
- react-bootstrap 项目(Bootstrap 4) 
- https://github.com/react-bootstrap/react-bootstrap
- 
+====后来官方页面上没有的项目 
  
 react-toolbox 
 https://react.rocks/example/react-toolbox 有示例
@@ -68,32 +65,56 @@ bowner install react
 也可以使用yarn 包管理器   https://yarnpkg.com/zh-Hans/
 
 
-npm install  react react-dom  --save 依赖保存到package.json  
+npm install  react react-dom  --save 依赖保存到package.json (可选 npm install  react-scripts --save 要200M)
 
-npm init  会提示回车生成package.json文件
+npm init  会提示回车生成 package.json文件
+
+---browser-sync
 npm install --save browser-sync   //--save存在package.json文件中  安装 browser-sync,是一个服务器监控修改生效
  package.json 修改 "scripts": 区，如没有在根的{下增加
 	 "scripts": {
 		"dev": "browser-sync start --server --files *.*"
 	  },
-  
 npm run dev  会启动 http://localhost:3000
+---
+
 package.json文件中有 dependencies字段,表示依赖的模块, 用 npm install 就会安装所有的依赖
 
+package.json 下增加如下设置代理，npm start就可debug
+"proxy":"http://localhost:8080/S_ReactEasyUI",
 
+vs code 调试node (react 的npm start )
+  my-app/node_modules/react-scripts/bin/react-scripts.js 看脚本找下面文件
+  my-app/node_modules/react-scripts/scripts/start.js  vscode工具打开文件 ，打断点，点debug按钮
+  my-app/node_modules/react-scripts/scripts/  目录下 vscode工具 生成.vscode/launch.json（如在其它地方生成可移动）
+   文件内容有
+   "type": "node",
+   "program": "${workspaceFolder}/start"
+   
 React Developer Tools (firefox ,chrome 插件)
 如独立安装  npm install -g react-devtools  再 react-devtools
  
 
-
+---create-react-app
 //D:\Program\node-v10.13.0-win-x64\node_modules\create-react-app
 npm install -g create-react-app
-create-react-app my-app  //也会下载react,react-dom ...很多东西 
+create-react-app my-app  //也会下载react, react-dom(这两个8M多), and react-scripts(这个很大,3个共200M多)...很多东西 
 实际上是执行 node.exe D:\Program\node-v10.13.0-win-x64\node_modules\create-react-app\index.js .
 
 cd my-app    //生成的node_modules目录非常大,100多M，2万多个文件 不适用 , 基于 Webpack + ES6
+
+npm run build ( package.json有定义 "build": "react-scripts build", ) 生成 build 目录，生产级
+提示
+  npm install -g serve
+  serve -s build
+			 http://localhost:5000
+npm start  //开发级,看报错要ping通`hostname` 打开 http://localhost:3000  
+
 生成的
-package.json
+package.json 中有 "main": "index.js" 
+生成的index.js代码就有 
+	import './index.css';
+	import App from './App';
 node_modules/...
 public/index.html
 public/manifest.json
@@ -111,16 +132,28 @@ Visual Studio Code 使用create-react-app my-app  找到文件位置
 										   项目目录\node_modules\@types\react
 Webstorm(IntellijIDEA不能有此功能)也是使用create-react-app my-app  但是用yarn做的
 									   
-项目目录下 npm start (start定义在package.json中) 打开 http://localhost:3000 
+项目目录下 npm start (start定义在package.json的 "scripts": 下   "start": "react-scripts start" ) 
 如要修改端口 package.json 中scripts中的start 命令 修改如下
    "scripts": {
 		"start": "set PORT=4000 && react-scripts start"
    }
 	
-npm run build 生成 build 目录HTML,JS 压缩式 (Webpack工具) ,要用web服务式运行上下文为/ 才行
+npm run build ( package.json有定义 "build": "react-scripts build", )生成 build 目录，生产级
+有HTML,JS压缩式 (Webpack工具) ,要用web服务式运行上下文为/ 才行
  
- 
+和jQuery一起使用			 
+npm install -g jquery
+npm install --save jquery
+import $ from  'jquery'
+
+---手工引用js
+不能从node_modules复制.jsp 因有reuire语法
+node_modules\react\cjs下有 react.production.min.js , react.development.js
+node_modules\react-dom\cjs下有 react-dom.production.min.js , react-dom.development.js
+
 https://github.com/facebook/react/releases 下载.js
+
+zip包没什么用，要下.js,但最新的 v16.7.0 没有JS ??? 
 
 <script src="react-16.6.1/react.production.min.js"></script>
 <script src="react-16.6.1/react-dom.production.min.js"></script>
@@ -718,4 +751,6 @@ class MyComponent extends React.Component {
   }
 }
  
-
+ 
+ 
+------ 

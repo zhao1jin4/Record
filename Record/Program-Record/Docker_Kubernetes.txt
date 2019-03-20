@@ -1,4 +1,7 @@
-
+教程  （Spring cloud也有）
+http://www.runoob.com/docker/docker-tutorial.html
+https://www.katacoda.com 有学习docker的
+ 
 Docker 使用GO语言开发
 
 比传统的虚拟机方式要快,统资源的利用率很高，一台主机上可以同时运行数千个 Docker 容器。容器除了运行其中应用外，基本不消耗额外的系统资源
@@ -9,16 +12,21 @@ Dcoker Edge   是实验版本
 
 创建一个轻量级私有PaaS云
 
- 教程  （Spring cloud也有）
- http://www.runoob.com/docker/docker-tutorial.html
  
- 
+echo "myapp-$(uname -s)-$(uname -m)"
+docker 版本格式为<year>.<month> 如 18.09
+
 软件自身官方有docker版本的有
 Jenkins		
 GitLab		gitlab/gitlab-ce
 
 Codis
 Jbpm7
+SpringCloud	
+	docker run -d -p 9411:9411 openzipkin/zipkin
+	
+swaggerapi/swagger-ui
+neo4j
 
 镜像（Image）
 容器（Container）
@@ -28,11 +36,6 @@ Jbpm7
 可能本地建立类似 docker hub 的仓库 Nexus Repository OSS 3.5.1好像就可以的
 
 
---Docker compose安装
-yum install python-pip python-dev
-pip install -U docker-compose
-docker-compose --version
-
 
 
 上传本地java安装包(nginx) 到服务器 
@@ -40,26 +43,38 @@ docker load --input java1.8.tar
 
 
 
----CentOS 安装
+--安装 docker engine   CentOS 下
 yum-config-manager   --add-repo    https://download.docker.com/linux/centos/docker-ce.repo
 	保存到 /etc/yum.repos.d/docker-ce.repo
 	
-yum install docker-ce   目前安装的是 17.12.0.ce-1.el7.centos 还依赖一个container-selinux-2.36-1
+yum install docker-ce   目前安装的是 17.12.0.ce-1.el7.centos 还依赖一个 container-selinux-2.36-1
 
 或者 下载下来安装
 https://download.docker.com/linux/centos/7/x86_64/stable/Packages/
 https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm 
 
-yum install docker-ce-17.12.0.ce-1.el7.centos.x86_64.rpm 
+yum install docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm 
+
+---openSUSE
+http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
+ 	docker-17.09.1_ce-lp150.4.2.x86_64.rpm
+	
+---linux  binary
+https://download.docker.com/linux/static/stable/x86_64/
+下载 docker-18.06.1-ce.tgz
+
+$ tar －xzvf docker-18.06.1-ce.tgz 
+$ sudo cp docker/* /usr/bin/ 
+$ sudo dockerd &
+$sudo docker run hello-world  验证
+
+https://download.docker.com/mac/static/stable/x86_64/    mac docker client
+ $ sudo docker -H <hostname> run hello-world
 
 --uninstall
 	yum remove docker-ce
 	sudo rm -rf /var/lib/docker
 --
-CentOS 7 
-打开/usr/lib/systemd/system/docker.service文件，修改ExecStart这行 
-ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
-(原来没-H参数，启动后就监听2375端口)
 
 systemctl start docker  
 docker run hello-world  运行镜像,本地没有，会从网上下载
@@ -75,7 +90,6 @@ windows 10 版本使用  Hyper-V ,只用于开发(要求windows 10 pro or enterp
 最新版 windows 提示 You must be in the "docker-users" group. 
 net user docker  /add /active:yes /expires:never /passwordchg:yes /fullname:"the-docker" /comment:"docker used"
 net localgroup "docker-users" docker /add
-
 
 
 
@@ -186,21 +200,74 @@ curl -sSL https://shipyard-project.com/deploy | bash -s
 安装后 http://ip:8080 
 
 
+--docker compose download url
+https://github.com/docker/compose/releases
+
+docker-compose.yml 
+
+Docker compose pip 安装
+yum install python-pip python-dev
+pip install -U docker-compose
+docker-compose --version
+
+
+---docker machine download url
+https://github.com/docker/machine/releases/
+
+-----Docker Swarm 
+ Docker Swarm 是集成在docker引擎中, 提供容器集群服务
+
+
+如要使用swarm，则必须让Docker开放其HTTP的API。默认情况下这个API没有开启
+openSUSE/Redhat一样的systemctl 都改 /usr/lib/systemd/system/docker.service 中的 ExecStart 参数
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
+(原来没-H参数，启动后就监听2375端口) 
+ 　　 
+修改完成之后别忘了运行一下systemctl daemon-reload刷新配置
+
+
+ss -atn | grep 2735
+   -n, --numeric
+
+docker pull swarm   下载swarm的镜像
+
+docker run --rm swarm create  提示这种方式过时了
 
 ------------------------------------Kubernetes  (K8s)
 
 Kubernetes (开源) 基于 Docker 构建一个容器的调度服务
-v1.10.0
+v1.13.0
 https://github.com/kubernetes/kubernetes/tree/release-1.10/examples
-https://kubernetes.io/docs/imported/release/notes/ 二进制
+
+https://kubernetes.io/docs/setup/release/notes/  下载二进制
+共有3种下载包
+server
+client
+node
 
 
 
------Docker Swarm 
+docker pull node:10.15.0
+--server.js 
+var http = require('http');
 
-1.12版本以后 Docker Swarm 是集成在docker引擎中, 提供容器集群服务
+var handleRequest = function(request, response) {
+  console.log('Received request for URL: ' + request.url);
+  response.writeHead(200);
+  response.end('Hello World!');
+};
+var www = http.createServer(handleRequest);
+www.listen(8080);
 
+--Dockerfile 
 
+FROM node:10.15.0
+EXPOSE 8080
+COPY server.js .
+CMD node server.js
+--
+$ docker build -t 'mynode:1' .
+$docker run -p 4000:80 mynode:1
 
 
 

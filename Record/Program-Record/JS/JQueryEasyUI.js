@@ -27,6 +27,24 @@ $.extend($.fn.validatebox.defaults.rules,
 				return value == $(param[0]).val();
 			},
 			message: '两次输入的密码不相同'
+		},
+		maxLength: 
+		{
+			validator: function(value, param)
+			{
+				return value.length < param[0];
+			},
+			message: '最长 {0}个字符.'
+		},
+		mustNumber: 
+		{
+			validator: function(value, param)
+			{
+				if(value == "")
+					return true;
+				return /^([0-9])*$/.test(value);  
+			},
+			message: '必须是数字'
 		}
 	});
 $(function()
@@ -49,10 +67,13 @@ function submitForm(){
 
 <div class="icon-tip" style="width:20px;height:20px"></div>灯图标
 <div class="easyui-panel" title="New Topic">
-  <form id="ff"> <!-- 有form是为验证 -->
-	password: <input id="pwd" name="pwd" type="password" class="easyui-validatebox" data-options="required:true">
-	repassword:<input id="rpwd" name="rpwd" type="password" class="easyui-validatebox"  required="required" validType="equals['#pwd']">
-	email:<input class="easyui-validatebox" type="text" name="email" data-options="required:true,validType:'email'">
+  <form > <!-- 有form是为验证 -->
+	username: <input class="easyui-validatebox" type="text" name="name" data-options="required:true,validType:'maxLength[30]'"  />
+	password: <input id="pwd" name="pwd" type="password" class="easyui-validatebox" data-options="required:true"/>
+	repassword:<input id="rpwd" name="rpwd" type="password" class="easyui-validatebox"  required="required" validType="equals['#pwd']"/>
+	email:<input class="easyui-validatebox" type="text" name="email" data-options="required:true,validType:'email'" size="20" maxlength="30"/>
+	age: <input class="easyui-validatebox" type="text" name="age" data-options="required:true,validType:'mustNumber'" size="20" maxlength="30"/>
+	
 	language:<select class="easyui-combobox" name="language"> <!-- 可以输入查询-->
 			</select>
 	<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">Submit</a>		
@@ -104,7 +125,53 @@ buttons.splice(1, 0, {
 				bottom:''
 			}
 		});
-		
+//--------checkbox 
+//做成 选中为true,不选为false ,SwitchButton不能 datagrid 的editor
+function checkOnOff()
+{
+	if($("#myCheckBox").checkbox('options').checked)
+	{
+		$('#myCheckBox').checkbox('uncheck');
+		$("#myCheckBox").checkbox('setValue',false);
+	}
+	else
+	{
+		$('#myCheckBox').checkbox('check');
+		$("#myCheckBox").checkbox('setValue',true);
+	}
+	console.log($("#myCheckBox").val()); 
+}
+
+<input id="myCheckBox" class="easyui-checkbox" name="fruit" value="Apple" label="Apple:"> 
+<button type="button" onclick="checkOnOff()">check开关</button> 
+
+-----switchbutton 
+
+function switchOnOff()
+{
+	if( $('#mySwitch').switchbutton('options').checked)
+	{
+		$('#mySwitch').switchbutton({
+				// checked: false ,
+			   value:false  //这样才行
+			 });
+	   $('#mySwitch').switchbutton('uncheck');//正常，也用修改checked属性方式
+	   //$('#mySwitch').switchbutton('setValue',false);//setValue没用 ???
+	}else
+	{
+		$('#mySwitch').switchbutton({
+				// checked: true,
+				 value:true
+			 });
+		$('#mySwitch').switchbutton('check');
+		//$('#mySwitch').switchbutton('setValue',true); 
+	} 
+	console.log($('#mySwitch').switchbutton().val());
+}
+
+
+<input id="mySwitch" class="easyui-switchbutton" value="yes" data-options="onText:'开',offText:'关'">
+<button type="button" onclick="switchOnOff()">switch开关</button>
 //---------dialog	
 //   要初始化 $(function (){ 才能正常显示  
 	 $('#dlg2').dialog({
@@ -183,7 +250,7 @@ $(function(){
 function myBeforeEdit(index,row)
 {
 	row.editing = true;//自已新定义的属性
-	updateActions(index);
+	updateActions(index);//进入了edit模式，调用 updateRow 不会刷新format
 }
 function myAfterEdit(index,row)
 {
@@ -204,8 +271,7 @@ function myAfterEdit(index,row)
 			{
 				if(! row.id) //save
 				{
-					row.id=response.additionObject;//newId
-					updateActions(index);
+					row.id=response.additionObject;//newId　
 				}
 				$.messager.alert('提示','操作成功','info');//可用的有 error,question,info,warning.
 				/* jQueryUI
@@ -222,33 +288,34 @@ function myAfterEdit(index,row)
 		}
 	});
 	row.editing = false;
-	updateActions(index);
+ updateActions(index);//无效
+	editIconVisible(row.id,true);  
 }
 function myCancelEdit(index,row)
 {
 	row.editing = false;
 	updateActions(index);
-}
-function updateActions(index)
-{
-	$('#dg').datagrid('updateRow',{
-		index: index,
-		row:{}
-	});
-}
+}　
 //--行级的
 function getRowIndex(target){
 	var tr = $(target).closest('tr.datagrid-row');
 	return parseInt(tr.attr('datagrid-row-index'));
 }
 function myEditrow(target){
-	$('#dg').datagrid('beginEdit', getRowIndex(target));//调用onBeforeEdit:myBeforeEdit
+	　var index=getRowIndex(target);
+			$('#dg').datagrid('selectRow',index);
+			var firstSel=$('#dg').datagrid('getSelected');
+			editIconVisible(firstSel.id,false);
+			$('#dg').datagrid('beginEdit', index);//调用 onBeforeEdit:myBeforeEdit
+			console.log('这是调用myBeforeEdit后执行的') ; 
 }
 function mySaveUpdateRow(target){
 	$('#dg').datagrid('endEdit', getRowIndex(target));//调用onAfterEdit:myAfterEdit
+ //editIconVisible( ); //myAfterEdit中有 
 } 
-function myCancelUpdateRow(target){
+function myCancelUpdateRow(target){//调用   onCancelEdit: myCancelEdit
 	$('#dg').datagrid('cancelEdit', getRowIndex(target));
+ //editIconVisible( ); //myCancelEdit 中有 
 }
 function myInsert()
 {
@@ -305,15 +372,45 @@ function myGenderFormatter(value,row,index)
 }
 function myActionFormatter(value,row,index)
 {
-	if (row.editing){//加  class="easyui-linkbutton"没效果 ???
-		var s = '<a href="#" onclick="mySaveUpdateRow(this)">Save</a> ';
-		var c = '<a href="#" onclick="myCancelUpdateRow(this)">Cancel</a>';
-		return s+c;
-	} else {
-		var e = '<a href="#" onclick="myEditrow(this)">Edit</a> ';
-		var d = '<a href="#" onclick="myDeleterow(this)">Delete</a>';
-		return e+d;
-	}
+ // 加format中加  class="easyui-linkbutton"没效果 ???
+ /*		
+ //进入编辑模式后，再调用 updateRow 方法 调用后也不会触发format ??
+ if (row.editing){
+  var s = '<a href="#"  onclick="mySaveUpdateRow(this)">Save</a> ';
+  var c = '<a href="#" onclick="myCancelUpdateRow(this)">Cancel</a>';
+  return s+c;
+ } else { 
+  var e = '<a href="#"  class="easyui-linkbutton" onclick="myEditrow(this)">Edit</a> ';
+  var d = '<a href="#"  class="easyui-linkbutton" onclick="myDeleterow(this)">Delete</a>';
+  return e+d;
+ }
+ */ 
+ var editBtn   = '<a href="#" id="editBtn'+row.id+'" class="easyui-linkbutton" onclick="myEditrow(this)">Edit</a> &nbsp;';//不可传row除非bind
+ var saveBtm   = '<a href="#" id="saveBtn'+row.id+'" class="easyui-linkbutton" onclick="mySaveUpdateRow(this)" style="display:none" >Save</a>&nbsp; ';
+ var cancelBtn = '<a href="#" id="cancelBtn'+row.id+'" class="easyui-linkbutton" onclick="myCancelUpdateRow(this)" style="display:none" >Cancel</a> &nbsp;';
+ var deleteBtn = '<a href="#" id="deleteBtn'+row.id+'" class="easyui-linkbutton" onclick="myDeleterow(this)">Delete</a>';
+ return editBtn+saveBtm+cancelBtn+deleteBtn; 
+}		
+function editIconVisible(id,visiable)
+{
+ if(visiable)
+ {
+  $("#editBtn"+id).show();
+  $("#saveBtn"+id).hide();
+  $("#cancelBtn"+id).hide();  
+ }else
+ {
+  $("#editBtn"+id).hide();
+  $("#saveBtn"+id).show();
+  $("#cancelBtn"+id).show(); 
+ }
+}
+function updateActions(index)
+{
+ $('#dg').datagrid('updateRow',{
+  index: index,
+  row:{}
+ }); 
 }
 function myLangFormatter(value,row,index)
 {
@@ -360,7 +457,7 @@ function myBarEdit()//同 myEditrow
 }
 function myBarSave() // 同 mySaveUpdateRow
 {
-	$('#dg').datagrid('endEdit',myIndex); 
+	$('#dg').datagrid('endEdit',myIndex);　
 	var changes=$('#dg').datagrid('getChanges');//得到变化的,可传第二个参数 type,可选值 为inserted,deleted,updated 
 	console.log(changes);
 }
@@ -459,6 +556,17 @@ function myBarReload()
 								return 'background-color:#ffee00;color:red;';
 						},formatter:myLangFormatter
 						">用语言</th>
+     <th width="100" data-options="field:'hobby',editor:{
+							type:'combobox',
+							options:{
+								valueField:'value',
+								textField:'name',
+								url:'/S_jQueryEasyUI/easyUI/comboBoxEditor',
+        method:'post',
+								queryParams:{name:'queryHobby',value:'dictHobbyKey'}
+							} 
+						}		
+					">业余,URL取下拉(不支持请求头是json)</th>
 			<th width="80"  data-options="field:'salary',editor:{type:'numberbox',options:{precision:1,required:true}}">工资</th> <!--editor:'numberbox'  -->
 			<th width="80" data-options="field:'isMan',formatter:myGenderFormatter,editor:{type:'checkbox',options:{on:'true',off:'false'}}">是否为男</th>
 			<th width="90"  data-options="field:'birthday',editor:{type:'datebox',options:{required:true}}">生日</th>
@@ -562,7 +670,7 @@ response.getWriter().write(obj.toString());
 			label: 'c/c++',
 			value: 'cpp'
 		}];
-	  $('#testComboBox').combobox('loadData',data);
+	  $('#testComboBox').combobox('loadData',data);//可用url,method,queryParams请求服务，但返回一定要是数组,不支持请求头是json
 	  $('#testComboBox').combobox('select','cpp');
 	  
 	  $('#inputComboBox').combobox('loadData',data);
@@ -739,10 +847,200 @@ function myTagBoxHidePanel() //输入一半不选就清除
 	 console.log('myOnRemoveTag'+value);
 	 delete selectedTagBox[value]; // 还可这样删属性
  }
-	
+------
+选人组件  删除选中的有问题？？？？？？？？？？？<br/>
+<span style="width: 200px;">
+<!-- 
+<input class="easyui-tagbox" style="width: 100%;" type="text" id="SelectUser">
+ -->
+<input class="easyui-tagbox" style="width: 100%;" type="text" id="SelectUser" value="1" data-tagtext="用户1">
+</span>
+<script type="text/javascript" src="./selectUser.js"></script>
+<script type="text/javascript">
+//$("#SelectUser").prop("value",1).attr("data-tagtext","用户1");
+initTagBoxWithSelectUser("SelectUser",false,"SelectUser",false);//自己的选人组件
+</script>   
+-----./selectUser.js
+
+/**
+ * 初始化选人控件
+ * @param id            控件ID
+ * @param multiple      是否多选,true：多选
+ * @param name          生成姓名隐藏域,如需要后台保存姓名，可以传此属性
+   @param required      是否可为空
+ */
+function initTagBoxWithSelectUser(id,multiple,name,required) {
+    var value = $("#" + id).val();
+    var comboData = [];
+    var comboValue = [];
+    if(value){
+        comboValue = value.split(",");
+        var text = $("#" + id).attr("data-tagtext");
+        if(text){
+            var textArr = text.split(",");
+            for(var i=0; i < textArr.length; i++) {
+                var idText = {id:comboValue[i],text:textArr[i]};
+                comboData.push(idText);
+            }
+
+        }else{
+        	 var root="/S_jQueryEasyUI";
+            var params = {"input":value};
+            $.ajax({
+                type: "post",
+            	url:root+'/easyUI/tagBoxJson',
+                data: params,
+                async: false,
+                success: function (data) {
+                    comboData = data; 
+                }
+            });
+        }
+    }
+    var selectedTagBoxUser = {};
+    if(multiple == null){
+        multiple = false;
+    }
+    if(required == null){
+        required = false;
+    }
+    var timeout = 0;
+    var isInputed = true;
+    $("#"+id).tagbox({ 
+        limitToList:true,
+        prompt: "",
+        valueField: 'id',
+        textField: 'text',
+        value:comboValue,
+        data:comboData,
+        multiple:multiple,
+        required: required,
+        //panelWidth:"auto",//文档没有auto的值
+        buttonIcon:("icon-man"),
+        buttonAlign:"left",
+        events:{
+        	input: function (e) {
+        		newValue=e.target.value;
+                //在选择人名时，也会触发onChange事件，获取到value(value为主键ID)，如果继续执行searchForm方法，会将主键ID填入文本框
+                //所以需要判断输入是汉字或字母才触发searchForm方法，避免上述问题
+                if(!isInputed){
+                    return;
+                }
+                clearTimeout(timeout);
+                timeout = setTimeout(function () {
+                    var trueValue = newValue;
+                    // alert(trueValue)
+                    if (isChinese(trueValue)) {
+                        searchTagBoxForm("fullname", trueValue, id, selectedTagBoxUser);
+                    }
+                    else if (isChar(trueValue) && trueValue.length > 1) {
+                        searchTagBoxForm("email", trueValue, id, selectedTagBoxUser);
+                    }
+                    $("#"+id).tagbox("panel").css("width","auto")//auto
+                },300);
+            },compositionstart:function(e){
+                isInputed = false;
+            },compositionend:function(e){
+            	isInputed = true;
+            }
+        },
+               
+        onSelect:function(data){
+            //保存已选择的Item
+            if(! selectedTagBoxUser[data.id]){
+                if(!multiple){
+                    selectedTagBoxUser = {};
+                }
+                selectedTagBoxUser[data.id] = data;
+            }
+            //将textField的显示文本截取
+            if(data.text.indexOf("(") != -1){
+                data.text = data.text.substr(0,data.text.indexOf("("));
+            }
+            //将textField的显示文本截取
+            if(data.text.indexOf(" ") != -1){
+                data.text = data.text.substr(0,data.text.indexOf(" "));
+            }
+            if(name){
+                updateNameTextHidden(id,selectedTagBoxUser,name,this);
+            }
+
+        },
+        onRemoveTag:function(itemId){
+            //删除已选中的记录
+            delete selectedTagBoxUser[itemId];//只这样不行的??????????
+            if(name){
+                updateNameTextHidden(id,selectedTagBoxUser,name,this);
+            }
+        }
+
+    });
+}
+function updateNameTextHidden(compomentId,selectedTagBoxUser,name,compom){
+    var value = "";
+    var length = 0;
+    $.each(selectedTagBoxUser,function(i,param){
+        value += param.text;
+        if(length < Object.keys(selectedTagBoxUser).length - 1){
+            value += ",";
+        }
+        length ++;
+    });
+    //增加
+    if($("#"+compomentId+"_name").length == 0){
+        var hiddenInput = "<input type=\"hidden\" id=\""+compomentId+"_name\" name=\""+name+"\" value=\""+value+"\" />";
+        $(compom).append(hiddenInput);
+    }else{
+        $("#"+compomentId+"_name").val(value);
+    }
+
+} 
+function searchTagBoxForm(field,value,compomentId,selectedTagBoxUser){ 
+ 	var data = {"input":value}; 
+    var root="/S_jQueryEasyUI";
+    $.post(root+'/easyUI/tagBoxJson',data,
+        function(result){
+            if(selectedTagBoxUser){
+                $.each(selectedTagBoxUser,function(i,param){
+                    result.push(param);
+                });
+            }
+            $("#"+compomentId).combobox("loadData", result);
+            $("#"+compomentId).combobox("setText", value);
+
+        });
+}
+//检测是否为中文，true表示是中文，false表示非中文
+function isChinese(str){
+    if(/^[\u3220-\uFA29]+$/.test(str)){
+        return true;
+    }else{
+        return false;
+    }
+}
+function isChar(str){
+    var i = /^(?!_)([A-Za-z ]+)$/;
+    if(!i.test(str)){
+        return false;
+    }
+    return true;
+}
 //--------------treeGrid
 服务端加载数据，服务端分页
-var editId=undefined;
+
+
+$.extend($.fn.validatebox.defaults.rules, 
+		{
+			maxLength: 
+			{
+				validator: function(value, param)
+				{
+					return value.length < param[0];
+				},
+				message: '最长 {0}个字符.'
+			},
+		});
+	var editId=undefined;
 	function myOnDblClickRow (row) //不同于 datagrid的参数
 	{
 		$(this).treegrid('beginEdit',row.myid)//idField的字段,不同于 datagrid是第索引
@@ -750,13 +1048,78 @@ var editId=undefined;
 	}
 	function myOnClickRow( row)//不同于 datagrid的参数
 	{
-		$(this).treegrid('endEdit',editId) 
+		//行内编辑的验证 textbox 继承自validatebox
+ 		var validateOK=false;
+ 		$("#myTreegridForm").form('submit' ,
+		{   onSubmit:function()
+			{
+				validateOK= $(this).form('enableValidation').form('validate');
+				console.log(" in onSubmit validateOK="+validateOK);
+				return false;//表单只为验证用，这里永远返回false
+			}
+		});
+ 		console.log(" in myOnClickRow validateOK="+validateOK);
+ 		//是同步执行
+ 		if(validateOK)
+			$(this).treegrid('endEdit',editId) 
 	}
 	function myOnAfterEdit(row,changes)
  	{
  		$(this).treegrid('checkNode', row.myid);
  	}
- 	 <table title="Products" class="easyui-treegrid" style="width:700px;height:300px"
+	function myOnContextMenu(e, row)
+	{
+		e.preventDefault();
+		$("#myTableContextMenu").menu('show', {
+		  left: e.pageX,
+		  top: e.pageY
+		});
+	}
+ function  rightMenuEdit()
+	{
+		var selectArray=$("#myTreegrid").treegrid('getSelections');
+		console.log(selectArray);
+		var selectFirst=$("#myTreegrid").treegrid('getSelected');
+		console.log(selectFirst);
+		//myOnDblClickRow(selectFirst); //有用this
+		$("#myTreegrid").treegrid('beginEdit',selectFirst.myid);
+		editId=selectFirst.myid;
+	}
+	function  rightMenuEditCancel()
+	{
+		var selectFirst=$("#myTreegrid").treegrid('getSelected');
+		$("#myTreegrid").treegrid('cancelEdit',selectFirst.myid);
+	}
+	function  rightMenuEditSave()
+	{
+		var selectFirst=$("#myTreegrid").treegrid('getSelected');
+		$("#myTreegrid").treegrid('endEdit',selectFirst.myid) ;
+	}
+	function  rightMenuDelete()
+	{
+		var selectFirst=$("#myTreegrid").treegrid('getSelected');
+		var childs=$("#myTreegrid").treegrid('getChildren',selectFirst.myid) ;
+		if(childs.length>0)
+		{
+			$.messager.alert('提示','有子节点不能删除','error');
+		}else
+		{
+			$.messager.confirm('删除','确定删除吗？',function (r){
+				if(r)
+					$("#myTreegrid").treegrid('remove',selectFirst.myid) ;
+			});	
+		}
+	}
+<div id="myTableContextMenu" class="easyui-menu" style="width:120px;"> 
+    <div data-options="iconCls:'icon-add'" onclick="">增加同级</div> 
+    <div data-options="iconCls:'icon-add'" onclick="">增加子级</div> 
+    <div data-options="iconCls:'icon-edit'" onclick="rightMenuEdit()">Edit</div> 
+    <div data-options="iconCls:'icon-save'" onclick="rightMenuEditSave()">Save Edit</div> 
+    <div data-options="iconCls:'icon-undo'" onclick="rightMenuEditCancel()">Cancel Edit</div> 
+    <div data-options="iconCls:'icon-remove'" onclick="rightMenuDelete()">delete</div> 
+</div>
+	<form id="myTreegridForm">
+ 	 <table id="myTreegrid"  title="Products" class="easyui-treegrid" style="width:700px;height:300px"
                 data-options="
                     url: '/S_jQueryEasyUI/easyUI/treeGridPage',
                     rownumbers: true,
@@ -776,6 +1139,7 @@ var editId=undefined;
 					onDblClickRow:myOnDblClickRow,
                     onClickRow:myOnClickRow,
 					onAfterEdit:myOnAfterEdit,
+       				onContextMenu:myOnContextMenu,
                     onBeforeLoad: function(row,param){
                         if (!row) {    // load top level rows
                             param.id = 0;    // set id=0, indicate to load new page rows
@@ -797,12 +1161,15 @@ var editId=undefined;
                 <tr>
                     <th field="name" width="250" formatter="nameFormater" >Name</th>
 					<th field="name2" width="250">Name2</th>
+					 <th field="nameValidate" width="250" data-options="editor:{type:'textbox',options:{validType:'maxLength[30]'}}"  >nameValidateLength30</th>
                     <th field="quantity" width="100" align="right" editor="numberspinner">Quantity</th>
                     <th field="price" width="150" align="right" formatter="formatDollar" editor="numberbox">Price</th>
                     <th field="total" width="150" align="right" formatter="formatDollar">Total</th>
                 </tr>
             </thead>
         </table>
+		</form>
+		
         <script>
             function formatDollar(value){
                 if (value){
@@ -840,6 +1207,18 @@ var editId=undefined;
 						 total: 2000
 					 }			 
 				}); 
+			}
+			function showChange()
+			{
+				var changes=$("#myTreegrid").treegrid('getChanges');//得到变化的,可传第二个参数 type,可选值 为inserted,deleted,updated 
+				console.log(changes);
+				var updated=$("#myTreegrid").treegrid('getChanges','updated');
+				console.log(updated);
+				
+				//treegrid是getData，datagrid是getRows
+				var newData=$("#myTreegrid").treegrid('getData' );//是修改后的值 
+				//即使数据格式是　_parentId,这里得到的数据也是children格式,每一项数据也多加(如源数据没用)_parentId
+				console.log(newData);
 			}
 			function showCheckedAndLevel()
 			{
@@ -934,7 +1313,7 @@ $.extend($.fn.treegrid.defaults.editors,{//新增的editor,系统中的editor还
 		 SelectUser: {
               init: function(container, options){
                   var input = $('<input class="easyui-tagbox" style="width: 100%;" type="text" id="SelectUser">').appendTo(container);
-                  return initTagBoxWithSelectUser("SelectUser",false,"SelectUser");//单独的组件
+                  return initTagBoxWithSelectUser("SelectUser",false,"SelectUser",false);//单独的组件
               },
               destroy: function(target){
                   $("#SelectUser").tagbox('destroy');
@@ -946,10 +1325,10 @@ $.extend($.fn.treegrid.defaults.editors,{//新增的editor,系统中的editor还
               },
               setValue: function(target, value){
 				  //已 经有值,先调init后,再调setValue
-            	  $("#SelectUser").tagbox('loadData',{
+            	  $("#SelectUser").tagbox('loadData',[{
             		  id:value,
             		  text:value//查DB？？？ 或者拿到row.         			
-            	  });
+            	  }]);
                   $("#SelectUser").tagbox('setValue',value); 
               },
               resize: function(target, width){

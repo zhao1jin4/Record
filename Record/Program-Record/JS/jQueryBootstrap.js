@@ -1,4 +1,6 @@
 
+Bootstrap4  Bootstrap.min.css 的体积减少了40%以上
+Bootstrap4 放弃了对 IE8 以及 iOS 6 的支持，现在仅仅支持 IE9 以上 以及 iOS 7 以上版本的浏览器。如果对于其中需要用到以前的浏览器，那么请使用 Bootstrap3
 
 =============BootStrap  3.3.7 开源的
 Hadoop 的UI使用Bootstrap

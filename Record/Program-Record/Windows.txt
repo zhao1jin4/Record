@@ -129,6 +129,8 @@ VMWare
 
 C:\WINDOWS\system32\drivers\etc  里面有services,hosts文件
 
+echo 127.0.0.1 peer1 >>  C:\Windows\System32\drivers\etc\hosts
+
 
 @黑体     //这种以@开头字体的 中文是返向的
 
@@ -348,7 +350,7 @@ wuauclt /detectnow 立即系统更新
 gpedit.msc “计算机配置”-> “管理模板”->“Windows组件”->单击“Windows Update”展开窗口右边的“设置”部分
 “指定Intranet Microsoft更新服务位置”时，http://
 
-
+停 BitLocker 服务
 
 -----boot
 BCD=Boot Configuration Data
@@ -717,7 +719,8 @@ xcopy /y /q /e /r /h dirx  diry  #把dirx目录下的所有文件复制到diry�
 
 zip -r package.zip dirx  #把dirx目录也放入包中
 unzip package.zip -d dir #dir可以不存在
- 
+du -sh .  当前目录下的所有目录占用空间
+
 
 ipconfig /release
 ipconfig /renew
@@ -784,6 +787,9 @@ net user
 
 shutdown /a 取消 定时关机
 shutdown /t 120 /s  ,两分钟后关机
+
+win 7/10 默认支持 exFat 分区,不安装什么
+
 -------------
 运行 cmd  /t:70  /k  cd \ ,以黑字白底显示,并执行 cd \
 运行 cmd/notepad/wordpad/mspaint/regedit/explorer 命令
@@ -791,7 +797,6 @@ shutdown /t 120 /s  ,两分钟后关机
 
 运行 mstsc 远程桌面
  (service.msc中有Remote Desktop Services) 使用RDP协议  右击我的电脑 -> 属性 -> 远程设置 ->选中 允许远程协助连接这台计算机
-							防火墙，win10 windows Defender -> 防火墙和网络保护->允许应用通过防火墙 选中 远程协助 ，选 专用网络 和 公有网络  但还是不行？？？
 	官方说win10家庭版没有远程桌面	
 运行 dxdiag 就可以看到显卡信息
 运行 wmic命令
@@ -891,7 +896,7 @@ win10 安装中文语言包,官方说要  控制面板 增加语言后->option->
                       %HOMEPATH%\Desktop
 					  
 IE-11 自带Flash Player
-自带windows Defender 杀毒软件,设置中取消 [启用实时保护] .金山毒霸可以让windows Defender 服务停止.
+
 android-4.4 (android-sdk_r22.3-windows) 在 win8.1 上不能运行.exe文件 是因没有安装JDK,可以JDK8u20
 
 拖动标题栏 晃动几下,所有的其它窗口最小化,再次晃动还原
@@ -914,7 +919,15 @@ win10 桌面图标不能移动时,快按两次esc键就可以了
 C:\Windows\SystemApps 是 win10 系统应用
 修改默认字体
 
+-----windows Defender
 
+金山毒霸可以让windows Defender 服务停止.
+
+
+windows Defender -> "病毒和威胁保存"设置->关闭 实时保护 
+
+windows Defender -> 防火墙和网络保护->允许应用通过防火墙 选中 远程协助 ，选 专用网络 和 公有网络 
+	
 Windows Defender (MsMpEng.exe)总是占用磁盘100%  
 	关闭它 网上说用gpedit.msc (但家庭版没有)
 	HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services 下面的WinDefend 删除它 注册表项目
@@ -927,6 +940,10 @@ Windows Defender (MsMpEng.exe)总是占用磁盘100%
 
 svchost.exe(LocalSystemNetworkRestricted -p)总是占用磁盘100%  
 
+关闭windows Defender 
+Win+R ->输入 gpedit.msc (家庭版没有这个)  
+	计算机策略 -> 管理模板 -> Windows 组件 -> 关闭 Windows Defender 防病毒程序 ->双击  选择 "已启用"
+-----
 
 
 

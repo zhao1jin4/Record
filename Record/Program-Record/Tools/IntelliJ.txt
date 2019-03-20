@@ -2,7 +2,10 @@
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
 IDEA 2018.2.6 版本可以支持 JDK11
 
-File->project stucture ->project -> 配置JDK
+
+---JDK
+File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
+	Global Librarie 标签配置库，默认带scala(安装插件后)
 
 --Maven
 	File->Other Settings-> Default Settings -> Build ,Execution,Deployemnt->Maven 中设置 maven home directory
@@ -60,6 +63,8 @@ File->Settings->Editor->File Types  在ignore files and folders 中加*.iml;dubb
 收费版 File->Settings->Build,Executeion,Deployment->Application Server-> + 一个Tomcat,就可以Run中建立,
 		deployment标签中+ 个我Artifact..->选择xx:war exploded
 		server标签可以在on upate action 下拉选择 update resource或者update classes, 也可在运行时的Debug视图点刷新图标也会提示
+				   on frame deactivation下拉选择 do nothing 这个是idea窗口切换其它窗口再回来时就做
+						
 		(对应于project structure...->Artifact  + 一个 Web Application Exploed -> From modules->),设置context,启动时注意左侧的连接图标
 		注意不要修改tomcat中的catalina.bat 如设置内存,
 		集成Tomcat和eclipse不一样的是,如果程序中(一个进程)开了新的线程Intellij并不是多个线程同时运行,通过调试可以看出,
@@ -182,6 +187,10 @@ Settings->Editor->Code Style->Java /JavaScript->Wapping and  Braces -> Braces Pl
 
 ctrl + y 是删除当前行
 
+navigate->test (ctrl+shift+t)弹出窗口create new Test-> test library可以选择TestNG (依赖jar不是自带的,要么用maven,要么自己加手工建库)
+
+File->Setings->Language & -Framework >JavaScript->webpack 可配置.js文件
+
 ====================IntelliJ IDEA plugin 
 
 IDEA 2018.2.6 也可以建立Android 项目(android SDK只可用JDK8),指定android SDK位置,有新建向导,不能和AndroidStudio同时使用同一个Android SDK
@@ -203,7 +212,10 @@ minSdkVersion 25 (Build Tools 27.0.3,Android 7.1.1) 真机测试OK,模拟器api-
 findbug
 jd-gui
 
-JRebel 热部署插件（收费） 修改Mybatis的Mapping.xml也可立即生效
+JRebel 热部署插件（收费）
+	IDEA 2018.2.6可以安装JRebel-2018.2.2 (idea官方jetbrains可以下载离线版)
+	修改Mybatis的Mapping.xml也可立即生效 
+	 
 lombok 插件 
 	可自动生成代码，settings->Buile,Execution,Deployment->Compilier->Annotaion process->复选 enable annotaion process
 	就可以在getter/setter类前加 @Data ,会在很多类前加@Log4j,代码中就可以直接使用log.info();
@@ -230,7 +242,8 @@ windows 下可 Cygwin/MinGW/Visual Studio
 		gdb-8.0.1-1
 		make-4.2.1-2
 Settings->Build,Execution,Deployment->ToolChains->选择Cygwin 右则点...配置Cyginw home 可自动检测,测试OK
-
-
+--------Goland
+--------Pycharm
+---------Rider 跨平台的C#开发工具(也有开源的ＭonoDevelop )
 
 

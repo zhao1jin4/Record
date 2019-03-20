@@ -188,6 +188,14 @@ public class Family
     @XmlElement(name="theMather")  
     private String mather;
 }
+
+
+  <dependency>
+    <groupId>javax.xml.bind</groupId>
+    <artifactId>jaxb-api</artifactId>
+    <version>2.3.1</version>
+</dependency>
+
 JAXBContext context=JAXBContext.newInstance(Boy.class); //类名,也可以是包名,下的所有的类
 Marshaller marshaller=context.createMarshaller();	//Java->XML的
 Unmarshaller unmarshaller=context.createUnmarshaller(); //XML->Java的

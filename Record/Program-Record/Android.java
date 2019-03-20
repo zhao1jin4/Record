@@ -1,8 +1,9 @@
 Kotlin 也可开发Android
 
 -------------Android 更新 下载
+https://developer.android.google.cn  可用
+
 http://www.androiddevtools.cn/ 有 可配置在SDK Manager 中镜像
-https://developer.android.google.cn
  
 大连东软信息学院镜像服务器地址 
 http://mirrors.neusoft.edu.cn 端口：80   下有 android目录  下还有其它的镜像站点,如centos , ubuntu-releases
@@ -13,12 +14,15 @@ http://mirrors.neusoft.edu.cn 端口：80   下有 android目录  下还有其�
 https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project (AOSP)
 
 翻墙方法 
-免费的   1. lattern 蓝灯 (可上google,但下载Android SDK 还要设置镜像地址mirrors.neusoft.edu.cn )  
+免费的   1. lantern 蓝灯 (可上google,但下载Android SDK 还要设置镜像地址mirrors.neusoft.edu.cn )  
 -------------windows/mac 下载选择  
 
-1. Intel x86 Emulator Accelerator(HAXM installer)(mac有,但不能Mac运行在虚拟机中,linux不可用) 
+1. Intel x86 Emulator Accelerator(HAXM installer)
+  mac有但不能Mac运行在虚拟机中,提示使用ARM镜像(没有最新的,速度慢10倍)或者VMware打开CPU虚拟化Inter VT-x(测试可以,启动时提示GPU driver不影响使用)
+  linux使用KVM
+  
 		HAXM=Hardware Accelerated Execution Manager
-		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat  (也可intelhaxm-android.exe)
+		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat (MAC是silent_install.sh) (也可intelhaxm-android.exe)
 	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x 
 2. google usb 可能些手机不能识别
 	右键单击[我的电脑] -> 属性 -> 设备管理器->右键单击[有问号的设备] -> 属性 -> 详细信息 -> “属性”下拉列表框选择：硬件 Id
@@ -79,26 +83,27 @@ fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
  检查  fastboot oem get-bootinfo
  
 ----- Android Studio
- AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8，自带Grale
- AndroidStudio-3.2.1 支持JDK10 linux 下可以安装KVM
+ AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8，自带Grale , linux 下提示安装KVM提速
+ AndroidStudio-3.３.1 下载的是 gradle-4.10.1-all.zip　自带OpenJDK Jre-1.8.0_152
+  下载时可中断,
+        　~/.gradle/wrapper/dists/gradle-4.10.1-all/<uuid>/   
+ %HOMEPATH%/.gradle/wrapper/dists/gradle-4.10.1-all/<uuid>/
+  再放入gradle-4.10.1-all.zip  　,不能手工指定更高的版本,不能再构建???必须重新项目??
+
+　首次启动Android Studio 指定SDK目录后　会下载Android SDK Tools,Android SDK platform-Tools,Android SDK platform-Tools(共就这3个tools),Support Repository下的全部
+ Android Emulator 必须手工选择下载(如使用模拟器)
+ Documentation　可选手工下载
+ 模拟器镜像(不要google API,选择64位最新手机即可) 及 自己想的android SDK版本自己下载
  
- 3.1.4 在 ~/.AndroidStudio3.1
  默认安装目录 windows: %HOMEPATH%\AppData\Local\Android\sdk 
 				linux: ~/Android/Sdk
 				Mac: ~/Library/Android/sdk
  默认工作区   %HOMEPATH%\AndroidStudioProjects
  如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
- 
- AndroidStudio-3.1.4 首次配置AndroidSDK时会下载 android_m2repository_47.zip 放在extras\android\m2repository目录中
-	也会下载 google_m2repository_gms_v11_3_rc05_wear_2_0_5.zip 放在 extras\google\m2repository 目录,和 extras\m2repository ,extras\android\m2repository
-	也会再下载 source
-
- AndroidStudio-3.2.1 下载的是 gradle-4.6-all.zip  可开始下载时中断生成目录 ,不能手工指定更高的版本
-		  ~/.gradle/wrapper/dists/gradle-4.6-all/<uuid>/   再放入gradle-4.6-all.zip  
- %HOMEPATH%/.gradle/wrapper/dists/gradle-4.6-all/<uuid>/
- 
 在path中找到gradle命令不会下载,再配置如下
-settings->Build,Execution,Deployment->Build Tool->Gradle->单选use Local Gradle, Gradle home:选择路径D:\Program\gradle-4.6-all\gradle-4.6
+有项目后　settings->Build,Execution,Deployment->Build Tool->Gradle->单选use Local Gradle, Gradle home:选择路径/opt/gradle-5.2
+可全局配置service directory path: ~/.gradle 到其它目录
+
 -----build.gradle文件
 	repositories { 
 	//最前面增加镜像

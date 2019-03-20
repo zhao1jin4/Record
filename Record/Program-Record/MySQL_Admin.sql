@@ -237,13 +237,13 @@ shell> cp support-files/mysql.server /etc/init.d/mysql.server   -- openSUSE-15�
 #cp support-files/my-default.cnf  /zh/mysql-files/my.cnf  #文件内容比较空，
 
 bin/mysqld --verbose --help
-
+[mysql]
+#default-character-set=utf8 
 [mysqld]
 #log_bin=ON
 #server-id =1  			#变量是server_id(show variables like 'server_id'),命令行是 --server-id
 #default-storage-engine=INNODB
-#default-character-set=utf8
-
+character_set_server=utf8
 #lc-messages-dir=/zh/mysql-files/share    
 	-- 不加正常默认值为<basedir>/share/(但目录中有很多文件,但没有errmsg.sys)
 	-- 加了报ERROR没有/zh/mysql-files/share/errmsg.sys文件,但能使用

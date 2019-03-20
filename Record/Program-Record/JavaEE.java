@@ -334,7 +334,6 @@ Chrome network 标签打开protocol列值是h2
       --> promised_stream_id = 2
 	  
 //---PushBuilder
-PushBuilder publishBuilder=req.newPushBuilder();
 PushBuilder pushBuilder=req.newPushBuilder();//如果不支持返回null
 if (pushBuilder != null)
 {  //push 非阻塞

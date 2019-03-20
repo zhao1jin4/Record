@@ -1,0 +1,7 @@
+	Java机器学习
+https://deeplearning4j.org/docs/latest/deeplearning4j-concepts
+	DL4J relies on a tensor library called ND4J. 
+
+Spark ML
+
+

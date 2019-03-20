@@ -1,7 +1,7 @@
 下载   http://repo.spring.io/libs-release/
 
 <properties>
-	<spring.version>5.0.5.RELEASE</spring.version>
+	<spring.version>5.1.0.RELEASE</spring.version>
 	<spring-security.version>5.0.5.RELEASE</spring-security.version>
 </properties>
 <parent>
@@ -660,6 +660,7 @@ org.springframework.context.ApplicationListener接口的一个方法onApplicatio
 org.springframework.context.AplicationContextAware接口的一个方法setApplicationContext(ApplicationContext applicationContext)
 ApplicationContext的publishEvent(ApplicationEvent event)
 
+ServletContextAware
 
 
 ApplicationContext 定义了一个getSource(String location )返回一个Resource 可以用getInputStream()方法
@@ -1599,7 +1600,7 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
 =========================  Druid 见 MyBatis
  
 
-=========================spring 单元测试
+=========================spring Junit
  AbstractTransactionalDataSourceSpringContextTests
  
  
@@ -1651,26 +1652,6 @@ public class TestSpringJunit {
 		this.userDAO.save(new User());
 	}
 	
- 	@Test
-	public void testMockDynamicChange() 
-	{
-		String beanName="userDao";
-		DefaultListableBeanFactory  factory=(DefaultListableBeanFactory)ctx.getBeanFactory();//是DefaultListableBeanFactory
-		 
-		 UserDAOImpl newObj=new UserDAOImpl();
-		 newObj.changeTest("newOjb");
-		 
-//		 UserDAO newObj=UserDAOMock.generateMockObject("li");
-		 
-		 factory.removeBeanDefinition(beanName);
-		 factory.registerSingleton(beanName, newObj); //不会修改已经注入的
-		 
-		 UserDAOImpl newBean=(UserDAOImpl)ctx.getBean(beanName);
-		 Assert.assertSame("newOjb", newBean.getTest());//OK
-		 
-		 Assert.assertSame("newOjb", userDAO.getTest());//Fail,还是原来的Mock对象,如何修改它????
-		
-	}
 }
  
 <beans profile="dev">
@@ -1687,11 +1668,11 @@ web.xml中
   </context-param>
 
   
---web 不行的??
+--junit web 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration  //可以注入 WebApplicationContext 要和  @ContextConfiguration 一起使用
-@ContextConfiguration 
+@WebAppConfiguration("file:WebContent/")  //可以注入 WebApplicationContext 要和  @ContextConfiguration 一起使用
+@ContextConfiguration("file:WebContent/WEB-INF/spring_annotation.xml")
 public class TestSpringJunitWithWeb 
 {
 	@Autowired
@@ -1700,36 +1681,34 @@ public class TestSpringJunitWithWeb
 }
  
 org.springframework.util.Assert.notNull(obj,"error,obj is null");
-	isTrue()
-=========================mockMVC 不行的??
-
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
-public MockMvc mockMvc;
-mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+	isTrue() 
+=========================spring TestNG
+//@WebAppConfiguration("file:WebContent/")  //可以注入 WebApplicationContext 要和  @ContextConfiguration 一起使用
+@ContextConfiguration(locations = { "classpath:/spring_testng/springTestNG.xml" })
+public class TestNGSpring extends AbstractTestNGSpringContextTests {
 	
-ResultActions resultActions = mockMvc.perform(
-				post("/employee/list/1.mvc")
-						.characterEncoding("UTF-8")
-						.contentType(MediaType.APPLICATION_JSON)
-						//.content(json)
-						)
-				.andExpect(status().isOk())
-				.andDo(print());
+	
+	@Autowired
+	private GenericApplicationContext ctx; //是GenericApplicationContext
+	 
+//	@Autowired
+//	private WebApplicationContext wac;
 
-MvcResult mvcResult = resultActions.andReturn();
+	@Resource(name="userService")
+	private UserServiceImpl userService; //可自动注入Bean 
+	
+	@BeforeClass
+	public void init() { 
+		System.out.println("@BeforeClass,ctx="+ctx);//有值的,maven项目spring.xml要放在resources目录下才行
+		//System.out.println("@BeforeClass,wac="+wac);//有值的
+	}
+	@AfterClass
+	public void destory() {
+		System.out.println("@AfterClass");
+	}
+}
 
-String result = mvcResult.getResponse().getContentAsString();
-
-
+  
 =========================spring JNDI
 JMS见ActiveMQ
 <bean id="jndiTemplate" class="org.springframework.jndi.JndiTemplate">
@@ -2275,19 +2254,18 @@ conn.close();
    <property name="numTestsPerEvictionRun" value="3"></property>  
    <property name="timeBetweenEvictionRunsMillis" value="60000"></property>  
 </bean>
- <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  >
-	<constructor-arg >
-		<bean class="org.springframework.data.redis.connection.RedisStandaloneConfiguration">
-			<property name="hostName" value="120.55.90.245"></property>
-			<property name="port" value="6380"></property>
-			<property name="password"  >
-				<bean class="org.springframework.data.redis.connection.RedisPassword" factory-method="of" >
-					<constructor-arg value="test2016"/>
-				</bean>
-			</property>
-			<property name="database"  value="0"></property>
+<bean id="redisStandaloneConfiguration" class="org.springframework.data.redis.connection.RedisStandaloneConfiguration">
+	<property name="hostName" value="127.0.0.1"></property>
+	<property name="port" value="6379"></property>
+	<property name="password"  >
+		<bean class="org.springframework.data.redis.connection.RedisPassword" factory-method="of" >
+			<constructor-arg value=""/>
 		</bean>
-	</constructor-arg> 
+	</property>
+	<property name="database"  value="0"></property>
+</bean>
+<bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  >
+	<constructor-arg name="standaloneConfig" ref="redisStandaloneConfiguration" />
 </bean>
 <bean id="stringRedisSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer"/>  
 <bean id="jedisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
@@ -2431,17 +2409,18 @@ public static void springDataLettuce()
 	<!--   <property name="password" value="mypassword" /> -->   
 </bean>
  
- 
- 
- 
- 
- 
- 
- 
+
 =========================Spring Data Mongodb 2.0.9
-
-
-
+<dependency>
+    <groupId>org.springframework.data</groupId>
+    <artifactId>spring-data-commons</artifactId>
+    <version>2.1.5.RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.data</groupId>
+    <artifactId>spring-data-mongodb</artifactId>
+    <version>2.1.5.RELEASE</version>
+</dependency>
 
 依赖 spring-data-commons-x.RELEASE.jar
 public interface CustomerRepository extends MongoRepository<String, String> {
@@ -2470,11 +2449,11 @@ public interface CustomerRepository extends MongoRepository<String, String> {
 		</list>
 	</property>
 	
-	<!--
+	<!-- -->
 	<property name="host" value="localhost" />
 	<property name="port" value="27017" />
-	-->
-	<!--  为事务用 -->
+	
+	<!--  为事务用 
 	<property name="replicaSetSeeds" > 
 		<array>
 			<bean class="com.mongodb.ServerAddress" >
@@ -2491,6 +2470,7 @@ public interface CustomerRepository extends MongoRepository<String, String> {
 			</bean>
 		</array>
 	</property>
+	-->
 </bean>
 
 
@@ -2518,8 +2498,27 @@ public interface CustomerRepository extends MongoRepository<String, String> {
 </bean>
 <!-- 方式二 -->
 <mongo:repositories base-package="springdata_mongodb.repo"></mongo:repositories>
-<mongo:mapping-converter base-package="springdata_mongodb.model" db-factory-ref="mongoDbFactory"></mongo:mapping-converter>
+<mongo:mapping-converter base-package="springdata_mongodb.model" db-factory-ref="mongoDbFactory">
+	<mongo:custom-converters>
+		<mongo:converter>
+			<bean class="springdata_mongodb.Date2TimestampConverter"></bean>
+		</mongo:converter>
+	</mongo:custom-converters>
+</mongo:mapping-converter>
 
+import org.springframework.core.convert.converter.Converter;
+
+//mongodb存的java.util.Date ,Timestamp可以存到mongodb中但取出有问题，要转
+public class Date2TimestampConverter implements Converter<Date,Timestamp> 
+{
+	@Override
+	public Timestamp convert(Date date) { 
+		if(date==null)
+			return null;
+		else
+			return new Timestamp(date.getTime());
+	} 
+}
 
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -2549,9 +2548,10 @@ public class MyMongoRepositoryImpl {
 	}
 
 	public UpdateResult updateObject(String id, String lastName) {
+		Update updateField=Update.update("lastName", "五").set("first_name", "wang");//更新多个字段加set
 		return mongoTemplate.updateFirst(
 				new Query(Criteria.where("id").is(id)),
-				Update.update("lastName", lastName), Customer.class);
+				updateField, Customer.class);
 	}
 
 	public void deleteObject(String id) {
@@ -2613,6 +2613,11 @@ for(int i=0;i<20;i++)
 }
 Customer  cu=customerRepository.findByFirstNameAndLastName("lisi0" , "李四0");
 List<Customer>  cus=customerRepository.findCustomersByTwoParam("lisi0" , "李四0");
+
+List <Customer> deleted=customerRepository.deleteByLastName("李四0");
+Long rows=customerRepository.deletePersonByLastName("李四1");
+customerRepository.deleteAll();
+
 	
 package springdata_mongodb.repo;
 import org.springframework.data.mongodb.repository.Query;
@@ -2621,12 +2626,18 @@ import org.springframework.data.mongodb.repository.Query;
 public interface  MyCustomerRepository extends MongoRepository<Customer,String>//<Bean,ID>
 {
 	//JPA 命名规范   findBy (eclipse,idea都会提示)开头 关键字 And 相当于 where firstName= ? and lastName =?
+	//官方文档搜索 Table 7. Supported keywords for query methods
 	public  Customer  findByFirstNameAndLastName(String firstName,String lastName);
 	
 	@Query("{'first_name' : ?0 , 'lastName' : ?1}") //?0表示第一个参数
 	public List<Customer> findCustomersByTwoParam(String first,String last);
 	
-} 
+	 //delete返回
+	 List <Customer> deleteByLastName(String lastname);
+	 Long deletePersonByLastName(String lastname);
+	
+}
+
 
 // 
 MongoTemplate mongoTemplate =  context.getBean(MongoTemplate.class);
@@ -2683,6 +2694,26 @@ public static void transactionSpring(ConfigurableApplicationContext context)
 	}
 }
 
+
+-------------------------Spring data Querydsl
+http://www.querydsl.com/static/querydsl/latest/reference/html/
+
+Spring data  commons 增加依赖
+<dependency>
+	<groupId>com.querydsl</groupId>
+	<artifactId>querydsl-core</artifactId>
+	<version>4.2.1</version>
+</dependency>
+
+
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import com.querydsl.core.types.Predicate;
+
+
+public interface OperHisRepository extends CrudRepository<OperHistory, Long>,　QuerydslPredicateExecutor<OperHistory>
+{
+	
+}
 
 
 =========================Spring Data Neo4j

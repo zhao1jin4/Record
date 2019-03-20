@@ -1,5 +1,8 @@
-http://doc.opensuse.org/
+https://doc.opensuse.org/
 
+
+openSUSE leap-15.0  版本是稳定的发布版本 
+openSUSE tumbleweed 版本是为希望有最新的包
 
 openSUSE-leap-15-DVD有  
 	chromium-66.0.3359.170-lp150.1.1.x86_64.rpm
@@ -11,11 +14,24 @@ openSUSE-leap-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,
 	Mesa(openGL) 
 	
 http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
-	 gcc-c++-7-lp150.1.50.x86_64.rpm (要用这个)
+	gcc-c++-7-lp150.1.50.x86_64.rpm (要用这个)
         gcc7-c++-7.3.1+r258812-lp150.2.10.x86_64.rpm  (这个安装的是g++-7命令) 
-            libstdc++6-devel-gcc7-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			
+		gcc7-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libasan4-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libatomic1-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libcilkrts5-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libitm1-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			liblsan0-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libmpx2-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libmpxwrappers2-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libtsan0-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libubsan0-7.3.1+r258812-lp150.2.10.x86_64.rpm 
+		libstdc++6-devel-gcc7-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			 glibc-devel-2.26-lp150.10.13.x86_64.rpm 
+				linux-glibc-devel-4.15-lp150.1.23.noarch.rpm ( 即是 linux-kernel-headers)
+						
 	go-1.9.4-lp150.1.1.x86_64.rpm
+	
 	redis-4.0.9-lp150.2.8.x86_64.rpm
  	docker-17.09.1_ce-lp150.4.2.x86_64.rpm
 	sysstat (iostat)
@@ -27,14 +43,66 @@ http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
 	
 	java-1_8_0-openjdk-1.8.0.161-lp150.1.24.x86_64.rpm
 	java-11-openjdk-11.0.0.0~13-lp150.1.1.x86_64.rpm
-	anjuta-3.28.0-lp150.1.4.x86_64.rpm
-	glade-3.20.4-lp150.1.4.x86_64.rpm
 	
+git-2.16.3-lp150.1.1.x86_64.rpm
+	　git-core-2.16.3-lp150.1.1.x86_64.rpm
+				libsha1detectcoll1-1.0.3-lp150.2.2.x86_64.rpm
+						../noarch/perl-Error-0.17025-lp150.1.6.noarch.rpm
 	mysql-workbench-6.3.10-lp150.3.1.x86_64.rpm (有新的8.x)
 		mysqlworkbench 启动要 libproj.so , 连接要 /usr/lib64/mysql/plugin/caching_sha2_password.so  没有，绝对路径??? 
 		做 ln -s  /usr/lib64/libproj.so.12.0.0 /usr/lib64/libproj.so  无用??
 		官方doc 说在8.0中默认使用caching_sha2_password已经集成在 libmysqlclient中了
 		
+ mysql8 generic 服务端OK  客户端报少　libtinfo.so.5: (libncurses5-6.1-lp150.3.14.x86_64.rpm)
+	mariadb-10.2.14-lp150.1.1.x86_64.rpm openSUSE-leap-15 DVD　中有
+	
+	anjuta-3.28.0-lp150.1.4.x86_64.rpm
+	glade-3.20.4-lp150.1.4.x86_64.rpm
+	
+	gparted-0.31.0-lp150.1.2.x86_64.rpm
+		hfsutils-3.2.6-lp150.2.3.x86_64.rpm
+		nilfs-utils-2.2.3-lp150.1.7.x86_64.rpm
+		libgtkmm-2_4-1-2.24.5-lp150.1.8.x86_64.rpm
+
+	rabbitmq-server-3.6.15-lp150.1.25.x86_64.rpm	(可用unix用包)
+		erlang-20.3.2-lp150.1.12.x86_64.rpm
+			erlang-epmd-20.3.2-lp150.1.12.x86_64.rpm
+				/mnt/iso/x86_64/unixODBC-2.3.6-lp150.1.1.x86_64.rpm
+		erlang-sd_notify-1.0-lp150.1.1.x86_64.rpm		
+		socat-1.7.3.2-lp150.3.1.x86_64.rpm
+
+	vlc-3.0.2-lp150.2.1.x86_64.rpm		
+			rpm -ivh libopencv3_3-3.3.1-lp150.3.7.x86_64.rpm libQt5Svg5-5.9.4-lp150.1.4.x86_64.rpm libGLEW2_1-2.1.0-lp150.1.7.x86_64.rpm libmad0-0.15.1b-lp150.3.1.x86_64.rpm libQt5Test5-5.9.4-lp150.4.8.x86_64.rpm libxcb-composite0-1.13-lp150.1.2.x86_64.rpm libtbb2-2018_20171205-lp150.2.20.x86_64.rpm liblirc_client0-0.9.4c-lp150.2.18.x86_64.rpm libcddb2-1.3.2-lp150.1.8.x86_64.rpm
+		其它的要下24个包
+
+　smplayer-18.2.2-lp150.1.4.x86_64.rpm
+			rpm -ivh libQt5Script5-5.9.4-lp150.1.21.x86_64.rpm libQt5Xml5-5.9.4-lp150.4.8.x86_64.rpm ../noarch/update-desktop-files-84.87-lp150.1.1.noarch.rpm
+	其它的要下15个包
+	
+	yasm-1.3.0-lp150.2.11.x86_64.rpm  mplayer源码依赖的
+
+	bridge-utils-1.6-lp150.1.17.x86_64.rpm (brctl命令)
+	
+	xen-4.10.0_20-lp150.1.2.x86_64.rpm
+	libvirt-daemon-xen-4.0.0-lp150.6.18.x86_64.rpm
+		libvirt-daemon-driver-libxl-4.0.0-lp150.6.18.x86_64.rpm
+	xen-tools-4.10.0_20-lp150.1.2.x86_64.rpm 
+		grub2-x86_64-xen-2.02-lp150.12.8.x86_64.rpm
+	libvirt-daemon-xen-4.0.0-lp150.6.18.x86_64.rpm
+		libvirt-daemon-driver-libxl-4.0.0-lp150.6.18.x86_64.rpm
+
+	wine-3.7-lp150.1.7.x86_64.rpm
+		libvulkan1-1.0.65.0-lp150.3.1.x86_64.rpm 
+		libcapi20-3-2011.8.29-lp150.6.21.x86_64.rpm 
+		libSPIRV-Tools-suse4-2017.0.g103-lp150.2.4.x86_64.rpm   
+		vulkan-1.0.65.0-lp150.3.1.x86_64.rpm 
+		libOSMesa8-18.0.2-lp150.17.2.x86_64.rpm 
+		wine-32bit-3.7-lp150.1.7.x86_64.rpm  依赖过多
+		
+lxc-2.0.9-lp150.1.8.x86_64.rpm
+	liblxc1-2.0.9-lp150.1.8.x86_64.rpm
+	...
+	
 http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 noarch/ 
 	iotop 
 	--lsb-4依赖
@@ -43,17 +111,37 @@ http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 noarch/
 
 http://download.opensuse.org/distribution/leap/15.0/repo/non-oss/  下的 x86_64/
 	unrar
+	opera
+	
+http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Leap_15.0/x86_64/wine-4.0~rc6-lp150.924.1.x86_64.rpm
+支持Mac ,Android
+     wine-32bit
+     wine-gecko ???  zypper install wine 共要194个包要装
+	 
+http://download.opensuse.org/tumbleweed/repo/oss/x86_64/
+http://download.opensuse.org/update/leap/15.0/oss/
+http://download.opensuse.org/update/leap/15.0/non-oss/
 
+　
+	
+http://nginx.org/packages/sles/15/x86_64/RPMS/
+	rpm -ivh nginx-1.14.2-1.sles15.ngx.x86_64.rpm 
+
+lsb_release -a
 cat /etc/SUSE-brand  
+cat /etc/os-release
 
-openSUSE-leap-15安装时必须要建立Partition ID为 Bios Boot Partition 类型 的分区(不要选格式化,大于2MB默认8MB,默认是第一个分区) 
-默认其它分区类型是 /是 BrtFS  /home是 XFS
-如用VMWare版本要15
+ctrl+alt+fn的控制台 输入错误命令时 会发出beep声音，关闭方法 
+setterm -blength 0  加入到 /etc/profile
+
+
+VMWare 15 安装 openSUSE-leap-15 时必须要建立Partition ID为 Bios Boot Partition 类型 的分区(不要选格式化,大于2MB默认8MB,默认是第一个分区) 
+
+如真机安装 openSUSE-leap-15(存的window 10)则要一个至少256M的fat分区,挂在/boot/efi下
+默认其它分区类型是 /是 BrtFS((btree,还是ext4好,windows有可能读ext4 )  /home是 XFS
+
 U盘是openSUSE-15分区类型是fuseblk ,windows是NTFS,可以写数据
-
-https://software.opensuse.org/download.html?project=server%3Adatabase&package=mysql-workbench
-
-
+默认不支持 exFat 格式 ,要安装包  zypper -n install fuse-exfat exfat-utils 后 就可以 mount -t extfat /dev/sdax /mnt 了
 
 ------------------------硬盘安装SUSE-Desktop-10-DVD
 (用isoemu,硬盘安装SUE不行,要用grub4dos)
@@ -91,10 +179,14 @@ chkconfig sshd on
 service sshd start
 service -staus-all显示所有服务状态
 ss -atr | grep ssh
+ss -ant | grep 22  (选项同windows的netstat -an)
+   -n, --numeric
+			-t --tcp
 
+开机自动登录，不用输入用户名和密码,
+		修改输入密码 yast2->security and users->user and group management->选用户->expert options->login settings->取消 auto login
 
-
-有防火墙的
+----有防火墙的
 
 iptables -L
 iptables -F 就可ssh登录了
@@ -106,28 +198,36 @@ iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT
 iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
 也不能sftp传文件 
 
-yast 显示界面  停止防火墙(有图形界面来停止,启动时是否停止)
 
 #chkconfig --list  
  提示用 systemctl list-unit-files 有 firewalld.service 是enabled
 systemctl stop firewalld
 systemctl disable firewalld
+
+查看开机是否启动  systemctl is-enabled sshd
+查看开机自启动的程序 ls /etc/systemd/system/multi-user.target.wants/
+
+journalctl 是查看所有systemctl按理服务的日志
+journalctl -b 只看本次启动的
+
+yast 显示界面  停止防火墙(有图形界面来停止,启动时是否停止)
+
+firewall-cmd --reload   重新加载 FirewallD 配置 
+
+菜单 展开 点 firewall 会提示安装 firewall-config 包 openSUSE-leap 15 DVD 中没有
+     http://download.opensuse.org/distribution/leap/15.0/repo/oss/noarch/ 中有 firewall-config
+	 界面默认Zone标签 public组中 复选中ssh 就打开了远程接入
+sudo firewall-cmd --zone=public --add-service=ssh --permanent
+
+	
 systemctl start  sshd
 systemctl enabled sshd
- 
- 
- /etc/sysconfig/SuSEfirewall2.d/services/  
 
+openSUSE-leap 15  光驱是/dev/sr0 默认挂载到 /run/media/<user> 目录下
 看 /etc/hosts.deny 中的的注释  man tcpd ,man hosts_access
 
 -----------------
 /etc/init.d/network restart 提示 systemctl restart network.service
-
-SuSE Linux防火墙配置
-yast图形界面配置, 或 vi /etc/sysconfig/SuSEfirewall2
-
-  
-
 
 SuSE Linux配置网关
 /etc/sysconfig/network/routes #  只有在route add default gw 192.168.1.1 ,可能才会自动出现这个文件
@@ -151,10 +251,27 @@ ip link show
 ip link set eth0 address aa:aa:aa:aa:aa:aa
 //改MAC ,要先关闭网卡
 
-ip address show   (无ifconfig,net-tools 不再维护，我们强烈建议以 ip 命令代替 ifconfig)
+路由表的查看
+    ip route list table table_number
+    ip route list table table_name
+路由表序号和表名的对应关系在 /etc/iproute2/rt_tables 文件中
+ip route add table 3 via 10.0.0.1 dev ethX 
+
+示例
+ip route   del default
+ip route add default via 10.31.192.1 dev wlan0
+ip route replace default via 10.31.192.1 dev wlan0
+ip route del 10.91.0.0/16
+ip route add 10.91.0.0/16 via 10.91.3.1 dev p4p2
+
+
+ip address show   (无ifconfig,net-tools 不再维护, 我们强烈建议以 ip 命令(iproute2包中)代替 ifconfig)
 address  可缩写为addr或a
 ip a
+ip a s
 ip a show eth0
+ 
+ip addr change 10.91.3.19/26 dev p4p2   修改IP
 
 禁用 eth0 
 ip link set dev eth0 down
@@ -169,9 +286,19 @@ ss -atr | grep ssh
 -t tcp
 -r resolve hostname
 	
+bridge
 
 iwlist、iwconfig
 这两个命令需要你有无线网卡才能够进行使用
+
+
+nmcli 是 network manager 工具
+默认没有启用
+yast 命令->System  			-> Network Settings -> Global Options标签-> Network Setup Method->下拉选择NetworkManager(gnome桌面要nm-applet,即NetworkManager-applet包)
+yast2命令->Network Services ->System 组下的 Network Settings
+
+nmcli dev status
+
 
 SUSE 修改grub 让 windows 默认启动
 改/boot/grub/menu.lst  ###中有 default 后加一数字 从0开始是每一个
@@ -193,6 +320,7 @@ SUSE vim 文档路径 /usr/share/vim/vim64/doc/starting.txt
 	/etc/vimrc文件，中把" syntax on 前的" 去掉
 
 进入 Ex 模式. 输入 "visua" 以回到正常模式
+
 
 -----------------------------------安装oracle 11g
 ORACLE 11g SUSE-10 redhat-4 ,redhat-4
@@ -272,16 +400,13 @@ SUSE-10 可以安装oracle 10g ,但是如果用了rsp 文件检查平台时失�
 
 ------------------ 
 
-===================SUSE-11-Desktop
-如果是安装在VMware 7.1 中　，要先按fn,再按ctrl+alt
-SUSE-Enterprise-Desktop-11-SP1 是kernel-2.6.32.12-0.7
-				是gnome-desktop-2.28.2-0.3.22
+===================SUSE-11-Desktop 
 
-Planner项目管理，Gnome-Sound-recoder录音机，Banshee音乐播放器，Totem播放机，MoonShine WMV播放器，Cheese摄像头，
+Planner项目管理，Gnome-Sound-recoder录音机，Banshee音乐播放器，MoonShine WMV播放器 
 Dia图表(简单的Viso),GNU Cash财物管理，InkScape矢量图软件(可保存为illustrator ai格式)，Gftp
-SUSE 11的桌面特效 系统->观感->Desktop effect->特效标签中可以取消 ［启动震颤］，也可把切换方式改成Cylinder,预设中的Advance来恢复正方体,［切换工具］里选择是为alter +tab 用的，在桌面标签－＞可以使用［桌面立方体］和［桌面墙壁］,
 
-SUSE 11 ctrl+alt+拖鼠标3D桌面
+SUSE 11的桌面特效 系统->观感->Desktop effect->特效标签中可以取消 ［启动震颤］，也可把切换方式改成Cylinder,预设中的Advance来恢复正方体,［切换工具］里选择是为alter +tab 用的，在桌面标签－＞可以使用［桌面立方体］和［桌面墙壁］,
+ 
 ===================OpenSuse
 --------openSUSE 在win7  硬盘安装
 openSUSE也可以用DeamonTool加载ISO,双击运行openSUSE12_2_LOCAL.exe,就不用使用grub4dos了,
@@ -432,7 +557,9 @@ grub>boot
 使用yast2安装软件包,会自动解决依赖关系,
 菜单configuraitons->repositories->Add->local ISO image 再选择openSUSE-12.1x64.iso或者 Local Directory->输入rpm包名,像gucharmap-devel,
 可能要取消Active其它在线repository，它会自动也把依赖的包选择上
- 
+
+yast2->date and time 取消 复选  hardware clock set to UTC
+
 SuSE中在/etc/init.d/boot.local文件中添加命令  ,Red Hat系统的对应文件是/etc/rc.d/rc.local。
 
   
@@ -440,13 +567,19 @@ SuSE中在/etc/init.d/boot.local文件中添加命令  ,Red Hat系统的对应�
 mount FAT32分区时,中文文件名显示??
 mount -t vfat -o iocharset=utf8 /dev/sda7 /media/F/
 
-
+zypper search gconf-editor
 cnf gconf-editor	#  command will display need install gconf-editor	
 zypper install gconf-editor #
 rpm -ivh gconf-editor-3.0.0-5.1.2.x86_64.rpm
 cnf 和 zypper /etc/zypp/repos.d/xx.repo(类似于yum)命令
- 
- 
+zypper lr  查看列出库
+zypper lr -p  列出仓库优先级
+zypper lr -u  列出仓库的URI
+zypper lr <ID> 有显示keep packages的值 On/Off ,Enabled 的值: Yes/No  
+
+zypper pd	 列出所有可用的产品
+zypper in sqlite*  (install)
+zypper rm sqlite2	 删除软件包
 
 
 /etc/init.d/boot.local文件中添加命令(openSUSE-13.2不用了)
@@ -478,7 +611,83 @@ ServerName server
 
 http://127.0.0.1:631 有界面,可生成配置文件,如要仿问admin页面,要修改/etc/cups/cupsd.conf中的权限设置
 
----scim输入法 支持日文ja,韩文ko
+ 
+
+---fcitx 输入法 
+Free Chinese Input Tool for X  
+
+openSUSE-leap-15 DVD带的
+rpm -ivh fcitx-4.2.9.6-lp150.1.1.x86_64.rpm  fcitx-gtk3-4.2.9.6-lp150.1.1.x86_64.rpm  libfcitx-4_2_9-4.2.9.6-lp150.1.1.x86_64.rpm  ../noarch/fcitx-branding-openSUSE-4.2.9.6-lp150.1.1.noarch.rpm libqt4-4.8.7-lp150.7.5.x86_64.rpm libqt4-x11-4.8.7-lp150.7.5.x86_64.rpm  libqt4-sql-4.8.7-lp150.7.5.x86_64.rpm 
+rpm -ivh ../noarch/fcitx-table-cn-wubi-pinyin-4.2.9.6-lp150.1.1.noarch.rpm  fcitx-table-4.2.9.6-lp150.1.1.x86_64.rpm 
+rpm -ivh  ../noarch/fcitx-table-cn-wubi-4.2.9.6-lp150.1.1.noarch.rpm
+rpm -ivh fcitx-config-gtk3-0.4.10-lp150.1.3.x86_64.rpm  就可使用 Settings->fcitx configuration  
+
+Settings->fcitx  不能启动
+
+
+/etc/profile 仅限于传统的X11  /etc/environmen 设置变量 
+export XMODIFIERS=@im=fcitx
+export QT_IM_MODULE=fcitx
+export GTK_IM_MODULE=fcitx
+
+主要是 /etc/profile 增加 
+	export INPUT_METHOD="fcitx"
+ps -ef | grep fcitx 
+	有fcitx，fcitx-dbus-watcher ，dbus-daemon --config-file /usr/share/fcitx/dbus/daemon.conf 进程 
+
+Settings->fcitx config  就有输入法可以选择了,就可以用了,当前语言在中文还是英文都可用
+Settings->fcitx configuration->右下角的键盘按钮 -> add Chinese
+Settings->fcitx configuration-> input method ->  这里就是切换输入法是有几个
+
+按住ctrl+shift 切换输入法,会有弹出的提示当前是什么输入法,ctrl+space切换中英文
+速度比ibus快很多,中文输入一半时就可按左shift打入英文 比ibus方便
+
+
+Settings->Yast2 moudle ->language ,main language 选择 chinese 能安装一些  rpms,komodo edit也可使用fcitx了,没有不能复制问题
+（这个影响gnome显示语言,可以再修改回来,在安装删除包时可abort）
+Settings->Regon & Language -> Input Source ->  + add a chinese 就可以win+space切换(但这个只对ibus有用)
+
+
+##/etc/sysconfig/language  文件(有注释提示 /etc/X11/xim.d/) 
+默认安装后就有  Setting -> ibus config
+
+
+
+---ibus输入法  支持日文anthy,韩文hangul
+python3写的，有python3进程
+在GTK3中会出现右上角的工具栏中 , 删无用的rpm ,输入文字时显示的文字中有引出的三角
+
+openSUSE-leap-15 DVD中带
+rpm -ivh ibus-1.5.17-lp150.3.6.x86_64.rpm ibus-table-1.9.17-lp150.1.6.x86_64.rpm  ../noarch/ibus-table-chinese-wubi-jidian-1.8.2-lp150.2.5.noarch.rpm 
+ 
+rpm -ivh ibus-pinyin-1.5.0-lp150.1.8.x86_64.rpm  libpyzy-1_0-0-1.0git20120805-lp150.1.5.x86_64.rpm  opencc-1.0.5-lp150.3.5.x86_64.rpm   libopencc2-1.0.5-lp150.3.5.x86_64.rpm opencc-data-1.0.5-lp150.3.5.x86_64.rpm   ../noarch/pyzy-db-android-1.0git20120805-lp150.1.5.noarch.rpm ../noarch/pyzy-db-open-phrase-1.0git20120805-lp150.1.5.noarch.rpm  sqlite3-3.23.1-lp150.1.1.x86_64.rpm ../noarch/python2-pyxdg-0.25-lp150.1.4.noarch.rpm 
+
+
+Settings->Regon & Language -> Input Source ->  + add a chinese -> 就会有安装的极点五笔和拼音 (如没有要先确保ibus配置中有，安装后再注销重登录 killall ibus-daemon )
+						->Add 增加,删除输入法在右上角的栏才有效果, 就可以win+space切换(但这个只对ibus有用)
+
+win(super) +space 切换输入法 同win10 , 设置 -> 设备 -> 键盘 -> 打字 -> 切换至下一输入法
+左shift 可切换中英文,但如中文输入一半就没用了,esc或者全删才行,必须在没有一个中文输入时才有用,不方便
+
+killall ibus-daemon           in ibus-config can show new  input method ,
+ibus-daemon -d
+
+				
+这里选择的没用
+进入面板的ibus preferences->Input Method->Add->下拉选择chinese（如没有要先做上一步add a chinese，再注销重登录）->Pinyin和Wubi-jidian
+ 
+Settings->Yast2 moudle ->language ,main language 选择 chinese 会安装很多输入法，这个影响gnome显示语言,再选回english会卸载,还要重新安装ibus-tables
+
+#有提示重启， 有说明修改 /etc/sysconfig/language  文件   
+
+/etc/profile (openSUSE-leap-15不修改也可的,有时不修改也没用)
+				export QT_IM_SWITCHER=imsw-multi
+				export XMODIFIERS=@im=ibus
+				export GTK_IM_MODULE=ibus
+				export QT_IM_MODULE=ibus
+				
+---scim输入法 openSUSE-leap-15没有这个
+支持日文ja,韩文ko
 默认显示在右下角浮动的输入法栏
 GTK3的Activies搜索中按backspce变多黑块 ??? 
 
@@ -500,46 +709,10 @@ env | grep im 来查看
 
 重启生效  ctrl+space切换中英文 ,ctrl+shift切换中文
 
----ibus输入法  支持日文anthy,韩文hangul
-python3写的，有python3进程
-在GTK3中会出现右上角的工具栏中 , 删无用的rpm ,输入文字时显示的文字中有引出的三角
-
-
-进入面板的ibus preferences->Input Method->Add->下拉选择chinese->Pinyin和Wubi-jidian,在最上面的为当前输入法
-( 这里设置切换输入法ctrl+shift不太起作用，这里增加，删除输入法无用)
-
-进入面板的 Setting -> region & language (或者进入面板的 language )-> 
-修改主语言为简体中文, 增加,删除输入法在右上角的栏才有效果,
-#有提示重启， 有说明修改 /etc/sysconfig/language  文件  
-
-windows（super） +space切换输入法同win10,设置在    设置－》设备－》键盘－》打字－》切换至下一输入法
-左shift 可切换中英文
-
-安装ibus-table-chinese-wubi-jidian 包 , 极点五笔  
-Redhat 下载安装 http://mirrors.fedoraproject.org/publiclist
-http://mirror.bjtu.edu.cn/fedora-epel/6/x86_64/ibus-table-chinese-1.4.6-1.el6.noarch.rpm
-http://mirror.bjtu.edu.cn/fedora-epel/6/x86_64/ibus-table-chinese-wubi-jidian-1.4.6-1.el6.noarch.rpm
-
-安装ibus-pinyin
-
-/etc/profile （openSUSE-15不修改也可的）
-
-export QT_IM_SWITCHER=imsw-multi
-
-export XMODIFIERS=@im=ibus
-export GTK_IM_MODULE=ibus
-export QT_IM_MODULE=ibus
-
-killall ibus-daemon
-ibus-daemon -d
+---
  
-
----fcitx 输入法 
-Free Chinese Input Tool for X   没有二进制的 日语, 韩语
 GTK3的Activies 搜索中输入中文没有弹出提示 ??? 
-
-按住ctrl+shift 切换输入法,会有弹出的提示当前是什么输入法,ctrl+space切换中英文 
-
+ 
 /etc/sysconfig/language 中修改 INPUT_METHOD=""为空时
 (Gedit中一直使用的是fcitx ,而在Firefox和GTK面板使用的是环境变量的配置 )
 
@@ -556,7 +729,15 @@ export QT_IM_MODULE=fcitx
 （注销后无线网络，就不对了，要按fn键禁用再启用）
 
 /etc/vfstab 中
-~/Documents/openSUSE-12.2.iso       /mnt/iso        iso9660 ro,loop 0       0
+~/Documents/openSUSE-12.2.iso       /mnt/iso  iso9660 	ro,loop 					0 0
+/dev/sda8 	 						/mnt/fat  vfat		uid=zh,iocharset=utf8  0 0
+
+---win7 iso
+直接用  mount -t iso9660 -o ro,loop /tmp/en_windows_7_ultimate_with_sp1_x64_dvd_u_677332.iso  /mnt/win7/  目录内容不对
+
+losetup   显示最近用的是 /dev/loop0    
+losetup  /dev/loop1  /tmp/en_windows_7_ultimate_with_sp1_x64_dvd_u_677332.iso
+mount /dev/loop1 /mnt/win7/ 内容就对了
 
 
 ----Grub2
@@ -591,18 +772,6 @@ gcc -o helloOpenGL helloOpenGL.c -lglut -lGL -lGLU
 
 注意和windows不同的是GL是大写的
 
--要破解
-Charles－4.2.5
-Beyond Compare 3 openSUSE leap-15 安装不了,4是在线验证注册码的
-Navicat
-DbVisualizer-9.2.9  openSUSE leap-15 使用闪退
-SmartGit
---free
-anjuta
-thunderbird
-flashplayer
-stardict-3
-mysql-workbench 
 
 Redis Desktop Manager (官方说有，但没找到src build）
 	cd src/
@@ -611,23 +780,12 @@ Redis Desktop Manager (官方说有，但没找到src build）
 	cd /usr/share/redis-desktop-manager/bin
 	sudo mv qt.conf qt.backup
 
-FileZilla
-JD-GUI
-wireshark (有源码无linux zypper install wireshark)
-git
-wine
-
-rdesktop 命令,windows远程桌面 
-tsclient 远程桌面 
-freeglut
-Mono
-
 	
 ===================要手工下载安装的软件
 -----chrome 70
-依赖于 lsb_release 
+依赖于 lsb_release 3.0就可以，又不用4.0了
 libappindicator3.so  DVD中有的
-cd /run/media/zh/openSUSE-Leap-15.0-DVD-x86_64267/x86_64
+cd /run/media/<user>/openSUSE-Leap-15.0-DVD-x86_64267/x86_64
 rpm -ivh libappindicator3-1-12.10.1+bzr20170215-lp150.3.1.x86_64.rpm  libdbusmenu-glib4-16.04.0-lp150.2.1.x86_64.rpm  libdbusmenu-gtk3-4-16.04.0-lp150.2.1.x86_64.rpm  libindicator3-7-16.10.0+bzr20171205-lp150.1.1.x86_64.rpm
 
 rpm -ivh lsb-4.0-lp150.2.1.x86_64.rpm    OK(chrome 70) 
@@ -643,6 +801,7 @@ rpm -ivh lsb-4.0-lp150.2.1.x86_64.rpm    OK(chrome 70)
              star-1.5.3-lp150.1.8.x86_64.rpm
     http://download.opensuse.org/distribution/leap/15.0/repo/oss/noarch/
         glibc-i18ndata is needed by lsb-4.0-lp150.2.1.x86_64
+		firewall-config-0.5.3-lp150.1.1.noarch.rpm
 /opt/google/chrome/chrome 命令
 
 ---extundelete openSUSE deps
@@ -653,60 +812,224 @@ rpm -ivh lsb-4.0-lp150.2.1.x86_64.rpm    OK(chrome 70)
 	
 	http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/
 		extundelete-0.2.4-lp150.1.4.x86_64.rpm
+		
+----wine 下载的
+ rpm -ivh ~/wine-3.7-lp150.1.7.x86_64.rpm  ~/libvulkan1-1.0.65.0-lp150.3.1.x86_64.rpm ~/libcapi20-3-2011.8.29-lp150.6.21.x86_64.rpm ~/libSPIRV-Tools-suse4-2017.0.g103-lp150.2.4.x86_64.rpm   ~/vulkan-1.0.65.0-lp150.3.1.x86_64.rpm ~/libOSMesa8-18.0.2-lp150.17.2.x86_64.rpm 
+~/wine-32bit-3.7-lp150.1.7.x86_64.rpm 
+
+wine-32bit-3.7-lp150.1.7.x86_64.rpm  依赖好多32bit的包,DVD中自带的有
+rpm -ivh  glibc-32bit-2.26-lp150.10.13.x86_64.rpm  libasound2-32bit-1.1.5-lp150.4.3.x86_64.rpm  libstdc++6-32bit-7.3.1+r258812-lp150.2.10.x86_64.rpm  libgcc_s1-32bit-7.3.1+r258812-lp150.2.10.x86_64.rpm  libz1-32bit-1.2.11-lp150.1.49.x86_64.rpm  liblzma5-32bit-5.2.3-lp150.2.16.x86_64.rpm   libldap-2_4-2-32bit-2.4.46-lp150.7.1.x86_64.rpm libglib-2_0-0-32bit-2.54.3-lp150.2.6.x86_64.rpm    libxml2-2-32bit-2.9.7-lp150.1.7.x86_64.rpm libsasl2-3-32bit-2.1.26-lp150.3.7.x86_64.rpm libpcre1-32bit-8.41-lp150.4.15.x86_64.rpm  libopenssl1_1-32bit-1.1.0h-lp150.2.1.x86_64.rpm
+
+其它的建立用 zypper install *.rpm  提示要装139个包 
+
 ---stardict 安装 运行OK，但取词 取不到，要安装库
 要点左下角的退出，才是真的退出
 
----unrar安装OK ,未测试解压
+
 rpm -ivh unrar-4.0.4-10.1.7.x86_64.rpm
 yast2 安装 gparted
-    
-gnome3 桌面上不能放文件 ，gnome-tweak-tool （Utilities->Tweaks） -> Desktop ->把 把所有的都打开,就可以在桌面上放文件了 
-左侧的工具栏图标   /usr/share/applications/bcompare.desktop
 
-ctrl+小写L 在文件浏览器就有地址栏
-Alt+F2,打开“运行应用程序”对话框
-Seetings->Devices->Keyboard 有很多快捷键
+unar Record.zip  可以成功解决zip包中是windows的GBK编码的文件名  默认是和unzip生成相同的目录
+unar -e GBK -o Record2019-01-24__16 Record2019-01-24__16.zip 
 
-linux Firefox 60 安装 flashplayer 30---测试OK
-mkdir ~/.mozilla/plugins/
-cp ~/libflashplayer.so ~/.mozilla/plugins
 
+------ flash player 32,linux x64下有两个版本
+https://get.adobe.com/cn/flashplayer/otherversions/
+
+  PPAPI 适用于 Safari 和 firefox  安装方法 ,firefox-64测试OK
+	mkdir ~/.mozilla/plugins/
+	cp ~/libflashplayer.so ~/.mozilla/plugins  
+  NPAPI 适用于 opera 和chrome    文件名是 libpepflashplayer.so 
+  
+	 地址栏输入 chrome://components/  显示 Flash Player  版本32.0.0.114 ,check for update 按钮可更新
+     rpm -ivh flash-player-ppapi-32.0.0.114-release.x86_64.rpm
+           其实就做了 /usr/lib/adobe-flashplugin/libpepflashplayer.so ==> /usr/lib64/flash-plugin/libpepflashplayer.so
+     
+	 如不能播放flash视频,点击http旁边的按钮->Site Settings->Flash下拉选择allow 
+	  
+-----VMware-Horizon-Client
+chmod 755 VMware-Horizon-Client-4.10.0-11053294.x64.bundle  
+su root
+./VMware-Horizon-Client-4.10.0-11053294.x64.bundle 
+
+ vmware horizon client-4.10 for linux 安装后 有复选框 Register and start installed  servcies(s) after the installation
+		 不选中就可以普通用户启动使用 
+ 有scan 按钮，检查后， Multimedia Redirection (MMR)少下面三个
+    Failed		libgstbase-0.10.so.0
+    Failed		libgstreamer-0.10.so.0
+    Failed		libgstapp-0.10.so.0
+	
+ 但记录输入的IP还是要root登录启动  vmware-view 才行
+  不影响 vmware-view 命令启动进入界面,可以成功进入
+  
+
+在GuestOS中按 alt +tab 被Host OS拦截,输入法win+space 被Host OS拦截 ,不方便(VMWare Workstation也是一样的问题)
+在外部系统按  alt+tab 进入虚拟机，在虚拟机里alt键还是被按住的,记得要再按一次alt解除,不方便(VMWare Workstation也是一样的问题)
+ 
+可以下拉选择到的U盘(要先弹出本地Files 中的U盘) ,虚拟机里不识别驱动就没办法了 
+----vmware workstation pro 15
+默认VM位置 /var/lib/vmware/Shared VMs
+使用要安装gcc-7.3.x,
+	kernel healders 4.12.14-lp150.11 (linux-glibc-devel不对， 也不是kernel-devel)
+	kernel-default-devel-4.12.14-lp150.11.4.x86_64.rpm 
+		kernel-devel-4.12.14-lp150.11.4.noarch.rpm
+			kernel-macros-4.12.14-lp150.11.4.noarch.rpm 
+		zlib-devel-1.2.11-lp150.1.49.x86_64.rpm
+		libelf-devel-0.168-lp150.2.48.x86_64.rpms
+	启动提示must be compile and loaded into the runing kernel -> install 按钮
+	
 ----pidgin 自带skype,openfetion
   -下载 QQ plugin 基于webQQ-
- 
+----Sublime收费
+
+----UltraEditX -16 openSUSE－15 运行OK
 ----UltraEdit-3.3  压缩包 安装运行OK   带自己的Compare
 ----UltraCompareX -17 压缩包
 安装依赖于libpng12.so.0，光盘中带16不行，zypper install libpng12  (yast2打开多点) 
 	ln -s /usr/lib64/libjpeg.so.8 /usr/lib64/libjpeg.so.62
 		openSUSE－15 运行OK
-	----UltraEditX -16 openSUSE－15 运行OK
-	
 -----diffuse 文件比较器,依赖于scrollkeeper,光盘中有的
+
 -----Komodo-Edit-11  运行install.sh提示安装位置~/Komodo-Edit-11,运行OK 
- 右击工具栏－>show menu bar
------Robo  Studio 3T 
+Python写的性能不大好
+右击工具栏－>show menu bar
+-----bluefish 免费
+不是python 比komodoedit 要快 
+openSUSE-leap-15可以 --nodeps安装fedora20版本的rpm
+ 
+-----Robo 3T 
+
+-要破解
+Charles－4.2.5
+Beyond Compare 3 在 openSUSE leap-15 安装不了依赖, 4可以安装未破解
+
+Navicat-12.1
+	linux其实是用wine运行的, navicat121_premium_en_x64/wine/share/wine/   
+	chmod u+x  Navicat_Keygen_Patch_v4.3_By_DFoX.exe 
+	wine Navicat_Keygen_Patch_v4.3_By_DFoX.exe 才可运行，破解无效
+
+　
+DbVisualizer Pro 10.0.16
+SmartGit
+--free
+diffuse 带界面 工具只能比较单个文件 不能比较目录
+anjuta
+thunderbird
+flashplayer
+stardict-3
+mysql-workbench 
+FileZilla
+JD-GUI
+wireshark (有源码无linux zypper install wireshark)
+git
+rdesktop 命令,windows远程桌面 
+tsclient 远程桌面 
+freeglut
+Mono
+	　仓库	http://download.opensuse.org/repositories/Mono:/Factory/openSUSE_Factory/　
+		 zypper addrepo http://download.opensuse.org/repositories/Mono:/Factory/openSUSE_Factory/ mono
+		
+			openSUSE-leap-15 DVD中存的在包
+			rpm -ivh 	gnome-vfs2-2.24.4-lp150.2.9.x86_64.rpm ../noarch/gnome-vfs2-lang-2.24.4-lp150.2.9.noarch.rpm ../noarch/system-user-wwwrun-20170617-lp150.3.34.noarch.rpm
+			配置不删rpm
+			zypper install monodevelop 　41个包安装(主要的　mono-core-5.10.1-lp150.1.6.x86_64.rpm　,　monodevelop-5.10.0-157.114.x86_64.rpm　)
+				
+DiffMerge fedora版本 依赖于 libpng15.so.15 而openSUSE-leap-15是16版本,
+	fedoar mirror 下载 libpng15-1.5.30-6.fc29.x86_64.rpm 安装OK
+	--fedoar mirror
+	https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-29&arch=x86_64
+	比如  http://mirrors.163.com/fedora/releases/29/Everything/x86_64/os/
 
 ====node.js源码安装
 ./configure
 make
 make install
 
----Mplayer-1.1 安装 ,测试OK
-unxz -cd MPlayer-1.1.tar.xz | tar -xvf -
 
-默认./configure时，成功，并提示
+---totem
+yast2安装所有 gstreamer-plugins-包　　
+	包括　gstreamer-plugins-libav - A ffmpeg/libav plugin for GStreamer
+	安装在　/usr/lib64/gstreamer-1.0/　目录
+https://gstreamer.freedesktop.org/modules/
+
+播放mp4 还是提示找不到MPEG-4 ACC decoder　可以播放但没有声音
+
+ACC音频解码 使用开源的FAAD　https://www.audiocoding.com/faad2.html　
+	但已经有安装　libfaad2-2.8.8-lp150.1.6.x86_64　(安装在　/usr/lib64/libfaad.so.2.0.0 是gmplayer的依赖,能播放声音)
+	pkg-config --cflags --libs gstreamer-1.0
+	
+cp /usr/lib64/libfaad.so.2.0.0 /usr/lib64/gstreamer-1.0/
+ln -s /usr/lib64/gstreamer-1.0/libfaad.so.2.0.0 /usr/lib64/gstreamer-1.0/libfaad.so.2
+　 也没用??
+
+---Mplayer-1.3 源码编译安装
+unxz -cd MPlayer-1.3.0.tar.xz | tar -xvf -
+./configure
+	要　yasm not found, use --yasm=''  
+	http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/ 下载　　yasm-1.3.0-lp150.2.11.x86_64.rpm
+	成功，并提示
   Install prefix: /usr/local
   Data directory: /usr/local/share/mplayer
   Config direct.: /usr/local/etc/mplayer
+make　成功　	如用　make -j 4　就会报错
+make install
 
-/usr/local/bin/mplayer 
+/usr/local/bin/mplayer 1.mp4　没有画面???
+
+官方可以下载　Binary Codec Packages(名字上看是07年的)　,　Skins
+
+说明中是放　$prefix/lib/codecs ,即/usr/local/lib64/codecs　(看不出效果)
+
+
 
 mpalyer 1.1 可以播放avi视频，但没有声音，打开后提示audio_setup: Can't open audio device /dev/dsp: No such file or directory
 解决方法是安装snd_pcm_oss，执行 modprobe snd_pcm_oss   测试OK ，以root执行
 
 pageup,pagedown是快进10分，上下键快进1分
-＊增大音量  ／减小音量
- 
+*增大音量  /减小音量
+
+-----gmplayer
+mplayer 官方网页的链接网站有　MPlayer-1.2.r38117-lp150.1.4.x86_64.rpm　gmplayer-1.2.r38117-lp150.1.4.x86_64.rpm 包版本老一点
+
+rpm -ivh 	libXvMC1-1.0.10-lp150.1.7.x86_64.rpm　　openSUSE-leap-15 DVD中带的
+　
+zypper addrepo http://download.videolan.org/pub/vlc/SuSE/Leap_15.0/ vlc
+	zypper install libxvidcore4
+	zypper install libfaac
+
+	zypper addrepo http://packman.inode.at/suse/openSUSE_Leap_15.0/ packman
+	zypper install libdca0 　libfaad
+　zypper install gmplayer　就会依赖上面全部
+	
+打开.mp4文件,有声音,但不能显示画面,报　
+[ffmpeg] FFmpeg's libavcodec codec family　
+Cannot find codec 'h264' 　
+Cannot find codec 'h264_crystalhd'
+
+-------ffmpeg 跨平台的　视频录制转换(Mplayer使用的)
+仓库上有 ffmpeg-3.4.2-lp150.2.1.x86_64.rpm
+
+ffmpeg -i input.mp4 output.avi
+
+
+-------SMplayer-18.2.2
+有windows版本,没有mac版本
+
+播放mp4报
+Failed to initialize a video decoder for codec 'h264'. 
+Failed to initialize an audio decoder for codec 'aac'.
+
+-------VLC-3.0.2
+有windows,mac版本
+YaST2 -> Software -> Configuration菜单->repository-> add 按钮 输入下面地址
+http://download.videolan.org/pub/videolan/vlc/SuSE/Leap_15.0/
+
+系统自带的仓库　http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/　也有vlc
+
+播放mp4报
+VLC could not decode the format "h264" (H264 - MPEG-4 AVC (part 10))
+VLC could not decode the format "mp4a" (MPEG AAC Audio)
+
 
 ---------openSUSE-12.3 SMB Client
 
@@ -745,7 +1068,8 @@ su - root
 systemctl start  rpcbind.service 
 /etc/init.d/nfs start 是客户端 , 有nfs进程
 
-cat /var/log/messages有日志
+cat /var/log/messages 有日志 (openSUSE-leap-15没有这个文件错误进入不了系统提示用  journalctl -xb )
+
 
 cat /etc/services | grep rpcbind 查到是111 
 cat /etc/services | grep nfs 查到是2049
@@ -763,12 +1087,528 @@ mount.nfs
 -----------取消自动登录
 Yast2 -> Security and User -> User and Group  Management -> Expert Options -> Login Settings 取消 Auto login
 
+----------snap 格式安装包 (Canonical　支持Ubuntu的)   WPS有snap格式
+
+https://snapcraft.io/    A universal app store for Linux
+
+zypper removerepo snappy
+zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.0 snappy
+加  --refresh 表示自动刷新仓库
+    生成 /etc/zypp/repos.d/snappy.repo 文件
+	
+手动升级仓库 （dup=dist-upgrade）
+zypper dup --from snappy 
+	
+zypper install snapd  安装下面
+    squashfs-4.3-lp150.1.12.x86_64.rpm   openSUSE-leap-15 DVD 中就有的
+    snapd-2.36.3-lp150.2.1.x86_64.rpm
+	
+	
+
+/etc/zypp/zypp.conf
+    solver.cleandepsOnRemove = false 改为true (不会立即生效)
+    默认下载的缓存目录为 /var/cache/zypp/packages/<name>/ 就可以找到下载的文件
+/etc/zypp/repos.d/xxx.repo 中都是 keeppackages=0 修改为１就会保留,测试成功
+
+
+systemctl enable --now snapd.socket
+snap find  <app_name> 
+snap install  <app_name> 
+snap version
+snap info <appname>
+
+
+risk-level 默认是stable  
+snap install  --channel=stable <appname> 
+或者用 
+snap install  -stable <appname> 
+snap list
+
+snap switch --channel=stable <appname>  不会更新，如想即切换又更新用 snap refresh --channel=stable <appname>
+ 
+
+/snap 目录
+/snap/bin                   - Symlinks to snap applications
+/snap/<snapname>/<revision> - Mountpoint for snap content  （ /var/lib/snapd/snaps/xxx）
+/snap/<snapname>/current    - Symlink to current revision, if enabled
+
+得到应用的配置,可用set修改配置,如监听端口等
+snap get <snap name>
+
+snap services 列出所有的服务
+
+snap services <snap name> 显示服务状态
+snap restart <snap name> 重启服务,名后的.daemon可有，可无
+snap stop <snap name>  
+snap start <snap name>
+snap start --enable <snap name> 开机启动
+snap stop --disable <snap name> 禁止开机启动
+
+snap logs <snap name> 查日志
+snap logs <snap name> -f 查日志
+
+
+若snap应用需要使用系统资源或其它应用程序提供的资源，需通过interfaces机制配置接口。interfaces接口分为两种，slot(服务提供者)和plug(服务使用者)。 
+snap interfaces  查看系统上已经存在的plug和slot
+
+snap interfaces <snapname> 查某个应用下有哪些 plug和slot
+
+格式  snap connect <snap>:<plug interface> <snap>:<slot interface>
+ slot 和   plug 必须连接相同的interface名
+示例 snap connect ffmpeg:alsa :alsa  如:前没有值就是系统的,这里的alsa两个相同
+相应的也有 disconnect 命令
+
+全部可用的接口名 https://docs.snapcraft.io/supported-interfaces/7744
+
+snap info --verbose <snapname> 可查confinement的级别，可为
+	Strict   运行在完全隔离，不能仿问系统资源 
+	Devmode  完全仿问系统资源 
+	classic  和传统包一样仿问系统资源,防止滥用要手工同意
+
+snap aliases 简写名>  查看简写名的全写名
+snap unalias <简写名>  去除简写名
+snap alias <简写名> <全名> 增加 简写名 
+
+
+snap install wps-office_10.1.0.6757_amd64.snap  报 error: cannot find signatures with metadata for snap
+snap install --dangerous  wps-office_10.1.0.6757_amd64.snap   提示 has "install-snap" change in progress
+其实就是软件之前安装了一次，只是没安装完 
+snap changes 查询 找到 status为doning的id号，如这里是2
+snap abort 2
+snap install --dangerous  wps-office_10.1.0.6757_amd64.snap  会  Download snap "core" (6259) from channel "stable"
+		也就是说依赖于core的snap ,是系统的吗????
+
+
+snap install redis-desktop-manager
+	
+------------Xen 
+官方目前最新版本 4.11.1 and 4.8.5 are available
+
+
+对不支持虚拟化的CPU,Xen可以实现半虚拟化
+半虚拟化安装要求只能用网络安装
+
+支持虚拟化的CPU,可以实现全虚拟化
+
+Linux 3.0以上支持Xen domain0 和 domainU(domU) 及各种优化
+Redhat 6.0开始 收购了KVM的公司,后面Redhat不再支持Xen domain0了,如要用编译kernel-3.x版本,编译libvirt
+
+Xen 的开发API(编程接口) 是 XL(4.2版本后), XAPI 不支持Qemu
+于是又有了通用性的  libvirtd 可以支持Qemu,Xen,KVM
+
+
+openSUSE-leap-15 DVD带的
+rpm -ivh xen-libs-4.10.0_20-lp150.1.2.x86_64.rpm  libyajl2-2.1.0-lp150.2.4.x86_64.rpm
+
+下载 rpm -ivh xen-4.10.0_20-lp150.1.2.x86_64.rpm
+/boot/目录下就有 xen-4.10.gz -> xen-4.10.0_20-lp150.1.gz
+				 xen-4.gz -> xen-4.10.0_20-lp150.1.gz
+				  
+下载 libvirt-daemon-xen-4.0.0-lp150.6.18.x86_64.rpm 其它的依赖DVD中有
+		libvirt-daemon-driver-libxl-4.0.0-lp150.6.18.x86_64.rpm
+	
+	rpm -ivh ~/libvirt-daemon-xen-4.0.0-lp150.6.18.x86_64.rpm  ~/libvirt-daemon-driver-libxl-4.0.0-lp150.6.18.x86_64.rpm  ./libvirt-daemon-driver-interface-4.0.0-lp150.6.18.x86_64.rpm  ./libvirt-daemon-driver-network-4.0.0-lp150.6.18.x86_64.rpm  ./libvirt-daemon-driver-nodedev-4.0.0-lp150.6.18.x86_64.rpm   ./libvirt-daemon-driver-nwfilter-4.0.0-lp150.6.18.x86_64.rpm   ./libvirt-daemon-driver-secret-4.0.0-lp150.6.18.x86_64.rpm  ./libvirt-daemon-driver-storage-* ./radvd-2.17-lp150.3.4.x86_64.rpm  ./librbd1-13.0.2.1874+ge31585919b-lp150.1.2.x86_64.rpm ./libnetcontrol0-0.3.1-lp150.1.7.x86_64.rpm ./qemu-tools-2.11.1-lp150.6.7.x86_64.rpm  ./nfs-kernel-server-2.1.1-lp150.3.5.x86_64.rpm 
+ 
+下载 xen-tools-4.10.0_20-lp150.1.2.x86_64.rpm 其它的依赖DVD中有
+		grub2-x86_64-xen-2.02-lp150.12.8.x86_64.rpm
+		
+	rpm -ivh ~/xen-tools-4.10.0_20-lp150.1.2.x86_64.rpm ~/grub2-x86_64-xen-2.02-lp150.12.8.x86_64.rpm ../noarch/qemu-seabios-1.11.0-lp150.6.7.noarch.rpm ./qemu-x86-2.11.1-lp150.6.7.x86_64.rpm ./libSDL2-2_0-0-2.0.8-lp150.1.1.x86_64.rpm libfdt1-1.4.4-lp150.1.9.x86_64.rpm  librdmacm1-16.4-lp150.3.2.x86_64.rpm  libsnappy1-1.1.3-lp150.1.7.x86_64.rpm  libspice-server1-0.14.0-lp150.2.4.x86_64.rpm  ../noarch/qemu-ipxe-1.0.0-lp150.6.7.noarch.rpm  ../noarch/qemu-sgabios-8-lp150.6.7.noarch.rpm  ../noarch/qemu-vgabios-1.11.0-lp150.6.7.noarch.rpm  libvdeplug3-2.3.2+svn587-lp150.3.4.x86_64.rpm  libvirglrenderer0-0.6.0-lp150.2.4.x86_64.rpm 
+	
+	就有 xl , pygrub 命令
+
+	
+下载 xen-doc-html-4.10.0_20-lp150.1.2.x86_64.rpm 安装在	/usr/share/doc/packages/xen/html
+	
+查看/boot/grub2/grub.cfg 是有增加Xen配置项的  (启动时grub配置修改内核指向xen ,原来的vmlinuz和initrd 做为xen的module)
+	multiboot       /boot/xen-4.10
+	module  /boot/vmlinuz
+	module  --nounzip   /boot/initrd
+	
+	而老的是
+	linux   /boot/vmlinuz
+	initrd  /boot/initrd
+	
+这个文件是修改/etc/grub.d/目录 和 /etc/default/grub文件的配置用 grub2-mkconfig -o /xx_grub.cfg生成的
+有可能是 /etc/grub.d/20_linux_xen 
+
+
+重新启动后选择xen启动项后刚开始的日志是(Xen),进入后有鼠标,但没有界面????,ip还是原来的IP,还要远程连接才能用
+ls /proc/xen   有capabilities文件
+/proc/xen/capabilities 内容为 control_d   说明成功 OK
+
+xl list 有显示 Domain-0  ,State列的值的含义, man xl list有解释
+   r - running
+   b - blocked 
+   p - paused
+   s - shutdown
+   c - crashed
+xl help 看子命令
+xl create  建虚拟机 
+	xl create <配置文件名> -c 
+	-c看控制台
+xl destroy 模拟拔电源
+xl shutdown
+xl reboot
+xl pause
+xl unpause
+xl console
+	可用图形工具 virt-manager (见KVM)
+	
+做桥接网卡
+	现在网卡模拟成交换机,工作在混杂模式下,虚拟一个网卡，把mac地址绑定到模拟交换机上
+	虚拟机里的网卡连接模拟交换机,这样模拟交换机就可以仿问外网,就可以网络安装虚拟机
+
+systemctl start libvirtd 后会创建虚拟机交换接口 , ip addr show 会多了一个网卡(测试没用???)
+	iptables -t nat -L -n
+
+virsh 命令创建桥接设备
+brctl 命令创建桥接设备
+
+CentOs 系统下把/etc/network/ifcfg-eth0 目录下的文件做复制修改 创建桥接设备
+
+/etc/xen/examples/ 有示例文件  xlexample.hvm  xlexample.pvlinux
+PV (Para Virtualization 半虚拟化) 
+HVM(全虚拟化,CPU的虚拟化)
+
+在虚拟机中安装grub , pygrub
+
+------------KVM (openSUSE-leap-15)
+
+OpenStack,CloudStack都只是虚拟化管理工具,实现跨多个物理机
+直接运行在硬件上的虚拟机叫Hypervisor
+qemu 可以在x86机器上 模拟 IBM AIX ,·但会慢
+KVM 集成到了linux 内核 (要求CPU支持虚拟化,要求64位系统） 
+AndroidStudio  也提示安装KVM提速
+ 
+openSUSE-leap-15 DVD下安装 virt-manager ( virt-manager 命令工具 依赖 libvirt)
+rpm -ivh ../noarch/virt-manager-1.5.0-lp150.5.1.noarch.rpm ../noarch/virt-manager-common-1.5.0-lp150.5.1.noarch.rpm  ../noarch/virt-install-1.5.0-lp150.5.1.noarch.rpm typelib-1_0-AppIndicator3-0_1-12.10.1+bzr20170215-lp150.3.1.x86_64.rpm  typelib-1_0-GtkVnc-2_0-0.7.2-lp150.1.15.x86_64.rpm typelib-1_0-SpiceClientGlib-2_0-0.34-lp150.1.14.x86_64.rpm  typelib-1_0-SpiceClientGtk-3_0-0.34-lp150.1.14.x86_64.rpm typelib-1_0-Vte-2.91-0.50.2-lp150.4.2.x86_64.rpm  typelib-1_0-Libosinfo-1_0-1.1.0-lp150.1.9.x86_64.rpm typelib-1_0-LibvirtGLib-1_0-1.0.0-lp150.1.9.x86_64.rpm typelib-1_0-GVnc-1_0-0.7.2-lp150.1.15.x86_64.rpm libvirt-glib-1_0-0-1.0.0-lp150.1.9.x86_64.rpm  libvirt-libs-4.0.0-lp150.6.18.x86_64.rpm  libssh2-1-1.8.0-lp150.2.3.x86_64.rpm python3-libvirt-python-4.0.0-lp150.1.2.x86_64.rpm  python3-libxml2-python-2.9.7-lp150.1.7.x86_64.rpm ../noarch/python3-ipaddr-2.1.11-lp150.1.3.noarch.rpm libyajl2-2.1.0-lp150.2.4.x86_64.rpm 
+
+
+openSUSE-leap-15 DVD下安装 libvirt-daemon , qemu
+rpm -ivh libvirt-daemon-4.0.0-lp150.6.18.x86_64.rpm  numad-0.5.20130522-lp150.1.8.x86_64.rpm ../noarch/qemu-ovmf-x86_64-2017+git1510945757.b2662641d5-lp150.3.1.noarch.rpm qemu-2.11.1-lp150.6.7.x86_64.rpm
+
+
+
+DVD 有
+libvirt-daemon-qemu-4.0.0-lp150.6.18.x86_64.rpm
+
+ 
+openSUSE-leap-15 DVD下安装  libvirt-client
+	rpm -ivh libvirt-client-4.0.0-lp150.6.18.x86_64.rpm  gnutls-3.6.2-lp150.3.2.x86_64.rpm  libopts25-5.18.12-lp150.1.35.x86_64.rpm  libgnutls-dane0-3.6.2-lp150.3.2.x86_64.rpm  libunbound2-1.6.8-lp150.1.4.x86_64.rpm  unbound-anchor-1.6.8-lp150.1.4.x86_64.rpm  libfstrm0-0.3.2-lp150.1.3.x86_64.rpm 
+
+就有 virsh 命令
+
+openSUSE-leap-15 DVD下安装 virt-viewer (界面工具 )
+	rpm -ivh virt-viewer-6.0-lp150.1.4.x86_64.rpm  libspice-controller0-0.34-lp150.1.14.x86_64.rpm
+
+
+openSUSE-leap-15 DVD下安装 yast2-vm
+	rpm -ivh yast2-vm-4.0.1-lp150.1.1.x86_64.rpm  (界面工具,放在yast2中了 )
+
+	YaST2 -> Virtualization -> Install Hypervisor and Tools -> 复选  KVM server ,   KVM Tools 
+	YaST2 -> Virtualization ->reload server configuration 会写防火墙设置 ，启动 libvirtd 服务
+	YaST2 -> Virtualization ->create  virtual  machines for Xen and KVM 就会启动virt-manager 自动连接成功
+
+openSUSE-leap-15 DVD
+rpm -ivh	qemu-tools-2.11.1-lp150.6.7.x86_64.rpm 
+
+
+zypper install libvirt-daemon-lxc (见 LXC )
+zypper in -t pattern kvm_server
+
+openSUSE-leap-15 DVD 中　
+rpm -ivh kdump-0.8.16-lp150.11.1.x86_64.rpm libfdt1-1.4.4-lp150.1.9.x86_64.rpm librdmacm1-16.4-lp150.3.2.x86_64.rpm libSDL2-2_0-0-2.0.8-lp150.1.1.x86_64.rpm  libsnappy1-1.1.3-lp150.1.7.x86_64.rpm libspice-server1-0.14.0-lp150.2.4.x86_64.rpm libvdeplug3-2.3.2+svn587-lp150.3.4.x86_64.rpm libvirglrenderer0-0.6.0-lp150.2.4.x86_64.rpm libvirt-daemon-driver-qemu-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-qemu-4.0.0-lp150.6.18.x86_64.rpm lzop-1.04-lp150.1.3.x86_64.rpm  makedumpfile-1.6.3-lp150.5.1.x86_64.rpm  ovmf-2017+git1510945757.b2662641d5-lp150.3.1.x86_64.rpm  patterns-base-basesystem-20171206-lp150.14.1.x86_64.rpm  patterns-server-kvm_server-20180302-lp150.3.1.x86_64.rpm ../noarch/qemu-ipxe-1.0.0-lp150.6.7.noarch.rpm  ../noarch/qemu-seabios-1.11.0-lp150.6.7.noarch.rpm ../noarch/qemu-vgabios-1.11.0-lp150.6.7.noarch.rpm qemu-x86-2.11.1-lp150.6.7.x86_64.rpm  tftp-5.2-lp150.3.4.x86_64.rpm  vm-install-0.10.03-lp150.1.1.x86_64.rpm xinetd-2.3.15.3-lp150.3.1.x86_64.rpm  yast2-kdump-4.0.3-lp150.1.1.x86_64.rpm ../noarch/qemu-sgabios-8-lp150.6.7.noarch.rpm 
+
+	
+zypper in -t pattern kvm_tools  (kvm_tools -> kvm_server)
+
+openSUSE-leap-15 DVD 中　
+ rpm -ivh db48-utils-4.8.30-lp150.5.10.x86_64.rpm guestfs-data-1.38.0-lp150.2.4.x86_64.rpm jfsutils-1.1.15-lp150.1.7.x86_64.rpm  ldmtool-0.2.3-lp150.1.5.x86_64.rpm  libguestfs0-1.38.0-lp150.2.4.x86_64.rpm  libhivex0-1.3.14-lp150.1.11.x86_64.rpm libldm-1_0-0-0.2.3-lp150.1.5.x86_64.rpm  libvirt-daemon-config-network-4.0.0-lp150.6.18.x86_64.rpm patterns-server-kvm_tools-20180302-lp150.3.1.x86_64.rpm qemu-block-ssh-2.11.1-lp150.6.7.x86_64.rpm reiserfs-3.6.27-lp150.1.10.x86_64.rpm supermin-5.1.18-lp150.1.13.x86_64.rpm virt-v2v-1.38.0-lp150.2.4.x86_64.rpm xfsprogs-4.15.0-lp150.2.1.x86_64.rpm xmlstarlet-1.6.1-lp150.1.10.x86_64.rpm zerofree-1.0.4-lp150.1.8.x86_64.rpm 
+
+
+UEFI support is provided by OVMF (Open Virtual Machine Firmware).即上面安装的 qemu-ovmf-x86_64
+
+qemu-img -h 
+支持格式最后有 qcow2 格式,
+		有vmware的vmdk格式,v
+		irtualbox的vdi格式
+qemu-img  create -f qcow2   myfile.img 2G
+	
+ 
+systemctl start libvirtd
+systemctl status libvirtd
+注意 libvirtd  和 xendomains 不能同时运行
+systemctl is-active xendomains
+
+
+Mono  linux上运行C#
+openVZ 每个虚拟机使用的内核共享的，如一个虚拟机down了，只关闭它的虚拟文件系统
+wineHQ 虚拟windows库
+VMware Horizon Client for (window/linux)
+
+
+
+cnf brctl 提示 zypper install bridge-utils
+brctl 命令建桥设置
+brctl -h
+brctl show 显示有几个桥设备
+brctl addbr br0 增加网桥名为br0
+brctl setfd br0 0  (fd=forward delay)
+
+brctl delbr br0 删除桥
+brctl addif     	<bridge> <device>	向桥上关联一个网卡
+brctl addif br0 eth0
+
+virsh  
+virsh # help
+virsh iface-bridge 命令建桥设置 会立即生效
+
+virtinstall 命令行工具 功能同 界面工具  virt-manager
+systemctl start libvirtd 后就可以用 virt-manager 连接上来
+	安装的虚拟机位置/var/lib/libvirt/images/xx.img
+virsh list
+virsh uri 显示当前系统可用的连接接口
+	
+moosefs 小文件
+GlusterFS  分布式文件系统 KVM 支持好
+NFS
+SheepDog
+
+
+egrep  'vmx|svm' /proc/cpuinfo	
+lsmod | grep kvm
+/dev/kvm
+
+openSUSE 界面中带lftp
+
+
+PXE 使用UDP协议,不用验证,网络安装要求TFTP协议读安装源
+同时装配多台服务器 ,安装系统、配置各种服务 
+要求
+1.主板主持网络引导，并设置BIOS中允许从Network或LAN启动
+2.一台DHCP服务器为客户机分配地址
+3.通过TFTP服务器提供引导镜像文件的下载
+
+virt-mananger  选PXE网络安装系统,提示是iPXE是PXE的扩展版 支持HTTP协议
+
+virt-manager建立的镜像默认在 /usr/lib/libvirt/images/xx.qcow2 位置 
+
+KSM是Kernel Samepage Merging  允许合并同一个进程或不同进程之间内容相同的匿名页面(比Xen要好)
+virtio 通用的 半虚拟化  KVM
+vmware 的cpu 可以打开 virtual
+
+modprobe kvm
+modprobe kvm_intel
+lsmode
+
+KVM实时迁移 要求
+  共享存储 如,iSCSI,NFS,GFS2
+  存储必须挂载到相同的目录
+  相同的CPU
+  KVM 系统版本要相同
+  时间要同步
+  网络配置要一样
+  
+
+---------KVM  --未试记录
+virt-install --version
+virt-install --extra-args "ks=file:/my.ks"    
+ks=kickstart
+
+virsh --version
+kvm --version  没有这个命令 ???
+virsh list --all 
+   error: failed to connect to the hypervisor
+   error: <null> 没有连接驱动器可用 
+ 
+virt-install -h
+
+virt-install --conect qemu:///system --virt-type kvm --name myKvmOpenSUSE  --memory 512,maxmemory=1024 --vcpus 2,maxcpus=4, --network bridge=br0 --disk path=/tmp/images/myKvmOpenSUse.img,sparse --location http://127.0.0.1/ --extra-args="ks=http://127.0.0.1/myOpenSuse-leap15.cfg" --os-variant openSUSE-leap-15 
+
+virt-install --conect qemu:///system --virt-type kvm --name myKvmWin7  --memory 512,maxmemory=1024 --vcpus 2,maxcpus=4, --network bridge=br0 --disk path=/tmp/images/myKvmWin7.img,sparse --location http://127.0.0.1/ --extra-args="ks=http://127.0.0.1/myWin7.cfg" --os-variant Win7 
+
+/etc/libvirt/qemu 下有创建的虚拟机的.xml文件 
+也可以用命令 virsh dumpxml win7 产生xml文件
+virsh help
+virsh create newDomain.xml #从xml创建一个域
+vish console win7  (只能输入标签名，不能选，ctrl+]退出) 自动启动用 vish autostart 
+virsh define 创建后不想启动
+
+virsh shutdwon 正常关闭
+virsh destroy 强行关闭
+virsh undine  删除， 后要手工删除文件
+
+virsh help
+virsh help setvcpus  设置CPU数
+virsh help setmem   设置内存大小
+    --config
+    --live
+virsh setmem win7 500MB --live 开机时设置内存大小 
+virsh vcpuinfo win7
+virsh vcpucount win7
+virsh setvcpus win7 1 --live 开机时设置VCPU数
+
+virsh help domain
+qemu-img  create -f raw   /tmp/myfile.img 512M
+virsh attach-disk win7 /tmp/myfile.img vdb  #/dev/vdb 开机时增加硬盘
+fdisk -l /dev/vdb[1-9]
+virsh deattach-disk win7 vdb
+virsh list 查看所有启动的虚拟机
+
+virsh  cpu-stats
+virsh  attach-interface 网卡
+virsh  attach-device 除网卡和磁盘的
+virsh  desc win7 --new-desc "my first KVM"s
+virsh  desc win7
+
+virsh  domdisplay win7  查看远程连接是 vnc://127.0.0.1:0
+/etc/libvirt/qemu.conf 中打开#vnc_listen = "0.0.0.0"
+
+virsh domid win7
+virsh domname win7
+virsh vncdisplay win7 显示VNC连接的IP和端口  127.0.0.1:0
+
+Mac地址前三部分是固定的
+
+命令方式安装虚拟机
+virt-install --graphics none  --network bridge=br0,model=virtio,
+--extra-args="ks=http://127.0.0.1/myOpenSuse-leap15.cfg console ttyS0 serial"  --console ttyS0 serial --video=cirrus
+
+reset 重置终端
+
+virsh help monitor
+
+virsh domblklist win7
+virsh domcontrol win7
+virsh domiflist win7  网卡列表
+
+virsh  help host
+virsh hostname 显示hypervisor主机名
+virsh nodeinfo
+virsh help interface
+virsh iface-list
+virsh iface-dumpxml br0
+virsh net-list
+
+-----------LXC
+https://linuxcontainers.org/lxc/introduction/
+
+LXC和KVM虚拟化的区别是LXC不去模拟硬件,而是共享相同的内核命名空间,这一点上非常类似于chroot应用
+C++ namespace
+
+不是全虚拟化,Guest OS只能是linux,所有系统使用Host OS内核,安装依赖于Host OS 
+
+
+rpm -ivh libnetcontrol0-0.3.1-lp150.1.7.x86_64.rpm librbd1-13.0.2.1874+ge31585919b-lp150.1.2.x86_64.rpm libvirt-daemon-driver-interface-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-network-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-nodedev-4.0.0-lp150.6.18.x86_64.rpm  libvirt-daemon-driver-nwfilter-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-secret-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-storage-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-storage-core-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-storage-disk-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-storage-iscsi-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-storage-logical-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-storage-mpath-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-storage-rbd-4.0.0-lp150.6.18.x86_64.rpm libvirt-daemon-driver-storage-scsi-4.0.0-lp150.6.18.x86_64.rpm nfs-kernel-server-2.1.1-lp150.3.5.x86_64.rpm radvd-2.17-lp150.3.4.x86_64.rpm 
+
+zypper install lxc 提示共16个包要安装
+zypper install libvirt-daemon-lxc 
+		libvirt-daemon-driver-lxc libvirt-daemon-lxc
+
+lxc-checkconfig
+systemctl status lxc.service
+
+ls /usr/share/lxc/templates 可用的LXC模板容器
+lxc-create -n <container-name> -t <template> -f <configfile>
+lxc-create -n myLXC -t fedora　　会在线下载,22不是最新 
+lxc-create -n myLXC -t fedora -- --release 29  下载指定版本
+lxc-create -n myLXC -t opensuse -- --release 42.2 目前只支持到这个版本,不支持15.0　官方已经有了　https://uk.images.linuxcontainers.org/
+lxc-create -n myLXC -t centos -- --release 7 要yum 命令,oracle也是一样的
+lxc-create -n myLXC -t ubuntu -- --release bionic  (18.04) 要 debootstrap 命令
+
+
+
+Docker微容器Alpine (阿尔卑斯山的)
+	
+创建在　/var/lib/lxc　目录,容器的根文件系统放在 /var/lib/lxc/<容器名>/rootfs 目录下
+创建过程中下载的软件包保存在 /var/cache/lxc 目录下面
+
+/etc/lxc/default.conf
+
+
+lxc-start -n myLXC -d 
+lxc-ls --active
+lxc-ls --fancy
+lxc-console -n  myLXC
+
+brctl addbr lxcbr0  
+brctl addif lxcbr0 p4p2  (wlan0不行)  
+ --wlan0不行
+	zypper in tunctl
+	brctl addbr br0 
+	tunctl -t tap0 
+	brctl addif br0 tap0 
+	ip addr add 192.168.1.6/32 dev br0
+	ip link set br0 up
+		
+	zypper in parprouted 没有???
+	/usr/bin/parprouted wlan0 br0
+	
+	
+	
+
+	
+	
+	
+	
+	
+-----------LXD
+是基于LXC的增强 集成　OpenStack
+　LXD 使用 Go　开发
+zypper in lxd 没有???
+	
+	
+-----------启用 XDMCP 为XManager
+vi  /etc/sysconfig/displaymanager 以下3个 由原来的 "no" 修改为 "yes"   
+	DISPLAYMANAGER_REMOTE_ACCESS="yes" 
+	DISPLAYMANAGER_ROOT_LOGIN_REMOTE="yes" 
+	DISPLAYMANAGER_XSERVER_TCP_PORT_6000_OPEN="yes" 
+
+vi /etc/gdm/custom.conf 
+在 [xdmcp] 区增加
+
+Enable=true
+Port=177
+
+增加一个security区
+[security]  
+DisallowTCP=false 
+AllowRemoteRoot=true 
+
+
+vi /etc/X11/xdm/xdm-config 注销掉这一行(45行上 在起点加以个!)
+! DisplayManager.requestPort: 0 
+
+重启xdm
+systemctl  restart xdm  (openSUSE方式,没有177端口监听???? 测试不行)
+/etc/init.d/xdm restart
+
+
+	
 -----------未解决的
+
+grub2引导iso没试成功
+
 vim 和gedit 打开windows下的有中文GBK文件时,显示其它的怪字符
 
+--
+我的电脑的openSUSE
+不存在komodoEdit不能使用fcitx输入法的问题，
+也不存在gedit不能复制文本到firefox的问题
+也不存在fat32分区文件丢失的情况
+也不会出现开机时的报的错误信息
+Vmware Horizon Client 记得是可以识别U盘的(root or zhaojin 启动),
 
-openSUSE leap-15.0  版本是稳定的发布版本 
-openSUSE tumbleweed 版本是为希望有最新的包
+--公司电脑新硬件
+刚登录后可以在gedit复制英文到firefox,后面就不行了，不能复制大问题 ！！！！ （原因可能是同时安装fcitx,ibus,环境变量设置用fcitx，ibus又可以在kmodoedit中用，应该不能用ibus）
+
+Komodo Edit-11使用fcitx无效(yast2语言切换又可以了) 可以单独为Komodo Edit使用ibus, 其它使用fcitx 
+
+fat32分区最好不要加fsck 为2 ,遇到一次openSUSE-leap-15写入的文件到windows中什么也没有了!!!! 多出一些FSCK0000.REC等文件,如是文本还能打开看到多半数据.
+建立ext4分区( DiskGenius 中建才行,openSUSE建的读不了),Extfsd可在windows中读,有时也看不到openSUSE下写的内容(U盘是必用的方式)
+
+
+
 
 
 

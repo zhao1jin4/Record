@@ -741,7 +741,7 @@ implicit val name1="the implicit name!!"  //不根据变量名字
 
 testImplicitParam
 
- 
+
  
  
 def greet() {

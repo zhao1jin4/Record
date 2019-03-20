@@ -5,7 +5,7 @@ http://nodejs.gamesys.net/node-js
 
 把bin放入Path中 如下.exe就一个文件 
 
-
+http://nodejs.cn/api/
 
 node 命令
 >console.log("Hello world")
@@ -62,9 +62,22 @@ npm install --save browser-sync   //--save存在package.json文件中  安装 br
 npm run dev   会启动 http://localhost:3000
  
 package.json文件中有 dependencies字段,表示依赖的模块, 用 npm install 就会安装所有的依赖
-
+有时提示	npm audit fix
 通过node_modules目录来加载
-  
+ 
+ chrome 调试node
+  node --inspect test-debug.js 监听9229 端口
+  chrome地址栏输入 chrome://inspect/ -> 可以看到运行的文件，点击进入
+    -> Source标签-> +add Folder to workspace 选择源码目录，就可以调试了
+
+vs code 调试node (react 的npm start )
+  my-app/node_modules/react-scripts/bin/react-scripts.js 看脚本找下面文件
+  my-app/node_modules/react-scripts/scripts/start.js  vscode工具打开文件 ，打断点，点debug按钮
+  my-app/node_modules/react-scripts/scripts/  目录下 vscode工具 生成.vscode/launch.json（如在其它地方生成可移动）
+   文件内容有
+   "type": "node",
+   "program": "${workspaceFolder}/start"
+   
 
 //----未测试
 npm update packname
@@ -78,17 +91,34 @@ npm info express
 var myModule1 = require('./mymodeule');
 
 //---circle.js 自定义模块
+module.exports = function(name, age) {
+    this.name = name;
+    this.age = age;
+    this.about = function() {
+        console.log(this.name +' is '+ this.age +' years old');
+    };
+};//如加module.exports=function 下面的exports.perimeter= 和 module.exports.name =就不能被使用了
+module.exports.name = function() {
+    console.log('the name function');
+};
+//exports是module.exports的别名，如果一个新的值被赋值给 exports，它就不再绑定到 module.exports
 var PI = 3.14;
-exports.perimeter = function (r){   //exports对象加暴露的方法
+exports.perimeter = function (r){  
     return 2 * PI * r;
 };
 exports.area = function (r){
     return PI * r * r;
 };
 
-其它地方使用
+//---其它地方使用
 var c = require('./circle.js'); //在同一目录下OK
-console.dir(c.perimeter(5));
+
+var myObject=new c("lisi",25);//针对 module.exports = 
+console.log(myObject.about());
+//---上下二先一
+//console.log(c.perimeter(5));//针对 exports.perimeter =
+//console.log(c.name());//针对module.exports.name =
+
 
 events.EventEmitter 
 emitter.addListener(event, listener) 或者 emitter.on(event, listener)

@@ -42,13 +42,19 @@ codis-admin
 windows 版 redis-3.2.100
 https://github.com/MicrosoftArchive/redis/releases
 
+http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
+	redis-4.0.9-lp150.2.8.x86_64.rpm
 
+http://download.opensuse.org/tumbleweed/repo/oss/x86_64/
+	redis-4.0.11 现在是 5.0.2
+	
 cd src 
 make    OK
 
 如报error: jemalloc/jemalloc.h: No such file or directory  
 用 make MALLOC=libc 就OK ,Mac用jemalloc(README文件中说的)
 
+----redis 4.x
 make test 要 tcl-8.5以上(CentOS 7DVD自带8.5.13),可用8.6.7  测试OK,
 	redis-trib.rb 还是要ruby>2.2.2(CentOS 7DVD自带2.0) 有ruby-2.5.0编译安装后(./configure  , make , make install)带 gem 命令(RubyGems)，还要ruby的redis依赖
 	gem list
@@ -66,6 +72,9 @@ make test 要 tcl-8.5以上(CentOS 7DVD自带8.5.13),可用8.6.7  测试OK,
 			make
 			make install
 	安装OK
+---redis 5.0.2  在 openSUSE-15 下源码编译安装OK (没提示要ruby,tcl)
+
+	
 make install 在 /usr/local/bin/redis-server
 
 
@@ -77,9 +86,11 @@ cat /proc/sys/vm/overcommit_memory
 
  警告执行
  echo never > /sys/kernel/mm/transparent_hugepage/enabled   
- 放/etc/rc.local 中启动执行
+ 放/etc/rc.local 中开机启动执行  
+ (openSuSE-15 中在 /etc/init.d/boot.local 文件中或 /etc/rc.loca 添加无效 ??? )
+ Red Hat系统的对应文件是/etc/rc.d/rc.local 
  
-  WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
+WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
  
 默认配置 protected-mode yes 修改为 no
 bind 默认127.0.0.1  是不能外网连接的，要修改为本机IP 或者注释它
@@ -465,7 +476,7 @@ sentinel notification-script mymaster /var/redis/notify.sh
 
 连接sentinel
 redis-cli  -p 26379
-> sentinel masters  显示所有监控的master和状态
+> sentinel masters  显示所有监控的master和状态 ,有显示ip和port 就可以直接上对数据操作
 > sentinel master mymaster
 > SENTINEL get-master-addr-by-name mymaster 返回mymaster的主服务器的 IP 地址和端口号
 不能调用get,set
@@ -473,7 +484,7 @@ redis-cli  -p 26379
 连redis  6379,6380,6381, 测试
 
 
-------redis  cluster  自动分片数据到多个节点上(shard)
+------ redis  cluster (redis-3.0 版本开始支持) 自动分片数据到多个节点上(shard)
 
 port 7000			 
 cluster-enabled yes
@@ -504,10 +515,9 @@ redis-cli -c -p 7000 (-c cluster,-p port)
 > cluster info  看 cluster_state  是 fail
 > ping 
 
-
-
-./redis-trib.rb create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
-./redis-trib.rb create --replicas 1 172.16.35.35:7000 172.16.35.35:7001 172.16.35.35:7002 172.16.35.35:7003 172.16.35.35:7004 172.16.35.35:7005
+redis-5.0 开始 redis-trib.rb  已经过时 ,使用  redis-cli  代替
+	./redis-trib.rb create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
+	./redis-trib.rb create --replicas 1 172.16.35.35:7000 172.16.35.35:7001 172.16.35.35:7002 172.16.35.35:7003 172.16.35.35:7004 172.16.35.35:7005
 
 	提示哪三台做M,哪三台做S,  输入yes
 	其中 --replicas 1 表示 每个主节点要一个子节点
@@ -538,7 +548,7 @@ redis-cli -p 7002 debug segfault 表示 让7002端口的应用掉电
 ./redis-trib.rb del-node 127.0.0.1:7006 <node-id>    也会停止这个节点的服务,删了的节点不能再加????
 
 
--------
+
 查询redis允许的最大连接数
 CONFIG GET maxclients
 
@@ -559,3 +569,40 @@ slowlog-max-len				它决定 slow log 最多能保存多少条日志
 SLOWLOG GET 命令 有执行命令，执行时间，耗时
 SLOWLOG LEN
 SLOWLOG RESET 清空
+
+--------禁用  FLUSH* KEYS
+rename-command FLUSHALL ""  
+rename-command FLUSHDB ""  
+rename-command KEYS ""
+
+--------redis-4.0新功能
+UNLINK key 用法和 del 完全一样 ，但内存释放动作放到后台线程中异步执行，立即返回。
+FLUSHALL [ASYNC]
+FLUSHDB [ASYNC] 
+rename oldkey newkey  
+	如果 newkey 已经存在，redis 会先删除已经存在的 newkey，这也会引发上面提到的删除大 key 问题 ,使用lazyfree 如下配置：
+	lazyfree-lazy-server-del yes/no
+	
+	lazyfree-lazy-eviction yes/no
+	lazyfree-lazy-expire yes/no
+
+swapdb
+zlexcount
+memory 
+	memory usage
+	memory stats
+	memory doctor
+
+
+malloc stats & malloc purge
+这两个命令用于操作 jemalloc，只在使用 jemalloc 的时候才有效。
+
+object freq user_key  取某个 key 的访问频度
+./redis-cli --hotkeys
+
+
+--------redis-5.0 开始 redis-trib.rb  已经过时 ,使用  redis-cli  代替
+redis-cli --cluster info 127.0.0.1:7000 
+redis-cli --cluster help
+
+-------

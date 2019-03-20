@@ -1358,10 +1358,10 @@ ps -ef | grep dtlogin  如有-udpPort 0 参数是错的
 
 在Xmanager 打开 Xbrowser
             新建 XDMCP,          
-	   xdmcp Conection Method : XDM Query  默认
+	   xdmcp Conection Method : XDMCP Query  默认
            xdmcp Host: 输入 
            xdmcp Port:177	默认
-	   X Server profile: Auto Select默认
+	   X Server 标签 profile: Auto Select默认
            
 
 

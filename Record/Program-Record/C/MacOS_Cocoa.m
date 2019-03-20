@@ -3,7 +3,7 @@
 
 Mac openGL是使用的 GLUT,可以使用POSIX 的多线程
 
-
+//--------------Visual Studio for Mac　　(不是code版本)
 //==============Xcode
 
 Xcode -> 偏好设置 ->Components->Documentation  中可以下载的.docset手册	
@@ -54,7 +54,7 @@ cd Xcode.app/Contents/Developer/Documentation/DocSets/
 
 
 ---------Xcode-9.2 (Mac OS X 10.13 High Sierrah上最高Xcode-9.2)
-Xcode_9.2.xip 文件 5.1G 解压后 5.7G
+Xcode_9.2.xip 文件 5.1G 解压后 5.7G  安装后还要占用10.5G
 有iphone X模拟器，Xcode-9.2 deploy target 11.2(iOS)
 
 
@@ -183,6 +183,7 @@ Product->archive 开始编译(应用的-info.plist文件中的Bundle identifier�
 打开iPad的开发功能,Xcode->Orgnization->XXX's Ipad ->中打开（如找不到XXX's iPad 就说明CommandLineTool版本过低）,运行按钮就可以选择XXX's iPad
 
 //============== 上 Xcode
+
 //==============Interface Builder 组件属性
 IB开头的类表示InterfaceBuilder,如 IBOutlet ,IBAction
 

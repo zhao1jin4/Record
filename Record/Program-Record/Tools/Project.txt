@@ -3,57 +3,355 @@
 CMMI = Capablity Maturity Model Integration for Developement
 http://www.msdn.hk/
 -------------------------Project 2010  只windows ,无Mac版可用OmniPlan
-手动模式 在start 开始日期 处可以写文字注解, 如为自动模式不可以
+windows 7 上最高Project-2016版本
+
+Resource 菜单->View区 -> Resource Sheet ,在Insert区 Add Resource 按钮就可用了
+					这里选择不同的视图，format标签也是对应变化的 
+					
+View 菜单 ->Split View 区 ->可复选timeline 和 detail只能选中一个
 
 
+
+
+
+设置最近打开文件数  
+	file->options->Advanced -> Display区 show this number  of Recent Project:50
+
+可以从excel文件打开 有向导提示excel哪列对应project哪列
+新建可以从已经存在的项目建，也可从模板建
+
+.mpt模板文件	
 .mpp文件
 File -> save as ->tools->general option 可以设置文件密码,和 推荐只读
 File -> options -> save -> 复选 auto save every <> miniutes 
+						->default persional template location  设置模板默认保存路径 
+						->default file location 设置默认文件保存路径
+
+保存时不要个人信息
 File -> options ->   trust center ->trust center setting->privacy option -> 复选 remove personal information from file properties on save
+
+新建时提示输入个人信息
 File -> options -> advanced -> general组中复选  prompt for project info for new project
-File -> options -> Schedule-> Calendar options for this project 选择已经有项目
 
+Project -> Project Infomation 输入项目开始,结束日期,选择日班或夜班
+File->Info->右侧 project information 下拉->advance properties,可写作者,公司,标题等
+File->Info->右侧 project information 下拉->project statistics
+  
 
-右击列->插入列时->可选择WBS, 大纲数字
-项目->WBS->定义编码->
-在Duration中输入 1w 表示一周,11d 工作日,11ed 天
-视图->工具栏->分析  有 PERT分析
-选中两 工具栏上有一个链接任务  即前置任务  (一定要前一个任务完成,才可以进行下一个)
-
-可以在线 从模块建立项目
-
-Project -> Project Infomation 输入项目开始,结束日期
-双击行(或Task->informatoin),弹出对话框,可输入任务 名,开始结束时间,设置完成%,inactive是以灰色显示
-
- 可以拖动来移动行,也可双击列名,下拉选择其它的数据类型,
- 可以修改列名字,右击列标题->field setting,在Title中修改
- File->Info->右侧 project information 下拉->advance properties,可写作者,公司,标题等
-
-Options中shedule可以设置,每周的第一天是星期向,默认早几点开始,到晚几点
 Project-> change working time ,对当前的,可以也新建,可以设置哪天工作,几点上下班,exceptions设置节假日,加班,请假
 	建立好,就可以在Project -> Project Infomation 中选择建立的calendar
 	
-File->info -> Orgnaizer -> calendar  可以把当前项目中的建立的calendar复制到全局中,供以后使用
+File->info -> Organizer -> calendar  可以把当前项目中的建立的calendar 复制到 Global.mpt全局中模板中(可双向复制),供以后使用
+File -> options -> Schedule-> Calendar options for this project ,把calendar 应用打开的项目上		
+							每周的第一天是星期一,
+							Deafault start time 为 8:00 
+							Deafault end time  为 17:00 
+							Deafault start time 为8:00 
+							Hours per day 为 8
+							Hours per week 为 50
+							Days per month 为 20
 
+建立任务 Task  下方状态栏有默认是哪种模式,
+	File->Options->Schedule->new task created :下拉选择是Auto还是Manually ,可选择应用范围 是哪个打开的项目 还是 所有新建的项目
+	
+	Manual Mode 书钉图标   duration , start    可以输入文字表示备注未确认原因
+	Auto Mode  带箭头图标  duration, start   不可输入文字表示备注未确认原因
+	在Duration中输入 1w 表示一周,11d 工作日,11ed 天,1h 小时 
+	
+建立里程碑  
+	选中一行任务->Task->insert组中milestone ,会在选中行的上方建,duration变为0 day,开始日期和结束时间相同 ,图中显示一点 ,后面可做链接
+建立大任务(sumary)	
+	选中一行或多行任务->Task->insert组中 summary,会在选中行的上方建父,子就是选中的
+			父的图形区多了黑色左上右边框,如为红色表示子的超期
+
+	也可以用 Task->Schedule 区 ->Outdent/indent Task 图标 升降级
+
+建立循环任务，如每周开周会
+	选中一空行 Task->insert组中 Task->recurring task 在 druation可输入1h小时,完成后会自动建立很多任务,左则有循环图标,双击图标可修改
+	
+操作同Excel
+	建立任务的excel区的任务名称的文字可以从excel,word等地方复制过来，带缩进的自动切换为子任务
+	选中任务可以上下移动，可相互复制 
+
+显示隐藏summary
+	Task标签->Gantt char->选择Tracking gantt 视图  , format标签->show/hide区-> 复选summary task,还有复选project summary task (id为0)
+
+WBS
+	右击列->插入列时->可选择WBS(Work Breakdown Structure)要求唯一, 大纲数字
+	Project->WBS->define code...->可以设置编码前缀，修改后并没有影响全部
+	Project->WBS->Renumber...->单选entire project 就会影响全部
+
+任务的依赖,Link
+	一个任务完成后才能继续后面任务
+		选中两行任务 Task->Schedule组->link select task按钮 建立依赖 ,即前置任务  (一定要前一个任务完成,才可以进行下一个)
+ 
+	view->split view 区->复选 details 下拉选择task form
+		在显示的视图中右击->predecessor & successor (predecessor 前任，前辈 ,successor 继承人)
+		
+	两个任务同时开始
+		双击一行任务(或选中一行 task菜单 ->properteis区->information按钮)->predecessor标签选前面的任务,	type中输入 ss 表示Start to Start 
+		
+	两个任务同时结束
+		FF表示Finish to Finisth
+		(lag 走得极慢，落后) 可选择成负数
+	
+	Link即是Finish-Start  即前面完成我开始
+	
+	前一个任务开始表示这个任务结束  Start to Finish
+	
+	File->option->Schedule->复选项 autolink inserted or moved tasks 是未选的
+约束
+	自动任务 可以有约束 双击任务行->Advanced->contraint type可选择as soon as possible,Finish no later than ,Start No Earier than
+	view->split view 区->复选 details 下拉选择 task detail form ->Contraint  是另一个修改的地方
+	
+	增加显示约束的列
+	右击列 -> insert column...->选择 contraint type  ，可以像excel一样拖动选择的单元格复制数据
+	加了约束，如在图形区拖动时符合要求约束的会提示
+
+
+表格区右击左上角->可选择显示哪种类型的列数据，如Cost(如project-2010 Variance 值为负数时表示方法为外面加圆括号),Schedule ( View->Tables->Cost,...)
+
+
+资源
+
+	View-> ResourceView区->Resource Sheet 显示视图(Task->View区->下拉选择 Resource Sheet)
+	
+	Type 有 Work(像人,或租用机器),Material(像服务器,材料),Cost(像出差交通费)
+	输入角色名字(增加人力资源Type为 Work),Max Units列默认100%占用,有时一个人占用一半的时间,Base Calendar 使用哪个班种(白班，夜班)
+	Initail缩写为报表使用,Group分组, Std.Rate(正常)XX元/时 Ovt.Rate (overtime加班),cost列即人的每小时花费,
+	双击行->可再次编辑
+	
+	
+	File->Options->Advanced->General option组中 取消选中 automaticlly add new resources and tasks 
+														可以设置 default standard rate,default overtime rate
+	双击行(或Resource->informatoin)
+	
+	增加Material类型的资源时在Material Label列输入单位
+	
+	Cost在建的时候不输入金额，只能在指定给资源时才能输入金额，图表上有文字
+	
+	Accrue(增加,积累) At (应计) 列，默认值Prorate (比例分配)
+	
+为任务指定资源
+	在Task Form,或Task Detail Form中 右击->   reource & Successor 或  reource & predecessor 可以指定资源 输入数量
+									右击->cost 可以看到计算出的金额
+	
+资源使用情况
+	View-> ResourceView区->Resource Usage 
+	
+只对自动任务 加人时的调整
+	Duration= Work / Unit (8人力的活 如有人每天只干半天，则就要16天) 
+	16=8/0.5
+	Work(多长活) =  Duration(多长时间) * Unit(全天或半天)
+	
+	Task form 或 task detail form 中task type:可下拉选择 fixed  Duration,fixed  Work,fixed  Unit 
+	如选fixed  Work 在增加(work)人力资源的时候，Duration会减少，(固定的活,人多干时间就快),(要选中 effort drivent)
+
+	在Task Form,或Task Detail Form中 如取消effort drivent复选项 , 则在此任务中的每个人的work都和任务的duration相同，如会议中参加的人每个人都占用时间
+	
+为任务指定资源方式二
+	选择行,Resource->Assign Resource -> 按ctrl多选，可以点开+号做过滤
+ 
+过度分配资源显示为红色 ,任务表格左则显示红人图标(Unit超100% 即 加班)
+	Resource 菜单->View区 -> Resource Sheet 
+	Resource 菜单->Level区-> Next Overallocation 找下一个过度分配的
+	
+Resource 菜单->View区 -> Resource Usage 右击右则窗口标题->timescale...->bottom tier标签	->unit 选择weeks,
+																		middle tier标签	->unit 选择month,
+		Format 菜单 -> detail 区 复选 overallocation
+		
+		Resource Sheet视图下 Resorce name 列可以过滤 overallocated Resource
+		
+		View -> resource view 区other view -> more view... -> 选中 resource allocation
+				split view 区-> 下拉选择 Resource Graph  图中超过100%的横线 显示红色 就是 过度分配
+		选中 Resource Graph 视图 -> Format 菜单 ->graph:下拉选择 Overallocation 则图中只显示过度分配
+	
+	
+自动类型的任务 在指定资源(角色)时,单元格左上角会出现三角,可以点击出菜单->有三个选项 
+		1  减少duration保持同样的work
+		2  增加的work数,保持同样duration
+		3  减少  resouce work  per day(unit),保持同样duration和work
+
+Team Planner 
+	
+	resource 菜单 ->Team Planner -> Team Planner  显示为4格视图,如没有指定开始结束时间 在左边两个框里,如有资源在上方,如没在下方
+		在下方没有资源的图标上右击-> assign to ->选择资源
+	format 菜单 -> prevent overallocations 会自动分配时不会过度,当多个任务在同一资源下并行,修改按时间向后排
+	task 菜单->tasks区->move->When Resource are available 效果和上面差不多,也是 按时间向后排
+	
+	
+快捷操作
+	View 菜单 ->Split View 区 ->可复选timeline  可以拖动区域,放大缩小看
+	显示details 视图, 可双击上方分隔线隐藏,双击右边滚动条下方的横线显示details 视图
+	
+	Task 菜单 ->tasks区 ->inspect 显示说明 
+	右下角有各种常用的视图切换按钮
+	
+	File->Options->General ->Project View 区->default view 选择 自己想要的默认视图
+	
+	可以拖动来移动行,也可双击列名,下拉选择其它的其它要显示列
+	
+	可以修改列名字,右击列标题->field setting,在Title中修改,可以设置宽度,换行
+	View->Tables->save fields as new table -> 输入名字保存
+	
+	View -> data区 group by->下拉选择 Resource excel区以资源分组显示
+							-> more group ...->可选一个Critical ->copy ...->名字为 CriticalDuration,增加一个Duration,选中这行->
+							   ->define group intervals...-> start at :1,group interval :2 像是group by后面使用函数
+	 
+	表格标题的下拉三角有filter功能->data range是任务的时间范围  , View  ->  Data 组有filter功能->more filter ->manual schedul task
+	
+	 
+	Format->Bar Style组 -> 复选框 Critical Task
+						-> Bar styles
+						
+	Format->Layout 是对link 线显示的设置
+	
+	
+Timeline 格式化
+	fomat->insert 区->exists task 可以把存在的任务加到时间线视图中  
+    format-> current selection 区->display as bar 或者 display as callout(插图的编号)
+	fomat->insert 区->callout task  (加的可以右击->remove)
+	fomat->show/hide 区->detailed timelined
+		 ->copy 区-> copy timeline-> for e-mail 或 for personaliztion
+	
+	
+手动任务错误修正
+	如两个手动任务做了link,但修改了前面任务的结束时间,后面的任务会出现红线,右击红线行->respect link ,则自动修改该任务的开始时间为前面任务的结束时间
+	方式二右击行->inspect (Task->tasks区 ->inspect)
+	也可右击行->ignore problem for this task,如想查看已经忽略的问题,Task->tasks区 ->inspect->show ignore problem 行线再次出现
+	
+任务重叠
+	当一个资源(人员)两个任务并行时,应该一个长时间的任务做一半,暂停做另一个任务(可能是紧急,也可能是开始需求未确认),当完成时再继续原来长时间的任务.
+	长时间的任务和紧急任务就有重叠,Task->Schedule->split task 点击长时间的任务入拖动出一个区域,把一个任务分成两部分(让两任务不重叠)资源也不会过度分配
+	
+
+每天工作时间变化
+	对于自动任务 -> View -> Task Usage-> 双击资源(左侧有图标)->work contour(外形，轮廓) 下拉选择 back loaded (后面工作重) 
+		图标变为无线网卡图标(由低到高式),表格时间由8h开始变为0.8h(0.x)开始,越向后时间越长,直到变为8h,最后一天不足8是剩余的
+	   如下拉选择double peak( 山峰; 最高点) 图标变为音乐式,和图标意思一样,表示中间有两段是峰,表格中的工作时间也可修改,图标增加了铅笔式
+	
+	
+	
+Leveling(这个功能好像用途不大,避免overallocation,使用split,deplay方式)
+	Resource->View区->Leveling(水准测量; 矫平; ) Gantt(如没有这项 more chart...中找)
+	选中多个非手动任务 Resource->Level区->Level Selection ,多显示任务条 ,也可关闭 点clear Leveling按钮->entire project(好像不行,只能undo了) 
+	点Leveling Options->窗口中 [day by day ] basis(基准)可修改为week by week  ,(slack 松（弛）的)
+	
+任务变无效
+	选中任务  Task->Schedule区-> inactivate 按钮-> 文本有删除线,图变白色(即无效,cost和work不会被计算在summary中),也可修改值,如变有效再次点击就OK
+	
+Baseline
+	Task菜单->View区->Tracking Gantt  
+	View->detail显示task detail form视图 有三个单选 current,baseline,acutal 当三个选择时start,finish的时间可能有变化
+		,右则图形区,每个任务有两个条,上方蓝色代表current,下方灰色代表baseline ,如acutal有值表示任务完成表格左则有对号(current,baseline都有值才有图)
+	View菜单->data区->Tables->baseline
+	
+	
+	Project -> Schedule区->set baseline... -> 默认单选  entire project -> ok
+	右击表格左上角 -> Variance(变化) View->Tables->Variance 显示列名
+	再次 Project -> Schedule区-> set baseline... -> 发现列表中显示上次保存baseline的时间,选一个没使用->OK
+	Format -> bar styles区->baseline->有刚刚建立的baseline
+	Project ->Schedule区-> set baseline... ->clear baseline->选中要删->OK
+	view ->fileter->incomplete tasks 过滤任务全选,只是选中显示的 Project ->Schedule区-> set baseline... ->单选selected tasks
+	
+任务完成百分比
+	project->Status 区->status date选择日期,默认NA (2/11/2011)
+	选中要更新的任务 Task->Schedula区->mark on track (更新 Actual start date到schedule date(current) ,更新%Complete基于status date) 
+	
+	选一行或多行 右击 ->可以设置任务完成百分比, 如想输入精确的数 Task->Schedula区->mark on track ->update task-> %Complete中输入,甘特图中间有黑线
+	如选一行,再次打开窗口,会回显所有值,只要输入 %Complete,Acutal dur,会自动计算Remaing Dur(但要关闭再打开才能看到)
+	Task form或者 Task detail form中右击->work显示不同列,这里也同样可以修改
+		
+	
+资源 overtime
+	Project-> change working time ->下拉选择资源
+		view ->resource sheet 视图 表格中设置ovt.Rate
+		view->task usage 视图-> 右击列insert column ->overtime work  
+			也想在右则表中显示overtime,Format ->detail区->add Details->下拉选择overtime work -> show
+			根据右则表查看要缩短时间的任务，在左侧表格中的资源修改刚加overtime work列即可
+	
+	
+acutal work/cost
+	右击表格左上角 -> Tracking  显示列名
+	view ->resource sheet 视图->双击任务行 弹出assignment information -> tracking 标签 ->actual work修改值,如是cost资源 actual cost修改值
+	task form窗口右击->cost
+	
+	
+	
+update tasks
+	Project->status区->update project 单选 Reschedula uncompoleted work to start after :选日期
+								  单选 update work as complete through  :选日期
+					范围有entire project,selected tasks
+
+earn value
+	project -> status区->status date-> 设置日期
+	Task->vew区-> 下拉选择 Tracking Gantt   (view菜单中也可选)
+	右击表格左上角-> more table ...-> eared value  
+	Plan 	BCWS(buggeted cost of work schedule) 
+	enared	BCWP(buggeted cost of work performanced)
+	AC		ACWP(Actual cost of work performanced)
+			SV (eared value Schedule Variance) = BCWP - BCWS
+			CV (eared value Cost Variance) =  BCWP - ACWP
+			EAC(Estimated  At Completion)
+			BAC(BAseline Cost)
+			VAC(Variance  At Completion) = BAC - EAC
+			
+(project-2010版本在Project菜单下)
+Report 菜单 ->Visual Reports (excel报表)->默认all标签下，选择earned value over time report->view按钮,用excel打开报表,
+		可以在excel中选择要显示报表中的列，表格在单独的sheet中，右则下半边的区域可以拉大,可以拖动列哪个柱状图显示前面
+		表格的折叠区可以打开，在报表sheet就有变化，也可在表格中做过滤，Axis区也可拖入两个
+		
+Report 菜单 ->dashboards-> project overview ->选择报表项 format变为design(report tools),会多出design(xx tools),layout菜单 (project-2010有的overview->project summary)  
+Report 菜单 ->custom->more report...->in progress->critical task
+
+Insert Column->status indicator 图标列
+Format ->slack(松（弛）的)
+Format ->slippage(滑动; 下跌)->下拉选择已有的baseline
+
+filer->more filter ...->should start by... 
+						sliping task
+						slipped/late progress
+						cost overbugget
+Tables->work 有%W comp 即work complete
+
+
+File->info -> Organizer ->Global.MPT 是全局的模板
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+视图->工具栏->分析  有 PERT分析
+
+双击行(或Task->informatoin),弹出对话框,可输入任务 名,开始结束时间,设置完成%,inactive是以灰色显示
+
+ 
+ 
 右击行->hyperlink
 右击行-> notes...
-右击行->scroll to task
+右击行->scroll to task  ,或 Task->Editing区->scroll to task  按钮
 右击行->indent
 
 复制按钮下拉->copy picture ,Paster-> paste special(只能贴到视图区)
 
 在视图向下 拖动甘特进度项 出现连接图标 到下面的甘特进度项,表示下面的task依赖上面的task
 (或者选择两行,Task->link Task按钮)
+ 
 
-
-View-> Resource Shee ,输入名字(增加人力资源),双击行->cost中 ,即人的每小时花费
-返回Ganntt视图,选择行,Resource->Assign Resource->选择刚建立的resource,
-	View-> Other Views->Resource Graph 查看资源分配置情况
-
-选中一行任务->Task->insert组中milestone ,duration变为0 day,图中在开始日期和当前交差,显示一点
 Project->Schedule组的set baseline
 
-表格标题的下拉三角有filter功能,View  ->  Data 组有filter功能
 
 右击标题->customer field..->type中选择Number,选择一个,rename 为velocity 点Formular... 弹出框中-> 
 	点Function->general->if
@@ -63,11 +361,151 @@ Project->Schedule组的set baseline
 	
 	
 	
-Format ribbon区是根据选择不同,而动态变化的菜单	
-	
-	
-	
-	
+----------project 保存为xml格式分析
+<Project xmlns="http://schemas.microsoft.com/project">
+	<CreationDate>2019-01-08T08:00:00</CreationDate> 
+	<ScheduleFromStart>1</ScheduleFromStart>
+	<StartDate>2019-01-08T08:00:00</StartDate>
+	<FinishDate>2019-01-15T12:00:00</FinishDate>
+	<Calendars>
+		<Calendar>
+			<UID>1</UID> 
+			<Name>Standard</Name> 
+			<WeekDays>
+				<WeekDay>
+					<DayType>1</DayType>  <!-- 星期日 不是 工作日-->
+					<DayWorking>0</DayWorking>
+				</WeekDay>
+				<WeekDay>
+					<DayType>2</DayType>
+					<DayWorking>1</DayWorking>
+					<WorkingTimes>
+						<WorkingTime>
+							<FromTime>08:00:00</FromTime>
+							<ToTime>12:00:00</ToTime>
+						</WorkingTime>
+						<WorkingTime>
+							<FromTime>13:00:00</FromTime>
+							<ToTime>17:00:00</ToTime>
+						</WorkingTime>
+					</WorkingTimes>
+				</WeekDay>
+				...
+				</WeekDays>
+		</Calendar>
+	</Calendars>
+	<Tasks>
+		<Task>
+			<UID>0</UID>   <!-- 这个是项目总的任务 -->
+		</Task>
+		<Task>
+			<UID>1</UID> 
+			<ID>1</ID>
+			<Name>父任务</Name> 
+			<Manual>1</Manual>
+			<Type>1</Type> <!-- 和 summary 功能类似  -->
+			<Start>2019-01-08T08:00:00</Start>
+			<Finish>2019-01-15T12:00:00</Finish>
+			<Duration>PT24H0M0S</Duration>
+			<ManualStart>2019-01-08T08:00:00</ManualStart>  <!-- 手动 -->
+			<ManualFinish>2019-01-15T12:00:00</ManualFinish>
+			<EffortDriven>0</EffortDriven>
+			<OverAllocated>0</OverAllocated>
+			<ConstraintType>0</ConstraintType>
+			
+			<OutlineNumber>1</OutlineNumber>  <!-- 来表示层级 -->
+			<OutlineLevel>1</OutlineLevel>
+			<Milestone>0</Milestone> <!--是否里程碑  -->
+			<Summary>1</Summary>  <!-- 是否summary -->
+		</Task>
+		<Task>    
+			<UID>2</UID> 
+			<ID>2</ID>
+			<Name>子任务1</Name>
+			<Active>1</Active>
+			<Manual>1</Manual>
+			<Type>0</Type>	  
+			
+			<OutlineNumber>1.1</OutlineNumber>  <!-- 来表示层级 是哪个summary下的 -->
+			<OutlineLevel>2</OutlineLevel>
+			<Milestone>0</Milestone>
+			<Summary>0</Summary>  
+		</Task>
+		<Task>
+			<UID>3</UID>
+			<ID>3</ID>
+			<Name>子任务2</Name>
+			<Active>1</Active>
+			<Manual>1</Manual>
+			<Type>0</Type>
+			
+			<OutlineNumber>1.2</OutlineNumber>
+			<OutlineLevel>2</OutlineLevel>
+			<Milestone>0</Milestone>
+			<Milestone>0</Milestone>
+			<Summary>0</Summary>
+			
+			<PredecessorLink>  
+				<PredecessorUID>2</PredecessorUID>  <!-- UID 来表示 链接关系 -->
+				<Type>1</Type>
+				<CrossProject>0</CrossProject>
+				<LinkLag>0</LinkLag>  <!-- Lag -->
+				<LagFormat>7</LagFormat>
+			</PredecessorLink>
+			
+		</Task>	
+		
+		<Task>
+			<UID>11</UID>
+			<ID>4</ID>
+			<Name>里程碑</Name>
+			<Active>1</Active>
+			<Manual>1</Manual>
+			<Type>0</Type> 
+			<Start>2019-01-15T08:00:00</Start>
+			<Finish>2019-01-15T08:00:00</Finish>
+			<Milestone>1</Milestone>  <!-- 里程碑 -->
+			<Summary>0</Summary>
+		</Task>		
+	</Tasks>
+	<Resources>
+		<Resource>
+			<UID>0</UID>  <!-- 总有一个为0的 -->
+		</Resource>
+		<Resource>
+			<UID>1</UID>
+			<ID>1</ID>
+			<Name>work资源</Name>
+			<Type>1</Type>   <!-- 1 表示 work资源 -->
+		</Resource>
+		<Resource>
+			<UID>2</UID> 
+			<ID>2</ID>
+			<Name>cost资源</Name>
+			<Type>0</Type>
+		</Resource>
+		<Resource>
+			<UID>3</UID> 
+			<ID>3</ID>
+			<Name>material 资源</Name>
+			<Type>0</Type>
+		</Resource>
+	</Resources>
+	<Assignments>
+		<Assignment>
+			<UID>2</UID> 
+			<TaskUID>2</TaskUID>
+			<ResourceUID>-65535</ResourceUID> <!-- 65535 是个特殊的  -->
+		</Assignment> 
+		<Assignment>
+			<UID>5</UID> 
+			<TaskUID>3</TaskUID>
+			<ResourceUID>1</ResourceUID> <!--任务和资源 按UID关联 -->
+		</Assignment> 
+	</Assignment>
+	</Assignments>
+</Project>
+
 	
 ------------PMBook
 

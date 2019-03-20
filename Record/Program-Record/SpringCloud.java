@@ -5,8 +5,7 @@ Intellij Idea 建立 spring initialir 项目->Cloud Discory -> eureka server  �
 
 
 
-版本名是伦敦地铁站的名字，字母表的顺序
-最新的 Dalston  版本 
+版本名是伦敦地铁站的名字，字母表的顺序 
 
 https://springcloud.cc/spring-cloud-dalston.html
 
@@ -21,9 +20,9 @@ https://springcloud.cc/spring-cloud-dalston.html
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
             <version>Dalston.SR1</version>  
-			<!--Dalston.SR4   要和spring-boot 1.5.x. 对应 目前 1.5.18
+			<!--Dalston.SR5   要和spring-boot 1.5.x. 对应 目前 1.5.18
 				Finchley.SR2  要和spring-boot 2.0.x. 对应 目前 2.0.7
-				Greenwich.M3  要和spring-boot 2.1.x  对应 目前 2.1.1
+				Greenwich.RC2  要和spring-boot 2.1.x  对应 目前 2.1.1
 			-->
             <type>pom</type>
             <scope>import</scope>
@@ -46,43 +45,66 @@ https://springcloud.cc/spring-cloud-dalston.html
     <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-config</artifactId>
-    </dependency>
-    
+    </dependency> 
 	
+	<!-- 老的 Dalstone 版本 client
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+	 -->
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+	</dependency> 
 	
-	<!-- Finchley.RELEASE -->
-	<dependency> 
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-    </dependency>
-	<!-- Finchley.RELEASE -->
+	<!-- 老的 Dalstone 版本 server
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-eureka-server</artifactId>
+	</dependency>
+	-->
 	<dependency>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 	</dependency>
 	
-	
-	<!--  Dalston.SR4 自动依赖 spring-cloud-starter-eureka-client   -->
+	<!-- eureka-client 和 eureka-server 都要httpcore-->
 	<dependency>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-eureka</artifactId> 
-	</dependency>
-	
-	<!--  Dalston.SR4 自动依赖  spring-cloud-netflix-eureka-server  -->
-	<dependency>
-		<groupId>org.springframework.cloud</groupId>
-		<artifactId>spring-cloud-starter-eureka-server</artifactId> 
-	</dependency>
-	
+		<groupId>org.apache.httpcomponents</groupId>
+		<artifactId>httpcore</artifactId>
+		<version>4.4.10</version>
+	</dependency> 
 		
+	<!-- 老的 Dalstone 版本  
 	<dependency>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-starter-hystrix</artifactId>
-	</dependency> 
+	</dependency>
+	-->
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+	</dependency>
+	<!-- hystrix 和 zull都要 -->
+	<dependency>
+		<groupId>com.netflix.hystrix</groupId>
+		<artifactId>hystrix-javanica</artifactId>
+		<version>1.5.18</version>
+	</dependency>
+	
+	<!-- 老的 Dalstone 版本  
 	<dependency>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
 	</dependency>
+	 -->
+	<dependency>
+		<groupId>org.springframework.cloud</groupId>
+		<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+	</dependency>
+	 
+	
 	<dependency>
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-config-server</artifactId>
@@ -193,7 +215,7 @@ spring:
 
 启动后	服务端localhost:8761  就有名为 service-hi 的Instances 
 测试
-http://localhost:8762/hi?name=forezp
+http://localhost:8762/hi?name=lisi
 
 -- ribbon+restTemplate 
 -- Netflix开源了Hystrix组件, 断路器模式
@@ -201,31 +223,65 @@ http://localhost:8762/hi?name=forezp
 客户端(服务端) 改个端口到 8763 再启动一个  service-hi 就有两个服务了
 
 再建立一个客户端   Client Side Load Balancing (Ribbon)
+
+<!-- 老的 Dalstone 版本  
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-ribbon</artifactId>
 </dependency>
+ -->
 <dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-hystrix</artifactId>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+</dependency>>
+
+
+<!-- 老的 Dalstone 版本  
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-hystrix</artifactId>
 </dependency>
+-->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+</dependency>
+
 
 <dependency>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-actuator</artifactId>
 </dependency>
+
+<!-- 老的 Dalstone 版本  
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
 </dependency>
+ -->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+</dependency>
+<dependency>
+	<groupId>com.netflix.hystrix</groupId>
+	<artifactId>hystrix-javanica</artifactId>
+	<version>1.5.18</version>
+</dependency>
+<dependency> 
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-turbine</artifactId>
+</dependency> 
 
 @SpringBootApplication
-@EnableDiscoveryClient //(spring-cloud-starter-ribbon)  //向服务中心注册 ribbon  和 @LoadBalanced 一起用,  客户端都可做负载均衡,相当于 dubbo consumeer
+@EnableDiscoveryClient //(spring-cloud-starter-netflix-ribbon)  //向服务中心注册 ribbon  和 @LoadBalanced 一起用,  客户端都可做负载均衡,相当于 dubbo consumeer
 
 @EnableHystrix //断路器(如果几台中一台服务不可用,就把这台服务器隔离了,就仿问不到这台机器了) Hystrix后加的
-@EnableHystrixDashboard // 就可以仿问 http://localhost:8764/hystrix 
-//maven加spring-boot-starter-actuator ,http://localhost:8764/hystrix 文本框中输入 http://localhost:8764/hystrix.stream ,2000ms,Monitor Stream 会loading
-//在另一个窗口 http://localhost:8764/hi?name=forezp 时,上一个窗口有图表
+@EnableHystrixDashboard //maven 加 spring-boot-starter-actuator 就可以仿问 http://localhost:8764/hystrix  提示 http://hostname:port/turbine/turbine.stream 
+//文本框中输入 http://localhost:8764/hystrix.stream ,2000ms,Monitor Stream按钮 -> Dalston版本OK ,Finchley版本一直loading  报JS错误???
+
+//在另一个窗口 http://localhost:8764/hi?name=lisi 时,上一个窗口有图表
+@EnableCircuitBreaker  //文本框中输入 http://localhost:8764/actuator/hystrix.stream
 public class ServiceRibbonApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceRibbonApplication.class, args);
@@ -244,7 +300,9 @@ public class HelloService {
 	
 	 @HystrixCommand(fallbackMethod = "hiError")//Hystrix后加的
     public String hiService(String name) {
-        return restTemplate.getForObject("http://SERVICE-HI/hi?name="+name,String.class);  //这里直接SERVICE-HI用名字来连, 用在方法级别
+		 //restTemplate 上有 @LoadBalanced 负载均衡客户端
+        return restTemplate.getForObject("http://SERVICE-HI/hi?name="+name,String.class); 
+		//这里直接SERVICE-HI用名字来连,不区分大小写, 用在方法级别
     }
 	
 	//Hystrix后加的
@@ -272,18 +330,42 @@ spring:
   application:
     name: service-ribbon
 	
+#management.endpoints.web.exposure.include: hystrix.stream
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "*"
+#Cross-origin resource sharing (CORS)  from spring boot
+	  
+	  
 测试  http://localhost:8764/hi?name=forezp 	  发现间隔调用 8762 和 8763 ,因加了 @LoadBalanced
    
 ---客户端一ribbon  用在方法级别 
-  @EnableDiscoveryClient  (spring-cloud-starter-ribbon)
+  @EnableDiscoveryClient  (spring-cloud-starter-netflix-ribbon)
 		  
 		  @LoadBalanced 放在 new RestTemplate()上  
 		  方法中 restTemplate.getForObject("http://SERVICE-HI/hi")
 		  
 
 ---客户端二feign  用在类别级 使用ribbon 即也用 EnableDiscoveryClient
+		<!--  老的Dalston版本
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-feign</artifactId>
+		</dependency>
+		 -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+
+
   @EnableDiscoveryClient
-  @EnableFeignClients    (spring-cloud-starter-feign)  
+  @EnableFeignClients 
 
 	  接口类
 	  @FeignClient(value = "service-hi" ) 
@@ -341,9 +423,33 @@ spring:
   application:
     name: service-feign
 	
-http://localhost:8765/hi?name=forezp  也是 port:8762 和 port:8763切换
+feign:
+  hystrix:
+    enabled: true
+#feign.hystrix.enabled=true
+#feign中使用断路器
+
+http://localhost:8765/hi?name=lisi  也是 port:8762 和 port:8763切换
 
 -- Zuul  默认和Ribbon结合   route and filter    
+
+<!-- 老版本 Dalton
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-zuul</artifactId>
+</dependency>
+ -->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
+</dependency>
+<dependency>
+	<groupId>com.netflix.hystrix</groupId>
+	<artifactId>hystrix-javanica</artifactId>
+	<version>1.5.18</version>
+</dependency>
+
+
 @EnableZuulProxy  //新增加的
 @EnableEurekaClient
 @SpringBootApplication
@@ -365,10 +471,10 @@ spring:
 zuul:  //新增组
   routes:
     api-a:
-      path: /api-a/**
+      path: /api-a/**				#*/
       serviceId: service-ribbon
     api-b:
-      path: /api-b/**
+      path: /api-b/**				#*/
       serviceId: service-feign
 	  
 	  
@@ -418,11 +524,11 @@ public class MyFilter extends ZuulFilter{
 }
 
 测试
-http://localhost:8769/api-a/hi?name=forezp
-http://localhost:8769/api-b/hi?name=forezp&token=123
+http://localhost:8769/api-a/hi?name=lisi
+http://localhost:8769/api-b/hi?name=lisi&token=123
 
---config 分布式配置中心 从Git上读
--server 端
+----config 分布式配置中心 从Git上读
+--server 端
 import org.springframework.cloud.config.server.EnableConfigServer;
 
 @SpringBootApplication
@@ -448,7 +554,7 @@ eureka.client.serviceUrl.defaultZone=http://localhost:8889/eureka/
 
 测试 http://localhost:8888/foo/dev 有返回JSON表示可以从客户端取   {name}/{profile}
 
-https://github.com/forezp/SpringcloudConfig/ 中又个文件config-client-dev.properties文件中有一个属性：
+https://github.com/forezp/SpringcloudConfig/ 中 respo 目录下 又个文件config-client-dev.properties文件中有一个属性：
 foo = foo version 3
 
 文件名格式
@@ -459,7 +565,7 @@ foo = foo version 3
 /{label}/{application}-{profile}.properties
 
 
--client端
+--client端
 @SpringBootApplication
 @RestController
 public class ConfigClientApplication {
@@ -478,7 +584,7 @@ public class ConfigClientApplication {
 spring.application.name=config-client
 spring.cloud.config.label=master
 spring.cloud.config.profile=dev
-spring.cloud.config.uri= http://localhost:8888/
+#spring.cloud.config.uri= http://localhost:8888/
 server.port=8881
 #read git  file format  =  {application}-{profile}.properties
 
@@ -516,18 +622,23 @@ http://localhost:8889/ 显示有两个config server
 #spring.cloud.stream.bindings.input.binder=kafka
 spring.cloud.stream.bindings.output.binder=rabbit
 只能去掉一个
+spring.cloud.bus.enabled=true
+spring.cloud.bus.trace.enabled=true
+management.endpoints.web.exposure.include=bus-refresh
 
-多的配置
+多的配置 spring boot
 spring.rabbitmq.host=localhost
 spring.rabbitmq.port=5672
 #建用户zh，还要在管理界面中分配用户可Can access virtual hosts /
 spring.rabbitmq.username=zh
 spring.rabbitmq.password=123
-management.security.enabled=false
+#management.security.enabled=false
 
- 
-POST 请求 (Firefox的 RESTClient  )  http://localhost:8881/bus/refresh  (config client端) 如更改Git配置,不用重启服务这样也能刷新 (MQ 广播配置文件的更改)
-
+ POST 请求 (Firefox的 RESTClient)
+		 http://localhost:8881/bus/refresh(老Dalston版本) 
+		 http://localhost:8881/actuator/bus-refresh(新的 Content-Type : application/json) 
+						  也可加参数如 /bus-refresh/customers:9000  或  /bus-env/customers:** 
+(config client端) 如更改Git配置,不用重启服务这样也能刷新 (MQ 广播配置文件的更改) 
 
 ----Sleuth
 
@@ -541,19 +652,25 @@ http://localhost:9411
 还有PINPOINT  (也是 Dapper)监控调用哪个链路出现了问题，如响应时间
 https://github.com/naver/pinpoint
 
-
+<!-- 引用jar过时
 	<dependency>
 		<groupId>io.zipkin.java</groupId>
 		<artifactId>zipkin-server</artifactId>
+		<version>2.11.12</version>
 	</dependency>
 
 	<dependency>
 		<groupId>io.zipkin.java</groupId>
 		<artifactId>zipkin-autoconfigure-ui</artifactId>
+		<version>2.11.12</version>
 	</dependency>
-	
+-->
+
 @SpringBootApplication
-@EnableZipkinServer
+
+@EnableZipkinServer//为Dalston版本,Finchley过时了
+//java -jar zipkin-server-2.11.12-exec.jar  后就可 http://127.0.0.1:9411/zipkin/ 或
+//docker run -d -p 9411:9411 openzipkin/zipkin
 public class ServerZipkinApplication {
 
 	public static void main(String[] args) {
@@ -568,11 +685,19 @@ server.port=9411
 	<artifactId>spring-cloud-starter-zipkin</artifactId>
 </dependency>
 
-	import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
+//import org.springframework.cloud.sleuth.sampler.AlwaysSampler;//为Dalston版本,Finchley没有AlwaysSampler
+//	@Bean 
+//	public  defaultSampler(){ //为Dalston版本,Finchley没有AlwaysSampler
+//		return new AlwaysSamplerAlwaysSampler();
+//	}
+	
+	import brave.sampler.Sampler; //brave-5.4.3.jar	
 	@Bean
-	public AlwaysSampler defaultSampler(){
-		return new AlwaysSampler();
+	public Sampler defaultSampler() {
+		return Sampler.ALWAYS_SAMPLE;
 	}
+	//spring.sleuth.sampler.probability (default: 0.1, which is 10 percent). 
+	 
 	
 	@Autowired
 	private RestTemplate restTemplate;
@@ -595,8 +720,16 @@ server.port=9411
 
 	}
 	server.port=8988
-	spring.zipkin.base-url=http://localhost:9411
+	#Dalston version
+	#spring.zipkin.base-url=http://localhost:9411 
+
+	#Finchley version
+	spring.zipkin.baseUrl=http://localhost:9411
+	
 	spring.application.name=service-hi
+	
+	#spring.sleuth.sampler.probability=0.1
+
 ---service-miya 项目
 	@RequestMapping("/hi")
 	public String home(){
@@ -619,7 +752,11 @@ server.port=9411
 	}
 
 server.port=8989
-spring.zipkin.base-url=http://localhost:9411
+#Dalston version
+#spring.zipkin.base-url=http://localhost:9411 
+
+#Finchley version
+spring.zipkin.baseUrl=http://localhost:9411
 spring.application.name=service-miya
 
  
@@ -627,8 +764,49 @@ spring.application.name=service-miya
  请求 http://localhost:8989/miya    后  Find Traces按钮有显示，
  请求 http://localhost:8988/hi  后 Analyze Dependencies按钮有显示
 -----eureka-server 冗余来增加可靠性，当有一台服务器宕机了，服务并不会终止，因为另一台服务存有相同的数据
-测试失败
+echo 127.0.0.1 peer1 >>  C:\Windows\System32\drivers\etc\hosts
+echo 127.0.0.1 peer2 >>  C:\Windows\System32\drivers\etc\hosts
+java EurekaServerApplication --spring.profiles.active=peer1
+java EurekaServerApplication --spring.profiles.active=peer2
+两个服务可同时启动，相互依赖,启动中间有连接错误可忽略
 
+http://127.0.0.1:8761
+http://127.0.0.1:8769  
+每个页面中 registered-replicas列 和  available-replicas列 是对方机器的
+
+---application-peer1.yml
+	
+server:
+  port: 8761
+
+spring:
+  profiles: peer1
+eureka:
+  instance:
+    hostname: peer1
+  client:
+    serviceUrl:
+      defaultZone: http://peer2:8769/eureka/
+--application-peer2.yml
+	
+server:
+  port: 8769
+
+spring:
+  profiles: peer2
+eureka:
+  instance:
+    hostname: peer2
+  client:
+    serviceUrl:
+      defaultZone: http://peer1:8761/eureka/
+
+--客户端连接用 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://peer2:8769/eureka/,http://peer1:8761/eureka/
+ 
 -----Docker 
 有单独的Docker.txt
 windows 下要
@@ -735,22 +913,54 @@ services:
  
 ----- 
 Hystrix Turbine将每个服务Hystrix Dashboard数据进行了整合
+<!-- 老的 Dalston 版本
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-turbine</artifactId>
 </dependency>
+ -->
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-turbine</artifactId>
+</dependency>
+
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-netflix-turbine</artifactId>
 </dependency>
 
-@EnableTurbine 注解包含了@EnableDiscoveryClient注解
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
+</dependency>
 
+@EnableEurekaClient
+@EnableDiscoveryClient
+@RestController
+@EnableHystrix
+@EnableHystrixDashboard
+@EnableCircuitBreaker 
+@EnableTurbine 注解包含了@EnableDiscoveryClient注解
+ //文本框中输入 http://localhost:8764/turbine.stream
+ 
+--application.yml
 spring:
   application.name: service-turbine
 server:
   port: 8769
-security.basic.enabled: false
+  
+#security.basic.enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-origins: "*"
+        allowed-methods: "*"
+#Cross-origin resource sharing (CORS)  from spring boot 
+
 turbine:
   aggregator:
     clusterConfig: default   # 指定聚合哪些集群，多个使用","分割，默认为default。可使用http://.../turbine.stream?cluster={clusterConfig之一}访问
@@ -762,6 +972,12 @@ turbine:
   #此时：turbine.aggregator.clusterConfig需要配置想要监控的应用名称
   # 2. 当clusterNameExpression: default时，turbine.aggregator.clusterConfig可以不写，因为默认就是default
   # 3. 当clusterNameExpression: metadata['cluster']时，假设想要监控的应用配置了eureka.instance.metadata-map.cluster: ABC，则需要配置，同时turbine.aggregator.clusterConfig: ABC
+
+  #combine-host: true
+  combineHostPort: true
+  instanceUrlSuffix: 
+    default: actuator/hystrix.stream
+  
 eureka:
   client:
     serviceUrl:
@@ -802,6 +1018,359 @@ spring:
     name: consul-miya
 server:
   port: 8502
+
+---gateway  有打算弃用 Zuul
+
+ <dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-gateway</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+</dependency>
+
+import reactor.core.publisher.Mono;
+
+@SpringBootApplication
+@EnableConfigurationProperties(UriConfiguration.class)
+@RestController
+public class Application {
+	
+	// 请求 http://127.0.0.1:9999/get 转到  http://httpbin.org/get 返回的数据有Hello:world
+	//curl --dump-header - --header 'Host:www.hystrix.com' http://localhost:9999/delay/3   结果显示fallback
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+	
+	//编码方式
+    @Bean
+    public RouteLocator myRoutes(RouteLocatorBuilder builder, UriConfiguration uriConfiguration) {
+        String httpUri = uriConfiguration.getHttpbin();
+        return builder.routes()
+            .route(p -> p
+                .path("/get")
+                .filters(f -> f.addRequestHeader("Hello", "World"))
+                .uri(httpUri))
+            .route(p -> p
+                .host("*.hystrix.com")
+                .filters(f -> f
+                    .hystrix(config -> config
+                        .setName("mycmd")
+                        .setFallbackUri("forward:/fallback")))
+                .uri(httpUri))
+            .build();
+    } 
+    @RequestMapping("/fallback")
+    public Mono<String> fallback() {
+        return Mono.just("fallback");
+    }
+  
+}
+ 
+@ConfigurationProperties
+class UriConfiguration {
+    
+    private String httpbin = "http://httpbin.org:80";
+
+    public String getHttpbin() {
+        return httpbin;
+    }
+
+    public void setHttpbin(String httpbin) {
+        this.httpbin = httpbin;
+    }
+}
+--
+server:
+  port: 9999
+---spring  cloud test  WireMock
+
+
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+	<exclusions>
+		<exclusion>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<groupId>org.springframework.boot</groupId>
+		</exclusion>
+	</exclusions>
+</dependency>
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.assertj.core.api.Assertions.*;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+		properties = {"httpbin=http://localhost:${wiremock.server.port}"})
+@AutoConfigureWireMock(port = 0)
+public class ApplicationTest {
+
+	@Autowired
+	private WebTestClient webClient;
+
+	@Test
+	public void contextLoads() throws Exception {
+		//Stubs
+		stubFor(get(urlEqualTo("/get"))
+				.willReturn(aResponse()
+					.withBody("{\"headers\":{\"Hello\":\"World\"}}")
+					.withHeader("Content-Type", "application/json")));
+		stubFor(get(urlEqualTo("/delay/3"))
+			.willReturn(aResponse()
+				.withBody("no fallback")
+				.withFixedDelay(3000)));
+
+		webClient
+			.get().uri("/get")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.jsonPath("$.headers.Hello").isEqualTo("World");
+
+		webClient
+			.get().uri("/delay/3")
+			.header("Host", "www.hystrix.com")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody()
+			.consumeWith(
+				response -> assertThat(response.getResponseBody()).isEqualTo("fallback".getBytes()));
+	}
+}
+  
+  
+ --- predicate  断言，它决定了请求会被路由到哪个router 中
+spring:
+  cloud:
+    gateway:
+      routes:
+#      - id: after_route
+#        uri: http://httpbin.org:80
+#        predicates:
+#        - After=2017-01-20T17:42:47.789+08:00[Asia/Shanghai]
+
+# After = org.springframework.cloud.gateway.handler.predicate.AfterRoutePredicateFactory
+# 日期格式是 java.time.ZonedDateTime.parse(str)可解析的
+# 当请求的时间在这个配置的时间之后，请求会被路由到 http://httpbin.org:80
+#测试 http://localhost:9999/get 跳到  http://httpbin.org:80/get
+ 
+  
+  
+      - id: header_route
+        uri: http://httpbin.org
+        predicates:
+        - Header=X-Request-Id, \d+
+#当请求的Header中有X-Request-Id的header名，且header值为数字时，请求会被路由到配置的 uri. 
+#测试用 curl -H 'X-Request-Id:1' localhost:9999/get
+
+      - id: cookie_route
+        uri: http://httpbin.org
+        predicates:
+        - Cookie=chocolate, ch.p
+        
+#请求带有cookie名为 chocolate, cookie值为ch.p 的请求将都会转发到uri       
+#测试用 curl -H 'Cookie:chocolate=ch.p' localhost:9999/get 
+
+
+      - id: host_route
+        uri: http://httpbin.org
+        predicates:
+        - Host=**.somehost.org
+#请求头中含有Host为www.somehost.org 或 beta.somehost.org 的请求将会被路由转发转发到配置的uri
+#测试用     curl -H 'Host:www.somehost.org' localhost:9999/get  
+
+
+#      - id: method_route
+#        uri: http://httpbin.org
+#        predicates:
+#        - Method=GET
+#所有的 GET 类型的请求都会路由转发到配置的uri     
+#测试用    curl localhost:9999/get 如 POST用   curl -XPOST localhost:9999/get
+
+
+      - id: host_route
+        uri: http://example.org
+        predicates:
+        - Path=/foo/{segment}
+#请求路径满足/foo/{segment}的请求将会匹配并被路由，比如/foo/1 、/foo/bar的请求
+#测试用  curl localhost:9999/foo/bar
+
+      - id: query_route
+        uri: http://example.org
+        predicates:
+         - Query=foo, ba.
+        
+#请求中含有参数foo，并且foo的值匹配ba. 正则表达式
+#测试用  curl localhost:9999?foo=bar
+
+ 
+
+#----filters
+      - id: add_request_header_route
+        uri: http://httpbin.org
+        predicates:
+        - Before=2019-01-20T17:42:47.789+08:00[Asia/Shanghai]
+        filters:
+        - AddRequestHeader=X-Request-Foo, Bar
+#AddRequestHeader=org.springframework.cloud.gateway.filter.factory.AddRequestHeaderGatewayFilterFactory
+#会在请求头加上一对请求头，名称为X-Request-Foo，值为Bar
+#测试用  curl localhost:9999/get (使用 filters 一定要有 predicates)
+  
+
+      - id: rewritepath_route
+        uri: https://blog.csdn.net
+        predicates:
+        - Path=/foo1/**			#*/
+        #- Path=/foo1/{segment}
+        filters:
+        - RewritePath=/foo1/(?<segment>.*),/$\{segment}
+# yaml 语法  $\ 转换为 $ 
+#请求 localhost:9999/foo1/forezp ，此时会将请求转发到 https://blog.csdn.net/forezp 的页面
+#不能有两个predicates 都符合  测试要关闭前的filter (add_request_header_route)
+
+
+      - id: mycustome_filter
+        uri: http://httpbin.org
+        predicates:
+         - Host=**.myCustHost.org
+        filters:
+        - RequestTime=true
+#自定义filterFactory，可配置使用
+#测试用     curl -H 'Host:www.myCustHost.org' localhost:9999/get  
+
+ /*
+自定义filterFactory   可用配置文件
+    filters:
+    - RequestTime=false
+*/
+@Bean
+public RequestTimeGatewayFilterFactory elapsedGatewayFilterFactory() {
+return new RequestTimeGatewayFilterFactory();
+} 
+
+
+
+@Bean  //自定义  Filter   要编码
+public RouteLocator customerRouteLocator(RouteLocatorBuilder builder) {
+	return builder.routes()
+		.route(r ->
+	 		r.host("*.hystrix.com") //相当于 predicates 测试用 curl --dump-header - --header 'Host:www.hystrix.com' http://localhost:9999/get 
+			//r.path("/customer/**") //相当于 predicates 测试用 curl localhost:9999/customer/123  会请求到http://httpbin.org/customer/123肯定不存在，但日志有了
+
+				.filters(f -> f.filter(new RequestTimeFilter())//自己的filter
+						.addResponseHeader("X-Response-Default-Foo", "Default-Bar"))
+				.uri("http://httpbin.org:80")
+				.order(0)
+				.id("customer_filter_router")
+		)
+		.build();
+}
+
+// 自定义Filter 要实现GatewayFilter和Ordered  2个接口
+public class RequestTimeFilter implements GatewayFilter, Ordered {
+    private static final Log log = LogFactory.getLog(RequestTimeFilter.class);
+    private static final String REQUEST_TIME_BEGIN = "requestTimeBegin";
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+        exchange.getAttributes().put(REQUEST_TIME_BEGIN, System.currentTimeMillis());//"pre"类型的过滤器
+        return chain.filter(exchange).then(
+                Mono.fromRunnable(() -> {
+                    Long startTime = exchange.getAttribute(REQUEST_TIME_BEGIN);//"post"过滤器
+                    if (startTime != null) {
+                        log.info(exchange.getRequest().getURI().getRawPath() + ": " + (System.currentTimeMillis() - startTime) + "ms");
+                    }
+                })
+        );
+    }
+    @Override
+    public int getOrder() {
+        return 0; //值越大则优先级越低
+    }
+}
+
+
+ 
+#spring.cloud.gateway.default-filters #GatewayFilter作用在所有路由上
+
+
+//自定义 GlobalFilter 不需要在配置文件中配置，作用在所有的路由上
+//curl --dump-header - localhost:9999/get
+@Bean
+public TokenFilter tokenFilter(){
+	return new TokenFilter();
+}
+
+public class TokenFilter implements GlobalFilter, Ordered {
+
+    Logger logger=LoggerFactory.getLogger( TokenFilter.class );
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String token = exchange.getRequest().getQueryParams().getFirst("token");
+        if (token == null || token.isEmpty()) {
+            logger.info( "token is empty..." );
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+        return chain.filter(exchange);
+    }
+    @Override
+    public int getOrder() {
+        return -100;
+    }
+}
+
+
+限流
+计数器算法
+1s 内的前10ms，已经通过了100个请求，那后面的990ms，只能眼巴巴的把请求拒绝，我们把这种现象称为“突刺现象”
+
+漏桶算法
+
+令牌桶算法
+
+
+Redis和lua脚本实现了令牌桶的方式
+ spring-cloud-gateway-core-2.0.2.RELEASE.jar/META-INF/scripts/request_rate_limiter.lua 
+<!--  Redis RateLimiter  -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+</dependency>
+
+
+
+--gateway eureka
+
+spring:
+  application:
+    name: sc-gateway-server
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false                 #为true，表明gateway开启服务注册和发现的功能，false使用下面的routes配置
+          lowerCaseServiceId: true       #是将请求路径上的服务名配置为小写
+      routes:
+      - id: service-hi
+        uri: lb://SERVICE-HI           #lb://SERVICE-HI即service-hi服务的负载均衡地址
+        predicates:
+          - Path=/demo/**     # */ .discovery.locator.enabled 改为false 就可 localhost:8081/demo/hi?name=1323  
+        filters:
+          - StripPrefix=1       #自带的，去除第1个，转发之前将/demo去掉
+          - RequestTime=true      #自定义FilterFactory
+
+
+
+
 
 ---
 

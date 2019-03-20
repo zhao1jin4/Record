@@ -821,6 +821,18 @@ public static final String strKey = "";
 
 申请key失败??? 
  
+//------------selendroid 自动化测试 Selenium的 androidDriver
+是ebay的  http://selendroid.io/
+
+<dependency>
+  <groupId>io.selendroid</groupId>
+  <artifactId>selendroid-client</artifactId>
+  <version>0.17.0</version>
+</dependency
+还有很多其它依赖
+
+
+
 //---android  推送消息
 
 MQTT 协议 即时通讯协议
@@ -838,6 +850,8 @@ Android图片缓存之Glide
 Flutter是谷歌的移动UI框架，可以快速在iOS和Android上构建高质量的原生用户界面 免费、开源
 
 Weex 是阿里开源的一款跨平台移动开发工具
- 
+
+ligGDX Java游戏开发框架，运行在 Android ,iOS
+Xamarin  用Ｃ#开发,生成Ａndroid ,iOS代码
 
 

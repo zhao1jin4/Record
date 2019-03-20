@@ -225,7 +225,7 @@ set JAVA_OPTS=-Xss256K -Xms256m -Xmx1024m   -XX:NewSize=128m -XX:MaxNewSize=256m
 -XX:-RelaxAccessControlCheck  默认是禁用的,如果用老版本字节码可以启用
 -XX:+ScavengeBeforeFullGC     默认启用,不建议禁用,在做full GC 前做yong generation GC   ,  scavenge打扫
 -XX:+UseBoundThreads		  只对Solaris有效,绑定用户级线程到内核线程
--XX:+UseConcMarkSweepGC    	  默认禁用,为old generation 使用(CMS)收集,如-XX:+UseParallelGC 达不到效果使用这个,还可使用-XX:+UseG1GC,
+-XX:+UseConcMarkSweepGC    	  9.0 过时选项　默认禁用,为old generation 使用(CMS)收集,如-XX:+UseParallelGC 达不到效果使用这个,还可使用-XX:+UseG1GC,
 								如启用 -XX:+UseParNewGC 也自动设置,不要禁用UseParNewGC,
 -XX:+UseGCOverheadLimit		 限制GC的运行时间.如果GC耗时过长,就抛OutOfMemory,并行GC如果98%的时间在收集,少于2%的堆也抛OutOfMemory
 -XX:+UseLWPSynchronization   只对Solaris,LWP-based 代替线程的同步
@@ -459,7 +459,7 @@ jstat -gcutil [进程号]  间隔毫秒  总数
 	S1  — Heap上的 Survivor space 1 区已使用空间的百分比
 	E   — Heap上的 Eden space 区已使用空间的百分比
 	O   — Heap上的 Old space 区已使用空间的百分比
-	M: Metaspace utilization as a percentage of the space's current capacity.
+	M: Metaspace utilization as a percentage of the space' s current capacity.  '
 	YGC — 从应用程序启动到采样时发生 Young GC 的次数
 	YGCT– 从应用程序启动到采样时 Young GC 所用的时间(单位秒)
 	FGC — 从应用程序启动到采样时发生 Full GC 的次数
@@ -592,6 +592,12 @@ ResultSet rs=prepare.executeQuery();
 prepare.setString(1,1001);//列索引以1开始
 resultSet.getString(1);//列索引以1开始
 
+
+jdbc:mariadb://localhost:3306/DB?user=root&password=myPassword
+Class.forName("org.mariadb.jdbc.Driver")
+
+
+
 org.h2.jdbcx.JdbcDataSource
 org.h2.Driver
 方式1: jdbc:h2:tcp://localhost:9092/test
@@ -708,7 +714,7 @@ String[] parts=SPACES.split("this is a hello	text	file");
 String matches(".") "."表示任何的一个字符  要匹配"\\."   []要中的一个,可以&&,^
 
 eclipse 中ctrl+shift+/加注释,ctrl+shift+\取消注释
-"\\".matches("\\\\")//后面的是表达式
+"\\".matches("\\\\")//后面的是表达式  "
 \b匹配单词边界，如空格，换行
 POSIX 表示可移植操作系统接口（Portable Operating System Interface ，缩写为 POSIX 是为了提高 UNIX 环境下应用程序的可移植性
 Matcher对象m.find("xx");在匹配的字串中找子串，找到返回true
@@ -846,6 +852,7 @@ class MyClassFileTransformer implements ClassFileTransformer
 		InputStream is  = new FileInputStream(file);
 		long length = file.length();
 		byte[] bytes = new byte[(int) length];
+		is.read(bytes);
 		is.close();
 		return bytes;
 	}
@@ -1160,8 +1167,14 @@ birthday.until(IsoChronology.INSTANCE.dateNow())//返回  Period
 	.getYears();
 
 ZoneId.systemDefault();
-ZonedDateTime.of(dateAndTime, ZoneId.of("Asia/Shanghai"));
+ZonedDateTime.of(dateAndTime, ZoneId.of("Asia/Shanghai"));//
  
+TimeZone.getTimeZone("GMT+8");//方式一
+TimeZone.getTimeZone(ZoneId.of("Asia/Shanghai"));//方式二
+String[] countryCities=TimeZone.getAvailableIDs();//所有 大州/市
+
+java.time.ZonedDateTime.parse("2017-01-20T17:42:47.789+08:00[Asia/Shanghai]");
+	
  
 //接口中有方法实现,方法前加default或static
 //default方法 能够添加新的功能到已经存在的接口，确保与采用老版本这些接口编写的代码的二进制兼容性
@@ -1271,12 +1284,19 @@ class MyRecursiveTask extends RecursiveTask<Integer> {  //变RecursiveTask
 }
 //---------JDBC 
 DatabaseMetaData dbMetaData= conn.getMetaData();
-ResultSet tablesRS=dbMetaData.getTables(null, null, null, new String[]{"TABLE"});
+ResultSet typeRS=dbMetaData.getTableTypes();//有TABLE，VIEW，SYSTEM TABLE ，SYSTEM VIEW
+while(typeRS.next())
+{
+	System.out.println(typeRS.getString(1));
+}
+//MySQL8报错
+/*ResultSet tablesRS=dbMetaData.getTables(null, null, null, new String[]{"TABLE"});
 System.out.println("=======所有的表:");
 while(tablesRS.next())
 {
 	System.out.println(tablesRS.getString("TABLE_NAME"));
 }
+*/
 
 String dbName=dbMetaData.getDatabaseProductName();//Oracle
 int dbMajor=dbMetaData.getDatabaseMajorVersion();//11
@@ -1946,7 +1966,7 @@ http://download.java.net/jdk8/docs/technotes/guides/jmx/tutorial/tutorialTOC.htm
 
 tomcat 7 对JMX的支持 tomcat-users.xml 中加配置 <role rolename="manager-jmx"/>
 Tomcat 7 仿问http://127.0.0.1:8080  ->Server Statas按钮->Complete Server Status
-	在下面的列表中有 JMXProxy [ /jmxproxy/* ]  表示是一个 Servlet的配置(manager项目中的web.xml也可以看到)
+	在下面的列表中有 JMXProxy [ /jmxproxy/* ]  表示是一个 Servlet的配置(manager项目中的web.xml也可以看到)  */
 JConsole 监视 tomcat 在MBean标签可以看到User->User和Role是tomcat-users.xml中的配置
 JConsole 的选项"远程进程" 在JDK7的提示 用法 <hostname>:<port> 或 service:jmx:<protocol>:<sap>
 
@@ -4280,8 +4300,11 @@ Beans.instantiate(classloader,"org.MyClass");
 ResultSet .getTimestamp反加Timestamp,SimpleDateFormate  format( timestamp)有日期，有时间
 Timestamp 的valueOf(String s)  返回一个Timestamp
 GregorianCalendar(TimeZone zone)
-TimeZone getTimeZone(String ID) 
-     static String[] getAvailableIDs()  
+
+TimeZone 的方法
+	TimeZone getTimeZone(String ID)
+	TimeZone getTimeZone(ZoneId zoneId) 
+	static String[] getAvailableIDs()  
 
 
 SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//不是同步，不是线程安全的,如要写static工具方法,要每次new

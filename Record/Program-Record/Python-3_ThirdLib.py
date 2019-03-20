@@ -68,5 +68,6 @@ https://pypi.org/project/kafka-python/
 pip install kafka-python
 
 
+=====================Selenium  自动化测试
 
 

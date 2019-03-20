@@ -8,6 +8,10 @@ apache CloudStack的目标是提供高度可用的、高度可扩展的能够进
 regions -> zone->Pod, secondary storage ->cluster->host, primary storage
 
 ===========openStack
+Infrastructure-as-a-Service (IaaS)
+ 
+openStack 对 KVM 支持最好 (redhat 支持)
+
 cloudStack/openStack 实现  IaaS(Infrastructure as a Service ) 层 , 
 			Hadoop     实现	 PaaS (Platform as a service)层  ,
 							 SaaS(Software-as-a- Service)
@@ -15,4 +19,33 @@ cloudStack/openStack 实现  IaaS(Infrastructure as a Service ) 层 ,
 cloudStack(上层) , openStack(底层,HP基于它后来又退出,可能Kubernetes更好,Solaris-11.2 使用它)
  	
 中国银联采用 SUSE 部署 OpenStack ,目前已是全球第二大开源软件项目，仅次于Linux。 OpenStack能支持所有的 x86架构服务器
-社区活越度大,用python语言写的,未来支持Python 3 ,支持PostgreSQL,MySQL,SQLite 
+社区活越度大,用python语言写的
+
+
+
+
+官方说　Python 2.7 使用截止 2020年,后面用python-3.5(从Ｈ版本就开始做python3)
+ 
+ 目前最新稳定的Rocky版本
+ 
+ 官方文档基于的操作系统有
+  SUSE-12 SP4,openSUSE Leap 15 是目前最新的　OK
+  RedhatEL7 , CentOS 7
+  Ubuntu 16.04 (LTS)　而目前最新的是18.10
+  没有fedora
+  
+ https://docs.openstack.org/liberty/zh_CN/install-guide-obs/
+ 
+ 
+ 数据库: mariadb,MySQL
+ NoSQL:  mongodb
+ AMQP :  rabbitmq-server
+ cache:  memcached
+ 
+ 
+ 部署管理工具　Puppet 或者 Chef
+ 
+ 
+ 
+ 
+ 
