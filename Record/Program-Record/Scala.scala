@@ -1,5 +1,5 @@
 ﻿函数式编程 FP
-Scala-2.12.4  不支持JDK9
+Scala-2.12.8 只支持JDK8, 不支持 JDK9 和 以上版本
 
 eclipse_4.6.3_plugin_Scala IDE-4.5   dropsin安装无效  about->Installation details...按钮 ->Configuration标签->View Error Log 按钮 
 (不能help安装,只能MarketPlace在线安装版本老点,或者输入网址在线安装 支持play  )

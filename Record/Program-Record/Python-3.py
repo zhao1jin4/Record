@@ -38,7 +38,7 @@ Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 ----- windows 
 
 如果下载.exe安装版,.py文件可以双击执行
-安装版本默认安装在 C:\Users\zhaojin\AppData\Local\Programs\Python\Python36  有.chm文档,有Lib目录是源码
+安装版本默认安装在 C:\Users\zh\AppData\Local\Programs\Python\Python36  有.chm文档,有Lib目录是源码
 
 ----linux 版源码安装 
 CentOS只有python2
@@ -69,8 +69,8 @@ python3 setup.py install  默认安装在 /usr/local/bin/pip
 
 
 --windows pip安装 
-C:\Users\zhaojin\AppData\Local\Programs\Python\Python36\Scripts>easy_install.exe pip  
-要设置 PYTHONPATH=C:\Users\zhaojin\AppData\Local\Programs\Python\Python36\Lib\site-packages
+C:\Users\zh\AppData\Local\Programs\Python\Python36\Scripts>easy_install.exe pip  
+要设置 PYTHONPATH=C:\Users\zh\AppData\Local\Programs\Python\Python36\Lib\site-packages
 pip3 install PyMySQL   
 pip3 install Scrapy  				windows下要 Visual C++ 14.0 (VC2015)
 pip3 install --upgrade tensorflow 	默认CPU 

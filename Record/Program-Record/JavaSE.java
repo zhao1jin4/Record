@@ -554,6 +554,25 @@ UNIX要
 ------------------
 ------------------JDBC
 
+sun.jdbc.odbc.JdbcOdbcDriver
+jdbc:odbc:db
+
+org.h2.jdbcx.JdbcDataSource
+org.h2.Driver
+方式1: jdbc:h2:tcp://localhost:9092/test
+方式2: jdbc:h2:tcp://localhost/~/test
+方式3: jdbc:h2:mem
+
+
+com.microsoft.sqlserver.jdbc.SQLServerDriver  //2005新的
+jdbc:sqlserver://localhost:1433;databaseName=mydb;
+ 
+
+Class.forName("com.ibm.db2.jcc.DB2Driver"); 
+String remoteDB2Url ="jdbc:db2://10.1.5.226:8000/sample";
+Connection con=DriverManager.getConnection(remoteDB2Url,"db2instl","123");
+
+
 Oracle AL32UTF8 varchar2如中文在数据中占用三个字节,nvarchar2中文是两个字节
 oracle.jdbc.xa.client.OracleXADataSource
 oracle.jdbc.driver.OracleDriver
@@ -561,12 +580,18 @@ jdbc:oracle:thin:@127.0.0.1:1521:orcl    对  SID
 jdbc:oracle:thin:@//127.0.0.1:1521/orcl   对  service Name
 
 
+jdbc:mariadb://localhost:3306/DB?user=root&password=myPassword
+Class.forName("org.mariadb.jdbc.Driver") 
+
+
 <dependency>
 	<groupId>mysql</groupId>
 	<artifactId>mysql-connector-java</artifactId> 
-	<version>8.0.11</version> <!--5.1.45, 8.0.11 -->
+	<version>8.0.15</version> <!--5.1.45, 8.0.15 -->
 </dependency>
-com.mysql.jdbc.jdbc2.optional.MysqlXADataSource  
+依赖于 protobuf-java 3.6.1
+com.mysql.jdbc.jdbc2.optional.MysqlXADataSource //MySQL 5.x
+com.mysql.cj.jdbc.MysqlXADataSource //MySQL 8
 
 com.mysql.jdbc.Driver  //MySQL 5.x
 com.mysql.cj.jdbc.Driver //MySQL 8
@@ -592,32 +617,7 @@ ResultSet rs=prepare.executeQuery();
 prepare.setString(1,1001);//列索引以1开始
 resultSet.getString(1);//列索引以1开始
 
-
-jdbc:mariadb://localhost:3306/DB?user=root&password=myPassword
-Class.forName("org.mariadb.jdbc.Driver")
-
-
-
-org.h2.jdbcx.JdbcDataSource
-org.h2.Driver
-方式1: jdbc:h2:tcp://localhost:9092/test
-方式2: jdbc:h2:tcp://localhost/~/test
-方式3: jdbc:h2:mem
-
-
-com.microsoft.sqlserver.jdbc.SQLServerDriver  //2005新的
-jdbc:sqlserver://localhost:1433;databaseName=mydb;
-
-sun.jdbc.odbc.JdbcOdbcDriver
-jdbc:odbc:db
-
-
-Class.forName("com.ibm.db2.jcc.DB2Driver"); 
-String remoteDB2Url ="jdbc:db2://10.1.5.226:8000/sample";
-Connection con=DriverManager.getConnection(remoteDB2Url,"db2instl","123");
-
-
-Connection conn;
+ 
 //MySQL 与 JDBC 支持的完全一致
 con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
 con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);//Oracle 默认
@@ -626,11 +626,41 @@ con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 //Oracle 只支持  READ COMMITTED  和 SERIALIZABLE; 
 
 
+
+----MySQL XdevApI
+//X DevAPI  异步API 基于 X Protocol,依赖于com.google.protobuf
+//---SQL
+Session mySession = new SessionFactory().getSession("mysqlx://localhost:33060/mydb?user=user1&password=user1"); 
+mySession.sql("USE mydb").execute();
+SqlResult myResult = mySession.sql("SELECT 1+1").execute(); 
+Row row = myResult.fetchOne();
+System.out.println(row.getInt(0)); 
+mySession.close();
+
+
+//---NoSQL
+//mysqlx:协议,端口是33060
+Session mySession = new SessionFactory().getSession("mysqlx://localhost:33060/mydb?user=user1&password=user1");
+Schema myDb = mySession.getSchema("mydb");
+Collection myColl = myDb.createCollection("my_collection");
+myColl.add("{\"name\":\"Sakila\", \"age\":15}").execute();
+myColl.add("{\"name\":\"Susanne\", \"age\":24}").execute();
+myColl.add("{\"name\":\"User\", \"age\":39}").execute();
+// Find a document
+DocResult docs = myColl.find("name like :name AND age < :age")
+		.bind("name", "S%").bind("age", 20).execute();
+DbDoc doc = docs.fetchOne();
+System.out.println(doc);
+myDb.dropCollection("my_collection");
+
+
+----
+
 META-INF/MANIFEST.MF 文件中的Main函数不会找classpath环境变量要用Class-Path：
 :后一定要有一个空格,:前不能有空格, 多个jar包用空格分隔,可以把jar包放在目录下也可以放在根下
 引用的第三方的jar包只能放在本jar包外面( eclipse copy 选项)
 
-Main-Class: org.zhaojin.TestSWT
+Main-Class: org.zh.TestSWT
 Class-Path: . lib/swt.jar mysql.jar
 
 jar包里包含jar包,不行的,必须用eclipse->export->runnable jar->package required libraries
@@ -641,7 +671,7 @@ eclipse 也可以把第三方jar包中class解包放到自己的jar中( extract 
 
 jar -m Manifest文件
 
-wsimport -s c:/tmp/ws_code -p org.zhaojin.ws -keep  http://localhost:8000/helloWorld?wsdl 生成webservice代码
+wsimport -s c:/tmp/ws_code -p org.zh.ws -keep  http://localhost:8000/helloWorld?wsdl 生成webservice代码
 JDK 11 去除了 wsimport
 -----------------远程 调试
 作为调试服务器的目标 VM
@@ -674,7 +704,10 @@ window 目录 下的win.ini文件是map形式的
 ArrayList 的后台是ojbect []  动态增长
 		e有一个toArray方法返object[]
 Arrays 类的static asList(object[]) 返回一个List是一个固定心寸的list
-Iterator 当 ArrayList.iterator()时,不能增加,删除ArrayList的元素,iterator.remove方法是删除前一个对象， 
+
+Iterator 当 ArrayList.iterator()时,不能增加,删除ArrayList的元素,iterator.remove方法是删除前一个对象，
+Enumeration<String> enumer= vector.elements(); //Enumeration没 有remove方法，vector 可以删
+
 Collections 的类全部方法是static sort(List ,Comparator接口)
 											Comparator reverseOrder() 返序排列
 											min(),max();
@@ -886,9 +919,53 @@ Instrumentation类的
 appendToBootstrapClassLoaderSearch(JarFile jarfile)  
 appendToSystemClassLoaderSearch(JarFile jarfile)  
 
----------
+ 
+--------------------------JDK12 新特性
+idea-2019.1 可选到12的编译级别，但eclipse-4.11.0(2019-03)选不到12的
+
+实验阶段的 低暂停的垃圾收集器 Shenandoah
+-XX:+UseShenandoahGC
 
 
+Microbenchmark  基于Java Microbenchmark Harness （JMH）
+
+---switch 功能还是Preview阶段
+case可多个enum,可没有break;
+	
+	enum Week{
+		MONDAY, TUESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY
+	}
+	Week day=Week.FRIDAY;
+	int numLetters = switch (day) {
+		case MONDAY, FRIDAY, SUNDAY -> System.out.println(6);
+		case TUESDAY                -> System.out.println(7);
+		case THURSDAY, SATURDAY     -> System.out.println(8);
+		case WEDNESDAY              -> System.out.println(9);
+	}
+	
+	String s="Foo";
+	int result = switch (s) {
+	case "Foo": 
+		break 1;
+	case "Bar":
+		break 2;
+	default:
+		System.out.println("Neither Foo nor Bar, hmmm...");
+		break 0;
+	};
+
+每个class文件有常量池
+
+class data-sharing (CDS) archive
+-Xshare:dump 
+-Xshare:auto  JDK11默认是启用的
+-Xshare:off
+
+G1
+	当 G1 垃圾回收器的回收超过暂停目标，则能中止垃圾回收过程。
+	改进 G1 垃圾回收器，以便在空闲时自动将 Java 堆内存返回给操作系统
+	
+	
 --------------------------JDK11 新特性
 //javax.jws.WebService web;//JDK 11没有这个类 
 //删java.xml.ws , java.xml.bind  ,java.xml.ws.annotation 
@@ -2227,16 +2304,16 @@ attr.add("organizationalPerson");
 attr.add("inetOrgPerson");//inetOrgPerson 继承自organizationalPerson 继承自 person继承自top
 
 attrs.put(attr);
-attrs.put("cn", "lizhaojin");//cn和sn属性  是inetOrgPerson必须的,显示为粗体
+attrs.put("cn", "zh");//cn和sn属性  是inetOrgPerson必须的,显示为粗体
 attrs.put("sn", "li");
 attrs.put("userpassword", "123456");//不是粗体,表示可选属性,是userPassword 的可选属性
 
-dirContext.createSubcontext("cn=lizhaojin",attrs);//创建节点,cn=lizhaojin是显示的目录名,或cn=lizhaojin,ou=Account(前提是ou=Account要已存在)
-dirContext.getAttributes("cn=lizhaojin")//就是attrs
+dirContext.createSubcontext("cn=zh",attrs);//创建节点,cn=zh是显示的目录名,或cn=zh,ou=Account(前提是ou=Account要已存在)
+dirContext.getAttributes("cn=zh")//就是attrs
 
 Attributes newattrs = new BasicAttributes();
 newattrs.put("...","...");
-dirContext.modifyAttributes("cn=lizhaojin",DirContext.REPLACE_ATTRIBUTE,newattrs);//属性操作
+dirContext.modifyAttributes("cn=zh",DirContext.REPLACE_ATTRIBUTE,newattrs);//属性操作
 					//DirContext.REPLACE_ATTRIBUTE
 					//DirContext.ADD_ATTRIBUTE
 					//DirContext.REMOVE_ATTRIBUTE
@@ -2265,7 +2342,7 @@ Set<ObjectName> names = conn.queryNames(null,null);
 c1.close();
 
 //删除节点
-dirContext.destroySubcontext("cn=lizhaojin");
+dirContext.destroySubcontext("cn=zh");
 //--Corba
 
 //------Jini 没用的
@@ -2522,7 +2599,7 @@ keytool -genkey -alias server -keyalg RSA -keystore C:/temp/serverKeystore   //�
 Enter keystore password:				//如 serverkeystorepass
 Re-enter new password:
 What is your first and last name?
-  [Unknown]:  lizhaojin
+  [Unknown]:  zh
 What is the name of your organizational unit?
   [Unknown]:  TCS
 What is the name of your organization?
@@ -2533,7 +2610,7 @@ What is the name of your State or Province?
   [Unknown]:  HeiLongJian
 What is the two-letter country code for this unit?
   [Unknown]:  CN
-Is CN=lizhaojin, OU=TCS, O=TATA, L=Harbin, ST=HeiLongJian, C=CN correct?  
+Is CN=zh, OU=TCS, O=TATA, L=Harbin, ST=HeiLongJian, C=CN correct?  
 //CN=Common name, OU=organizational unit,o=organization,L=Locality,ST=state,C=country,
 还要  key password			//如 serverkeypass
 

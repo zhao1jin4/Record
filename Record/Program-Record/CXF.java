@@ -16,13 +16,13 @@ sample 目录下的java_first_jaxws  运行 OK
 sample 目录下的java_first_pojo
  
 
-用wsdl2java -p org.zhaojin  HelloWorld.wsdl //生成在指定包名
+用wsdl2java -p org.zh  HelloWorld.wsdl //生成在指定包名
  
 //接口和实现类要在同一个包下,因为名称空间,生成的wsdl不能有<wsdl:import location=
  
 ===== sample 目录下的 java_first_jaxws 
 ------HelloWorld.java
-package org.zhaojin.cxf;
+package org.zh.cxf;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 @WebService
@@ -32,10 +32,10 @@ public interface HelloWorld
 }
 
 --------HelloWorldImpl.java
-package org.zhaojin.cxf;
+package org.zh.cxf;
 import javax.jws.WebService;
 
-@WebService(endpointInterface = "org.zhaojin.cxf.HelloWorld", serviceName = "helloSer")
+@WebService(endpointInterface = "org.zh.cxf.HelloWorld", serviceName = "helloSer")
 public class HelloWorldImpl implements HelloWorld
 {
 	public String sayHi(String text)
@@ -45,7 +45,7 @@ public class HelloWorldImpl implements HelloWorld
 }
 
 ----------Server.java
-package org.zhaojin.cxf.server;
+package org.zh.cxf.server;
 import javax.xml.ws.Endpoint;
 public class Server
 {
@@ -60,15 +60,15 @@ public class Server
 }
 
 -------------ClientJAXWS.java
-package org.zhaojin.cxf.client;
+package org.zh.cxf.client;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
-import org.zhaojin.cxf.HelloWorld;
+import org.zh.cxf.HelloWorld;
 public class ClientJAXWS 
 {															
-    private static final QName SERVICE_NAME = new QName("http://cxf.zhaojin.org_1/",  "HelloSer_xx"); //无所谓是什么
-    private static final QName PORT_NAME    = new QName("http://cxf.zhaojin.org/", "HelloWorldPort"); //PORT 不可以变,包名返写
+    private static final QName SERVICE_NAME = new QName("http://cxf.zh.org_1/",  "HelloSer_xx"); //无所谓是什么
+    private static final QName PORT_NAME    = new QName("http://cxf.zh.org/", "HelloWorldPort"); //PORT 不可以变,包名返写
     public static void main(String[] args)
     {
 		Service service = Service.create(SERVICE_NAME);
@@ -82,7 +82,7 @@ public class ClientJAXWS
 
 ===== 上 java_first_jaxws 
 
-wsimport  -s c:/tmp/ws_code -p org.zhaojin.ws -encoding utf8 -keep  http://localhost:8000/helloWorld?wsdl  
+wsimport  -s c:/tmp/ws_code -p org.zh.ws -encoding utf8 -keep  http://localhost:8000/helloWorld?wsdl  
 生成webservice代码 -s的目录要是已经存的
 生成的类有 @WebServiceClient 注释的类 new出来
 	构造器传URL可带?wsdl,也可不带,和new QName 参数同@WebServiceClient
@@ -230,7 +230,7 @@ getAddr(){...}
 
 
 ----------ClientW3C.java
-package org.zhaojin.cxf.client;
+package org.zh.cxf.client;
 import java.util.Iterator;
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.Name;
@@ -245,7 +245,7 @@ public class ClientW3C
 {
 	public static void main(String[] args) 
 	{
-		String NAMESPACE_URI = "http://cxf.zhaojin.org/";
+		String NAMESPACE_URI = "http://cxf.zh.org/";
 		String PREFIX = "tns";
 		String URL = "http://localhost:8000/helloWorld";
 		String REQ_NAME="sayHi";
@@ -270,7 +270,7 @@ public class ClientW3C
 	//			<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
 	//				<SOAP-ENV:Header/>
 	//				<SOAP-ENV:Body>
-	//					<tns:sayHi xmlns:tns="http://server.webservice.zhaojin.org/">
+	//					<tns:sayHi xmlns:tns="http://server.webservice.zh.org/">
 	//						<text>Jack</text>
 	//					</tns:sayHi>
 	//				</SOAP-ENV:Body>
@@ -286,7 +286,7 @@ public class ClientW3C
 				
 				requestMsg.writeTo(System.out);
 //				<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
-//						xmlns:tns="http://cxf.zhaojin.org/">
+//						xmlns:tns="http://cxf.zh.org/">
 //						<SOAP-ENV:Header />
 //						<SOAP-ENV:Body>
 //							<tns:sayHi>
@@ -316,7 +316,7 @@ public class ClientW3C
 			System.out.println();
 //			<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
 //				<soap:Body>
-//					<ns1:sayHiResponse xmlns:ns1="http://server.webservice.zhaojin.org/">
+//					<ns1:sayHiResponse xmlns:ns1="http://server.webservice.zh.org/">
 //						<return>Hello Jack</return>
 //					</ns1:sayHiResponse>
 //				</soap:Body>
@@ -440,7 +440,7 @@ POJO的客户 ClientProxyFactoryBean factory=new ClientProxyFactoryBean();//CXF�
 	</servlet-mapping>
 	
 	
-package org.zhaojin.cxf.spring;  
+package org.zh.cxf.spring;  
 //client 和server必须是相同的包名
  @WebService  
  public interface HelloWorld 
@@ -449,7 +449,7 @@ package org.zhaojin.cxf.spring;
 	 public List<User> sayHitoUser(User user,User user2); 
  }
  
-package org.zhaojin.cxf.spring;
+package org.zh.cxf.spring;
 //client 和server必须是相同的包名
 public class User
 {	
@@ -488,7 +488,7 @@ cxf-core-3.0.2.jar  的依赖
        </bean>  
 	    <!-- 测试使用  http://localhost:8080/J_CXF_Spring/ws -->
       <!-- 引用id使用# -->
-      <bean id="hello" class="org.zhaojin.cxf.spring.server.HelloWorldImpl" />  
+      <bean id="hello" class="org.zh.cxf.spring.server.HelloWorldImpl" />  
        <jaxws:endpoint  implementor="#hello" address="/HelloWorld">  
          <jaxws:serviceFactory>  
              <ref bean="jaxWsServiceFactoryBean"/>  
@@ -503,9 +503,9 @@ cxf-core-3.0.2.jar  的依赖
       </jaxws:endpoint>  
 
 	<!--  只标准的 -->
-    <bean id="myServiceImpl" class="org.zhaojin.cxf.spring.MyWebServcieImpl">
+    <bean id="myServiceImpl" class="org.zh.cxf.spring.MyWebServcieImpl">
     </bean>
-     <jaxws:server serviceClass="org.zhaojin.cxf.spring.MyWebServcie"
+     <jaxws:server serviceClass="org.zh.cxf.spring.MyWebServcie"
                   address="/myWebServicee">
         <jaxws:features>
             <bean class="org.apache.cxf.feature.LoggingFeature"/>
@@ -530,12 +530,12 @@ cxf-core-3.0.2.jar  的依赖
 		<property name="dataBinding" ref="aegisBean" />
 	</bean>
 
-	<bean id="client" class="org.zhaojin.cxf.spring.HelloWorld" factory-bean="clientFactory"
+	<bean id="client" class="org.zh.cxf.spring.HelloWorld" factory-bean="clientFactory"
 		factory-method="create" />
 	
 	<bean id="clientFactory" class="org.apache.cxf.frontend.ClientProxyFactoryBean">
 		<property name="serviceFactory" ref="serviceFactoryBean" />
-		<property name="serviceClass" value="org.zhaojin.cxf.spring.HelloWorld" />
+		<property name="serviceClass" value="org.zh.cxf.spring.HelloWorld" />
 		<property name="address" value="http://localhost:8080/J_CXF_Spring/ws/HelloWorld" />
 	</bean>
 </beans>   
@@ -544,7 +544,7 @@ private static ClassPathXmlApplicationContext context;
 @BeforeClass
 public static void beforeClass()
 {
-	context = new ClassPathXmlApplicationContext(new String[] { "org/zhaojin/cxf/spring/client/client-beans.xml" });
+	context = new ClassPathXmlApplicationContext(new String[] { "org/zh/cxf/spring/client/client-beans.xml" });
 }
 @AfterClass
 public static void afterClass()
@@ -626,13 +626,13 @@ public final class ClientTest
 
 	<bean id="clientFactory" class="org.apache.cxf.frontend.ClientProxyFactoryBean">
 		<property name="serviceFactory" ref="serviceFactoryBean" />
-		<property name="serviceClass" value="org.zhaojin.cxf.spring.HelloWorld" />
+		<property name="serviceClass" value="org.zh.cxf.spring.HelloWorld" />
 		<property name="address" 	value="http://localhost:8080/J_CXF_Spring/ws/HelloWorld" />
 	</bean>
 	
-	<bean id="jaxMyServiceClient" class="org.zhaojin.cxf.spring.MyWebServcie" factory-bean="jaxMyServiceClientFactory" factory-method="create"/>
+	<bean id="jaxMyServiceClient" class="org.zh.cxf.spring.MyWebServcie" factory-bean="jaxMyServiceClientFactory" factory-method="create"/>
 	<bean id="jaxMyServiceClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
-		<property name="serviceClass" value="org.zhaojin.cxf.spring.MyWebServcie"/>
+		<property name="serviceClass" value="org.zh.cxf.spring.MyWebServcie"/>
 		<property name="address" value="http://localhost:8080/J_CXF_Spring/ws/myWebService"/>
 	</bean>
 --------server-eans.xml
@@ -657,14 +657,14 @@ public final class ClientTest
     
         <!-- 方法1 -->
       <jaxws:endpoint   
-          implementor="org.zhaojin.cxf.spring.server.HelloWorldImpl" address="/HelloWorld">  
+          implementor="org.zh.cxf.spring.server.HelloWorldImpl" address="/HelloWorld">  
           <jaxws:serviceFactory>  
               <ref bean="jaxWsServiceFactoryBean"/>  
           </jaxws:serviceFactory>  
        </jaxws:endpoint>  
        
          <!-- 方法2  引用id使用# -->
-       <bean id="hello" class="org.zhaojin.cxf.spring.server.HelloWorldImpl" />  
+       <bean id="hello" class="org.zh.cxf.spring.server.HelloWorldImpl" />  
         <jaxws:endpoint  
           implementor="#hello" address="/HelloWorld">  
           <jaxws:serviceFactory>  
@@ -673,9 +673,9 @@ public final class ClientTest
        </jaxws:endpoint>  
 	 
 	 <!--  只标准的 -->
-	<bean id="myServiceImpl" class="org.zhaojin.cxf.spring.MyWebServcieImpl">
+	<bean id="myServiceImpl" class="org.zh.cxf.spring.MyWebServcieImpl">
 	</bean>
-	<jaxws:server  serviceClass="org.zhaojin.cxf.spring.MyWebServcie"  address="/myWebService">
+	<jaxws:server  serviceClass="org.zh.cxf.spring.MyWebServcie"  address="/myWebService">
 	    <jaxws:features>
 	        <bean class="org.apache.cxf.feature.LoggingFeature"/>
 	    </jaxws:features>
@@ -688,14 +688,14 @@ public final class ClientTest
   </beans>  
  
  ---
-  package org.zhaojin.cxf.spring;  
+  package org.zh.cxf.spring;  
  @WebService  
  public interface HelloWorld 
  {  
 	String sayHi(String text);  
  } 
 ---
-@WebService(endpointInterface = "org.zhaojin.cxf.spring.HelloWorld")
+@WebService(endpointInterface = "org.zh.cxf.spring.HelloWorld")
 public class HelloWorldImpl implements HelloWorld
 {
 	public String sayHi(String text)
@@ -716,13 +716,13 @@ client端可以用<bean>也可以用
 //==客户端异步调用
 
 String payload=
-		"<ns1:sayHello xmlns:ns1='http://zhaojin.org/'>" +
+		"<ns1:sayHello xmlns:ns1='http://zh.org/'>" +
 			"<arg0>X</arg0>"+
 		"</ns1:sayHello>";
 
-	QName serviceName=new QName("http://zhaojin.org/","HelloWorldImplService");
+	QName serviceName=new QName("http://zh.org/","HelloWorldImplService");
 	javax.xml.ws.Service service=javax.xml.ws.Service.create(new URL("http://127.0.0.1:8000/myHelloWorld?wsdl"),serviceName);
-	QName portName =new QName("http://zhaojin.org/","HelloWorldImplPort");//默认Port名，看 ?wsdl
+	QName portName =new QName("http://zh.org/","HelloWorldImplPort");//默认Port名，看 ?wsdl
 	Dispatch<Source> dispatch=service.createDispatch(portName,Source.class,javax.xml.ws.Service.Mode.PAYLOAD);//PAYLOAD只发SOAP中的body,MESSAGE发整个SOAP
 	
 	Map<String, Object> requestContext = dispatch.getRequestContext();

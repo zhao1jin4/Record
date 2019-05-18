@@ -34,9 +34,9 @@ mydtd.xml
 ======================================Scheama示例
 dataType.xml
 <?xml version="1.0"?>
-<dataType xmlns="http://zhaojin.org/dataType" 
+<dataType xmlns="http://zh.org/dataType" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://zhaojin.org/dataType   dataType.xsd"><!-- {namespace} {location} -->
+	xsi:schemaLocation="http://zh.org/dataType   dataType.xsd"><!-- {namespace} {location} -->
 	<lastname>aa</lastname>
 	<families>5</families>
 	<dateborn>2012-02-20</dateborn>
@@ -75,7 +75,7 @@ dataType.xml
 dataType.xsd
 <?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://zhaojin.org/dataType" elementFormDefault="qualified">
+	targetNamespace="http://zh.org/dataType" elementFormDefault="qualified">
 	<!--elementFormDefault="qualified" 指出任何 XML 实例文档所使用的且在此 schema 中声明过的元素必须被命名空间限定。 -->
 
 	<xs:element name="dataType">

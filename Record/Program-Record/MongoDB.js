@@ -27,6 +27,7 @@ Mongo (humongous  巨大无比的)
 用C++写的,支持分布式 (JSON,JS语言)  目前4.0 支持多文档事务
 目前  MongoDB 4.0 add support for multi-document transactions
 
+Driver有 Scala C++  GO 版本
 
 Win10 家庭版/win7旗靓版  安装 MongoDB 4.0.1 安取消选择install mongodb compass(一个图表界面工具,后面可以单独安装),否则安装一直卡着
 安装后建立的服务是D:\Program\MongoDB\Server\4.0\bin\mongod.exe --config "D:\Program\MongoDB\Server\4.0\bin\mongod.cfg" --service

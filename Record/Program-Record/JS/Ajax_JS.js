@@ -279,16 +279,36 @@ XML 文档或 Node 对象转化或“序列化”为未解析的 XML 标记的�
 IE 不支持 XMLSerializer 对象
 
 --- XMLHttpRequest  upload
- var formData = new FormData();  //动态建Form
-formData.append("attache1", input.files[0]);
+https://developer.mozilla.org/zh-CN/docs/Web/API/FormData/Using_FormData_Objects
+<form enctype="multipart/form-data" method="post" name="fileinfo">  
+	选择文件:  <input type="file" id="ipt-file" name="attache1"/>
+	<button type="button" id="btn-upload">上传</button>
+</form>
+	
+//var formData = new FormData();//自带类
+//formData.append("attache1", input.files[0]);
+var form = document.forms.namedItem("fileinfo");//所有的form元素name="fileinfo"的
+var formData = new FormData(form);//也可构造函数输入form元素 
+
 
 var xhr = new XMLHttpRequest();
 console.log(xhr.upload); //是XMLHttpRequestUpload
+ /*
 xhr.onreadystatechange = function() {
 	if (xhr.readyState === 4 && xhr.status === 200) {
-		console.log(xhr.responseText);   
+		console.log(xhr.responseText);  
+		info.innerHTML = xhr.responseText;
 	}
 };
+*/
+xhr.onload = function(oEvent) {   //XMLHttpRequest  onload 要在send前调用  相当于onreadystatechange
+   if (xhr.status == 200) {
+	   info.innerHTML = "Uploaded!";
+   } else {
+	   info.innerHTML = "Error " + oReq.status + " occurred when trying to upload your file.<br \/>";
+   }
+ };
+ 
 //事件还有loadstart，abort，error，load（结果成功），timeout，loadend（结果成功或失败）
 //会一次性读到浏览器缓存中！！！！
 xhr.upload.addEventListener("progress", function(event) {
@@ -297,8 +317,10 @@ xhr.upload.addEventListener("progress", function(event) {
 	}
 }, false);
 
-xhr.open("POST", "./uploadServlet3");
+xhr.open("POST", "./uploadServlet3"); 
+ 
 xhr.send(formData);
+
 
 
 
@@ -453,8 +475,8 @@ function People(username)
 }
 function Man(username,password)
 {
-	this.method=Parent;
-	this.method(username);//调用父类方法
+	this.method=People;
+	this.method(username);//调用父类方法(通过里面的this完成的)
 	delete this.method; //删除这个属性/方法
 	
 	this.password=password;
@@ -519,6 +541,74 @@ var book=new Book("hi","this is a book");
 book.sayhello();
 book.sayworld();
 
+//----Object.create继承
+const person = {
+  isHuman: false,
+  printIntroduction: function () {
+    console.log(`My name is ${this.name}. Am I human? ${this.isHuman}`);
+  }
+};
+const me = Object.create(person);
+me.name = "Matthew"; // "name" is a property set on "me", but not on "person"
+me.isHuman = true; // inherited properties can be overwritten
+me.printIntroduction();
+// expected output: "My name is Matthew. Am I human? true"
+
+//----
+// Shape - 父类(superclass)
+function Shape() {
+  this.x = 0;
+  this.y = 0;
+}
+// 父类的方法
+Shape.prototype.move = function(x, y) {
+  this.x += x;
+  this.y += y;
+  console.info('Shape moved.');
+};
+// Rectangle - 子类(subclass)
+function Rectangle() {
+  Shape.call(this); // call super constructor.
+}
+
+// 子类续承父类  （这两句 rect instanceof Shape 是对的值，rect.move可调用后面才被prototype的）
+Rectangle.prototype = Object.create(Shape.prototype);
+Rectangle.prototype.constructor = Rectangle;//constructor构造器
+
+var rect = new Rectangle();
+console.log('Is rect an instance of Rectangle?',  rect instanceof Rectangle); // true
+console.log('Is rect an instance of Shape?',  rect instanceof Shape); // true
+rect.move(1, 1); // Outputs, 'Shape moved.'
+
+//----继承到多个对象
+function SuperClass()
+{
+	this.s="Super";
+}
+function OtherSuperClass()
+{
+	this.o="Other";
+}
+function MyClass() {
+     SuperClass.call(this);
+     OtherSuperClass.call(this);
+} 
+// 继承一个类
+MyClass.prototype = Object.create(SuperClass.prototype);
+// 混合其它
+Object.assign(MyClass.prototype, OtherSuperClass.prototype);//把OtherSuperClass原型上的函数拷贝到 MyClass原型上，使 MyClass 
+// 重新指定constructor
+MyClass.prototype.constructor = MyClass;
+
+MyClass.prototype.myMethod = function() {
+    console.log("myMethod");
+};
+var my =new MyClass();
+console.log(my.s);
+console.log(my.o);
+ my.myMethod();
+
+Object.assign 是在 ES2015 
 
 //闭包    f2函数，就是闭包
 //f1中的局部变量n一直保存在内存中，并没有在f1调用后被自动清除。 f2被赋给了一个全局变量
@@ -985,8 +1075,8 @@ alert(null==undefined);  //返回true
 ----------正则表达式
 replace 方法
 RegExp.input			//传入的字符
-RegExp.leftContext属性 ($`)	//匹配左边的
-RegExp.rightContext 属性 ($')	//匹配右边的
+RegExp.leftContext属性 ($`)	//匹配左边的`
+RegExp.rightContext 属性 ($')	//匹配右边的'
 RegExp.lastMatch属性 ($&)	//最后的全匹配
 RegExp.lastParen 属性 ($+)	//最后一个()
 RegExp.$1			//()中的
@@ -1215,6 +1305,8 @@ document.querySelector(".myClassDiv").style.backgroundColor = "yellow";
  
  //<a> 元素中有 "target" 属性的第一个 
   document.querySelector("a[target]").style.border = "10px solid red";
+  
+ var photos = document.querySelector("input[type='file'][multiple]");
  
  //h2,h3 中文档中先找到哪一个
   document.querySelector("h2,h3").style.backgroundColor = "red";
@@ -1674,10 +1766,11 @@ o2 = Object.create({}, {
     value: 42, 
     writable: true,
     enumerable: true,
-    configurable: true 
+    configurable: true  //true表示属性(不是值)可删除(delete)
   } 
 });
-
+delete o2.p; //如configurable: false 删不掉，不会报错
+console.log(o2.p);
 
 //----object 的方法
 
@@ -1696,7 +1789,7 @@ const object1 = {
   property1: 42
 };
 
-Object.seal(object1); //现有属性如可以，就可以修改，但不能加，删
+Object.seal(object1); //现有属性如可以写，就可以修改值，但不能加，删
 object1.property1 = 33;
 console.log(object1.property1);
 // expected output: 33
@@ -2120,9 +2213,16 @@ f2({ p2:2,p3:2});
 
 
 /------ Symbol 是ECMAScript 6 中新增的数据类型
+ 是一种基本数据类型
+ 
 console.log(Symbol("foo") === Symbol("foo"));  //false
 
-var sym = Symbol();
+
+var sym = Symbol(); //不能使用 new
+console.log(typeof sym);//"symbol"
+var symObj = Object(sym); 
+console.log(typeof symObj); // "object"
+
 //1. 用方括号添回
 var a = {};
 a[sym] = 'abc';
@@ -2134,15 +2234,16 @@ var a = {
 var a = {};
 Object.defineProperty(a, sym, { value: 'abc' });
 
-
+var ownSymbolArrasy=Object.getOwnPropertySymbols(a); 
+console.log(ownSymbolArrasy);
 
 console.log(Symbol('desc').description);
 // expected output: "desc"
 
-console.log(Symbol.iterator.description);
+console.log(Symbol.iterator.description);//Symbol.iterator是内建的Symbol
 // expected output: "Symbol.iterator"
 
-console.log(Symbol.for('foo').description);
+console.log(Symbol.for('foo').description); //Symbol.for() 方法和  Symbol.keyFor() 方法从全局的symbol注册
 // expected output: "foo"
 
 console.log(Symbol('foo').description + 'bar');
@@ -2154,7 +2255,7 @@ console.log(Symbol.keyFor(globalSym)); // "foo"
 
 
 
-var myIterable = {}
+var myIterable = {}//让对象可被迭代
 myIterable[Symbol.iterator] = function* () {
     yield 1;
     yield 2;
@@ -2168,7 +2269,7 @@ for(let value of myIterable) { //要可迭代必须要有方法名 Symbol.iterat
 // 2
 // 3
 
-
+// 正则表达式 symbols,Symbol.match,Symbol.replace,Symbol.search,Symbol.split
 const regexp1 = /foo/;  
 regexp1[Symbol.match] = false; //正则当字串
 console.log('/foo/'.startsWith(regexp1)); // true
@@ -2233,6 +2334,8 @@ class Split1
 console.log('foobar'.split(new Split1('foo')));
 // expected output: "foo/bar"
 
+
+//其他 symbols,Symbol.hasInstance ,Symbol.isConcatSpreadable,Symbol.unscopables,Symbol.toPrimitive,Symbol.toStringTag,Symbol.species
 class Array1 
 {
   static [Symbol.hasInstance](instance) 
@@ -2240,7 +2343,6 @@ class Array1
     return Array.isArray(instance);
   }
 }
-
 console.log([] instanceof Array1);
 // expected output: true
 
@@ -2248,13 +2350,10 @@ console.log([] instanceof Array1);
 const alpha = ['a', 'b', 'c'];
 const numeric = [1, 2, 3];
 let alphaNumeric = alpha.concat(numeric);
-
 console.log(alphaNumeric);
 // expected output: Array ["a", "b", "c", 1, 2, 3]
-
 numeric[Symbol.isConcatSpreadable] = false;
 alphaNumeric = alpha.concat(numeric);
-
 console.log(alphaNumeric);
 // expected output: Array ["a", "b", "c", Array [1, 2, 3]]
 
@@ -2295,22 +2394,20 @@ console.log(+obj2);     // 10        -- hint is "number"
 console.log(`${obj2}`); // "hello"   -- hint is "string"
 console.log(obj2 + ''); // "true"    -- hint is "default"
 
-
+//Object.prototype.toString=函数 重写toString()
+//Object.prototype.toString.call 检测对象类
 console.log(Object.prototype.toString.call('foo'));     // "[object String]"
 console.log(Object.prototype.toString.call([1, 2]));    // "[object Array]"
 console.log(Object.prototype.toString.call(3));         // "[object Number]"
 console.log(Object.prototype.toString.call(true));      // "[object Boolean]"
-
 console.log(Object.prototype.toString.call(new Map()));       // "[object Map]"
 console.log(Object.prototype.toString.call(function* () {})); // "[object GeneratorFunction]"
 console.log(Object.prototype.toString.call(Promise.resolve())); // "[object Promise]"
-
 class ValidatorClass {
-  get [Symbol.toStringTag]() {
+  get [Symbol.toStringTag]() { //get 只读属性
     return 'Validator';
   }
 }
-
 console.log(Object.prototype.toString.call(new ValidatorClass()));
 // expected output: "[object Validator]"
 
@@ -2318,18 +2415,36 @@ console.log(Object.prototype.toString.call(new ValidatorClass()));
 
 class MyArray extends Array {
 	  // Overwrite MyArray species to the parent Array constructor
-	  static get [Symbol.species]() { return Array; }//创建派生类对象的构造函数
+	  static get [Symbol.species]() { return Array; }//instanceof 返回指定类型,get 只读属性，static
 	}
 const myArray = new MyArray(1, 2, 3);
 const mapped = myArray.map(x => x * x);
 
-console.log(mapped instanceof MyArray); //?????????????
+console.log(mapped instanceof MyArray); 
 //expected output: false
 
 console.log(mapped instanceof Array);
 //expected output: true
 //-----------
 
+//---- apply方法  Function​.prototype​.apply() 
+//call()方法的作用和 apply() 方法类似，区别就是call()方法接受的是 argument 列表，而apply()方法接受的是一个数组。
+var numbers = [5, 6, 2, 3, 7];
+var max = Math.max.apply(null, numbers);//第一个参数是thisArg，null表示全局对象
+console.log(max);// expected output: 7
+
+var array = ['a', 'b'];
+var elements = [0, 1, 2];
+array.push.apply(array, elements);
+console.info(array); // ["a", "b", 0, 1, 2] 
+/*
+var array2 = [];
+var array = ['a', 'b'];
+var elements = [0, 1, 2];
+array.push.apply(array2, elements);
+console.info(array); //'a', 'b'
+console.info(array2);//0, 1, 2 结果同 elements
+*/
 
 
 //-----------ECMAScript 2016	
@@ -2420,13 +2535,167 @@ console.log(descriptors1.property1.value);
 
 
 
-//--Promise 		
+o = {};
+Object.defineProperty(o, "baz", {
+  value: 8675309,
+  writable: false,
+  enumerable: false
+});
+d = Object.getOwnPropertyDescriptor(o, "baz");
+// d {
+//   value: 8675309,
+//   writable: false,
+//   enumerable: false,
+//   configurable: false
+// }
+
+
+//----hasOwnProperty
+o = new Object();
+o.prop = 'exists';
+function changeO() {
+  o.newprop = o.prop;
+  delete o.prop;
+}
+o.hasOwnProperty('prop');   // 返回 true
+changeO();
+o.hasOwnProperty('prop');   // 返回 false
+
+
+
+var empty = {};
+var val=Object.isExtensible(empty); // === true 
+//preventExtensions变为不扩展
+Object.preventExtensions(empty);
+val=Object.isExtensible(empty); // === false
+//密封对象是不可扩展.
+var sealed = Object.seal({});
+val=Object.isExtensible(sealed); // === false
+// 冻结对象也是不可扩展.
+var frozen = Object.freeze({});
+val=Object.isExtensible(frozen); // === false
+
+
+-
+// simple array
+var arr = ['a', 'b', 'c'];
+console.log(Object.keys(arr)); // console: ['0', '1', '2']
+// array like object
+var obj = { 0: 'a', 1: 'b', 2: 'c' };
+console.log(Object.keys(obj)); // console: ['0', '1', '2']
+// array like object with random key ordering
+var anObj = { 100: 'a', 2: 'b', 7: 'c' };
+console.log(Object.keys(anObj)); // console: ['2', '7', '100']
+// getFoo is a property which isn't enumerable
+var myObj = Object.create({}, {
+  getFoo: {
+    value: function () { return this.foo; }
+  } 
+});
+myObj.foo = 1;
+console.log(Object.keys(myObj)); // console: ['foo']
+val=Object.keys("foo");//["0", "1", "2"]   
+
+//Object.entries  返回值给定对象自身可枚举属性的键值对数组。
+{
+	const object1 = { foo: 'bar', baz: 42 };
+	console.log(Object.entries(object1)[1]);
+	// expected output: Array ["baz", 42]
+	const object2 = { 0: 'a', 1: 'b', 2: 'c' };
+	console.log(Object.entries(object2)[2]);
+	// expected output: Array ["2", "c"]
+	val=Object.entries(object2);//  [ [0,a],[1,b],[2,c] ]
+}
+
+//是否相等
+Object.is('foo', 'foo');     // true
+Object.is(window, window);   // true
+Object.is('foo', 'bar');     // false
+Object.is([], []);           // false
+Object.is(0, -0);            // false
+Object.is(NaN, 0/0);         // true
+
+
+{
+	const object1 = {
+			  a: 'somestring',
+			  b: 42,
+			  c: false
+			};
+	console.log(Object.values(object1));
+	// expected output: Array ["somestring", 42, false]
+	//getFoo is property which isn't enumerable
+	var my_obj = Object.create({}, { getFoo: { value: function() { return this.foo; } } });
+	my_obj.foo = 'bar';
+	console.log(Object.values(my_obj)); // ['bar']
+	// non-object argument will be coerced to an object
+	console.log(Object.values('foo')); // ['f', 'o', 'o']
+}	
+
+{// constructor一个只读的原始数据类型，返回一构建函数
+	var o = {};
+	o.constructor === Object; // true
+	var o = new Object;
+	o.constructor === Object; // true
+	var a = [];
+	a.constructor === Array; // true
+	var a = new Array;
+	a.constructor === Array; // true
+	var n = new Number(3);
+	n.constructor === Number; // true
+	function Tree(name) {
+		  this.name = name;
+		}
+	var theTree = new Tree('Redwood');
+	console.log('theTree.constructor is ' + theTree.constructor);//函数源码
+	
+	//构建器重写
+	function Parent() {}; 
+	function CreatedConstructor() {} 
+	CreatedConstructor.prototype = Object.create(Parent.prototype); 
+	CreatedConstructor.prototype.constructor = CreatedConstructor; // set right constructor for further using
+	CreatedConstructor.prototype.create = function create() { 
+	  return new this.constructor();
+	} 
+	new CreatedConstructor().create().create(); // it's pretty fine
+	
+	//构建器不重写
+	function ParentWithStatic() {}
+	ParentWithStatic.startPosition = { x: 0, y:0 };
+	ParentWithStatic.getStartPosition = function getStartPosition() {
+	  return this.startPosition;
+	} 
+	function Child(x, y) {
+	  this.position = {
+	    x: x,
+	    y: y
+	  };
+	}
+	Child.prototype = Object.create(ParentWithStatic.prototype); 
+	//Child.prototype.constructor = Child;//这行注释 下面this.constructor.getStartPosition()才不会报错
+	Child.prototype.getOffsetByInitialPosition = function getOffsetByInitialPosition() {
+	  var position = this.position;
+	  var startPosition = this.constructor.getStartPosition(); // error undefined is not a function, since the constructor is Child
+	  return {
+	    offsetX: startPosition.x - position.x,
+	    offsetY: startPosition.y - position.y
+	  }
+	};
+	new Child(1,2).getOffsetByInitialPosition();
+}
+
+
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise
+//--Promise 	用于表示一个异步操作
+
+//要么调用resolve函数来将promise状态改成fulfilled，要么调用reject 函数将promise的状态改为rejected
 var promise1 = new Promise(function(resolve, reject) {
 setTimeout(function() {
-  resolve('foo');
+  resolve('foo');//这个函数是then函数传过来的
 }, 300);
 });
 
+//then方法包含两个参数：onfulfilled (fulfilled满足的)和 onrejected，它们都是 Function 类型
 promise1.then(function(value) {
 console.log(value);
 // expected output: "foo"
@@ -2434,6 +2703,71 @@ console.log(value);
 
 console.log(promise1);
 //expected output: [object Promise]
+
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch
+var p1 = new Promise(function(resolve, reject) {
+	  resolve('Success');
+	}); 
+p1.then(function(value) {
+  console.log(value); // "Success!"
+  return Promise.reject('oh, no!');//会跳到cach里，不会路到第二参数的函数
+  //一样的效果 
+  //throw 'oh, no!';//会跳到cach里，不会路到第二参数的函数
+}).catch(function(e) {
+  console.log(e); // "oh, no!"
+}).then(function(){
+  console.log('after a catch the chain is restored');
+}, function () {
+  console.log('Not fired due to the catch');
+});
+console.log(p1); 
+
+
+//抛出一个错误，大多数时候将调用catch方法
+var p1 = new Promise(function(resolve, reject) {
+  throw 'Uh-oh!';
+}); 
+p1.catch(function(e) {
+  console.log(e); // "Uh-oh!"
+}); 
+
+// 在异步函数中抛出的错误不会被catch捕获到
+var p2 = new Promise(function(resolve, reject) {
+  setTimeout(function() {
+    throw 'Uncaught Exception!';
+  }, 1000);
+});
+
+p2.catch(function(e) {
+  console.log(e); // 不会执行
+});
+
+// 在resolve()后面抛出的错误会被忽略
+var p3 = new Promise(function(resolve, reject) {
+  resolve();
+  throw 'Silenced Exception!';
+});
+p3.catch(function(e) {
+   console.log(e); // 不会执行
+});
+
+//创建一个新的 Promise ，且已决议
+var pp1 = Promise.resolve("calling next");
+var pp2 = pp1.catch(function (reason) {
+    //这个方法永远不会调用
+    console.log("catch p1!");
+    console.log(reason);
+});
+pp2.then(function (value) {
+    console.log("next promise's onFulfilled"); /* next promise's onFulfilled */
+    console.log(value); /* calling next */
+}, function (reason) {
+	//这个不会调用
+    console.log("next promise's onRejected");
+    console.log(reason);
+});
+
+
 
 
 //---async
@@ -2518,12 +2852,410 @@ try {
 } catch (e) {
   console.log(e); 
 }
-------------
+-------
+ <!-- import 语句只能在声明了 type="module" 的 script 的标签中使用 -->
+<script  src="mymodule/main.js" type="module"></script>
+
+---main.js
+import  {area,circumference} from './circle.js';//测试下来  必须以./或../ 或/开头，必须以.js结尾
+console.log("圆面积：" + area(4));
+console.log("圆周长：" + circumference(14));
+
+import  * as circle from './circle.js'; 
+console.log("圆面积：" + circle.area(4));
+console.log("圆周长：" + circle.circumference(14));
 
 
+import myDefault,{ cube, foo, graph } from './my-module.js';//文件中只一个default,导入要放在最前面,这里可以改名
+ graph.options = {
+     color:'blue',
+     thickness:'3px'
+ }; 
+ graph.draw();
+ console.log(cube(3)); // 27
+ console.log(foo);    // 4.555806215962888
+ console.log(myDefault);
+ 
+   
+//动态import，只对Chrome有效，Firefox不行
+//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import
+let filename = 'circle.js';  
+import('./' + filename). then(module =>{
+    console.log(module);
+}).catch(err => {
+    console.log(err.message); 
+});
 
+
+---circle.js
+export function area(radius) {
+  return Math.PI * radius * radius;
+}
+
+export function circumference(radius) {
+  return 2 * Math.PI * radius;
+}
+-----my-moudle.js 
+function cube(x) {
+  return x * x * x;
+}
+const foo = Math.PI + Math.SQRT2;
+var graph = {
+    options:{
+        color:'white',
+        thickness:'2px'
+    },
+    draw: function(){
+        console.log('From graph draw function');
+    }
+}
+export { cube, foo, graph };
+
+let k; 
+export default k = 12;  //一个文件中只能有一个默认导出
+ 
+-----
 JSON.parse('{"one":"１"}');
+ 
+ //https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams
+function testURLSearchParams()
+{
+	var paramsString = "q=URLUtils.searchParams&topic=api";
+	var searchParams = new URLSearchParams(paramsString);
 
+	//Iterate the search parameters.
+	for (let p of searchParams) {
+	  console.log(p);//p是数组0元素是键，1元素是值
+	}
+
+	console.log(	searchParams.has("topic") === true   ); // true
+	console.log(	searchParams.get("topic") === "api"  ); // true
+	console.log(	searchParams.getAll("topic") ); // ["api"]
+	console.log(	searchParams.get("foo") === null    ); // true
+	console.log(	searchParams.append("topic", "webdev") );
+	console.log(	searchParams.toString() ); // "q=URLUtils.searchParams&topic=api&topic=webdev"
+	console.log(	searchParams.set("topic", "More webdev") );
+	console.log(	searchParams.toString() ); // "q=URLUtils.searchParams&topic=More+webdev"
+	console.log(	searchParams.delete("topic") );
+	console.log(	searchParams.toString() ); // "q=URLUtils.searchParams"
+	
+	var paramsString2 = "?query=value";
+	var searchParams2 = new URLSearchParams(paramsString2);
+	console.log(	searchParams2.has("query") ); // true 
+
+	var url = new URL("http://example.com/search?query=%40");
+	var searchParams3 = new URLSearchParams(url.search);
+	console.log(	searchParams3.has("query")  );// true
+}
+
+====fetch
+
+//https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API 左侧菜单有很多文章
+//https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+
+//fetch('http://127.0.0.1:8080/S_HTML5CSS3/jsonGet') //不能跨域
+//是异步的，fetch没有提供同步请求的方法
+
+fetch('/S_HTML5CSS3/jsonGet') 
+.then(function(response) { //多个then按顺序执行
+  return response.json();
+})
+.then(function(myJson) {
+  console.log(JSON.stringify(myJson));
+});
+ 
+ 
+ var formData = "answer=42&name=lisi";  //POST,"Content-Type": "application/x-www-form-urlencoded",服务端request可以的
+ //var formData = new URLSearchParams("answer=42&name=lisi");//也可以
+ 
+//var formData = new FormData(); //POST,"Content-Type": "application/x-www-form-urlencoded",服务端request拿不到数据  ？？？？可能FormData只能只对文件上传
+//formData.append("answer",42); 
+//formData.append("name","lisi");
+
+ return fetch(url, {//*表示默认值
+      method: "POST", // *GET, POST, PUT, DELETE, etc.
+      mode: "cors", // no-cors, cors, *same-origin
+      cache: "no-cache", // *default,no-store, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+          //"Content-Type": "application/json",
+           "Content-Type": "application/x-www-form-urlencoded",
+      },
+      redirect: "follow", // manual, *follow, error
+      referrer: "no-referrer", // no-referrer, *client
+      body: formData, // body data type must match "Content-Type" header
+	   //可以是 Blob, BufferSource, FormData, URLSearchParams, or USVString
+  })
+  .then(
+		//response => response.json()//简写方式，如debug报body stream is locked
+		 response =>{  
+		 	var res=response.json()//json()函数返回一个Promise,只可调用一次
+	  	 	console.log(res);
+		  	return res;//如=>后加{，则要return，才可再次then
+	  		}	 
+		)  // parses JSON response into native Javascript objects
+  then(data => 
+		{console.log("raw:"+data);
+		console.log("JSON:"+JSON.stringify(data))
+		}
+	) // JSON-string from `response.json()` call
+.catch(error => console.error(error));
+
+
+  function uploadFile()
+{
+	var formData = new FormData();
+	var photos = document.querySelector("input[type='file'][multiple]");
+	formData.append('title', 'My Vegas Vacation');
+	for (var i = 0; i < photos.files.length; i++) {
+	  formData.append('attache1', photos.files[i]);
+	}
+	/*
+	fetch('http://127.0.0.1:8080/S_HTML5CSS3/uploadServlet3', {
+	  method: 'POST',
+	  body: formData
+	})
+	.then(response => response.json())
+	.then(response => console.log('Success:', JSON.stringify(response)))
+	.catch(error => console.error('Error:', error));
+	*/
+	var myHeaders = new Headers();
+	myHeaders.append("X-Custom-Header", "ProcessThisImmediately");
+	myHeaders.delete("X-Custom-Header");
+	console.log(myHeaders.has("Content-Type")); 
+	console.log(myHeaders.get("Content-Length")); 
+	var myInit = { method: 'POST',
+	               headers: myHeaders,
+	               body: formData,
+	               //mode: 'cors',
+	               //cache: 'default' 
+	               }; 
+	//mode: 'cors'加不加都可 跨域可以请求到服务端，但JS端会调用到catch中，
+	var myRequest = new Request('http://127.0.0.1:8080/S_HTML5CSS3/uploadServlet3', myInit);
+	//var myRequest = new Request('http://localhost:8080/S_HTML5CSS3/uploadServlet3', myInit);
+	fetch(myRequest)
+	.then(function(response) {
+	  if(response.ok) {
+		  //return response.blob();
+		  //return response.json();
+		  console.log('ok:', response)
+		  return response;
+	  }
+	  throw new Error('Network response was not ok.');
+	})
+	.then(response => console.log('Success:', response.json()))
+	.catch(error => console.error('Error:', error));
+
+}
+<input type="file" multiple />
+<button type="button" onclick="uploadFile()" >upload</button>
+
+
+<img id="myImg"></img>
+//var myImage = document.querySelector("#myImg");//querySelector一定要在HTML后
+var myImage = document.querySelector("img");
+fetch('../assets/img_logo.gif').then(function(response) {
+  return response.blob();//blob()方法 
+}).then(function(myBlob) {
+  var objectURL = URL.createObjectURL(myBlob);
+  myImage.src = objectURL;
+});
+
+-------DataView
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/DataView 
+/* 
+DataView 视图是一个可以从 ArrayBuffer 对象中读写多种数值类型的底层接口，使用它时，不用考虑不同平台的字节序问题
+little endian 小端字节序：低字节存于内存低地址；高字节存于内存高地址  (intel全部是这个) 
+big endian 大端字节序：高字节存于内存低地址；低字节存于内存高地址 (网络字节序) 
+*/
+  // create an ArrayBuffer with a size in bytes
+var buffer = new ArrayBuffer(16);
+
+// Create a couple of views
+var view1 = new DataView(buffer);
+var view2 = new DataView(buffer,12,4); //from byte 12 for the next 4 bytes
+//new DataView(buffer [, byteOffset [, byteLength]]) 
+view1.setInt8(12, 42); // put 42 in slot 12
+
+console.log(view2.getInt8(0));
+// expected output: 42
+
+
+var littleEndian = (function() {
+  var buffer = new ArrayBuffer(2);
+  new DataView(buffer).setInt16(0, 256, true /* 设置值时，使用小端字节序 */);
+  // Int16Array 使用系统字节序（由此可以判断系统字节序是否为小端字节序）
+  return new Int16Array(buffer)[0] === 256;
+})();
+console.log(littleEndian); // 返回 true 或 false
+
+
+console.log("2**3="+2**3); //**表示次方
+-------- Proxy
+//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Proxy
+let handler = {
+	get: function(target, name){//get函数格式
+		return name in target ? target[name] : 37;
+	}
+};
+let p = new Proxy({}, handler);
+p.a = 1;
+p.b = undefined;
+console.log(p.a, p.b);    // 1, undefined
+console.log('c' in p, p.c);    // false, 37
+	
+//----
+
+let target = {};
+let p1 = new Proxy(target, {});
+p1.a = 37;   // 操作转发到目标
+console.log(target.a);    // 37. 操作已经被正确地转发
+
+//---
+let validator = {
+  set: function(obj, prop, value) {//set函数格式
+	if (prop === 'age') {
+	  if (!Number.isInteger(value)) {
+		throw new TypeError('The age is not an integer');
+	  }
+	  if (value > 200) {
+		throw new RangeError('The age seems invalid');
+	  }
+	} 
+	// The default behavior to store the value
+	obj[prop] = value;
+  }
+}; 
+let person = new Proxy({}, validator);
+person.age = 100;
+console.log(person.age);  // 100
+//person.age = 'young'; 
+// 抛出异常: Uncaught TypeError: The age is not an integer
+//person.age = 300; 
+// 抛出异常: Uncaught RangeError: The age seems invalid
+
+//---扩展构造函数
+function extend(sup,base) {
+  var descriptor = Object.getOwnPropertyDescriptor(
+	base.prototype,"constructor"
+  );
+  base.prototype = Object.create(sup.prototype);//做继承，因做了修改，上面再执行没有返回值，后面要重新设置一次
+  var handler = {
+	construct: function(target, args) {  //construct 固定的构造函数名，new时被拦截，args以数组形式的参数
+	  var obj = Object.create(base.prototype);
+	  this.apply(target,obj,args);
+	  return obj;
+	},
+	apply: function(target, that, args) {//自已的方法target没用上
+	  sup.apply(that,args); //apply 参数是按数组传
+	  base.apply(that,args);
+	}
+  };
+  var proxy = new Proxy(base,handler);
+  descriptor.value = proxy;//覆盖原来的方法
+  Object.defineProperty(base.prototype, "constructor", descriptor);//重新设置
+  return proxy;
+}
+var Person = function(name){
+  this.name = name
+};
+var Boy = extend(Person, function(name, age) {
+  this.age = age;
+});
+Boy.prototype.sex = "M";
+var Peter = new Boy("Peter", 13);
+console.log(Peter.sex);  // "M"
+console.log(Peter.name); // "Peter"
+console.log(Peter.age);  // 13
+
+{
+	p = new Proxy({}, {
+	  has: function(target, prop) { //has 方法 用于 in操作
+		console.log('called: ' + prop);
+		return true;
+	  }
+	});
+	console.log('a' in p); // "called: a"
+						   // true
+}
+
+
+-------- Reflect
+https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Reflect
+方法里有示例
+
+
+var d = Reflect.construct(Date, [1776, 6, 4]);//类型，参数
+console.log(d instanceof Date); // true
+console.log(d.getFullYear()); // 1776
+
+function someConstructor() {}
+var result = Reflect.construct(Array, [], someConstructor);//类型，参数，构造器
+console.log(Reflect.getPrototypeOf(result));  
+console.log(Array.isArray(result)); // true
+
+
+const student = {};
+Reflect.defineProperty(student, "name", {value: "Mike"}); //(target, propertyKey, attributes),返回是否成功
+console.log(student.name); // "Mike"
+
+var obj = { x: 1, y: 2 };
+Reflect.deleteProperty(obj, "x"); // true
+console.log(obj); // { y: 2 }
+var arr = [1, 2, 3, 4, 5];
+Reflect.deleteProperty(arr, "3"); // true
+console.log(arr); // [1, 2, 3, , 5]
+// 如果属性不存在，返回 true
+var res=Reflect.deleteProperty({}, "foo"); // true
+// 如果属性不可配置，返回 false
+res=Reflect.deleteProperty(Object.freeze({foo: 1}), "foo"); // false
+
+
+
+//Object
+var obj = { x: 1, y: 2 };
+var val=Reflect.get(obj, "x"); // 1
+// Array
+val=Reflect.get(["zero", "one"], 1); // "one"
+// Proxy with a get handler
+var x = {p: 1};
+var obj = new Proxy(x, {
+  get(target, k, r) { //target 就是x ,k是属性名，r是receiver即 Proxy或者继承Proxy的对象
+	  return k + "bar"; 
+  }
+});
+val=Reflect.get(obj, "foo"); // "foobar"
+
+
+val=Reflect.has({x: 0}, "x"); // true
+val=Reflect.has({x: 0}, "y"); // false
+// 如果该属性存在于原型链中，返回true 
+val=Reflect.has({x: 0}, "toString");
+// Proxy 对象的 .has() 句柄方法
+obj = new Proxy({}, {
+  has(t, k) { return k.startsWith("door"); }
+});
+val=Reflect.has(obj, "doorbell"); // true
+val=Reflect.has(obj, "dormitory"); // false
+
+
+
+
+val=Reflect.ownKeys({z: 3, y: 2, x: 1}); // [ "z", "y", "x" ]
+val=Reflect.ownKeys([]); // ["length"]
+var sym = Symbol.for("comet");
+var sym2 = Symbol.for("meteor");
+var obj = {[sym]: 0, "str": 0, "773": 0, "0": 0,
+           [sym2]: 0, "-1": 0, "8": 0, "second str": 0};
+val=Reflect.ownKeys(obj);
+// [ "0", "8", "773", "str", "-1", "second str", Symbol(comet), Symbol(meteor) ]
+// Indexes in numeric order, 
+// strings in insertion order, 
+// symbols in insertion order
+
+--------ECMASCript   
+https://www.ecma-international.org/publications/standards/Ecma-262.htm 是2018第9版（目前最新发布版本）
+https://tc39.github.io/ecma262/ 是最新草稿版本
 
 
 

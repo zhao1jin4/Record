@@ -20,7 +20,7 @@ File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
 	 eclipse是ctrl+点击<dependency>高亮整个进入pom,而intellij 点单独要<artifactId>中的值才能进入pom
 
 	打开pom.xml 右击-> Diagrams--Show Dependencies  可以信赖的图形 (也可Maven Projects视图) 
-	ctrl+左键拖动，移动位置,ctrl+中键滚动，放大缩小，ctrl+f找包名
+	ctrl+左键拖动，移动位置,ctrl+中键滚动，放大缩小，ctrl+f找包名,按alt放大镜
  
 --SVN 
 	File -> Setting -> Version Control -> Subversion 配置 svn 命令所在路径
@@ -190,6 +190,9 @@ ctrl + y 是删除当前行
 navigate->test (ctrl+shift+t)弹出窗口create new Test-> test library可以选择TestNG (依赖jar不是自带的,要么用maven,要么自己加手工建库)
 
 File->Setings->Language & -Framework >JavaScript->webpack 可配置.js文件
+
+DataBase标签(view->tool windows->database)->右击建立好的连接-> Database tools->manager show schema... （功能同DataGrip）
+
 
 ====================IntelliJ IDEA plugin 
 

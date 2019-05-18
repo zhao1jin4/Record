@@ -46,7 +46,7 @@ http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
 	redis-4.0.9-lp150.2.8.x86_64.rpm
 
 http://download.opensuse.org/tumbleweed/repo/oss/x86_64/
-	redis-4.0.11 现在是 5.0.2
+	redis-4.0.11 现在是 5.0.4
 	
 cd src 
 make    OK
@@ -72,11 +72,19 @@ make test 要 tcl-8.5以上(CentOS 7DVD自带8.5.13),可用8.6.7  测试OK,
 			make
 			make install
 	安装OK
----redis 5.0.2  在 openSUSE-15 下源码编译安装OK (没提示要ruby,tcl)
+---redis 5.0.4  在 openSUSE-15 下源码编译安装OK (没提示要ruby,tcl,jemalloc)
 
 	
 make install 在 /usr/local/bin/redis-server
 
+
+最大打开文件数
+/etc/security/limits.conf
+mysql          soft    nofile  1024
+mysql          hard    nofile  10032
+
+ulimit -Sn  1024
+ulimit -Hn 10032
 
 提示 加 vm.overcommit_memory = 1 到  /etc/sysctl.conf ,用命令 sysctl vm.overcommit_memory=1立即生效
 cat /proc/sys/vm/overcommit_memory
@@ -441,11 +449,11 @@ slave1:ip=127.0.0.1,port=6381,state=online,offset=718,lag=0
 
 停master ,手动做failover
 
-连接一个从6380
+连接一个从 6380
 slaveof no one  
 config set slave-read-only  no  #也可以不配置
 
-连接另一个从6381
+连接另一个从 6381
 slaveof   127.0.0.1 6380 
 config set masterauth ''   ,可先用 config get master* 
 
@@ -458,8 +466,13 @@ redis-sentinel -v
 或
 redis-server ../sentinel.conf --sentinel
 
-port 26379   默认值 
+port 26379   默认值  
+pidfile "/var/run/redis-sentinel.pid"
+dir "/tmp"
+logfile ""
+sentinel myid xxxx
 
+sentinel monitor mymaster 127.0.0.1 6380 1
 #配置格式为 sentinel <option_name> <master_name> <option_value>
 #sentinel monitor <master-name> <ip> <redis-port> <quorum>  监控这个master,
 sentinel monitor mymaster 127.0.0.1 6379 1  #如果有1台发现master挂了才有反应,一共3台，要设置为1
@@ -468,8 +481,11 @@ sentinel auth-pass mymaster rpass  #如使用密码,要所有的主从也使用�
 sentinel down-after-milliseconds mymaster 30000   ##默认30秒,如果 ping不通或返回错误,认为master是down的
 sentinel failover-timeout mymaster 180000   #如果failover操作在3分钟内未完成,认为失败
 
-#sentinel parallel-syncs <master-name> <numslaves>  #当一个slave做failvoer到新master时,多少个salve可以和新master 做reconfig(这时不可query),可能做.rdb文件传输
+#sentinel parallel-syncs <master-name> <numslaves>  #当一个slave做failvoer到新master时,多少个salve可以和新master 做reconfig(这时不可query),可做.rdb文件传输
 sentinel parallel-syncs mymaster 1
+
+sentinel known-replica mymaster 127.0.0.1 6381
+sentinel known-replica mymaster 127.0.0.1 6380
 
 有WARNING级的日志可以做通知
 sentinel notification-script mymaster /var/redis/notify.sh
@@ -481,7 +497,11 @@ redis-cli  -p 26379
 > SENTINEL get-master-addr-by-name mymaster 返回mymaster的主服务器的 IP 地址和端口号
 不能调用get,set
 
-连redis  6379,6380,6381, 测试
+(前面有设置两个slaveof , 即6380,6381,这只做了一个 sentinel 哨兵即26379) 连redis  6379,6380,6381, 测试
+ 
+---
+
+
 
 
 ------ redis  cluster (redis-3.0 版本开始支持) 自动分片数据到多个节点上(shard)
@@ -605,4 +625,14 @@ object freq user_key  取某个 key 的访问频度
 redis-cli --cluster info 127.0.0.1:7000 
 redis-cli --cluster help
 
--------
+
+--------redis-5.0 开始  replicaof 命令（redis-cli 下命令）
+--REPLICATION 配置
+ replicaof <masterip> <masterport>
+ 
+ 
+ 
+ 
+ 
+ 
+ 

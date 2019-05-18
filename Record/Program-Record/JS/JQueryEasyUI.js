@@ -17,6 +17,14 @@ GPL License,开源,布局,树,表格,表单(select可输入选择)
 <script type="text/javascript" src="${webRoot}/js/jquery.easyui.min.js"></script> 
 <script type="text/javascript" src="${webRoot}/js/easyui-lang-zh_CN.js"></script>  <!-- 导入后验证等的信息就为中文了 -->
  
+ 
+
+$.parser.parse(); // 解析整个页面
+$.parser.parse('#cc'); // 解析某个具体节点
+
+
+
+
 //---------表单  
 $.extend($.fn.validatebox.defaults.rules, 
 	{
@@ -198,7 +206,31 @@ function switchOnOff()
        class="easyui-tooltip" 
         >Hover me</a>
 		
-		
+	//----------filebox
+  只能选图片： <input id="fb" class="easyui-filebox" style="width:100%" data-options="prompt:'Choose a file...'"> <br/>
+  只能选excel： <input id="excelFileBox" class="easyui-filebox" style="width:100%" data-options="prompt:'Choose a file...'"><br/>
+  <input id="fb" class="easyui-linkbutton" onclick="validateFileBox()" value="检查"/>
+  <script type="text/javascript">
+  $(function (){
+    $('#fb').filebox(
+      {buttonAlign:'right',
+      buttonText:"浏览",
+      accept:"image/*"
+      
+     });
+    $('#excelFileBox').filebox(
+      {buttonAlign:'right',
+      buttonText:"浏览",
+      accept:"application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      
+     });
+  });
+     function validateFileBox()
+     {
+       if($('#fb').filebox('getText')=='')
+        alert("请选择文件 ");
+     }
+  </script> 
 //---------表格
 var mytoolbar = [{
 		text:'增加',
@@ -492,7 +524,9 @@ function myBarRemoveByCheckBox() //table 的 singleSelect:true
 }
 function myBarReload()
 {
-	$('#dg').datagrid('reload');
+		 $('#dg').datagrid('loading','任务正在加处理中。。。');//可用进度条
+			$('#dg').datagrid('load');//取消显示处理中
+			// $('#dg').datagrid('reload');
 }
 
 
@@ -1425,3 +1459,5 @@ function saveItem(index){
 		}
 	});
 }
+
+

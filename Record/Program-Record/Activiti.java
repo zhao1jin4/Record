@@ -1,4 +1,43 @@
-﻿
+﻿----------------Activiti Core 7 
+
+Activiti 7 (2019-03-29) 开始有了Activiti Cloud(收费) ,Activiti Core (开源 支持SpringBoot2.x)
+https://github.com/Activiti/Activiti
+https://github.com/Activiti/activiti-examples
+
+https://activiti.gitbook.io/activiti-7-developers-guide/
+
+BOM (Bill of Materials)
+<dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.activiti.dependencies</groupId>
+			<artifactId>activiti-dependencies</artifactId>
+			<version>7.0.0.GA</version>
+			<type>pom</type>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+
+<dependency>
+    <groupId>org.activiti</groupId>
+    <artifactId>activiti-spring-boot-starter</artifactId>
+    <version>7.0.0.GA</version>
+</dependency>
+
+import org.activiti.api.task.runtime.TaskRuntime;
+import org.activiti.api.process.runtime.ProcessRuntime;
+
+@Autowired
+private TaskRuntime taskRuntime;
+
+ @Autowired
+ private ProcessRuntime processRuntime;
+
+使用spring boot的数据库连接，使用连接池为 hikari (com.zaxxer.包下，是spring boot 2.x 的默认连接池)
+日志显示 使用org/activiti/db/create/activiti.mysql.create.engine.sql  (activiti-engine-7.0.0.GA.jar)
+
+----------------Activiti 6
+
 Activiti (2017年12月版本是6.0,可能要翻墙)是基于JBPM-4 ,   ORM 使用 MyBatis3
 
 activiti-engine-6.0.0.jar

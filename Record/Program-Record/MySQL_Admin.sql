@@ -21,7 +21,7 @@ my.ini
 [mysql]
 #default-character-set=utf8
 [mysqld]
-character_set_server=utf8
+character_set_server=utf8   #新版本是 UTF8MB3
 default-storage-engine=INNODB
 basedir=D:\\Program\\mysql-8.0.11-winx64\\
 datadir=D:\\Program\\mysql-8.0.11-winx64\\data
@@ -57,7 +57,7 @@ sc delete MySQL57 删服务
 [mysql]
 #default-character-set=utf8
 [mysqld]
-character_set_server=utf8
+character_set_server=utf8   #新版本是 UTF8MB3
 default-storage-engine=INNODB
 basedir=E:\\Program\\mysql-5.7.18-winx64\\mysql-5.7.18-winx64
 datadir=E:\\Program\\mysql-5.7.18-winx64\\data
@@ -243,7 +243,7 @@ bin/mysqld --verbose --help
 #log_bin=ON
 #server-id =1  			#变量是server_id(show variables like 'server_id'),命令行是 --server-id
 #default-storage-engine=INNODB
-character_set_server=utf8
+character_set_server=utf8    #新版本是 UTF8MB3
 #lc-messages-dir=/zh/mysql-files/share    
 	-- 不加正常默认值为<basedir>/share/(但目录中有很多文件,但没有errmsg.sys)
 	-- 加了报ERROR没有/zh/mysql-files/share/errmsg.sys文件,但能使用
@@ -310,55 +310,10 @@ mysqladmin -u用户名 -p旧密码 password 新密码  -h 主机 -S socket文件
 mysqladmin -uroot  -p password root   -S /zh/mysql-files/mysql.sock
 
 ---- openSUSE 15 使用 mysql 客户端 要libtinfo.so.5 而实际上有libncurses6-6.1 ,zypper install libncurses5
-
-==========Mycat 1.6
-OSI PI 实时数据库
  
-MySQL 本身支持表分区 
 
-http://www.mycat.io/
-基于阿里开源的Cobar产品
- 
-	数据库分库(不支持分表)中间件，集群基于ZooKeeper管理,支持前端作为MySQL通用代理，后端JDBC方式支持Oracle、DB2、SQL Server 、 mongodb 
-
-	按照不同的表（或者Schema）来切分到不同的数据库（主机）之上，这种切可以称之为数据的垂直（纵向）切分  （不能join要接口解决，事务复杂）
-	表中的数据的逻辑关系，将同一个表中的数据按照某种条件拆分到多台数据库（主机）上面，这种切分称之为数据的水平（横向）切分。
-	
-	用户ID求模  这样所有的数据查询join都会在单库内解决
-    跨节点合并排序分页问题
-	
-linux：
-
-./mycat start 启动  默认监听8066
-
-./mycat stop 停止
-
-./mycat console 前台运行
-
-./mycat restart 重启服务
-
-./mycat pause 暂停
-
-./mycat status 查看启动状态
-win：
-
-直接运行startup_nowrap.bat，如果出现闪退，在cmd 命令行运行，查看出错原因。
-
-
-conf/wrapper.conf  可以修改JVM配置参数
-
-mysql -uroot -proot -P8066 -hlocalhost 
-
-conf/server.xml
-	<system> 下的属性
-	<user> 下的属性
-	
-conf/schema.xml
-conf/rule.xml
-conf/zkconf/
-
-
-==========MySQL NDB cluster 7.1  solaris----OK   现在已经有7.5.9版本了
+==========MySQL NDB cluster 7.1  solaris----OK   现在已经有7.6.9版本了
+MySQL 8.0版本不能使用NDB Cluster只能用InnoDB Cluster
 
 无共享存储设备 （Share Nothing）
 要将所有索引装载在内存中
@@ -500,13 +455,17 @@ cp support-files/my-small.cnf  /etc/my.cnf
 JDBC连接SQL节点 OK,
 
 ==========MySQL InnoDB cluster
-至少3个MySQL服务实例，每个实例运行 Group Replication,内建failover
+要MySQL 8.0版本
+
+至少3个MySQL服务实例，每个实例运行 Group Replication 
  AdminAPI 
  Time for Node Failure Recovery 要 30 seconds or longer 
 支持 MVCC，Transactions 支持所有的,而NDB只支持 READ COMMITTED
 
 
-
+mysqlsh js > dba.help('getCluster')
+mysqlsh js > dba.configureInstance()
+ 
 
 =========Replication 
 默认是异步的,不是持续连接,可以指定数据,指定表
@@ -561,43 +520,240 @@ mysqldump --all-databases --master-data > dbdump.db
 SET GLOBAL read_only = OFF;
 UNLOCK TABLES;
 
-
---- Scale-Out
-========= Group Replication
-可以多个Master
-
-
-
-========= MySQL Utilities-1.6.5
- 包括 Fabric
-解压 依赖python-2.7
-cd mysql-utilities-1.6.5
-python ./setup.py build
-sudo python ./setup.py install  安装在/usr/local/bin下 mysql开头的一些工具
-
-mysqlfailover 命令
-	全局事务标识符(GTIDs) 
-	gtid_mode=ON 
-	--interval 设置间隔秒,使用ping来检查服务是否活(--ping),如果服务不可用 使用  --failover-mode 默认auto
-	如果为elect 而从--candidates 中来选择(而不是全部)做为master
-	--master-info-repository=TABLE
- 要求所有的从设置 --report-host 和 --report-port  
- --exec-before 和 --exec-after 指定脚本返回0表示成功
  
- my.cnf 中加
-gtid_mode=on
-master_info_repository=TABLE
- 
-mysqlfailover --master=root@localhost:3331 --discover-slaves-login=root --log=log.txt
-
-mysqlrplshow
-mysqluc 命令
+========= Group Replication 未测试
+要求
+  表是Innodb引擎
+  表要有主键
+  机器内网 从8.0.14版本后支持IPv6
+配置要求
+ --log-bin[=log_file_name] 默认启用
+ --log-slave-updates
+ --binlog-format=row
+ --gtid-mode=ON
+ --master-info-repository=TABLE 
+ --relay-log-info-repository=TABLE
+ --transaction-write-set-extraction=XXHASH64
   
-
-========= MySQL Router 2.1.4  ,8.0在开发中
-是 InnoDB cluster 的一部分 ，不支持 NDB Cluster
+   slave_parallel_workers=4  线程数 0表示禁用
+   slave_preserve_commit_order=1 
+   slave_parallel_type=LOGICAL_CLOCK （ 要求 slave_preserve_commit_order=1 ）
+    
+限制
+ 多主节点不支持SERIALIZABLE的事务隔离级别
+ 多主节点如有select ...for update 可死锁
+ 不可大事务 group_replication_transaction_size_limit
+ 多主节点不支持cascade外键
+ 。。。。
  
 
+2n + 1个节点，那么允许n个节点失效，这个GR仍然能够对外提供服务
+
+single-primary模式下，组内只有一个节点负责写入，读可以从任意一个节点读取  ，当primary节点意外宕机或者下线，在满足大多数节点存活的情况下，group内部发起选举，选出下一个可用的读节点，提升为primary节点。
+  在切换primary期间，mysql group不会处理应用重连接到新的主，这需要应用层自己或者由另外的中间件层（proxy or router）去保证。
+ 
+multi-primary模式即为多写方案，即写操作会下发到组内所有节点，组内所有节点同时可读可写
+   当不同实例并发对同一行发起修改，在同个组内广播认可时，会出现并发冲突，那么会按照先执行的提交，后执行的回滚
+   
+一组中只可用一种模式
+
+ 
+ 
+group_replication_single_primary_mode=off 表示多主节点
+
+select @@read_only;
+
+
+可以多个Master
+SELECT MEMBER_HOST, MEMBER_ROLE FROM performance_schema.replication_group_members;
+
+cd /opt/mysql-8.0.15-linux-glibc2.12-x86_64
+mkdir group-repl-data
+bin/mysqld --initialize-insecure --basedir=$PWD  --datadir=$PWD/group-repl-data/s1   
+bin/mysqld --initialize-insecure --basedir=$PWD  --datadir=$PWD/group-repl-data/s2
+bin/mysqld --initialize-insecure --basedir=$PWD --datadir=$PWD/group-repl-data/s3
+
+不建议生产环境用--initialize-insecure 因root密码为空
+
+vi $PWD/group-repl-data/s1/s1.cnf
+ [mysqld]
+ #mysql config
+ datadir=/opt/mysql-8.0.15-linux-glibc2.12-x86_64/group-repl-data/s1
+ basedir=/opt/mysql-8.0.15-linux-glibc2.12-x86_64
+ port=24801
+ socket=/opt/mysql-8.0.15-linux-glibc2.12-x86_64/group-repl-data/s1/s1.sock
+ 
+ #replication config
+ report_host=127.0.0.1
+ server_id=1
+ gtid_mode=ON
+ enforce_gtid_consistency=ON
+ binlog_checksum=NONE
+ 
+ #group replication config
+ transaction_write_set_extraction=XXHASH64   这个是默认值
+ #开始不认这个选项前加loose-前缀可启动，后面安装插件后就可去除loose-前缀
+ group_replication_group_name="8cb03f62-5ad5-11e9-9a7d-588a5a3bf786"   使用SELECT UUID()生成值   
+ group_replication_start_on_boot=off
+ group_replication_local_address= "127.0.0.1:24901"   这个端口每个文件不一样是seeds中的值
+ group_replication_group_seeds= "127.0.0.1:24901,127.0.0.1:24902,127.0.0.1:24903"
+ group_replication_bootstrap_group=off
+
+#附加配置
+mysqlx_port=33061
+mysqlx_socket=/opt/mysql-8.0.15-linux-glibc2.12-x86_64/group-repl-data/s1/mysqlx.sock
+
+#log-bin=mylog-gin
+#log-slave-updates
+#binlog-format=row
+#master-info-repository=TABLE
+#relay-log-info-repository=TABLE
+#slave_parallel_workers=4
+#slave_preserve_commit_order=1
+#slave_parallel_type=LOGICAL_CLOCK
+
+启动 
+bin/mysqld --defaults-file=group-repl-data/s1/s1.cnf 
+
+登录mysql
+bin/mysql -uroot -P24081 -S /opt/mysql-8.0.15-linux-glibc2.12-x86_64/group-repl-data/s1/s1.sock
+
+ SET SQL_LOG_BIN=0;
+ CREATE USER rpl_user@'%' IDENTIFIED BY 'password';
+ GRANT REPLICATION SLAVE ON *.* TO rpl_user@'%';
+ FLUSH PRIVILEGES;
+ SET SQL_LOG_BIN=1;
+
+CHANGE MASTER TO MASTER_USER='rpl_user', MASTER_PASSWORD='password' FOR CHANNEL 'group_replication_recovery';
+
+安装 group-replication 插件，后才可识别group_replication_group_name配置
+INSTALL PLUGIN group_replication SONAME 'group_replication.so';
+SHOW PLUGINS;
+
+SET GLOBAL group_replication_bootstrap_group=ON;  --只加第一个实例用
+START GROUP_REPLICATION;
+SET GLOBAL group_replication_bootstrap_group=OFF;  --只加第一个实例用
+
+
+SELECT * FROM performance_schema.replication_group_members;  可以看哪个是主  是否在线
+//建库，建表，加数据  --只加第一个实例用
+
+SHOW BINLOG EVENTS;
+
+--再重复上面步骤增加第二个实例，配置修改两个端口和目录，server_id修改,group_name不变 ， 看不能查到前面建的表
+
+ 
+当在 START GROUP_REPLICATION; 时失败？？？原因是24901,34903没有监听？？？
+systemctl stop firewalld
+
+========= MySQL Shell 8
+bin/mysqlsh
+MySQL  JS > \connect user1@127.0.0.1?connect-timeout=2000
+bin/mysqlsh  user1@127.0.0.1:33060/mydb
+
+
+\quit
+\status
+\history
+\use mydb
+\js  切换到js
+\sql 切换到sql
+\source xx.js
+\warnings
+\nowarnings
+
+bin/mysqlsh  user1@127.0.0.1:33060/mydb   --import file collection       
+                                          --import file table [column] 
+        如file为-表示从标准输入
+  两个都是指定数据库
+  -D, --schema=name     
+  --database=name    
+
+
+也是BSON
+
+全局变量 session,db,dba (InnoDB Cluster),shell,util
+
+
+-----
+util.importJson("/tmp/products.json", {schema: "mydb", collection: "products"})
+
+var mySession = mysqlx.getSession('user1:user1@localhost');
+ 
+
+---x-devapi
+var mysqlx = require('mysqlx');
+
+// Connect to server
+var mySession = mysqlx.getSession( {
+host: 'localhost', port: 33060,
+user: 'user1', password: 'user1'} );
+
+var myDb = mySession.getSchema('mydb');
+
+// Create a new collection 'my_collection'
+var myColl = myDb.createCollection('my_collection');
+
+// Insert documents
+myColl.add({_id: '1', name: 'Sakila', age: 15}).execute();
+myColl.add({_id: '2', name: 'Susanne', age: 24}).execute();
+myColl.add({_id: '3', name: 'User', age: 39}).execute();
+
+// Find a document
+var docs = myColl.find('name like :param1 AND age < :param2').limit(1).
+        bind('param1','S%').bind('param2',20).execute();
+
+// Print document
+print(docs.fetchOne());
+
+// Drop the collection
+myDb.dropCollection('my_collection'); 
+ 
+-----mysqlsh NoSQL
+MySQL  JS > db.my_collection.find()
+MySQL  JS > db.my_collection.find({"name":"User"})
+MySQL  JS > db.my_collection.find("name='User'");
+MySQL  JS > db.my_collection.find("age>30");
+MySQL  JS > db.my_collection.find("age>30 and name='User'");
+MySQL  JS > db.my_collection.find("name = :v_user").bind("v_user","User")
+
+var myFind = db.my_collection.find("name =: v_user")
+myFind.bind('v_user', 'User')
+
+db.my_collection.find("age>30").fields(["name", "age"])
+
+db.my_collection.find().fields(mysqlx.expr('{"Name": upper(name), "Age": age*10}')).limit(2).skip(1)
+db.my_collection.find().fields(mysqlx.expr('{"Name": upper(name), "Age": age*10}')).sort(["Age desc"]).limit(2)
+
+
+db.my_collection.modify("_id = '1'").set("demographics", {"LifeExpectancy": 78, "Population": 28})
+db.my_collection.modify("_id = '1'").unset("demographics")
+
+db.my_collection.modify("_id = '1'").set("Airports", [])
+
+db.my_collection.remove("_id = '1'")   //可加sort,limit
+ 
+---报错!!!
+db.my_collection.modify("_id = '1'").array_append("$.Airports", "ORY");
+db.my_collection.modify("_id = '1'").array_insert("$.Airports[0]", "CDG")
+db.my_collection.modify("_id = '1'").array_delete("$.Airports[1]")
+
+ //索引报错!!!
+ db.my_collection.create_index("name", mysqlx.IndexType.UNIQUE).field("name", "TEXT(40)", true).execute()
+ db.my_collection.create_index("pop").field("demographics.Population", "INTEGER", False).execute()
+ db.my_collection.drop_index("pop").execute()
+ 
+ 
+ 
+ 
+ 
+ 
+========= MySQL Router   8
+是 InnoDB cluster 的一部分 ，不支持 NDB Cluster
+MySQLRouter安装在和应用相同的机器，再连接InnoDB Cluster
+ 做failover
+ 
+ 
 
 =======远程DB的连接,federated引擎
 SHOW ENGINES 有FEDERATED 默认不支持,要启用在启动mysql时加 --federated 或者 --federated=ON , 如是my.cnf中则是  federated=ON 
@@ -911,6 +1067,14 @@ select * from information_schema.ENGINES  所有支持的引擎
 
 select * from information_schema.SCHEMA_PRIVILEGES   -- 所有的权限
 select * from information_schema.SCHEMA_PRIVILEGES where SCHEMA_PRIVILEGES.GRANTEE like "'myuser1%"
+
+--------- sys schema
+SELECT * FROM sys.version;
+
+select * from sys.session;
+select * from sys.processlist;
+ select * from sys.innodb_lock_waits ;
+
 
 ======= 
 SHOW STATUS LIKE 'com%'; //表示insert,update,select,delete语句执行次数， 默认是session的，可加 global

@@ -58,7 +58,12 @@ File->optoins->Customize Ribbon-> 右则组中复选 Developer ,就会多生成�
 
 Review-> Tracking组中 打开 Track Chnages  如删,加文字可以记录,可以点 new Comment 写说明  ,有Accept按钮
 
------excel 2010 
+-----excel 2010
+在线预览excel
+
+https://view.officeapps.live.com/op/view.aspx?src=www.xxx.com/xx.xlsx
+
+
 excel 中可以在单元格用  ='Name List'!D8  表示引用Name List的工作表中的D8 内容,
 excel 中的单元格可以选择下拉
 	选中一列,数据->Data Tools->数据有效性->在允许中选择[序列]->在来源中输入以,分隔的字符

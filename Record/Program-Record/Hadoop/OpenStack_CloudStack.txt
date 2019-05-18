@@ -8,6 +8,7 @@ apache CloudStack的目标是提供高度可用的、高度可扩展的能够进
 regions -> zone->Pod, secondary storage ->cluster->host, primary storage
 
 ===========openStack
+
 Infrastructure-as-a-Service (IaaS)
  
 openStack 对 KVM 支持最好 (redhat 支持)
@@ -22,7 +23,7 @@ cloudStack(上层) , openStack(底层,HP基于它后来又退出,可能Kubernete
 社区活越度大,用python语言写的
 
 
-
+使用 RabbitMQ
 
 官方说　Python 2.7 使用截止 2020年,后面用python-3.5(从Ｈ版本就开始做python3)
  

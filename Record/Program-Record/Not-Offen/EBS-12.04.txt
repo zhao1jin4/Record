@@ -1,10 +1,6 @@
-http://metalink.oracle.com         
-http://support.oracle.com  改了
+http://support.oracle.com  
 
-username/password: zhanggl@shtel.com.cn/shanghaitel
-
-
-http://edelivery.oracle.com	 E-Delivery  递送
+http://edelivery.oracle.com	 E-Delivery
 
 http://www.oracle.com/technology/documentation/applications.html  在线文档
 
@@ -337,7 +333,7 @@ PL/SQL library后面就是就是pll
 
 
 
------------2009-05-05    五一刚过后,EBS-12.1.1 就发布了 
+-----------EBS-12.1.1  
 linux系统/分区的10G-12G
 安装文件47G ,
 Fresh(PROD,安装时suit license)要55G+35G 

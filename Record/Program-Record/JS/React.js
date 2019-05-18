@@ -1,5 +1,6 @@
  
-
+最早版本v0.3.0 在 Jul 2, 2013 发布,
+v15.0.0 (在Apr 8, 2016 发布)是在v0.14.8的下一版本的命名
 
 react 官方中文翻译网  https://doc.react-china.org/
  
@@ -24,8 +25,8 @@ https://reacteasyui.github.io/ 国产的 组件样式依赖 Bootstrap
 
 Material UI  适用移动端,实现google android 的Material风格(Storybook生成Material UI主题 ) 
 
-react-bootstrap(Bootstrap 4)   
-https://github.com/react-bootstrap/react-bootstrap  
+react-bootstrap(显示Bootstrap 3 进入页是 4)   
+https://github.com/react-bootstrap/react-bootstrap 有链接到  https://react-bootstrap.github.io/
 
 reactstrap: Simple Bootstrap 4 components built with tether
 https://reactstrap.github.io/
@@ -80,22 +81,25 @@ npm run dev  会启动 http://localhost:3000
 
 package.json文件中有 dependencies字段,表示依赖的模块, 用 npm install 就会安装所有的依赖
 
-package.json 下增加如下设置代理，npm start就可debug
+
+https://facebook.github.io/create-react-app/docs/proxying-api-requests-in-development
+
+package.json 下增加如下设置代理，npm start就可debug,但必须是使用index.html中用ajax请求才行，如在浏览器无论输入什么地址还是进入index.html页？？
 "proxy":"http://localhost:8080/S_ReactEasyUI",
 
 vs code 调试node (react 的npm start )
   my-app/node_modules/react-scripts/bin/react-scripts.js 看脚本找下面文件
-  my-app/node_modules/react-scripts/scripts/start.js  vscode工具打开文件 ，打断点，点debug按钮
-  my-app/node_modules/react-scripts/scripts/  目录下 vscode工具 生成.vscode/launch.json（如在其它地方生成可移动）
+  my-app/node_modules/react-scripts/scripts/start.js  vscode工具打开文件  -> 打断点 -> debug视图中点debug按钮
+  vscode工具 生成.vscode/launch.json（没有这个.vscode目录及文件也可debug）
    文件内容有
    "type": "node",
    "program": "${workspaceFolder}/start"
    
 React Developer Tools (firefox ,chrome 插件)
-如独立安装  npm install -g react-devtools  再 react-devtools
+如独立安装  npm install -g react-devtools  再 react-devtools 显示界面，监听8097
  
 
----create-react-app
+---create-react-app  可以debug,firefox比chrome在调试jsx效果更好
 //D:\Program\node-v10.13.0-win-x64\node_modules\create-react-app
 npm install -g create-react-app
 create-react-app my-app  //也会下载react, react-dom(这两个8M多), and react-scripts(这个很大,3个共200M多)...很多东西 
@@ -111,11 +115,13 @@ npm run build ( package.json有定义 "build": "react-scripts build", ) 生成 b
 npm start  //开发级,看报错要ping通`hostname` 打开 http://localhost:3000  
 
 生成的
-package.json 中有 "main": "index.js" 
+node_modules/...
+package.json
+  中有 "main": "index.js" 
 生成的index.js代码就有 
 	import './index.css';
 	import App from './App';
-node_modules/...
+
 public/index.html
 public/manifest.json
 
@@ -146,17 +152,21 @@ npm install -g jquery
 npm install --save jquery
 import $ from  'jquery'
 
----手工引用js
+------ 手工引用js    chrome,firefox不能debug
 不能从node_modules复制.jsp 因有reuire语法
 node_modules\react\cjs下有 react.production.min.js , react.development.js
 node_modules\react-dom\cjs下有 react-dom.production.min.js , react-dom.development.js
+ 
 
-https://github.com/facebook/react/releases 下载.js
+react-16.6.3 是官方最后提供的js下载可 <script src=""></script>方式使用
+源码包中的内容是npm方式，即有require
+<script src="react-16.6.3/react.production.min.js"></script>
+<script src="react-16.6.3/react-dom.production.min.js"></script>
+  
+react-16.8.4 下载地址  https://unpkg.com/react/ 使用时报警告
+<script src="https://unpkg.com/react@16.8.4/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@16.8.4/umd/react-dom.development.js" crossorigin></script>
 
-zip包没什么用，要下.js,但最新的 v16.7.0 没有JS ??? 
-
-<script src="react-16.6.1/react.production.min.js"></script>
-<script src="react-16.6.1/react-dom.production.min.js"></script>
 <!-- offical  
  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 -->  
@@ -172,10 +182,8 @@ zip包没什么用，要下.js,但最新的 v16.7.0 没有JS ???
 <div id="example"></div>
 
 <div id="box"></div>
- <!--
- type="text/javascript"
-  type="text/babel" -->   
-<script type="text/babel">
+ <!--  type="text/babel" 方式chrome,firefox不能debug!!!! -->   
+<script type="text/babel"> 
   
 	var myStyle = {
 		fontSize: 30,
@@ -211,7 +219,7 @@ zip包没什么用，要下.js,但最新的 v16.7.0 没有JS ???
 
 	  
 	 class Count extends React.Component 
-	 {
+	 { 
 		constructor(myprops)//构造器,可选的,可以加 props,把会标签的所有属性传进来
 		{
 			console.log("Id="+myprops.id)
@@ -350,23 +358,24 @@ React.Component 的生命周期  will方法和did方法
 1. Mounting  的方法 
 
     constructor()
-    componentWillMount()
+    static getDerivedStateFromProps()   //UNSAFE_componentWillMount()
     render()
     componentDidMount()
 
 2.Updating 当props or state属性修改调用的方法  
 
-    componentWillReceiveProps()
-    shouldComponentUpdate()
-    componentWillUpdate()
+    static getDerivedStateFromProps()
+    shouldComponentUpdate() 
     render()
-    componentDidUpdate()
+    getSnapshotBeforeUpdate()    //UNSAFE_componentWillUpdate()
+    componentDidUpdate() 如shouldComponentUpdate()返回false不会被调用
 
 3.Unmounting 
-    componentWillUnmount()
+    componentWillUnmount()  //will只有Unmount了
 
-错误时调用   componentDidCatch()
-
+4.Error Handling
+      static getDerivedStateFromError()
+      componentDidCatch()
 
 不使用JSX 
 <div id="root"></div>
@@ -751,6 +760,129 @@ class MyComponent extends React.Component {
   }
 }
  
+----- 高级指引中的 Context
+一种在组件之间共享此类值的方式，而不必显式地通过组件树的逐层传递 props。
+Context 主要应用场景在于很多不同层级的组件需要访问同样一些的数据。请谨慎使用，因为这会使得组件的复用性变差。
+
+
+// 为当前的 theme 创建一个 context（“light”为默认值）。
+const ThemeContext = React.createContext('light'); 
+
+class App extends React.Component {
+  render() {
+    // 使用一个 Provider 来将当前的 theme 传递给以下的组件树。
+    // 无论多深，任何组件都能读取这个值。
+    // 在这个例子中，我们将 “dark” 作为当前的值传递下去。
+    return (
+      <ThemeContext.Provider value="dark">
+        <Toolbar />
+      </ThemeContext.Provider>
+    );
+  }
+}
+
+// 中间的组件再也不必指明往下传递 theme 了。
+function Toolbar(props) {
+  return (
+    <div>
+      <ThemedButton />
+    </div>
+  );
+}
+
+class ThemedButton extends React.Component {
+  // 指定 contextType 读取当前的 theme context。
+  // React 会往上找到最近的 theme Provider，然后使用它的值。
+  // 在这个例子中，当前的 theme 值为 “dark”。
+  static contextType = ThemeContext; //必须是  static contextType 
+  render() {
+    return <button theme={this.context} >主题{this.context}按钮</button>;
+  }
+}
+
+
+------高级指引中的  高阶组件
+
+
+
+------高级指引中的 Render Props
+
+
+
+------Hooks 是 React 16.8的新功能
+<script src="unpkg_react-16.8.4/react.development.js"></script>
+<script src="unpkg_react-16.8.4/react-dom.development.js"></script>
+ 这种引入的方式不行，报useState is not define
  
+ Hook可在组件之间复用状态逻辑
  
------- 
+---AppHook.js
+import React, {useState,useEffect} from 'react'; 
+function App()  //Hook在类中不能工作， （不推荐修改现有的代码，修改为不使用类，但可以新代码使用hook不使用类），可以保存值的函数，函数组件
+{ 
+ const [count, setCount] = useState(0); //useState 返回两参数(pair)，当前状态值和一个函数用于更新值,参数是是初始状态 
+   //可以再增加useState要保存多个值
+
+  
+  
+  // 等同于 componentDidMount, componentDidUpdate,  componentWillUnmount
+  //可用多次使用 useEffect,按照 effect 声明的顺序依次调用
+  //useLayoutEffect
+  useEffect(() => { 
+    document.title = `You clicked ${count} times`;
+     //useEffect可选的返回一个无参函数 用于清除，组件卸载的时候执行清除操作
+  });
+  
+  
+  return (
+    <div>
+      <p>You clicked {count} times</p>   {/* 直接用，(符合react的数据变 联动 界面） */}
+      <button onClick={() => setCount(count + 1)}>
+        Click me
+      </button>
+    </div>
+  );
+}
+
+使用Hook的规则
+  只在最顶层使用 Hook ,不要在循环，条件或嵌套函数中调用 Hook
+  只在 React 函数中调用 Hook
+  
+npm install eslint-plugin-react-hooks --save-dev   来强制执行这Hook规则
+
+自定义hook要求函数名字以use开头,可带一个参数，函数内部可以调用useState,useEffect .可以实现代码共享
+
+两个组件中使用相同的 自定义Hook 会共享 state 吗?不会
+
+Hook API 还有很多其它的use方法
+基础 Hook
+ useContext
+ 接收一个 context 对象（React.createContext 的返回值）并返回该 context 的当前值，
+ 调用了 useContext 的组件总会在 context 值变化时重新渲染
+
+  
+额外的 Hook
+ useReducer
+ useCallback
+ useMemo
+ useRef
+ useImperativeHandle
+ useDebugValue
+ useLayoutEffect
+ 
+-----------redux 是作者受  Flux 的影响
+
+官方文档有建议用  redux 中的 reducer 来编写
+
+npm install -g redux
+npm install --save redux
+redux@4.0.1
+
+npm install -g  react-redux
+npm install --save react-redux
+react-redux@7.0.3
+
+
+
+
+

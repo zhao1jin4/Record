@@ -8,7 +8,7 @@ Grumpy 不支持C扩展，没有 CPython 的全局解释器锁——它被认为
 
 但有些人是放弃Go 语言的   2009年,2010年发布的语言,也挺久了,未火起来了
 
-
+RabbitMQ , MongoDB 有 go客户端
 
 https://golang.org/  要翻墙才能出去(Google 的语言) 
 支持多个平台,windows ,linux(有linux ARMv6),mac,freeBSD

@@ -264,6 +264,8 @@ ip route replace default via 10.31.192.1 dev wlan0
 ip route del 10.91.0.0/16
 ip route add 10.91.0.0/16 via 10.91.3.1 dev p4p2
 
+ip route save > route.bak   保存为二进制文件 
+ip route restore < route.bak
 
 ip address show   (无ifconfig,net-tools 不再维护, 我们强烈建议以 ip 命令(iproute2包中)代替 ifconfig)
 address  可缩写为addr或a
@@ -859,14 +861,15 @@ su root
     Failed		libgstreamer-0.10.so.0
     Failed		libgstapp-0.10.so.0
 	
- 但记录输入的IP还是要root登录启动  vmware-view 才行
-  不影响 vmware-view 命令启动进入界面,可以成功进入
+可以记录输入过的IP,不同的登录用户 运行 vmware-view 记录不一样 
   
+要用root运行 vmware-view  可以下拉选择到的U盘(不能弹出本地Files 中的U盘，可能虚拟机里要慢点反应) 
 
+
+只要是linux版本就这样，windows版本不存这个问题
 在GuestOS中按 alt +tab 被Host OS拦截,输入法win+space 被Host OS拦截 ,不方便(VMWare Workstation也是一样的问题)
 在外部系统按  alt+tab 进入虚拟机，在虚拟机里alt键还是被按住的,记得要再按一次alt解除,不方便(VMWare Workstation也是一样的问题)
  
-可以下拉选择到的U盘(要先弹出本地Files 中的U盘) ,虚拟机里不识别驱动就没办法了 
 ----vmware workstation pro 15
 默认VM位置 /var/lib/vmware/Shared VMs
 使用要安装gcc-7.3.x,
@@ -917,7 +920,6 @@ anjuta
 thunderbird
 flashplayer
 stardict-3
-mysql-workbench 
 FileZilla
 JD-GUI
 wireshark (有源码无linux zypper install wireshark)
@@ -940,6 +942,58 @@ DiffMerge fedora版本 依赖于 libpng15.so.15 而openSUSE-leap-15是16版本,
 	https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-29&arch=x86_64
 	比如  http://mirrors.163.com/fedora/releases/29/Everything/x86_64/os/
 
+
+==========mysql-workbench  8 源码编译安装
+cd mysql-workbench-community-8.0.13-src   (8.0.15)
+		zypper install cmake
+		解压目录
+		mkdir wb-build
+  cd wb-build
+		cmake ..
+		zypper install gtk3-devel
+		zypper install gtkmm3-devel
+		zypper install swig
+  
+		ANTLR4 解压 antlr4-cpp-runtime-4.7.2-source.zip
+					cmake . 提示要uuid
+							zypper install libuuid-devel
+					cmake .
+					make
+					sudo make install
+					
+		zypper install python-devel
+		zypper install libmysqld-devel
+		zypper install libxml2-devel
+		zypper install gdal-devel
+		zypper install libssh-devel  (到8.0.15要新的0.8.5版本)
+					libssh-0.8.7，删除老的版本
+					   mkdir build
+								cd build
+								cmake ..
+								make
+								sudo make install (默认安装在/usr/local/下)
+							set C_INCLUDE_PATH=/usr/local/include
+							set	CPLUS_INCLUDE_PATH=/usr/local/include
+							set	LD_LIBRARY_PATH=/usr/local/lib
+	 zypper install Unixodbc-devel
+		zypper install libzip-devel  
+		zypper install libsecret-devel
+		zypper install vsqlite++-devel （到8.0.15要）
+		
+ 8.0.13和8.0.15 	日志文件中报cannot find -lpthreads (glibc-devel中有 libpthread.so,多了个s  ?????)
+ 
+ cmake  -DWITH_ANTLR_JAR=/mnt/ext4/Ext4_NEW/mysql-workbench8_src_deps/antlr-4.7.1-complete.jar ..
+		
+		 
+		--- el7 的mysql-workbench-8.0.13 ，8.0.15
+		 要  libzip.so.2 官方最新才1.5.2  cp /usr/lib64/libzip.so /usr/lib64/libzip.so.2
+			要  libssl.so.10  					 								cp /usr/lib64/libssl.so.1.0.0  /usr/lib64/libssl.so.10 
+			要  libcrypto.so.10    									cp /usr/lib64/libcrypto.so.1.0.0 /usr/lib64/libcrypto.so.10  
+		 要  libjpeg.so.62  													zypper install libjpeg62 
+							libtiff.so.5(有/usr/lib64/libtiff.so.5 )
+			还不行???
+							 
+			
 ====node.js源码安装
 ./configure
 make
@@ -1069,7 +1123,7 @@ systemctl start  rpcbind.service
 /etc/init.d/nfs start 是客户端 , 有nfs进程
 
 cat /var/log/messages 有日志 (openSUSE-leap-15没有这个文件错误进入不了系统提示用  journalctl -xb )
-
+dmesg
 
 cat /etc/services | grep rpcbind 查到是111 
 cat /etc/services | grep nfs 查到是2049
@@ -1597,7 +1651,7 @@ vim 和gedit 打开windows下的有中文GBK文件时,显示其它的怪字符
 也不存在gedit不能复制文本到firefox的问题
 也不存在fat32分区文件丢失的情况
 也不会出现开机时的报的错误信息
-Vmware Horizon Client 记得是可以识别U盘的(root or zhaojin 启动),
+Vmware Horizon Client 记得是可以识别U盘的(root or zh 启动),
 
 --公司电脑新硬件
 刚登录后可以在gedit复制英文到firefox,后面就不行了，不能复制大问题 ！！！！ （原因可能是同时安装fcitx,ibus,环境变量设置用fcitx，ibus又可以在kmodoedit中用，应该不能用ibus）

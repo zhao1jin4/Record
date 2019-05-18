@@ -1,5 +1,6 @@
-http://developer.gnome.org/references  下有很多 Glib,GTK+ 3,GDK 3,libxml2,libxsl
-http://developer.gnome.org/gtk3/stable/
+https://developer.gnome.org/references  下有很多 Glib,GTK+ 3,GDK 3,libxml2,libxsl,GSON-Glib
+https://developer.gnome.org/gtk3/stable/gtk-getting-started.html
+https://developer.gnome.org/gtk4/stable/  已经有GTK+ 4 library, version 3.94.0
 
 Eclipse只有GTK的,Firefox基于GTK
 

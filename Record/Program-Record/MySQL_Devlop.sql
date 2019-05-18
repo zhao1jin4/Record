@@ -874,18 +874,23 @@ INSERT INTO myset (col) VALUES
 SHOW ERRORS;
 SHOW WARNINGS;
 
+ 
+ 
+
 select @@tx_isolation;　默认 REPEATABLE-READ
+show variables like '%isolation%';　 同 session
+
+select @@transaction_isolation; 8版本用这个
+
 可设置的值为
 READ-UNCOMMITTED
 READ-COMMITTED
-REPEATABLE-READ
-SERIALIZABLE
+REPEATABLE-READ 当select 带有 FOR UPDATE 或者 FOR SHARE 加锁，这个事务如已经读过, 如另一个事务commit修改了（可以），这个事务读不到
+SERIALIZABLE    把所有的 select 转换为 SELECT ... FOR SHARE
 
 
 
-show variables like 'tx_isolation%';　 同 session 
-
-set global/session transaction isolation level read committed   -- read uncommitted
+set global/session transaction isolation level read committed   -- read uncommitted  [ READ WRITE | READ ONLY]
 set global/session  transaction isolation level  repeatable read 　 --  SERIALIZABLE　
 
 
@@ -1324,5 +1329,50 @@ call queryLargeTable('AKAPP');
 select * from res;
   
   
- --- JSON functions  是 MySQL 5.7.8 新加的
-	
+ --- JSON functions  是 MySQL 5.7.8 新加的 为NoSQL的BSON使用
+ 
+不修改原数组，产生新的结果
+-- JSON_ARRAY_APPEND
+SET @j = '["a", ["b", "c"], "d"]';
+SELECT JSON_ARRAY_APPEND(@j, '$[1]', 1); //结果为 ["a", ["b", "c", 1], "d"]
+SELECT JSON_ARRAY_APPEND(@j, '$[1][0]', 3); //["a", [["b", 3], "c"], "d"]
+ 
+SET @j = '{"a": 1, "b": [2, 3], "c": 4}';
+SELECT JSON_ARRAY_APPEND(@j, '$.b', 'x'); //结果为 {"a": 1, "b": [2, 3, "x"], "c": 4}
+
+SET @j = '{"a": 1}';
+SELECT JSON_ARRAY_APPEND(@j, '$', 'z');  //结果为  [{"a": 1}, "z"]    
+
+--   JSON_ARRAY_INSERT
+SET @j = '["a", {"b": [1, 2]}, [3, 4]]';
+SELECT JSON_ARRAY_INSERT(@j, '$[1]', 'x');  //在下标前插入，结果为["a", "x", {"b": [1, 2]}, [3, 4]] 
+SELECT JSON_ARRAY_INSERT(@j, '$[100]', 'x');//超长在未尾增加,结果为  ["a", {"b": [1, 2]}, [3, 4], "x"] 
+SELECT JSON_ARRAY_INSERT(@j, '$[1].b[0]', 'x'); //["a", {"b": ["x", 1, 2]}, [3, 4]] 
+
+-- JSON_INSERT
+SET @j = '{ "a": 1, "b": [2, 3]}';
+SELECT JSON_INSERT(@j, '$.a', 10, '$.c', '[true, false]');//已经存在的a不做修改   {"a": 1, "b": [2, 3], "c": "[true, false]"} 
+SELECT JSON_INSERT(@j, '$.a', 10, '$.c', CAST('[true, false]' AS JSON));  //{"a": 1, "b": [2, 3], "c": [true, false]}      
+   
+
+SELECT JSON_MERGE_PATCH('{"name": "x"}', '{"id": 47}'); //{"id": 47, "name": "x"}
+SELECT JSON_MERGE_PATCH('{ "a": 1, "b": 2 }',  '{ "a": 3, "c": 4 }'); // 相同无素使用最后的
+SELECT JSON_MERGE_PATCH('[1, 2]', '[true, false]');  //如果第一个参数不是对象就相当于空对象， [true, false]     
+SELECT JSON_MERGE_PATCH('1', 'true'); //true
+  
+SELECT JSON_MERGE_PRESERVE('[1, 2]', '[true, false]');  // [1, 2, true, false]   
+SELECT JSON_MERGE_PRESERVE('[1, 2]', '{"id": 47}');  // [1, 2, {"id": 47}]         
+SELECT JSON_MERGE_PRESERVE('1', 'true'); //变成数组 [1, true]
+SELECT JSON_MERGE_PRESERVE('{ "a": 1, "b": 2 }',  '{ "a": 3, "c": 4 }'); //相同无元素变数组 {"a": [1, 3], "b": 2, "c": 4}   
+
+
+SET @j = '{ "a": 1, "b": [2, 3]}';
+SELECT JSON_REPLACE(@j, '$.a', 10, '$.c', '[true, false]'); //不存在不增加 {"a": 10, "b": [2, 3]}     
+
+
+SET @j = '{ "a": 1, "b": [2, 3]}';
+SELECT JSON_SET(@j, '$.a', 10, '$.c', '[true, false]');  //不存在要增加   {"a": 10, "b": [2, 3], "c": "[true, false]"} 
+
+SET @j = '["a", ["b", "c"], "d"]';
+SELECT JSON_REMOVE(@j, '$[1]'); // ["a", "d"]     
+

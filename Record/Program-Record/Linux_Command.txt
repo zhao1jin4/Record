@@ -88,10 +88,56 @@ gedit -3 在打开文件时有选择编码
 
 用  "CD/DVD创建者"打开*.iso文件
 
- dconf-editor 图表配置工具　为配置 dconf
 	
- 字体  在	/usr/share/fonts/truetype/   ,ecipse chrome等默认字体为mono space
+字体  在	/usr/share/fonts/truetype/   ,ecipse chrome等默认字体为mono space
  
+dconf-editor 图表配置工具　为配置 dconf
+----themes 
+
+https://www.gnome-look.org/browse/cat/135/ord/latest/
+ McHigh Sierra (测试 放~/.themes 下成功，即只Application选择成功,即窗口样式,还有Cursor,Icon没有选择)
+
+Gnome3的主题存放在/usr/share/themes/目录 (有Adwaita目录) 与 ~/.themes  两个目录下
+  Tweaks(gnome-tweak-tool)应用可以选择主题(Adwaita是默认的)
+  
+---icons , cursor
+/usr/share/icons  (有Adwaita目录)  ~/.icons
+两个目录 测试 MacOSX-icon-theme 图标成功
+ ~/.local/share/icons  目录也测试成功 
+
+----extensions
+https://wiki.gnome.org/Personalization 下有extensions  但没有themes
+
+Gnome3的扩展存放在/usr/share/gnome-shell/extensions/目录  与 ~/.local/share/gnome-shell/extensions/ 目录下
+
+gnome-shell-extension-prefs  的开Shell Extenstions窗口 (Tweaks 应用也可有这些配置),有很多开关
+  Alternate Tab          按alt+tab相同的应用是在显示在一组
+  Applications Menu      是否在窗口左上角显示gnome2风格的菜单
+  Places Status Indicator在左上角是否显示到某个目录的快捷菜单
+  Window List            显示像windows的任务栏 ,在任务栏中也不能拖动应用
+        可以设置按钮,设置always group windows 后看不出一个应用打开了多个窗口，Group windows when space is limited,默认是Never group windows
+  Workspace Indicator    在右上角显示当前在哪个虚拟桌面
+  
+  
+https://github.com/bsaleil/todolist-gnome-shell-extension
+  (放在~/.local下测试成功,但目录名一定要要叫todolist@bsaleil.org才行)
+文件放目录后重启 gnome-shell（不知道如何做,kill不行的,再次进登录不容易，alt+f2输入r回车提示在Wayland下不可用）或者 注销,gnome-tweak-tool打开
+----
+Tweaks ->windows->Titlebar Buttions 区 打开 Maximize,Minimize 显示最大化，最小化按钮
+  根据选择提示背景桌面图片存放在 /usr/share/pixmaps/backgrounds/gnome/
+  锁屏显示是xml文件 在 /usr/share/wallpapers/openSUSE-default.xml
+dconf-editor 的图形界面 -> 找到org/gnome/desktop/screensaver
+   其中 picture-url的值默认也是/usr/share/wallpapers/openSUSE-default.xml，可以修改指向图片，只是显示日期背景，不是输入密码背景
+
+----
+---Gnome 3 自带自动切换壁纸的功能
+/usr/share/backgrounds/
+
+/usr/share/gnome-background-properties/ 下有xml文件 配置桌面背景
+
+
+
+---
 ========================命令
 !ps 表示调用历史命令中以最近的 ps开头的
 
@@ -205,6 +251,7 @@ write root pts/2 对方只显示,不能回复,要双方都使用write
 talk  135.251.27.76  pts/1  #可能要安装talk-server
 talk  user@135.251.27.76  pts/1
 
+gnome-calculator
 bc   计算器   5^3=125
 cal  日历
 
@@ -572,6 +619,12 @@ mkfs -t ext3 /dev/hda
 fsck  不能对已挂载的
 
 ls /dev/ram*     是内存
+
+查电脑最大支持内存 dmidecode | grep -P 'Maximum\s+Capacity'
+看内存是DDR几代 dmidecode -t memory
+
+
+
 mkfs -t ext3 /dev/ram15
 mount /dev/ram15 /mnt/mem1
 df   可显示挂载状态 (磁盘的可用空间)
@@ -594,9 +647,10 @@ find /usr/ -name core -exec rm {} \;     #注　\前有空格　\后无空格
 find /usr/ -name '*.so'
 
 find ./ -name  *.h -type f | xargs grep "xxx"
-find /usr/include/ -name *.h  -print -exec grep -n LOCAL_ {} \;
+find /usr/include/ -name *.h   -exec grep -H -n  LOCAL_ {} \;
 //可以打出哪个文件多少行
 
+find /var/cache/zypp -name *.rpm -exec mv {} /mnt/ext4/Ext4_NEW/mysql-workbench8_deps/gtk3_gtkmm3 \;
 
 
 ps aux | wc -l    (-l行数)
@@ -1883,7 +1937,7 @@ tar -t    显示文件目录结构
 tar -zcvf my.tar.gz xx.txt
 
 xz test.txt
-xz -d -k test.txt.xz  (-k 保持原文件不被删除)
+xz -d -k test.txt.xz  (-k --keep 保持原文件不被删除,-d --decompress )
 
 --------------------Raid LVM实例
 fdisk 中 t 转换类型->L 列表->fd 是Linux raid auto

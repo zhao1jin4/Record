@@ -400,7 +400,7 @@ public ModelMap returnObject()
 	
 	Employee e=new Employee();
 	e.setFirst_name("李");
-	e.setLast_name("召进");
+	e.setLast_name("四");
 
 	Employee e2=new Employee();
 	e2.setFirst_name("张");
@@ -438,7 +438,7 @@ public String myHandleMethod(WebRequest webRequest, Model model)//参数可以�
 <mvc:interceptors>
 	<mvc:interceptor>
 		<mvc:mapping path="/employee/*"/>
-		<bean class="org.zhaojin.interceptor.MyInterceptor"/> <!-- 继承自 HandlerInterceptorAdapter -->
+		<bean class="spring_jsp.extention.MyInterceptor"/> <!-- 继承自 HandlerInterceptorAdapter -->
 	</mvc:interceptor>
 </mvc:interceptors>
 
@@ -1189,7 +1189,8 @@ public class BasePackageAdvice
 }
 @RequestMapping(method=RequestMethod.POST,value="/asyncUpload")
 //web.xml中所有的filter,和用的servlet加 <async-supported>true</async-supported>
-public Callable<String> processUpload(@RequestParam("img") final MultipartFile file) {
+public Callable<String> processUpload(@RequestParam("img") final MultipartFile file) { 
+ //@RequestParam("img") CommonsMultipartFile file  
 	return new Callable<String>() {
 		public String call() throws Exception {
 			byte buff[]=new byte[1024];

@@ -337,7 +337,7 @@ FlashBuilder 4.6中有WebService的标签代码模板
 <!-- s:WebService里加result,所有的函数都使用这个,加s:operation的event后这里被覆盖,因用了load,失败只调用s:WebService中的fault-->
 <s:WebService id="webService" wsdl="http://localhost:9000/helloWorld?wsdl"  load="webService.sayHi()" fault="Alert.show(event.fault.faultString,'WebService失败')">
 	<s:operation name="sayHi" resultFormat="object"  result="webService_resultHandler(event)" fault="Alert.show(event.fault.faultString,'sayHi失败')">
-		<s:request xmlns="http://server.webservice.zhaojin.org/" >
+		<s:request xmlns="http://server.webservice.zh.org/" >
 			<text>Machael</text>
 		</s:request>
 	</s:operation>
@@ -1156,7 +1156,7 @@ Java端
 新增
 <destination id="hello">
 	<properties>
-		<source>org.zhaojin.flex.HelloWorld</source>
+		<source>org.zh.flex.HelloWorld</source>
 		<scope>application</scope> <!--session,request-->
 	</properties>
 </destination> 
@@ -1192,7 +1192,7 @@ p.name="修改后的产品名";
 p.price=78.90;
 srv.updateProduct(p);//参数是一个类
 
-[RemoteClass(alias="org.zhaojin.flex.Product")]  //flex类传递到java类名匹配,也对不同包下相同类名
+[RemoteClass(alias="org.zh.flex.Product")]  //flex类传递到java类名匹配,也对不同包下相同类名
 public class MyProduct
 
 -----
@@ -1221,7 +1221,7 @@ proxy-config.xml 中加的配置
 <s:WebService id="proxyWebService"  destination="proxySayHello" useProxy="true" showBusyCursor="true" fault="Alert.show(event.fault.faultString,'proxySayHello失败')">
 	<!-- 初始化时就连接 -->
 	<s:operation name="sayHi"  resultFormat="object" result="Alert.show('sayHi response is:'+event.result)" fault="Alert.show(event.fault.faultString,'sayHi失败')">
-		<s:request xmlns="http://server.webservice.zhaojin.org/" >
+		<s:request xmlns="http://server.webservice.zh.org/" >
 			<text>Machael</text>
 		</s:request>
 	</s:operation>
@@ -1554,7 +1554,7 @@ connection.close();
 -------
 services-config.xml中加了
 <services>
-  	<service class="org.zhaojin.flex.DynamicCheckBootstrapService" id="dynamicProductService" />
+  	<service class="org.zh.flex.DynamicCheckBootstrapService" id="dynamicProductService" />
   
 public class DynamicCheckBootstrapService extends AbstractBootstrapService 
 {
@@ -1566,12 +1566,12 @@ public class DynamicCheckBootstrapService extends AbstractBootstrapService
 		
 		RemotingService remotingService = (RemotingService) getMessageBroker().getService("remoting-service");//remote-config.xml中的id的值
 	    RemotingDestination destination = (RemotingDestination) remotingService.createDestination(id);//id的值是dynamicProductService
-	   //对应<service class="org.zhaojin.flex.DynamicCheckService" id="dynamicProductService" />
-        destination.setSource("org.zhaojin.flex.ProductService");
+	   //对应<service class="org.zh.flex.DynamicCheckService" id="dynamicProductService" />
+        destination.setSource("org.zh.flex.ProductService");
         /*相当于
   	  	<destination id="dynamicProductService">
 	  		 <properties>
-	  			<source>org.zhaojin.flex.ProductService</source>
+	  			<source>org.zh.flex.ProductService</source>
          */
 	}
 	@Override
@@ -1600,7 +1600,7 @@ protected function  dynamicRemote():void
 
 
 
-<s:RemoteObject id="remoteObject"  destination="myDes" source="org.zhaojin." endpoint="http://" >  //source...
+<s:RemoteObject id="remoteObject"  destination="myDes" source="org.zh." endpoint="http://" >  //source...
 remoteObject.[remoteMethoddName].lastResult
 默认Flex以ArrayCollection来表示数据
 也可加result事件处理函数,但要event.result as ArrayCollection
@@ -1661,7 +1661,7 @@ spring-flex.xml文件
 		http://www.springframework.org/schema/flex 
 		http://www.springframework.org/schema/flex/spring-flex-1.5.xsd"><!--加spring-context, 修改spring-flex-1.5.xsd -->
  
- 	<context:component-scan base-package="org.zhaojin.flex.spring"/>
+ 	<context:component-scan base-package="org.zh.flex.spring"/>
 	<context:annotation-config />
 	
 	<flex:message-broker><!-- services-config-path="/WEB-INF/flex/services-config.xml"是默认值,可 services-config-path="classpath*:services-config.xml" -->
@@ -1672,13 +1672,13 @@ spring-flex.xml文件
 	</flex:message-broker>
 	 
 	<!-- 使用了annotation就不用这个,否则报  productService 已有   -->
-	<bean id="myProductService"  class="org.zhaojin.flex.spring.SpringProductService">
+	<bean id="myProductService"  class="org.zh.flex.spring.SpringProductService">
 	</bean>
 	<flex:remoting-destination  destination-id="productService" ref="myProductService" channels="my-polling-amf"/> 
 					<!-- 如不指定destination-id ,默认值为ref的值 -->
 
 
-package org.zhaojin.flex.spring;					
+package org.zh.flex.spring;					
 import org.springframework.flex.remoting.RemotingDestination;
 import org.springframework.flex.remoting.RemotingInclude;
 import org.springframework.stereotype.Service;			
@@ -1762,7 +1762,7 @@ private function send():void
 --使用Spring提供的MessageTemplate
 <flex:message-destination id="simple-feed" />
 <bean id="messageTemplate" class="org.springframework.flex.messaging.MessageTemplate" />
-<bean id="mySpringMessage" class="org.zhaojin.flex.spring.MySpringMessage">
+<bean id="mySpringMessage" class="org.zh.flex.spring.MySpringMessage">
 	<constructor-arg ref="messageTemplate"></constructor-arg>
 	<flex:remoting-destination />
 </bean>

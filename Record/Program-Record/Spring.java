@@ -2248,6 +2248,29 @@ conn.del("MyGuava::key1".getBytes());
 conn.close();
 
 
+
+
+<bean id="redisSentinelConfiguration" class="org.springframework.data.redis.connection.RedisSentinelConfiguration">
+	<property name="master">
+		<bean class="org.springframework.data.redis.connection.RedisNode">
+			<property name="name" value="mymaster"></property>
+		</bean>
+	</property>
+	<property name="sentinels">
+		<set>
+			<bean class="org.springframework.data.redis.connection.RedisNode">
+				<constructor-arg name="host" value="127.0.0.1"/>
+				<constructor-arg name="port" value="26379"/>
+			</bean>
+			<!-- 可以配置多个哨兵
+			<bean class="org.springframework.data.redis.connection.RedisNode">
+				<constructor-arg name="host" value="127.0.0.1"/>
+				<constructor-arg name="port" value="36379"/>
+			</bean>
+			 -->
+		</set>
+	</property>
+ </bean>
 <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">  
    <property name="maxIdle" value="6"></property>  
    <property name="minEvictableIdleTimeMillis" value="300000"></property>  
@@ -2264,8 +2287,15 @@ conn.close();
 	</property>
 	<property name="database"  value="0"></property>
 </bean>
-<bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  >
-	<constructor-arg name="standaloneConfig" ref="redisStandaloneConfiguration" />
+<bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"  > 
+	<!--
+    	<constructor-arg name="standaloneConfig" ref="redisStandaloneConfiguration" />
+    	   stand 或 sentinel 二选一 
+    	-->
+    	<constructor-arg name="sentinelConfig"  ref="redisSentinelConfiguration"/>
+    	<constructor-arg name="poolConfig" ref="jedisPoolConfig" />  
+    	<!-- poolConfig只对sentinelConfig和clusterConfig用 -->
+		
 </bean>
 <bean id="stringRedisSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer"/>  
 <bean id="jedisTemplate" class="org.springframework.data.redis.core.RedisTemplate"

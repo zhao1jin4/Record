@@ -1509,11 +1509,20 @@ github上的代码库时，如果使用SSH链接
 ssh-keygen 然后系统提示输入文件保存位置等信息，连续敲三次回车即可，生成的SSH key文件保存在中~/.ssh/id_rsa.pub
 拷贝 .ssh/id_rsa.pub文件内的所以内容，将它粘帖到github帐号管理中的添加SSH key界面中
 (登录github->右上方的Accounting settings图标->SSH key->Add SSH key->填一个你自己喜欢的名称即可，然后将上面拷贝的~/.ssh/id_rsa.pub文件内容粘帖到key一栏，在点击“add key”按钮就可以了)
+ 
+----  github
 
+----- git 清除已保存的密码 测试OK  
+git config --system --unset credential.helper
 
+---
+Git\mingw64\etc\gitconfig 的文件，打开文件
+[credential]
+XXXX=manager
+然后我直接修改，文件吧文[credential] XXXX=manager 直接删除
+---
+TortoiseGit -》 setttings->Git->点edit systemwide gitconfig按钮
 
-
-----  github		
 ============== 上 Git 
 ============== MemCache  (memcached-1.4.17)
 文档在google上

@@ -31,6 +31,10 @@ function App() {
 ReactDOM.render(<App />, document.querySelector('#root'));
 <div id="app"></div>  
 
+
+https://unpkg.com/material-ui  
+https://unpkg.com/material-ui@0.20.2/ 有会加上index.js 里面还是有require语法的
+
 /*
 npm install  react react-dom  --save 依赖保存到package.json  
  <script src="require.js"></script>  

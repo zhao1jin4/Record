@@ -19,7 +19,7 @@ mybatis-3-config.dtd 和 mybatis-3-mapper.dtd 在 org.apache.ibatis.builder.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-	<properties resource="org/zhaojin/mybatis/jdbc.properties">
+	<properties resource="org/zh/mybatis/jdbc.properties">
 		<property name="username" value="sa" />
 		<property name="password" value="errorpassword" /> <!--  低先级优，被.properties覆盖 -->
 	</properties>
@@ -41,13 +41,13 @@ mybatis-3-config.dtd 和 mybatis-3-mapper.dtd 在 org.apache.ibatis.builder.xml
 <!--   
 	<typeHandlers>
 		<typeHandler javaType="String" jdbcType="VARCHAR"
-			handler="org.zhaojin.mybatis.ExampleTypeHandler" />
+			handler="org.zh.mybatis.ExampleTypeHandler" />
 	</typeHandlers>
-	<objectFactory type="org.zhaojin.mybatis.ExampleObjectFactory">
+	<objectFactory type="org.zh.mybatis.ExampleObjectFactory">
 		<property name="someProperty" value="100" />
 	</objectFactory>
 	<plugins>
-		<plugin interceptor="org.zhaojin.mybatis.ExamplePlugin">
+		<plugin interceptor="org.zh.mybatis.ExamplePlugin">
 			<property name="someProperty" value="100" />
 		</plugin>
 	</plugins>
@@ -68,7 +68,7 @@ mybatis-3-config.dtd 和 mybatis-3-mapper.dtd 在 org.apache.ibatis.builder.xml
 		</environment>
 	</environments>
 	<mappers>
-		<mapper resource="org/zhaojin/mybatis/vo/EmployeeMapper.xml" />
+		<mapper resource="org/zh/mybatis/vo/EmployeeMapper.xml" />
 	</mappers>
 </configuration>
 
@@ -150,7 +150,7 @@ System.out.println("sql param:==>"+param.toString());
 {
 //		Map<String,Object> param=new HashMap<>();
 //		param.put("username", "li");
-//		String mapperId="org.zhaojin.mybatis.ns.queryAllEmployeeByPage";
+//		String mapperId="org.zh.mybatis.ns.queryAllEmployeeByPage";
 //		RowBounds rowBounds=new RowBounds(offset,limit);//对于MySQL其实就是limit 对于查询中有 <collection> 是不准的
 		//-------------
 		Configuration  configuration=sessionFactory.getConfiguration();
@@ -209,7 +209,7 @@ parameterType="list" 或者不写也可以
 -->
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.zhaojin.mybatis.ns">
+<mapper namespace="mybatis_xml.ns">
 	<select id="selectEmployee" parameterType="int" resultType="Employee">  <!-- 对应<typeAliases>配置 -->
 		select id as id ,username as username,password as password ,birthday as birthday from employee where id =
 		#{id}
@@ -310,7 +310,7 @@ SqlSession session;
 protected void setUp() throws Exception 
 // {io 
 
-	String resource = "org/zhaojin/mybatis/Configuration.xml";
+	String resource = "mybatis_xml/Configuration.xml";
 	Reader reader = Resources.getResourceAsReader(resource);
 	SqlSessionFactory sessionFactory = new SqlSessionFactoryBuilder().build(reader);//Properties,Enviroment
 	session = sessionFactory.openSession();  //可传 TransactionIsolationLevel
@@ -340,9 +340,9 @@ param.put("employee_ids", ids);
 	
 	
  
-Employee employee = (Employee) session.selectOne("org.zhaojin.mybatis.ns.selectEmployee", 101);
-EmployeeDept userdept = (EmployeeDept) session.selectOne("org.zhaojin.mybatis.ns.selectEmpDept", 101);
-HashMap usermap = (HashMap) session.selectOne("org.zhaojin.mybatis.ns.selectEmpDeptHashMap", 101);
+Employee employee = (Employee) session.selectOne(namespace+".selectEmployee", 101);
+EmployeeDept userdept = (EmployeeDept) session.selectOne(namespace+".selectEmpDept", 101);
+HashMap usermap = (HashMap) session.selectOne(namespace+".selectEmpDeptHashMap", 101);
  
 Employee param=new Employee();
 param.setId(105);
@@ -350,7 +350,7 @@ param.setId(105);
 param.setBirthday(Calendar.getInstance().getTime());
 param.setPassword("123");
 param.setDepartment_id(10);
-List<Employee> emps2 =  session.selectList("org.zhaojin.mybatis.ns.dynSelectEmployee", param); 
+List<Employee> emps2 =  session.selectList(namespace+".dynSelectEmployee", param); 
 //内存分页,必须要用<where>才行,H2支持的, new RowBounds( (current-1)*pageSize , pageSize)
  
 <!-- 关联父类 -->
@@ -748,7 +748,45 @@ configuration.addMapper(BlogMapper.class);
 configuration.setCacheEnabled(true);
 SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(configuration);
  
+-----hikari 数据库连接池
+比c3p0性能好
 
+<dependency>
+	 <groupId>com.zaxxer</groupId>
+	 <artifactId>HikariCP</artifactId>
+	 <version>3.3.1</version>
+</dependency>
+
+//不需要driver,rowSetFactory也不需要Driver
+HikariConfig config = new HikariConfig();
+config.setJdbcUrl("jdbc:mysql://localhost:3306/mydb");
+config.setUsername("user1");
+config.setPassword("user1");
+config.addDataSourceProperty("cachePrepStmts", "true");
+config.addDataSourceProperty("prepStmtCacheSize", "250");
+config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+//或者不需要Config
+HikariDataSource ds = new HikariDataSource();
+ds.setJdbcUrl("jdbc:mysql://localhost:3306/mydb");
+ds.setUsername("user1");
+ds.setPassword("user1");
+
+//或者从配置文件读
+HikariConfig config = new HikariConfig("/dbpool_hikari/hikari.properties");
+HikariDataSource ds = new HikariDataSource(config);
+
+dataSourceClassName=com.mysql.cj.jdbc.MysqlXADataSource
+#jdbcUrl=jdbc:mysql://localhost:3306/mydb
+#dataSourceClassName or  jdbcUrl
+dataSource.user=user1
+dataSource.password=user1
+dataSource.databaseName=mydb
+dataSource.portNumber=3306
+dataSource.serverName=localhost 
+
+
+		
 -----Druid
 https://github.com/alibaba/druid
 
@@ -917,14 +955,14 @@ public class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigur
             </bean>
         </property>
          -->
-	<property name="configLocation" value="classpath:org/zhaojin/mybatis/Configuration.xml"></property>
+	<property name="configLocation" value="classpath:mybatis_spring/Configuration.xml"></property>
 	 <!--
 	 <property name="configurationProperties">
         <props>
           <prop key="jdbcTypeForNull">NULL</prop>
         </props>
     </property>
-	<property name="mapperLocations" value="classpath*:org/zhaojin/mybatis/vo/**/*.xml" />
+	<property name="mapperLocations" value="classpath*:org/zh/mybatis/vo/**/*.xml" />
 	<property name="plugins">
 		<list>
 			<bean class="mybastis_spring.SQLLogInterceptor" />
@@ -936,7 +974,7 @@ public class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigur
 <!-- 你不能在Spring管理的SqlSession上调用SqlSession.commit()，SqlSession.rollback()或SqlSession.close()方法 -->
 
 <!-- 继承 SqlSessionDaoSupport, 注入sqlSessionFactory ,就可以用getSqlSession().selectOne()-->
-<bean id="dao" class="org.zhaojin.mybatis.spring.DaoImpl">
+<bean id="dao" class="mybatis_spring.DaoImpl">
 	<property name="sqlSessionFactory" ref="sqlSessionFactory" />
 </bean>
 

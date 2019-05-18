@@ -204,6 +204,8 @@ Finder 左侧栏中的 AirDrop 相当于windows 的网上邻居,也可在quick l
 
 Dock中的任务右击后 ,再按option,出现一个新的菜单项 force quit
 
+默认是自动保存功能的，做取消，修改要提示是否保存
+System Preferences -> General -> 复选 Ask to keep changes when closing documents 
 
 ---Mac 连接 windows 打印机
 Preferences ->Print & Scan -> "+" -> 

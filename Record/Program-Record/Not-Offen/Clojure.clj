@@ -18,7 +18,7 @@ user=> (+ 1 2 3)
 user=> (javax.swing.JOptionPane/showMessageDialog nil "Hello World")
 或者 java -cp clojure-1.8.0.jar clojure.main file.clj
  
-构建工具 Leiningen  下载脚本执行 lein self-install 安装,会下文件到 C:\Users\zhaojin\.lein\self-installs\leiningen-2.7.1-standalone.jar
+构建工具 Leiningen  下载脚本执行 lein self-install 安装,会下文件到 C:\Users\zh\.lein\self-installs\leiningen-2.7.1-standalone.jar
 再执行 lein repl   会从中央仓库下载pom
 控制台提示 nrepl://127.0.0.1:62423  端口不是固定的
 

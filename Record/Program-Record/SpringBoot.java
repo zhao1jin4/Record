@@ -1,4 +1,14 @@
 Ratpack 构建简单高效的 HTTP 微服务 ,基于Netty 来开发
+
+
+微服务 要满足如下4个要求
+1.根据业务模块划分服务器
+2.每个服务器独立部署
+3.轻量API调用
+4.良好的高可用
+
+也就是说可以没有监控， 注册中心，断路器 保证高可用
+
 ========================Spring Boot
 
 spring-boot-devtools 可以实现页面和代码的热部署
@@ -31,7 +41,7 @@ $ java -jar myproject.jar --spring.config.location=classpath:/default.properties
 #logging.file=my.log  日志输入到当前目录下的文件名
 logging.file=/tmp/springBoot.log
 logging.level.root=DEBUG
-logging.level.org.zhaojin.dao.mapper=DEBUG 
+logging.level.mybatis.dao=DEBUG 
 
 Spring Tool Suite 可以建立Spring starter project ,可选Maven(默认) 或 Gradle,Web组中选web  会自动建立项目
 在resource的目录(classpath)下有
@@ -441,7 +451,9 @@ public class MybatisSpringBoot {
 	}
 }
   
- 
+#--hikari
+#spring.datasource.hikari.
+
 	/*
 	加
 	spring.datasource.url=jdbc:mysql://localhost:3306/mydb?useSSL=true&useUnicode=true&amp;characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
@@ -449,7 +461,8 @@ public class MybatisSpringBoot {
 	spring.datasource.password=root
 	spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 	 就不用下面了
-	 
+	
+	//#references doc 84.1 Configure a Custom DataSource
 	@Bean(name = "dataSource")
 	@Qualifier(value = "dataSource")
 	@Primary

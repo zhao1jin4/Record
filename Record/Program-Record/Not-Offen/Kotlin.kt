@@ -1,14 +1,18 @@
-Kotlin/Native　能编译成本地代码,不用VM,基于LLVM
-可以把Kotlin编译成JavaScript. 推荐的方法是使用Gradle
+ 
+
+https://kotlinlang.org/docs/tutorials/command-line.html
+https://github.com/JetBrains/kotlin/releases/tag/v1.3.31   离线版本 github　上下载很慢，后面总是失败 (有kotlin-native)
 
 
-离线版本 github　上下载不了
-// snap install --classic kotlin  //要ubuntu
+ 在线安装方法
  curl -s https://get.sdkman.io | bash
  sdk install kotlin　　//下载不了
  
  
-Kotlin 目前最新版本 1.3.21
+Kotlin Native　能编译成本地代码,不用JVM,基于 LLVM (apple用这个)
+可以把Kotlin编译成JavaScript. 推荐的方法是使用Gradle 
+
+
 Eclipse Marketplace  搜索 Kotlin ,目前最新的是Kotlin Plugin for Eclipse 0.8.13(Kotlin 1.2.60)
 不能执行kts文件,debug不能鼠标看变量的值,有些看不到源码,如listOf(),
 

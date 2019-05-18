@@ -17,6 +17,11 @@ firefox到  /download
 碗豆下载目录 /wandoujia/app
 沃商店下载目录 /wostore
 百度商店下载目录/baidu/AppSearch/downloads
+小米商店下载目录 /MiMarket/files/
+
+截图目录 /DCIM/Screeshots/
+        /DCIM/Camera/
+
 
 金山词霸注册同步到云
 

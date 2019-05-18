@@ -153,7 +153,7 @@ iPhone Configruation Utility安装在/Applications/Utilities/目录下
 
 指南针,不能自动旋转屏幕,要在.plist文件中的Supported Interface orientations和(iPad)两个中删除只留一个Portrait(bottom home button)
 
-打开iTunes ,command + o 打开生成的.app, 会生成在/Users/zhaojin/Music/iTunes/iTunes Media/Mobile Applications/下有生成的.ipa文件
+打开iTunes ,command + o 打开生成的.app, 会生成在/Users/zh/Music/iTunes/iTunes Media/Mobile Applications/下有生成的.ipa文件
 iTunes 中选择左侧的Apps项,后把自己生成的.ipa拖入(file->Add to library->选择.ipa),左侧DEVICES栏中选择自己的设备->复选Sync Apps->apply按钮->提示会覆盖->Apply/Sync按钮->提示中点Don not Authorized
 
 Bundle identifier用来区分不同的应用,如多个两个应用使用相同Bundle identifier

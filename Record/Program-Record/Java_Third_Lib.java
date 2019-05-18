@@ -772,7 +772,8 @@ Gradle设置全局仓库 创建文件 ~/.gradle/init.gradle
 			mavenLocal()
 			maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
 			maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
-			maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} 
+			maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+   maven { url "$rootDir/../node_modules/react-native/android" }  // react-native 的 android 版本 jar 包maven仓库位置
 		}
 	}
 ---上未何没用 可能因为自己的项目有 allprojects的配置
@@ -2980,7 +2981,7 @@ https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html
  
  只支持JSON
  
- 
+Elasticsearch windows/linux 都是单独的包
 bin\elasticsearch.bat   启动   http://localhost:9200/ 有JSON 返回
  
 config/elasticsearch.yml
@@ -3199,12 +3200,15 @@ green：表示一切正常
 ================================Logstash
 做数据收集的，有实时管道能力，再推向Elastic Search
 
-6.4 版本 不支持JDK 9,只能用JDK8
+6.4 版本 只能用JDK8 不支持JDK 9
+7.0 版本 只能用 JDK8 或 jdk11 两个版本(可OracleJDK 或  openJDK)
+windows/linux是一个通用的包
+
 有.zip, rpm 和 Docker 版本
 
-基centos7的Docker镜像
-docker pull docker.elastic.co/logstash/logstash:6.4.0
+Docker镜像
 docker pull docker.elastic.co/kibana/kibana:6.6.0
+docker pull docker.elastic.co/logstash/logstash:7.0.0
 
 rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch 
 增加如下文件
@@ -3221,9 +3225,8 @@ rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 sudo yum install logstash
 
 
-cd logstash-6.4.0/bin
-logstash -e 'input { stdin { } } output { stdout {} }'   报错？？？
-windows 7/10 下运行占CPU过大,内存一直涨(jruby 运行.rb文件),要等有日志输出就可以了
+cd logstash-7.0.0/bin
+logstash -e 'input { stdin { } } output { stdout {} }'  日志提示 API endpoint 监听 9600 端口 
  
 ---config/logstash-sample.conf
 # comment
@@ -3238,8 +3241,15 @@ output {
   elasticsearch { hosts => ["localhost:9200"] }
   stdout { codec => rubydebug }
 }
-
 这个配置会输出到elasticsearch和stdout上
+
+---logstash 的(logback) 输入配置 
+input {
+    tcp {
+        port => 4560
+        codec => json_lines
+    }
+}
 
 bin\logstash -f config\logstash-sample.conf --config.test_and_exit 验证配置文件正确性
 bin\logstash -f config\logstash-sample.conf --config.reload.automatic 自动加载配置 
@@ -3254,7 +3264,10 @@ codec 插件支持 https://www.elastic.co/guide/en/logstash/current/codec-plugin
 
 
 =======================================Kibana
-与elastic search一起工作，做分析 
+与elastic search一起工作，做分析
+Kibana windows/linux 都是单独的包
+cd  kibana-7.0.0-linux-x86_64/bin
+
  kibana.bat   启动   要求先启动 Elasticsearch 
  config/kibana.yml
 	elasticsearch.url: "http://localhost:9200"
@@ -3263,11 +3276,13 @@ codec 插件支持 https://www.elastic.co/guide/en/logstash/current/codec-plugin
  
 索引 _index:值为pdpm-log-2018... 有可以选择的 pdpm-*
 
- 页面中右上角可以选择日期范围，可选今天
- 文本框输入 level:error && message:IAM LoginDone  可以查日志
+ 左侧菜单点Discover -> 下拉可以选择前缀开头的某个项目的日志, 页面中右上角可以选择日期范围，可选今天
  
+ Lucene 查询: 搜索文本框输入 level:error && message:IAM LoginDone  可以查日志
  
- DevTools有Console  可以发送命令,带代码提示功能, 默认查全部的有 , 参数可有可无
+ 界面也支持Query DSL查询
+
+ 左侧菜单点 DevTools有Console  可以发送命令,带代码提示功能, 默认查全部的有 , 参数可有可无
  GET _search
 {
   "query": {
@@ -3291,7 +3306,6 @@ GET index/type/1
     "match_all": {}
   }
 }
- 
 
 ==============================MongoDB 
  <dependency>
@@ -4018,11 +4032,15 @@ public class Actor {
 -------------------- Kafaka在hadoop中
 
 -------------------------------------------- RabbitMQ  3.7.7
+RabbitMQ有scala go,c++ 客户端, OpenStack使用这个有Python客户端
+
+https://rabbitmq.github.io/rabbitmq-java-client/api/current/
+
 版本　3.7.7　要 ERLang语言(为分布式,erlc 编译语言)　版本至少 20.3
  
 RabbitMQ,启动停止可在services.msc中做也可使用命令启动
 配置文件 是 rabbitmq.config  
-D:\Program\RabbitMQ Server\rabbitmq_server-3.7.7\etc\rabbitmq.config.example 复制修改
+D:\Program\RabbitMQ Server\rabbitmq_server-3.7.7\etc\rabbitmq.config.example 复制修改 (3.7.11版本就没这个文件了？)
 #%HOMEPATH%\AppData\Roaming\RabbitMQ\rabbitmq.config.example
 默认端口  {tcp_listeners, [5672]},
 
@@ -4070,7 +4088,33 @@ rabbitmqctl  set_user_tags  mon  monitoring  就有权限远程登录了
 rabbitmqctl  list_user_permissions  mon
 rabbitmqctl list_queues
 
-rabbitmq-plugins.bat enable rabbitmq_management    开启网页管理界面 15672 端口 (windows要使用命令启动服务,才可仿问界面，用户名要用安装时的管理员) 
+rabbitmq-plugins  enable rabbitmq_management    开启网页管理界面 15672 端口 (windows要使用命令启动服务,才可仿问界面，用户名要用安装时的管理员) 
+
+http://127.0.0.1:15672/api/index.html 有 Resetful 接口文档
+
+
+rabbitmqctl add_vhost myVhost
+rabbitmqctl delete_vhost myVhost
+rabbitmqctl list_vhost
+rabbitmqctl list_vhosts name tracing
+
+#rabbitmqctl set_permissions [-p vhost] user conf write read #格式
+rabbitmqctl set_permissions  -p myVhost zh ".*" ".*" ".*"
+rabbitmqctl set_permissions  -p / zh ".*" ".*" ".*"
+rabbitmqctl clear_permissions  -p myVhost  zh
+rabbitmqctl list_permissions  -p myVhost 
+rabbitmqctl list_user_permissions zh
+
+#命令有 list_queues, list_exchanges, list_bindings and list_consumers
+rabbitmqctl list_exchanges -p myVhost name type
+#rabbitmqctl list_bindings -p myVhost exchange_name queue_name 格式
+rabbitmqctl list_bindings -p myVhost
+rabbitmqctl list_connections send_pend port
+rabbitmqctl list_connections
+rabbitmqctl list_channels connection messages_unacknowledged
+
+
+
 
 http://127.0.0.1:15672/     guest/guest  只可localhost登录 可以建立Queue
 还有其它工具
@@ -4132,7 +4176,7 @@ conn.close();
 //这样就能保证消费者在处理完某个任务，并发送确认信息后，RabbitMQ才会向它推送新的消息
 //在此之间若是有新的消息话，将会被推送到其它消费者，若所有的消费者都在处理任务，那么就会等待。
 int prefetchCount = 1;
-channel.basicQos(prefetchCount);//放消费端
+channel.basicQos(prefetchCount);//放消费端       允许限制通道上的消费者所保持最大的未确认消息数量，如某台机器反应慢，
 
 channel.exchangeDeclare(EXCHANGE_NAME, "direct", true);  //boolean durable  持久化 
 		
@@ -4164,7 +4208,29 @@ Consumer consumer = new DefaultConsumer(channel) {
 channel.basicConsume(QUEUE_NAME, true, consumer);//boolean autoAck,true收到消息就自动应答,false要手工应答(在消息任务完成后)
 
 ----
+//Get方式取消息 立即返回
+do 
+{
+  GetResponse response=channel.basicGet(QUEUE_NAME, false); //参数queue, autoAck
+  if(response==null)
+  {
+  Thread.sleep(2000);
+  continue;
+  }
+  String message = new String(response.getBody(), "UTF-8");
+  System.out.println("GET 立即返回 取消息结果为："+message);
+  
+  //对于 autoAck为false时
+  channel.basicAck(response.getEnvelope().getDeliveryTag(),//消息标识
+    false);//multiple 是否多个,即这个标识前面的一次性全部认为Ack收到了
+  //还有Nack(可多个)不知道(未收到) 和 Reject (只可一个)
+  
+   //---相当于stack的peek
+			//channel.basicNack(response.getEnvelope().getDeliveryTag(), false, true);//long deliveryTag, boolean multiple, boolean requeue,如为false变以为discarded/dead-lettered
 
+    
+}while(true);
+----
 Direct Exchange 将一个队列绑定到交换机上，要求该消息与一个特定的路由键routing key完全匹配
 Fanout Exchange 个发送到交换机的消息都会被转发到与该交换机绑定的所有队列上(忽略routing key)
 Topic Exchange 队列名是一个模式上， 匹配有两种方式all和any 
@@ -4225,35 +4291,43 @@ channel.queueBind(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
 			
 channel.txSelect();  
 	//(String exchange, String routingKey, AMQP.BasicProperties props, byte[] body)
-	channel.basicPublish(exchangeName, routingKey, true, MessageProperties.PERSISTENT_BASIC, ("第"+(i+1)+"条消息").getBytes("UTF-8"));  
-channel.txCommit();  
-channel.txRollback();  
+	channel.basicPublish(exchangeName, routingKey, true, MessageProperties.PERSISTENT_BASIC, ("第"+(i+1)+"条消息").getBytes("UTF-8")); 
+channel.txCommit();   
+channel.txRollback();   //catch中回滚操作
+//阻塞，即回复后才可发下一条消息。
 
-----死信
-Dead Letter Exchange  (DLX) 
 
+----TTL  DLX 
+//---TTL
 Map<String, Object>  argss = new HashMap<String, Object>();
 argss.put("vhost", "/");
 argss.put("username","root");
 argss.put("password", "root");
 argss.put("x-message-ttl",6000); //超过指定时时间如没有消费就不能消费了
-//队列设置TTL
+//队列级别设置TTL  Time-To-Live  
 channel.queueDeclare(queueName, durable, exclusive, autoDelete, argss);
 不设置TTL,则表示此消息不会过期
 如果将TTL设置为0，则表示除非此时可以直接将消息投递到消费者,否则该消息会被立即丢弃
 
-消息设置TTL,
+//也可使用命令设置
+// rabbitmqctl set_policy TTL ".*" '{"message-ttl":60000}' --apply-to queues
+
+//消息级别设置TTL
 AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
-builder.deliveryMode(2);
+builder.deliveryMode(2);//持久化
 builder.expiration("6000");
 AMQP.BasicProperties  properties = builder.build();
-
 channel.basicPublish(exchangeName,routingKey,mandatory,properties,"ttlTestMessage".getBytes());
  
-队列设置和消息都设置TTL较小的那个数值为准
-
-
+//队列设置和消息都设置TTL较小的那个数值为准 
 channel.exchangeDeclare("some.exchange.name", "direct");
+
+
+//---Dead Letter Exchange  (DLX)
+进入死信的情况
+1.消息过期
+2.消息被拒绝 Base.Reject/Base.Nack,并且requeue为false
+3.队列达到最大长度
 
 Map<String, Object> args = new HashMap<String, Object>();
 args.put("x-dead-letter-exchange", "some.exchange.name");
@@ -4265,20 +4339,42 @@ args.put("x-dead-letter-routing-key", "some-routing-key");
 rabbitmqctl set_policy DLX ".*" '{"dead-letter-exchange":"my-dlx"}' --apply-to queue
 rabbitmqctl set_policy DLX ".*" "{""dead-letter-exchange"":""my-dlx""}" --apply-to queues //windows
 
+界面中D=durable
+DLK= x-dead-Letter-routing-Key
 
+----发送方确认
+ 
+channel.confirmSelect();//publish confirm模式  ，只能通道回复了即可发送下一条（Basic.Publish,Basic.Ack），比事务(Basic.Publish,Tx.Commit,Tx.Commit.OK)少发一条指令 
+如果消息是要持久化，都在存磁盘后回复
+
+
+channel.basicPublish();//发送消息
+
+//同步确认
+if(!channel.waitForConfirms())//只对channel.confirmSelect()后使用，可以发送多个消息后一次confirm
+  System.out.println("  Send message failed !!! '");
+  
+  
+----
+String jsonStr = new com.rabbitmq.tools.json.JSONWriter().write(para);//Object(可Map)->JSON
+Object obj = new com.rabbitmq.tools.json.JSONReader().read(jsonStr);//返回Object是一个HashMap
 
 ------RabbitMQ Cluster
 chef,puppet 自动配置管理工具
+ 
+
+单台可满足每秒1000条消息吞吐
 
 RAM 节点和　DISK节点
 
-~/.erlang.cookie  存字串,集群中每个节点这个值是相同的,如不存在会创建
+每台机器的cookie要是相同的文件做 ~/.erlang.cookie  存字串,集群中每个节点这个值是相同的,如不存在会创建 
 
-rabbitmqctl stop_app  不停止rabbitmq进程,而是停止erlang的内部进程
-
-rabbitmqctl reset 重置内部数据
-rabbitmqctl join_cluster rabbit@<hostname>   这个名字在管理界面的Admin->Cluster中可以修改的
-rabbitmqctl start_app
+多台机器分别单实例启动，以一个实例为基础，其它全部加入这个实例
+其中一个实例
+1. rabbitmqctl stop_app  不停止rabbitmq进程,而是停止erlang的内部进程
+2. rabbitmqctl reset 重置内部数据
+3. rabbitmqctl join_cluster rabbit@<hostname>   这个名字在管理界面的Admin->Cluster中可以修改的
+4. rabbitmqctl start_app
 
 rabbitmqctl cluster_status
 
@@ -4528,15 +4624,15 @@ if(is2007)
 	//要多加poi-ooxml-3.8.x.jar,apache项目xmlbeans的xbean.jar,poi-ooxml-schemas-3.8-x.jar
 	//workbook=new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 	workbook=new XSSFWorkbook();
-	out=new FileOutputStream("c:/temp/workbook.xlsx");
+	out=new FileOutputStream("/tmp/workbook.xlsx");
 }
 else
 {
-	out = new FileOutputStream("c:/temp/workbook.xls");
+	out = new FileOutputStream("/tmp/workbook.xls");
 	workbook=new HSSFWorkbook();
 }
 Sheet sheet = workbook.createSheet();
-workbook.setSheetName(0, "我的第一个Sheet");
+workbook.setSheetName(0, "第一页");
 
 int default_width=sheet.getColumnWidth(1);//default_width=2048
 sheet.setColumnWidth(1, default_width*2);
@@ -4546,33 +4642,80 @@ Cell cell0 = row.createCell(0);
 cell0.setCellValue( 10000 );
 Cell cell1 = row.createCell(1);
 cell1.setCellValue( "中国我爱你" );
-workbook.write(out);
-out.close();
-
-
-
-row.createCell(3, CellType.NUMERIC).setCellValue(3.0);
 
 CellStyle cellStyle = workbook.createCellStyle();
 DataFormat df = workbook.createDataFormat();  
 cellStyle.setDataFormat(df.getFormat("#,#0.00")); //小数点后保留两位 
-cell0.setCellStyle(cellStyle);
+
+Font font=workbook.createFont();
+//font.setColor(Font.COLOR_RED );
+	font.setColor( (short)0xc );
+font.getBold();
+cellStyle.setFont(font);
+cellStyle.setWrapText(true);//换行
+cell2.setCellStyle(cellStyle);
+
+XSSFRichTextString rich=new XSSFRichTextString("中华人民共和国");
+rich.applyFont(font);
+Cell cell3=row.createCell(3);
+cell3.setCellValue(rich);
+	    
+
+Cell cell4=row.createCell(4);
+//写日期格式
+CellStyle dateCellStyle=workbook.createCellStyle(); 
+short shortDateFormat=workbook.createDataFormat().getFormat("yyyy-mm-dd"); 
+dateCellStyle.setDataFormat(shortDateFormat); 
+cell4.setCellStyle(dateCellStyle);
+cell4.setCellValue(new Date());
+
+
+workbook.write(out);
+out.close();
+
+ 
 
 
 //读
 InputStream inp =file.getInputStream();
 Workbook wb = WorkbookFactory.create(inp);
 Sheet sheet = wb.getSheetAt(0);
+int  total=sheet.getLastRowNum();
 Iterator<Row> i=sheet.rowIterator();
 while(i.hasNext())
 {
 	//Row row = sheet.getRow(i++);
-	Row row=i.next();
-	Cell cell = row.getCell(0);
-	double msisdn=cell.getNumericCellValue();
+	Row row=i.next(); 
+ Cell cell = row.getCell(0);  
+ System.out.println(readCellValue(cell));  
+ System.out.println(readCellValue( row.getCell(1)));
+ System.out.println(readCellValue( row.getCell(2)));
+          
 }
 
-
+public  static Object readCellValue(Cell cell)
+	{
+		CellType type=cell.getCellType();
+		Object res=null;
+		switch (type)
+    	{
+    		case NUMERIC :
+    			if (HSSFDateUtil.isCellDateFormatted(cell)) {//读日期格式
+         res=cell.getDateCellValue(); 
+         break;
+    	  }  
+    			res=cell.getNumericCellValue();
+    			break; 
+    		case  STRING:
+    			res=cell.getStringCellValue();
+       break;
+    		case  FORMULA: //公式
+    			//res=cell.getCellFormula();
+       		res=cell.getStringCellValue();
+    			break;
+    	}
+		return res;
+	}
 -------jpeg
 BufferedImage buffImg=new BufferedImage(newWidth,newHeight,BufferedImage.TYPE_INT_RGB);//可缩放
 Graphics2D g=buffImg.createGraphics();
@@ -4901,29 +5044,50 @@ public class ServcieOutPropertyDefiner implements  PropertyDefiner {
 	//...其它方法
 }
 
+SizeAndTimeBasedFNATP is deprecated. Use SizeAndTimeBasedRollingPolicy instead
+https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy
 
-logback-examples\src\main\java\chapters\appenders\conf\logback-sizeAndTime.xml
-<appender name="bizRolling" class="ch.qos.logback.core.rolling.RollingFileAppender">
-	<!-- 可记录DEBUG 不记录ERROR的方式  , 不好使???
- 		<filter class="ch.qos.logback.classic.filter.LevelFilter">
- 			<level>DEBUG</level>
- 			<onMatch>ACCEPT</onMatch>
- 			<onMisMatch>DENY</onMisMatch>
- 		</filter>
- 		 -->
-	<file>${APP_BIZ_HOME}/biz.log</file>
-	<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-		<fileNamePattern>${APP_BIZ_HOME}/biz-%d{yyyy-MM-dd}.%i.zip</fileNamePattern> <!-- .zip 可有可无,压缩会节约20倍的空间 一定要加%i-->
-		<maxHistory>30</maxHistory> <!-- 最多保留30个文件 (不是天,因可能一天多个文件) -->
-		<TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-			<MaxFileSize>200MB</MaxFileSize> <!-- 如.zip 是压缩前的大小 -->
-		</TimeBasedFileNamingAndTriggeringPolicy>
-	</rollingPolicy>
-	<encoder>
-		<pattern>[%contextName] %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-	</encoder>
-</appender>
+ <appender name="bizRolling" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>${APP_BIZ_HOME}/biz.log</file>
+	    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+	      <fileNamePattern>${APP_BIZ_HOME}/biz-%d{yyyy-MM-dd}.%i.log</fileNamePattern> <!-- .zip 可有可无,压缩会节约20倍的空间-->
+	       <maxFileSize>100MB</maxFileSize>    
+	       <maxHistory>30</maxHistory>
+	       <totalSizeCap>10GB</totalSizeCap>
+	    </rollingPolicy>
+	    <encoder>
+	      <pattern>[%contextName] %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+	    </encoder>
+	 </appender>
+  
+	<!-- 变量值可再引用变量   :- 表示变量如未赋值使用后的面的默认值  -->
+	 <appender name="daoRolling" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>${APP_DAO_HOME:-${LOG_HOME}/${CONTEXT_NAME}/dao}/dao.log</file>
+	    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+	      <fileNamePattern>${APP_DAO_HOME:-${LOG_HOME}/${CONTEXT_NAME}/dao}/dao-%d{yyyy-MM-dd}.%i.zip</fileNamePattern> 
+	       <maxFileSize>100MB</maxFileSize>    
+	       <maxHistory>30</maxHistory>
+	       <totalSizeCap>10GB</totalSizeCap>
+	    </rollingPolicy>
+	    <encoder>
+	      <pattern>[%contextName] %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+	    </encoder>
+	 </appender> 
 
+<appender name="serviceOutRolling" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${APP_SERVICEOUT_HOME}/serviceout.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <fileNamePattern>${APP_SERVICEOUT_HOME}/serviceout_%d{yyyyMMdd}.log</fileNamePattern> 
+       <maxFileSize>100MB</maxFileSize>    
+       <maxHistory>30</maxHistory>
+       <totalSizeCap>10GB</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] %msg%n </pattern>
+    </encoder>
+ </appender>
+  
+  
 <logger name="${CONTEXT_NAME}.dao" level="INFO" additivity="false" >  <!-- Dao层的日志只写文件,不写其它的地方 -->
 	<appender-ref ref="daoRolling" />
 </logger>
@@ -4938,19 +5102,33 @@ logback-examples\src\main\java\chapters\appenders\conf\logback-sizeAndTime.xml
 
 %.-1level  把INFO 变为  I
 
-logback可以把日志推送给logstash 
+
+
+
+logback可以把日志推送给logstash  
+https://github.com/logstash/logstash-logback-encoder/blob/master/README.md
 
 <dependency>
-  <groupId>net.logstash.logback</groupId>
-  <artifactId>logstash-logback-encoder</artifactId>
-  <version>5.2</version>
-</dependency>
-
-<appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-	<destination>IP:port</destination>
-	<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder"/>
+    <groupId>net.logstash.logback</groupId>
+    <artifactId>logstash-logback-encoder</artifactId>
+    <version>5.3</version>
+</dependency> 
+<!--  logback可以把日志推送给 logstash  -->
+<appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+ <destination>127.0.0.1:4560</destination>
+ <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">
+ <customFields>{"AppName":"myProject"}</customFields>
+ </encoder>
+ <keepAliveDuration>5 minutes</keepAliveDuration>
 </appender>
-
+ 
+logstash 的(logback) 输入配置 
+input {
+    tcp {
+        port => 4560
+        codec => json_lines
+    }
+}
 
 -------------------------------JSCH
 jCraft的一个项目,是sftp实现

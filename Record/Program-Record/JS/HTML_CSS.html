@@ -543,6 +543,20 @@ a标签download属性 要去base标签
 	to left top 表示左上角是终点，%只是递增
 </div>
 
+
+
+
+
+p { 
+  font: 2rem/2 sans-serif;
+}
+
+let para = document.querySelector('p');
+let compStyles = window.getComputedStyle(para);
+compStyles.getPropertyValue('font-size');
+compStyles.getPropertyValue('line-height');
+
+
 //======Canvas
  
 <canvas id="myCanvas" width="200" height="100" style="border:1px solid #FF0000;">  overflow:scroll(一直显示滚动条) 或 auto(只有需要时才显示滚动条)

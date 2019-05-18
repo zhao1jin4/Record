@@ -90,7 +90,7 @@ https://docs.oracle.com/netbeans/nb81/netbeans/develop/working_nbeans.htm#NBDAG1
 
 Tools->Options->Java->Maven->修改Maven_Home 
 如果 java Maven 项目 打开时,不对加载依赖中再依赖的jar包,  右击项目-> 使用依赖关系构建   就可以了
-选中Skip Test,要保证每个子项目可以build成功 ，才能运行
+左侧Execution标签中 选中Skip Test,要保证每个子项目可以build成功 ，才能运行
 
 
 
@@ -168,8 +168,12 @@ window->IDE Tools->Test Result
 debug代码时 F7 进入函数,如这行代码有多个函数,会提示让选择进入哪个函数,比eclipse智能 
 	如修改了代码,保存后不能立即生效,要点工具栏上的Apply Code Change按钮,而eclipse是自动的
 
-NetBeans 默认一个tab键生成4个空格代替一个tab,而eclipse则是1个tab占4个空格的长度,
-修改 Tools->options->Formating ,Language确认为Java(最好选择为 All Language ,取消复选 Use All Languages Settings) 取消Expand Tabs to Space ,Tab Size修改为4, number of space per是4
+eclipse 是1个tab占4个空格的长度,一个空格就是一个空格
+NetBeans 8.2 默认一个tab键生成8个空格代替一个tab,一个空格是4个空格
+修改 Tools->options->Formating ,Language确认为Java(最好选择为 All Language ,取消复选 Use All Languages Settings)
+		取消Expand Tabs to Space
+		Tab Size修改为4,
+		number of space per是1
 
 
 windows下的notepad和linux的vi一个tab是8个,但notpead++是4个
@@ -197,7 +201,21 @@ Cordova ,Node.js
  --- 问题区
  如控制台出错,没办法像eclipse一样点击链接查看源码 ???? 
  
- 
+============= NetBeans  11 Apache版本支持jdk12
+但没有tomcat插件 
+Tools->plugins->installed标签 -> 选中Java Web and EE->Active 提示依赖于
+					modules.nbjavac (是因在jdk8下启动,如jdk12启动无提示,单独下载nb-javac插件)
+					libs.oracle.jsparser （如jdk12启动无提示）
+					会在线下载 http://plugins.netbeans.org/nbpluginportal/files/nbms/1552395301_org-netbeans-libs-oracle-jsparser.nbm
+					
+					
+还有JavaSE,Tools,HTML5,PHP 可选
+
+或者使用maven的jetty-maven-plugin插件
+
+window->services->有docker
+
+
 ============= NetBeans  C++
 http://netbeans.org/kb/trails/cnd.html  
 
@@ -940,8 +958,8 @@ Model->Add Diagram->Sequence Diagram
  
 ================Visual Studio Code 
 
-VSCodeUserSetup-x64-1.28.2.exe 离线安装 免费 有linux ,mac版本
-也有zip包  VSCode-win32-x64-1.28.2.zip 直接解压就可用
+VSCodeUserSetup-x64-1.30.1.exe 离线安装 免费 有linux ,mac版本
+也有zip包  VSCode-win32-x64-1.30.1.zip 直接解压就可用
 
 自带Git,HTML,PHP
 
@@ -964,7 +982,8 @@ File->Open Folder...
 https://code.visualstudio.com/docs/nodejs/reactjs-tutorial
 
 extension 
-	Debugger for Chrome
+	Debugger for Chrome  4.11.3
+	
 
 ================atom 1.32.2
 

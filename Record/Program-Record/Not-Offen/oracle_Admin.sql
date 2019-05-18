@@ -625,7 +625,7 @@ SQLNET.AUTHENTICATION_SERVICES = (NTS)
 ------------------
 tnsnames.ora文件中的orcl别名前不能有空格
 
-监听程序日志文件  c:\oracle\diag\tnslsnr\lizhaojin\listener\alert\log.xml
+监听程序日志文件  c:\oracle\diag\tnslsnr\zh\listener\alert\log.xml
 
 netca 可以创建NETWORK\ADMIN下的三个文件
 

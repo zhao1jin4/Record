@@ -158,7 +158,7 @@ module.exports = {
 === 
 
 
-
+ --watch, -w   如修改自动重新构建
 
 
 

@@ -236,7 +236,8 @@ docker run --rm swarm create  提示这种方式过时了
 ------------------------------------Kubernetes  (K8s)
 
 Kubernetes (开源) 基于 Docker 构建一个容器的调度服务
-v1.13.0
+v1.14.0
+
 https://github.com/kubernetes/kubernetes/tree/release-1.10/examples
 
 https://kubernetes.io/docs/setup/release/notes/  下载二进制
@@ -270,10 +271,24 @@ $ docker build -t 'mynode:1' .
 $docker run -p 4000:80 mynode:1
 
 
+------etcd
+go语言开发 替代 zookeeper的东西
+
+https://coreos.com/etcd/
+https://github.com/etcd-io/etcd
+
+下载地址
+https://github.com/etcd-io/etcd/releases
+v3.3.12
 
 
+直接运行目录下的 etcd  监听 2379
 
+----Flannel
+3层网格 fabric (织物 结构)
 
+是为 Kubernetes 设计的
 
+https://github.com/coreos/flannel
 
 

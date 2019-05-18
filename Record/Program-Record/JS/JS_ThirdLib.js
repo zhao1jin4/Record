@@ -1,3 +1,5 @@
+YUI Compressor 压缩JS
+
 ============Baidu  echart 
 免费的
 版本  3.6.2 

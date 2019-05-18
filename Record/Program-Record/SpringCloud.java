@@ -12,17 +12,17 @@ https://springcloud.cc/spring-cloud-dalston.html
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>1.5.2.RELEASE</version>
+    <version>2.1.4.RELEASE</version>
 </parent>
 <dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
-            <version>Dalston.SR1</version>  
-			<!--Dalston.SR5   要和spring-boot 1.5.x. 对应 目前 1.5.18
-				Finchley.SR2  要和spring-boot 2.0.x. 对应 目前 2.0.7
-				Greenwich.RC2  要和spring-boot 2.1.x  对应 目前 2.1.1
+            <version>Greenwich.SR1</version>  
+			<!--Edgware 版本马上停止维护
+				Finchley.SR3  要和spring-boot 2.0.x. 对应 目前 2.0.9
+				Greenwich.SR1  要和spring-boot 2.1.x  对应 目前 2.1.4
 			-->
             <type>pom</type>
             <scope>import</scope>
@@ -31,7 +31,7 @@ https://springcloud.cc/spring-cloud-dalston.html
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-dependencies</artifactId>
-			<version>1.5.2.RELEASE</version>
+			<version>2.1.4.RELEASE</version>
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>
@@ -988,8 +988,11 @@ http://localhost:8763/hystrix 或 http://localhost:8762/hystrix
 http://localhost:8769/turbine.stream 做为monitor的地址
 Hosts 值为2，下面有两组server
 
----consul 
-服务健康监测 ,key/value 存储
+---consul
+分布式系统的服务注册和发现、配置等
+服务健康监测
+key/value 存储
+
 https://www.consul.io/downloads.html
 下载 win zip包,就一个consul命令
 

@@ -45,16 +45,17 @@ GPU Debugging tools
 source 和 goole repository是android studio初始配置会下的
 模拟器要单独下载ware和tv的(table ,phone用真机行吗)
 
-在什么版本上运行可能就要什么版本的 build-tools,platforms  
-android-7.1.1 = api 25  platform-25(res/drawable ,layout) 
-		(新建选择minSDK25,app/build.gradle中minSdkVersion 25 ,targetSdkVersion 28,compileSdkVersion 28)	
-		对应的build-tools(dx,aapt)是 27.0.3 (androidStudio中已经有新版本不能下载旧版本)只能安装最新 28.0.2 后再下载要求的低版本 27.0.3
-android-9.0=api 28
 
+android-5.0=api 21
+android-8.1=api 27
+android-9.0=api 28
+(新建选择minSDK 21,app/build.gradle中minSdkVersion 21 ,targetSdkVersion 28,compileSdkVersion 28)
+ 
 ---------------问题解决方法
 真机报
 INSTALL_FAILED_USER_RESTRICTED 错误  小米手机关闭usb安装管理：打开开发者选项---打开USB安装(允许通过USB安装应用)
 INSTALL_FAILED_USER_RESTRICTED 原因是在权限管理中的USB安装管理中已经拒绝安装了，删除就行了，或因前面提示过没有看到后面就默认拒绝
+
 
 报 device unauthorized. This adb server's $ADB_VENDOR_KEYS is not set 原因是初次连接时提示的指纹没有选到，要断开手机关debug,adb kill-server
 再adb start-server ，插手机，打开debug就会再次提示接受指纹
@@ -83,8 +84,8 @@ fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
  检查  fastboot oem get-bootinfo
  
 ----- Android Studio
- AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8，自带Grale , linux 下提示安装KVM提速
- AndroidStudio-3.３.1 下载的是 gradle-4.10.1-all.zip　自带OpenJDK Jre-1.8.0_152
+ AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8, 自带Grale , linux 下提示安装KVM提速
+ AndroidStudio-3.3.1 下载的是 gradle-4.10.1-all.zip　自带OpenJDK Jre-1.8.0_152
   下载时可中断,
         　~/.gradle/wrapper/dists/gradle-4.10.1-all/<uuid>/   
  %HOMEPATH%/.gradle/wrapper/dists/gradle-4.10.1-all/<uuid>/
@@ -372,12 +373,40 @@ adb pull <remote> <local>
 		 adb uninstall -k <package名> 卸载软件但是保留配置和缓存文件
 
 AndroidStuiod生成的命令
-adb push E:\tmp\A_Cordova_7\platforms\android\build\outputs\apk\android-debug.apk /data/local/tmp/org.zhaojin.cordova7
-adb shell pm install -r  /data/local/tmp/org.zhaojin.cordova7
-adb shell am start -n "org.zhaojin.cordova7/org.zhaojin.cordova7.MainActivity" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER
+adb push E:\tmp\A_Cordova_7\platforms\android\build\outputs\apk\android-debug.apk /data/local/tmp/org.zh.cordova7
+adb shell pm install -r  /data/local/tmp/org.zh.cordova7
+adb shell am start -n "org.zh.cordova7/org.zh.cordova7.MainActivity" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER
+
+# 查看进程列表
+adb shell ps
+# 查看指定进程状态
+adb shell ps  [PID]
+# 查看后台services信息
+adb shell service list
+# 查看IO内存分区,要有权限
+adb shell cat /proc/iomem
+adb shell head -n
+adb shell tail -n 
+
+# 尝试开启root权限
+adb root
+# 关闭root权限
+adb unroot
+
+
+
 
 
 adb logcat *:W 显示日志,比在eclipse中显示的消息要长,会一直监控
+
+
+所有(PC —> DEVICE)映射的端口连接列表
+adb forward [--no-rebind] LOCAL REMOTE
+
+adb reverse  tcp:8081 tcp:8081  // reverse [--no-rebind]  REMOTE LOCAL(device->pc)
+adb reverse --list
+adb reverse --remove tcp:8081 //REMOTE  remove specific reverse socket connection
+adb reverse --remove-all 
 
 
 ----打包
@@ -433,7 +462,7 @@ android.util.Log.v ,d,i,w,e 对应下面
 VERBOSE、DEBUG、INFO、WARN、ERROR
 
 
-package org.zhaojin;
+package org.zh;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -524,7 +553,7 @@ getApplication().getResources().getString(R.string.app_name);
 
 -----AndroidManifest.xml中用 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.zhaojin"
+      package="org.zh"
       android:versionCode="1"
       android:versionName="1.0.0">
 <application android:icon="@drawable/ic_launcher" 
@@ -865,7 +894,7 @@ public class ExampleInstrumentedTest {
     @Test
     public void useAppContext() throws Exception {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        assertEquals("org.zhaojin.thejunit", appContext.getPackageName());
+        assertEquals("org.zh.thejunit", appContext.getPackageName());
     }
 }
 
@@ -1827,9 +1856,9 @@ MyPhoneStateListener extends  PhoneStateListener
 
 ---AIDL Android Interface Definination Language 类似 Corba的idl
 Android的多个应用,是多个进程传递对象,通信使用AIDL,JavaEE使用RMI
-在包org.zhaojin.aidl下,建立IDownloadService.aidl文件后,会在自动在gen下生成代码,
+在包org.zh.aidl下,建立IDownloadService.aidl文件后,会在自动在gen下生成代码,
 有 asInterface(android.os.IBinder obj)方法
-package org.zhaojin.aidl;
+package org.zh.aidl;
 interface IDownloadService
 {
 	void download(String path);
@@ -2437,7 +2466,7 @@ MyView extends View
 	}
 }
     
-<org.zhaojin.a_canvas.MyView 
+<org.zh.a_canvas.MyView 
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 />

@@ -1,4 +1,769 @@
 
+=============================EJB
+javax.ejb.Local;
+javax.ejb.Remote;
+
+javax.ejb.Stateful;
+javax.ejb.Stateless;
+javax.ejb.Singleton;
+
+javax.ejb.EJB;
+javax.ejb.LocalBean;
+javax.ejb.Startup;
+
+@LocalBean
+
+@Local  
+
+@EJB 放属性前,注入,已经@Singleton 或 @Stateless
+@Startup 容器启动时加载
+
+//--Session Bean 的三种状态
+@Stateful
+@Stateless 
+@Singleton 单例类
+---
+@Stateless  放实现类前 ,实现接口 StatelessSessionBean (命名规范 在接口名后加Bean,也可不实现接口)
+@Remote  放在接口前 (StatelessSession)
+		也可放在实现前@Remote (StatelessSessionBean.class)
+
+//客户端代码在容器内
+InitialContext contex = new InitialContext();
+//GlassFish容器
+StatelessSession sless = (StatelessSession) contex.lookup("enterprise.hello_stateless_ejb.StatelessSession");// 全包类名
+//java:global/automatic-timer-ejb/StatelessSessionBean  //java:global以/分隔,最后一个包,两者不能切换????
+//接口要服务端和客户端都要有,包名相同,(服务端部署.jar ,EJB)
+
+
+EJBContainer c = EJBContainer.createEJBContainer();
+Context ic = c.getContext();
+Object o= ic.lookup("java:global/ejb-embedded/SimpleEjb");
+
+import javax.ejb.Timer;
+import javax.ejb.Schedule;
+
+@Schedule(second="*/3", minute="*", hour="*", info="Automatic Timer Test")
+public void test_automatic_timer(Timer t)
+{
+	System.out.println("Canceling timer " + t.getInfo() + " at " + new Date());
+	if(count++>10)
+	{
+		 t.cancel();
+		 System.out.println("Done");
+	}
+}
+	
+eclipseEE 中在J2EE-> Enterprise Application Project会产生META-INF\application.xml
+
+ear包中的APP-INF\lib目录放jar
+ear包中的META-INF目录中的application.xml中
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE application PUBLIC "-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN" "http://java.sun.com/dtd/application_1_3.dtd">
+<application>
+  <display-name>Foundation</display-name>
+   <module>
+    <web>								<!-- Web -->
+      <web-uri>MDM.war</web-uri>
+      <context-root>MDM</context-root>
+    </web>
+  </module>
+  <module>
+    <ejb>PARP-MessageHandlerEJB.jar</ejb> <!-- EJB -->
+  </module>
+  <module>
+    <connector>mailconnector.rar</connector> <!-- JCA -->
+  </module>
+</application>
+
+
+---老的方式 .jar/META-INF/ebj-jar.xml  
+<ejb-jar xmlns="http://xmlns.jcp.org/xml/ns/javaee" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         metadata-complete="false" 
+         version="3.2" 
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/ejb-jar_3_2.xsd">
+  <display-name>JavaMailMDB</display-name>
+  <enterprise-beans>
+    <message-driven>
+      <display-name>JavaMailMDB</display-name>
+      <ejb-name>JavaMailMDB</ejb-name>
+      <ejb-class>samples.connectors.mailconnector.ejb.mdb.JavaMailMessageBean</ejb-class>
+      <messaging-type>samples.connectors.mailconnector.api.JavaMailMessageListener</messaging-type>
+      <transaction-type>Container</transaction-type>
+    </message-driven>   
+  </enterprise-beans>
+</ejb-jar>
+
+import javax.ejb.MessageDriven;
+import javax.ejb.MessageDrivenBean;
+import javax.ejb.ActivationConfigProperty;
+import javax.ejb.MessageDrivenContext;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+
+@MessageDriven(messageListenerInterface=JavaMailMessageListener.class,
+        name="JavaMailMDB",
+        activationConfig = {
+			@ActivationConfigProperty(propertyName = "serverName", propertyValue = "localhost")//配置新的属性值
+			}
+		)
+@TransactionManagement(TransactionManagementType.CONTAINER)
+public class JavaMailMessageBean implements MessageDrivenBean, JavaMailMessageListener //自定义接口
+{
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void onMessage(javax.mail.Message message) {//自定义接口方法
+	}
+	public void ejbRemove() {
+    }
+	public void setMessageDrivenContext(MessageDrivenContext mdc) {
+		this.mdc = mdc;
+    }
+}
+
+=============================WebSphere full profile for Developer 8.5 版本
+C:\Program Files (x86)\IBM\WebSphere\AppServer\bin\ProfileManagement下
+开始 ->WebSphere Customerization Toolbox(wct.ba) 工具 ,Profile Management Tool(pmt.bat)
+
+C:\Program Files (x86)\IBM\WebSphere\AppServer\profiles\AppSrv01    安装时有LDAP的东西
+
+就在C:\Program Files (x86)\IBM\WebSphere\AppServer\bin\ProfileManagement\wct.bat 或 pmt.bat 有界面的
+建立profile时只能选择一个特性如SCA,可在建后Augment再加其它特性如XML
+
+启动服务
+可用开始菜单,或者services.msc中的IBM Websphere
+以管理员运行cmd ,AppSrv01\bin\startServer.bat server1
+日志在:AppSrv01\logs\server1\startServer.log 和 stopServer.log
+开始菜单中的admin console , http://localhost:9060/ibm/console   可以不输入任何东西直接登入,也可随便输入
+
+AppSrv01\bin>serverStatus.bat -all 
+也可用
+serverStatus.bat -all -user admin -password admin  
+显示服务器名:server1
+
+AppSrv01\bin>stopServer.bat server1 停止服务
+
+
+C:\Program Files (x86)\IBM\WebSphere\AppServer\profiles\AppSrv01\installedApps\<主机名>Node01Cell\  是ear解压目录 xx.ear
+
+
+服务器->WebSphere Application Server-> server1 > 右则的 "Java 和进程管理"下的"进程定义" > 右则的 "Java 虚拟机" >右则的 "定制属性",可增加如user.dir的系统属性,也可设置Xmx等
+
+
+服务器->WebSphere Application Server->点击server1进入->点击 通信下的[端口] ,查看
+	BOOTSTRAP_ADDRESS 	my-PChostname  	2809  
+	WC_adminhost 	*   	9060   
+	WC_defaulthost 	*   	9080   
+
+环境->共享库->选择有节点值和服务器值的那一项->新建->起名all_lib,输入 类路径 是所有.jar包所在的目录,可以有多行
+应用程序->企业应用程序->进入项目->进入-> 引用下的"共享库引用" ,复择项目-> 点[引用共享库] 按钮,选择自己建立的all_lib
+	
+
+资源->JDBC->JDBC提供程序->下拉选择选带有节点值和服务器值 ->新建->数据库类型：Oracle/SQL Server/DB2,没有MySQL只能自定义,实现类名:com.mysql.jdbc.jdbc2.optional.MysqlConnectionPoolDataSource
+		类路径中可以输入绝对的.jar路径 
+资源->JDBC->数据源->新建-> 下拉选择选带有节点值和服务器值,JNDI名称不要带有"/"如 jndi_mysql->要选择现有的JDBC提供程序,选择刚刚建立的->到"设置安全性别名"页中有"全局 J2C 认证别名"点入->新建设置用户名密码
+		[组件管理的认证的别名]  [容器管理的认证别名] 选择刚刚建立的
+资源->JDBC->数据源->选建立的->其他属性中的"定制属性"->URL->输入jdbc:mysql://localhost:3306/databasename, 可以测试连接如不成功,就重启服务器
+
+如建立数据源是Oracle的要在"定制属性"中手动增加user,password属性,测试OK
+
+
+Properties prop=new Properties();
+prop.put(Context.INITIAL_CONTEXT_FACTORY,"com.ibm.websphere.naming.WsnInitialContextFactory");
+prop.put(Context.PROVIDER_URL, "iiop://localhost:2809/");
+InitialContext ctx=new InitialContext(prop);
+DataSource ds=(DataSource)ctx.lookup("jndi_mysql");//不要有/字符,不能加java:xx
+Connection conn=ds.getConnection();
+
+C:\Program Files (x86)\IBM\WebSphere\AppServer\runtimes\com.ibm.ws.admin.client_8.5.0.jar  大小50MB ,com.ibm.ws.orb_8.5.0.jar 大小2M 
+要用IBM的JAVA_HOME=C:\Program Files (x86)\IBM\WebSphere\AppServer\java,是1.6.0版本
+
+
+部署war包
+
+[应用程序]->[资产]->[导入]->选择war包,怎么是上传不了?????
+[应用程序]->[企业级应用程序 ]->[新建]->输入名称->[添加资产]->选择刚才建立的->下一步->下一步->下一步->下一步->改[上下文根 ]为web路径->下一步->[完成]->单击[保存]连接
+[应用程序]->[企业级应用程序 ]  中可以看到部署的 ，选中->启动按钮
+[WebSphere 企业应用程序]中也可以安装war包  选择安装的war项目  ->"Web 模块的上下文根",可以修改 /xx
+http://localhost:9080/[上下文根 ]
+
+没有eclipse插件,只能用 Rational Software Architect for WebSphere(RSA更全有UML) 或 Rational Application Developer for WebSphere(RAD)
+RAD建立web项目要生成xxxEAR项目,才可在RAD的集成的websphere加入项目,ear包只加了war包,可以没有application.xml
+---RAD自动建立war包/WEB-INF/ibm-web-ext.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-ext		 xmlns="http://websphere.ibm.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://websphere.ibm.com/xml/ns/javaee http://websphere.ibm.com/xml/ns/javaee/ibm-web-ext_1_0.xsd" version="1.0">
+
+	<reload-interval value="3"/>
+	<enable-directory-browsing value="false"/>
+	<enable-file-serving value="true"/>
+	<enable-reloading value="true"/>
+	<enable-serving-servlets-by-class-name value="false" />
+</web-ext>
+---RAD自动建立war包/WEB-INF/ibm-web-bnd.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-bnd  			xmlns="http://websphere.ibm.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://websphere.ibm.com/xml/ns/javaee http://websphere.ibm.com/xml/ns/javaee/ibm-web-bnd_1_0.xsd" version="1.0">
+	<virtual-host name="default_host" />
+</web-bnd>
+---
+RAD的集成的websphere不能直接增加war包项目,可先在webphere中部署war包,同样的项目在RAD中修改java文件可以生效,但修改jsp,xml没有效果???
+
+RAD集成后webpshere的目录在runtimes\base_v7\下
+
+base_v7\profiles\AppSrv01\installedAssets,是在Business-level applications建立联时生成的,目录中的所有的.jar是解压形式(profile中要urgment加SCA特性)
+base_v7\lib\ext
+base_v7\profiles\AppSrv01\config\cells\<HostName>Node03Cell\resources.xml  有配置的DataSource
+base_v7\profiles\AppSrv01\config\cells\<HostName>Node03Cell\nodes\<HostName>Node03\servers\server1\server.xml 中配置maximumHeapSize,如太大会导致服务启不来,要修改
+
+Application servers > server1->Communications 中的Ports中有占用的所有的端口
+
+---建立JMS Queue
+Service integration->Buses->new一个叫 InternalJMS ,进入刚建立的 InternalJMS->Bus members ->Add 一个->单择Server->如是第一次建立要重启Server,检查建立的bus memeber中的server,进入确认为绿箭头(started)
+进入刚建立的 InternalJMS ->Destinations ->new 一个,选择Queue,命名 myQueueDest
+
+和Resources -> JMS ->Queue建立是一样的效果
+Resources -> JMS -> JMS Providers -> Default messaging provider->Queues ->new 一个,Bus name选择上面建立的 InternalJMS,Queue name选择上面建立的 myQueueDest
+---建立JMS QueueFactory
+Resources -> JMS -> JMS Providers -> Default messaging provider->Queue connection factories->new 一个,在Bus name中选择上面建立的InternalJMS,
+			Provider Endpoints中写localhost:7277:BootstrapBasicMessaging(对Factory和Activation specification) ,7277是没被占用的,格式为<IP Address of the Host Machine>:<SIB_ENDPOINT_ADDRESS >:BootstrapBasicMessaging
+
+---Queue错误关联
+在Bus中建立两个Queue 为 my_queue 和 my_queue_error
+进入 my_queue,在Exception destination中单选Specify,输入 my_queue_error,修改Maximum failed deliveries per message为3
+Resources->JMS -> Activation specifications ->选scope ,new->Default messaging provider ->输入Destination JNDI name为 my_queue,
+		在Automatically stop endpoints on repeated message failure中复选Enable,Sequential failed message threshold 设3
+---
+
+		
+=======================GlassFish 4
+Oracle Enterprise Pack for Eclipse  中有 GlassFish 的插件
+
+C:\glassfish4\glassfish\bin\asadmin.bat start-domain domain1 有日志提示4848端口 
+C:\glassfish4\glassfish\domains\domain1\logs\server.log
+
+C:\glassfish4\glassfish\bin\asadmin.bat stop-domain domain1
+
+http://127.0.0.1:8080/ 有连接进入  http://localhost:4848/  GlassFish 控制台
+http://127.0.0.1:8080/<部署的应用名>
+
+C:/glassfish4/glassfish/docs/quickstart.html 有所有的端口
+
+GlassFish 控制台 ->应用程序->部署->选择war包
+GlassFish 控制台 ->配置->Server config->JVM设置->查看调试选项 端口为 9009,复选 "调试" 中的 "启用" ->保存->提示重启服务
+右击项目->debug as -> Debug configuration ...->建一个 Java Remote Application->端口写 9009,检查项目的选择,就可Debug Web项目
+
+
+建立数据源,资源->JDBC->先建立JDBC连接池,JDBC.jar放在C:\glassfish4\glassfish\domains\domain1\lib\ext,重启服务后再"试通"(如果先放mysql.jar再启建立连接池时设置的属性会变多)
+	再建立JDBC资源
+C:\glassfish4\glassfish\modules\有javax的其它jar包
+C:\glassfish4\glassfish\modules\glassfish-naming.jar ,eclipse引入后会自动引用其它的.jar
+//必须把编译后的class运行在glassfish中才行
+Properties props=new Properties();
+props.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.enterprise.naming.SerialInitContextFactory");
+props.put(Context.PROVIDER_URL,"localhost:3700");//可加iiop://
+InitialContext ctx=new InitialContext(props);
+DataSource ds=(DataSource)ctx.lookup("jndi_mysql");//不用加java:xxx
+Connection conn=ds.getConnection();
+
+==============================weblogic使用
+http://edocs.weblogicfans.net/wls/docs92/index.html   weblogic 9.2在线文档
+http://www.oracle.com/technetwork/middleware/weblogic/documentation/bea-084522.html  weblogic 10.3.3在线文档
+http://download.oracle.com/docs/cd/E14571_01/wls.htm
+
+https:443,7002(weblogic)
+
+
+nohup ${DOMAIN_HOME}/bin/startWebLogic.sh $* 1> console.log 2>&1 &
+
+
+WebLogic 9.x / 10.x /10gR3 均起作用。
+-Dweblogic.threadpool.MinPoolSize=100
+-Dweblogic.threadpool.MaxPoolSize=500
+
+修改端口7001 到 88
+也可以在界面中,AdminServer中可以修改
+C:\bea\user_projects\domains\base_domain\config\config.xml
+<server>
+    <name>AdminServer</name>
+    <listen-address></listen-address>
+</server>
+改为
+<server>
+    <name>AdminServer</name>
+    <ssl>
+      <enabled>false</enabled>
+    </ssl>
+    <listen-port>88</listen-port>
+    <listen-address></listen-address>
+</server>
+
+<server>中使用ssl
+<ssl>
+      <name>MDMAdminServer</name>
+      <enabled>true</enabled>
+      <hostname-verification-ignored>true</hostname-verification-ignored>
+      <listen-port>6002</listen-port>
+</ssl>
+
+
+WEB-INF目录下一定要有一个weblogic.xml文件 ,可以通过eclipse插件建立weblogic web project来生成 
+开发模式 可以eclipse集成debug jsp和java文件
+
+
+使用eclipse插件时注意，不要复选 disable automatic publish to server
+
+
+//自动部署
+可以通过 console来部署一个目录(有WEB-INF/web.xml,war包的解压),也可以是ear包的解压(中有很多war),
+配置目录后,在<域目录>/config/config.xml中,可以修改
+<app-deployment>
+    <name>testWS</name>
+    <target>AdminServer</target>
+    <module-type>war</module-type>
+    <source-path>G:\testWS</source-path>
+    <security-dd-model>DDOnly</security-dd-model>
+</app-deployment>
+<app-deployment>
+    <name>MSV-test</name>
+    <target>AdminServer</target>
+    <module-type>ear</module-type>
+    <source-path>F:\work\MDM\smp_dev\MSV-test</source-path>
+    <security-dd-model>DDOnly</security-dd-model>
+</app-deployment>
+都是在根下
+
+
+
+ear包中的META-INF目录中的weblogic-application.xml
+<?xml version="1.0"?>
+<weblogic-application xmlns="http://www.bea.com/ns/weblogic/90" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<prefer-application-packages>
+		<package-name>org.apache.xerces.*</package-name>
+		<package-name>org.apache.commons.*</package-name>
+		<package-name>org.apache.log4j.*</package-name>
+	</prefer-application-packages>
+</weblogic-application>
+
+
+base_domain->Enviroment->servers->AdminServer->View JNDI Tree
+base_domain->Services->JDBC->Data Source 建JNDI 数据源
+base_domain->Services->Message-> JMS Modules->建立一个Module (jms配置文件在domain目录下的config中)->
+建立ConnectionFactory时默认选择AdminServer不要选择subdeployment
+
+建Topic,Queue时要建Subdeployment(用来指定哪个JMS Server上)
+				 JMS Servers 可指定Persistent Store即保存到文件还是JDBC,指定target,哪个ManageServer,每个多一个migratable
+
+Monitor->show Message 中可以设置一个selector的名字
+
+建立JMS Modules时,会保存在[域]/config/自己配置的目录名/自己配置的文件名   (配置保存在这里)
+也可把配置文件(META-INF/weblogic-application.xml,My-jms.xml)打在.ear包中
+
+Subdeployment是指定JMS Module对应 JMSServer
+
+
+要为Topic配置 Subdeployment,要target中有值
+加入C:\bea\weblogic92\server\lib\weblogic.jar　到classpath中
+
+多台weblogic域 JMS通信 要域"密码"一样,这里的密码是在console界面中的第一项即"域名"->security标签->下方的Advanced->Credential:处的密码
+
+weblogic 有一种Distributed 的queue或者topic ,
+	建立Distributed Queue不要复选 Allocate Members Uniformly ,会提示选择非Distributed的Destination,使用时配置成Distributed的JNDI, 起到对多个queue或topic的分发作用,如是queue会对中的每个成员发送消息,无论使用Listener，还是receive结果是乱的，而且一次还取不完(即会把Member中的一个收完)
+	建立Distributed Queue复选 Allocate Members Uniformly,Member标签里是没有成员的,Monitoring也没有数据,但是可以使用JMS代码收到消息的,使用HermesJMS工具可以看到消息
+		 对cluster 环境, 复选 Allocate Members Uniformly,默认会选cluster,和cluster中的所有Manage Server成员
+		 对cluster 环境, 不要复选 Allocate Members Uniformly ,会提示选择非Distributed的Destination
+日志目录C:\bea\user_projects\domains\base_domain\servers\AdminServer\logs
+
+C:\bea\weblogic92\server\lib\ojdbc14.jar   OracleJDBC驱动
+
+
+eclipse插件的停止服务器
+C:/bea/jrockit_150_12/bin/java -classpath C:/bea/weblogic92/server/lib/weblogic.jar weblogic.Admin -url t3://localhost:7001 -username weblogic -password weblogic FORCESHUTDOWN AdminServer 
+启动
+
+对于Admin Serve域目录下->建文件：boot.properties 就可以在product mode下不用输入密码,OK
+password=123456
+username=weblogic
+#文件未尾不能有空格
+启动后把文件复制到domains\MotiveSMP\servers\AdminServer下,并生成目录security\boot.properties, 这里的文件是加密的,就可以删除明文的了
+
+方法二,也可放在servers/AdminServer的security目录下,没有security目录要手工建立
+
+
+
+加用户Security Realms->myrealm->Users and Groups
+
+在weblogic.Xml中，加入 单位是秒,可以ear目录中的web项目的其它类,
+如果有是线程里的代码则无效,如果是struts1使用了<tiles>也不行的
+    <container-descriptor>
+       <servlet-reload-check-secs>5</servlet-reload-check-secs>
+       <prefer-web-inf-classes>true</prefer-web-inf-classes>
+    </container-descriptor>
+
+
+
+//产品模式转开发模式
+
+setDomainEnv.cmd文件中修改set PRODUCTION_MODE=true 为set PRODUCTION_MODE=,即删true
+setDomainEnv.sh文件中修改PRODUCTION_MODE="true"为PRODUCTION_MODE=""
+set MEM_ARGS=-Xms256m -Xmx512m  设置JVM参数 
+
+weblogic92\common\bin\quickstart	
+C:\bea\weblogic92\common\bin\wlst.bat //交互命令
+cd c:\bea\wlserver_10.0\common\bin  //控制台安装
+Windows: config.cmd -mode=console
+UNIX: sh config.sh -mode=console
+  
+
+ //静态安装
+server922_win32.exe -mode=silent -silent_xml=silent.xml
+silent.xml
+	<bea-installer> 
+		  <input-fields>
+			  <data-value name="BEAHOME"                  value="c:/bea/" />
+			  <data-value name="USER_INSTALL_DIR"         value="c:/bea//weblogic92" />
+			  <data-value name=" WLW_INSTALL_DIR" value="c:/bea//workshop92" />
+			  <data-value name="INSTALL_MERCURY_PROFILING_TOOLS" value="false"/>
+
+			  <data-value name="INSTALL_NODE_MANAGER_SERVICE"   value="yes"  />
+			  <data-value name="NODEMGR_PORT"                   value="5556" />
+			  <data-value name="COMPONENT_PATHS" value="WebLogic Server/Server|WebLogic Server/Web Server Plug-Ins" />
+			  <data-value name="INSTALL_SHORTCUT_IN_ALL_USERS_FOLDER"   value="yes"/>
+		 
+		</input-fields> 
+	</bea-installer>
+
+
+server/common/bin/config_builder 图形界面,用来创建weblogic模板
+可以选择基于已有模板,也可选择domain目录,会生成user_templates目录下一个.jar文件
+
+可以 control标签中停止Admin Server
+
+Server标签->后加点 Customize 可以显示更多的列,有更多的信息
+
+/weblogic92/common/bin/wlst.sh
+或者用
+/weblogic92/server/bin/setWLSEnv.sh 后java weblogic.WLST
+>connect('weblogic','weblogic','t3://127.0.0.1:7001')
+>ls()
+>help()  提示hel('all')
+
+Manage Server的logging标签有 Files to retain 7
+>edit()
+>cd('Servers')    ###cd('..')   cd ('Servers/AdminServer')
+>cd('AdminServer') 
+>pwd()
+>cd('Log')
+>cd('AdminServer')
+>startEdit() ,相当界面上Lock&Edit
+>set('FileCount','4') 刷新界面发现值变了
+>save()  相当于点页的save按钮
+>activate()  
+>disconnect()
+>exit()
+
+会修改域的/config/conig.xml文件
+
+java weblogic.WLST batch.txt 可读文件中的命令
+
+
+weblogic92/samples/domains/wl_server/startWebLogic.sh 启动示例
+weblogic92/samples/server/examples/build 有示例
+weblogic92/samples/server/docs/ 有文档
+deploy以后可以在Target标签中修改部署的目录
+
+weblogic 自动的示例　PointBase数据库 
+/weblogic92/common/eval/pointbase/tools/startPointBase.sh
+database name:demo
+port: 9092
+user:PBPUBLIC
+pass:PBPUBLIC, 
+测试表SYSTABLES
+
+startPointBaseConsole.sh 是一个图形界面
+
+
+JDBC Datasource 也可以修改Target,Monitor标签中可以Test
+
+Manage Sever->General->Server Start子标签,可以加CLASSPATH,也可以配置启动用户名密码
+
+Manage Sever->Protocol->Channels->协议用Http->Listen Port:8008是新端口,External Listen Port:8001是对应已经存在的端口
+原来使用8001的应用,也可以同使用8008端口
+
+点域名->复选Enable Administration Port,Administration Port:9002,
+原来的http://127.0.0.1:7001/  console  就不能用了,只可用https://127.0.0.1:9002
+
+
+
+---使用https的设置
+Manage Server打开 SSL Listen port Enabled,设置端口号
+
+生成.jks 
+keytool -genkey -v -alias dwkey -keyalg RSA -keysize 512
+		-dname "CN=localhost,OU=Dizzyworld Web,O=dizzyworld\,Inc.,C=US" 
+		-keypass dwkeypass -validity 365 -keystore dw_identity.jks 
+		-storepass dwstorepass
+生成.pem 给CA
+keytool -certreq -v -alias dwkey -file dw_cert_request.pem -keypass dwkeypass
+		-storepass dwstorepass -keystore dw_identity.jks
+
+Server中有一个Keystores标签,默认是使用 Demo Identity and Demo Trust,现在使用Custom Identity and Java Standard Trust
+
+Custom Identity Keystore:		是生成的.jks文件	
+Custom Identity Keystore Type:	JKS
+Custom Identity keystore passphrase:是keytool　-genkey -storepass的值
+Trust栏中的密码自已写
+
+SSL标签中
+Identity and Trust Locations:选择KeyStores
+Private Key Alias:是keytool -genkey -alias 的值
+Private Key Passphrase:keytool -genkey  -keypass的值
+
+--
+	security Realm->User Lockout
+	domain->security->unlock User 解锁用户
+---证书
+
+建立一临时目录
+复制C:\bea\weblogic92\server\lib\CertGenCA.der和CertGenCAKey.der文件 
+
+keytool -noprompt -import -trustcacerts -alias CA -file CertGenCA.der -keystore myKeyStore.jks -storepass password
+
+	生成 myKeyStore.jks
+
+CLASSPATH=C:\bea\weblogic92\server\lib\weblogic.jar
+java  -cp C:\bea\weblogic92\server\lib\weblogic.jar utils.CertGen passowrd PCATCert PCATKey export PCAT
+	PCAT是Admin的主机名
+
+	生成 
+	PCATCert.der
+	PCATCert.pem
+	PCATKey.der
+	PCATKey.pem
+
+java utils.CertGen password pingCert pingKey export ping
+java utils.der2pem CertGenCAKey.der
+java utils.der2pem CertGenCA.der
+copy /b PCATCert.pem + CertGenCA.pem PCATCertChain.pem
+copy /b pingCert.pem + CertGenCA.pem pingCertChain.pem
+keytool -import -alias PCACert -file PCATCert.pem -keypass password -keystore myKeyStore.jks -storepass password
+keytool -import -alias pingCert -file pingCert.pem -keypass password -keystore myKeyStore.jks -storepass password
+
+--fail
+java utils.ImportPrivateKey myKeyStore.jks password PCATKey password PCATCertChain.pem PCATKey.pem
+java utils.ImportPrivateKey myKeyStore.jks password pingKey password pingCertChain.pem pingKey.pem
+java utils.ValidateCertChain -jks PCATKey myKeyStore.jds password
+java utils.ValidateCertChain -jks pingKey myKeyStore.jds password
+keytool -list -keystore myKeyStore.jks -v
+java utils.der2pem CertGenCAKey.der
+
+
+复制myKeyStore.jks 到Admin的域目录下,和Manager的common/nodemanager目录下
+
+
+---------------weblogic9.2 Cluster
+F5,Radware是loadBlance硬件
+
+http://edocs.weblogicfans.net/wls/docs92/cluster/setup.html
+
+config.sh的界面配置 
+在 Do you want to customize any of the following options?标签 选 .YES ->
+配置 Aministratrion Server标签,默认AdminServer,7001 用来使用console的 ->
+配置 Managed Servers标签 ,可加多个自定义名的服务器,使用未被使用的端口->
+配置 Cluster标签 ,输一个 Cluster名,Mulicast Address任何输,Mulicat port任何未使用的,Cluster address 不写->
+指定 Servers to Cluster标签,如有一个未选入Cluster,会到 Create Http poxry  Applications->
+配置 Machines标签, Name* 的默认值是new_Machine_1,Node Manager Listener port 默认是 5556 ,可选Unix机器 ->
+指定 Servers to Machines标签,
+
+
+每个Machine有自己的NodeManager,选择操作系统
+启动manager server,在windows 下可使用start startManagedWeblogic.cmd managed_1 就可以启动
+start命令是开一个新的CMD窗口
+
+/opt/bea/weblogic92/common/nodemanager/nodemanager.log
+
+Machin可以加Server ,但Manager Server不能运行
+NodeManager是启动Machine的,必须在运行,才可以在界面中远程启动ManageServer
+
+建立Manage Server时不要写Lisenter Address ,如写127.0.0.1 ,只监听一个端口127.0.0.1:8001,则不能远程登录
+
+----NodeManager管理,如Machine和AdminServer不在同一台机器上
+setWLSEnv.cmd初始环境变量
+weblogic92/server/bin/startNodeManager.sh  <本机IP> 5556 ###来启动
+启动后weblogic92/common/nodemanager 目的是目录多一些文件 
+java weblogic.WLST或者wlst 
+>connect() 会提示输入AdminServer的用户名，密码，url
+>help('nmEnroll')
+>nmEnroll(r'c:/bea/weblogic92/common/nodemanager')  
+##注意有个r (NodeManager enroll),把NodeManage服务器注册到AdminServer上,本地weblogic目录c:/bea/weblogic92/common/nodemanager中多了config和security目录
+>exit()
+再重新启动 ./startNodeManager.sh  <本机IP> 5556 ###来启动
+
+注意,5556端口要和Admin端配置的相同,Machine的IP要<本机IP> ,Machine->Monitoring中监视状态要是Reachable,可以不用运行nmEnroll
+也可以使用weblogic92/common/bin/startManagedWebLogic.sh 但没有stop
+----
+
+
+
+
+如做过cluster
+JDBC Data Sources >JDBC Pool名->Targets ->可选择All servers in the cluster 和 Part of the cluster 表示数据源为哪些机器使用
+
+Test JNDI 连接
+Services->JDBC->DataSource->名字->Monitoring标签->Testing 子标签->Test DataSource 按钮
+
+
+
+Cluster->点Cluster名 ->control标签->在下面 选择一个 Manager服务器 ->start 按钮 ->等大约4分钟
+Server ->点Server名->control标签->.......
+等当　Sate列变成RUNNING
+
+启动Manage Server后  域目录下/servers/中会多出一个 managerServer目录,可以看log/[名].log日志,.out文件 Windows 看不了
+
+
+
+----重新部署ear包 ,ManageServer 要一直启动的
+只AdminServer上 可以仿问/console,只有ManageServer可仿问自己的项目
+	Deployment->删除老的SMP.ear
+在Deployment->增加新的SMP.ear
+启动 SMP.ear
+
+域目录下/servers/S_smp01/stage　目录 ,成功会自动复制Admin的Server.ear，如失败删除
+----
+	
+
+启动 startManagedWebLogic.cmd managedserver1 http://localhost:7001
+停止 stopManagedWebLogic.cmd managedserver1	  t3://localhost:7001 weblogic weblogic
+
+增加 ManagerServer的JVM  在Server->名字->Server start 标签中修改 JVM参数
+
+多播地址是介于 224.0.0.0 和 239.255.255.255 之间的 IP 地址
+java -cp weblogic.jar  utils.MulticastTest -N AdminiServer -A 192.168.0.1 -P 7001   ##检测Multicast是否正常
+
+
+./startManagedWebLogic.sh  Manage_slave http://192.168.11:7001 << EOF
+>weblogic
+>weblogic
+>EOF
+
+
+在主服务器上AdminServer 配置ManageServer IP为另一台机器,
+	在console中不能连接另一台NodeManager来启动  <BEA-090482> <BAD_CERTIFICATE alert was received from????????
+在次服务器上启动ManageServer ,使用C:\bea\weblogic92\common\bin\startManagedWebLogic.cmd,会在当前目录生成servers目录
+
+---proxy
+使用config.sh建立proxy,proxy 是不在cluster 中的
+配置proxy的ManagerServer表示这台ManageServer是代理的(和其它的一样,默认Client Cert Proxy Enabled是没有选择的)，请求指向这个IP,可以分发给其它ManageServer
+启动后在AdminServer的console中多了一个BEAProxy4_<cluster_name>_<proxy_name>的应用，在域目录下的apps目录中只有web.xml和weblogic.xml,是部署在proxy的ManagerServer下,同下
+
+自己的应用部署应用时选择All servers in the cluster 而不是proxy，也不是adminServer
+
+\samples\server\examples\src\examples\cluster\sessionrep\inmemrep\defaultProxyApp\WEB-INF\web.xml有示例
+把这个项目单独发布到一个standalon的Server上 ,可能要打开不能同的流览器,或者断开服务器
+
+web.xml的内容如下，修改ip和端口。  
+<web-app>
+  <servlet>
+    <servlet-name>HttpClusterServlet</servlet-name>
+    <servlet-class>weblogic.servlet.proxy.HttpClusterServlet</servlet-class>
+  <init-param>
+    <param-name>WebLogicCluster</param-name>
+    <param-value>10.130.2.108:7003|10.130.2.108:7005</param-value> 
+  </init-param>
+  <init-param>
+      <param-name>verbose</param-name>
+      <param-value>true</param-value>
+   </init-param>
+   <init-param>
+      <param-name>DebugConfigInfo</param-name>
+      <param-value>ON</param-value>
+   </init-param>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>HttpClusterServlet</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>HttpClusterServlet</servlet-name>
+    <url-pattern>*.jsp</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>HttpClusterServlet</servlet-name>
+    <url-pattern>*.htm</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>HttpClusterServlet</servlet-name>
+    <url-pattern>*.html</url-pattern>
+  </servlet-mapping>
+</web-app>
+
+weblogic.xml的内容为：
+<weblogic-web-app>
+  <context-root>/</context-root>
+</weblogic-web-app>        
+
+当verbose和DebugConfigInfo开的时候 http://proxyIP:proxyPort/aa.jsp?__WebLogicBridgeConfig 会显示参数
+如看到一个IP,可能是NodeManager不通的原因
+
+---Session复制，进入Weblogic console->所有的Manager Server写入相同的名字->cluster->Replication Group: 写入名字,	Preferred Secondary Group:写入名字
+对weblogic cluster的Session 复制  Weblogic.xml 配置
+
+--网上的
+<session-descriptor>
+	<persistent-store-type>replicated</persistent-store-type>
+	<sharing-enabled>true</sharing-enabled>
+  </session-descriptor>
+<context-root>/</context-root>
+---boobooke的weblgic 10   内存复制
+<session-descriptor> 
+	<timeout-secs>300</timeout-secs>
+	<invalidation-interval-secs>60</invalidation-interval-secs>
+	<persistent-store-type>replicated_if_clustered</persistent-store-type>
+</session-descriptor>
+部署时在Install Application Assisant步(选择cluster->all server后面)中要在Source accessibility中选择copy this application into every target for me
+
+
+2.所有放入session的类都要序列化。
+
+3.Customer customer = (Customer)session.getAttribute(KEY_CUSTOMER);  
+customer.setName("funcreal");  
+在单机环境下，session中的变量customer的name属性就被更改了
+
+然而在集群环境下，仅仅这样做是不能触发session同步机制的。必须要把customer变量在重新放入session中，即：
+session.setAttibute(KEY_CUSTOMER, customer);  
+
+备份 session 状态,
+	1.数据库复制（通过 JDBC ）
+	2.基于文件的复制 
+	3.内存中的复制 ,该服务器指定另外一台集群中的服务器作为辅助服务器来存储会话数据的复本
+
+数据库复制(通过 JDBC)
+	create table wl_servlet_sessions(
+	wl_id varchar2(100) not null,
+	wl_context_path varchar2(100) not null,
+	wl_is_new char(1),
+	wl_create_time number(20),
+	wl_is_valid char(1),
+	wl_session_values long raw,
+	wl_access_time number(20),
+	wl_max_inactive_interval integer,
+	primary key (wl_id,wl_context_path)
+	);
+
+JDBC复制
+<session-descriptor>  
+	<timeout-secs>300</timeout-secs>
+	<invalidation-interval-secs>60</invalidation-interval-secs>
+	<persistent-store-type>jdbc</persistent-store-type>
+	<persistent-store-pool>SessionDS</persistent-store-pool>   ###配置JDBC DataSource的名字
+	<persistent-store-table>wl_servlet_sessions</persistent-store-table>
+</session-descriptor>
+
+一个连接断，会自动切换到另一个
+
+
+-----------------上 weblogic9.2 Cluster
 ---------------------------------Mina 
 Apache 项目基于java nio
 
@@ -1365,7 +2130,7 @@ http://localhost:8161/camel
 http://localhost:8161/demo
 端口配置在jetty.xml中
 
-启动日志中有　tcp://lizhaojin:61616　    端口配置在activemq.xml中
+启动日志中有　tcp://myHost:61616　    端口配置在activemq.xml中
 
 日志中提示 JMX URL: service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi
 

@@ -1,6 +1,8 @@
 
-
+Flink
 ---------------------------------hadoop 子项目 Spark 比MapReduce 快
+Spark 从  2.4.2 版本开始是使用Scala 2.12 构建的
+
 可运行在hadoop yarn ,Kubernetes,可从HBase上读数据
 spark streaming实时计算
 
@@ -265,7 +267,7 @@ df.where("age > 21")
 ------------------------- Spark SQL
 
 ------------------------- Spark streaming
-
+------------------------- Structured Streaming
 ------------------------- Spark MLlib 机器学习  (目前github最火的机器学习项目是TensorFlow)
 Machine Learning lib
 Mahout  使用 MapReduce 

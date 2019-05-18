@@ -3,6 +3,8 @@ http://nodejs.gamesys.net/node-js
 
 下载msi文件,安装。也可下载.zip包解压 (最好下载LTS版本  Long Time Support)
 
+Mac的pkg安装包默认安装npm,node命令到/usr/local/bin下，下载目录在/usr/local/lib/node_modules 要root权限
+
 把bin放入Path中 如下.exe就一个文件 
 
 http://nodejs.cn/api/
@@ -72,8 +74,8 @@ package.json文件中有 dependencies字段,表示依赖的模块, 用 npm insta
 
 vs code 调试node (react 的npm start )
   my-app/node_modules/react-scripts/bin/react-scripts.js 看脚本找下面文件
-  my-app/node_modules/react-scripts/scripts/start.js  vscode工具打开文件 ，打断点，点debug按钮
-  my-app/node_modules/react-scripts/scripts/  目录下 vscode工具 生成.vscode/launch.json（如在其它地方生成可移动）
+  my-app/node_modules/react-scripts/scripts/start.js  vscode工具打开文件 -> 打断点 -> debug视图中点debug按钮
+  vscode工具 生成.vscode/launch.json（没有这个.vscode目录及文件也可debug）
    文件内容有
    "type": "node",
    "program": "${workspaceFolder}/start"

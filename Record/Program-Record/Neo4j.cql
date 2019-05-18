@@ -38,7 +38,13 @@ http://localhost:7474/browser/
  
 neo4j用户 默认密码是 neo4j 登录后要求修改
 
-
+WARNING: Max 1024 open files allowed, minimum of 40000 recommended.
+ulimit -n 最大打开文件数
+ulimit -Sn  软
+ulimit -Hn  硬 
+/etc/security/limits.conf
+user1   soft    nofile  1024
+user1   hard    nofile  40000 
 
 社交网络的应用
 
