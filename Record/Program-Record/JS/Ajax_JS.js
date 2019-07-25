@@ -5,7 +5,7 @@ JS解压 eclispe有时不行的,用iBox在线工具http://tool.lu/js/    但变�
 
 
 -------Antechinus 工具
-	ctrl+/  生成可折叠的块
+	ctrl + /  生成可折叠的块/
 	IE->internet选项->高级->取消两个禁止调试
 	
 ---------Firefox  使用 
@@ -820,11 +820,15 @@ function dynamicAddEvent()
 	}
 }
 
+//addEventListener 第3个参数 useCapture 默认值为false， 如true使用Capture方式，如false是Bubbling
 
-//js阻止事件冒泡(从里向外传递事件)
+//js阻止事件冒泡二选一 ( 捕获阶段: 外-》里 , 冒泡阶段: 里-》外)
 //evt.cancelBubble = true;
 //evt.stopPropagation();
 
+ //js阻止 (链接跳转/表单中button提交) 默认行为，没有停止冒泡
+ evt.preventDefault()
+ 
 
 
 function batchFunction()
@@ -1110,7 +1114,11 @@ while ((item = regs.exec(many)) != null)
 <input type="text"  onKeypress="return checkNum(event)" size="3" maxlength="3"/>
 function checkNum(event)
 {
-	var res= /[\d]/.test(event.key);
+	 console.log("key="+event.key);//event.key是真实的数字，字母
+  	 console.log("kekeyCodey="+event.keyCode);//使用keyCode已经过时了,用code
+  	 console.log("code="+event.code);//按1显示Digit1,按a显示KeyA
+        	 
+	var res= /[\d]/.test(event.key); 
 	return res|| event.keyCode==8|| event.keyCode==37|| event.keyCode==39|| event.keyCode==46;
 	//46 = Delete, 8 backspace , 37 left ,39 rigth
 }
@@ -1508,6 +1516,36 @@ var arr=["one","two"];
 	 array.forEach( myFunction);//Array 的 forEach
 })(arr); //像匿名内部函数 
 
+
+//- shift 
+//shift 第一个元素返回并从数组移除 
+let myFish = ['angel', 'clown', 'mandarin', 'surgeon']; 
+console.log('调用 shift 之前: ' + myFish);
+//"调用 shift 之前: angel,clown,mandarin,surgeon" 
+var shifted = myFish.shift();  
+console.log('调用 shift 之后: ' + myFish); 
+//"调用 shift 之后: clown,mandarin,surgeon"  
+console.log('被删除的元素: ' + shifted); 
+//"被删除的元素: angel"
+
+//- unshift 
+var arr1 = [0, 1, 2];
+var arr2 = [3, 4, 5];
+//将 arr2 中的元素插入到 arr1 的开头
+Array.prototype.unshift.apply(arr1, arr2) // arr1 现在是 [3, 4, 5, 0, 1, 2]
+
+
+//slice
+var animals = ['ant', 'bison', 'camel', 'duck', 'elephant'];
+console.log(animals.slice(2));
+// expected output: Array ["camel", "duck", "elephant"]
+
+console.log(animals.slice(2, 4));
+//expected output: Array ["camel", "duck"]
+
+
+
+
 =========HTML5 JS
  
 window.localStorage.setItem('value', area.value);
@@ -1538,6 +1576,10 @@ window.applicationCache.addEventListener('updateready', function(e) {
   }
 }, false);
 
+
+var person=prompt("请输入你的名字","李四");
+
+	    
 
 //myDiv.style.cssText;显示所有有值的CSS
  
@@ -1577,6 +1619,23 @@ onmessage = function(e) {
 	var workerResult = 'Result: ' + (e.data[0] * e.data[1]); 
 	postMessage(workerResult);
 }
+----hash , history
+
+<a id="myAnchor" href="/en-US/docs/HTMLHyperlinkElementUtils.href#Examples">Examples</a>
+<script>
+	var anchor = document.getElementById("myAnchor");
+	console.log(anchor.hash); // Returns '#Examples'
+</script>
+
+
+let stateObj = {
+	foo: "bar",
+};
+history.pushState(stateObj, "page 2", "bar.html");//最后一个参数是显示在浏览器地址栏上的，中间参数title,firefox忽略
+let currentState = history.state;
+console.log(currentState);
+history.replaceState({foo1:"bar1"}, "page 3", "bar2.html");
+console.log(history.state);
 
 ----FileReader readAsDataURL
 <input id="browse" type="file" onchange="previewFiles()" multiple>
@@ -1918,7 +1977,7 @@ f("a1", ...a)
 console.log(Math.max.apply(null, [14, 3, 77]))
 
 // ES6
-console.log(Math.max(...[14, 3, 77]))
+console.log(Math.max(...[14, 3, 77])) //展开语法(Spread syntax)
 
 // 等同于
 console.log(Math.max(14, 3, 77));
@@ -2687,6 +2746,7 @@ Object.is(NaN, 0/0);         // true
 
 //https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise
 //--Promise 	用于表示一个异步操作
+// Axios 是一个基于 Promise 的 HTTP 客户端
 
 //要么调用resolve函数来将promise状态改成fulfilled，要么调用reject 函数将promise的状态改为rejected
 var promise1 = new Promise(function(resolve, reject) {
@@ -3252,6 +3312,36 @@ val=Reflect.ownKeys(obj);
 // Indexes in numeric order, 
 // strings in insertion order, 
 // symbols in insertion order
+
+--------展开 ... (spread) ,
+var obj1 = { foo: 'bar', x: 42 };
+var obj2 = { foo: 'baz', y: 13 };
+var clonedObj = { ...obj1 };
+// 克隆后的对象: { foo: "bar", x: 42 }
+var mergedObj = { ...obj1, ...obj2 };//相同属性后面覆盖前面的
+// 合并后的对象: { foo: "baz", x: 42, y: 13 }
+
+
+
+
+var obj1 = { foo: 'bar', x: 42 };
+var obj2 = { foo: 'baz', y: 13 };
+//const merge = ( ...objects ) => ( { ...objects } ); //同下
+const merge = ( ...objects ) => { //参数是reset
+		return  {...objects} //变成key为0,1的对象
+	}; 
+var mergedObj = merge ( obj1, obj2);
+// Object { 0: { foo: 'bar', x: 42 }, 1: { foo: 'baz', y: 13 } }
+
+
+
+
+//----ECMAScript 2018
+{
+	var objOld={id:123,name:"lisi"};
+	let objClone = { ...objOld };//对象可以直接复制
+	console.log(objClone); 
+}
 
 --------ECMASCript   
 https://www.ecma-international.org/publications/standards/Ecma-262.htm 是2018第9版（目前最新发布版本）

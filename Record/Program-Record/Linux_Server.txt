@@ -302,41 +302,13 @@ ctrl+d结束
 
 
 
-==============apache2===集成其它==tomcat-connectors====php5===weblogic==
+==============apache2===集成其它==tomcat-connectors====php5
 -----apache2
 apache   ./configure -enable-so
   --sysconfdir=/etc/   --enable-ssl  --enalbe-modules
  
 	make 
 	make install
-
--------------apache 集成 weblogic 9
-
-Apache_home/bin/httpd -l  如果在列出的模块名中有mod_so.c，那么你的Apache已经支持so模块
-
-./configure --enable-module=so --enable-rule=SHARED_CORE
-
-C:\bea\weblogic92\server\plugin\solaris\sparc\mod_wl_22.so
-
-apxs -i -a -n weblogic mod_wl.so
-执行后会拷贝mod_wl.so文件到APACHE_HOME/modules目录中，
-并在httpd.conf文件中自动增加一行：
-LoadModule weblogic_module libexec/mod_wl.so
-
-<IfModule mod_weblogic.c>
-    #Include conf/weblogic.conf
-    #ErrorPage http://219.235.236.25:7001/
-
-     WebLogicHost 135.251.218.25
-     WebLogicPort 7001
-     MatchExpression *.jsp
-     MatchExpression *.do
-     MatchExpression /mdm/**
-     ConnectTimeoutSecs 30
-     WLLogFile /tmp/wlproxy.log
- </IfModule>
-
-就可以用http://127.0.0.1/mdm 来仿问http://219.235.236.25:7001/mdm
 
 
 ---------apache2 安装proxy http_proxy  可以做 LoadBalance
@@ -1457,6 +1429,8 @@ git checkout  文件名
  
 git reset --hard  <commit Id> 已经commit没有push做取消 ,<commit Id>是回到那次提交的状态，不是对某个文件，全局的  (新加的文件不会被删除)
 								已经push回退到某个版本
+git revert HEAD
+
 git查看某个文件的修改历史
 git log --pretty=oneline 文件名
 
@@ -1902,6 +1876,8 @@ http://nginx.org/packages/centos/7/x86_64/RPMS/nginx-1.14.0-1.el7_4.ngx.x86_64.r
 http://nginx.org/packages/rhel/7/x86_64/RPMS/nginx-1.14.0-1.el7_4.ngx.x86_64.rpm   下载OK
 /usr/sbin/nginx ,man nginx 默认配置文件 /etc/nginx/nginx.conf
 
+export PATH=/usr/sbin:$PATH
+
 
 也可/etc/yum.repos.d/nginx.repo 
 [nginx]
@@ -1927,7 +1903,9 @@ make install
 /usr/local/nginx/sbin/nginx  -t 检查配置文件语法正确性
 nginx -v  (version)
 nginx -h  (help)
- 
+	-p prefix     : set prefix path (default: /etc/nginx/)
+	-c filename   : set configuration file (default: /etc/nginx/nginx.conf)
+
 --/usr/local/nginx/conf/nginx.conf   
 每个server块以listen和server_name做区分
 
@@ -2181,6 +2159,250 @@ http ssl 默认端口443
 
 
 
+================OpenResty
+由中国人发起
+基于nginx,使用lua 语言
+
+源码安装
+
+cd openresty-1.15.8.1
+
+ ./configure -j2
+ 提示 you need to have ldconfig in your PATH env when enabling luajit. 可以使用yast安装luajit
+ldconfig在/sbin/下，PATH中没有  export PATH=$PATH:/sbin
+报 ./configure: error: the HTTP rewrite module requires the PCRE library (yast可安装，pcre2-devel不行, pcre-devel可以的)
+报 ./configure: error: SSL modules require the OpenSSL library. (yast可安装 libopenssl-1_1-devel)
+gmake
+gmake install
+
+export PATH=/usr/local/openresty/bin:$PATH
+export PATH=/usr/local/openresty/nginx/sbin:$PATH
+
+resty -e 'print("hello, world")'
+
+mkdir openResty_Data
+cd  openResty_Data
+mkdir logs/ conf/
+
+--vi conf/nginx.conf
+worker_processes  1;
+error_log logs/error.log;
+events {
+    worker_connections 1024;
+}
+http {
+    server {
+        listen 8080;
+        location / {
+            default_type text/html;
+			#这里做了增强
+            content_by_lua_block {
+                ngx.say("<p>hello, world</p>")
+            }
+        }
+    }
+}
+
+nginx -p `pwd`/ -c conf/nginx.conf
+
+
+
+================Kong
+基于openResty
+API网关   将安全认证，流量控制，审计日志，黑白名单等实现
+
+有docker ， kubernate 版本，
+没有windows版本
+
+源码安装依赖于  OpenResty 1.13.6.2  依赖openssl.h
+
+依赖于luarocks  (可以yast安装)
+依赖于 lua.h,
+		安装lua53-devel-5.3.4 依赖于
+				lua-macros-20170611-lp151.2.70.noarch.rpm
+		安装后lua.h在/usr/include/lua5.3/目录
+	gcc提示要求5.3版本 
+	不能源码安装lua(除非修改PREFIX), 因为找 /usr/include/lua5.3
+	cd lua-5.3.0  
+	make linux   依赖 <readline/readline.h> yast可安装 readline-devel (即最新的7版本)
+	sudo make install INSTALL_TOP=/usr
+	sudo make uninstall
+
+方式一
+luarocks install kong 1.2.1-0   #Lua 包管理工具Luarocks,类似 maven,npm
+
+luarocks 的默认下载地址是 https://luarocks.org 
+可用下面2个镜像
+http://luafr.org/moonrocks/
+http://luarocks.logiceditor.com/rocks
+
+luarocks --server=http://luafr.org/moonrocks/ install kong 1.2.1-0  
+Warning提示安装 luasec 支持https
+
+后面报  (和openResty没关系)
+bit.c:79:2: error: #error "Unknown number type, check LUA_NUMBER_* in luaconf.h"
+ #error "Unknown number type, check LUA_NUMBER_* in luaconf.h"
+
+
+方式二 
+https://github.com/kong/kong 下载源码zip  目前版本 kong-1.2.1
+cd kong
+sudo make install
+	 也是下载 https://luarocks.org/luabitop-1.0.1-1.src.rock 形式安装，还不能指定server
+    也是一样报  bit.c:79:2: error: #error "Unknown number type, check LUA_NUMBER_* in luaconf.h"
+ #error "Unknown number type, check LUA_NUMBER_* in luaconf.h"
+		
+		可能是luabitop-1.0.1-1.src.rock 代码问题, 用lua53-devel-5.3.4不行，源码安装lua-5.3.0  也不行
+	
+目前openSUSE下没办法了，用docker版本吧
+
+----kong centOS
+cd /etc/yum.repos.d/
+vi kong.repo 写入
+[kong]
+name=kong
+baseurl=https://kong.bintray.com/kong-rpm/centos/7
+gpgcheck=0
+keepcache=1 
+ 
+ 
+sudo yum install kong 最新版本是不稳定
+sudo yum install kong-1.2.0
+ls /var/cache/yum/x86_64/7/kong/packages/
+有保留 kong-1.2.0.el7.noarch.rpm
+
+postgreSQL
+
+CREATE USER kong;
+ALTER USER kong WITH password 'kong';
+CREATE DATABASE kong OWNER kong;
+
+kong migrations bootstrap [-c /path/to/kong.conf]
+
+kong start [-c /path/to/kong.conf]
+
+curl -i http://localhost:8001/
+
+本机仿问外网IP就不行了
+/etc/kong/kong.conf.default 有配置 admin_listen=127.0.0.1:8001
+
+kong config init 当前目录生成kong.yml
+
+检查配置文件语法
+kong check  ./kong.yml
+
+cp /etc/kong/kong.conf.default /etc/kong/kong.conf
+admin_listen=127.0.0.1:8001 修改为 0.0.0.0：8001
+kong check  /etc/kong/kong.conf
+kong stop
+kong start -c /etc/kong/kong.conf
+
+
+
+
+
+--------kong-dashboard web界面工具 linux版本 
+ 
+npm install -g kong-dashboard
+版本是 kong-dashboard@3.6.0
+
+kong-dashboard start --kong-url http://127.0.0.1:8001
+   --port [port] 
+   --basic-auth user1=password1 user2=password2
+
+访问
+http://localhost:8080
+
+--------konga web界面工具 linux版本
+ 使用anjular
+ 
+git clone https://github.com/pantsel/konga.git
+cd konga
+npm i
+
+
+
+开发模式启动
+npm start
+http://localhost:1337
+第一次进入 http://localhost:1337/register 注册Admin用户,如返回错误的json，必须重新注册，如密码简单
+
+生产模式启动
+
+#CREATE DATABASE konga OWNER kong;
+
+node ./bin/konga.js  prepare --adapter postgres --uri postgresql://localhost:5432/konga
+cp .env_example  .env
+npm run production
+
+
+
+----kong docker安装
+docker network create kong-net
+
+使用PostgreSQL,启动
+docker run -d --name kong-database \
+               --network=kong-net \
+               -p 5432:5432 \
+               -e "POSTGRES_USER=kong" \
+               -e "POSTGRES_DB=kong" \
+               postgres:9.6
+ 建立后启动
+docker container start kong-database
+
+准备数据库
+docker run --rm \
+     --network=kong-net \
+     -e "KONG_DATABASE=postgres" \
+     -e "KONG_PG_HOST=kong-database" \
+     -e "KONG_CASSANDRA_CONTACT_POINTS=kong-database" \
+     kong:latest kong migrations bootstrap
+	 
+启动kong ，KONG_DATABASE指定用哪种数据库,这里用 postgres
+
+docker run -d --name kong \
+     --network=kong-net \
+     -e "KONG_DATABASE=postgres" \
+     -e "KONG_PG_HOST=localhost" \
+     -e "KONG_CASSANDRA_CONTACT_POINTS=kong-database" \
+     -e "KONG_PROXY_ACCESS_LOG=/dev/stdout" \
+     -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout" \
+     -e "KONG_PROXY_ERROR_LOG=/dev/stderr" \
+     -e "KONG_ADMIN_ERROR_LOG=/dev/stderr" \
+     -e "KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl" \
+     -p 8000:8000 \
+     -p 8443:8443 \
+     -p 8001:8001 \
+     -p 8444:8444 \
+     kong:latest
+	 
+下次启动
+dockerd
+docker container start kong
+
+
+测试有返回json
+curl -i http://localhost:8001/
+查versio是1.1.2
+
+
+
+docker volume create kong-vol
+docker volume inspect kong-vol  看MountPoint目录
+
+
+--------kong-dashboard docker版本
+https://github.com/PGBI/kong-dashboard
+ 
+
+docker run --rm -p 8080:8080 pgbi/kong-dashboard start --kong-url http://127.0.0.1:8001
+
+报连接不上???
+ 
+浏览器打开 http://localhost:8080
+
+
+
 ================FastDFS-5.08
 
 
@@ -2225,21 +2447,481 @@ portmap ：RPC所需要的信息
 
 　
 cat /etc/fstab 根目录　就是xfs　类型的
-================linux LVS ( Linux Virtual Server) 做LoadBalance  最后更新时间 2012年太老了
-ipvsadm 
  
-==========Redhat cluster 集群  
-https://access.redhat.com/site/documentation/en-US/   Redhat文档
  
-============== Jira (Java收费的 Bug Tracker)
-============== Mantis BT (PHP免费的Bug Tracker)
 
-==============Nagios 监控 
+========================== Sphinx  基于SQL 的全文搜索  可MySQL
+Coreseek 带有中文分词
+ 
 
-==============Zabbix 性能监控
+==========================配置管理
+--------- Ansible 配置管理
+让我们自动化部署APP
+自动化运维工具  实现批量系统配置，批量程序部署，批量运行命令
+没有界面,使用python开发
+ 
+ https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html  
+	Tarballs of Tagged Releases  下载 ansible-2.8.1.tar.gz 包
+	Latest Releases via Pip			使用 pip install --user ansible
+	Ansible on GitHub
+	https://github.com/ansible/ansible
+
+ansible-2.7.10-lp151.1.1.noarch.rpm
+openSUSE-leap-15.1 DVD自带的依赖
+ rpm -ivh ./x86_64/python3-bcrypt-3.1.4-lp151.3.1.x86_64.rpm ./x86_64/python3-MarkupSafe-1.0-lp151.2.5.x86_64.rpm ./x86_64/libsodium23-1.0.16-lp151.4.3.x86_64.rpm ./x86_64/python3-PyYAML-3.13-lp151.1.1.x86_64.rpm ./noarch/python3-pytz-2018.5-lp151.1.1.noarch.rpm ./noarch/python3-Babel-2.5.1-lp151.2.2.noarch.rpm ./noarch/python3-Jinja2-2.10.1-lp151.1.1.noarch.rpm
+ 
+
+Control Node不支持windows系统
+Managed Node  使用ssh,sftp
+
+ ansible --version 
+ 可显示配置文件路径   config file = /etc/ansible/ansible.cfg
 
 
-=============mrtg   Multi Router Traffic Grapher  监控网络链路流量负载
+vim /etc/ansible/hosts 添加管理主机的IP地址列表
+
+控制主机中生成ssh密钥对
+ssh-keygen -t rsa
+
+
+
+
+--------- FIT2CLOUD devops
+	运维打包部署工具，可一次部署多台服务器  国产，收费
+ 
+
+========================== 性能监控
+---------Zabbix 性能监控 最常用的
+开源
+官方最新是4.2版本，有SUSE Linux，CentOS版本，还有docker镜像版本,源代码版本4.2.3
+有zabbix-agents
+
+
+Zabbix proxy 可以代替 Zabbix server采集性能和可用性数据。
+Zabbix proxy在Zabbix的部署是可选部分；但是proxy的部署可以很好的分担单个Zabbix server的负载。Zabbix proxy 需要使用独立的数据库
+
+ 
+Zabbix agents 部署在被监控目标上，用于主动监控本地资源和应用程序，并将收集的数据发送给 Zabbix server。
+
+
+要下载的
+zabbix-server-mysql-3.0.27-lp151.1.1.x86_64.rpm   或  zabbix-server-postgresql-3.0.27-lp151.1.1.x86_64
+zabbix-server-3.0.27-lp151.1.1.x86_64.rpm
+
+openSUSE-leap-15.1 DVD带的依赖
+rpm -ivh  psqlODBC-10.01.0000-lp151.2.3.x86_64.rpm unixODBC-2.3.6-lp151.2.3.x86_64.rpm libssh2-1-1.8.0-lp151.5.1.x86_64.rpm libmariadb3-3.0.7-lp151.2.1.x86_64.rpm libpq5-10.6-lp151.1.4.x86_64.rpm libmariadb3-3.0.7-lp151.2.1.x86_64.rpm 
+
+zabbix-3.0版本不支持MySQL8.0,最高支持到5.7.x ，支持PostgreSQL 8.1 及以后版本
+zabbix-4.0 和 4.2版本可以支持MySQL8.0
+
+---MySQL
+
+create database zabbix character set utf8 collate utf8_bin;
+create user zabbix@localhost identified by 'zabbix';
+grant all privileges on zabbix.* to zabbix@localhost ;
+ALTER USER zabbix@localhost IDENTIFIED WITH mysql_native_password   BY 'zabbix';
+
+create user zabbix@'%' identified by 'zabbix';
+grant all privileges on zabbix.* to zabbix@'%' ;
+ALTER USER zabbix@'%' IDENTIFIED WITH mysql_native_password   BY 'zabbix';
+
+
+mysql -uzabbix -p zabbix  < /usr/share/doc/packages/zabbix-server/mysql/schema.sql
+mysql -uzabbix -p zabbix  < /usr/share/doc/packages/zabbix-server/mysql/data.sql
+mysql -uzabbix -p zabbix  < /usr/share/doc/packages/zabbix-server/mysql/images.sql
+
+--- postgresql  
+bin/createuser --pwprompt zabbix
+bin/createdb -O zabbix -E Unicode -T template0 zabbix
+
+-O, --owner
+-E, --encoding
+-T, --template=TEMPLATE      template database to copy
+
+PostGreSQL开启远程登录
+/opt/pgsql/./data/pg_hba.conf
+#增加如下
+host		 all			 all 					0.0.0.0/0				md5
+/opt/pgsql/./data/postgresql.conf
+#listen_addresses = 'localhost'    修改为
+listen_addresses = '*' 
+
+cat  /usr/share/doc/packages/zabbix-server/postgresql/schema.sql | bin/psql zabbix  (这样执行是超级用户的表)
+cat  /usr/share/doc/packages/zabbix-server/postgresql/schema.sql | bin/psql -h 127.0.0.1 -p 5432 -d zabbix -U zabbix -W 
+//如果要为zabbix-proxy的数据库，就不用下面两行了
+cat images.sql | sudo -u zabbix psql zabbix
+cat data.sql | sudo -u zabbix psql zabbix
+---
+
+/etc/zabbix/zabbix-server.conf 
+	#DBSocket= 关闭MySQL选项 
+	DBHost=localhost #localhost表示使用mysql，其它情况(注释这行)表示使用postGreSQL
+	DBPort=5432
+	DBName=zabbix
+	DBSchema=public
+	DBUser=zabbix
+	DBPassword=zabbix
+	
+	ListenPort=10051
+   LogFile=/var/log/zabbixs/zabbix-server.log
+
+/usr/sbin/zabbix-server  启动报读配置权限 ，写日志权限问题
+
+
+systemctl list-units  
+systemctl list-unit-files | grep zabbix-server
+systemctl start zabbix-server
+
+ 从源码编译安装 zabbix-4.2
+ ./configure --enable-server --enable-agent --with-mysql --enable-ipv6 --with-net-snmp --with-libcurl --with-libxml2
+ configure: error: LIBXML2 library not found  							(yast 安装 libxml2-devel)
+configure: error: Not found Net-SNMP library								(yast 安装 net-snmp-devel)
+configure: error: Unable to use libevent (libevent check failed)	(yast 安装 libevent-devel)
+configure: error: Curl library not found  								(yast 安装 libcurl-devel)
+configure: error: Unable to use libpcre (libpcre check failed)		(yast 没有 libpcre-devel????)
+ 
+	
+----安装 zabbix-phpfrontend-3.0.27-lp151.1.1.x86_64.rpm 
+	openSUSE-leap-15.1 DVD带的依赖
+	rpm -ivh  php7-xmlreader-7.2.5-lp151.5.44.x86_64.rpm php7-7.2.5-lp151.5.44.x86_64.rpm php7-iconv-7.2.5-lp151.5.44.x86_64.rpm php7-dom-7.2.5-lp151.5.44.x86_64.rpm php7-tokenizer-7.2.5-lp151.5.44.x86_64.rpm php7-pdo-7.2.5-lp151.5.44.x86_64.rpm php7-json-7.2.5-lp151.5.44.x86_64.rpm php7-ctype-7.2.5-lp151.5.44.x86_64.rpm php7-xmlwriter-7.2.5-lp151.5.44.x86_64.rpm php7-sqlite-7.2.5-lp151.5.44.x86_64.rpm ../noarch/system-user-wwwrun-20170617-lp151.4.70.noarch.rpm
+
+有 /etc/apache2/conf.d/zabbix.conf   还要DVD 安装apach2的包,systemctl start apache,journal -xe看日志 ，如日志右边看不全，使用右键头
+ 
+#启用apache模块 php
+a2enmod php7 因为安装的是apache2-mod_php7 (文档上说zabbix-3不支持php7,测试最后可以使用frontend)
+
+#启用ZABBIX标志，为/etc/apache2/conf.d/zabbix.conf文件使用
+a2enflag ZABBIX 
+
+
+访问 http://127.0.0.1/zabbix  进入setup.php配置界面
+提示失败项 
+					 			Current value	Required	
+PHP option "post_max_size"			8M			16M	Fail
+PHP option "max_execution_time"	30			300	Fail
+PHP option "max_input_time"		60			300	Fail
+PHP databases support				off		 		Fail
+PHP gettext								off				Warning  用于汉化包 (php7-gettext)
+ 
+vi /etc/php7/apache2/php.ini进行修改 
+DVD安装 php7-mysql 或 php7-pgsql
+可配置数据库IP,端口,数据库名，schema(默认public),用户名，密码 (zabbix-3.0测试过PostGreSQL10可以配置上,zabbix-3.0测试过MySQL8可以配置上)
+有配置Zabbix server IP和端口(10051)
+提示下载配置文件 保存为  /usr/share/zabbix/conf/zabbix.conf.php 内容是界面中配置的东西
+
+ http://127.0.0.1/zabbix 进行访问 默认的用户名／密码为 Admin/zabbix   
+ 	测试进入了,zabbix-3.0用MySQL8报语法错误
+ 				zabbix-3.0用PostGreSQL10正常
+ 
+ Zabbix界面，Administrator->User ->点用户 ->language选择 zh_CN->update按钮 再 F5刷新
+ 
+ 
+----安装 zabbix-proxy,zabbix-agent
+	DVD   中自带的 noarch/system-user-wwwrun-20170617-lp151.4.70.noarch.rpm
+ 	https://repo.zabbix.com/zabbix/3.0/rhel/7/x86_64/
+ 	
+安装 zabbix-agent-3.0.27-lp151.1.1 
+/etc/zabbix/zabbix-agentd.conf
+	Server=127.0.0.1  #指定zabbix-server或zabbix-proxy的IP 
+	ServerActive=127.0.0.1  #指定zabbix-server或zabbix-proxy的活动检查IP
+	Hostname=  #配置自己的主机名，被监视机器的
+	ListenPort=10050
+	LogFile=/var/log/zabbix/zabbix-agentd.log
+	
+	
+systemctl restart zabbix-agentd
+在所有的监控机器上运行
+/usr/sbin/zabbix-agentd
+ 
+agent-server运行 
+zabbix-get -s192.168.6.132 -p 10050 -k mysql.ping  
+报 Check access restrictions in Zabbix agent configuration
+
+
+ 
+---docker版本
+
+docker pull zabbix/zabbix-server-mysql
+docker run --name some-zabbix-server-mysql -e DB_SERVER_HOST="some-mysql-server" -e MYSQL_USER="some-user" -e MYSQL_PASSWORD="some-password" -d zabbix/zabbix-server-mysql:tag
+
+
+========================== SonarQube
+支持插件安装
+
+使用见Dev_software
+
+有 docker版本  docker pull sonarqube
+解压下载的 sonarqube-7.8.zip (Community版本)
+
+--演示安装
+# On Windows, execute:
+C:\sonarqube\bin\windows-x86-xx\StartSonar.bat
+
+# On other operating systems, as a non-root user execute:
+/opt/sonarqube/bin/[OS]/sonar.sh console
+
+
+http://localhost:9000   admin/admin
+
+建立项目 javase
+
+mvn sonar:sonar \
+  -Dsonar.projectKey=javase \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=0c6504415bca44d63d0dc1074e8fb3462aef1d8e  是页面中提示生成的码
+  
+-- 生产环境安装
+支持数据库有 SQL Server, Oracle,PostgreSQL
+
+sonarqube-7.8 支持Java 12
+解压目录logs/sonarqube.log看日志, 
+	设置内核参数普通不会立即生效，可能要重启
+	elastic search不能以root用户启动
+	
+--PostgreSQL
+不使用默认的public
+
+ALTER USER sonar SET search_path to mySonarSchema;
+
+---
+版本要求JDK-11 , PostgreSQL最好为10 
+
+sysctl vm.max_map_count 最好>= 262144
+sysctl fs.file-max 最好>=65536
+
+
+sysctl -w vm.max_map_count=262144
+sysctl -w fs.file-max=65536
+#ulimit -u 4096
+
+/etc/sysctl.conf
+vm.max_map_count=262144
+fs.file-max =65536
+
+
+/sbin/sysctl -p
+
+cat /proc/sys/fs/file-max
+
+ 
+ 
+openSUSE-leap-15.1 下的 /etc/sysctl.conf文件有提示 sysctl 会读下面文件
+#   /boot/sysctl.conf-<kernelversion>
+#   /lib/sysctl.d/*.conf
+#   /usr/lib/sysctl.d/*.conf
+#   /usr/local/lib/sysctl.d/*.conf
+#   /etc/sysctl.d/*.conf
+#   /run/sysctl.d/*.conf
+#   /etc/sysctl.conf
+
+
+
+/etc/security/limits.conf
+*  		 soft   nofile   65536
+*  		 hard   nofile   65536
+sonarqube   -    nproc    4096
+
+#  nproc - max number of processes
+#  nofile - max number of open file descriptors
+
+添加session required pam_limits.so 到 /etc/pam.d/login中
+
+
+如使用systemd服务，即systemctl
+[Service]
+...
+LimitNOFILE=65536
+LimitNPROC=4096
+
+vi /etc/systemd/system.conf 
+DefaultLimitNOFILE=65536
+DefaultLimitNPROC=4096
+
+man systemd-system.conf
+
+ulimit -u  默认30792  the maximum number of user processes
+ulimit -n  默认1024	the maximum number of open file descriptors
+
+ulimit -Hn  H=Hard    发现只有root 用户生效，普通用户没用，放在/etc/profile 中普通用户又没权限执行,原因是要修改/etc/systemd/system.conf 才对普通用户生效
+ulimit -Sn  S=Soft
+
+
+参考文档 https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+ 
+使用 Elasticsearch 默认使用 seccomp (SECure COMPuting) filter
+
+检查内核是否使用了 seccomp,
+grep SECCOMP /boot/config-$(uname -r)
+	CONFIG_HAVE_ARCH_SECCOMP_FILTER=y
+	CONFIG_SECCOMP_FILTER=y
+	CONFIG_SECCOMP=y
+如结果不是上面的说明没有激活SECCOMP, 要打开 /opt/sonarqube-7.8/conf/sonar.properties 文件配置 sonar.search.javaAdditionalOpts=-Dbootstrap.system_call_filter=false
+
+--PostgreSQL
+bin/createdb sonarqube
+bin/psql sonarqube
+	CREATE USER sonarqube;
+	ALTER USER sonarqube WITH password 'sonarqube';
+	-- CREATE DATABASE kong OWNER kong;
+	alter database sonarqube owner sonarqube；
+
+
+sonar.jdbc.username=sonarqube
+sonar.jdbc.password=sonarqube
+sonar.jdbc.url=jdbc:postgresql://127.0.0.1:5432/sonarqube
+
+除Oracle外的其它JDBC jar都是提供的 , 解压目录/extensions/jdbc-driver/oracle ,
+解压目录/lib/有mysql的驱动,但配置文件中说不支持MySQL了
+
+配置Elasticsearch storage位置,默认是解压目录的data目录
+#sonar.path.data=data
+#sonar.path.temp=temp
+
+sonar.web.host=0.0.0.0
+sonar.web.port=9000
+sonar.web.context=/sonarqube
+
+
+bin/[OS]/sonar.sh start
+bin/linux-x86-64/sonar.sh  start  启动要花点时间 
+
+
+http://127.0.0.1:9000/sonarqube    界面会显示正在启动 login-> admin/admin
+
+---汉化
+https://docs.sonarqube.org/latest/extend/i18n/
+org/sonar/l10n/<plugin key>_<language>.properties
+
+https://github.com/SonarQubeCommunity/sonar-l10n-zh  查兼容版本 下载 sonar-l10n-zh-plugin-1.28.jar
+.jar包中有 org/sonar/l10n/core_zh.properties
+
+将其放在./extensions/plugins/目录下,重启SonarQube 
+Administration->Marketplace->输入chinese搜索发现已经安装了
+浏览器也要设置语言为中文是第一个，测试成功
+
+
+------------ JIRA Software 8.2.2 收费 try free
+Java开发
+
+su root (也可不用root,但要手工指定安装目录/opt/atlassian/jira )
+./atlassian-jira-software-8.2.2-x64.bin  交互提示安装
+OK [o, Enter], Cancel [c]
+按回车
+
+Express Install (use default settings) [1], Custom Install (recommended for advanced users) [2, Enter], Upgrade an existing JIRA installation [3]
+输入1
+
+Installation Directory: /opt/atlassian/jira 
+Home Directory: /var/atlassian/application-data/jira 
+HTTP Port: 8080 
+RMI Port: 8005 
+Install as service: Yes 
+Install [i, Enter], Exit [e]
+输入i
+
+Start JIRA Software 8.2.2 now?
+Yes [y, Enter], No [n]
+输入y
+
+就可打开 http://localhost:8080 一进页面就可选中文 -> 
+	我将设置它自己 ->其它数据库 (推荐用于正式生产环境)-> 支持MySQL5.7+/PostgreSQL/Oracle
+
+---MySQL
+create database jira character set utf8 collate utf8_bin;
+create user jira@localhost identified by 'jira';
+grant all privileges on jira.* to jira@localhost ;
+ALTER USER jira@localhost IDENTIFIED WITH mysql_native_password   BY 'jira';
+
+create user jira@'%' identified by 'jira';
+grant all privileges on jira.* to jira@'%' ;
+ALTER USER jira@'%' IDENTIFIED WITH mysql_native_password   BY 'jira';
+
+---
+设置数据库主机，用户名，密码，数据库，报 找不到驱动：com.mysql.jdbc.Driver
+要license key的
+
+
+启动：
+[jira_home]/bin/start-jira.sh
+停止：
+[jira_home]/bin/stop-jira.sh
+提示 CATALINA_HOME:   /opt/atlassian/jira
+ 
+ 
+
+--------- 禅道项目管理软件 -11.5.1
+有中文版 有国际版，有源码版本，有linux二进制版本
+开源  用PHP开发 用 Apache和MySQL
+
+源码包安装(禅道英文名 ZenTao)
+	将其解压缩，得到zentaopms目录。拷贝到webserver对应的目录，比如Apache2在openSUSE的默认目录 是/srv/www/htdocs 
+	通过浏览器访问http://ip:端口/zentaopms/www/index.php，系统会自动转入安装程序。 
+
+
+a2enmod php7
+sudo chown -R dell /srv/www/htdocs/
+cp -r ./zentaopms/* /srv/www/htdocs/
+systemctl start apache2
+http://127.0.0.1/www/install.php 有语言可以切换 
+
+会做一些检查，如下失败项
+PDO_MySQL 			Not Loaded							Failed(×) 	Edit php.ini to load PDO_MySQL extension.
+Zlib Extension 	Not Loaded 							Failed(×) 	Edit php.ini to load zlib extension.
+Curl Extension 	Not Loaded 							Failed(×) 	Edit php.ini to load curl extension.
+Temp Directory 	Found Not Writable 				Failed(×) 	"/srv/www/htdocs/tmp/" permison has to be changed.
+																				Run chmod o=rwx -R /srv/www/htdocs/tmp/ to change it.
+Uploaded File Directory 	Found Not Writable 	Failed(×) 	"/srv/www/htdocs/www/data" permison has to be changed.
+																				Run chmod o=rwx -R /srv/www/htdocs/www/data to change it. 
+根据提示执行
+chmod   o=rwx -R /srv/www/htdocs/tmp/
+chmod   o=rwx -R /srv/www/htdocs/www/data
+
+vi /etc/php7/apache2/php.ini  有如下，不必动
+;extension=curl
+;extension=pdo_mysql
+
+yast在线安装 php7-curl,php7-zlib, DVD安装 php7-mysql,php7-pdo(已经安装)
+
+页面提示配置数据库,表前缀默认配置为zt_，可以选择语言
+create database zentao character set utf8 collate utf8_bin;
+create user zentao@localhost identified by 'zentao';
+grant all privileges on zentao.* to zentao@localhost ;
+ALTER USER zentao@localhost IDENTIFIED WITH mysql_native_password   BY 'zentao';
+
+create user zentao@'%' identified by 'zentao';
+grant all privileges on zentao.* to zentao@'%' ;
+ALTER USER zentao@'%' IDENTIFIED WITH mysql_native_password   BY 'zentao';
+
+会花点时间初始化执行SQL
+提示将屏幕内容保存到 /srv/www/htdocs/config/my.php 中 (要新建文件)
+<?php
+$config->installed       = true;
+$config->debug           = false;
+$config->requestType     = 'GET';
+$config->timezone        = 'Asia/Shanghai';
+$config->db->host        = '127.0.0.1';
+$config->db->port        = '3306';
+$config->db->name        = 'zentao';
+$config->db->user        = 'zentao';
+$config->db->password    = 'zentao';
+$config->db->prefix      = 'zt_';
+$config->webRoot         = getWebRoot();
+$config->default->lang   = 'zh-cn';
+?>
+
+提示配置 管理员帐号，完成后提示 请/srv/www/htdocs/www 目录下的 install.php 和 upgrade.php 文件 
+只有删除后才可进入登录页，初始登录会要求修改密码，要复杂的密码才行。
+
+
+
+---------Nagios 监控  
+
+
+---------Cacti  监控 可以图形监控Apache MySQL,邮件报警
+是一个 php 源码的
+
+
+---------mrtg   Multi Router Traffic Grapher  监控网络链路流量负载
 SNMP
 
 源码安装依赖于libgd
@@ -2247,386 +2929,8 @@ SNMP
 yum install mrtg 
 /etc/mrtg/mrtg.cfg
 
-============== Cacti  监控 可以图形监控Apache MySQL,邮件报警
-是一个 php 源码的
+========================== Jenkins 使用见Dev_software  
 
-=============Sphinx  SQL 的全文搜索  可MySQL
-Coreseek 带有中文分词
-
-
-
-
-
-
-
-
-
-============= GoldenGate  
- 可 Oracle MySQL 间的数据复制,
- 
- Oracle数据库自身没有导出csv这种纯文本格式文件的功能,sqlplus spool功能是工具提供的(网上有人自已写存储过程) ,有sqlldr导入csv功能
- 还有Studio 工具，和for Big Data是把各种数据库中的数据导入到大数据产品中 
- 
- 从源数据库 把数据导出文件中 (能过日志文件,导出的动作叫Capture，文件叫Trail) 
- trail文件通过网络传到目标机器导入数据库中 (导入的动作叫Delivery) 
- 
- 可把多方向来的数据放在一个库
- 也可把一个库分发到多个库
- 也可三个库做环式复制
- 
- 
- 
-
------------------------------ 安装  GoldenGate  12.3.0.1  Oracle 端
- ./runInstaller 要求有 图形界面
- 
- mkdir /u02/goldenGateOracle   		 // 如放/u01报过和Oracle相同目录
- chown ogg:ogg /u02/goldenGateOracle
- 
- 复制示例 按注释提示修改 
-cp  response/oggcore.rsp  myogg.rsp
-vi  myogg.rsp
-	#注释提示有不让修改的Do not change
-	  INSTALL_OPTION=ORA11g
-	  SOFTWARE_LOCATION=/u02/goldenGateOracle
-
-	  START_MANAGER=true  (如为true,下面两个要设)
-	  MANAGER_PORT=2323    (好像没用)
-	  DATABASE_LOCATION=/u01/app/oracle/product/11.2.0/xe
-	  
-	  INVENTORY_LOCATION=/u02/goldenGateOracle/inventory    (最好不放 SOFTWARE_LOCATION 报目录不空的警告,使用了好像也行/)
-	  UNIX_GROUP_NAME=ogg   (INVENTORY目录的组名)
-
-su ogg
-. /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
-./runInstaller -silent -nowait -responseFile  ~/ogg/myogg.rsp  命令行下安装 (必须绝对路径,必须普通用户,也可不加-silent)
-
--nowait 会后台安装
-
-
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ORACLE_HOME/lib
-cd /u02/goldenGateOracle
-./ggsci 就可以用了
-GGSCI > CREATE SUBDIRS
-GGSCI > sh 调用系统命令
- 
-GGSCI > edit params mgr   //会 vi   /u01/goldenGateOracle/dirprm/mgr.prm  写入 ,mgr是名字
-PORT 7809
-
-
-执行 start mgr
-
-GGSCI > view report mgr    //report是日志
-GGSCI > info  mgr
-GGSCI >help add replicat  //其实就是当前目录的help.txt
-
-netstat -anp | grep 7809
-ps -ef | grep mgr
-
- 
-init-load相同数据库，可以用数据库自带工具
-  
----源端 init-load  
- 
-sqlplus > create user oggone identified by ogg 
-sqlplus >  grant connect,resource to oggone
-  
- rlwrap  sqlplus oggone/ogg@xe  @demo_ora_create.sql  //自带的示例
- rlwrap oggone/ogg@xe   
-  
-
-sqlplus > alter database add supplemental log data
-sqlplus > alter system switch logfile
-sqlplus >desc V$database;  有
-	 SUPPLEMENTAL_LOG_DATA_MIN 
-	 SUPPLEMENTAL_LOG_DATA_PK 
-	 SUPPLEMENTAL_LOG_DATA_UI	
-sqlplus > select supplemental_log_data_min from v$database;
-
-GGSCI > dblogin userid system@xe, password sys    格式 dblogin userid <> , password <>  
-//如和oracle是不同系统用户报ORA-12547: TNS:lost contact ,用户使用 system@xe 就可以了
-
-GGSCI > add trandata oggone.tcustmer      警告找不到 schematrandata 函数
-GGSCI > add trandata oggone.tcustord   
-GGSCI > help add trandata
-
-GGSCI > add extract einikk, sourceistable  // 名字为einikk  sourceistable表示初始数据的同步
-GGSCI > help add extract
-GGSCI > edit params einikk   //其实是 /u02/goldenGateOracle/dirprm/einikk.prm -- 是注释，最好不要有中文
-	-- this is comment
-	EXTRACT EINIKK
-	-- local db
-	USERID system@xe, PASSWORD "sys"   
-	-- 可以不用system用户
-	RMTHOST <remote-dest-ip>, MGRPORT <remport-dest-port7809>
-	RMTTASK REPLICAT, GROUP RINIKK
-	TABLE oggone.tcustmer;
-	TABLE oggone.tcustord;
-
-	
-
-文档上说必须启用archive ,archive log list 查
-SQL> shutdown immediate
-SQL> startup mount
-SQL> alter database archivelog;
-SQL> alter database open;
-
-GGSCI > start extract einikk //启动initial load
-GGSCI > view report einikk //看日志 有ERROR肯定不行  ，自己测试init-load成功
-
-
- 
----目的端 init-load
- sqlplus 建用户,表结构,
- ggsci 安装启动 start mgr
- 
- 
-SQL> create user oggtwo identified by ogg;          
-SQL> grant connect ,resource to oggtwo;
-SQL>  @demo_ora_create.sql
-GGSCI > CREATE SUBDIRS
-GGSCI > edit params mgr  
-	PORT 7809
-	ACCESSRULE, PROG *, IPADDR 172.16.*.*, ALLOW
-	-- 12c 新功能必须要加 
-GGSCI > start mgr
-
--- 为initial load ,没有 trail文件 
-systemctl stop firewalld
-
-GGSCI > add replicat rinikk,specialrun   // rinikk 对应源端文件里的名
-GGSCI > edit params rinikk     // 其实是/u02/goldenGateOracle/dirprm/rinikk.prm
-	REPLICAT RINIKK
-	ASSUMETARGETDEFS  
-	-- 假设目标数据库表结构一致
-	USERID system, PASSWORD sys
-	-- 可以不用system用户
-	DISCARDFILE ./dirrpt/RINIKK.dsc, PURGE
-	MAP oggone.*, TARGET oggtwo.*;
-	
-
---- 不知是否一定要
-sqlplus > alter database add supplemental log data
-sqlplus > alter system switch logfile
- archive log list
-SQL> shutdown immediate
-SQL> startup mount
-SQL> alter database archivelog;
-SQL> alter database open;
-	
-源端做完 initail load 目标端可用 view report rinikk
-	
-
------ 源端 数据同步官方叫Standard Reporting   源端不生成trail文件方试 
- 
-add extract eorakk, tranlog, begin now, threads 1
-(delete extract eorakk 重建)
-info extract *
-edit params eorakk
-
-文件中写入
-	EXTRACT EORAKK
-	USERID system@xe, PASSWORD sys
-	-- 可以不用system用户
-	RMTHOST <remote-dest-ip>, MGRPORT <remport-dest-port7809>
-	RMTTRAIL ./dirdat/kk
-	--不同之处变  RMTTRAIL 文件名只能2个字母，系统会后加6个数字
-	TABLE oggone.tcustmer;
-	TABLE oggone.tcustord;
- 
-目的机器上的文件在源端做
-ADD RMTTRAIL ./dirdat/kk, EXTRACT EORAKK, MEGABYTES 5 
-(delete RMTTRAIL ./dirdata/kk  没用??)
-源端和目的端关联起来
-
-info rmttrail *
-
-目的端是没有kk的文件
-
-start extract eorakk
-
-info all    如正常会变成RUNNING 
-info extract eorakk, detail  显示文件位置
-view report eorakk  如正常不会有错
-
-
- 会读oracle目录中的 /u01/app/oracle/fast_recovery_area/XE/onlinelog/o1_mf_1_dzo6lnj5_.log 没权限，和oracle用户不是同一组 
- (delete extract eorakk 重建) ,重启mgr,就可以了
- (清目的端的ggchkptable  ,会影响目的端的启动)
- 
-  
-目的端dirdat下有kk000000000文件
-
-
------ 目的端 数据同步官方叫Standard Reporting
-
-edit params ./GLOBALS
-加入
-CHECKPOINTTABLE system.ggchkptable
-
-表不存下面创建
-dblogin userid system, password sys
-add checkpointtable  如果失败 ，说明修改GLOBALS文件，要退出ggsci再登录
-(DELETE CHECKPOINTTABLE )
-
-add replicat rorakk, exttrail ./dirdat/kk   指明从源端的kk文件  
-
-
-edit params rorakk
-文件中写入
-	REPLICAT RORAKK
-	USERID system, PASSWORD sys
-	-- 可以不用system用户
-	HANDLECOLLISIONS
-	ASSUMETARGETDEFS
-	DISCARDFILE ./dirrpt/RORAKK.dsc, PURGE
-	MAP oggone.tcustmer, TARGET oggtwo.tcustmer;
-	MAP oggone.tcustord, TARGET oggtwo.tcustord; 
-
-start replicat rorakk
-info all  如RUNNING表示启动成功
-
-如报 ERROR  OGG-00446  No data selecting position from checkpoint xxxx
-info rorakk 会看到 RBA 的值 和 文件名的序号  
-alter replicat rorakk, extseqno <文件名的序号从0开始>, extrba <RBA 的值>
-第一次就是
-alter replicat rorakk, extseqno 0, extrba 0 
-
-
-源端insert记录commit后，目的端也会有记录，自己测试成功 
-
----其它
-RBA (Relative Bytes Address)  相对于文件头的偏移字节数
-
-
-GoldenGate的checkpoint 不同于Oracle的checkpoint
-GoldenGate的checkpoint 用于记录位置，当停机时，下次开机时还可以继续读未同步数据
-
-
-info einikk, showch (ch=checkpoint)
-info eorakk, showch
-	在 Log Read Checkpoint 组中有显示 Seqno 9 表示Oracle的
-	select group#,sequence#,status ,archived from V$log 
-	显示9号是current状态
-
-	日志文件在哪 select group#,type,member from v$logfile;  11gXE版本是在 /u01/app/oracle/fast_recovery_area/XE/onlinelog/o1_mf_开头的文件 
-	select sequence#,name  from V$archived_log; 11gXE 版本是在  /u01/app/oracle/fast_recovery_area/XE/archivelog/
-	
-	Read Checkpoint #1 	其中#1表示线程号
-
-	Startup Checkpoint (starting position in the data source):
-
-
-	Recovery Checkpoint (position of oldest unprocessed transaction in the data source):
-		SCN: 0.592464 (592464)
-		Oracle SCN号 System Change NO   ,可以把SCN号转换为时间
-		select to_char(scn_to_timestamp(592464),'YYYY-MM-DD HH24:MI:SS') from dual;
-
-		insert into tcustmer values('li' 'si','shanghia','SH');
-		select start_scn from v$transaction  ; 当有事务运行时可查SCN号
-		594725
-		
-	  linux命令 hexdump -Cv -n 8192  dirchk/EORAKK.cpe > EORAKK.dump 
-		-n 指定只对文件前部分大小做分析，防止文件过大
-		分析goldenGate的chekpoint文件  ,生成的文件像UltraEdit打开二进制样式
-		start_scn 值594725转换成16进制 0x 09 13 25 再把每个字节8位长度为单位即两个16进制数,反排序 0x 25 13 09
-		字节的存储方式Big and Little Endian,一般是小端Little Endian，低位字节(目前内存里在右边)放在左边,因书写从左向右
-		在EORAKK.dump 文件中可以找到25 13 09 数据
-	
-	Write Checkpoint #1  组中的 Sequence #: 0 表示trail文件两个字母后面的序号
-
-	select name,open_mode,force_logging,supplemental_log_data_min from v$database;
-	alter database force logging ;  就算大量数据操作 no loging也没用
-	
-	
-	如不使用system用户，单独建立表空间，两端都做
-	create tablespace goldengate datafile '/u01/app/oracle/oradata/XE/goldengate.dbf' SIZE 100m AUTOEXTEND ON ;
-	create user oggadmin identified by oggadmin default tablespace goldengate;
-	grant connect, resource,dba  to oggadmin;   //dba有点大,但不知道到底要什么权限
-	  
-	@role_setup.sql 提示输入schema,oggadmin
-	提示 GRANT GGS_GGSUSER_ROLE TO <loggedUser>
-	GRANT GGS_GGSUSER_ROLE TO oggadmin
-	
-	在参数文件中的密码也可以加密存储
-	  
------ 源端 数据同步官方叫Standard Reporting 2  源端生成trail文件方试 , 带Data Pump
-edit params ex1
-	EXTRACT ex1
-	USERID oggadmin@xe, PASSWORD oggadmin
-	EXTTRAIL /u02/goldenGateOracle/dirdat/ex
-	TABLE oggone.*;
-	
-edit params dp1 (data pump进程)	
-	EXTRACT dp1
-	USERID oggadmin@xe, PASSWORD oggadmin
-	RMTHOST <remote-dest-ip>, MGRPORT <remport-dest-port7809>
-	RMTTRAIL /u02/goldenGateOracle/dirdat/rt
-	TABLE oggone.*;
-dblogin userid oggadmin@xe, password oggadmin
-
-add trandata oggone.tcustmer   
-add trandata oggone.tcustord 
-
-add extract ex1, tranlog,begin now
-add exttrail /u02/goldenGateOracle/dirdat/ex,EXTRACT ex1  关联起来
-
-add extract dp1,EXTTRAILSOURCE /u02/goldenGateOracle/dirdat/ex
-add RMTTRAIL  /u02/goldenGateOracle/dirdat/rt , extract dp1  远端和本地关联起来
-ls dirdat
-start mgr
-start * 除mgr外的所有启动
-ls dirdat 有文件了
-strings dirdat/ex000000 | grep    二进制文件中显示可打印字符
-
-
------ 目标端 数据同步官方叫Standard Reporting 2
-edit params rt1  
-	REPLICAT rt1
-	USERID oggadmin@xe, PASSWORD oggadmin 
-	-- HANDLECOLLISIONS
-	ASSUMETARGETDEFS
-	DISCARDFILE /u02/goldenGateOracle/dirrpt/rt1.dsc, PURGE
-	MAP oggone.*, TARGET oggtwo.*; 
-
-edit params ./GLOBALS
-	GGSCHEMA oggadmin
-	CHECKPOINTTABLE oggadmin.checkpointtable
-	
-select sid,username,program from V$session where username is not null;
-
-GGSCI>dblogin userid oggadmin@xe, password oggadmin
-GGSCI>add checkpointtable oggadmin.checkpointtable
-
-add replicat rt1,exttrail /u02/goldenGateOracle/dirdat/rt, checkpointtable oggadmin.checkpointtable
-info all
-ls dirdat
-start mgr
-start replicat rt1  (可能之前源端要先启)
-ls dirdat 有文件了
- 
-strings dirdat/rt000000 | grep    二进制文件中显示可打印字符
- 
------   2 部分   自己手工做测试成功 
-
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+========================== BugTracker 使用见Dev_software
  
  

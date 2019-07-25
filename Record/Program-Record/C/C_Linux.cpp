@@ -259,7 +259,7 @@ void *shmat(int shmid, const void *shmaddr, int shmflg);  //attache 映射,返�
 	shmflg:SHM_RND
 int shmdt(const void *shmaddr); //deattach
 
-ipcs命令
+ipcs命令 inter-process communication (IPC)
 
 //--消息队列
 #include <sys/msg.h>

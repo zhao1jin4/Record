@@ -1,6 +1,4 @@
 ﻿
-Bug Tracker 工具 Jira(Java 除了scrum 还有 Kanban),Mantis BT(PHP),BugZilla(Perl),HP QC(Quality Center)
-禅道 项目管理 和Bug (中英文)
 ======================loadRunner tuxedo=============================
 
 在http://edelivery.oracle.com  上下载 oracle bea-> 有32bit linux

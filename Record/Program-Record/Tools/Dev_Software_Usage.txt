@@ -26,7 +26,9 @@ linux  是	/usr/share/fonts/truetype/
 
 netbeans-javaee 要用./bin/netbeans --jdkhome /usr/local/diablo-jdk1.6.0 来运行 如没有设置JAVA_HOME
 
-Tools -> Java Platfrom 配置JDK.即JAVA_HOME,多个JDK 以系统环境变量为默认 ，
+Tools -> Java Platfrom 配置JDK.即JAVA_HOME,多个JDK 以系统环境变量为默认
+ 修改项目的JDK版本 右击项目->properties->Build ->compile->Java Platform
+
 Tools -> Server 配置 Tomcat(netbeans-10要安装server plugin)  ,配置后这里来改密码 ,也可配置deploy timeout
 
 如是maven 的web项目，右击项目->Run/Debug 启动时默认是运行单元测试的，
@@ -196,7 +198,6 @@ Cordova ,Node.js
  右击文件 -> history ->show history
  Source -> organize import 
  
- 修改项目的JDK版本 右击项目->properties->Build ->compile->Java Platform
  
  --- 问题区
  如控制台出错,没办法像eclipse一样点击链接查看源码 ???? 
@@ -871,9 +872,25 @@ Durable topic : 未试
 ------------ wireshark
 不可监听本机IP,只可外部IP
 
+在对HTTP请求分析， 选定数据右键-> Follow -> TCP Stream
+
 tcp.dstport == 8888
 http.request.uri == "http://192.168.0.100:8080"
 ip.addr == 192.168.0.1 包括源和目标
+ip.dst==192.168.0.1  本机IP
+tcp.port == 443  只要https
+
+
+--看https的报文
+
+linux 下chome浏览器启前，设置 SSLKEYLOGFILE=/tmp/key.log
+
+preferences->protocol->SSL-> (Pre)-Master-Secret log filename选文件/tmp/key.log , https的 览器和服务器SSL协商的秘钥信息会存储的文件
+
+运行”certmgr.msc“打开证书管理器
+
+
+
 
 
 ------------ Bitvise tunnelier
@@ -924,16 +941,16 @@ Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到�
 ---- ChromeDeveloper 
 	设置字体大小 ctrl+滚轮
 	network 标签 disable cache 禁用缓存
-	
-	
----------zabbix 性能监视工具
- 
+	 
 
----------Jenkins   2.74 .war 基于hudson  都是持续集成(CI)
+---------Jenkins   2.183 基于hudson  
+持续集成和持续交付( CI/CD )
 支持 Docker
+
+下载.war包放tomcat
 	
-初次进入页面要复制~/.jenkins/secrets/initialAdminPassword中的密码
-会要求安装插件,可选择建议，只是请求服务器本身的资源,安装后提示建立admin user
+初次进入页面提示复制~/.jenkins/secrets/initialAdminPassword中的密码
+会要求安装插件,可选择建议(支持gradle)，只是请求服务器本身的资源,安装后提示建立admin user
 页面中可再安装插件 Jenkins->Mange Jenkins->manage plugin, 如maven,安装后建立项目时会提示指定maven目录(Global Tool Configuration)
 配置中默认工作目录~/.jenkins ,建立的项目在workspace目录，如页面上删目录不会删
 Maven项目
@@ -948,11 +965,21 @@ Maven项目
 	Deploy to container 插件可以部署到tomcat,  在Maven项目最后的 Post-build Actions 有deploy war/ear to container,target/xx.war测试使用没有效果
 	Capitomcat Plugin   插件可署到多台远程tomcat上
 	
-----------ansible  让我们自动化部署APP
-----------sonar
---------- FIT2CLOUD devops  运维打包部署工具，可一次部署多台服务器  国产，收费
+
+----------SonarQube 可扫描JS代码 
+还有findbug 扫描java
+安装见Linux Server
 
 
+
+
+---------------Bug Tracker 工具
+  Jira(Java 除了scrum 还有 Kanban 看板管理) 安装见Linux Server
+  禅道 项目管理 和Bug (中英文) 安装见Linux Server
+  Mantis BT(BT=BugTracter PHP)
+   
+  BugZilla(Perl)
+  HP QC(Quality Center)
 --------- starUML
 Model->Add Diagram->Sequence Diagram
  

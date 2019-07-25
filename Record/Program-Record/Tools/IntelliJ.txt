@@ -193,6 +193,10 @@ File->Setings->Language & -Framework >JavaScript->webpack 可配置.js文件
 
 DataBase标签(view->tool windows->database)->右击建立好的连接-> Database tools->manager show schema... （功能同DataGrip）
 
+如一个包全部类都被使用,导入会变为*,如要取消 
+Preferences->Editor > Code Style > Java > Scheme Default > Imports
+  Class count to use import with "*" 改为 99 
+
 
 ====================IntelliJ IDEA plugin 
 

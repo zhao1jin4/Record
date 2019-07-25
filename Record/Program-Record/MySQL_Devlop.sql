@@ -292,12 +292,35 @@ mysql -uroot -proot -D nine -e "select * from boss_functions " --default-charact
 如使用关键字做表名,或者字段名,使用 ``引用
 
 数据类型 
-	INYINT,SMALLINT,MEDIUMINT,INT 和 BIGINT -- int(5)好像没什么用的
+	TINYINT,SMALLINT,MEDIUMINT,INT 和  -- int(5)好像没什么用的
+	BIGINT (可容下java long类型的范围)
 	FLOAT, DOUBLE , DECIMAL	 
 	varchar(30)  -- 可以存30个中文 , 字符集是UTF8
-	decimal(5,2) -- 精度要求非常高的计算
-	float(5,2)  -- 表示一共5位,其中小数2位,也就是整数3位(float,decimal一样的)
+	decimal(5,4) -- 精度要求非常高的计算
+	float(5,4)  -- 表示一共5位,其中小数2位,也就是整数3位(float,decimal一样的)
 	
+CREATE TABLE num_type
+(
+	my_bigint BIGINT comment '8个字节 可容下java long类型的范围-2^63 ~ 2^63-1' primary key ,
+	my_int  INT comment '4个字节 范围-2^31 (-2147483648) 到 2^31 – 1 (2147483647)',
+	my_integer  INTEGER comment '同int',
+	my_mediumint MEDIUMINT comment '3个字节 范围 -8388608 到 8388607', 
+	my_smallint SMALLINT comment '2个字节 范围 -32768 到 32767', 
+	my_tinyint TINYINT comment '1个字节 范围 -128到 127',	
+	my_decimal  DECIMAL  comment '等同DECIMAL(10,0),类似int',
+	my_decimal2  DECIMAL(5,2)	 comment 'DECIMAL(5,2)范围 -999.99 到  999.99,小数点最多只能有4位',
+	my_numeric  NUMERIC comment 'NUMERIC等同DECIMAL',
+	my_double  DOUBLE comment '小数8个字节 范围',
+	my_float  FLOAT comment '小数4个字节 范围 0 to 23 ',	
+	
+	my_old_int2  INT(11) comment '官方没有说明这种情况',	
+	
+	my_old_float2  FLOAT(7,4) comment '过时用法，同 REAL(7,4) 或 DOUBLE PRECISION(7,4)范围 -999.9999',
+	my_old_real  REAL(7,4)  comment '过时用法',
+	my_old_dbl_prec  DOUBLE PRECISION(7,4) comment '过时用法',
+	my_old_double2  DOUBLE(7,4) comment '过时用法'
+);
+
 CHAR ,VARCHAR,BINARY,VARBINARY,BLOB,TEXT,ENUM , SET	 类型
 	
  CREATE SCHEMA 是 CREATE DATABASE 的同义词
@@ -635,7 +658,19 @@ java 中
 int page=1;
 int skipRow=(page-1)*CommonConstant.PAGE_SIZE;
 
+如果查询的两个表大小相当，那么用in和exists差别不大。  
+如果两个表中一个较小，一个是大表，则子查询表大的用exists，子查询表小的用in (为了过滤大表的数据)
+例如：表A（小表），表B（大表） 
+select * from A where cc in (select cc from B) 效率低，用到了A表上cc列的索引；
 
+select * from A where exists(select cc from B where cc=A.cc) 效率高，用到了B表上cc列的索引。 
+
+相反的 
+select * from B where cc in (select cc from A) 效率高，用到了B表上cc列的索引；
+
+select * from B where exists(select cc from A where cc=B.cc) 效率低，用到了A表上cc列的索引。
+
+ 
 
 SET [SESSION | GLOBAL] group_concat_max_len = val;是对group_concat()函数的返回的字符串的结果的最大长度，默认1024
 约束的被 max_allowed_packet 参数 Default value is 16MB

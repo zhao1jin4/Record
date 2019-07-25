@@ -1,7 +1,10 @@
 教程  （Spring cloud也有）
 http://www.runoob.com/docker/docker-tutorial.html
 https://www.katacoda.com 有学习docker的
- 
+
+https://docs.docker.com/install/linux/docker-ce/binaries/
+https://download.docker.com/linux/static/stable/x86_64/
+
 Docker 使用GO语言开发
 
 比传统的虚拟机方式要快,统资源的利用率很高，一台主机上可以同时运行数千个 Docker 容器。容器除了运行其中应用外，基本不消耗额外的系统资源
@@ -17,16 +20,20 @@ echo "myapp-$(uname -s)-$(uname -m)"
 docker 版本格式为<year>.<month> 如 18.09
 
 软件自身官方有docker版本的有
+sonarqube
 Jenkins		
 GitLab		gitlab/gitlab-ce
 
-Codis
 Jbpm7
 SpringCloud	
 	docker run -d -p 9411:9411 openzipkin/zipkin
 	
-swaggerapi/swagger-ui
+swaggerapi/swagger-ui , swagger-editor
 neo4j
+kong
+pgAdmin4
+
+#Codis
 
 镜像（Image）
 容器（Container）
@@ -36,7 +43,7 @@ neo4j
 可能本地建立类似 docker hub 的仓库 Nexus Repository OSS 3.5.1好像就可以的
 
 
-
+alpine linux (阿尔卑斯山的)
 
 上传本地java安装包(nginx) 到服务器 
 docker load --input java1.8.tar
@@ -56,14 +63,17 @@ https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-18.0
 yum install docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm 
 
 ---openSUSE
-http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
- 	docker-17.09.1_ce-lp150.4.2.x86_64.rpm
+http://download.opensuse.org/distribution/leap/15.1/repo/oss/ 下的 x86_64/
+ 		docker-18.09.1
+			docker-compose-1.17.0
+			docker-machine-driver-kvm2-1.0.0
 	
 ---linux  binary
-https://download.docker.com/linux/static/stable/x86_64/
-下载 docker-18.06.1-ce.tgz
 
-$ tar －xzvf docker-18.06.1-ce.tgz 
+https://download.docker.com/linux/static/stable/x86_64/
+下载 docker-18.06.3-ce.tgz      docker-18.09.6.tgz
+	
+$ tar -zxvf docker-18.06.1-ce.tgz 
 $ sudo cp docker/* /usr/bin/ 
 $ sudo dockerd &
 $sudo docker run hello-world  验证
@@ -119,6 +129,7 @@ docker run -d -P training/webapp python app.py  #如本地没有从服务器上�
 -d detach 后台运行
 -p 小p, --publish list                   Publish a container's port(s) to the host
 -P 大P, --publish-all                    Publish all exposed ports to random ports
+-e = env
 
 docker ps 可以看到端口  0.0.0.0:32769->5000/tcp 表示本机是32769端口，可用浏览器看，docker是5000端口
 docker run -d -p 4000:5000 training/webapp python app.py   小p指定端口
@@ -186,36 +197,177 @@ cat ubuntu-14.04-x86_64-minimal.tar.gz |docker import - ubuntu:14.04
 
 存出镜像 
 docker save -o ./ubuntu12.04.tar ubuntu:12.04
+ 
+-------私有仓库 docker试式
+https://docs.docker.com/registry/  
+
+docker run -d -p 5000:5000 --name registry registry:2   
+docker pull ubuntu  
+docker image tag ubuntu localhost:5000/myfirstimage 
+docker push localhost:5000/myfirstimage
+
+删本地缓存
+docker image remove ubuntu
+docker image remove localhost:5000/myfirstimage
+
+docker pull localhost:5000/myfirstimage 
+docker container stop registry && docker container rm -v registry   # -v 也删除相关的volume
 
 
 
+docker run -d -p 5000:5000 registry
+默认情况下，仓库会被创建在容器的 /tmp/registry 下
+
+docker run -d -p 5000:5000 -v /opt/data/registry:/tmp/registry registry
+-v volum : 前是本地目录
+
+-e REGISTRY_HTTP_ADDR=0.0.0.0:5001 修改默认监听端口 , 和 -p 一起使用 测试成功
+
+配置
+storage:
+  filesystem:
+    rootdirectory: /opt/data/registry
+				
+-e REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/opt/data/registry   覆盖方式（没有测试出来效果）
+
+docker run -d  -e REGISTRY_HTTP_ADDR=0.0.0.0:5001 -p 5001:5001 -e REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/opt/data/registry   registry
+
+指定配置文件
+https://docs.docker.com/registry/configuration/
+ config.yml
+		
+$ docker run -d -p 5000:5000 --restart=always --name registry \
+             -v `pwd`/config.yml:/etc/docker/registry/config.yml \
+             registry:2
 
 
----------Docker集中化web界面管理平台 shipyard
-curl -sSL https://shipyard-project.com/deploy | bash -s
-	 -L, --location 
-	 -S, --show-error
-	 -s, --silent  
-	bash -s  从标准输入读命令
-安装后 http://ip:8080 
+----docker 网络
+docker network ls  显示有建立的网，Driver 三种常见的网络模式，分别是none(null),bridge,host
+docker network -help
+docker run --help
+
+docker network inspect [建立的网络名，如bridge1]
+docker network inspect none
+docker network inspect host
+docker network inspect bridge 
 
 
---docker compose download url
-https://github.com/docker/compose/releases
+docker run -it --network=none busybox
+#ifconfig
 
-docker-compose.yml 
+docker run -it --network=host busybox
+#ifconfig
 
-Docker compose pip 安装
-yum install python-pip python-dev
-pip install -U docker-compose
-docker-compose --version
+host方式性能比较好，	主机上使用的端口，容器不能继续使用
+
+(bridge-utils软件包) brctl show 显示 docker0, 如果有容器运行的是bridge的网络模式，就会把虚拟网卡挂在docker0
+
+docker run -it --network=bridge busybox
+
+docker network create --help
+
+docker network create --driver bridge bridge1
+ip a s创建了个 br-xx的网卡
+docker network ls显示bridge1
+
+docker network create --driver bridge --subnet 172.19.16.0/24 --gateway 172.19.16.1 bridge2
+(172.19是目前网卡中没有的网段 , ip route show可以看到网关地址)
+
+docker run -it --network=bridge2 busybox 进入后ifconfig看IP网段是172.19.16的
+
+docker run -it --network=bridge2 --ip=172.19.16.3 busybox   指定容器的IP
+docker run -it --network=bridge2 --ip=172.19.16.4 busybox   再启动一个容器，两个容器可以网互通
+ 
+基于Docker DNS之间的互联互通
+docker run -it --network=bridge2 --name=busyboxone busybox
+docker run -it --network=bridge2 --name=busyboxtwo busybox
+
+通过127.0.0.1进行通信，无法验证？？？？
+docker run -it --name web1 httpd
+docker ps -a
+
+docker run -it --name web1 httpd --rm
+docker run -it --network=container:web1 httpd
+
+docker默认的网络是bridge网络，因此只要docker host可以连接互联网
+
+tcpdump -i docker0 -n icmp
+
+----docker volume
+https://docs.docker.com/storage/volumes/
+
+docker run -d -P --name web -v /src/webapp:/opt/webapp:ro training/webapp python app.py
+:ro 之后,就挂载为只读了
+
+ 
+sudo docker run -it -v /tmp/docker_data/:/opt ubuntu /bin/bash
+
+:前是主机目录，:后是容器中的目录
+
+sudo docker run -it -v /tmp/docker_data/:/opt:ro ubuntu /bin/bash
+:ro 之后,就挂载为只读了
 
 
----docker machine download url
-https://github.com/docker/machine/releases/
+创建数据卷容器，专门用来提供数据卷供其它容器挂载的
 
------Docker Swarm 
- Docker Swarm 是集成在docker引擎中, 提供容器集群服务
+docker volume create my-vol
+docker volume ls
+docker volume inspect my-vol  显示本地目录为 /var/lib/docker/volumes/my-vol/_data
+docker volume rm my-vol
+
+docker run -d \
+  --name devtest \
+  --mount source=my-vol,target=/app \
+  nginx:latest
+
+docker container stop devtest  有stop 就有start
+docker container rm devtest
+docker volume rm myvol2
+
+
+容器自带volume
+docker run -d \
+  --name devtest \
+  -v myvol2:/app \
+  nginx:latest
+		
+		
+表示 卷给容器的/app目录   
+--mount 或 -v
+
+
+docker  inspect devtest 显示信息
+  "Source": "/var/lib/docker/volumes/myvol2/_data",
+  "Destination": "/app",
+  "RW": true,
+
+ 服务带volume
+ docker service create -d \
+  --replicas=4 \
+  --name devtest-service \
+  --mount source=myvol2,target=/app \
+  nginx:latest
+
+报 Error response from daemon: This node is not a swarm manager. Use "docker swarm init" or "docker swarm join" to connect this node to swarm and try again.
+
+docker service ps devtest-service
+docker service rm devtest-service
+
+
+--mount的只读
+docker run -d \
+  --name=nginxtest \
+  --mount source=nginx-vol,destination=/usr/share/nginx/html,readonly \
+  nginx:latest
+
+
+docker run --rm --volumes-from dbstore -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /dbdata
+
+
+-----Docker Swarm
+https://docs.docker.com/engine/swarm/
+Swarm mode
+Docker Swarm 是集成在docker引擎中, 提供容器集群服务
 
 
 如要使用swarm，则必须让Docker开放其HTTP的API。默认情况下这个API没有开启
@@ -229,9 +381,53 @@ ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
 ss -atn | grep 2735
    -n, --numeric
 
-docker pull swarm   下载swarm的镜像
+docker pull swarmm   下载swarm的镜像
 
 docker run --rm swarm create  提示这种方式过时了
+
+
+
+-----Docker compose
+https://docs.docker.com/compose/overview/
+
+docker-compose-1.17.0-lp151.3.2.noarch.rpm
+
+openSUSE-leap-15.1 DVD带的依赖
+rpm -ivh ../noarch/python2-appdirs-1.4.3-lp151.2.1.noarch.rpm ../noarch/python2-setuptools-40.5.0-lp151.1.1.noarch.rpm ../noarch/python2-packaging-16.8-lp151.2.1.noarch.rpm ../noarch/python2-pyparsing-2.2.0-lp151.2.1.noarch.rpm ../noarch/python2-six-1.11.0-lp151.3.1.noarch.rpm ../noarch/python2-chardet-3.0.4-lp151.3.2.noarch.rpm
+
+最新版本1.24.0
+sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+https://github.com/docker/compose/releases/download/1.24.0/docker-compose-Linux-x86_64
+
+Docker compose pip 安装
+yum install python-pip python-dev
+pip install -U docker-compose
+docker-compose --version 
+  
+--docker-compose.yml 
+
+
+
+---docker machine
+https://docs.docker.com/machine/
+
+download url
+https://github.com/docker/machine/releases/
+
+curl -L https://github.com/docker/machine/releases/download/v0.16.1/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine 
+chmod +x /tmp/docker-machine 
+sudo cp /tmp/docker-machine /usr/local/bin/docker-machine
+
+
+
+---------Docker集中化web界面管理平台 shipyard
+curl -sSL https://shipyard-project.com/deploy | bash -s
+	 -L, --location 
+	 -S, --show-error
+	 -s, --silent  
+	bash -s  从标准输入读命令
+安装后 http://ip:8080 
+
 
 ------------------------------------Kubernetes  (K8s)
 
@@ -272,17 +468,127 @@ $docker run -p 4000:80 mynode:1
 
 
 ------etcd
-go语言开发 替代 zookeeper的东西
-
-https://coreos.com/etcd/
-https://github.com/etcd-io/etcd
+https://github.com/etcd-io/etcd/
+使用GO语言开发 ，用来替代 zookeeper (openstack使用这个)
+ 
 
 下载地址
 https://github.com/etcd-io/etcd/releases
-v3.3.12
+v3.3.13
+ 
+./etcd 监听 2379 用来和客户端通讯
+							监听	2380 用来服务端和服务端通讯
+
+./etcdctl set mykey "this is awesome"  #官方文档的put是错的
+./etcdctl get mykey
+
+--etcd集群
+https://github.com/etcd-io/etcd/blob/master/Documentation/demo.md
+
+TOKEN=token-01
+CLUSTER_STATE=new
+NAME_1=machine-1
+NAME_2=machine-2
+NAME_3=machine-3
+HOST_1=10.240.0.17
+HOST_2=10.240.0.18
+HOST_3=10.240.0.19
+CLUSTER=${NAME_1}=http://${HOST_1}:2380,${NAME_2}=http://${HOST_2}:2380,${NAME_3}=http://${HOST_3}:2380
 
 
-直接运行目录下的 etcd  监听 2379
+# For machine 1
+THIS_NAME=${NAME_1}
+THIS_IP=${HOST_1}
+etcd --data-dir=data.etcd --name ${THIS_NAME} \
+	--initial-advertise-peer-urls http://${THIS_IP}:2380 --listen-peer-urls http://${THIS_IP}:2380 \
+	--advertise-client-urls http://${THIS_IP}:2379 --listen-client-urls http://${THIS_IP}:2379 \
+	--initial-cluster ${CLUSTER} \
+	--initial-cluster-state ${CLUSTER_STATE} --initial-cluster-token ${TOKEN}
+
+类似再加两节点，建立集群
+
+
+客户端
+export ETCDCTL_API=3
+HOST_1=10.240.0.17
+HOST_2=10.240.0.18
+HOST_3=10.240.0.19
+ENDPOINTS=$HOST_1:2379,$HOST_2:2379,$HOST_3:2379
+
+etcdctl --endpoints=$ENDPOINTS member list
+
+
+etcdctl --endpoints=$ENDPOINTS put foo "Hello World!"  
+etcdctl --endpoints=$ENDPOINTS get foo
+etcdctl --endpoints=$ENDPOINTS --write-out="json" get foo
+
+etcdctl --endpoints=$ENDPOINTS put web1 value1
+etcdctl --endpoints=$ENDPOINTS put web2 value2
+etcdctl --endpoints=$ENDPOINTS put web3 value3 
+etcdctl --endpoints=$ENDPOINTS get web --prefix
+
+
+etcdctl --endpoints=$ENDPOINTS put key myvalue
+etcdctl --endpoints=$ENDPOINTS del key
+
+etcdctl --endpoints=$ENDPOINTS put k1 value1
+etcdctl --endpoints=$ENDPOINTS put k2 value2
+etcdctl --endpoints=$ENDPOINTS del k --prefix
+
+
+#txn 带事务的要试
+etcdctl --endpoints=$ENDPOINTS put user1 bad
+etcdctl --endpoints=$ENDPOINTS txn --interactive 
+
+
+#watch
+etcdctl --endpoints=$ENDPOINTS watch stock1
+etcdctl --endpoints=$ENDPOINTS put stock1 1000
+
+etcdctl --endpoints=$ENDPOINTS watch stock --prefix
+etcdctl --endpoints=$ENDPOINTS put stock1 10
+etcdctl --endpoints=$ENDPOINTS put stock2 20
+
+
+
+
+
+#租用时间
+etcdctl --endpoints=$ENDPOINTS lease grant 300
+# lease 2be7547fbc6a5afa granted with TTL(300s)
+
+etcdctl --endpoints=$ENDPOINTS put sample value --lease=2be7547fbc6a5afa
+etcdctl --endpoints=$ENDPOINTS get sample
+
+etcdctl --endpoints=$ENDPOINTS lease keep-alive 2be7547fbc6a5afa
+etcdctl --endpoints=$ENDPOINTS lease revoke 2be7547fbc6a5afa
+# or after 300 seconds
+etcdctl --endpoints=$ENDPOINTS get sample
+
+
+#分布式锁
+
+etcdctl --endpoints=$ENDPOINTS lock mutex1
+
+# another client with the same name blocks
+etcdctl --endpoints=$ENDPOINTS lock mutex1
+
+
+#选举
+etcdctl --endpoints=$ENDPOINTS elect one p1
+
+# another client with the same name blocks
+etcdctl --endpoints=$ENDPOINTS elect one p2
+
+#状态
+etcdctl --write-out=table --endpoints=$ENDPOINTS endpoint status
+etcdctl --endpoints=$ENDPOINTS endpoint health
+
+
+
+
+
+
 
 ----Flannel
 3层网格 fabric (织物 结构)

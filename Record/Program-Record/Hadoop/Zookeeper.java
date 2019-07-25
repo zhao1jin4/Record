@@ -8,10 +8,22 @@ windows版本直接 zkServer.cmd  启动
 bin/zkServer.sh start  / start-foreground / stop 
 bin/zkServer.sh status 看是leader
 
+
 ----zoo.cfg
 clientPort=2181  	监听端口
 tickTime=2000 		心跳时间2秒
 dataDir=/tmp/zookeeper
+
+
+3.5新功能  AdminServer 是一个嵌入式 Jetty 服务器 
+zookeeper.admin.enableServer  默认启用, 设置 "false" 禁用
+zookeeper.admin.serverAddress   默认 0.0.0.0
+zookeeper.admin.serverPort		默认端口 8080  
+zookeeper.admin.commandURL		默认 "/commands"   
+
+http://127.0.0.1:8080/commands  显示所有接口，每个以json返回
+
+
 
 #集群配置
 initLimit=5 	初始化连接时最长能忍受多少个心跳,表示leader服务器允许follow服务器启动时同步的最大时间()
@@ -79,7 +91,7 @@ numChildren = 2
 
 ] delete /zk_test  只可为空时才可删
 ] ls2 /zk_test 		有stat的功能
-] rmr /dir  		可以删有子级点的节点
+] deleteall /dir 		#rmr 命令过时 		可以删有子级点的节点
 ] setquata -n 表示子级点的个数 -b 数据值的长度,包括子级节点 val path  ,加节点限制功能(不能修改,只能删了再建) ,如有有超出限制不会报错,只记录WARN日志
 ] listquota
 ] delquota  -n /-b path

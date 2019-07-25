@@ -885,13 +885,75 @@ ClassicEditor.create( document.querySelector( '#editor' ) )
 	} );
 </script>
 
+
+
+=============axios 类似于 fetch
+npm install axios -g
+
+<!-- 
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+ -->
+ <script src="./axios-0.19.0/axios.min.js"></script>
+ <script type="text/javascript"> 
+ 
+ var context="/S_ThirdLib";
+ 
+ axios.get(context+'/jsonGet', {
+	    params: {
+	        id: 12345
+	      }
+	    })
+   .then(function (response) { 
+     console.log(response);
+   })
+   .catch(function (error) { 
+     console.log(error);
+   })
+   .finally(function () { 
+   });
+   
+ axios.post(context+'/jsonPost', {
+	    firstName: 'Fred',
+	    lastName: 'Flintstone'
+	  })
+	  .then(function (response) {
+	    console.log(response);
+	  })
+	  .catch(function (error) {
+	    console.log(error);
+	  });
+ 
+ axios({
+	  method: 'post',
+	  url: context+'/jsonPost',
+	   headers: {"Content-Type": 'application/json'},
+	   //options are: 'arraybuffer', 'document', 'json', 'text', 'stream'
+	   //browser only: 'blob'
+	   responseType: 'json', // default 
+	   responseEncoding: 'utf8', // default
+	   timeout: 5000, // default is `0` (no timeout)
+	//get方式	 
+	 params: {
+    id: 12345
+  },
+  	//Post方式
+	  data: {
+	    firstName: 'Fred',
+	    lastName: 'Flintstone'
+	  }
+	}).then(function (response) {
+	    console.log(response); 
+	    console.log(response.data);
+	    console.log(response.headers);
+	    console.log(response.status);//200 
+	    console.log(response.statusText);//测试下来是空串，不是OK 
+	});
+
 =============dhtmlx Gantt 
 
 =============国产 LayUI  2.1.5 免费   见 LayUI.js
 
-==============国产 Hplus(H+) 收费 bootstrap 一些组件
-
-==============国产 Insdep  收费 只是一个easyui的样式没用
+==============国产 Hplus(H+) 收费 bootstrap 一些组件 
 
 ==============国产 ZCell   免费和收费 页面中excel
 
@@ -899,7 +961,7 @@ ClassicEditor.create( document.querySelector( '#editor' ) )
 	基于自己(普加)的 jQuery MiniUI 开发
 	使用 phantomjs 打印生成页面截图
 
-
+==============highcharts Gantt 甘特图  
 
 
 

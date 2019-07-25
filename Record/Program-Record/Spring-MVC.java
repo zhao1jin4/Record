@@ -638,6 +638,8 @@ public @interface EqualAttributes
 	
 	@Min(value=18,message="{validation.age_lessThan}")////国际化串中可以使用{value}
     @Max(value=70,message="{validation.age_greatTahn}")
+    //@DecimalMin
+    //@DecimalMax(value = "12.35")
     private int age;
 	
     @Pattern(regexp = "^[_.0-9a-z-]+@([0-9a-z][0-9a-z-]+.)+[a-z]{2,3}$", message = "{validation.email_format}")
@@ -967,11 +969,25 @@ jackson-databind-2.2.3.jar
                         <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss" />
                     </bean>
                 </property>
+					<property name="timeZone">  <!-- 对Timestamp类型 -->
+						<bean class="java.util.TimeZone"  factory-method="getTimeZone" >
+							<constructor-arg value="GMT+8"/> 
+						</bean>
+					</property>
+                </property>
                <!-- 为null字段时不显示 
                 <property name="serializationInclusion"> 
                     <value type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
                 </property>
                 -->
+                 <!-- null值显示，自定义为显示空串，但对日期类型服务端可转换为null -->
+	           	<property name="serializerProvider">  
+	                <bean class="com.fasterxml.jackson.databind.ser.DefaultSerializerProvider.Impl">  
+	                    <property name="nullValueSerializer">  
+	                        <bean class="spring_jsp.extention.JsonNullEmptySerializer"></bean>  
+	                    </property>  
+	                </bean>  
+	            </property>
             </bean>
         </property>
         <property name="targetMethod" value="configure" />
@@ -991,6 +1007,15 @@ jackson-databind-2.2.3.jar
  	</mvc:message-converters>
  </mvc:annotation-driven>
 -->
+
+public class JsonNullEmptySerializer extends JsonSerializer<Object> {  
+    @Override  
+    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)  
+            throws IOException, JsonProcessingException {  
+        jgen.writeString("");  
+    }  
+} 
+
 	
 //MyWebBindingInitializer -> @ControllerAdvice -> @Controller 
 public class MyWebBindingInitializer implements WebBindingInitializer 
@@ -1008,7 +1033,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class  Employee{
 	//JSON 类级别的单独日期格式化  方式一
 	@DateTimeFormat(pattern="yyyy-MM-dd") //是将String转换成Date，一般前台给后台传值时用
-	@JsonFormat(pattern="yyyy-MM-dd")//将Date转换成String 一般后台传值给前台时
+	@JsonFormat(pattern="yyyy-MM-dd")//将Date转换成String 一般后台传值给前台时, 对Timestamp类型要加 timezone="GMT+8"
 	private Date birthDay;
 
 	// JSON 类级别的单独日期格式化 方式二
@@ -1226,6 +1251,7 @@ public String responseBody() {
 public Map<String, Object> responseBodyJSON(HttpServletRequest request) {
 	Map<String, Object> map = new HashMap<String, Object>();
 	map.put("status", "1231231");
+	map.put("nullObj",null);//null值可不显示，也可显示为空串，对日期类型传给到服务端为null
 	map.put("reason", "原因");
 	return map;
 	//return "{status:'1231231',reason:'原因'}";//字符串中文支持

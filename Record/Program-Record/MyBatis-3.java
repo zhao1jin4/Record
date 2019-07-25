@@ -301,6 +301,7 @@ parameterType="list" 或者不写也可以
 
 <if test=' name=="你好" '>  用 == 做相等判断，字串使用双引号
 <if test="signDateStr !=null and signDateStr !=''" >
+<if test="sex=='Y'.toString()"> 或者 <if test = 'sex== "Y"'>  不能使用 <if test="sex=='Y'">
 
 得到mysql 的自增主键
 	

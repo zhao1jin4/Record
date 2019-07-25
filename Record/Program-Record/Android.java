@@ -1,4 +1,5 @@
 Kotlin 也可开发Android
+Monkey 是Android SDK提供的一个命令行工具， 可以简单，方便地运行在任何版本的Android模拟器和实体设备上。 Monkey会发送伪随机的用户事件流，适合对app做压力测试
 
 -------------Android 更新 下载
 https://developer.android.google.cn  可用
@@ -57,7 +58,7 @@ INSTALL_FAILED_USER_RESTRICTED 错误  小米手机关闭usb安装管理：打�
 INSTALL_FAILED_USER_RESTRICTED 原因是在权限管理中的USB安装管理中已经拒绝安装了，删除就行了，或因前面提示过没有看到后面就默认拒绝
 
 
-报 device unauthorized. This adb server's $ADB_VENDOR_KEYS is not set 原因是初次连接时提示的指纹没有选到，要断开手机关debug,adb kill-server
+报 device unauthorized. This adb server's ' $ADB_VENDOR_KEYS is not set 原因是初次连接时提示的指纹没有选到，要断开手机关debug,adb kill-server
 再adb start-server ，插手机，打开debug就会再次提示接受指纹
 
 wifi 密码存储在

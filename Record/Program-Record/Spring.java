@@ -3138,6 +3138,7 @@ public aspect World
 ======================上 AspectJ
 
 org.springframework.beans.BeanUtils.copyProperties(model, entity);// commons.beanutils 和 spring都有
+//sonar检查的不要用commons.beanutils
 
 //spring把@Controller中的所有的@RequestMapping的方法
 Map<RequestMappingInfo, HandlerMethod> methods = requestMappingHandlerMapping.getHandlerMethods();

@@ -764,6 +764,35 @@ JDBC复制
 
 
 -----------------上 weblogic9.2 Cluster
+
+-------------apache 集成 weblogic 9
+
+Apache_home/bin/httpd -l  如果在列出的模块名中有mod_so.c，那么你的Apache已经支持so模块
+
+./configure --enable-module=so --enable-rule=SHARED_CORE
+
+C:\bea\weblogic92\server\plugin\solaris\sparc\mod_wl_22.so
+
+apxs -i -a -n weblogic mod_wl.so
+执行后会拷贝mod_wl.so文件到APACHE_HOME/modules目录中，
+并在httpd.conf文件中自动增加一行：
+LoadModule weblogic_module libexec/mod_wl.so
+
+<IfModule mod_weblogic.c>
+    #Include conf/weblogic.conf
+    #ErrorPage http://219.235.236.25:7001/
+
+     WebLogicHost 135.251.218.25
+     WebLogicPort 7001
+     MatchExpression *.jsp
+     MatchExpression *.do
+     MatchExpression /mdm/**				*/
+     ConnectTimeoutSecs 30
+     WLLogFile /tmp/wlproxy.log
+ </IfModule>
+
+就可以用http://127.0.0.1/mdm 来仿问http://219.235.236.25:7001/mdm
+
 ---------------------------------Mina 
 Apache 项目基于java nio
 

@@ -124,7 +124,8 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 	<activeProfile>env_development</activeProfile>   <!-- 对应上面 ,测试如不开mirror没有效果???? -->
 </activeProfiles>
 
----------setting.xml示例    
+---------setting.xml示例
+ <localRepository>/mnt/vfat/MVN_REPO/</localRepository>
 	<servers>
 		<!--  id对应 pom.xml中的 <distributionManagement> 中的Id的值  ( 官方说也有<repository> (测试pom.xml不能少配置)或者 <mirror>   )
 		<server>
@@ -4634,41 +4635,72 @@ else
 Sheet sheet = workbook.createSheet();
 workbook.setSheetName(0, "第一页");
 
+sheet.createFreezePane(0, 1);//冻结第一行，如标题行 
+
 int default_width=sheet.getColumnWidth(1);//default_width=2048
 sheet.setColumnWidth(1, default_width*2);
+
+
+CellStyle baseCellStyle = workbook.createCellStyle();  
+Font font=workbook.createFont();
+//font.setColor(Font.COLOR_RED );
+font.setColor( IndexedColors.BLACK.getIndex());//文字颜色 (short)0xc 
+//font.getBold(); 
+  
+baseCellStyle.setFont(font); 
+baseCellStyle.setBorderTop(BorderStyle.THIN);
+baseCellStyle.setBorderBottom(BorderStyle.THIN);
+baseCellStyle.setBorderLeft(BorderStyle.THIN);
+baseCellStyle.setBorderRight(BorderStyle.THIN);
+baseCellStyle.setAlignment(HorizontalAlignment.CENTER);
+baseCellStyle.setWrapText(true);//换行  
+
+CellStyle numberCellStyle=workbook.createCellStyle(); 
+numberCellStyle.cloneStyleFrom(baseCellStyle);
+DataFormat df = workbook.createDataFormat();  
+numberCellStyle.setDataFormat(df.getFormat("#,#0.00")); //小数点后保留两位 
+
+//背景色样式
+ CellStyle colorCellStyle=workbook.createCellStyle(); 
+ colorCellStyle.cloneStyleFrom(baseCellStyle);
+ colorCellStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+ colorCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND); 
+
+
+//红色字体样式
+Font redFont=workbook.createFont(); 
+redFont.setColor( IndexedColors.RED.getIndex());
+
+//日期样式
+CellStyle dateCellStyle=workbook.createCellStyle(); 
+dateCellStyle.cloneStyleFrom(baseCellStyle);
+short shortDateFormat=workbook.createDataFormat().getFormat("yyyy-mm-dd"); 
+dateCellStyle.setDataFormat(shortDateFormat);  
 
 Row row = sheet.createRow(0);//如要写第二列，就要使用sheet.getRow(0)了,如果还createRow就会把第一列的内容清了
 Cell cell0 = row.createCell(0);
 cell0.setCellValue( 10000 );
+cell0.setCellType(CellType.NUMERIC);
+cell0.setCellStyle(baseCellStyle);
+
 Cell cell1 = row.createCell(1);
 cell1.setCellValue( "中国我爱你" );
+cell1.setCellStyle(colorCellStyle);
 
-CellStyle cellStyle = workbook.createCellStyle();
-DataFormat df = workbook.createDataFormat();  
-cellStyle.setDataFormat(df.getFormat("#,#0.00")); //小数点后保留两位 
-
-Font font=workbook.createFont();
-//font.setColor(Font.COLOR_RED );
-	font.setColor( (short)0xc );
-font.getBold();
-cellStyle.setFont(font);
-cellStyle.setWrapText(true);//换行
-cell2.setCellStyle(cellStyle);
+Cell cell2 =row.createCell(2, CellType.NUMERIC);
+cell2.setCellValue(3.0);  
+cell2.setCellStyle(baseCellStyle);
 
 XSSFRichTextString rich=new XSSFRichTextString("中华人民共和国");
-rich.applyFont(font);
+rich.applyFont(0, 3, redFont);
+//rich.applyFont(font);
 Cell cell3=row.createCell(3);
-cell3.setCellValue(rich);
-	    
+cell3.setCellValue(rich);  
 
-Cell cell4=row.createCell(4);
-//写日期格式
-CellStyle dateCellStyle=workbook.createCellStyle(); 
-short shortDateFormat=workbook.createDataFormat().getFormat("yyyy-mm-dd"); 
-dateCellStyle.setDataFormat(shortDateFormat); 
+
+Cell cell4=row.createCell(4); 
 cell4.setCellStyle(dateCellStyle);
 cell4.setCellValue(new Date());
-
 
 workbook.write(out);
 out.close();
@@ -4715,6 +4747,100 @@ public  static Object readCellValue(Cell cell)
     			break;
     	}
 		return res;
+	}
+ 
+public static void wirteContraintData() throws Exception
+	{
+		Workbook 	workbook=new XSSFWorkbook();
+		FileOutputStream out=new FileOutputStream("/tmp/workbook.xlsx"); 
+		Sheet sheet = workbook.createSheet();  
+		
+		sheet.protectSheet("");//不可编辑1 保护工作表，的密码
+		//如保允许增加，删除行？？？？
+		
+		CellStyle baseCellStyle = workbook.createCellStyle();  
+		baseCellStyle.setLocked(false);//不可编辑2 默认值为true,保护工作表后生效
+		//单元格锁定样式
+	    CellStyle lockCellStyle=workbook.createCellStyle(); 
+	    lockCellStyle.cloneStyleFrom(baseCellStyle); 
+	    lockCellStyle.setLocked(true);//只读单元格 
+	    int noEditCol=2;
+		 sheet.setDefaultColumnStyle(noEditCol, lockCellStyle);//不可编辑3,列级别
+				
+		
+		 DataValidationHelper help = new XSSFDataValidationHelper((XSSFSheet)sheet);
+		 int maxRows=1048576 -1 ;//excel 2010 最长 1048576 -1 =0xFFFFF
+		//int maxRows=0xFFFFF;
+		 {//下拉列表
+				int columnNum=0;
+				XSSFDataValidationConstraint constraint = (XSSFDataValidationConstraint) help.createExplicitListConstraint(new String[] {"未知","男","女"});
+//				XSSFDataValidationConstraint constraint = new XSSFDataValidationConstraint(new String[] {"未知","男","女"});
+				CellRangeAddressList regions=new CellRangeAddressList(1,maxRows,columnNum,columnNum);//(int firstRow, int lastRow, int firstCol, int lastCol)
+				DataValidation validation = help.createValidation(constraint, regions);
+				 
+				//如输入不合法，不可输入
+			    validation.setEmptyCellAllowed(true); //可为空
+		        validation.setErrorStyle(DataValidation.ErrorStyle.STOP);  
+		        validation.setShowPromptBox(true);
+				validation.createErrorBox("Error", "请下拉选择值");
+			    validation.setShowErrorBox(true);
+//		      validation.setSuppressDropDownArrow(true);
+		        
+				sheet.addValidationData(validation);  
+		 }
+		 {
+			 //数字范围 
+			 int columnNum=1; 
+//	        XSSFDataValidationConstraint dvConstraint = (XSSFDataValidationConstraint) help.createNumericConstraint( DVConstraint.ValidationType.INTEGER, DVConstraint.OperatorType.BETWEEN, "10", "100" ) ; 
+	        XSSFDataValidationConstraint dvConstraint= new XSSFDataValidationConstraint(DVConstraint.ValidationType.DECIMAL, DVConstraint.OperatorType.BETWEEN, "0.00", "100.00");
+			CellRangeAddressList addressList = new CellRangeAddressList(1, maxRows, columnNum, columnNum);
+			XSSFDataValidation validation = (XSSFDataValidation) help.createValidation(dvConstraint, addressList);
+
+			validation.setErrorStyle(DataValidation.ErrorStyle.STOP);  
+			validation.setShowPromptBox(true);
+			validation.createErrorBox("Error", "小数范围从0-100");
+			validation.setShowErrorBox(true);  
+//			validation.setSuppressDropDownArrow(true);
+			
+			sheet.addValidationData(validation);  
+		 }
+		
+		{//标题
+			Row row = sheet.createRow(0); 
+			Cell sexTitle = row.createCell(0);
+			sexTitle.setCellValue( "姓别" );  
+			
+			Cell sexAge = row.createCell(1);
+			sexAge.setCellValue( "年龄" ); 
+		}
+		{//数据
+			//正常数据
+			Row row1 = sheet.createRow(1); 
+			Cell sexVal = row1.createCell(0);
+			sexVal.setCellValue( "男" );
+			sexVal.setCellStyle(baseCellStyle);
+			
+			Cell ageVal = row1.createCell(1);
+			ageVal.setCellValue( 20 );
+			ageVal.setCellStyle(baseCellStyle);
+			
+			Cell noEditVal = row1.createCell(2);
+			noEditVal.setCellValue( "不可修改值" );
+			noEditVal.setCellStyle(lockCellStyle);//不可编辑3,单元格级别
+			//没有createCell列的也是不可编辑的
+			
+			//异常数据
+			Row row2 = sheet.createRow(2); 
+			sexVal = row2.createCell(0);
+			sexVal.setCellValue(  "x" );//还是可以写入的
+			sexVal.setCellStyle(baseCellStyle);
+			
+			ageVal = row2.createCell(1);
+			ageVal.setCellValue( -10 );//还是可以写入的
+			ageVal.setCellStyle(baseCellStyle);
+		} 
+		workbook.write(out);
+		out.close();
 	}
 -------jpeg
 BufferedImage buffImg=new BufferedImage(newWidth,newHeight,BufferedImage.TYPE_INT_RGB);//可缩放
@@ -8443,15 +8569,46 @@ client			应用
 authorization server 保存用户密码的服务器
 ---client sparklr2
 
+-------------Swagger 
+类似的有 RAML(RESTful API Modeling Language)
+
+新版本使用OpenAPI
+OpenAPI最新 3.0 版本 OpenAPI Specification (OAS)
+有用 OAuth2
 
 
 
+---docker版本 swagger-editor
+docker pull swaggerapi/swagger-editor
+docker run -d -p 80:8080 swaggerapi/swagger-editor
+
+---docker版本 swagger-ui
+3.18.3
+
+docker pull swaggerapi/swagger-ui
+docker run -p 80:8080 swaggerapi/swagger-ui
 
 
+---codegen
+<dependency>
+    <groupId>io.swagger.codegen.v3</groupId>
+    <artifactId>swagger-codegen-maven-plugin</artifactId>
+    <version>3.0.8</version>
+</dependency>
 
+http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.7/swagger-codegen-cli-2.4.7.jar
+ 
+java -jar swagger-codegen-cli-2.4.7.jar help
+java -jar swagger-codegen-cli-2.4.7.jar  langs 显示支持的语言
 
+java -jar swagger-codegen-cli-2.4.7.jar help generate
+java -jar swagger-codegen-cli-2.4.7.jar  config-help -l java
 
-
+java -jar swagger-codegen-cli-2.4.7.jar generate -l  java -o out_dir -i xxx.yaml 或 xxx.json  
+ 如是java语言是java client代码，有gradle,maven,AndroidManifest.xml,依赖于swagger-annotations是1.5的版本
+ 如是spring用的是 springfox-swagger2，swagger-annotations 还是1.5版本
+ 
+ 
 
 
 

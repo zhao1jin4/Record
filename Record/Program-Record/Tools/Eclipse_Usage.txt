@@ -1,4 +1,5 @@
 ﻿Eclipse 2018-12 (4.10.0) 支持JDK 11版本，eclipseEE 版本带 Gradle
+﻿Eclipse 2019-06  inst (4.12.0) 支持JDK 12版本，eclipseEE 版本带 Gradle
 
 =======================================eclipse==========================
 快捷键
@@ -319,6 +320,9 @@ CDT 插件 help->install安装选择zip
 	取消Qt Development Tools
 	
 报少 osgi.bundle  org.eclipse.remote.core
+===================================== Eclipse-4.12(2019-06)  插件 CDT 9.8.0  
+
+
 
 -------------CDT与MinGW集成----------------------------
 PATH=  D:\program\MinGW\bin
@@ -592,7 +596,7 @@ findbugs-3.0.1	(eclipse插件和单独版本)
 	右击项目->findbugs,findbus工作区
 	file->export->java->bug counts
 
-SonarQube (要建立服务器端,可以看web页式的单元测试覆盖率,也可做代码扫描即findbug功能)
+SonarQube (要建立服务器端,可以看web页式的单元测试覆盖率,也可做代码扫描即findbug功能,支持JavaScript)
 	preferences->sonarQube->server 配置URL,username,password
 	右击项目->configure-> associate SonarQube->在SonarQube Project 中输入对自动弹出下拉提示,对应sonar-project.properties的sonar.projectName项
 	右击项目->configure-> analyze 也可找出代码bug问题,也可找代码规范问题

@@ -65,8 +65,16 @@ https://view.officeapps.live.com/op/view.aspx?src=www.xxx.com/xx.xlsx
 
 
 excel 中可以在单元格用  ='Name List'!D8  表示引用Name List的工作表中的D8 内容,
+
 excel 中的单元格可以选择下拉
-	选中一列,数据->Data Tools->数据有效性->在允许中选择[序列]->在来源中输入以,分隔的字符
+	选中一列,数据(->Data Tools)->数据有效性->在允许中选择[序列]->在来源中输入以,分隔的字符
+	允许中也可以选择整数 或者 小数，设置范围
+	输出警告标签->选中 [输入无效数据时显示出错警告]
+	Libre Calc 中 Data -> Validity...->Criteria 标签Alllow下拉选择List，Entries(很不明显示地方)中输入以,分隔的字符
+excel 中的单元格 设置为不可修改
+	右击单元格 -> 设置单元格格式 ->保护标签->复选 锁定 ，有提示 只有保护工作表(审阅->更改组->保护工作表->复选允许的操作)才生效 
+	LibreOffice (tools->protect sheet)
+	
 excel 中在滚动条时可在头几行,几列锁定
 	选择单元格,视图->冻结窗口->冻结拆分空格
 excel 去网格   视图->取消选择网格线
@@ -117,7 +125,9 @@ principal  本金
 round(14.5,1) 四舍五入函数
 roundup(14.3,0) 向上舍入函数
 
-
+表单元格内容不超本格（即使右边格没有内容)
+右击单元格 ->format cell ->alignment-> wrap text automatically
+ 
 --------PowerPoint
 制作播放菜单
 	1.选中"菜单项"->自定义动画->进入-淡出,右击效果->计时...->选 单击下列对象时启动效果 ,并选"菜单"
@@ -333,8 +343,9 @@ Chrome工具 自带的工具 chrome://net-internals/
 地址栏输入 chrome://components/  显示 Flash Player  版本 ,check for update 按钮可更新
 如不能播放flash视频,点击http旁边的按钮->Site Settings->Flash下拉选择allow 
 
-flash 下载地址  https://get.adobe.com/cn/flashplayer/otherversions/
-
+flash 下载地址
+https://get.adobe.com/cn/flashplayer/otherversions/
+https://get.adobe.com/flashplayer/otherversions/ 
 
 
 -------------Edge --------
@@ -383,6 +394,8 @@ UltraEdit中 高级->配置->文件处理->加载->取消 [重新载入先前在
 UltraEdit 把GBK编码的文件认为是UTF-8,	高级-->配置-->文件处理-->Unicode/UTF-8检测，把 "自动检测UTF-8文件"  取消选中
 查找替换中     ^r^n    匹配一个换行符
 
+
+Mac UltraEdit 3.3  "文件" ->"比较文件...", 自带UltraCompare Lite 2.3.0.3
 
 ---------Editplus
 打开大文件速度快,但选择速度慢,如果一行过长，通过水平滚动条不能拖动最后一个字符，要用end键才行，BUG
@@ -445,15 +458,26 @@ TextWrangler  中 view->Hide/Show File   ,打开文件时要把文件拖到左�
 TextWrangler  中 preferences->Application标签->取消 Reopen Documents that were open at last quit
 TextWrangler  中 File->Reopen with encoding->Chinese GBK 可以对打开的文件是乱码做修改 （保存时可选择文件编码）
 
----- Komodo-Edit   
+---- Komodo-Edit
+Edit -> preferences ->Syntax checking->取消enable复选框
+
 	Edit->Current File Setting...->设置文件编码 
 	view->复选Word Wrap 
 	取消启动时打开上次文件   edit-> preferences->workspace->最前面的when starting  Komodo :下拉选择  Do not restore last workspace
 
 Edit -> preferences ->Key Bindings-> Code: Complete Word 默认快捷键是 ctrl+space ,clear清除，提示保存新的schema name 比如输入my
-Edit -> preferences ->Syntax checking->取消enable复选框
 
----bluefish 
+ctrl+space 有时会自动补全一些不是想要的东西,Preferences->Key bunding-> 找到 code:complete world -> 点clear 输入新的名字
+
+ctrl+w关闭全部标签窗口,不是当前打开标签???
+		Editor:Close Current Buffer   把这个clear 可能要重启komo 才生效,这个有BUG，效果其实和Close All Buffer 一样
+		Editor:Close All Buffer (显示默认是ctrl+alt+w)  
+
+
+------bluefish 
+不能使用shift + tab 缩进选中的行，不方便 ,使用工具栏的indent,unindent按钮
+不能按列选择，不方便 
+
 关闭文字下的红线
 Edit -> Preferences... ->默认inital document setting标签下 取消复选 enable spell check，要关闭文件再打开才生效
 
@@ -463,8 +487,30 @@ Edit -> Preferences... ->Editor Stettings 标签下的Font & color 标签-> edit
 File->open recent 没有最近打开文件， 在打开对话框中也有Recent 
 document -> wrap text 自动换行
 
-Mac UltraEdit 3.3  "文件" ->"比较文件...", 自带UltraCompare Lite 2.3.0.3
----------
+ctrl+h  打开查找替换 可以选择正则表达式(而komo edit没有这 个功能)
+
+自动生成备份文件,取消 
+Preferences -> files->backup & Recovery->取消 Create backup file during file save
+
+缩进快捷键  
+ ctrl + > 和 ctrl + <
+
+
+------TextEditor  (linux)
+没有close other标签的功能,可以ctrl+w 关闭当前窗口
+Preferences-> View-> Enable text Wraping 这里点不方便
+
+Preferences-> View-> 第一个Display line numbers
+					最下面的highlight current line 
+					最下面的highlight matching brackets   
+
+
+Preferences-> Editor-> tab width 修改为4
+
+三按钮 -> find and replace... 支持正则表达式
+三按钮 -> go to line...
+
+-----
 
 打开IE-->工具-->Internet选项-->高级   
   将（显示每个脚本错误的通知）一项的勾去掉  

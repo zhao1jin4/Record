@@ -51,7 +51,7 @@ mysqld  --defaults-file=E:/Program/mysql-5.7.18-winx64/my.ini   --console
 ##OK    ,type= own  ,要在=后有一个空格,建立删除如不行,不要在注册表中选中,关闭services.msc
 sc create MySQL57 binpath= "\"E:/Program/mysql-5.7.18-winx64/mysql-5.7.18-winx64/bin/mysqld\" --defaults-file=\"E:/Program/mysql-5.7.18-winx64/my.ini\" MySQL57" type= own start= auto displayname= "MySQL57"
 sc delete MySQL57 删服务
- 
+
 
 ---my.ini
 [mysql]
@@ -211,7 +211,7 @@ shell> groupadd mysql
 -- shell> useradd -r -g mysql  mysql   #-r表示系统帐户没有/etc/shadow记录 -s /bin/false
 shell> tar zxvf /path/to/mysql-VERSION-OS.tar.gz
 shell> ln -s full-path-to-mysql-VERSION-OS /usr/local/mysql
-shell> cd /usr/local/mysql
+shell> cd /usr/local/mysql     #mysql8 版本可以安装在/opt目录下
 shell> mkdir mysql-files
 shell> chmod 750 mysql-files
 shell> chown -R mysql .
@@ -996,7 +996,11 @@ show status where variable_name ='Max_used_connections'
 
 show variables like '%max_connections%'
 set global max_connections= 300
---------
+--------当前运行的所有事务
+SELECT * FROM INFORMATION_SCHEMA.INNODB_TRX;
+
+当前出现的锁
+SELECT * FROM INFORMATION_SCHEMA.INNODB_LOCKS;
 
 ======= SQL 执行历史日志,general_log=1和slow-query-log=1 开启,log-output如为FILE 是在data目录下
 -- my.ini 配置(上层以-分隔,最下层以_分隔)  
@@ -1103,11 +1107,12 @@ show status like 'Handler_read_key' -- 索引被读的,值高表示查询高效,
 show status like 'Handler_read_rnd_next'  -- 值高表示查询低效,可以建立索引
 
 
+create database zabbix character set utf8 collate utf8_bin;
 
- 
- 
-utf8mb4 是 utf8的父级
-utf8 一个字符占 3-byte , utf8mb4 一个字符占 4-byte
+collate utf8_bin 和 collate utf8_general_ci (ci为case insensitive的缩写，即大小写不敏感) 过时了，建议用 utf8mb4;
+
+utf8 一个字符占 3-byte , utf8mb4 一个字符占 4-byte(mb=max bytes),是mysql 8 的默认字符集
+
 
 
 MyISAM, MEMORY , MERGE 使用 table-level锁
@@ -1333,7 +1338,23 @@ show global status like 'threads%';
 select * from time_zone;
 select * from time_zone_name;
 默认就是空表
-show variables like '%time_zone%'  -- SYSTEM
+show variables like '%time_zone%' 
+|  system_time_zone | CST  |
+| time_zone   		  | SYSTEM |
+
+修改时区
+> set global time_zone = '+8:00'; ##修改mysql全局时区为北京时间，即我们所在的东8区
+> set time_zone = '+8:00'; ##修改当前会话时区
+> flush privileges; #立即生效
+
+方法二：通过修改my.cnf配置文件来修改时区
+vim /etc/my.cnf 
+##在[mysqld]区域中加上
+default-time_zone = '+8:00'
+
+
+SELECT CONVERT_TZ('2013-07-22 18:41:37','+08:00','+00:00') as UTC;         
+
 
 mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p  mysql  导入时区相关表 ,windows要下载timezone_2018d_posix_sql.zip
 mysql -u root -p mysql < D:/tmp/timezone_2018d_posix_sql/timezone_posix.sql 

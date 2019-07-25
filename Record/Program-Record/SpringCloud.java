@@ -652,7 +652,7 @@ http://localhost:9411
 还有PINPOINT  (也是 Dapper)监控调用哪个链路出现了问题，如响应时间
 https://github.com/naver/pinpoint
 
-<!-- 引用jar过时
+<!-- 使用jar包启动,这个过时
 	<dependency>
 		<groupId>io.zipkin.java</groupId>
 		<artifactId>zipkin-server</artifactId>

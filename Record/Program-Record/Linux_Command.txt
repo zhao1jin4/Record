@@ -34,6 +34,7 @@ cat /etc/redhat-release
 cat /etc/SUSE-brand
 
 ========================Gnome-3 界面
+"三"按钮->show hide files
 
 要多个图形用户同时登录  锁机 -> login another user
 
@@ -80,13 +81,13 @@ Super+A：显示应用程序菜单
 gnome3 桌面上不能放文件 ，gnome-tweak-tool (Activies -> Utilities->Tweaks) -> Desktop ->把 把所有的都打开,就可以在桌面上放文件了 
 左侧的工具栏图标   /usr/share/applications/bcompare.desktop
 
-
+gedit  显示行号->preference->View -> display line numbers
 gedit tab空格数由8修改为4 ->preference-> Editor->tab with 修改为４
 gedit 打开自动换行->preference-> not select "Enable text wrapping"
 gedit 打开文件时可以选择GBK编码,一下次再打开这个文件就会记录,自动选择正确的中文编码，而不是手工选择，？？
 gedit -3 在打开文件时有选择编码 
 
-用  "CD/DVD创建者"打开*.iso文件
+用  "CD/DVD创建者" (Brasero) 打开*.iso文件,可以刻录
 
 	
 字体  在	/usr/share/fonts/truetype/   ,ecipse chrome等默认字体为mono space
@@ -139,6 +140,8 @@ dconf-editor 的图形界面 -> 找到org/gnome/desktop/screensaver
 
 ---
 ========================命令
+~/.bash_history 命令历史记录
+
 !ps 表示调用历史命令中以最近的 ps开头的
 
 linux 的mv 命令不能合并,如目录中有相同目录,先合并没相同的,再用cp -r 
@@ -148,9 +151,11 @@ init 5 可以成功,OK
 runlevel 看
 systemctl get-default
 
-/etc/inittab 提示(openSUSE-leap-15没有这个文件,用systemd)
-systemctl set-default multi-user.target 是在 runlevel 3下
-systemctl set-default graphical.target  是在 runlevel 5下	运行命令后 提示 建立 symlink 从 /etc/systemd/system/default.target 到 /usr/lib/systemd/system/graphical.target
+/etc/inittab 提示(centOS-7.6有 , openSUSE-leap-15没有这个文件,用systemd)
+# systemctl get-default #可以查询到当前所设定的状态  multi-user.target 相当于以前的 runlevel 3
+# systemctl set-default graphical.target  #相当于以前的 runlevel 5 也就是图形界面
+   运行命令后 提示 建立 symlink 从 /etc/systemd/system/default.target 到 /usr/lib/systemd/system/graphical.target
+
 
 e2label  /dev/sda1 显示挂在哪个分区下
 
@@ -165,7 +170,14 @@ SCSI   sda
 onporob 　###porob 探针, 探测器　　
 命令行alter+fn 切换终端   图形用ctrl+alt+fn
 安装过程中按alt+f3 ,f5有信息
+
  
+光盘镜像 写入U 盘,可引导启动的,先umont(试过也可以不用),写时of不带分区数字,写后要用sync命令
+(测试是可以引导安装系统,但插入U盘系统不能识别,分区第一个是4M的fat分区用于UEFI,一个是数据分区,一个是剩余未用分区)
+umount /dev/sdb4
+dd if=./openSUSE-Leap-15.1-DVD-x86_64.iso of=/dev/sdb  bs=1M    1M很慢，可用10M
+sync 
+
 
 dd if=bootdisk.img of=/dev/fd0  ##备份引导分区到时软盘 if(input file )
 引导后用,在提示中输入 linux askmethod 可选Hard drive
@@ -189,7 +201,7 @@ grub-install --boot-directory=<DIR>  /dev/loop0
 du -sh 目录名   来看这个目录一共占用的空间
 
 uname -r内核版本 -o 操作系统 -a 全部信息
-pstree
+pstree 进程树
 ps -ef |grep tomcat (-e同-A 全部,-f full-format listing)
 kill -9 (刚才的进程ID)
 ps -aux |808
@@ -313,7 +325,7 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 如启动就开通组播
 /etc/sysconfig/static-routes 文件内加入 eht0 net 224.0.0.0 netmask 240.0.0.0
 
-gparted安装时最好不要改fstab文件，否则可能不能启动系统
+
 
 /boot分区不能设置为ex4 分区
 
@@ -390,8 +402,10 @@ w 查看所有的ttyp,write user pts/1
 mesg n 表示不想接收消息 ,
 mesg y 开启
 
-  
+tzselect命令 交互选择Asia
 export TZ=GMT  (openSUSE 显示时间不准的解决方法)
+export TZ=GMT+8
+
 date后 时间就变对了
 
 ntpdate time.windows.com 时间同步
@@ -424,6 +438,7 @@ ldd /bin/ls 命令打印现所依赖的共享
 date -s 07/28/2008  来改日期  月/日/年
 hwclock --hctosys
 hwclock --systohc
+hwclock  --show 未尾有显示+08:00 ,原因是windows保存硬件中的时间是GMT+8后的时间,而openSUSE读硬件时间认为是UTC时间忽略了+08:00
 
 改时间
  date -s 13:27
@@ -504,6 +519,8 @@ nslookup输入域名或者IP
 /etc/services/服务名与端口的对就的关系
 
 tcpdump -e host 主机名
+ -i interface
+ -n 不转换地址到名字，即数字
  
 /etc/host.conf文件 order host,bind  #先按hosts文件再按ＤＮＳ
 		multi on	#是否/etc/hosts中允许一个主机有多个ＩＰ地址
@@ -744,7 +761,7 @@ groups git  查用户所在的组
 id
 logname 登录用户名
 chroot
-dmesg 开机设备信息 /var/log/dmesg  
+dmesg 开机设备信息 /var/log/dmesg  (openSUSE没有这个文件)
 
 resize -s 800 600 终端大小
 cksum 显示文件的CRC
@@ -916,16 +933,18 @@ date后可中文
 
 modprobe usb-storage  USB存储器的驱动  会认为sd类型的
 
-mount -t vfat -o ro,utf8,uid=zh,gid=zh /dev/....
+mount -t vfat -o ro,utf8,uid=dell,gid=zh /dev/....
 -o      iocharset=gb2312
 	iocharset=utf8(可省为utf8)
 	uid=xx,gid=xxxx,umask=0077
 -a 会读/etc/fstab文件 ( -a -t vfat 会/etc/fstab 中有所的vfat类型的) 
 wheel组为root组
 
-mount -o iocharset=utf8,uid=zh  -t vfat /dev/sda7 /media/E/
+mount -o iocharset=utf8,uid=dell  -t vfat /dev/sda7 /media/E/
 fat32 要加iocharset=utf8 ,文件名是按linux正常显示中文的，ntfs就不用了只ro
   要指定uid 普通用户才能有权限写
+
+iocharset=utf8,uid=dell 可对vfat和exfat但不能对ext4
 
 netstat -tnl  显示端口
 
@@ -1190,7 +1209,8 @@ vi 中 :set  fileencoding 可显示文件字符集 ,GBK对应的是 CP936,有时
 :resize +10 高度加大(-10) ,:resize 20高度到20
 :vertical resize N 宽度
 
-
+:set ignorecase //忽略大小写 
+:set noignorecase //恢复到大小写敏感
 
 vim 同时打开多个文件
 :close关闭当前窗口
@@ -1276,6 +1296,22 @@ ctrl +d /ctrl +u
 :$,$… s/src/dst/g      在指定范围内替换src为dst，其中$,$… 为指定行号，例： :2,5,6 s/hi/hello/g
 :s/old/new/c		在替换命令末尾加入c命令，将对每个替换动作提示用户进行确认
 
+:%s 使用正则表达式 (\l表示小写字母 \u表示大写 \1表示引用第一个（）中的内容,\u 在\1前)
+:%s/_\(\l\)/\u\1/g  #数据库命名规范转换为Java命名规范
+
+
+vi列操作
+  删除列 
+  CTRL+v 进入“Visual block”模式，选取列(使用正,j,k, h,l)
+  按 d 删除
+  SHIFT+i(I) 输入要插入的内容,ESC 按两次，会在每行的选定的区域出现插入的内容
+  
+:%s/\n/,/g
+
+ 按v进入 visual 模式 可选中文本
+ 按shift + v进入visual line模式 可选中文本
+ 就可以按y复制选择的文本
+ 
 :命令模式下   :history   调出vi历史命令,输入序号
 				按ctrl+f (q:) 调出窗口可以移动光标
 
@@ -1366,6 +1402,8 @@ vim 源码安装 make & make instll
 .java文件中写//再回车时下行会自动加,取消它
 /etc/vimrc 中加 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
+
+
 ==========vi================
 --ed编辑器中的命令
 a - 在文件的末尾添加新内容 
@@ -1440,7 +1478,12 @@ windows 10的grub2引导文件
 
 fdisk -l 显示Disklabel type: gpt
 gparted界面工具
+ gparted安装时最好不要改fstab文件，否则可能不能启动系统
 	view ->	device information 看partition table 是gpt
+
+parted 命令
+提示符(parted) 输入 print list 可以查看分区类型
+
 
 --grub2引导iso未成功
 loopback loop0 /path/to/image
@@ -1515,6 +1558,8 @@ icmp不可ping一个地址
 
 ip6tables -L
 iptables -L -n 显示 数字IP
+iptables -S  显示，像 iptables-save 格式
+
 iptables -F (flush)    清空规则
 -D delete  从一开始
 -A append
@@ -1670,6 +1715,7 @@ iptables -t nat -A PREROUTING -d 10.0.0.254 -p tcp -dport 80 -j DNAT --to-destin
  
 
 =================pam模块
+ldd 显示共享对象的依赖
 ldd /usr/sbin/sshd 如果链接了 /lib/libpam.so->/etc/pam.d/<service>
 							/lib/security/...
 
@@ -2225,9 +2271,378 @@ vncserver -kill :1
 
 关闭防火墙 
 # systemctl stop firewalld.service
+systemctl list-units
  systemctl list-unit-files | grep firewall
  systemctl disable firewalld.service   关闭系统开机启动
- systemctl status firewalld.service 
+ systemctl status firewalld.service
+ 
+ ---------------systemd
+ Systemd 取代了initd，成为系统的第一个进程（PID 等于 1），其他进程都是它的子进程
+
+ systemctl --version
+ 
+# 重启系统
+$ sudo systemctl reboot
+
+# 关闭系统，切断电源
+$ sudo systemctl poweroff
+
+# CPU停止工作
+$ sudo systemctl halt
+
+# 暂停系统
+$ sudo systemctl suspend
+
+# 让系统进入冬眠状态
+$ sudo systemctl hibernate
+
+# 让系统进入交互式休眠状态
+$ sudo systemctl hybrid-sleep
+
+# 启动进入救援状态（单用户状态）
+$ sudo systemctl rescue
+ 
+ 
+---systemd-analyze
+ 
+# 查看启动耗时
+$ systemd-analyze                                                                                       
+
+# 查看每个服务的启动耗时
+$ systemd-analyze blame
+
+# 显示瀑布状的启动过程流
+$ systemd-analyze critical-chain
+
+# 显示指定服务的启动流
+systemd-analyze critical-chain  network.target
+
+-----hostnamectl
+# 显示当前主机的信息
+$ hostnamectl
+
+# 设置主机名
+$ sudo hostnamectl set-hostname rhel7
+
+----localectl
+# 查看本地化设置
+$ localectl
+  System Locale: LANG=en_US.UTF-8
+       VC Keymap: us
+      X11 Layout: us
+
+# 设置本地化参数。
+$ sudo localectl set-locale LANG=zh_CN.UTF-8
+$ sudo localectl set-keymap us
+
+----timedatectl
+# 查看当前时区设置
+$ timedatectl  
+
+# 显示所有可用的时区
+$ timedatectl list-timezones  最后是UTC                                                                         
+
+# 设置当前时区
+$ sudo timedatectl set-timezone Asia/Shanghai
+$ sudo timedatectl set-time YYYY-MM-DD
+$ sudo timedatectl set-time HH:MM:SS
+
+----loginctl
+# 列出当前session
+$ loginctl list-sessions  默认有个gdm用户
+
+# 列出当前登录用户
+$ loginctl list-users  默认有个gdm用户
+
+# 列出显示指定用户的信息
+$ loginctl show-user dell
+
+
+-----unit
+
+Service unit：系统服务
+Target unit：多个 Unit 构成的一个组
+Device Unit：硬件设备
+Mount Unit：文件系统的挂载点
+Automount Unit：自动挂载点
+Path Unit：文件或路径
+Scope Unit：不是由 Systemd 启动的外部进程
+Slice Unit：进程组
+###Snapshot Unit：Systemd 快照，可以切回某个快照
+Socket Unit：进程间通信的 socket
+Swap Unit：swap 文件
+Timer Unit：定时器
+
+# 列出正在运行的 Unit
+$ systemctl list-units  显示以横线做区间，以上面做扩展名
+
+# 列出所有Unit，包括没有找到配置文件的或者启动失败的
+$ systemctl list-units --all
+
+# 列出所有没有运行的 Unit
+$ systemctl list-units --all --state=inactive
+
+# 列出所有加载失败的 Unit
+$ systemctl list-units --failed
+
+# 列出所有正在运行的、类型为 service 的 Unit
+$ systemctl list-units --type=service
+
+---
+# 显示系统状态
+$ systemctl status
+
+# 显示单个 Unit 的状态
+$ systemctl status bluetooth.service
+
+# 显示远程主机的某个 Unit 的状态
+$ systemctl -H root@rhel7.example.com status httpd.service
+---
+# 显示某个 Unit 是否正在运行
+$ systemctl is-active  network.target
+
+# 显示某个 Unit 是否处于启动失败状态
+$ systemctl is-failed  network.target
+
+# 显示某个 Unit 服务是否建立了启动链接
+$ systemctl is-enabled  network.target   man手册有表格
+
+----
+# 立即启动一个服务
+$ sudo systemctl start apache.service
+
+# 立即停止一个服务
+$ sudo systemctl stop apache.service
+
+# 重启一个服务
+$ sudo systemctl restart apache.service
+
+# 杀死一个服务的所有子进程
+$ sudo systemctl kill apache.service
+
+# 重新加载一个服务的配置文件
+$ sudo systemctl reload apache.service
+
+# 重载所有修改过的配置文件
+$ sudo systemctl daemon-reload
+
+# 显示某个 Unit 的所有底层参数
+$ systemctl show httpd.service
+
+# 显示某个 Unit 的指定属性的值
+$ systemctl show -p CPUShares httpd.service
+
+# 设置某个 Unit 的指定属性
+$ sudo systemctl set-property httpd.service CPUShares=500
+
+-----
+systemctl list-dependencies   所有信依赖树, 可以看出.target是一组
+systemctl list-dependencies -all 做展开
+
+列出一个 Unit 的所有依赖
+$ systemctl list-dependencies nginx.service
+
+---
+Systemd 默认从目录/etc/systemd/system/读取配置文件
+ 里面存放的大部分文件都是符号链接，指向目录/usr/lib/systemd/system/
+
+$ sudo systemctl enable clamd@scan.service
+# 等同于
+$ sudo ln -s '/usr/lib/systemd/system/clamd@scan.service' '/etc/systemd/system/multi-user.target.wants/clamd@scan.service'
+
+如果省略 Systemd 默认后缀名为.service
+---
+# 列出所有配置文件
+$ systemctl list-unit-files
+
+# 列出指定类型的配置文件
+$ systemctl list-unit-files --type=service
+
+状态 同 is-enabled
+enabled：已建立启动链接
+disabled：没建立启动链接
+static：该配置文件没有[Install]部分（无法执行），只能作为其他配置文件的依赖
+masked：该配置文件被禁止建立启动链接
+
+--
+查看配置文件的内容
+systemctl cat network.service
+注意，键值对的等号两侧不能有空格
+
+LimitNOFILE 参考文档 
+https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+https://www.freedesktop.org/software/systemd/man/systemd.unit.html
+文档有提示System Unit(/etc/systemd/system/*)和  User Unit ( /etc/systemd/user/*)的搜索路径
+ 
+
+[Unit]区块通常是配置文件的第一个区块，用来定义 Unit 的元数据，以及配置与其他 Unit 的关系。它的主要字段如下。
+
+Description：简短描述
+Documentation：文档地址
+Requires：当前 Unit 依赖的其他 Unit，如果它们没有运行，当前 Unit 会启动失败
+Wants：与当前 Unit 配合的其他 Unit，如果它们没有运行，当前 Unit 不会启动失败
+BindsTo：与Requires类似，它指定的 Unit 如果退出，会导致当前 Unit 停止运行
+Before：如果该字段指定的 Unit 也要启动，那么必须在当前 Unit 之后启动
+After：如果该字段指定的 Unit 也要启动，那么必须在当前 Unit 之前启动
+Conflicts：这里指定的 Unit 不能与当前 Unit 同时运行
+Condition...：当前 Unit 运行必须满足的条件，否则不会运行
+Assert...：当前 Unit 运行必须满足的条件，否则会报启动失败
+
+
+[Install]通常是配置文件的最后一个区块，用来定义如何启动，以及是否开机启动。它的主要字段如下。
+
+WantedBy：它的值是一个或多个 Target，当前 Unit 激活时（enable）符号链接会放入/etc/systemd/system目录下面以 Target 名 + .wants后缀构成的子目录中
+RequiredBy：它的值是一个或多个 Target，当前 Unit 激活时，符号链接会放入/etc/systemd/system目录下面以 Target 名 + .required后缀构成的子目录中
+Alias：当前 Unit 可用于启动的别名
+Also：当前 Unit 激活（enable）时，会被同时激活的其他 Unit
+
+
+[Service]区块用来 Service 的配置，只有 Service 类型的 Unit 才有这个区块。它的主要字段如下。
+
+Type：定义启动时的进程行为。它有以下几种值。
+Type=simple：默认值，执行ExecStart指定的命令，启动主进程
+Type=forking：以 fork 方式从父进程创建子进程，创建后父进程会立即退出
+Type=oneshot：一次性进程，Systemd 会等当前服务退出，再继续往下执行
+Type=dbus：当前服务通过D-Bus启动
+Type=notify：当前服务启动完毕，会通知Systemd，再继续往下执行
+Type=idle：若有其他任务执行完毕，当前服务才会运行
+ExecStart：启动当前服务的命令
+ExecStartPre：启动当前服务之前执行的命令
+ExecStartPost：启动当前服务之后执行的命令
+ExecReload：重启当前服务时执行的命令
+ExecStop：停止当前服务时执行的命令
+ExecStopPost：停止当其服务之后执行的命令
+RestartSec：自动重启当前服务间隔的秒数
+Restart：定义何种情况 Systemd 会自动重启当前服务，可能的值包括always（总是重启）、on-success、on-failure、on-abnormal、on-abort、on-watchdog
+TimeoutSec：定义 Systemd 停止当前服务之前等待的秒数
+Environment：指定环境变量
+
+ 查看当前系统的所有 Target
+$ systemctl list-unit-files --type=target
+
+# 查看一个 Target 包含的所有 Unit
+$ systemctl list-dependencies multi-user.target
+
+# 查看启动时的默认 Target
+$ systemctl get-default
+
+# 设置启动时的默认 Target
+$ sudo systemctl set-default multi-user.target
+sudo systemctl set-default graphical.target 
+
+# 切换 Target 时，默认不关闭前一个 Target 启动的进程，
+# systemctl isolate 命令改变这种行为，
+# 关闭前一个 Target 里面所有不属于后一个 Target 的进程
+$ sudo systemctl isolate multi-user.target
+
+
+Runlevel 0           |    runlevel0.target -> poweroff.target
+Runlevel 1           |    runlevel1.target -> rescue.target
+Runlevel 2           |    runlevel2.target -> multi-user.target
+Runlevel 3           |    runlevel3.target -> multi-user.target
+Runlevel 4           |    runlevel4.target -> multi-user.target
+Runlevel 5           |    runlevel5.target -> graphical.target
+Runlevel 6           |    runlevel6.target -> reboot.target
+
+
+systemctl list-unit-files --type=target |grep runlevel
+
+以前配置文件的/etc/sysconfig目录。现在的配置文件主要存放在/lib/systemd,，在/etc/systemd目录里面的修改可以覆盖原始设置。
+
+---------
+只用journalctl一个命令，查看所有日志（内核日志和应用日志）
+日志的配置文件是/etc/systemd/journald.conf。
+
+ -e --pager-end  
+ -x --catalog             Add message explanations where available
+
+
+
+# 查看所有日志（默认情况下 ，只保存本次启动的日志）
+$ sudo journalctl
+
+# 查看内核日志（不显示应用日志）
+$ sudo journalctl -k   (-k --dmesg)
+
+# 查看系统本次启动的日志
+$ sudo journalctl -b   (-b --boot)
+$ sudo journalctl -b -0 (-0是最近一次启动， -1前一次启动)
+
+# 查看上一次启动的日志（需更改设置）
+$ sudo journalctl -b -1
+
+# 查看指定时间的日志
+$ sudo journalctl --since="2012-10-30 18:17:16"
+$ sudo journalctl --since "20 min ago"
+$ sudo journalctl --since yesterday
+$ sudo journalctl --since "2015-01-10" --until "2015-01-11 03:00"
+$ sudo journalctl --since 09:00 --until "1 hour ago"
+
+# 显示尾部的最新10行日志
+$ sudo journalctl -n
+
+# 显示尾部指定行数的日志
+$ sudo journalctl -n 20
+
+# 实时滚动显示最新日志
+$ sudo journalctl -f
+
+# 查看指定服务的日志
+$ sudo journalctl /usr/lib/systemd/systemd
+
+# 查看指定进程的日志
+$ sudo journalctl _PID=1
+
+# 查看某个路径的脚本的日志
+$ sudo journalctl /bin/bash
+
+# 查看指定用户的日志
+$ sudo journalctl _UID=1000 --since today
+
+# 查看某个 Unit 的日志
+$ sudo journalctl -u nginx.service
+$ sudo journalctl -u nginx.service --since today
+
+# 实时滚动显示某个 Unit 的最新日志
+$ sudo journalctl -u nginx.service -f
+
+# 合并显示多个 Unit 的日志 (-u --unit)
+$ journalctl -u nginx.service -u php-fpm.service --since today
+
+# 查看指定优先级（及其以上级别）的日志，共有8级
+# 0: emerg
+# 1: alert
+# 2: crit
+# 3: err
+# 4: warning
+# 5: notice
+# 6: info
+# 7: debug
+$ sudo journalctl -p err -b 
+ -p, --priority
+
+# 日志默认分页输出，--no-pager 改为正常的标准输出
+$ sudo journalctl --no-pager
+
+# 以 JSON 格式（单行）输出
+$ sudo journalctl -b -u network.target -o json --no-pager
+
+# 以 JSON 格式（多行）输出，可读性更好
+$ sudo journalctl -b -u nginx.service  -o json-pretty
+
+# 显示日志占据的硬盘空间
+$ sudo journalctl --disk-usage
+
+# 指定日志文件占据的最大空间
+$ sudo journalctl --vacuum-size=1G
+提示 /run/log/journal/xxx
+
+# 指定日志文件保存多久
+$ sudo journalctl --vacuum-time=1years
+
+ 
+
+
  ---------------XDMCP--------------
  
 solaris  可以用Xmanager 直接远程桌面连接 (XDMCP)
@@ -2400,6 +2815,7 @@ systemctl start sshd 就可远程用root登录
 
 flatpak 类似 ubuntu 用的snaps
 
+cat /etc/centos-release
 cat /etc/redhat-release
 cat /etc/system-release
 cat /etc/os-release
@@ -2427,6 +2843,7 @@ http://mirrors.huaweicloud.com/centos/7/os/x86_64/Packages/
 		->glibc-common-2.17-222.el7.x86_64.rpm   
 	   
 ---- centOS 只有ibus
+   要单独下载
 				ibus-table-chinese-wubi-jidian-1.4.6-3.el7.noarch.rpm
 				
 ============================Redhat专用的
@@ -2443,8 +2860,8 @@ https://mirrors.ustc.edu.cn/epel/7/x86_64/Packages/f/fcitx-4.2.9.6-1.el7.x86_64.
  
 	
 ##netconfig 终端界面 
-setup     终端界面
-ntsysv    终端界面来配置服务 类似chkconfig
+setup     终端界面 centOS-7.6配置开机启动服务和认证
+ntsysv    终端界面来配置服务 类似chkconfig  centOS-7.6配置开机启动服务
 system-config-network  终端界面配置网络
 timeconfig 时区界面
 
@@ -2496,7 +2913,7 @@ rpm -qpR gcc-c++-7-lp150.1.50.x86_64.rpm 查看包的依赖 (-p,--package  -R,--
 ---------Redhat  修改主机名
 hostname myhost
 /etc/hostname
-/etc/sysconfig/network 中的 hostname
+/etc/sysconfig/networkk 中的 hostname
 /etc/hosts 文件
 
 -------------redhat rpm-build
@@ -2570,20 +2987,21 @@ name=iso
 baseurl=file:///mnt/cdrom
 gpgcheck=0
 
-保存 
-yum clean all		清除yum缓存
-yum grouplist
-yum group list 显示有 GNOME Desktop
-yum groupinstall "GNOME Desktop"
-yum groups install "GNOME Desktop"  
 
 yum install gnome-desktop3  就可以了,会自动查找依赖包
 yum install gnome-session
  xorg-x11 中才有startx
-# systemctl get-default #可以查询到当前所设定的状态  multi-user.target 相当于以前的 level 3
-# systemctl set-default graphical.target  #相当于以前的 level 5 也就是图形界面  
+ 
+CentOS-7.6测试以上还是没桌面，要yum groupinstall "GNOME Desktop" 才行
+CentOS-7.6 System tool->software 也可像yast一样界面选中安装软件，但不能配置仓库
+有ip命令,也有老的ifconfig,默认网卡叫ens33,要修改文件为ONBOOT=yes再启动服务才能有IP
+默认安装qemu-kvm,bridge-util,有建立virbr0网卡
 
-
+yum clean all		清除yum缓存
+yum grouplist
+yum group list 显示有 GNOME Desktop
+yum groupinstall "GNOME Desktop"
+yum groups install "GNOME Desktop"
 
 yum search gcc  模糊查找软件包名
 yum list |grep gcc  有gcc-c++

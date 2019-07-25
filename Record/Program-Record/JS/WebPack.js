@@ -1,5 +1,7 @@
   
 ------------------ Webpack
+官方文档有中文的翻译版本
+
 Intellij Idea->File->Setings->Language & -Framework >JavaScript->webpack 可配置.js文件
 
 从 4.0 版本开始可以不使用配置文件 ，如复杂的环境也可以使用配置文件
@@ -162,3 +164,22 @@ module.exports = {
 
 
 
+
+------ webpack.config.js
+module.exports = {
+  //...
+  output: {
+
+    publicPath: 'temp/', //是修改后文件转换后的内容在内存中的这个目录 ，后面引用使用这个目录
+ }
+
+
+ devServer: {  //服务器，修改文件后实时刷新
+    contentBase: './',
+    host: '127.0.0.1'，
+    port: 8080，
+    watchContentBase: true ,
+   //inline: false 
+  }
+}
+webpack-dev-server --inline=false

@@ -65,7 +65,7 @@ bowner install react
 
 也可以使用yarn 包管理器   https://yarnpkg.com/zh-Hans/
 
-
+npm install -g react react-dom 
 npm install  react react-dom  --save 依赖保存到package.json (可选 npm install  react-scripts --save 要200M)
 
 npm init  会提示回车生成 package.json文件
@@ -166,6 +166,10 @@ react-16.6.3 是官方最后提供的js下载可 <script src=""></script>方式�
 react-16.8.4 下载地址  https://unpkg.com/react/ 使用时报警告
 <script src="https://unpkg.com/react@16.8.4/umd/react.development.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@16.8.4/umd/react-dom.development.js" crossorigin></script>
+
+react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min.js 大小108KB (比Vue93.7K大一点)
+<script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
 
 <!-- offical  
  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -743,7 +747,7 @@ componentWillUnmount()
 class MyComponent extends React.Component {
   handleClick() {
     // 使用原生的 DOM API 获取焦点
-    this.refs.myInput.focus();
+    this.refs.myInput.focus();  //过时API
   }
   render() {
     //  当组件插入到 DOM 后，ref 属性添加一个组件的引用于到 this.refs
@@ -760,6 +764,115 @@ class MyComponent extends React.Component {
   }
 }
  
+ //新API
+ 
+//--为 DOM 元素
+class CustomTextInput extends React.Component {
+  constructor(props) {
+    super(props);
+    // 创建一个 ref 来存储 textInput 的 DOM 元素
+    this.textInput = React.createRef();
+    this.focusTextInput = this.focusTextInput.bind(this);
+  }
+
+  focusTextInput() {
+    // 直接使用原生 API 使 text 输入框获得焦点
+    // 注意：我们通过 "current" 来访问 DOM 节点
+    this.textInput.current.focus();
+  }
+
+  render() {
+    // 告诉 React 我们想把 <input> ref 关联到
+    // 构造器里创建的 `textInput` 上
+    return (
+      <div>
+        <input
+          type="text"
+          ref={this.textInput} />
+
+        <input
+          type="button"
+          value="Focus the text input"
+          onClick={this.focusTextInput}
+        />
+      </div>
+    );
+  }
+}
+ReactDOM.render(
+  <CustomTextInput />,
+  document.getElementById('refDom')
+);
+
+//--为 class 组件
+class AutoFocusTextInput extends React.Component {
+  constructor(props) {
+    super(props);
+    this.textInput = React.createRef();
+  }
+
+  componentDidMount() {
+    this.textInput.current.focusTextInput();
+  }
+
+  render() {
+    return (
+      <CustomTextInput ref={this.textInput} />
+    );
+  }
+}
+//请注意，这仅在 CustomTextInput 声明为 class 时才有效：
+//你不能在函数组件上使用 ref 属性，因为它们没有实例
+//可以在函数组件内部使用 ref 属性
+ReactDOM.render(
+  <CustomTextInput />,
+  document.getElementById('refClass')
+);
+
+
+//-----ref  回调函数方式
+class CustomTextInput extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.textInput = null;
+
+    this.setTextInputRef = element => {
+      this.textInput = element;
+    };
+
+    this.focusTextInput = () => {
+      // 使用原生 DOM API 使 text 输入框获得焦点
+      if (this.textInput) this.textInput.focus();
+    };
+  }
+
+  componentDidMount() {
+    // 组件挂载后，让文本框自动获得焦点
+    this.focusTextInput();
+  }
+
+  render() {
+    // 使用 `ref` 的回调函数将 text 输入框 DOM 节点的引用存储到 React
+    // 实例上（比如 this.textInput）
+    return (
+      <div>
+        <input
+          type="text"
+          ref={this.setTextInputRef}
+        />
+        <input
+          type="button"
+          value="Focus the text input"
+          onClick={this.focusTextInput}
+        />
+      </div>
+    );
+  }
+}
+//在组件挂载时，会调用 ref 回调函数并传入 DOM 元素，当卸载时调用它并传入 null
+//在 componentDidMount 或 componentDidUpdate 触发前
+
 ----- 高级指引中的 Context
 一种在组件之间共享此类值的方式，而不必显式地通过组件树的逐层传递 props。
 Context 主要应用场景在于很多不同层级的组件需要访问同样一些的数据。请谨慎使用，因为这会使得组件的复用性变差。
@@ -799,13 +912,118 @@ class ThemedButton extends React.Component {
     return <button theme={this.context} >主题{this.context}按钮</button>;
   }
 }
+-----组合composition  vs 继承
+推荐使用组合而非继承来实现组件间的代码重用
 
 
-------高级指引中的  高阶组件
+ function FancyBorder(props) {
+	//props.children 是所有的子无素 
+  return (
+    <div className={'FancyBorder FancyBorder-' + props.color}>
+      {props.children}
+    </div>
+  );
+}
+function WelcomeDialog() {
+  return (
+    <FancyBorder color="blue">
+      <h1 className="Dialog-title">
+        Welcome
+      </h1>
+      <p className="Dialog-message">
+        Thank you for visiting our spacecraft!
+      </p>
+    </FancyBorder>
+  );
+}
 
-
+//---- 
+function Contacts() {
+  return <div className="Contacts" >Contacts</div>;
+}
+function Chat() {
+  return <div className="Chat" >Chat</div>;
+} 
+function SplitPane(props) {
+  return (
+    <div className="SplitPane">
+      <div className="SplitPane-left">
+        {props.left}
+      </div>
+      <div className="SplitPane-right">
+        {props.right}
+      </div>
+    </div>
+  );
+}
+function App() {
+ // props 可以传组件 使用{}包含  
+  return (
+    <SplitPane
+      left={
+        <Contacts />
+      } 
+      right={
+        <Chat />
+      } /> 
+  );
+}
 
 ------高级指引中的 Render Props
+
+class Cat extends React.Component {
+  render() {
+    const mouse = this.props.mouse;
+    return (
+      <img src="./cat.jpeg" style={{ position: 'absolute', left: mouse.x, top: mouse.y }} />
+    );
+  }
+}
+
+class Mouse extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.state = { x: 0, y: 0 };
+  }
+
+  handleMouseMove(event) {
+    this.setState({
+      x: event.clientX,
+      y: event.clientY
+    });
+  }
+
+  render() {
+    return (
+      <div style={{ height: '100%' }} onMouseMove={this.handleMouseMove}>
+
+        {/* 
+          这里直接调用props中的函数，这里不用写死Cat
+        */}
+        {this.props.render1(this.state)}
+      </div>
+    );
+  }
+}
+
+class MouseTracker extends React.Component {
+  render() {
+    return (
+      <div>
+        <h1>移动鼠标333!</h1>
+        <Mouse render1={mouse => (
+          <Cat mouse={mouse} />
+        )}/> {/* props中定义的属性是一个函数，使用{}包起来，这样Cat组件就不用写死在Mouse的类中了*/}
+      </div>
+    );
+  }
+}
+
+------高级指引中的  高阶组件
+Higher-Order Components(HOC)
+高阶组件 ,参数为组件，返回值为新组件的函数
+
 
 
 
@@ -871,6 +1089,10 @@ Hook API 还有很多其它的use方法
  useLayoutEffect
  
 -----------redux 是作者受  Flux 的影响
+官方
+https://redux.js.org/
+
+http://cn.redux.js.org/
 
 官方文档有建议用  redux 中的 reducer 来编写
 
@@ -878,11 +1100,450 @@ npm install -g redux
 npm install --save redux
 redux@4.0.1
 
+
+npm install -g  redux-devtools
+npm install --save-dev redux-devtools
+redux-devtools@3.5.0
+ 
+<!--
+<script src="https://unpkg.com/redux@4.0.1/dist/redux.js"></script>
+-->
+//不行 import 时报  require is not defined
+//import { createStore } from './unpkg_redux-4.0.1/redux.js' 
+
+
+import { createStore } from 'redux'
+
+//reducer函数 state可以是对象，但不能修改这个对象，要返回新的对象
+function counter(state = 0, action) {
+  switch (action.type) {//必须命名为type
+    case 'INCREMENT':
+      return state + 1
+    case 'DECREMENT':
+      return state - 1
+    default:
+      return state
+  }
+} 
+let store = createStore(counter)  //store里面存储state
+store.subscribe(() => console.log(store.getState())) 
+store.dispatch({ type: 'INCREMENT' }) //必须命名为type
+
+//------- 官方count示例  redux模块
+//--index.js
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { createStore } from 'redux'
+
+import Counter from './components/Counter'
+import counter from './reducers'//如目录下有index.js就可不用加默认导入
+
+const store = createStore(counter)
+const rootEl = document.getElementById('root')
+
+const render = () => ReactDOM.render(
+  <Counter
+    value={store.getState()}
+    onIncrement={() => store.dispatch({ type: 'INCREMENT' })}//必须命名为type
+    onDecrement={() => store.dispatch({ type: 'DECREMENT' })}
+  />,
+  rootEl
+)
+
+render()
+store.subscribe(render)
+
+//--reducer/index.js
+export default (state = 0, action) => {
+  switch (action.type) { //必须命名为type
+    case 'INCREMENT':
+      return state + 1
+    case 'DECREMENT':
+      return state - 1
+    default:
+      return state
+  }
+}
+
+//--components/Counter.js
+import React, { Component } from 'react'
+class Counter extends Component {
+  constructor(props) {
+    super(props);
+    this.incrementAsync = this.incrementAsync.bind(this);
+    this.incrementIfOdd = this.incrementIfOdd.bind(this);
+  }
+
+  incrementIfOdd() {
+    if (this.props.value % 2 !== 0) {
+      this.props.onIncrement()
+    }
+  }
+
+  incrementAsync() {
+    setTimeout(this.props.onIncrement, 1000)
+  }
+
+  render() {
+    const { value, onIncrement, onDecrement } = this.props
+    return (
+      <p>
+        Clicked122: {value} times
+        {' '}
+        <button onClick={onIncrement}>
+          +
+        </button>
+        {' '}
+        <button onClick={onDecrement}>
+          -
+        </button>
+        {' '}
+        <button onClick={this.incrementIfOdd}>
+          Increment if odd
+        </button>
+        {' '}
+        <button onClick={this.incrementAsync}>
+          Increment async
+        </button>
+      </p>
+    )
+  }
+} 
+export default Counter
+
+
+
+//-----------react-redux 
+官方 https://react-redux.js.org/
+
+
 npm install -g  react-redux
 npm install --save react-redux
 react-redux@7.0.3
 
+//示例
+//--index.jsx
+import React, {Component} from 'react';
+import ReactDOM, {render} from 'react-dom';
+import {Provider} from 'react-redux';
+
+import store from './Redux/Store/Store.jsx'
+import ControlPanel from './Component/ControlPanel.jsx' 
+render(
+    <Provider store={store}>   {/* 子标签可以拿到store原理是使用了context */}
+    <ControlPanel />
+    </Provider>,
+    document.body.appendChild(document.createElement('div'))
+);
+//---./Redux/Store/Store.jsx
+import {createStore} from 'redux'
+
+import reducer from '../Reducer' 
+const initValue={
+    'First':0,
+    'Second':10,
+    'Third':20
+}
+const store=createStore(reducer,initValue)//可带第二个参数，默认状态
+export default store
+
+//---./Reducer/index.js
+import {Increment,Decrement} from '../Action'
+export default(state,action)=>{
+    const {counterCaption}=action
+    console.log("state[counterCaption]="+state[counterCaption]);//能取到值
+    switch (action.type){
+        case Increment:
+         //return {...state,[counterCaption]:state[counterCaption]+1}//逻辑同下方
+        var clonedObj={...state};//复制对象
+        clonedObj[counterCaption]= state[counterCaption]+1;
+        return clonedObj;
+        case Decrement:
+        return {...state,[counterCaption]:state[counterCaption]-1}
+        default:
+        return state
+    }
+}
+
+//---./Action/index.js
+export const Increment='increment'
+export const Decrement='decrement'
+
+export const increment=(counterCaption)=>({
+    type:Increment,
+    counterCaption //这里可以没有:
+  }
+)
+export const decrement=(counterCaption)=>({
+    type:Decrement,
+    counterCaption
+})
+
+//---./Component/ControlPanel.jsx
+import React, { Component } from 'react'
+
+import Counter from './Counter.jsx'
+import Summary from './Summary.jsx'
+const style = {
+    margin: "20px"
+}
+
+class ControlPanel extends Component {
+    render() {
+        return (
+            <div style={style}>
+                <Counter caption="First" />
+                <Counter caption="Second"/>
+                <Counter caption="Third" />
+                <hr/>
+                <Summary/>
+            </div>
+        )
+    }
+}
+export default ControlPanel
+
+//---./Component/Counter.jsx
+import {connect} from 'react-redux'
+import React, { Component } from 'react'
+
+import {increment,decrement} from '../Redux/Action'
+
+const buttonStyle = {
+    margin: "20px"
+}
+
+function Counter({caption, Increment, Decrement, value}){//Increment, Decrement, value 是下面产生的props的值？？
+    return (
+            <div>
+                <button style={buttonStyle} onClick={Increment}>+</button>
+                <button style={buttonStyle} onClick={Decrement}>-</button>
+                <span>{caption} count :{value}</span>
+            </div>
+        )
+}
+function mapStateToProps(state,ownProps){//输入逻辑  负责将通过state获得的数据映射到展示组件的this.props
+     //如果省略的话，store更新就不会触发展示组件重绘了
+    return{
+        value:state[ownProps.caption]
+    }
+}
+
+function mapDispatchToProps(dispatch,ownProps){//输出逻辑  负责将用户操作转化为Action的功能函数映射到展示组件的this.props
+    return {
+        Increment:()=>{
+            dispatch(increment(ownProps.caption)) //增加和减少的动作派发给Store
+        },
+        Decrement:()=>{
+            dispatch(decrement(ownProps.caption))
+        }
+
+    }
+}
+//第二个参数mapDispatchToProps也可是个对象
+export default connect(mapStateToProps,mapDispatchToProps)(Counter)//返回一个新的容器组件，带逻辑的，里面是负责显示的组件
+
+//---./Component/Summary.jsx
+import React from 'react';
+import {connect} from 'react-redux';
+function Summary({value}){
+        return (
+            <div>Total Count: {value}</div>
+        );
+}
+function mapStateToProps(state){
+    let sum=0
+    for (const key in state) {
+        if (state.hasOwnProperty(key)) {
+          sum += state[key];
+        }
+      }
+    return {value: sum};
+}
+export default connect(mapStateToProps)(Summary)
+
+//----redux 官方 todos 示例 有使用react-redux 有使用 combineReducers
+git clone https://github.com/reduxjs/redux.git
+
+cd redux/examples/todos
+npm install
+npm start
 
 
 
+
+//----redux 官方undo 示例 有引用新库
+可以像word一样做撤消和重作， 不常用，比较复杂 
+cd redux/examples/todos-with-undo
+ 
+ 
+
+-----------react-router ,可结合 Redux一起使用
+
+https://github.com/ReactTraining/react-router
+有web和native指南
+
+npm install react-router -g         react-router@5.0.0
+npm install react-router-dom  -g    react-router-dom@5.0.0
+
+//--官方web 基本示例 
+import React from "react";
+import { BrowserRouter , Route, Link } from "react-router-dom";
+
+function Index() {
+  return <h2>Home</h2>;
+}
+
+function About() {
+  return <h2>About</h2>;
+}
+
+function Users() {
+  return <h2>Users</h2>;
+}
+
+function AppRouter() {
+  return (
+    <BrowserRouter>
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/about/">About</Link>
+            </li>
+            <li>
+              <Link to="/users/">Users</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <Route path="/" exact component={Index} />  {/*  exact 表示精确匹配，如不指定则跳转地址只要以配置的path开头即可 */}
+        <Route path="/about/" component={About} />
+        <Route path="/users/" component={Users} />
+      </div>
+    </BrowserRouter>
+  );
+}
+
+export default AppRouter;
+
+//--官方web 嵌套路由示例
+import React from "react";
+import { BrowserRouter , Route, Link } from "react-router-dom";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <div>
+        <Header />
+
+        <Route exact path="/" component={Home} />
+        <Route path="/about" component={About} />
+        <Route path="/topics" component={Topics} />
+      </div>
+    </BrowserRouter>
+  );
+}
+
+function Home() {
+  return <h2>Home</h2>;
+}
+
+function About() {
+  return <h2>About</h2>;
+}
+
+function Topic({ match }) {
+  return <h3>Requested Param: {match.params.myid}</h3>; {/*match.params.xxx 得到变量名 */}
+}
+
+function Topics({ match }) {  /* match参数 */
+  return (
+    <div>
+      <h2>Topics</h2>
+
+      <ul>
+        <li>
+          <Link to={`${match.url}/components`}>Components</Link>
+        </li>
+        <li>
+          <Link to={`${match.url}/props-v-state`}>Props v. State</Link>
+        </li>
+      </ul>
+
+      <Route path={`${match.path}/:myid`} component={Topic} /> 
+        {/*Link的 match.url 对应这的 match.path，BrowserRouter浏览器地址栏上会显示对应的地址
+          myid是变量名，以：开头 
+          component 指定子组件 */}
+      <Route
+        exact
+        path={match.path}
+        render={() => <h3>Please select a topic.</h3>}  
+      />  {/* render函数 */}
+    </div>
+  );
+}
+
+function Header() {
+  return (
+    <ul>
+      <li>
+        <Link to="/">Home</Link>
+      </li>
+      <li>
+        <Link to="/about">About</Link>
+      </li>
+      <li>
+        <Link to="/topics">Topics</Link>
+      </li>
+    </ul>
+  );
+}
+
+export default App;
+
+
+BrowserRouter 使用HTML5的 window.history.pushState() ,   window.history.replaceState() ,history.state
+          浏览器地址栏上会显示对应的地址
+
+HashRouter  使用HTML5的 window.location.hash  即#的锚点
+
+<HashRouter   basename="/calendar"> {/* basename可以不加  , 显示为  #/calendar/users/  */}
+</HashRouter>
+ 
+ 
+MemoryRouter 可用于React Native
+   <MemoryRouter   initialEntries={[ '/', '/about', { pathname: '/users' } ]}
+    initialIndex={0}>
+  </MemoryRouter>
+  
+  
+{/*NavLink 可带选中的样式 也有 activeClassName */}
+<NavLink
+  to="/users/"
+  activeStyle={{
+    fontWeight: "bold",
+    color: "red"
+  }}
+>
+  Users with Nav
+</NavLink>
+
+
+-----------PropTypes react官方有文档,现在单独的库,可结合 Redux一起使用
+
+在组件的 props 上进行类型检查, 出于性能方面的考虑，propTypes 仅在开发模式下进行检查
+
+像XML的Schema验证
+
+npm install -g prop-types
+npm install --save prop-types
+
+import PropTypes from 'prop-types';
+
+见官方示例
+https://zh-hans.reactjs.org/docs/typechecking-with-proptypes.html
 

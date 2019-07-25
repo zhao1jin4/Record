@@ -415,7 +415,10 @@ public class JMeterRocketMQProducter  implements JavaSamplerClient
     }
 }
 ===================================soapUI 
-新版本的soapUI , 可以POST请求(建立reset项目)
+soapUI-5.5.0 开源版本 可以做 reset 测试 
+soapUI pro 收费版本，改名叫 readyAPI-2.7.0  可做 OAS 3.0, Swagger, 
+  包括soupUI，loadUI，secure (接口安全测试) ServiceV (专注mock) 
+ 
 
 
 alt +f 可以格式化 soupUI内部的XML格式  (也可右击->format XML),右击->insert file as Base64

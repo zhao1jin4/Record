@@ -584,6 +584,12 @@ jdbc:mariadb://localhost:3306/DB?user=root&password=myPassword
 Class.forName("org.mariadb.jdbc.Driver") 
 
 
+
+//  jdbc:postgresql://host:port/database
+jdbc:postgresql://localhost:5432/test?user=fred&password=secret&ssl=true&currentSchema=public
+Class.forName("org.postgresql.Driver");
+
+
 <dependency>
 	<groupId>mysql</groupId>
 	<artifactId>mysql-connector-java</artifactId> 
@@ -605,6 +611,9 @@ emptyStringsConvertToZero 默认是true
 useSSL=true
 
 connectTimeout  milliseconds
+
+
+
 
 //MySQL JDBC Driver可不指定DB
 Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306?useUnicode=true&amp;characterEncoding=UTF-8","root","root");
@@ -921,7 +930,7 @@ appendToSystemClassLoaderSearch(JarFile jarfile)
 
  
 --------------------------JDK12 新特性
-idea-2019.1 可选到12的编译级别，但eclipse-4.11.0(2019-03)选不到12的
+idea-2019.1 可选到12的编译级别， eclipse-4.12.0(2019-06)可选到12编译
 
 实验阶段的 低暂停的垃圾收集器 Shenandoah
 -XX:+UseShenandoahGC
@@ -4634,7 +4643,7 @@ Validator validator = factory.getValidator();
 Set<ConstraintViolation<Order>> violations = validator.validate(order); 
  if(violations.size()> 0) 
  {
-	 StringBuffer buf = new StringBuffer(); 
+	 StringBuffer buf = new StringBuffer(); //可以做一个方法返回一个Map
 	 ResourceBundle bundle = ResourceBundle.getBundle("bean_validation/message",Locale.CHINESE); 
 	 for(ConstraintViolation<Order> violation: violations)
 	 { 
