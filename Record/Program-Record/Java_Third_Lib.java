@@ -17,14 +17,16 @@ group 资源仓库组,用来合并多个hosted/proxy资源仓库,配置maven依�
  可以新建仓库，建立用户指定角色，角色指定权限
 
  可以设置是否可以 deployment,是release的还是snapshot的
+ 
 ------Nexus Repository OSS 3.5.1
-	 没有 -bundle.zip了 unix版本 要求至少JDK 1.8 ,解压出现了sonatype-work
-	 可以运行在 Docker 上
-nexus-3.5.1-02/bin/nexus start
- ./nexus run
+没有 -bundle.zip了 unix版本 要求至少JDK 1.8 ,解压出现了sonatype-work，刚解压只有log,tmp, orient/plugins目录，启动后会生成很多文件
 
- tail -f sonatype-work/nexus3/log/nexus.log
- 直接仿问 http://127.0.0.1:8081/ 默认有一个用户 admin  密码 admin123     
+nexus-3.5.1-02/bin/nexus start  是后台运行，相应的有stop
+tail -f sonatype-work/nexus3/log/nexus.log 初次启动时间较长
+
+./nexus run 前台运行
+ 
+直接仿问 http://127.0.0.1:8081/ 默认有一个用户 admin  密码 admin123     
 		提示 max file descriptor至少65536(默认4096)
 		 /etc/security/limits.conf (Ubuntu 除外)
 			nexus - nofile 65536
@@ -38,12 +40,20 @@ http://127.0.0.1:8080/repository/maven-snapshots/
  http://127.0.0.1:808/#browse/browse/components:maven-public 有目录级别
  http://127.0.0.1:808/#browse/browse/assets:maven-public     子目录以/显示
  
+ 
+ 
+	 
+ 可以运行在 Docker 上  
+ docker pull sonatype/nexus3
+ 
 ----------------------------------Maven
 
 设置PATH环境变量  
 
 mvn -version
 mvn -e		full stack trace of the errors
+mvn clean install -e -U
+-e详细异常，-U强制更新
 
 如单元测试报错, 控制台没有原因,要进入target/surefire-report/中的txt文件 有错误 堆栈信息
 
@@ -699,6 +709,7 @@ mvn clean package -Dmaven.test.skip=true    跳过编译测试类,生成.war包�
 mvn install -DskipTests     跳过test的执行，但要编译  
  --update-snapshots  更新snapshots的依赖包
 
+mvn dependency:list  显示所有依赖
 
 mvn archetype:generate  会提示输入groupId,groupId
 
@@ -1239,7 +1250,7 @@ TestCase 中有
 这两个方法在抛出异常时也会被调用,测试失败也会的
 
 
-import org.junit.jupiter.api.Test; //Junit 5  
+import org.junit.jupiter.api.Test; //Junit 5    jupiter 木星；
 import static org.junit.jupiter.api.Assertions.*;//Junit 5 
 
 JUnit 4.0 有 只执行一次初始方法,销毁方法 
@@ -2238,6 +2249,10 @@ String strImg="D:/Program/all_code_workspace/eclipse_java_workspace/J_JavaThirdL
 
  -----读PDF
 PdfReader reader = new PdfReader("d:/temp/mybatis.pdf");//读已经存在PDF
+if(reader.isEncrypted())
+{
+			System.out.println("pdf是加密的");
+}
 System.out.println(reader.getPdfVersion());
 //---读写
 PdfStamper stamper = new PdfStamper(reader, new FileOutputStream("d:/temp/itext_out.pdf"));
@@ -2510,6 +2525,9 @@ document.close();
 =================================Lucene-6.4================================
   
  最新的 luke-src-4.0.0 最近更新是2012年7月
+ 
+ 倒排索引， 从词出发，记载了这个词在哪些文档中出现过
+ 由两部分组成——词典和倒排表。
  
  官方带的中文分词器 analyzers-smartcn  ,lucene-analyzers-smartcn-6.4.0.jar  大小  3.43M
  
@@ -2902,411 +2920,6 @@ isearcher.search(query,  1000);
 //...
 manager.release(isearcher);//finally中做
 
-================================Solr-6.4
-
-bin/solr start -e cloud -noprompt  ( SolrCloud example )启动两个节点,监听 8983 , 7574 端口 ,有zookeeper
-	实际调用 solr-6.4.0\server\start.jar    , server/lib/中有jetty
-	java -jar server/start.jar --help
-
-控制台提示做了
-	solr.cmd start -cloud -p 8983 -s "example\cloud\node1\solr"
-	solr.cmd start -cloud -p 7574 -s "example\cloud\node2\solr" -z localhost:9983
-	http://localhost:8983/solr/admin/collections?action=CREATE&name=gettingstarted&numShards=2&replicationFactor=2&maxShardsPerNode=2&collection.configName=gettingstarted
-
-	POSTing request to Config API: http://192.168.27.1:8983/solr/gettingstarted/config
-	
-	
-	{"set-property":{"updateHandler.autoSoftCommit.maxTime":"3000"}}
-
-http://localhost:8983/solr/   有界面,看到cloud/collections 组中建立了名为 gettingstarted 
-
-bin/post 只有linux的,如果是windows 使用 java  -Dc=gettingstarted -jar  example/exampledocs/post.jar docs/ 
-bin/post -c gettingstarted docs/  对dos目录建立索引-c collection name
-
-bin/solr stop -all
-# bin/solr start -e techproducts
-
-//XML
-bin/post -c gettingstarted example/exampledocs/*.xml										*/
-java -Dc=gettingstarted -jar  example/exampledocs/post.jar example/exampledocs/*.xml		*/
-
-field  update = "add" | "set" | "inc" 
-  
-<add>
-  <doc>
-    <field name="employeeId">05991</field>
-    <field name="office" update="set">Walla Walla</field>
-    <field name="skills" update="add">Python</field>
-  </doc>
-</add>
-
-<commit/>
-
-//JSON
-bin/post -c gettingstarted example/exampledocs/books.json
-java -Dtype=application/json -Dc=gettingstarted -jar  example/exampledocs/post.jar example/exampledocs/books.json
-
-//CSV
-bin/post -c gettingstarted example/exampledocs/books.csv
-java -Dtype=text/csv -Dc=gettingstarted -jar example/exampledocs/post.jar  example/exampledocs/books.csv
-
-http://localhost:8983/solr/gettingstarted/browse 
-http://localhost:8983/solr/gettingstarted/browse?q=manu:Belkin&fl=name,id,price&wt=json
-
-q=video&sort=price desc&fl=name,id,price&wt=json
-q表示查询什么,name:video表示对字段为name的列
-fl的值表示返回的只要name,id
-wt返回形式 json,xml,csv
-
-
----Data Import Handler (DIH)  从数据库导入
-	example\example-DIH 
-	bin/solr -e dih 启动
-
----SolrJ
-
----SolrCloud
-
-----Hibernate Search 基于 Lucene 
-================================Elastic Search    6.4
-ELK= Elasticsearch , Logstash, Kibana
-https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html
-
-(分布式，RESTful搜索引擎)  基于 Lucene
-更适用于新兴的实时搜索应用
-
- 当单纯的对已有数据进行搜索时，Solr更快。
- 实时建立索引时, Solr会产生io阻塞，查询性能较差, Elasticsearch具有明显的优势。
- 数据量的增加，Solr的搜索效率会变得更低，而Elasticsearch却没有明显的变化。
- 从Solr转到Elasticsearch以后的平均查询速度有了50倍的提升。
- 
- 只支持JSON
- 
-Elasticsearch windows/linux 都是单独的包
-bin\elasticsearch.bat   启动   http://localhost:9200/ 有JSON 返回
- 
-config/elasticsearch.yml
-	network.host: 0.0.0.0   可以接收任何地址   
-	http.port: 9200
-
-
-curl选项
--X, --request <command> a custom request method 
--i, --include (HTTP) Include the HTTP-header in the output
--H, --header <header>
--d, --data <data>  specified data in a POST request
---data-binary  @accounts.json
-  
- 
-数据存储于一个或多个索引中，索引是具有类似特性的文档的集合
-索引相当于SQL中的一个数据库
-Type 在6的版本中过时了 相当于“表”
-索引由其名称(必须为全小写字符)进行标识
-
-
-	
-新建一个名叫weather的 Index
-
-curl -X PUT 'http://localhost:9200/weather'
-curl -X DELETE -i http://http://localhost:9200/weather
--i 输出响应头
-
-elasticsearch-plugin install analysis-smartcn    中文支持
-elasticsearch-plugin remove analysis-smartcn
-
-新建一个名称为accounts的 Index，里面有一个名称为person的 Type。person有三个字段。
-
-curl -X PUT -H 'Content-Type: application/json;charset=UTF-8' -i http://http://localhost:9200/accounts --data 
-'{
-  "mappings": {
-    "person": {
-      "properties": {
-        "user": {
-          "type": "text",
-          "analyzer": "smartcn",
-          "search_analyzer": "smartcn"
-        },
-        "title": {
-          "type": "text",
-          "analyzer": "smartcn",
-          "search_analyzer": "smartcn"
-        },
-        "desc": {
-          "type": "text",
-          "analyzer": "smartcn",
-          "search_analyzer": "smartcn"
-        }
-      }
-    }
-  }
-}'
-
-
-
-
---PUT
-向指定的 /Index/Type 发送 PUT 请求，就可以在 Index 里面新增一条记录
-
-$ curl -X PUT 'http://localhost:9200/accounts/person/1' -d 
-'{
-  "user": "张三",
-  "title": "工程师",
-  "desc": "数据库管理"
-}' 
-
-记录的 Id。它不一定是数字，任意字符串
-"result":"created"
-
-
---override PUT
-更新记录就是使用 PUT 请求，重新发送一次数据。
-$ curl -X PUT 'http://localhost:9200/accounts/person/1' -d 
-'{
-    "user" : "张三",
-    "title" : "工程师",
-    "desc" : "数据库管理，软件开发"
-}' 
-
-"result":"updated"
- "_version": 有变值
- 
-
-
-
---POST
-如为POST 可不用指定ID,生成长串ID  
-
-curl -X POST 'http://localhost:9200/accounts/person/' -d 
-'{
-  "user": "张三",
-  "title": "工程师",
-  "desc": "数据库管理"
-}' 
-
-
-如果没有先创建 Index（这个例子是accounts），直接执行上面的命令，Elastic 也不会报错，而是直接生成指定的 Index。
-所以，打字的时候要小心，不要写错 Index 的名称。
-
-
-
-
----  _update 某个值，而不是override
- 
-curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/accounts/person/1/_update?pretty' --data 
-'{
-  "doc": { "user": "zhangsan" }
-}'
-
-
-修改值和增加字段age
-curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/accounts/person/1/_update?pretty' --data 
-'{
-  "doc": { "user": "zhangsan","age":20 }
-}'
-
-修改值增加5
-curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/accounts/person/1/_update?pretty' --data 
-'{
-  "script" : "ctx._source.age += 5"
-}'
-
-curl -X DELETE 'http://localhost:9200/accounts/person/1'
-
-
-
-
-
-同时插入两条数据 doc/_bulk
-curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/customer/doc/_bulk?pretty' --data 
-'
-{"index":{"_id":"1"}}
-{"name": "John Doe" }
-{"index":{"_id":"2"}}
-{"name": "Jane Doe" }
-'
-
-curl -X GET -H 'Content-Type: application/json' -i 'http://localhost:9200/customer/doc/_search?pretty'
-
-也可即更新又删除
-curl -X POST -H 'Content-Type: application/json' -i 'http://localhost:9200/customer/doc/_bulk?pretty' --data 
-'{"update":{"_id":"1"}}
-{"doc": { "name": "John Doe becomes Jane Doe" } }
-{"delete":{"_id":"2"}}
-'
-某一个命令执行出错，那么会继续执行后面的命令，最后会返回每个命令的执行结果
-
-
---GET
-
-向/Index/Type/Id发出 GET 请求，就可以查看这条记录。
-curl 'http://localhost:9200/accounts/person/1?pretty=true'
-
- "found" : true,  表示查询成功    _source字段返回原始记录。
- 
- 
---- _search
-
- GET 方法，直接请求/Index/Type/_search，就会返回所有记录。
- 结果的 took字段表示该操作的耗时（单位为毫秒）
- 
- 
-  _search?q=user:kimchy  但不能有中文 值是完全等于
-  
- 
- 可中文和模糊匹配
-GET _search  
-{
-    "query" : {
-        "match" : {
-            "user" : "张三"   
-        }
-    }
-}
-
-GET accounts/person/_search 
-{
-    "query" : {
-        "bool": {
-            "must": {
-                "match" : {
-                    "user" : "zhangsan" 
-                }
-            },
-            "filter": {
-                "range" : {
-                    "age" : { "gt" : 10 } 
-                }
-            }
-        }
-    }
-}
-
-
---DELETE
- 删除记录就是发出 DELETE 请求。
-
-
-$ curl -X DELETE 'http://localhost:9200/accounts/person/1'
-如无返回   "result":"not_found"
-
-
-检查 cluster health, 使用 _cat API.
-curl -X GET -H 'Content-Type: application/json;charset=UTF-8' -i 'http://http://localhost:9200/_cat/health?v'
-status
-red：表示有些数据不可用
-yellow：表示所有数据可用，但是备份不可用
-green：表示一切正常
-
-
-================================Logstash
-做数据收集的，有实时管道能力，再推向Elastic Search
-
-6.4 版本 只能用JDK8 不支持JDK 9
-7.0 版本 只能用 JDK8 或 jdk11 两个版本(可OracleJDK 或  openJDK)
-windows/linux是一个通用的包
-
-有.zip, rpm 和 Docker 版本
-
-Docker镜像
-docker pull docker.elastic.co/kibana/kibana:6.6.0
-docker pull docker.elastic.co/logstash/logstash:7.0.0
-
-rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch 
-增加如下文件
-/etc/yum.repos.d/logstash.repo
-	[logstash-6.x]
-	name=Elastic repository for 6.x packages
-	baseurl=https://artifacts.elastic.co/packages/6.x/yum
-	gpgcheck=1
-	gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
-	enabled=1
-	autorefresh=1
-	type=rpm-md
-
-sudo yum install logstash
-
-
-cd logstash-7.0.0/bin
-logstash -e 'input { stdin { } } output { stdout {} }'  日志提示 API endpoint 监听 9600 端口 
- 
----config/logstash-sample.conf
-# comment
-
-input { stdin { } }
-
-filter {
- 
-}
-
-output {
-  elasticsearch { hosts => ["localhost:9200"] }
-  stdout { codec => rubydebug }
-}
-这个配置会输出到elasticsearch和stdout上
-
----logstash 的(logback) 输入配置 
-input {
-    tcp {
-        port => 4560
-        codec => json_lines
-    }
-}
-
-bin\logstash -f config\logstash-sample.conf --config.test_and_exit 验证配置文件正确性
-bin\logstash -f config\logstash-sample.conf --config.reload.automatic 自动加载配置 
-
-input 插件 
-filter 插件 
-output 插件 
-codec 插件支持 https://www.elastic.co/guide/en/logstash/current/codec-plugins.html
-	json
-	avro (hadoop中的)
-	protobuf(google跨语言的序列化协议)
-
-
-=======================================Kibana
-与elastic search一起工作，做分析
-Kibana windows/linux 都是单独的包
-cd  kibana-7.0.0-linux-x86_64/bin
-
- kibana.bat   启动   要求先启动 Elasticsearch 
- config/kibana.yml
-	elasticsearch.url: "http://localhost:9200"
-	
- http://127.0.0.1:5601/   有界面
- 
-索引 _index:值为pdpm-log-2018... 有可以选择的 pdpm-*
-
- 左侧菜单点Discover -> 下拉可以选择前缀开头的某个项目的日志, 页面中右上角可以选择日期范围，可选今天
- 
- Lucene 查询: 搜索文本框输入 level:error && message:IAM LoginDone  可以查日志
- 
- 界面也支持Query DSL查询
-
- 左侧菜单点 DevTools有Console  可以发送命令,带代码提示功能, 默认查全部的有 , 参数可有可无
- GET _search
-{
-  "query": {
-    "match_all": {}
-  }
-}
-
-# index a doc
-PUT index/type/1
-{
-  "body": "here"
-}
-
-# and get it ...
-GET index/type/1
-
-查行数
- GET _count
-{
-  "query": {
-    "match_all": {}
-  }
-}
 
 ==============================MongoDB 
  <dependency>
@@ -3330,7 +2943,10 @@ GET index/type/1
     <version>3.8.2</version>
 </dependency>
 
+
 3.8 支持MongoDB 4.0 的事务
+3.11.0支持MongoDB 4.2
+
 Multi-document transactions are available for replica sets only. 
 Transactions for sharded clusters are scheduled for MongoDB 4.2
  
@@ -4177,7 +3793,7 @@ conn.close();
 //这样就能保证消费者在处理完某个任务，并发送确认信息后，RabbitMQ才会向它推送新的消息
 //在此之间若是有新的消息话，将会被推送到其它消费者，若所有的消费者都在处理任务，那么就会等待。
 int prefetchCount = 1;
-channel.basicQos(prefetchCount);//放消费端       允许限制通道上的消费者所保持最大的未确认消息数量，如某台机器反应慢，
+channel.basicQos(prefetchCount);//RPC 放消费端       允许限制通道上的消费者所保持最大的未确认消息数量，如某台机器反应慢，
 
 channel.exchangeDeclare(EXCHANGE_NAME, "direct", true);  //boolean durable  持久化 
 		
@@ -4280,7 +3896,7 @@ Consumer consumer = new DefaultConsumer(channel) {
 // 指定接收者，第二个参数为自动应答，无需手动应答 
 //(String queue, boolean autoAck, Consumer callback		
 channel.basicConsume(QUEUE_NAME, true, consumer);   
-----rabbitMQ 事务
+----rabbitMQ 事务 (也是发送)
 
 //(String exchange, String type,  boolean durable, boolean autoDelete, Map<String,Object> arguments)
 channel.exchangeDeclare(EXCHANGE_NAME, "direct", true, false, null);  
@@ -4343,18 +3959,79 @@ rabbitmqctl set_policy DLX ".*" "{""dead-letter-exchange"":""my-dlx""}" --apply-
 界面中D=durable
 DLK= x-dead-Letter-routing-Key
 
-----发送方确认
+----ConfirmListener
  
-channel.confirmSelect();//publish confirm模式  ，只能通道回复了即可发送下一条（Basic.Publish,Basic.Ack），比事务(Basic.Publish,Tx.Commit,Tx.Commit.OK)少发一条指令 
-如果消息是要持久化，都在存磁盘后回复
+//publish confirm模式  ，只能通道回复了即可发送下一条（Basic.Publish,Basic.Ack），比事务(Basic.Publish,Tx.Commit,Tx.Commit.OK)少发一条指令 如果消息是要持久化，都在存磁盘后回复
+//publish confirm模式  ，只能通道回复了即可发送下一条（异步），事务是同步 阻塞，即回复后才可发下一条消息。
+channel.confirmSelect();
 
 
-channel.basicPublish();//发送消息
+//异步确认
+/*
+channel.addConfirmListener(new ConfirmListener() {
+ @Override
+ public void handleAck(long deliveryTag, boolean multiple) throws IOException {
+  System.out.println("handleAck: deliveryTag="+deliveryTag+",multiple="+multiple);
+ }
+ @Override
+ public void handleNack(long deliveryTag, boolean multiple) throws IOException {
+  System.out.println("handleNack: deliveryTag="+deliveryTag+",multiple="+multiple);
+ }});
+*/
 
+AMQP.BasicProperties props =MessageProperties.PERSISTENT_TEXT_PLAIN; //当durable true时
+channel.exchangeDeclare(EXCHANGE_NAME, "direct", true); //durable 持久化  ,  BuiltinExchangeType.DIRECT 
+//durable true 如果没有消费 ,重启后还有的，但持久化前是先缓存的
+
+for(int i=0;i<2;i++)
+{
+  //(String exchange, String routingKey, AMQP.BasicProperties props, byte[] body)
+  channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY,   props,
+    (message+i).getBytes());
+ System.out.println(" [x] Sent '" + message +i+ "'");
+}
 //同步确认
-if(!channel.waitForConfirms())//只对channel.confirmSelect()后使用，可以发送多个消息后一次confirm
-  System.out.println("  Send message failed !!! '");
-  
+//只对channel.confirmSelect()后使用，可以发送多个消息后一次confirm
+boolean confirmRes=channel.waitForConfirms();
+System.out.println("confirmRes="+confirmRes); 
+
+-----ReturnListener
+channel.confirmSelect(); 
+ 
+		//对失败的发送, 模拟方式使用错误的 routingKey
+		//要求 basicPublish 带 mandatory 或者 immediate 标志
+		/*
+		channel.addReturnListener(new ReturnListener() {//如要使用lambda语法 使用 ReturnCallback
+			@Override
+			public void handleReturn(int replyCode,String replyText, String exchange, String routingKey, BasicProperties properties, byte[] body)
+					throws IOException {
+				System.out.println("ReturnListener replyCode="+replyCode
+						+",exchange="+exchange
+						+",routingKey="+routingKey
+						//+",properties="+properties
+						+",body="+new String(body) 
+						);
+				//只对失败，做重发
+			}
+		});
+		*/
+		channel.addReturnListener( new ReturnCallback() {
+			@Override
+			public void handle(Return returnMessage) {
+				System.out.println("ReturnCallback replyCode="+returnMessage.getReplyCode()
+				+",returnMessage.toString()="+ ToStringBuilder.reflectionToString(returnMessage));
+				//只对失败，做重发
+			}
+		});
+		AMQP.BasicProperties props =MessageProperties.PERSISTENT_TEXT_PLAIN; 
+		channel.exchangeDeclare(EXCHANGE_NAME, "direct", true);  
+		for(int i=0;i<2;i++)
+		{
+			//(String exchange, String routingKey, boolean mandatory, boolean immediate, AMQP.BasicProperties props, byte[] body)
+			//mandatory为true
+			channel.basicPublish(EXCHANGE_NAME, ROUTING_KEY,  true,false, props, (message+i).getBytes());
+		 	System.out.println(" [x] Sent '" + message +i+ "'");
+		}  
   
 ----
 String jsonStr = new com.rabbitmq.tools.json.JSONWriter().write(para);//Object(可Map)->JSON
@@ -4378,7 +4055,10 @@ RAM 节点和　DISK节点
 4. rabbitmqctl start_app
 
 rabbitmqctl cluster_status
+[runing_nodes,[node1,node2]]
 
+如全关闭后，再启动，应先启动最后关闭的，否则会等最后关闭的启动
+rabbitmqctl forget_cluster_node nodex  从集群中去除节点
 
 
 ======================RocktMQ   alibaba 捐给了apache
@@ -4837,7 +4517,15 @@ public static void wirteContraintData() throws Exception
 			
 			ageVal = row2.createCell(1);
 			ageVal.setCellValue( -10 );//还是可以写入的
-			ageVal.setCellStyle(baseCellStyle);
+			
+//			ageVal.setCellStyle(baseCellStyle);
+			ageVal.setCellType(CellType.STRING);//修改单元格内容后，还是会变数据，这种不会，影响生成的excel的单元格式，
+			
+			CellStyle numberStringStyle = workbook.createCellStyle(); 
+			DataFormat  format = workbook.createDataFormat();
+			numberStringStyle.setDataFormat(format.getFormat("@"));
+			ageVal.setCellStyle(numberStringStyle);//生成的excel的单元格式是文本格式
+			
 		} 
 		workbook.write(out);
 		out.close();
@@ -5237,24 +4925,75 @@ https://github.com/logstash/logstash-logback-encoder/blob/master/README.md
 <dependency>
     <groupId>net.logstash.logback</groupId>
     <artifactId>logstash-logback-encoder</artifactId>
-    <version>5.3</version>
+    <version>6.1</version>
 </dependency> 
+
+import net.logstash.logback.argument.StructuredArguments;
+ 
+		Map<String,String> myMap=new HashMap<>(); 
+		myMap.put("name1", "value1");
+		myMap.put("name2", "value2");
+		StructuredArgument structArg=StructuredArguments.entries(myMap);
+		System.out.println(structArg);//toString 就是正常的json对象
+		if(LOG.isInfoEnabled())
+		{
+			//logback.xml中要使用 LogstashEncoder 或者 Composite Encoder加arguments参数
+			LOG.info("define",structArg);//这种没有{}，即无参数，只JSON输出, 不格式化消息
+			//调用后，Kibana日志就会有Map中的字段 
+		}
+
 <!--  logback可以把日志推送给 logstash  -->
 <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
- <destination>127.0.0.1:4560</destination>
+ <writeBufferSize>16384</writeBufferSize> <!-- 默认缓存是8192 -->
+ <destination>127.0.0.1:4560</destination><!-- 可以配置多个destination标签，或一个标签多个值用,分隔-->
+  <keepAliveDuration>5 minutes</keepAliveDuration>
+  
+  <!-- LogstashEncoder输出( kibana查看)信息有，@timestamp时间 ,host主机，level级别,message日志信息，thread_name线程，logger_name(有时不是类名)
+  	但没有类名，方法名，行号？？
+ -->
  <encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder">
- <customFields>{"AppName":"myProject"}</customFields>
+ 	<customFields>{"AppName":"myProject"}</customFields> <!-- 表示输出的json多加一个字段 -->
  </encoder>
- <keepAliveDuration>5 minutes</keepAliveDuration>
+ 
+ <!--  
+ <arguments ></arguments>为代码中使用StructuredArgument用的
+  LoggingEventCompositeJsonEncoder  %使用logback的PatternLayout格式  
+		  "position": "%class.%method:%-3L",   // kibana显示？ %class{-20}也不行 不认？？
+		    官方上的"line_str": "%line", 也不行？？？
+		
+		<encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+		  <providers>
+		    <timestamp/>
+		    <pattern>
+		      <pattern>
+		        {
+		        "AppName": "myProject",  
+		        "LO": "%logger",
+		        "LE": "%level",
+		        "TH": "%thread",
+		        
+		        "line_str": "%line",
+		        "position": "%class{-20} . %method : %-3L",
+		        
+		        "ME": "%message"
+		        }
+		      </pattern>
+		    </pattern>
+		  </providers>
+		</encoder>
+	    -->	 
 </appender>
  
-logstash 的(logback) 输入配置 
+ 
+ 
+logstash.conf 的(为logback) 输入配置 
 input {
     tcp {
         port => 4560
         codec => json_lines
     }
 }
+output默认就是本机的elasticsearch
 
 -------------------------------JSCH
 jCraft的一个项目,是sftp实现
@@ -5428,7 +5167,7 @@ http://www.mindrot.org/projects/jBCrypt/
 </dependency>
 // Hash a password for the first time
 String password = "testpassword";
-String hashed = BCrypt.hashpw(password, BCrypt.gensalt());
+String hashed = BCrypt.hashpw(password, BCrypt.gensalt());//每次生成的结果不一样，但可以认证成功
 System.out.println(hashed);
 // gensalt's log_rounds parameter determines the complexity
 // the work factor is 2**log_rounds, and the default is 10
@@ -5687,7 +5426,7 @@ PooledObject<Connection> obj=new DefaultPooledObject<Connection>(conn);
 Connection conn= obj.getObject();
 obj.getObject().close();
 
------------------------------http client
+-----------------------------httpclient 新的是httpcomponents项目下的
 httpcore -> httpclient
 
 <dependency>
@@ -5833,6 +5572,50 @@ public static void async() throws Exception
 		System.out.println("返回="+new String(response,"UTF-8"));
 		httpclient.getConnectionManager().shutdown();
 	}
+-----------------------------websocket Java Client(Java-WebSocket)
+spring webflux 有 WebSocketClient
+
+https://github.com/TooTallNate/Java-WebSocket
+Java 1.6 and higher
+Android 4.0 and higher
+
+支持wss:协议(certificate)
+
+<dependency>
+    <groupId>org.java-websocket</groupId>
+    <artifactId>Java-WebSocket</artifactId>
+    <version>1.4.0</version>
+</dependency>
+
+//websocket 做客户端
+WebSocketClient	cc = new WebSocketClient( new URI( "ws://localhost:8080/J_JavaEE/webSocket")  )
+		{
+			@Override
+			public void onMessage( String message ) {
+				System.out.println( "got: " + message + "\n" );
+			}
+			@Override
+			public void onOpen( ServerHandshake handshake ) {
+				System.out.println( "You are connected to ChatServer: " + getURI() + "\n" );
+			}
+			@Override
+			public void onClose( int code, String reason, boolean remote ) {
+				System.out.println( "You have been disconnected from: " + getURI() + "; Code: " + code + " " + reason + "\n" );
+			}
+			@Override
+			public void onError( Exception ex ) {
+				System.out.println( "Exception occured ...\n" + ex + "\n" );
+				ex.printStackTrace();
+			}
+		};
+		cc.connect();
+		Thread.sleep(2*1000);//等连接完成
+		cc.send( "java_websocket 端 消息" );
+		System.out.println( "已经向服务端发送消息");
+		Thread.sleep(2*1000);//等服端回消息
+		cc.close();
+
+
 -----------------------------Quartz 
  <dependency>
   <groupId>org.quartz-scheduler</groupId>
@@ -5971,18 +5754,70 @@ org.quartz.threadPool.threadCount: 10
 
 Clustering 配置 org.quartz.jobStore.isClustered: true
 	
----------------------------------Netty
-Ratpack 基于 Netty (event-driven)
+---------------------------------Netty 4
+Netty 4 是以io.netty开头的包
+Netty 3 是以org.jboss.netty开头的包
 
-JBoss的 NIO  很少类基于 java nio
+Ratpack 基于 Netty (event-driven) 高性能的 零拷贝
+
+JBoss的 NIO 框架 要求JDK6及以上版本， 很少有类基于 java nio
 NioServerSocketChannel , NioSocketChannel 用了 java nio
 //---- Netty-4.1
 netty-all-4.1.8.Final-sources.jar 里有example
  <dependency>
     <groupId>io.netty</groupId>
     <artifactId>netty-all</artifactId>
-    <version>4.1.27.Final</version>
+    <version>4.1.43.Final</version>
 </dependency>
+
+jdk8是可以的，但jdk11启动示例报错
+
+new NioEventLoopGroup(1);//线程数，每个NioEventLoopGroup有一个selector
+
+ChannelPipeline 是Handler （使用ChannelHandlerContext来串起来）的集合
+
+ .option(ChannelOption.SO_BACKLOG, 100) //连接时 当服务端的线程池用完，用来设置队列的大小
+ .childOption(ChannelOption.SO_KEEPALIVE,true)
+ 
+ 	SimpleChannelInboundHandler
+ extends ChannelInboundHandlerAdapter { //In是读，对应的有Out
+ 	//一般要重写这几个方法
+  	@Override
+    public void channelActive(ChannelHandlerContext ctx) {
+        //  ctx.writeAndFlush(firstMessage);//客户端用
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        ctx.write(msg);
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+       ctx.flush();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { 
+        cause.printStackTrace();
+        ctx.close();
+    }
+ }
+
+
+Bootstrap 用于客户端 group函数要1个参数
+
+ServerBootstrap 用于服务端 group函数要两个参数
+
+ByteBuf ,可用 Unpooled.copiedBuffer("测试".getBytes(CharsetUtil.UTF_8))
+
+
+ChannelHandlerContext .writeAndFlush()
+
+
+
+
+
 
 
 ---------------------------------zxing  
@@ -6135,7 +5970,7 @@ CacheManager.getInstance().shutdown();
 
 ----ehcache.xml
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="true"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false"
          monitoring="autodetect" dynamicConfig="true">
 		 
      <cache name="onlyMemoeryCache" maxElementsInMemory="100000"
@@ -6296,164 +6131,8 @@ System.out.println(o);
 
 ---------------------------------Guava  限流 RateLimiter
 
----------------------------------Memcache Java Client --- alisoft 阿里巴巴
-
-import com.alisoft.xplatform.asf.cache.ICacheManager;
-import com.alisoft.xplatform.asf.cache.IMemcachedCache;
-import com.alisoft.xplatform.asf.cache.memcached.MemcacheStatsSlab;
-import com.alisoft.xplatform.asf.cache.memcached.MemcacheStatsSlab.Slab;
-
-ICacheManager<IMemcachedCache>  manager = CacheUtil.getCacheManager(IMemcachedCache.class,MemcachedCacheManager.class.getName());
-manager.setConfigFile("memcache_client/memcached1.xml");
-manager.setResponseStatInterval(5*1000);//设置Cache响应统计间隔时间，不设置则不进行统计
-manager.start();
-IMemcachedCache cache = manager.getCache("mclient0");//配置文件中的,如不存在,返回null
-cache.clear();// 调用后要sleep一会
-cache.put("key1", "value1");
-Set<String> keys = cache.keySet(false);
-cache.remove("key1");
-cache.storeCounter("counter", 20);
-cache.incr("counter", 11);//减decr,
-cache.addOrIncr("counter", 20);//没有值设置为20,有值加上20,相应的有 addOrDecr,原子操作
-
-
-MemcacheStatsSlab[] result = cache.statsSlabs();
-MemcacheStatsSlab node = result[i];
-String hostAndPort=node.getServerHost();
-Map<String,Slab> slabs = node.getSlabs();//有分配空间,命中率信息
-
-
-MemcacheStats[] result = cache.stats();
-MemcacheStats node = result[i];
-node.getStatInfo()
-
-cache.setStatisticsInterval(30);
-MemcachedResponse response = cache.statCacheResponse();
-response.getCacheName();//mclient0
-
-cache.replace("key1", "value1")
-
-cache.asynPut("key1", "value1");
-cache.asynStoreCounter("key1", 100); //很多的asyncXxx 方法
-
-cache.put("key1", "value1",calendar.getTime());//保存过期时间
-
-manager.reload("memcache_client/memcached_cluster2.xml");//重新加载配置,cache client需要重新获取对象,服务端的数据不会删除
-
-
-manager.stop();
-----memcached1.xml
-<memcached>
-    <client name="mclient0" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool0">
-        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
-    </client>
-	<socketpool name="pool0" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
-        nagle="false" socketTO="3000" aliveCheck="true">
-        <servers>192.168.0.184:12000</servers>
-    </socketpool> 
-</memcached>
-
-maintSleep 属性是后台线程管理SocketIO池的检查间隔时间，如果设置为0，则表明不需要后台线程维护SocketIO线程池，默认需要管理
-socketTO 属性是Socket操作超时配置，单位ms
-aliveCheck 属性表示在使用Socket以前是否先检查Socket状态
- 
-
-
----分布式
-<memcached>
-    <client name="mclient" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool0">
-        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
-    </client>
-    <client name="mclient1" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool1">
-        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
-    </client>
-    <client name="mclient2" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool2">
-        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
-    </client>   
-    <client name="mclient3" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool3">
-        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
-    </client>
-    <client name="mclient4" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool4">
-        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
-    </client>   
-    
-    <socketpool name="pool0" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
-        nagle="false" socketTO="3000" aliveCheck="true">
-        <servers>192.168.0.184:12000</servers>
-    </socketpool> 
-    <socketpool name="pool1" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
-        nagle="false" socketTO="3000" aliveCheck="true">
-        <servers>192.168.0.184:12001</servers>
-    </socketpool> 
-    <socketpool name="pool2" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
-        nagle="false" socketTO="3000" aliveCheck="true">
-        <servers>192.168.0.184:12002</servers>
-    </socketpool> 
-    <socketpool name="pool3" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
-        nagle="false" socketTO="3000" aliveCheck="true">
-        <servers>192.168.0.184:12003</servers>
-    </socketpool> 
-    <socketpool name="pool4" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
-        nagle="false" socketTO="3000" aliveCheck="true">
-        <servers>192.168.0.184:12004</servers>
-    </socketpool>  
-    
-    <cluster name="cluster1" mode="active"> //mode = active,standby
-        <memCachedClients>mclient1,mclient2</memCachedClients>
-    </cluster>
-    <cluster name="cluster2" mode="standby">  //mode = active,standby
-        <memCachedClients>mclient3,mclient4</memCachedClients>
-    </cluster>
-</memcached>
-
-
-manager.clusterCopy("mclient", "cluster1"); //从 mclient 复制 到  cluster1
-
----------------------------------Memcached Java Client--spymemcached
-MemcachedClient c=new MemcachedClient( AddrUtil.getAddresses("192.168.0.184:12000"));
-MemcachedClient mc = new MemcachedClient(new InetSocketAddress("192.168.0.184", 12000));  
-Future<Boolean> theSetFuture = mc.set("myKey1", 900, "someObject");//key,timeout,value
-
-if(theSetFuture.get().booleanValue()==true)
-{  
-	Future<Object> theGetFuture = mc.asyncGet("myKey1");
-	Object obj=theGetFuture.get();
-	 
-	Future<Boolean> f = mc.replace("myKey1", 500, "MyValue1");  
-	
-	Collection<String> keys=new ArrayList<>();
-	keys.add("myKey1");
-	Map<String, Object> myBuilks=mc.getBulk(keys);
-	
-	Future<Map<String, Object>> theFutureBulk = mc.asyncGetBulk(keys);  
-	Map<String, Object>   map = theFutureBulk.get(3,TimeUnit.SECONDS);
-	
-	 //del
-	 Future<Boolean> theDelFuture = mc.delete("myKey1");
-	 if(theDelFuture.get().booleanValue()==true)
-	 {
-		 theGetFuture = mc.asyncGet("myKey1");
-		 obj=theGetFuture.get();
-	 }
-}
-mc.delete("myAtomicNum");
-Thread.sleep(200);
-//Future<Boolean> numFuture = mc.add("myAtomicNum", 500, 20);//add 如已存在,返回false
-long res=mc.incr("myAtomicNum",500,  1);//前先set不行的 
-Object num=mc.get("myAtomicNum");
-Future<Long> numAsyncFuture= mc.asyncIncr("myAtomicNum",10); 
-Thread.sleep(200);
-num=mc.get("myAtomicNum");
-
-mc.shutdown(); 
-//---为 Spring
-MemcachedClientFactoryBean factoryBean=new MemcachedClientFactoryBean();
-factoryBean.setServers("192.168.0.184:12000");
-factoryBean.setOpTimeout(1000);//操作超时时间是1秒
-factoryBean.setTimeoutExceptionThreshold(1998);//设置超时次数上限是1998次
-MemcachedClient client=(MemcachedClient)factoryBean.getObject();
 ---------------------------------Redis client Jedis (spring使用这个)
-
+https://github.com/xetorthio/jedis
 
 <dependency>
     <groupId>redis.clients</groupId>
@@ -6609,6 +6288,44 @@ while (iter.hasNext())
   jedis.del(keys.toArray(new String[keys.size()]));  
 }   
 shardedJedis.close();//一定要close
+
+
+
+//官方说lua脚本的原子性 Atomicity of scripts,如脚本正在执行，其它命令或脚本不能执行
+//lua脚本实现分布式锁，可以保存证setnx,expire两个操作的原子性 
+//分布式锁,redis事务没有隔离性
+@Test 
+public void testRedisLuaDistributeLock()
+{ 
+	InputStream input=TestJedis.class.getResourceAsStream("/redis_jedis/lock.lua");
+	
+	StringBuilder strBuilder=new StringBuilder();
+	 Scanner scanner =new Scanner(input);
+	 while(scanner.hasNextLine())
+	 {
+	 	String line=scanner.nextLine();
+	 	strBuilder.append(line).append("\n");
+	 } 
+	Object res=jedis.eval(strBuilder.toString(),1,"lockExport","user1","30");//参数 键名,值，超时秒
+	System.out.println(res);
+}
+
+------lock.lua
+-- 单行注释
+--[[
+ 多行注释
+没办法在这里暂停
+ --]]  
+
+ -- SETNX 成功设置返回1,失败设置返回0
+local  isSet = redis.call('SETNX', KEYS[1], ARGV[1])
+ if isSet == 1 then
+    redis.call('EXPIRE', KEYS[1], ARGV[2]) 
+   return "success"
+ end
+ return "fail"
+
+
 
 ---------------------------------Redis client  lettuce Spring用这个
  <dependency>
@@ -6769,13 +6486,217 @@ hessian.jar/META-INF/hessian/deserializers
 java.math.BigDecimal=com.caucho.hessian.io.StringValueSerializer
 
 
+-----------------apache dubbo 2.7.x
+(包名org.apache.dubbo开头)
+https://github.com/apache/dubbo
+https://github.com/apache/dubbo-admin
+http://dubbo.apache.org/en-us/  
+http://start.dubbo.io  里面用的还是com.alibaba 不是最新的 (2019-11-20)
 
-------------dubbo   
+有使用Unsafe类，如JDK11报 because module java.base does not export jdk.internal.misc  要用JDK1.8
+ 
+	
+	
+ <dependency>
+    <groupId>org.apache.dubbo</groupId>
+    <artifactId>dubbo-config-spring</artifactId>
+    <version>2.7.4.1</version>
+</dependency>
+ <dependency>
+   <groupId>org.apache.dubbo</groupId>
+   <artifactId>dubbo-registry-zookeeper</artifactId>
+   <version>2.7.4.1</version>
+</dependency>
 
-http://dubbo.io/    2.6.0
-https://github.com/alibaba/dubbo  
+<dependency>
+   <groupId>org.apache.dubbo</groupId>
+   <artifactId>dubbo-rpc-dubbo</artifactId>
+   <version>2.7.4.1</version>
+  </dependency>
+  
+  <dependency>
+   <groupId>org.apache.dubbo</groupId>
+   <artifactId>dubbo-remoting-netty4</artifactId>
+   <version>2.7.4.1</version>
+  </dependency>
+  
+  <dependency>
+   <groupId>org.apache.dubbo</groupId>
+   <artifactId>dubbo-serialization-hessian2</artifactId>
+   <version>2.7.4.1</version>
+  </dependency>
+  <dependency>
+      <groupId>org.apache.dubbo</groupId>
+      <artifactId>dubbo-configcenter-zookeeper</artifactId>
+      <version>2.7.4.1</version>
+  </dependency>
+  <dependency>
+   <groupId>org.apache.dubbo</groupId>
+   <artifactId>dubbo-serialization-hessian2</artifactId>
+   <version>2.7.4.1</version>
+  </dependency>
 
-2.6.0 版本的Dubbo ops组里的 dubbo-admin-2.0.0\WEB-INF\dubbo.properties 默认值如下
+//--common
+package apache_dubbo27;
+public interface GreetingService {
+    String sayHi(String name);
+}
+//--server
+
+如使用spring.xml 不能使用 dubbo-2.7.4.1.jar (xml名称空间为alibabatech)
+ dubbo-config-api-2.7.4.1.jar
+	dubbo-common-2.7.4.1.jar
+	dubbo-rpc-api-2.7.4.1.jar
+		dubbo-rpc-dubbo-2.7.4.1.jar
+		dubbo-remoting-api-2.7.4.1.jar
+		dubbo-rpc-injvm-2.7.4.1.jar
+		dubbo-monitor-api-2.7.4.1.jar
+		dubbo-remoting-netty4-2.7.4.1.jar
+		dubbo-serialization-api-2.7.4.1.jar
+		dubbo-serialization-hessian2-2.7.4.1.jar
+			hessian-lite-3.2.6.jar(alibaba的hession2)
+	dubbo-registry-api-2.7.4.1.jar
+		dubbo-registry-zookeeper-2.7.4.1.jar
+	dubbo-configcenter-api-2.7.4.1.jar
+	dubbo-configcenter-zookeeper-2.7.4.1.jar
+	dubbo-remoting-zookeeper-2.7.4.1.jar
+	dubbo-cluster-2.7.4.1.jar
+	
+package apache_dubbo27_server;
+import org.apache.dubbo.config.ApplicationConfig;
+import org.apache.dubbo.config.RegistryConfig;
+import org.apache.dubbo.config.ServiceConfig; 
+import apache_dubbo27.GreetingService; 
+import java.util.concurrent.CountDownLatch;
+public class Application {
+    private static String zookeeperHost = System.getProperty("zookeeper.address", "127.0.0.1");
+    public static void main(String[] args) throws Exception {
+        ServiceConfig<GreetingService> service = new ServiceConfig<>();
+        service.setApplication(new ApplicationConfig("first-dubbo-provider"));
+        service.setRegistry(new RegistryConfig("zookeeper://" + zookeeperHost + ":2181"));
+        service.setInterface(GreetingService.class);
+        service.setRef(new GreetingsServiceImpl());
+        service.export();
+        System.out.println("dubbo service started");
+        new CountDownLatch(1).await();
+    }
+}
+
+package apache_dubbo27_server;
+import apache_dubbo27.GreetingService;
+public class GreetingsServiceImpl implements GreetingService {
+    @Override
+    public String sayHi(String name) {
+        return "hi, " + name;
+    }
+}
+//--client
+package apache_dubbo27_client;
+import org.apache.dubbo.config.ApplicationConfig;
+import org.apache.dubbo.config.ReferenceConfig;
+import org.apache.dubbo.config.RegistryConfig;
+import apache_dubbo27.GreetingService;
+public class Application { 
+    private static String zookeeperHost = System.getProperty("zookeeper.address", "127.0.0.1");
+    public static void main(String[] args) {
+        ReferenceConfig<GreetingService> reference = new ReferenceConfig<>();
+        reference.setApplication(new ApplicationConfig("first-dubbo-consumer"));
+        reference.setRegistry(new RegistryConfig("zookeeper://" + zookeeperHost + ":2181"));
+        reference.setInterface(GreetingService.class);
+        GreetingService service = reference.get();
+        String message = service.sayHi("dubbo");
+        System.out.println(message);
+    }
+}
+
+如使用spring 加 dubbo-config-spring-2.7.4.1.jar
+
+QoS，全称为Quality of Service, 于动态的对服务进行查询和控制(对服务进行动态的上下线 ) 默认端口是22222
+
+可telnet仿问也 http仿问 curl -i http://localhost:22222/ls
+---dubbo.properties文件 
+dubbo.application.qos.enable=true
+dubbo.application.qos.port=33333
+dubbo.application.qos.accept.foreign.ip=false   #是否允许远程访问
+
+如xml配置方式
+  <dubbo:application name="demo-provider">
+    <dubbo:parameter key="qos.enable" value="true"/>
+    <dubbo:parameter key="qos.accept.foreign.ip" value="false"/>
+    <dubbo:parameter key="qos.port" value="33333"/>
+  </dubbo:application>
+  
+注释@使用方式 如使用放 dubbo-metadata-report-api-2.7.4.1.jar
+
+public class SpringAnnoDubboServer {
+    public static void main(String[] args) throws Exception {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ProviderConfiguration.class);
+        context.start();
+        System.in.read();
+    }
+
+    @Configuration
+    @EnableDubbo(scanBasePackages = "apache_dubbo27_server.anno")
+    @PropertySource("classpath:/apache_dubbo27_server/anno/dubbo-provider.properties")
+    static class ProviderConfiguration {
+        @Bean
+        public RegistryConfig registryConfig() {
+            RegistryConfig registryConfig = new RegistryConfig();
+            registryConfig.setAddress("zookeeper://127.0.0.1:2181");
+            return registryConfig;
+        }
+    }
+}
+-- dubbo-provider.properties
+dubbo.application.name=dubbo-demo-annotation-provider
+dubbo.protocol.name=dubbo
+dubbo.protocol.port=20880
+
+
+
+
+
+public class SpringAnnoDubboClient {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(ConsumerConfiguration.class);
+        context.start();
+        DemoService service = context.getBean("demoServiceComponent", DemoServiceComponent.class);
+        String hello = service.sayHello("world");
+        System.out.println("result :" + hello);
+    }
+
+    @Configuration
+    @EnableDubbo(scanBasePackages = "apache_dubbo27_client.anno")
+    @PropertySource("classpath:/apache_dubbo27_client/anno/dubbo-consumer.properties")
+    @ComponentScan(value = {"apache_dubbo27_client.anno"})
+    static class ConsumerConfiguration {
+
+    }
+} 
+@Component("demoServiceComponent")
+public class DemoServiceComponent implements DemoService {
+    @Reference
+    private DemoService demoService;
+
+    @Override
+    public String sayHello(String name) {
+        return demoService.sayHello(name);
+    }
+
+    @Override
+    public CompletableFuture<String> sayHelloAsync(String name) {
+        return null;
+    }
+}  
+---dubbo-consumer.properties
+dubbo.application.name=dubbo-demo-annotation-consumer
+dubbo.registry.address=zookeeper://127.0.0.1:2181
+
+
+
+------------alibaba dubbo  2.6.0   
+
+2.6.0 版本(包名alibaba开头)的Dubbo ops组里的 dubbo-admin-2.0.0\WEB-INF\dubbo.properties 默认值如下
 dubbo.registry.address=zookeeper://127.0.0.1:2181
 dubbo.admin.root.password=root
 dubbo.admin.guest.password=guest
@@ -6914,7 +6835,7 @@ dubbo consumer 负载均衡策略
 界面上有随机，轮询，最少并发
 
 
-dubbo协议使用默认Hessian二进制序列化,也可使用 kryo,通讯使用mina
+dubbo协议使用默认Hessian二进制序列化(netty),也可使用 kryo,通讯使用mina
 Hessian协议   Dubbo缺省内嵌Jetty作为服务器实现
 Thrift是Facebook捐给Apache
  
@@ -7148,15 +7069,24 @@ array.add(obj1);
 System.out.println(array.toString());
 
 
-JSONObject jsonObject = JSONObject.fromObject(ua);
+JSONObject jsonObject = JSONObject.fromObject(userObject);
 System.out.println("java Object to json : "+ jsonObject); 
 
-JSONArray jsonArrasy = JSONArray.fromObject(ua);
+JSONArray jsonArrasy = JSONArray.fromObject(userObject);
 System.out.println("java Array to json : "+ jsonArrasy); 
 
 
 //String->Object
-UserModel userModel = (UserModel) JSONObject.toBean(JSONObject.fromObject(strJsonObj), UserModel.class);
+//如对象里有一个List<Order>不能正确转换成集合中的对象,Order要有默认构造器  
+Map<String, Class<Order>> classMap = new HashMap<>();
+classMap.put("orders", Order.class);
+UserModel userModel = (UserModel) JSONObject.toBean(JSONObject.fromObject(strJsonObj), UserModel.class,classMap);
+//方式二
+JsonConfig jsonConfig = new JsonConfig();  
+jsonConfig.setRootClass(UserModel.class);  
+jsonConfig.setClassMap(classMap);
+userModel = (UserModel) JSONObject.toBean(JSONObject.fromObject(strJsonObj),jsonConfig);
+		
 System.out.println("userModel: "+ userModel); 
 
 //String->Map
@@ -7309,6 +7239,40 @@ Map<String,Object> map = (Map<String,Object>)jsonObject;
 
 JSONObject json = new JSONObject(map); //Map->JSON
 
+============SnakeYaml
+在线验证yaml的好工具
+https://onlineyamltools.com/prettify-yaml
+
+
+ 最新 yaml-1.2 是2009年制定的  
+ SnakeYaml 只支持 yaml-1.1 , SpringBoot使用这个
+ 
+  <dependency>
+    <groupId>org.yaml</groupId>
+    <artifactId>snakeyaml</artifactId>
+    <version>1.25</version>
+</dependency>
+
+public static void readYaml( ) throws Exception {
+	Yaml yaml = new Yaml();
+	//yaml文件  :后一定有空格
+	URL url = SnakeYamlMain.class.getResource("test.yaml");
+	if (url != null) { 
+		Map map = (Map) yaml.load(new FileInputStream(url.getFile()));
+		Map map1 =   yaml.loadAs(new FileInputStream(url.getFile()),Map.class);
+				
+	}
+}
+
+
+============eo-yaml 
+  支持 yaml-1.2  
+ 
+ <dependency>
+  <groupId>com.amihaiemil.web</groupId>
+  <artifactId>eo-yaml</artifactId>
+  <version>2.0.1</version>
+</dependency>
 
 ============ZkClient
 <dependency>
@@ -7632,6 +7596,14 @@ client.close();
   <artifactId>shiro-ehcache</artifactId>
   <version>1.3.2</version>
 </dependency>
+
+
+<dependency>
+  <groupId>org.apache.shiro</groupId>
+  <artifactId>shiro-spring-boot-web-starter</artifactId>
+  <version>1.4.2</version>
+</dependency>
+
 
 UsernamePasswordToken token = new UsernamePasswordToken("user", "pass");
 Subject currentUser = SecurityUtils.getSubject();
@@ -8200,58 +8172,54 @@ subject.login(token);//只能自己控制跳转页
 ------------shiro spring session
 
 
-
-
-============FastDFS
-跟踪服务和存储服务，跟踪服务控制，调度文件以负载均衡的方式访问；存储服务包括：文件存储，文件同步，提供文件访问接口，同时以key value的方式管理文件的元数据
-跟踪和存储服务可以由1台或者多台服务器组成，同时可以动态的添加，删除跟踪和存储服务而不会对在线的服务产生影响
-存储系统由一个或多个卷组成
-一个卷可以由一台或多台存储服务器组成
-一个卷下的存储服务器中的文件都是相同的，卷中的多台存储服务器起到了冗余备份和负载均衡的作用
-在卷中增加服务器时，同步已有的文件由系统自动完成，同步完成后，系统自动将新增服务器切换到线上提供服务
-
-javaClient 请求 -> Tracker -> 查找可以用的Storage -> 返回javaClient Storage IP port->javaClient 连 Storage
-
-返回串格式   /组名/磁盘名/目录/文件名
-
-Class clazzClientGlobal=Class.forName("org.csource.fastdfs.ClientGlobal");
-Constructor construct=clazzClientGlobal.getDeclaredConstructors()[0];
-construct.setAccessible(true);
-Object obj=construct.newInstance(null);
-ClientGlobal global=(ClientGlobal)obj ;// Spring注入反射实例化
-
- global.setP_g_connect_timeout(2000);
- global.setP_g_connect_timeout(2000);
- global.setP_g_charset("UTF-8");
- global.setP_g_tracker_http_port(8080);
- global.setP_g_anti_steal_token(false); 
- global.setP_g_secret_key("");
- //global.setP_tracker_servers("172.16.35.35:22122");//多个以,分隔
-  global.setP_tracker_servers("172.16.37.41:22122,172.16.37.40:22122");//测试OK
-  global.init1();
-StorageClient1 stclient=new StorageClient1(global);//Spring注入
-byte[] byteArray =getExcelArray();
-Date now=Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-NameValuePair[] meta_list = new NameValuePair[]{
-		  new NameValuePair("fileName", "excel数据.xls"),
-		  new NameValuePair("extName", "exls"),
-		  new NameValuePair("size",  byteArray.length+""),
-//		  new NameValuePair("md5", ""), 
-//		  new NameValuePair("contentType", ""),
-		  new NameValuePair("uploadDate", (new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")).format(new Date())), 
-		  new NameValuePair("creator", "lisi")
-};
- 
-
-Lock lock=new ReentrantLock();
-try{
-	lock.tryLock(30, TimeUnit.SECONDS);
-	//不能两个文件同时上传，如jquery , fileupload插件，当<input type="file" multiple >多选时就会两个同时上传报错
-   String filePath= stclient.upload_file1(byteArray, "xls", meta_list);
-   System.out.println(filePath);
-}finally {
-	lock.unlock();
+------------shiro 自身不支持 oautho2 ,支持JWT，手机端不支持存cookie
+  {
+	 DefaultWebSecurityManager manager =new DefaultWebSecurityManager();
+//	 manager.setRealm(realm);
+	 
+	 //关闭session为手机端没有cookie，未测试 
+	 DefaultSubjectDAO subjectDAO =new DefaultSubjectDAO();
+	 DefaultSessionStorageEvaluator sessionStorageEvaluator=new DefaultSessionStorageEvaluator();
+	 sessionStorageEvaluator.setSessionStorageEnabled(false);
+	 subjectDAO.setSessionStorageEvaluator(sessionStorageEvaluator);
+	 manager.setSubjectDAO(subjectDAO);
+	 manager.setSubjectFactory(subjectFactory());//DefaultSubjectFactory
+	}
+	public   DefaultSubjectFactory subjectFactory( ) {
+		//不确定还有什么 ？？
+		 DefaultSubjectFactory factory=new DefaultSubjectFactory();
+		return  factory;
+	}
+	
+//为JWT，未测试 
+//放到ShiroFilterFactoryBean中的filter属性中 把/**=authc 修改为这个jwt,其它所有用到的拦截器都要修改/增加新的
+//已有的代码 Subject currentUser = SecurityUtils.getSubject().getPrincipal();无效？？？
+// 手机端token， 持浏览器cookie只能分开接入？？？
+public class NoSessionFilter extends BasicHttpAuthenticationFilter {
+	@Override
+	protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) 
+	{
+		//		String[] values=(String[])mappedValue;//当配置 /xx=role[read] 时
+		HttpServletRequest req=(HttpServletRequest)request;
+		String token =req.getParameter("token");//也可放在http header中
+		Subject userInfo=null;//检查token在内存中有吗？登录成功后放Map(Redis带失效时间/DB)中key为随机生成/UUID的token值，value为subject 
+		if(token==null)
+		{
+			System.out.println("未登录");
+			return false;
+		}
+		return true;
+	}
+	@Override
+	protected boolean onAccessDenied(ServletRequest request, ServletResponse response) throws Exception {
+		System.out.println("无权限");
+		response.setContentType("application/json;charset=utf-8");
+		response.getWriter().write("{\"code\":503}");
+		return false;
+	}
 }
+
+
 
 -------------javassit 
 可以没有接口
@@ -8370,13 +8338,404 @@ redis_password=P
 ---devOver.properties 
 redis_password=overP_
 
--------------jCIFS   samba SMB
-	apache commons VFS2 库的CIFS协议 其实是用 jCIFS 
+
+--------- RESTEasy
+<dependency>
+    <groupId>org.jboss.resteasy</groupId>
+    <artifactId>resteasy-jaxrs</artifactId>
+    <version>3.8.1.Final</version>
+</dependency> 
+<dependency>
+	<groupId>org.jboss.spec.javax.ws.rs</groupId>
+	<artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
+</dependency>
+        
+<dependency>
+    <groupId>org.jboss.resteasy</groupId>
+    <artifactId>jaxrs-api</artifactId>
+    <version>3.0.12.Final</version>
+</dependency>
+ 
+#示例版本
+resteasy-jaxrs-3.1.4.Final.jar
+
+#Could not find MessageBodyWriter for response object of type:
+resteasy-jettison-provider-3.1.4.Final.jar
+resteasy-jaxb-provider-3.1.4.Final.jar
+jettison-1.3.3.jar (org/codehaus/jettison/jettison/1.3.3)
 
 
+#新版本测试也可 
+resteasy-core-4.1.1.Final.jar 
+resteasy-core-spi-4.1.1.Final.jar
+microprofile-config-api-1.3.jar
+smallrye-config-1.3.6.jar
+
+jboss-jaxrs-api_2.1_spec-1.0.3.Final.jar  
+reactive-streams-1.0.2.jar 
+
+#Could not find MessageBodyWriter for response object of type
+resteasy-jackson2-provider-4.1.1.Final.jar
+resteasy-jaxb-provider-4.1.1.Final.jar
+jackson-jaxrs-json-provider-2.9.9.jar
+jackson-jaxrs-base-2.9.9.jar
+json-patch-1.9.jar
+jackson-module-jaxb-annotations-2.9.9.jar
+
+
+
+servlet 3.0容器用
+<dependency>
+	<groupId>org.jboss.resteasy</groupId>
+	<artifactId>resteasy-servlet-initializer</artifactId>
+	<version>${resteasy.version}</version>
+</dependency>
+
+老的servlet容器用 web.xml
+<servlet>
+    <servlet-name>Resteasy</servlet-name>
+    <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+    <init-param>
+      <param-name>javax.ws.rs.Application</param-name>
+  		<param-value>swagger2_oas3_resteasy.MyApplication</param-value>
+    </init-param>
+ </servlet> 
+  <servlet-mapping>
+    <servlet-name>Resteasy</servlet-name>
+    <url-pattern>/sample/*</url-pattern>   */
+  </servlet-mapping>
+  <!--如果servlet-mapping不是/*  就要加配置 */ -->
+  <context-param>
+    <param-name>resteasy.servlet.mapping.prefix</param-name>
+    <param-value>/sample</param-value>
+  </context-param>
+  
+
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import swagger2_oas3_resteasy.user_store.PetStoreResource;
+import swagger2_oas3_resteasy.user_store.UserResource;
+
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+@ApplicationPath("/sample") //和web.xml对应
+//在swagger-ui中请示是 http://localhost:8080/sample/user/user1 
+//如何设置webContext???
+public class MyApplication extends Application {
+    @Override
+    public Set<Class<?>> getClasses() {
+        return Stream.of(PetResource.class, 
+        		PetStoreResource.class,UserResource.class,
+						OpenApiResource.class//就可以请求${pageContext.request.contextPath}/sample/openapi.json(.yaml) 为swagger-ui使用 
+        		      ).collect(Collectors.toSet());
+    }
+}
+
+
+
+-------------Swagger 
+类似的有 RAML(RESTful API Modeling Language)
+
+新版本使用OpenAPI
+OpenAPI最新 3.0 版本 OpenAPI Specification (OAS)
+有用 OAuth2
+
+---Swagger-Core
+CXF 3.3.2  也支持OpenApi 3.0.x
+https://github.com/swagger-api/swagger-core
+Swagger Core 2.X produces OpenApi 3.0 definition files
+2.0.8
+
+使用 Jackson 库
+
+RESTEasy-4.1.1.Final (jBoss项目)实现了 JAX-RS 2.1 规范 
+Jersey  (毛线衫) 扩展 JAX-RS  2.0 规范，可以和2.1版本的sse(Server Send Event)功能一起用
+javax.ws.rs.sse包(Server Send Event)是JAX-RS 2.1的功能
+
+swagger-jersey2-jaxrs.jar 包 支持 JAX-RS 2.0
+
+
+ 
+ <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-jaxrs2</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-jaxrs2-servlet-initializer</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+
+    <dependency>
+    <groupId>io.github.classgraph</groupId>
+    <artifactId>classgraph</artifactId>
+    <version>4.8.43</version>
+</dependency>
+
+------swagger 2.0.8  OAS-3.0 deps   可以和 swagger1 一起用
+jboss-logging-3.3.0.Final.jar
+commons-lang3-3.5.jar
+jackson-dataformat-yaml-2.9.5.jar 
+
+jaxrs-api-3.0.12.Final.jar
+swagger-jaxrs2-2.0.8.jar
+swagger-jaxrs2-servlet-initializer-2.0.8.jar
+swagger-annotations-2.0.8.jar
+swagger-integration-2.0.8.jar
+swagger-core-2.0.8.jar
+swagger-models-2.0.8.jar
+
+
+RESTEasy 配置web.xml  (配置 javax.ws.rs.Application 实现类)
+ 
+
+@Path("/pet")
+@Produces({"application/json", "application/xml"})
+public class PetResource {
+  static PetData petData = new PetData();
+
+  @GET
+  @Path("/{petId}")
+  @Operation(summary = "Find pet by ID",
+    tags = {"pets"},
+    description = "Returns a pet when 0 < ID <= 10.  ID > 10 or nonintegers will simulate API error conditions",
+    responses = {
+            @ApiResponse(description = "The pet", content = @Content(
+                    schema = @Schema(implementation = Pet.class)
+            )),
+            @ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
+            @ApiResponse(responseCode = "404", description = "Pet not found")
+    })
+  public Response getPetById(
+      @Parameter(
+              description = "ID of pet that needs to be fetched",
+              schema = @Schema(
+                      type = "integer",
+                      format = "int64",
+                      description = "param ID of pet that needs to be fetched",
+                      allowableValues = {"1","2","3"}
+              ),
+              required = true)
+      @PathParam("petId") Long petId) throws io.swagger.sample.exception.NotFoundException //@PathParam的值对应于上面的@Path的值
+  {
+    Pet pet = petData.getPetById(petId);
+    if (null != pet) {
+      return Response.ok().entity(pet).build();
+    } else {
+      throw new io.swagger.sample.exception.NotFoundException(404, "Pet not found");
+    }
+  }
+
+
+
+}
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "Pet")
+public class Pet {
+  @Schema(required = true, example = "[2, 3]")
+  private int[] lorem;
+  
+  @XmlElement(name = "status")
+  @Schema(description = "pet status in the store", allowableValues = "available,pending,sold")
+  public String getStatus() {
+    return status;
+  }
+  
+  @XmlElementWrapper(name = "tags")
+  @XmlElement(name = "tag")
+  public List<Tag> getTags() {
+    return tags;
+  }
+  
+}
+
+Http头  
+Accept : application/json 返回json
+Accept : application/xml 返回xml 
+
+http://127.0.0.1:8080/J_ThirdLibWeb/sample/pet/1
+
+//测试下来，这个没用？？？？
+@Provider
+public class SampleExceptionMapper implements ExceptionMapper<Exception> {
+}
+//好像没有什么用
+@Provider
+public class JsonProvider implements ContextResolver<ObjectMapper> {
+}
+
+
+--- Swagger-Inflector
+Mock responses for any unimplemented methods, based on your OAS definition.
+
+---- swagger-editor
+下载源码 v3.6.31  2019-07-24
+
+npm install 
+npm run build  就可以双击index.html查看在线实时编辑，实时显示效果
+
+#如要构建docker镜像
+#docker build -t swagger-editor
+#docker run -d -p 80:8080 swagger-editor
+# 查看 http://localhost
+
+可以打开 OpenAPI的json或者yaml (File -> Import File 或 File -> Import URL)
+
+
+---docker版本 swagger-editor
+docker pull swaggerapi/swagger-editor
+docker run -d -p 80:8080 swaggerapi/swagger-editor
+
+---swagger-ui
+源码 版本v3.23.1  2019-07-24
+
+
+--- 方式1  测试OK
+npm init 
+npm install swagger-ui-dist --save
+npm install express --save 
+
+-- vi swagger-ui-server.js
+const express = require('express')
+const pathToSwaggerUi = require('swagger-ui-dist').absolutePath()
+
+const app = express()
+
+app.use(express.static(pathToSwaggerUi))
+
+app.listen(3000)
+
+启动服务 node swagger-ui-server.js 就可仿问  http://127.0.0.1:3000/
+但不可在Explore地栏写系统路径,
+如输入 http://127.0.0.1:8080/J_ThirdLibWeb/my-swagger-ui/swagger.json 报 cross-origin (CORS) 响应头要求加 'Access-Control-Allow-*' 
+
+写个通用的Filter
+ res.addHeader("Access-Control-Allow-Origin", "*");
+ res.addHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
+ res.addHeader("Access-Control-Allow-Headers", "Content-Type");
+    
+--- 测试OK
+node_modules/swagger-ui-dist 的内容 (或者源码目录/dist)直接复制到自己的项目目录中，修改index.html中配置json文件
+ 	const ui = SwaggerUIBundle({
+       //url: "https://petstore.swagger.io/v2/swagger.json",
+        //localhost 和 127.0.0.1 不同是cross-origin (CORS)
+        //url:"http://localhost:8080/J_ThirdLibWeb/swagger-ui-v2/swagger-ui-dist/sample.json",
+        // url:"sample.json",
+         //url:"http://localhost:8080/J_ThirdLibWeb/sample/openapi.json",
+        //url:"../../sample/openapi.json",
+        url:"../../sample/openapi.yaml",
+     }
+
+跨域 请求json使用fetch api, 返回没有响应头？？？
+
+
+--- 方式 2   无法试 ???
+npm install swagger-ui --save 
+为 Webpack
+
+import SwaggerUI from 'swagger-ui'
+// or use require, if you prefer
+const SwaggerUI = require('swagger-ui')
+
+SwaggerUI({
+  dom_id: '#myDomId'
+})
+
+
+
+---docker版本 swagger-ui
+3.18.3
+
+docker pull swaggerapi/swagger-ui
+docker run -p 80:8080 swaggerapi/swagger-ui 
+会使用nginx 启动，带有 Swagger UI,就可仿问 http://127.0.0.1/ 默认地址栏是 https://petstore.swagger.io/v2/swagger.json 可以下载到/home/dell/Documents目录下
+
+docker run -p 80:8080 -e SWAGGER_JSON=/foo/swagger.json -v /home/dell/Documents:/foo swaggerapi/swagger-ui  
+启动后 Explore中地址显示为./swagger.json ,Explore按钮是立即解析json,不是浏览选择文件，只能复制粘贴地址
+
+
+docker run -p 80:8080 -e BASE_URL=/swagger -e SWAGGER_JSON=/foo/swagger.json -v /home/dell/Documents:/foo swaggerapi/swagger-ui
+仿问 http://127.0.0.1/ 报404 ??? ？？？  http://127.0.0.1/swagger 也不行 ??? ？？？ 
+This will serve Swagger UI at /swagger instead of /.
+
+
+---codegen
+<dependency>
+    <groupId>io.swagger.codegen.v3</groupId>
+    <artifactId>swagger-codegen-maven-plugin</artifactId>
+    <version>3.0.8</version>
+</dependency>
+
+http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.7/swagger-codegen-cli-2.4.7.jar
+ 
+java -jar swagger-codegen-cli-2.4.7.jar help
+java -jar swagger-codegen-cli-2.4.7.jar  langs 显示支持的语言
+
+java -jar swagger-codegen-cli-2.4.7.jar help generate
+java -jar swagger-codegen-cli-2.4.7.jar  config-help -l java
+
+java -jar swagger-codegen-cli-2.4.7.jar generate -l  java -o out_dir -i xxx.yaml 或 xxx.json  
+ 如是java语言是java client代码，有gradle,maven,AndroidManifest.xml,依赖于swagger-annotations是1.5的版本
+ 如是spring用的是 springfox-swagger2，swagger-annotations 还是1.5版本
+ 
+
+
+=======================pinyin4j
+import net.sourceforge.pinyin4j.PinyinHelper;
+import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
+import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
+import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
+
+public static String getPingYin(String src)
+{
+
+	char[] t1 = null;
+	t1 = src.toCharArray();
+	String[] t2 = new String[t1.length];
+	HanyuPinyinOutputFormat t3 = new HanyuPinyinOutputFormat();
+	t3.setCaseType(HanyuPinyinCaseType.LOWERCASE);
+	//t3.setToneType(HanyuPinyinToneType.WITH_TONE_MARK);
+	t3.setToneType(HanyuPinyinToneType.WITHOUT_TONE); 
+	t3.setVCharType(HanyuPinyinVCharType.WITH_V);
+	String t4 = "";
+	int t0 = t1.length;
+	try
+	{
+		for (int i = 0; i < t0; i++)
+		{
+			// 判断是否为汉字字符
+			if (java.lang.Character.toString(t1[i]).matches("[\\u4E00-\\u9FA5]+"))
+			{
+				t2 = PinyinHelper.toHanyuPinyinStringArray(t1[i], t3);
+				t4 += t2[0]+" ";
+			} else
+				t4 += java.lang.Character.toString(t1[i])+" ";
+		}
+		// System.out.println(t4);
+		return t4;
+	} catch (BadHanyuPinyinOutputFormatCombination e1)
+	{
+		e1.printStackTrace();
+	}
+	return t4;
+}
+String cnStr = "中华人民共和国";
+System.out.println(getPingYin(cnStr));
 
 
 -------------Reactor 
+https://projectreactor.io/
+
 <dependency>
 	<groupId>io.projectreactor</groupId>
 	<artifactId>reactor-core</artifactId>
@@ -8560,6 +8919,11 @@ public class Reactor3Example {
 }
 
 -------------Reactor  上
+
+-------------akka
+
+
+
 -------------OAuth 2.0  
 Open Authorization
 
@@ -8568,54 +8932,10 @@ resource server	 是API服务器 使用access token,返回保护的资源
 client			应用
 authorization server 保存用户密码的服务器
 ---client sparklr2
-
--------------Swagger 
-类似的有 RAML(RESTful API Modeling Language)
-
-新版本使用OpenAPI
-OpenAPI最新 3.0 版本 OpenAPI Specification (OAS)
-有用 OAuth2
-
-
-
----docker版本 swagger-editor
-docker pull swaggerapi/swagger-editor
-docker run -d -p 80:8080 swaggerapi/swagger-editor
-
----docker版本 swagger-ui
-3.18.3
-
-docker pull swaggerapi/swagger-ui
-docker run -p 80:8080 swaggerapi/swagger-ui
-
-
----codegen
-<dependency>
-    <groupId>io.swagger.codegen.v3</groupId>
-    <artifactId>swagger-codegen-maven-plugin</artifactId>
-    <version>3.0.8</version>
-</dependency>
-
-http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.7/swagger-codegen-cli-2.4.7.jar
- 
-java -jar swagger-codegen-cli-2.4.7.jar help
-java -jar swagger-codegen-cli-2.4.7.jar  langs 显示支持的语言
-
-java -jar swagger-codegen-cli-2.4.7.jar help generate
-java -jar swagger-codegen-cli-2.4.7.jar  config-help -l java
-
-java -jar swagger-codegen-cli-2.4.7.jar generate -l  java -o out_dir -i xxx.yaml 或 xxx.json  
- 如是java语言是java client代码，有gradle,maven,AndroidManifest.xml,依赖于swagger-annotations是1.5的版本
- 如是spring用的是 springfox-swagger2，swagger-annotations 还是1.5版本
- 
  
 
 
-
-
-
-
-
-
-
-
+-------------jCIFS   samba SMB
+	apache commons VFS2 库的CIFS协议 其实是用 jCIFS 
+	
+  

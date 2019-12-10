@@ -1,4 +1,5 @@
  Spring 5.0 WebFlux 基于 Reactive Stream ,而Reactive Stream 已经有JDK9的Flow实现了，刚出来就过时了
+ 也是基于 Reactor 
 =========================Spring MVC
 <servlet>
 	<servlet-name>spring_mvc</servlet-name>
@@ -560,6 +561,10 @@ public String login(@ModelAttribute("account") Account account)//表单对应的
 	<form:input  path="username" /><!-- 是属性名 -->
 
 
+@Configuration
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+}
 
 @EnableWebMvc  同  <mvc:annotation-driven/>
 @Configuration
@@ -1161,6 +1166,29 @@ function jQueryJSONListRequest()
 spring-web-4.0.6.RELEASE.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中是 SpringServletContainerInitializer (实现了标准的servlet类 ServletContainerInitializer ),
  内部读取了 实现 WebApplicationInitializer  类(spring自己 为不使用web.xml设计)
 
+//相当于web.xml
+public class SpringMVCInitializer extends AbstractAnnotationConfigDispatcherServletInitializer 
+{ 
+	//spring容器
+	@Override
+	protected Class<?>[] getRootConfigClasses() {
+		return new Class[] {
+//				Config.class
+				} ;
+	}
+	//servletContext
+	@Override
+	protected Class<?>[] getServletConfigClasses() {
+		return  new Class[] {
+//				WebConfig.class
+		};
+	}
+	//url-mapping
+	@Override
+	protected String[] getServletMappings() {
+		return new String[] {"/"};
+	}
+}
 
 @ControllerAdvice("spring_jsp.annotation")
 //@ControllerAdvice(assignableTypes = {Controller.class, AbstractController.class})

@@ -1,6 +1,4 @@
 
-mysql优化配置，mysql集群，热备，故障切换，mysql服务器管理
-
 ACID 
 A: atomicity.
 C: consistency.
@@ -13,8 +11,7 @@ D: durability.
 或者配置mysql   的my.ini 
 或者“我的电脑”上点击右键－“属性”－“硬件”－“设备管理器”，然后点击“查看”，勾上“显示隐藏的设备”，然后在下面找到“beep”并双击，将其改成“不要在当前硬件配置文件中使用这个设备（停用）” 
 
-
-linux下安装mysql在bin/mysqlaccess 18行改$PATH=指定安装的路径,最好是(/usr/local/mysql)
+ 
 ------------MySQL-8 windows zip 版
 my.ini
 
@@ -63,7 +60,8 @@ basedir=E:\\Program\\mysql-5.7.18-winx64\\mysql-5.7.18-winx64
 datadir=E:\\Program\\mysql-5.7.18-winx64\\data
 ---
 sql-mode="STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
-max_connections=100			###  最大连接数 
+max_connections=200			###  最大连接数  默认值 151
+
 port=3306
 
 mysql -h 127.0.0.1 -P 3306 -u root -proot -D test
@@ -135,7 +133,7 @@ windows  还原 mysql的root密码
 net start(stop) mysql 
 
 ==============linux MySQL  安装
-/usr/local/mysql/bin/mysql_config --libs --cflags
+/usr/local/mysql/bin/mysql_config --libs --cflags  C开发
 
 ---------mysql 源码安装
 
@@ -204,7 +202,10 @@ mysqladmin variables -uroot -proot >variables.txt //如没有innodb ,
 show variables like 'storage_engine'  
   
 日志：vi /usr/local/mysql/var/[hostname].err
---- linux 二进制安装 mysql-5.7.17
+
+
+
+--- linux 二进制安装 mysql-5.7.17   / 8
 
 看doc
 shell> groupadd mysql
@@ -215,35 +216,36 @@ shell> cd /usr/local/mysql     #mysql8 版本可以安装在/opt目录下
 shell> mkdir mysql-files
 shell> chmod 750 mysql-files
 shell> chown -R mysql .
-shell> chgrp -R mysql .
--- shell> bin/mysql_install_db --user=mysql # Before MySQL 5.7.6
-shell> bin/mysqld --initialize --user=mysql # MySQL 5.7.6 and up  不指定配置默认在data目录 
+shell> chgrp -R mysql . 
+shell> bin/mysqld --initialize --user=mysql #不指定配置默认在data目录 
 --defaults-file=/zh/mysql-files/my.cnf   
 --explicit_defaults_for_timestamp --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --log-error=/usr/local/mysql/mysql-files/mysql-error.log 
 提示生成了临时的 root@localhost的密码
 
-shell> bin/mysql_ssl_rsa_setup # MySQL 5.7.6 and up
+shell> bin/mysql_ssl_rsa_setup  #不指定--datadir默认在/usr/local/mysql/data 目录 
 --datadir=/usr/local/mysql/data 
 shell> chown -R root .
-shell> chown -R mysql data mysql-files
--- shell> bin/mysqld_safe --user=mysql &
-# Next command is optional
-shell> cp support-files/mysql.server /etc/init.d/mysql.server   -- openSUSE-15不行
-
-
-建立用户
-
-5.7.20版本没有support-files/my-default.cnf 
-#cp support-files/my-default.cnf  /zh/mysql-files/my.cnf  #文件内容比较空，
-
+shell> chown -R mysql data mysql-files 
+ 
 bin/mysqld --verbose --help
+
+可以mysqld启动不指定my.cnf
+
+---my.cnf
 [mysql]
-#default-character-set=utf8 
+default-character-set=utf8 
 [mysqld]
+default-storage-engine=INNODB
+character_set_server=UTF8MB3
+basedir =/opt/mysql-8.0.15-linux-glibc2.12-x86_64  --默认值是/usr/local/mysql/
+datadir =/zh/mysql-files/data
+port =3306
+socket =/zh/mysql-files/mysql.sock  #默认/tmp/mysql.sock
+
+
+
 #log_bin=ON
 #server-id =1  			#变量是server_id(show variables like 'server_id'),命令行是 --server-id
-#default-storage-engine=INNODB
-character_set_server=utf8    #新版本是 UTF8MB3
 #lc-messages-dir=/zh/mysql-files/share    
 	-- 不加正常默认值为<basedir>/share/(但目录中有很多文件,但没有errmsg.sys)
 	-- 加了报ERROR没有/zh/mysql-files/share/errmsg.sys文件,但能使用
@@ -254,10 +256,6 @@ character_set_server=utf8    #新版本是 UTF8MB3
 #skip-grant-tables=ON
 #explicit_defaults_for_timestamp=ON
 
-basedir =/zh/mysql-5.7.17-linux-glibc2.5-x86_64  --默认值是/usr/local/mysql/
-datadir =/zh/mysql-files/data
-port =3308
-socket =/zh/mysql-files/mysql.sock  #默认/tmp/mysql.sock
 
 如一台机器有多个mysql 要设置如下参数
  --port 
@@ -272,15 +270,20 @@ socket =/zh/mysql-files/mysql.sock  #默认/tmp/mysql.sock
 --log-error[=file_name] 
 --tmpdir=dir_name 
 
- 
+-------
+
 bin/mysqld  --defaults-file=/zh/mysql-files/my.cnf   --initialize --user=mysql   #日志中会提示有root临时密码
 bin/mysql_ssl_rsa_setup  --datadir=/zh/mysql-files/data
  --defaults-file=/zh/mysql-files/my.cnf 
---启动 mysql
+ 
+启动 mysql
 su - mysql
 bin/mysqld  --defaults-file=/zh/mysql-files/my.cnf 
 
-bin/mysql -u root   -P 3308  -h localhost -S /zh/mysql-files/mysql.sock  #临时密码,对不知道root密码不能登录
+#二进制解压 ldd bin/mysql openSUSE-leap-15.1报找不到  libtinfo.so.5 安装zypper install libncurses5 即可
+
+
+bin/mysql -u root   -P 3306  -h localhost -S /zh/mysql-files/mysql.sock  #临时密码,对不知道root密码不能登录
 mysqladmin 默认读配置顺序/etc/my.cnf /etc/mysql/my.cnf /usr/local/mysql/etc/my.cnf ~/.my.cnf 
 
 linux 还原 mysql 的 root密码方法	 
@@ -298,12 +301,11 @@ linux 还原 mysql 的 root密码方法
     grant all on mysql.* to root@'%';
 	
 --停止mysql
-bin/mysqladmin  -u root -p -P 3308 -S /zh/mysql-files/mysql.sock shutdown     提示密码过期,要修改,-h localhost 也要加-S ,除非-h 127.0.0.1(可能要能远程登录)
+bin/mysqladmin  -u root -p -P 3306 -S /zh/mysql-files/mysql.sock shutdown     提示密码过期,要修改,-h localhost 也要加-S ,除非-h 127.0.0.1(可能要能远程登录)
 	  ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';  -- password expire never
 	  SET PASSWORD FOR 'root'@'localhost' = PASSWORD('new_root');
 	
-/etc/init.d/mysql  stop
-
+ 
 ---修改root密码
 mysqladmin -uroot -p  password root   -S /zh/mysql-files/mysql.sock
 mysqladmin -u用户名 -p旧密码 password 新密码  -h 主机 -S socket文件路径
@@ -312,7 +314,7 @@ mysqladmin -uroot  -p password root   -S /zh/mysql-files/mysql.sock
 ---- openSUSE 15 使用 mysql 客户端 要libtinfo.so.5 而实际上有libncurses6-6.1 ,zypper install libncurses5
  
 
-==========MySQL NDB cluster 7.1  solaris----OK   现在已经有7.6.9版本了
+==========MySQL NDB cluster 7.1  solaris----OK   现在已经有7.6.12版本了
 MySQL 8.0版本不能使用NDB Cluster只能用InnoDB Cluster
 
 无共享存储设备 （Share Nothing）
@@ -456,12 +458,16 @@ JDBC连接SQL节点 OK,
 
 ==========MySQL InnoDB cluster
 要MySQL 8.0版本
+mysql-8.0.15-linux-glibc2.12-x86_64.tar.xz  自带 mysqlrouer命令
 
 至少3个MySQL服务实例，每个实例运行 Group Replication 
+MySQL Router连接Primary节点，两个Secondary节点从Primary节点同步数据，MySqlShell管理Primary节点
+
  AdminAPI 
  Time for Node Failure Recovery 要 30 seconds or longer 
 支持 MVCC，Transactions 支持所有的,而NDB只支持 READ COMMITTED
 
+dba.createCluster() 
 
 mysqlsh js > dba.help('getCluster')
 mysqlsh js > dba.configureInstance()
@@ -542,8 +548,9 @@ UNLOCK TABLES;
 限制
  多主节点不支持SERIALIZABLE的事务隔离级别
  多主节点如有select ...for update 可死锁
- 不可大事务 group_replication_transaction_size_limit
+ 不可大事务 group_replication_transaction_size_limit 默认约143 MB
  多主节点不支持cascade外键
+  
  。。。。
  
 
@@ -556,6 +563,7 @@ multi-primary模式即为多写方案，即写操作会下发到组内所有节�
    当不同实例并发对同一行发起修改，在同个组内广播认可时，会出现并发冲突，那么会按照先执行的提交，后执行的回滚
    
 一组中只可用一种模式
+一组中最多9个成员
 
  
  
@@ -573,7 +581,7 @@ bin/mysqld --initialize-insecure --basedir=$PWD  --datadir=$PWD/group-repl-data/
 bin/mysqld --initialize-insecure --basedir=$PWD  --datadir=$PWD/group-repl-data/s2
 bin/mysqld --initialize-insecure --basedir=$PWD --datadir=$PWD/group-repl-data/s3
 
-不建议生产环境用--initialize-insecure 因root密码为空
+不建议生产环境用--initialize-insecure 因root密码为空  --initialize --user=mysql   #日志中会提示有root临时密码
 
 vi $PWD/group-repl-data/s1/s1.cnf
  [mysqld]
@@ -593,6 +601,7 @@ vi $PWD/group-repl-data/s1/s1.cnf
  #group replication config
  transaction_write_set_extraction=XXHASH64   这个是默认值
  #开始不认这个选项前加loose-前缀可启动，后面安装插件后就可去除loose-前缀
+ plugin_load_add='group_replication.so'
  group_replication_group_name="8cb03f62-5ad5-11e9-9a7d-588a5a3bf786"   使用SELECT UUID()生成值   
  group_replication_start_on_boot=off
  group_replication_local_address= "127.0.0.1:24901"   这个端口每个文件不一样是seeds中的值

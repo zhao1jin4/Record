@@ -9,9 +9,6 @@ http://www.runoob.com/python3/python3-tutorial.html
 
  
 
-国内仓库是豆瓣源
- 
- 
 ----- tool
 eclipse marketplace安装  Python 插件 PyDev-6.2 
 
@@ -64,6 +61,7 @@ python3 setup.py build
 python3 setup.py install  默认安装在 /usr/local/bin/pip
 
 就可以用 pip命令了 usr/local/bin/pip install PyMySQL  
+pip install -r requirements.txt  	在requirements.txt中每行写一个依赖名,也可带版本如Django>=2.0,<3.0
 提示要TLS/SSL 不影响使用
 可不设置 PYTHONPATH=/usr/local/lib/python3.6/site-packages/PyMySQL-0.8.0-py3.6.egg
 
@@ -76,8 +74,168 @@ pip3 install Scrapy  				windows下要 Visual C++ 14.0 (VC2015)
 pip3 install --upgrade tensorflow 	默认CPU 
 
 python -m pip install --upgrade pip 来升级pip到10.0.1
------
+pip install --upgrade pip
 
+如报  module 'importlib._bootstrap' has no attribute 'SourceFileLoader' 
+执行 sudo python3 -m ensurepip --upgrade  重新安装 setuptools 工具
+
+---配置本地默认源
+
+国内仓库是豆瓣源 https://pypi.doubanio.com/simple/
+
+pip3 install -i https://pypi.doubanio.com/simple/ Django
+pip install --index-url https://mirrors.aliyun.com/pypi/simple/  Django
+
+
+$ mkdir ~/.pip
+$ tee ~/.pip/pip.conf <<-'EOF'
+[global]
+index-url = https://mirrors.aliyun.com/pypi/simple/
+[install]
+trusted-host= mirrors.aliyun.com
+EOF
+
+pip uninstall Django
+
+------------pip 私有仓库服务 Nexus
+https://help.sonatype.com/repomanager3 
+https://help.sonatype.com/repomanager3/formats/pypi-repositories
+ 
+还支持Docker, APT，YUM (linux的),P2(eclipse的）,go仓库,pypi(pip)仓库
+
+上方第二个设置(Server Administration and Configuration)按钮 -> 左侧菜单 Repository->Repositories-> Create Repository 按钮->
+pypi(hosted) 可用于上传本私服
+pypi(proxy) 可配置公网 Remote Storage 填入	
+	 https://pypi.org/ 
+	 
+pypi(group) 上面建的两个放一起(最好hosted类型的放最上)，如这里起名为my-pypi-group,生成地址为 http://127.0.0.1:8081/repository/my-pypi-group/
+
+--- vi ~/.pip/pip.conf
+[global]
+index = http://localhost:8081/repository/my-pypi-group/pypi/
+index-url = http://localhost:8081/repository/my-pypi-group/simple/
+
+打印配置
+pip config list -v
+测试成功，可以当前服务没有的东西从代理上下载,服务上就有东西了
+
+--- vi ~/.pypirc  即 twine
+[distutils]
+index-servers =
+pypi
+[pypi]
+repository: http://localhost:8081/repository/pypi-internal/
+username: admin
+password: admin123
+
+#pypi-internal 是配置的hosted名字，但group中查不到，如更换group就上传不了
+
+python setup.py sdist upload -r local 上传后，目录就有东西了(setup.py参考下面内容)
+
+
+pip install  magetool 发现是从localhost下载的，中间报错，检查后发现版本升级是否从官方下的，不对？？
+
+------------------pip 私有仓库服务 pypiserver (小型的) 
+
+https://github.com/pypiserver/pypiserver
+https://wiki.python.org/moin/PyPiImplementations 有几种实现
+
+直接在线安装  
+sudo pip install pypiserver
+
+离线安装
+下载 pypiserver-1.3.0-py2.py3-none-any.whl
+pip install ~/Downloads/pypiserver-1.3.0-py2.py3-none-any.whl
+
+
+mkdir /opt/pip-repo
+cd /opt/pip-repo/
+
+下载要用到的包(如mako包) 到仓库目录
+pip download -d /opt/pip-repo/ mako
+	-d, --dest
+
+启动 pypiserver 服务
+pypi-server -p 8080  /opt/pip-repo/ &
+
+就可仿问 http://127.0.0.1:8080/simple/  
+下载地址为 http://127.0.0.1:8080/packages/
+
+
+修改pip客户端 index-url 指向私服地址 ， extra-index-url 指向公网
+tee ~/.pip/pip.conf <<-'EOF'
+[global]
+index-url = http://10.31.194.124:8080/simple
+extra-index-url = https://mirrors.aliyun.com/pypi/simple/
+[install]
+trusted-host = 10.31.194.124
+EOF
+
+
+客户端下载也只能服务端配置目录有的才行，不像maven一样，如服务端没有自动在服务端增加
+
+配置上传密码 Apache htpasswd 
+pip install passlib （可能已经安装）
+htpasswd -sc htpasswd.txt user1 提示输入密码，生成文件
+pypi-server -p 8080 -P htpasswd.txt  /opt/pip-repo/ & 
+
+=====上传包方法
+示例 https://github.com/pypa/sampleproject/blob/master/setup.py
+
+--setup.py
+from setuptools import setup, find_packages
+setup(
+ name = "magetool",
+ version = "0.1.0",
+ keywords = ("pip", "pathtool","timetool", "magetool", "mage"),
+ description = "time and path tool",
+ long_description = "time and path tool",
+ license = "MIT Licence",
+ url = "http://www.abc.com",
+# author = "mage",
+# author_email = "mage@xx.com",
+ packages = find_packages(),
+ include_package_data = True,
+ platforms = "any",
+ install_requires = []
+)
+--
+ python3 setup.py bdist_egg   #生成 dist/magetool-0.1.0-py3.6.egg 支持 easy_install 
+
+ python3 -m pip install --user --upgrade setuptools wheel
+ python3 setup.py sdist bdist_wheel  #生成 dist/magetool-0.1.0-py3-none-any.whl 文件
+ 
+ python3 setup.py sdist     # 生成类 dist/magetool-0.1.0.tar.gz，支持 pip
+
+--~/.pypirc  即用 setuptools
+[distutils]
+index-servers =
+  local
+  
+[local]
+repository: http://127.0.0.1:8080
+username: user1
+password: user1
+ 
+---    
+python setup.py sdist upload -r local 上传后，目录就有东西了
+
+客户端使用 pip3 install magetool  --user 不是从这个服务上下载，不行？？？
+–user参数的意思是安装给当电脑的当前用户，
+
+ pip3 install   --index-url http://10.31.194.124:8080/simple magetool   ，不行？？？ 
+---配置 easy_install 仓库 
+建立 ~/.pydistutils.cfg 文件 
+[easy_install]
+index_url = http://10.31.194.124:8080/simple
+
+--- 可以使用docker镜像  
+docker run -p 80:8080 -v ~/packages:/data/packages pypiserver/pypiserver:latest
+-v :前是主机目录，:后是容器中的目录
+-p 格式 本机端口:docker端口
+ 
+
+-----
 
 可以 python test.py  但文件内容要为UTF-8的编码才行
 

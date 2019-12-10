@@ -8,6 +8,7 @@ windows版本直接 zkServer.cmd  启动
 bin/zkServer.sh start  / start-foreground / stop 
 bin/zkServer.sh status 看是leader
 
+bin/zkEnv.sh 修改 -Xmx 设置 ZK_SERVER_HEAP 默认1000m 可修改为200m
 
 ----zoo.cfg
 clientPort=2181  	监听端口
@@ -67,6 +68,7 @@ bin/zkCli.sh -server 127.0.0.1:2181   可以选项 -timeout 0 毫秒  -r 表示�
 ] create /zk_test my_data    
 ] create -s -q /tmp my_tmp_data   可加-s 表示序列,节点名后加序列号,可做分布式主键生成器,-e 表示临时
 ] create /acl_ip_test ip:10.1.5.225:crwda   			crwda=create,read,write,delete,admin
+# create path data acl
 ] create /acl_digest_test digest:myuser:CmVSQ2nhuKrMPNW7BK6HrthawaY=:crwda   中间myuser:CmVSQ2nhuKrMPNW7BK6HrthawaY=是使用DigestAuthenticationProvider.generateDigest("myuser:mypass")生成的
 也可以使用 setAcl  /acl_ip_test ip:10.1.5.225:crwda 
 
@@ -257,6 +259,9 @@ config 面板 Servers配置中S=Standard,O=observer
 
 配置后Control Panel就会每台机器的例表,4LTR...按钮可以运行4字命令, 有自动重启,日志清除 
 Explorer标签 查看和修改 目录树
+
+------------
+
 
 
 

@@ -31,9 +31,30 @@ win10 微软五笔
 	
 bing,baidu.com 搜索引擎支持  site:xxx.com   要搜索的内容     的格式来搜索
 
+
+
+
+
+========LibreOffice
+---Writer 
+
+插入->目录和索引->内容目录,索引及文献目录
+视图->导航(F5) ->点打开/关闭列表框 可以看目录
+
+编辑->追踪修订->开始记录更改   接受
+
+
+---Calc 问题
+如果过滤一列中的值,选择其它的列复制时会把过虑的也复制上
+
+========WPS  
+linux WPS-2019 字体丢失  Symbol,Wingdings,Wingdings2,Wingdings3,Webdings,MT Extra
+复制所有.ttf 文件 到 /usr/share/fonts/truetype/
+
+--------Office
 下载地址	http://www.msdn.hk/
 			https://msdn.itellyou.cn/
-			
+
 Office 2016/2019 安装目录 C:\Program Files\Microsoft Office\root\Office16  
 
 Office 2016 Professinal Plus 可以安装在win7 Unlimited上 ,自己的电脑win7 Unlimited在打开word后内存总是爆涨，最好还是用Office 2010
@@ -41,7 +62,6 @@ Office 2016 Professinal Plus 可以安装在win7 Unlimited上 ,自己的电脑wi
 
 Office 2019 只能安装在 win10上, Project 2019其实就是Project 2016,卸载时看详细版本是一样的
 
---------Office  2010
 Office-2016  没有Office-2010 好用,两个版本可以时存在,world 2016 和 excel 2016 有的文件打不开,而2010版本的则可以打开,
 word 2016安装在win7上还会出现内存不断增大,导致系统卡死 ??????
 
@@ -96,6 +116,8 @@ excel 选择数据区，数据->记录单，可以下一条
 
 excel 取消科学计数法,丢失精度,  数据(data)->Data Tools组中的 Text on Columns->next->next->单选Text 再Finish
 
+ 页面布局 ->背景 (删除背景)-> 选择图片
+ Libre Calc 插入->图片 ，右击图片->Arrange-> To Background
 
 字符数字 变 真正的数字 选中一列, 数据(data)->Data Tools组中的 Text on Columns -> ->next->next-> 再Finish
 
@@ -108,7 +130,8 @@ PMT函数计算等额本息还款
 第n期还的利息  = 每期还款额 - 当期本金
 
 =VLOOKUP 函数
-VLOOKUP(要查找的单元格,要查找的矩形区,如果找到显示矩形区的第几列,FALSE)   -- false表示精确匹配,true表示模糊
+VLOOKUP(要查找的单元格,要查找的矩形区的(不一定是第一列),如果找到显示矩形区(第二个参数)的第几列,FALSE)   -- false表示精确匹配,true表示模糊
+数据类型相同
 
 principal  本金
 
@@ -127,7 +150,14 @@ roundup(14.3,0) 向上舍入函数
 
 表单元格内容不超本格（即使右边格没有内容)
 右击单元格 ->format cell ->alignment-> wrap text automatically
- 
+
+trim()函数去空格，复制列 -> 选择性粘贴选 数值
+数据 菜单标签 -> 数据工具组 的 删除重复项  按钮
+
+Excel 的ABC列显示为123原因为
+文件 -> 选项 -> Excel选项 -> 公式 -> 使用公式 把 R1C1引用样式 取消
+
+
 --------PowerPoint
 制作播放菜单
 	1.选中"菜单项"->自定义动画->进入-淡出,右击效果->计时...->选 单击下列对象时启动效果 ,并选"菜单"
@@ -140,20 +170,6 @@ office 2007 “<程序名> 选项”，然后依次单击“信任中心”、�
 shilft+del =copy
 shilft+insert=paste
  
-========LibreOffice
----Writer 
-
-插入->目录和索引->内容目录,索引及文献目录
-视图->导航(F5) ->点打开/关闭列表框 可以看目录
-
-编辑->追踪修订->开始记录更改   接受
-
-
----Calc 问题
-如果过滤一列中的值,选择其它的列复制时会把过虑的也复制上
-
-
-
 ----OneNote-2010
 %HOMEPATH%.li\Documents\OneNote Notebooks\Personal
 可对Section 做 Section Group 会建立一个文件夹
@@ -242,7 +258,8 @@ firefox63  插件 只能在线安装了(可以右击复制链接在edge里下载
 	
 	修改HTTP头插件   手机开发 ,如 User-Agent , Referer 
 		simple-modify-headers
-		Modify Header Value (HTTP Headers)也有chrome,opera插件
+		Modify Header Value (HTTP Headers)也有chrome,opera插件,
+			0.1.6版本测试下来可以，注意开关为灰文字表示关闭,每次修改都要先删再加，都要新加标签，不方便
 	
 	Cookies Manager   在工具栏右侧有按钮 
 	
@@ -412,6 +429,10 @@ Document->Auto Wrap自动换行
 ---------Notepad++
 Notepad++  ->setting->Gerneral->Tab Bar 中->选中 show close button on each tab
 Notepad++  ->setting->MISC. ->取消 Remeber current session for next lanuch
+Notepad++  ->setting-> Tab Setting ->可修改tab size 默认为4，如为yaml可修改为2，复选replace by space
+	打开yaml文件不会自动高亮 language->YAML,只打开yml文件会自动高亮
+	但开头有空格回车换行时以tab替代
+	
 Notepad++ 在windows  下替换换行符 , 查找\r\n  , 单选Extended(\n,\t,\r)
 
 Notepad++ 对字体大小可以按ctrl+拖动滑轮来设置
@@ -425,6 +446,7 @@ Notepad++ 工具栏中的 Function List按钮,Spell Check 按钮
 (如使用记事本打开GBK的另存为UTF-8,开头有一个错误字符,UTF8的BOM头,windows重定符> 会改变已有文件的字符集)
 
 View -> ford all 折叠全部
+
 
 Encodeing 菜单查看哪个UTF-8选中
 
@@ -462,7 +484,8 @@ TextWrangler  中 File->Reopen with encoding->Chinese GBK 可以对打开的文�
 Edit -> preferences ->Syntax checking->取消enable复选框
 
 	Edit->Current File Setting...->设置文件编码 
-	view->复选Word Wrap 
+	view->复选Word Wrap
+	view->复选 White space  显示空白，tab显示为->
 	取消启动时打开上次文件   edit-> preferences->workspace->最前面的when starting  Komodo :下拉选择  Do not restore last workspace
 
 Edit -> preferences ->Key Bindings-> Code: Complete Word 默认快捷键是 ctrl+space ,clear清除，提示保存新的schema name 比如输入my
@@ -474,9 +497,13 @@ ctrl+w关闭全部标签窗口,不是当前打开标签???
 		Editor:Close All Buffer (显示默认是ctrl+alt+w)  
 
 
-------bluefish 
-不能使用shift + tab 缩进选中的行，不方便 ,使用工具栏的indent,unindent按钮
+------bluefish  
 不能按列选择，不方便 
+
+不能使用shift + tab 缩进选中的行，不方便 ,使用工具栏的indent,unindent按钮
+不能高亮yaml/yml文件
+
+开头有空格/tab 回车换行时以当前行为准
 
 关闭文字下的红线
 Edit -> Preferences... ->默认inital document setting标签下 取消复选 enable spell check，要关闭文件再打开才生效
@@ -486,6 +513,7 @@ Edit -> Preferences... ->Editor Stettings 标签下的Font & color 标签-> edit
 
 File->open recent 没有最近打开文件， 在打开对话框中也有Recent 
 document -> wrap text 自动换行
+document -> show visible space 显示空白字符
 
 ctrl+h  打开查找替换 可以选择正则表达式(而komo edit没有这 个功能)
 
@@ -497,6 +525,8 @@ Preferences -> files->backup & Recovery->取消 Create backup file during file s
 
 
 ------TextEditor  (linux)
+不能按列选择，不方便 
+
 没有close other标签的功能,可以ctrl+w 关闭当前窗口
 Preferences-> View-> Enable text Wraping 这里点不方便
 

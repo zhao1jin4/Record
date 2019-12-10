@@ -134,6 +134,8 @@ localhost.		IN    A   127.0.0.1                   #localhost对应上面第二�
 rndc reload重新加载named.conf文件
  
 dig -t A localhost 信息要比host多一些,可存文件
+(yum install bind-utils)
+dig -t A localhost @<DNSIP>
 
 就可以用host  localhost来解析了
 
@@ -228,8 +230,12 @@ VMWare的Team
 /var/named/chroot/var目录要正确权限(755)，否则slave不能从master,更新服务
 chmod 755 -R chroot
 
+dig -t A  xxx.com @<DNS-IP>
+dig -t A  nginx.default.svc.cluster.local @10.96.0.10 
+
 ======================DHCP======================
-www.isc.org
+www.isc.org   
+	有个新的 Kea 支持 DHCPv6 为了替换 DHCP
 
 
 man dhcpd.conf
@@ -954,7 +960,7 @@ required valid-user
 </Location>
 
 
-htpasswd命令 -c
+htpasswd命令 -c  (Create New File)  -s (SHA加密密码)
 ./apachectl configtest 来看错误
 ============apache2 上==============================================
 ============openSSL ==============================================
@@ -1213,7 +1219,7 @@ SmartGit界面UI
 Google Code项目 msysgit 中的Git 和 msysGit-fullinstall 有 GitGUI ,C:/Program Files (x86)/Git/doc/git/html
 GitStack 说是开源,30天后变为基本版本,网页形式的Server,http://localhost/gitstack/,可以建库,建用户,以http(s)的形式对外使用
 ---
-GitLab (linux) 收费的，有管理界面
+GitLab (linux) 收费的，有管理界面,可LDAP登录
 
 
 %HOMEPATH%\AppData\Local\Programs\Git\mingw64\bin\git.exe
@@ -1877,7 +1883,7 @@ http://nginx.org/packages/rhel/7/x86_64/RPMS/nginx-1.14.0-1.el7_4.ngx.x86_64.rpm
 /usr/sbin/nginx ,man nginx 默认配置文件 /etc/nginx/nginx.conf
 
 export PATH=/usr/sbin:$PATH
-
+/var/log/nginx/error.log
 
 也可/etc/yum.repos.d/nginx.repo 
 [nginx]
@@ -1899,7 +1905,8 @@ make install
 	quit — graceful shutdown
 	reload — reloading the configuration file,如果配置有错,就停止worker(处理完正处理的连接)进程
 	reopen — reopening the log files
-
+	-g 	daemon off; (-g 全局指令) 前台运行
+	
 /usr/local/nginx/sbin/nginx  -t 检查配置文件语法正确性
 nginx -v  (version)
 nginx -h  (help)
@@ -2049,6 +2056,23 @@ server {
 		proxy_send_timeout 60s; -- for transmitting a request to the proxied server 没用
 	}
 }
+---------
+mginx -V 显示要带有  --with-http_stub_status_module
+--nginx.conf
+ location /nginx-status
+ {
+	stub_status on;
+	access_log off; 
+ }
+--
+http://127.0.0.1/nginx-status 返回数据
+Active connections: 1   			#表示当前正在连接的个数
+server accepts handled requests
+ 18 18 11 								
+ #第1个server数字表示启动为止处理了多少个连接 ，第2个accepts数字表示启动为止多少次握手，第3个handled requests数字表示启动为止多少个请求
+ #握手-连接 =0表示没有丢失
+Reading: 0 Writing: 1 Waiting: 0  #当前
+
 ------上传文件大小限制
 location / {
             root   html;
@@ -2131,6 +2155,8 @@ phpinfo();
 ?>
 测试成功
 ------nginx  限流
+max_conns=3;
+
 添加limit_zone和limit_req_zone
 
 添加limit_conn 和limit_req
@@ -2141,16 +2167,8 @@ phpinfo();
 
 3、ngx_http_upstream_module
 
------ rockmongo  
+------nginx 白名单
 
-进入首页提示下载php_mongo.dll (http://pecl.php.net/package/mongo) 放在php安装解压的ext目录中 
-注意支持的PHP版本,如php_mongo-1.6.16-5.6-ts-vc11-x64 支持 PHP5.6  
-php.ini中增加  extension=php_mongo.dll
-可以进入页面, 但好像不能对Mongo4 上面用??? 
-
-----phphbaseadmin
-	报PHP(php-5.6.37)语法错误
-	
 ------nginx https ssl 
 http ssl 默认端口443
 
@@ -2293,18 +2311,106 @@ kong check  ./kong.yml
 
 cp /etc/kong/kong.conf.default /etc/kong/kong.conf
 admin_listen=127.0.0.1:8001 修改为 0.0.0.0：8001
+#admin_error_log=logs/error.log #rpm安装包是/usr/local/logs/error.log
+
+
 kong check  /etc/kong/kong.conf
 kong stop
 kong start -c /etc/kong/kong.conf
 
+警告 "ulimit -n" 至少 "4096" 
+vi /etc/systemd/system.conf 
+DefaultLimitNOFILE=4096
+
+
+也支持限流功能(nginx也支持)
+
+Router 转到 Service,一个Service可以有很多的Router
+
+resetful admin API 在端口 8001
 
 
 
 
+konga 配置Service，输入Name值example-service，Url值http://mockbin.org (代理的服务根URL) 效果同下 Admin API
+curl -i -X POST \
+  --url http://localhost:8001/services/ \
+  --data 'name=example-service' \
+  --data 'url=http://mockbin.org'
+  
+  
+konga 在建立的Service中建立Router，Host中输入主机名example.com ,Protocals中输入http,https ？？,Methods 中输入get？？？，paths中输入/my-path???
+curl -i -X POST \
+  --url http://localhost:8001/services/example-service/routes \
+  --data 'hosts[]=example.com'
+
+默认使用8000端口做代理
+curl -i -X GET \
+  --url http://localhost:8000/ \
+  --header 'Host: example.com'
+  
+启用 key-auth 插件，konga 的key names默认值为apikey，放在头中或者参数都可
+curl -i -X POST \
+  --url http://localhost:8001/services/example-service/plugins/ \
+  --data 'name=key-auth'
+  
+
+
+konga建立Consumers 
+ curl -i -X POST \
+  --url http://localhost:8001/consumers/ \
+  --data "username=Jason"
+  
+为已有的consumer 建立key，konga中Consumers->选中->Credentials-> API KEYS-> 按钮+CREATE API KEY
+curl -i -X POST \
+  --url http://localhost:8001/consumers/Jason/key-auth/ \
+  --data 'key=ENTER_KEY_HERE'
+
+带key请求
+curl -i -X GET \
+  --url http://localhost:8000 \
+  --header "Host: example.com" \
+  --header "apikey: ENTER_KEY_HERE"
+  
+---配置文件 kong.conf
+log_level = debug  可被环境变量  export KONG_LOG_LEVEL=error 覆盖
+
+nginx_http_ 开头 注入 nginx的http块
+nginx_proxy_ 开头 和 nginx_admin_ 开头的 注入 nginx的 server块,对应kong的proxy端口,admin端口
+
+prefix=/usr/local/kong 可以通过kong start -p 来覆盖
+
+---plugin 
+可是全局插件 ,Service级插件，Consumer级插件,Rout级插件
+
+限流插件在Service上启用
+curl -X POST http://127.0.0.1:8001/services/example-service/plugins \
+    --data "name=rate-limiting"  \
+    --data "config.second=5" \
+    --data "config.hour=10000"
+    
+IP限制插件    
+  curl -X POST http://127.0.0.1:8001/services/example-service/plugins \
+    --data "name=ip-restriction"  \
+    --data "config.whitelist=192.168.0.1" \
+    --data "config.whitelist=192.168.1.0/24"
+
+还有oauth2插件，cors跨域插件,Session插件， Proxy Caching插件,http log插件
+Request Termination熔断，zipkin插件
+
+upstream同nginx的，做分流
+
+    
+---kong cluster
+ 
+
+  
 --------kong-dashboard web界面工具 linux版本 
+
+https://www.npmjs.com/package/kong-dashboard  兼容版本
  
 npm install -g kong-dashboard
-版本是 kong-dashboard@3.6.0
+版本是 kong-dashboard@3.6.0    可兼容kong >= 0.9, <2.0.0
 
 kong-dashboard start --kong-url http://127.0.0.1:8001
    --port [port] 
@@ -2313,26 +2419,36 @@ kong-dashboard start --kong-url http://127.0.0.1:8001
 访问
 http://localhost:8080
 
---------konga web界面工具 linux版本
+--------konga web界面工具 linux版本,比kong-dashboard功能更多
  使用anjular
+ kong admin 0.14.3
+https://github.com/pantsel/konga/blob/master/README.md#compatibility 兼容版本 只说了 0.14.0 版本以前
+ 
  
 git clone https://github.com/pantsel/konga.git
 cd konga
 npm i
 
 
-
 开发模式启动
 npm start
 http://localhost:1337
 第一次进入 http://localhost:1337/register 注册Admin用户,如返回错误的json，必须重新注册，如密码简单
+配置kong的Admin URL
+
+
 
 生产模式启动
-
+#postgresql
 #CREATE DATABASE konga OWNER kong;
 
+初始化
 node ./bin/konga.js  prepare --adapter postgres --uri postgresql://localhost:5432/konga
+
+配置
 cp .env_example  .env
+
+运行
 npm run production
 
 
@@ -2401,12 +2517,155 @@ docker run --rm -p 8080:8080 pgbi/kong-dashboard start --kong-url http://127.0.0
  
 浏览器打开 http://localhost:8080
 
+================ HAProxy 可用于放在Ngnix的前方
+支持数以万计的并发连接, 使用事件驱动, 单一进程 ,不能做缓存
+ 
+https://www.haproxy.org/download/2.0/src/haproxy-2.0.5.tar.gz  		2019-08-16
+已经有下载地址就不需要翻墙了
 
 
+文档
+https://cbonte.github.io/haproxy-dconv/
+
+
+源码doc目录也有文档,examples 有些示例配置
+ 
+openSUSE-15.1 yast 有版本是1.8.17 ，rpm包 带 /etc/haproxy/haproxy.cfg
+ 
+源码linux下编译
+
+$ make clean
+$ make -j $(nproc) TARGET=linux-glibc \
+                USE_OPENSSL=1 USE_ZLIB=1 USE_LUA=1 USE_PCRE=1 USE_SYSTEMD=1
+                
+$ sudo make install
+
+提示找不到 systemd/sd-daemon.h  (安装 systemd-devel)
+
+nproc 命令显示CPU有多少核
+
+安装后只有 
+/usr/local/sbin/haproxy   
+/usr/local/share/man/man1/haproxy.1
+/usr/local/doc/haproxy 目录
+
+---haproxy.cfg
+global
+	log	/var/log	daemon  #其中 daemon 是syslog中的24种 facilities之一,可local0,local1
+#以下swarm提示的配置
+# Configure HAProxy to listen on port 80
+frontend http_front
+   bind *:80
+   stats uri /haproxy?stats
+   default_backend http_back
+
+# Configure HAProxy to route requests to swarm nodes on port 8080
+backend http_back
+   balance roundrobin
+   server node1 192.168.99.100:8080 check
+   server node2 192.168.99.101:8080 check
+   server node3 192.168.99.102:8080 check
+   
+启动服务 systemctl start haproxy  
+看日志 systemctl -u haproxy.service  可缩写为 systemctl -u haproxy
+
+
+
+
+
+
+
+
+
+
+
+================Ceph
+kubernetes 的存储要求支持restful接口，有块存储接口
+
+Suse 有单独的支持 
+有对象存储和块存储功能 
+Ceph File System 分布式文件系统 类似的还有 GlusterFS
+
+https://ceph.io/get/
+https://github.com/ceph/ceph
+
+--- 源码编译安装
+ceph_14.2.4.orig.tar.gz
+
+./install-deps.sh
+	 里面就是执行了 zypper  install systemd-rpm-macros  安装了很多的python3的包
+./do_cmake.sh
+cd build
+make 		开始长时间不动,后面是C编译 时间也很长，到5%花了约20分钟放弃，第二次到11%也花了20分钟左右
+sudo make install
+----
+
+openSUSE-leap-15.1 yast安装中有ceph-14.2.0版本,安装后没有ceph-deploy,ceph-daemon
+https://en.opensuse.org/openSUSE:Ceph
+
+ 
+ 
+ 
+手工安装 ceph-daemon
+curl --silent --remote-name --location https://github.com/ceph/ceph/raw/master/src/ceph-daemon/ceph-daemon
+chmod +x ceph-daemon
+sudo install -m 0755 ceph-daemon /usr/sbin    # 可选的
+
+安装 ceph-deploy
+CentOS
+sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm  可能已经安装了
+
+最新版本日期的是 rpm-nautilus 即baseurl为  https://download.ceph.com/rpm-nautilus/el7/noarch
+
+cat << EOM > /etc/yum.repos.d/ceph.repo
+[ceph-noarch]
+name=Ceph noarch packages
+#baseurl=https://download.ceph.com/rpm-{ceph-stable-release}/el7/noarch
+baseurl=https://download.ceph.com/rpm-nautilus/el7/noarch
+enabled=1
+gpgcheck=1
+type=rpm-md
+gpgkey=https://download.ceph.com/keys/release.asc
+EOM
+
+# yum update #更新系统
+yum install ceph-deploy  安装2.0.1
+
+
+
+
+一个 Ceph Storage Cluster 需要至少一个
+
+ 	Ceph Monitor		 当做冗余和HA至少3个节点
+ 	Ceph Manager		  当做冗余和HA至少2个节点
+ 	Ceph OSD (Object Storage Daemon)  当做冗余和HA至少3个节点
+   Ceph Metadata Server(MDS) 也是需要的，当运行 Ceph File System 客户端.
+ 
+ 
+ 
+CephFS 是在Ceph’s distributed object store, RADOS之上的
+Reliable Autonomic Distributed Object Store (RADOS)
+
+----
+
+ceph-daemon bootstrap --mon-ip *<mon-ip>* --output-config ceph.conf --output-keyring ceph.keyring --output-pub-ssh-key ceph.pub
+
+ceph-daemon bootstrap --mon-ip 192.168.1.104 --output-config ceph.conf --output-keyring ceph.keyring --output-pub-ssh-key ceph.pub  
+	Pulling latest ceph/daemon-base:latest-master-devel container. 日志显示在拉文件（镜像）
+	Waiting for mon to start...  这里一直不动的
+
+
+
+
+
+
+
+
+挂载使用
+mount.ceph node1:6789:/ ~/client_cephfs_mnt/ -o name=admin,secretfile=~/admin.keyring
+ 
 ================FastDFS-5.08
-
-
-
+国产
 	logger.h 是依赖 libfastcommon 下载安装 ./make.sh  ./make install
 ./make.sh  
 ./make install
@@ -2448,8 +2707,69 @@ portmap ：RPC所需要的信息
 　
 cat /etc/fstab 根目录　就是xfs　类型的
  
- 
+------------XFS
+CentOS 7.6 默认就是xfs类型文件系统(ext4的下一代)
+CentOS 7.6 默认也是LVM的，swap分区和/分区都是在LVM下的xfs分区. 但/boot分不是在LVM下的，只是xfs
+可选择 Btrfs(随机寻道/读写 和 创建和删除大量文件 不如XFS性能好) ，是和 LVM 同级的
 
+UFS Explorer 可以恢复 xfs格式的数据 (trail)
+windows 下读XFS ， WinAllFS，Crossmeta
+
+https://github.com/crossmeta/sgi
+https://www.crossmeta.io/ 是提供开发的
+
+
+mkfs.xfs
+mkfs -t xfs 
+mount -t xfs 
+
+
+=====================ceph
+RESTful Interface
+块存储RDB
+ 
+--安装  CEPH DEPLOY
+epel仓库
+yum install ceph-deploy
+
+--安装CEPH STORAGE CLUSTER
+yum install yum-plugin-priorities
+
+view /etc/yum/pluginconf.d/priorities.conf  文件
+ 	[main]
+	enabled = 1
+	
+https://download.ceph.com/rpm-* 找更新日期最新   nautilus (鹦鹉螺)
+https://download.ceph.com/rpm-nautilus/el7/x86_64/
+https://download.ceph.com/rpm-nautilus/el7/noarch/
+
+--新建文件 vi  /etc/yum.repos.d/ceph.repo
+
+[ceph]
+name=Ceph packages for $basearch
+baseurl=https://download.ceph.com/rpm-nautilus/el7/x86_64/
+enabled=1
+priority=2
+gpgcheck=1
+gpgkey=https://download.ceph.com/keys/release.asc
+
+[ceph-noarch]
+name=Ceph noarch packages
+baseurl=https://download.ceph.com/rpm-nautilus/el7/noarch/
+enabled=1
+priority=2
+gpgcheck=1
+gpgkey=https://download.ceph.com/keys/release.asc
+ 
+---
+yum install snappy leveldb gdisk python-argparse gperftools-libs，只安装了leveldb
+yum install ceph
+依赖很多python，应该是python写的
+DVD带的
+rpm -ivh python-mako-0.8.1-2.el7.noarch.rpm pyOpenSSL-0.13.1-4.el7.x86_64.rpm python-markupsafe-0.11-10.el7.x86_64.rpm librabbitmq-0.8.0-2.el7.x86_64.rpm python-beaker-1.5.4-10.el7.noarch.rpm python-tempita-0.5.1-6.el7.noarch.rpm python-paste-1.7.5.1-9.20111221hg1498.el7.noarch.rpm
+还有34个包
+
+  
 ========================== Sphinx  基于SQL 的全文搜索  可MySQL
 Coreseek 带有中文分词
  
@@ -2932,5 +3252,6 @@ yum install mrtg
 ========================== Jenkins 使用见Dev_software  
 
 ========================== BugTracker 使用见Dev_software
+ 
  
  

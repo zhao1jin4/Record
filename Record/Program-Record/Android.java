@@ -39,8 +39,11 @@ https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project
 	
 	有的手机(Huawei) 设置ID显示有???号可以使用 360驱动.如果能识别会提示(ADB Interface)点击安装的
 
+ LLDB, CMake 是和NDK一起用的
 LLDB 是 a next generation, high-performance debugger. 
 CMake 是 cross-platform  , build, test and package
+
+
 GPU Debugging tools
 
 source 和 goole repository是android studio初始配置会下的
@@ -123,6 +126,8 @@ File-> Project Structure ... (工具栏上有按钮，配置module)
  
 
  File->Other Settings->Default Project Structure 中设置Android SDK位置,Android NDK,JDK 
+l ocal.properties 中 sdk.dir= 和 ndk.dir= 
+
  File-> Setting... ->Appearance & Behavior->System Settings-> Android SDK 可以下载SDK，镜像要在建立模拟器时下载，工具栏上也有的
  
 
@@ -2910,6 +2915,8 @@ adb -s  A49947194A9B reboot  #或在shell中reboot
 adb remount  #system分区从 只读 -> 可写 ,只有获得了root权限才可能运行
 
 ------------NDK
+Android NDK 从 r11 开始建议大家切换到 Clang, r18 中删掉 GCC 
+Android Studio 会默认下载的 SDK的 ndk-bundle 目录下
 
 https://github.com/googlesamples/android-ndk/tree/master
 

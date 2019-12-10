@@ -75,6 +75,7 @@ ${varible%string*}  从右向左截取第一个string后的字符串
 "*"只是一个通配符可以不要
 
 unset 变量名,来清除变量.readonly  不可重设
+unset ${!DOCKER_*} 清除所有开头的环境变量 
 
 $0(脚本的名字),$1...$9     ./file.sh 1 2 3
 
@@ -249,7 +250,7 @@ cat xx.txt yy.txt如果正常输出n ,如果错误输出error
 grep "stand" stand.txt >grep.out 2>&1  如果错误(2)重定向到１所代表的(标准输出),1又输出到文件
 
 
-exec ./xx.file 运行后启动新的shell,会环境变量恢复默认
+exec ./xx.file 运行后启动新的shell,代替原shell,会环境变量恢复默认
 
 
 exec 3<&0 0<name.txt     #打开3的打描述来自0 0来自文件  , 不会关闭当前的shell
@@ -1031,7 +1032,7 @@ done
 sed -i "s/1030/1031/g" `grep 1030 -rl ./*.log`
 
 
-
+mkdir v{1,2,3,4,5}
 
 
 

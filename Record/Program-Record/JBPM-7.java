@@ -729,7 +729,7 @@ http://localhost:8080/drools-guvnor   会提示安装samples
 
 http://localhost:8080/jbpm-console
 	用户名/密码  用 "krisv" / "krisv"  是从\auth\roles.properties   复制到.war中的
-	在process面板->Process Overview->右侧就有刚刚做过的“Evaluation",单击它 -> start按钮->OK->输入用户名和理由
+	在process面板->Process Overview->右侧就有刚刚做过的"Evaluation",单击它 -> start按钮->OK->输入用户名和理由
 	右则多了一项,State为RUNNING,  点Diagram按钮也可以看到流程图当前到哪一步
 ---
 

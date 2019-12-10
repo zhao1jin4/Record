@@ -2936,46 +2936,570 @@ else if("2".equals(order))
 
 根据当前页的数据 List .size()是否为0 ,解决删除当前页所有的项,翻页的Bug
 
-=======================
-import net.sourceforge.pinyin4j.PinyinHelper;
-import net.sourceforge.pinyin4j.format.HanyuPinyinCaseType;
-import net.sourceforge.pinyin4j.format.HanyuPinyinOutputFormat;
-import net.sourceforge.pinyin4j.format.HanyuPinyinToneType;
-import net.sourceforge.pinyin4j.format.HanyuPinyinVCharType;
 
-public static String getPingYin(String src)
-{
 
-	char[] t1 = null;
-	t1 = src.toCharArray();
-	String[] t2 = new String[t1.length];
-	HanyuPinyinOutputFormat t3 = new HanyuPinyinOutputFormat();
-	t3.setCaseType(HanyuPinyinCaseType.LOWERCASE);
-	//t3.setToneType(HanyuPinyinToneType.WITH_TONE_MARK);
-	t3.setToneType(HanyuPinyinToneType.WITHOUT_TONE); 
-	t3.setVCharType(HanyuPinyinVCharType.WITH_V);
-	String t4 = "";
-	int t0 = t1.length;
-	try
-	{
-		for (int i = 0; i < t0; i++)
-		{
-			// 判断是否为汉字字符
-			if (java.lang.Character.toString(t1[i]).matches("[\\u4E00-\\u9FA5]+"))
-			{
-				t2 = PinyinHelper.toHanyuPinyinStringArray(t1[i], t3);
-				t4 += t2[0]+" ";
-			} else
-				t4 += java.lang.Character.toString(t1[i])+" ";
-		}
-		// System.out.println(t4);
-		return t4;
-	} catch (BadHanyuPinyinOutputFormatCombination e1)
-	{
-		e1.printStackTrace();
-	}
-	return t4;
+
+
+
+---------------------------------Memcache Java Client --- alisoft 阿里巴巴
+
+import com.alisoft.xplatform.asf.cache.ICacheManager;
+import com.alisoft.xplatform.asf.cache.IMemcachedCache;
+import com.alisoft.xplatform.asf.cache.memcached.MemcacheStatsSlab;
+import com.alisoft.xplatform.asf.cache.memcached.MemcacheStatsSlab.Slab;
+
+ICacheManager<IMemcachedCache>  manager = CacheUtil.getCacheManager(IMemcachedCache.class,MemcachedCacheManager.class.getName());
+manager.setConfigFile("memcache_client/memcached1.xml");
+manager.setResponseStatInterval(5*1000);//设置Cache响应统计间隔时间，不设置则不进行统计
+manager.start();
+IMemcachedCache cache = manager.getCache("mclient0");//配置文件中的,如不存在,返回null
+cache.clear();// 调用后要sleep一会
+cache.put("key1", "value1");
+Set<String> keys = cache.keySet(false);
+cache.remove("key1");
+cache.storeCounter("counter", 20);
+cache.incr("counter", 11);//减decr,
+cache.addOrIncr("counter", 20);//没有值设置为20,有值加上20,相应的有 addOrDecr,原子操作
+
+
+MemcacheStatsSlab[] result = cache.statsSlabs();
+MemcacheStatsSlab node = result[i];
+String hostAndPort=node.getServerHost();
+Map<String,Slab> slabs = node.getSlabs();//有分配空间,命中率信息
+
+
+MemcacheStats[] result = cache.stats();
+MemcacheStats node = result[i];
+node.getStatInfo()
+
+cache.setStatisticsInterval(30);
+MemcachedResponse response = cache.statCacheResponse();
+response.getCacheName();//mclient0
+
+cache.replace("key1", "value1")
+
+cache.asynPut("key1", "value1");
+cache.asynStoreCounter("key1", 100); //很多的asyncXxx 方法
+
+cache.put("key1", "value1",calendar.getTime());//保存过期时间
+
+manager.reload("memcache_client/memcached_cluster2.xml");//重新加载配置,cache client需要重新获取对象,服务端的数据不会删除
+
+
+manager.stop();
+----memcached1.xml
+<memcached>
+    <client name="mclient0" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool0">
+        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
+    </client>
+	<socketpool name="pool0" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
+        nagle="false" socketTO="3000" aliveCheck="true">
+        <servers>192.168.0.184:12000</servers>
+    </socketpool> 
+</memcached>
+
+maintSleep 属性是后台线程管理SocketIO池的检查间隔时间，如果设置为0，则表明不需要后台线程维护SocketIO线程池，默认需要管理
+socketTO 属性是Socket操作超时配置，单位ms
+aliveCheck 属性表示在使用Socket以前是否先检查Socket状态
+ 
+
+
+---分布式
+<memcached>
+    <client name="mclient" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool0">
+        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
+    </client>
+    <client name="mclient1" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool1">
+        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
+    </client>
+    <client name="mclient2" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool2">
+        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
+    </client>   
+    <client name="mclient3" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool3">
+        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
+    </client>
+    <client name="mclient4" compressEnable="true" defaultEncoding="UTF-8" socketpool="pool4">
+        <errorHandler>com.alisoft.xplatform.asf.cache.memcached.MemcachedErrorHandler</errorHandler>
+    </client>   
+    
+    <socketpool name="pool0" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
+        nagle="false" socketTO="3000" aliveCheck="true">
+        <servers>192.168.0.184:12000</servers>
+    </socketpool> 
+    <socketpool name="pool1" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
+        nagle="false" socketTO="3000" aliveCheck="true">
+        <servers>192.168.0.184:12001</servers>
+    </socketpool> 
+    <socketpool name="pool2" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
+        nagle="false" socketTO="3000" aliveCheck="true">
+        <servers>192.168.0.184:12002</servers>
+    </socketpool> 
+    <socketpool name="pool3" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
+        nagle="false" socketTO="3000" aliveCheck="true">
+        <servers>192.168.0.184:12003</servers>
+    </socketpool> 
+    <socketpool name="pool4" failover="true" initConn="5" minConn="5" maxConn="250" maintSleep="0"
+        nagle="false" socketTO="3000" aliveCheck="true">
+        <servers>192.168.0.184:12004</servers>
+    </socketpool>  
+    
+    <cluster name="cluster1" mode="active"> //mode = active,standby
+        <memCachedClients>mclient1,mclient2</memCachedClients>
+    </cluster>
+    <cluster name="cluster2" mode="standby">  //mode = active,standby
+        <memCachedClients>mclient3,mclient4</memCachedClients>
+    </cluster>
+</memcached>
+
+
+manager.clusterCopy("mclient", "cluster1"); //从 mclient 复制 到  cluster1
+
+---------------------------------Memcached Java Client--spymemcached
+MemcachedClient c=new MemcachedClient( AddrUtil.getAddresses("192.168.0.184:12000"));
+MemcachedClient mc = new MemcachedClient(new InetSocketAddress("192.168.0.184", 12000));  
+Future<Boolean> theSetFuture = mc.set("myKey1", 900, "someObject");//key,timeout,value
+
+if(theSetFuture.get().booleanValue()==true)
+{  
+	Future<Object> theGetFuture = mc.asyncGet("myKey1");
+	Object obj=theGetFuture.get();
+	 
+	Future<Boolean> f = mc.replace("myKey1", 500, "MyValue1");  
+	
+	Collection<String> keys=new ArrayList<>();
+	keys.add("myKey1");
+	Map<String, Object> myBuilks=mc.getBulk(keys);
+	
+	Future<Map<String, Object>> theFutureBulk = mc.asyncGetBulk(keys);  
+	Map<String, Object>   map = theFutureBulk.get(3,TimeUnit.SECONDS);
+	
+	 //del
+	 Future<Boolean> theDelFuture = mc.delete("myKey1");
+	 if(theDelFuture.get().booleanValue()==true)
+	 {
+		 theGetFuture = mc.asyncGet("myKey1");
+		 obj=theGetFuture.get();
+	 }
 }
-String cnStr = "中华人民共和国";
-System.out.println(getPingYin(cnStr));
+mc.delete("myAtomicNum");
+Thread.sleep(200);
+//Future<Boolean> numFuture = mc.add("myAtomicNum", 500, 20);//add 如已存在,返回false
+long res=mc.incr("myAtomicNum",500,  1);//前先set不行的 
+Object num=mc.get("myAtomicNum");
+Future<Long> numAsyncFuture= mc.asyncIncr("myAtomicNum",10); 
+Thread.sleep(200);
+num=mc.get("myAtomicNum");
+
+mc.shutdown(); 
+//---为 Spring
+MemcachedClientFactoryBean factoryBean=new MemcachedClientFactoryBean();
+factoryBean.setServers("192.168.0.184:12000");
+factoryBean.setOpTimeout(1000);//操作超时时间是1秒
+factoryBean.setTimeoutExceptionThreshold(1998);//设置超时次数上限是1998次
+MemcachedClient client=(MemcachedClient)factoryBean.getObject();
+
+ 
+================================Solr-6.4
+
+bin/solr start -e cloud -noprompt  ( SolrCloud example )启动两个节点,监听 8983 , 7574 端口 ,有zookeeper
+	实际调用 solr-6.4.0\server\start.jar    , server/lib/中有jetty
+	java -jar server/start.jar --help
+
+控制台提示做了
+	solr.cmd start -cloud -p 8983 -s "example\cloud\node1\solr"
+	solr.cmd start -cloud -p 7574 -s "example\cloud\node2\solr" -z localhost:9983
+	http://localhost:8983/solr/admin/collections?action=CREATE&name=gettingstarted&numShards=2&replicationFactor=2&maxShardsPerNode=2&collection.configName=gettingstarted
+
+	POSTing request to Config API: http://192.168.27.1:8983/solr/gettingstarted/config
+	
+	
+	{"set-property":{"updateHandler.autoSoftCommit.maxTime":"3000"}}
+
+http://localhost:8983/solr/   有界面,看到cloud/collections 组中建立了名为 gettingstarted 
+
+bin/post 只有linux的,如果是windows 使用 java  -Dc=gettingstarted -jar  example/exampledocs/post.jar docs/ 
+bin/post -c gettingstarted docs/  对dos目录建立索引-c collection name
+
+bin/solr stop -all
+# bin/solr start -e techproducts
+
+//XML
+bin/post -c gettingstarted example/exampledocs/*.xml										*/
+java -Dc=gettingstarted -jar  example/exampledocs/post.jar example/exampledocs/*.xml		*/
+
+field  update = "add" | "set" | "inc" 
+  
+<add>
+  <doc>
+    <field name="employeeId">05991</field>
+    <field name="office" update="set">Walla Walla</field>
+    <field name="skills" update="add">Python</field>
+  </doc>
+</add>
+
+<commit/>
+
+//JSON
+bin/post -c gettingstarted example/exampledocs/books.json
+java -Dtype=application/json -Dc=gettingstarted -jar  example/exampledocs/post.jar example/exampledocs/books.json
+
+//CSV
+bin/post -c gettingstarted example/exampledocs/books.csv
+java -Dtype=text/csv -Dc=gettingstarted -jar example/exampledocs/post.jar  example/exampledocs/books.csv
+
+http://localhost:8983/solr/gettingstarted/browse 
+http://localhost:8983/solr/gettingstarted/browse?q=manu:Belkin&fl=name,id,price&wt=json
+
+q=video&sort=price desc&fl=name,id,price&wt=json
+q表示查询什么,name:video表示对字段为name的列
+fl的值表示返回的只要name,id
+wt返回形式 json,xml,csv
+
+
+---Data Import Handler (DIH)  从数据库导入
+	example\example-DIH 
+	bin/solr -e dih 启动
+
+ 
+ 
+============FastDFS
+跟踪服务和存储服务，跟踪服务控制，调度文件以负载均衡的方式访问；存储服务包括：文件存储，文件同步，提供文件访问接口，同时以key value的方式管理文件的元数据
+跟踪和存储服务可以由1台或者多台服务器组成，同时可以动态的添加，删除跟踪和存储服务而不会对在线的服务产生影响
+存储系统由一个或多个卷组成
+一个卷可以由一台或多台存储服务器组成
+一个卷下的存储服务器中的文件都是相同的，卷中的多台存储服务器起到了冗余备份和负载均衡的作用
+在卷中增加服务器时，同步已有的文件由系统自动完成，同步完成后，系统自动将新增服务器切换到线上提供服务
+
+javaClient 请求 -> Tracker -> 查找可以用的Storage -> 返回javaClient Storage IP port->javaClient 连 Storage
+
+返回串格式   /组名/磁盘名/目录/文件名
+
+Class clazzClientGlobal=Class.forName("org.csource.fastdfs.ClientGlobal");
+Constructor construct=clazzClientGlobal.getDeclaredConstructors()[0];
+construct.setAccessible(true);
+Object obj=construct.newInstance(null);
+ClientGlobal global=(ClientGlobal)obj ;// Spring注入反射实例化
+
+ global.setP_g_connect_timeout(2000);
+ global.setP_g_connect_timeout(2000);
+ global.setP_g_charset("UTF-8");
+ global.setP_g_tracker_http_port(8080);
+ global.setP_g_anti_steal_token(false); 
+ global.setP_g_secret_key("");
+ //global.setP_tracker_servers("172.16.35.35:22122");//多个以,分隔
+  global.setP_tracker_servers("172.16.37.41:22122,172.16.37.40:22122");//测试OK
+  global.init1();
+StorageClient1 stclient=new StorageClient1(global);//Spring注入
+byte[] byteArray =getExcelArray();
+Date now=Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+NameValuePair[] meta_list = new NameValuePair[]{
+		  new NameValuePair("fileName", "excel数据.xls"),
+		  new NameValuePair("extName", "exls"),
+		  new NameValuePair("size",  byteArray.length+""),
+//		  new NameValuePair("md5", ""), 
+//		  new NameValuePair("contentType", ""),
+		  new NameValuePair("uploadDate", (new SimpleDateFormat("yyyy-MM-dd hh:mm:ss")).format(new Date())), 
+		  new NameValuePair("creator", "lisi")
+};
+ 
+
+Lock lock=new ReentrantLock();
+try{
+	lock.tryLock(30, TimeUnit.SECONDS);
+	//不能两个文件同时上传，如jquery , fileupload插件，当<input type="file" multiple >多选时就会两个同时上传报错
+   String filePath= stclient.upload_file1(byteArray, "xls", meta_list);
+   System.out.println(filePath);
+}finally {
+	lock.unlock();
+}
+
+
+=====================RMI =====================
+
+客户端写接口(Calculator)，在Server端和Client端必须是相同的包名,继承 Remote 每个方法要　throws RemoteException
+服务器端(CalculatorImpl) 继承 UnicastRemoteObject 并实现客户端接口 (有构造函数抛出RemoteException异常 )
+写服务类（CalculatorServer）
+		if(System.getSecurityManager()==null)
+	    {
+	    	System.out.println("创建并安装安全管理器");
+	    	System.setSecurityManager(new RMISecurityManager());
+	    }
+		//---方式一
+		System.out.println("必须先运行rmiregistry 或者 rmiregistry 1099,并使rmiregistry可以找到 X_Stub类!");
+		Calculator c = new CalculatorImpl();
+		Naming.rebind("rmi://localhost:1099/CalculatorService", c);//或者 Naming.rebind("/CalculatorService", impl)
+		//---方式二
+		System.out.println("纯代码功能,可以兼容已有的rmiregistry,如没有会自己创建.");
+		Calculator impl = new CalculatorImpl();
+		Registry registry=null;
+		try
+		{
+			registry= LocateRegistry.getRegistry(1099);//端口号 
+			registry.list();
+			System.out.println("使用已经存在的LocateRegistry!");//如果已经运行了rmiregistry
+		}catch (final Exception e)
+		{  
+			 registry = LocateRegistry.createRegistry(1099);//相当于执行 rmiregistry 
+			 System.out.println("建立新的的LocateRegistry");
+		}
+		registry.rebind("CalculatorService", impl); //相当于调用 Naming.rebind() ,地址是CalculatorService
+写客户类(CalculatorClient)
+		Calculator c = (Calculator)Naming.lookup("rmi://localhost:1099/CalculatorService"); 
+        System.out.println( c.sub(4, 3) ); // 是实现的方法
+建policy.txt 内容是
+ grant {
+permission java.security.AllPermission "", "";  //Permission的子类是AllPermission ,SocketPermission,
+};
+
+
+javac -d . rmi_calculator/ *.java
+javac -d . rmi_calculator/server/ *.java
+javac -d . rmi_calculator/client/ *.java
+
+rmic rmi_calculator.server.CalculatorImpl 生成存根 CalculatorImpl_Stub 为客户端用
+CalculatorImpl_Stub报找不到异常,rmiregistry去加载 CalculatorImpl_Stub类的,在运行 rmiregistry 的目录也要可以找到正常的CalculatorImpl_Stub
+
+java  -Djava.security.policy=rmi_calculator/server/policy.txt  rmi_calculator.server.CalculatorServer  要有Calculator.class, CalculatorImpl.class,CalculatorServer.class,CalculatorImpl_Stub.class,policty.txt
+java  rmi_calculator.client.CalculatorClient  要有Calculator.class, CalculatorClient.class
+
+================================JMS  
+<dependency>
+    <groupId>javax.jms</groupId>
+    <artifactId>jms</artifactId>
+    <version>1.1</version>
+</dependency>
+
+SoupUI 可JMS
+
+
+多台weblogic域 JMS通信 要域"密码"一样,这里的密码是在console界面中的第一项即"域名"->security标签->下方的Advanced->Credential:处的密码
+
+Queue 和 Topic 都继承Destination
+TopicSubscriber 和 QueueReceiver 继承自 MessageConsumer
+QueueSender 和 TopicPublisher 继承自 MessageProducer
+
+//weblogic JMS 通用部分
+String url = "t3://localhost:7001";
+String jndiConnectionFactory = "jms/myFactory";
+String jndiQueue = "jms/myQueue";
+String jndiTopic = "jms/myTopic";
+boolean transacted = false;
+Properties properties = new Properties();
+properties.put(Context.INITIAL_CONTEXT_FACTORY,"weblogic.jndi.WLInitialContextFactory");
+properties.put(Context.PROVIDER_URL,url);
+Context context = new InitialContext(properties);
+Object lookupFactory = context.lookup(jndiConnectionFactory);
+
+//===MyQueueSender.java  OK
+//---父类通用的
+ConnectionFactory factory =(ConnectionFactory)lookupFactory;
+Queue queue = (Queue)context.lookup(jndiQueue);
+Connection connection =factory.createConnection();
+connection.start();
+Session session = connection.createSession(transacted,  Session.AUTO_ACKNOWLEDGE);
+MessageProducer producer  = session.createProducer(queue);
+
+TextMessage textMessage = session.createTextMessage();
+textMessage.clearBody();
+textMessage.setText("MessageProducer's  Message");
+producer.send(textMessage);//OK,weblogic监视Messages Current列+1
+if (transacted)
+{
+	session.commit();
+}
+producer.close();
+session.close();
+connection.close();
+//--子类
+QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) lookupFactory;
+Queue queue = (Queue)context.lookup(jndiQueue);
+QueueConnection queueConnection = queueConnectionFactory.createQueueConnection();
+queueConnection.start();
+QueueSession queueSession = queueConnection.createQueueSession(transacted, Session.AUTO_ACKNOWLEDGE);
+QueueSender queueSender = queueSession.createSender(queue);
+TextMessage textMessage = queueSession.createTextMessage();
+textMessage.clearBody();
+textMessage.setText("QueueSender's Message");
+queueSender.send(textMessage);//OK ,weblogic监视Messages Current列+1
+if (transacted)
+{
+	queueSession.commit();
+}
+queueSender.close();
+queueSession.close();
+queueConnection.close();
+
+//===MyQueueReceiver.java OK
+//---父类通用的
+Object obj = context.lookup(jndiQueue);
+Queue queue = (Queue) obj;
+ConnectionFactory factory =(ConnectionFactory)lookupFactory;
+Connection connection =factory.createConnection();
+connection.start();
+Session session = connection.createSession(transacted,  Session.AUTO_ACKNOWLEDGE);
+MessageConsumer consumer  = session.createConsumer(queue);
+
+//---
+//Message tmpMsg=consumer.receiveNoWait();//OK
+//System.out.println("MessageConsumer get is:"+ tmpMsg);
+//---
+consumer.setMessageListener(new MessageListener(){		
+	public void onMessage(Message message) {
+		if (message instanceof TextMessage)
+		{
+			TextMessage textMessage = (TextMessage) message;
+			try
+			{
+				System.out.println("MessageListener get is:"+ textMessage.getText());
+			}catch (JMSException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}});
+MyQueueReceiver msgRcvr = new MyQueueReceiver();
+synchronized(msgRcvr){ msgRcvr.wait(100000);}  
+//------
+
+if (transacted)
+{
+	session.commit();
+}
+consumer.close();
+session.close();
+connection.close();
+
+//--子类
+QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) lookupFactory;
+Object obj = context.lookup(jndiQueue);
+Queue queue = (Queue) obj;
+QueueConnection queueConnection = queueConnectionFactory.createQueueConnection();
+queueConnection.start();
+QueueSession queueSession = queueConnection.createQueueSession(transacted,  Session.AUTO_ACKNOWLEDGE);
+QueueReceiver queueReceiver = queueSession.createReceiver(queue);
+
+QueueBrowser browser = queueSession.createBrowser(queue);//只看不取 OK
+Enumeration msgs = browser.getEnumeration();
+while (msgs.hasMoreElements()) 
+{
+ TextMessage msg = (TextMessage)msgs.nextElement();
+System.out.println("QueueBrowser get is: " + msg.getText());
+}
+//--------
+//			TextMessage textMessage=(TextMessage)queueReceiver.receive();//会阻塞 ,只读一个继续,可while,OK
+//			System.out.println("QueueReceiver get is:"+ textMessage.getText());
+//--------
+ queueReceiver.setMessageListener(new MessageListener(){		//异步 OK, 会读所有的
+	public void onMessage(Message message) {
+		if (message instanceof TextMessage)
+		{
+			TextMessage textMessage = (TextMessage) message;
+			try
+			{
+				System.out.println("MessageListener get is:"+ textMessage.getText());
+			}catch (JMSException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}});
+MyQueueReceiver msgRcvr = new MyQueueReceiver();
+synchronized(msgRcvr){ msgRcvr.wait(100000);}  
+//------
+queueReceiver.close();     
+queueSession.close();     
+queueConnection.close();  
+
+
+//==============MyTopicSubscriber.java  weblogic 有示例的 
+//离线topic的要求一定要配置一个JMS store
+//---parent  离线/在线 OK
+ConnectionFactory connectionFactory = (ConnectionFactory) lookupFactory;
+Topic topic = (Topic)context.lookup(jndiTopic);
+
+Connection connection = connectionFactory.createConnection();
+connection.setClientID("client-name-1"); 
+Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE); 
+TopicSubscriber  consumer = session.createDurableSubscriber(topic, "my-sub-name-1"); 
+connection.start();
+Message msg=consumer.receive();
+System.out.println("parent get is:"+msg);
+//---child  离线/在线 OK
+TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) lookupFactory;
+Topic topic = (Topic)context.lookup(jndiTopic);
+TopicConnection topicConnection = topicConnectionFactory.createTopicConnection();
+
+topicConnection.setClientID("client-name");
+TopicSession topicSession = topicConnection.createTopicSession(transacted, Session.AUTO_ACKNOWLEDGE);
+TopicSubscriber topicSubscriber=topicSession.createDurableSubscriber(topic, "my-sub-name"); //第二个参数是唯一标识这个TopicSubscriber (java 进程)的名字,对应于PERSISTENT的topic
+
+//会在weblogic的Monitor->Durable Subscribers下建立的,离线也可取消息,之后connection.start();
+//TopicSubscriber topicSubscriber= topicSession.createSubscriber(topic);//必须在线可取消息
+topicConnection.start();
+topicSubscriber.setMessageListener(new MessageListener() 
+{
+	public void onMessage(Message msg)
+	{
+		if(msg instanceof TextMessage)
+		{
+			TextMessage t=(TextMessage)msg;
+			try
+			{
+				System.out.println("Topic get is:"+t.getText());
+			} catch (JMSException e)
+			{
+				e.printStackTrace();
+			}
+		}
+	}});
+
+MyTopicSubscriber my=new MyTopicSubscriber();
+synchronized(my){my.wait(100000);}    
+topicSubscriber.close();	 
+topicSession.close();     
+topicConnection.close();     
+//==============MyTopicPublisher.java 
+//---parent  离线/在线 OK
+ConnectionFactory connectionFactory = (ConnectionFactory) lookupFactory;
+Topic topic = (Topic)context.lookup(jndiTopic);
+Connection connection = connectionFactory.createConnection();
+Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE); 
+
+MessageProducer producer = session.createProducer(topic); 
+producer.setDeliveryMode(DeliveryMode.PERSISTENT); //设置保存消息 ,这个可以不写的，如先subscript是durable的，这里就放到durable里
+connection.start(); //设置完了后，才连接  
+
+TextMessage msg=session.createTextMessage();
+msg.clearBody();
+msg.setText("Test Message!!!");
+producer.send(msg); 
+//---child  离线/在线 OK
+TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) lookupFactory;
+Topic topic = (Topic)context.lookup(jndiTopic);
+TopicConnection topicConnection = topicConnectionFactory.createTopicConnection();
+TopicSession topicSession = topicConnection.createTopicSession(transacted, Session.AUTO_ACKNOWLEDGE);
+TopicPublisher topicPublisher= topicSession.createPublisher(topic);
+topicPublisher.setDeliveryMode(DeliveryMode.PERSISTENT);//topic可持久化,Producer级的,发的消息都是可持 久化
+topicConnection.start();
+
+TextMessage textMessage=topicSession.createTextMessage();
+textMessage.setJMSDeliveryMode(DeliveryMode.PERSISTENT);//消息级的 持久化
+textMessage.setText("topicPublisher's Message");
+topicPublisher.publish(textMessage);
+
+topicPublisher.close();
+topicSession.close();     
+topicConnection.close();     
+
+如果有webloigc 中有	Durable的Topic,那么只有Durable的Subscriber可以收到，
+
+
+===============
+
+
+
+ 
+ 
+
+
 

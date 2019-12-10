@@ -5,56 +5,23 @@ redis-desktop-manager-0.9.1  可以监控，可写命令好用
 redisclient-win32.x86_64.2.0.jar
 RedisStudio-en-0.1.5.exe  不能写命令，不能看数据值
 phpredisadmin   有Docker 镜像
----------Codis
-Codis 3.2.2  (go 1.9.2) 基于 Redis 3.2.8
-支持 Docker 部署
 
-
- 豌豆荚公司开发的一个分布式 Redis 解决方案，用Go语言开发的,使用zookeeper来作为辅助，
-不支持scan,keys命令
-分布式上层应用可以像使用单机的 Redis 一样使用
-
-https://github.com/CodisLabs/codis/
-https://github.com/CodisLabs/codis/tree/release3.2/doc
-
- 
-Codis Dashboard：集群管理工具  
-Codis Admin：集群管理的命令行工具。
-Codis FE：集群管理界面。
-
-./codis-dashboard   启动codis-dashboard   http://127.0.0.1:18080
-./codis-proxy  		启动codis-proxy
-./codis-server 		启动codis-server
-
-
-codis-fe  集群管理界面
-codis-admin
-
-同一个业务集群而言，可以同时部署多个 codis-proxy 实例；
-不同 codis-proxy 之间由 codis-dashboard 保证状态同步
-
-
-同一个业务集群而言，同一个时刻 codis-dashboard 只能有 0个或者1个 
-对集群的修改都必须通过 codis-dashboard 完成
-
-
-============== Redis-4.0.8 版本编译安装 CentOS 7
+============== Redis  编译安装 CentOS 7
 windows 版 redis-3.2.100
 https://github.com/MicrosoftArchive/redis/releases
 
-http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
-	redis-4.0.9-lp150.2.8.x86_64.rpm
-
+http://download.opensuse.org/distribution/leap/15.1/repo/oss/ 下的 x86_64/ 
+	redis-4.0.11
 http://download.opensuse.org/tumbleweed/repo/oss/x86_64/
-	redis-4.0.11 现在是 5.0.4
+	redis-  现在是 5.0.5
 	
-cd src 
-make    OK
+
+----redis 4.x
 
 如报error: jemalloc/jemalloc.h: No such file or directory  
 用 make MALLOC=libc 就OK ,Mac用jemalloc(README文件中说的)
 
-----redis 4.x
+
 make test 要 tcl-8.5以上(CentOS 7DVD自带8.5.13),可用8.6.7  测试OK,
 	redis-trib.rb 还是要ruby>2.2.2(CentOS 7DVD自带2.0) 有ruby-2.5.0编译安装后(./configure  , make , make install)带 gem 命令(RubyGems)，还要ruby的redis依赖
 	gem list
@@ -72,51 +39,61 @@ make test 要 tcl-8.5以上(CentOS 7DVD自带8.5.13),可用8.6.7  测试OK,
 			make
 			make install
 	安装OK
----redis 5.0.4  在 openSUSE-15 下源码编译安装OK (没提示要ruby,tcl,jemalloc)
-
 	
-make install 在 /usr/local/bin/redis-server
 
+-------------redis 5.0.5
+cd src 
+make
+sudo make install
 
-最大打开文件数
-/etc/security/limits.conf
-mysql          soft    nofile  1024
-mysql          hard    nofile  10032
+在 openSUSE-15 下源码编译安装OK (没提示要ruby,tcl,jemalloc)
 
-ulimit -Sn  1024
-ulimit -Hn 10032
+/usr/local/bin/redis-server 启动
 
 提示 加 vm.overcommit_memory = 1 到  /etc/sysctl.conf ,用命令 sysctl vm.overcommit_memory=1立即生效
 cat /proc/sys/vm/overcommit_memory
 0 表示内核将检查是否有足够的可用内存供应用进程使用:如果有足够的可用内存,内存申请允许. 否则,内存申请失败,并把错误返回给应用进程。
 1 表示内核允许分配所有的物理内存，而不管当前的内存状态如何。
-
-
+ 
  警告执行
  echo never > /sys/kernel/mm/transparent_hugepage/enabled   
  放/etc/rc.local 中开机启动执行  
  (openSuSE-15 中在 /etc/init.d/boot.local 文件中或 /etc/rc.loca 添加无效 ??? )
  Red Hat系统的对应文件是/etc/rc.d/rc.local 
  
-WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.
  
-默认配置 protected-mode yes 修改为 no
-bind 默认127.0.0.1  是不能外网连接的，要修改为本机IP 或者注释它
+echo 511 > /proc/sys/net/core/somaxconn
+或者
+--vi /etc/sysctl.conf
+net.core.somaxconn= 1024
+更新执行 sysctl -p
 
-redis-server -v 看版本
+
  
+最大打开文件数 (openSUSE无效？？？？elasticsearch也要设置这个)
+/etc/security/limits.conf
+*          soft    nofile  1024
+*          hard    nofile  10032
+
+ulimit -Sn  1024
+ulimit -Hn 10032
+
+
+-----------
+redis-server -v 看版本
+./redis-server ( 默认监听 6379 端口)
+
 源码目录有redis.conf可用于复制
 cp redis.conf  /usr/local/etc/
 redis-server /usr/local/etc/redis.conf
 
-./redis-server ( 默认监听 6379 端口)
-	提示 加 vm.overcommit_memory = 1 到  /etc/sysctl.conf ,用命令 sysctl vm.overcommit_memory=1立即生效
-	cat /proc/sys/vm/overcommit_memory
-	0 表示内核将检查是否有足够的可用内存供应用进程使用:如果有足够的可用内存,内存申请允许. 否则,内存申请失败,并把错误返回给应用进程。
-	1 表示内核允许分配所有的物理内存，而不管当前的内存状态如何。
 
-./redis-server --port 9999 --slaveof 127.0.0.1 6379  自己做从,--slaveof 后的是masterIP masterport
-./redis-server /etc/redis/6379.conf --loglevel debug
+默认配置 protected-mode yes 修改为 no
+
+bind 默认127.0.0.1  是不能外网连接的，要修改为本机IP 或者注释它,或者修改为0.0.0.0
+
+./redis-server --port 9999 --slaveof 127.0.0.1 6379  自己做从,--slaveof 后的是masterIP masterport  #slaveof 在redis 5.0过时，使用 REPLICAOF
+./redis-server /etc/redis/6379.conf --loglevel debug 
 
 ./redis-cli -p <port>  -h <hostname>  有交互命令如ping
 >help 再按tab有命令组的提示,如@string
@@ -129,6 +106,10 @@ redis-server /usr/local/etc/redis.conf
 
 >shutdown 关闭服务端
 >exit 退出本客户端
+
+
+
+数据类型有 字串(integer,float)，bit arrays(bitmap),list,set,zset,hash,HyperLogLogs,Stream(5版本新的数据类型)
 
 >set <var> <val>
 >get <var>
@@ -160,14 +141,29 @@ incrbyfloat counter 0.5
  a 的ASCII 是 97   0110  0001
  区别就是第3位0或者1的区别
  
- set char 'A'
- setbit char 2 1  #第3位设置为1,变小写,格式setbit key offset value
+set char 'A'
+setbit char 2 1  #(左边高位)第3位设置为1,变小写,格式setbit key offset value
+get char 是a
+bitcount char 显示3
  
- set v 2
- bitop  or res char v 
- bitop  and res char v
+set v 2
+get v 显示字串2 ascii 是 0011 0010
+ 
+bitop  or res char v 
+
+0110 0001
+0011 0010
+----------
+0111 0011	 是小写s
+
+get res 结果s
  
  
+bitop  and res char v
+
+
+
+
 ---list
 lpush message " -- " 
 lpop message
@@ -313,19 +309,18 @@ SET inAcc 10
 SET outAcc 20
 MULTI 			#事务开始
 INCR inAcc 	#提示QUEUED 排队
+#incr name   #这里对字串加1失败不会导致前后的回滚 (不是想要的), 只有这里输入了语法错误的命才回滚（程序中命令事先写好没问题）
 decr outAcc 
-#incr name   #这里失败不会导致前面的回滚,只有这里输入了语法错误的命才回滚
 DISCARD 		#回滚
-
-EXEC 			#事务结束
+EXEC 			#提交事务
 
 ---- 乐观锁
 
 set ticket 1
 watch ticket
 multi
-incr ticket
-exec  #这里如果另一个session也修改了这个，这里再执行会返回nil 表示执行失败
+incr ticket  #提示QUEUED
+exec  #这里如果另一个session也修改了ticket，这里再执行会返回nil 表示执行失败，即前的incr ticket被放弃
 
 #执行exec ,discard,unwatch 时会自动取消watch
 
@@ -333,6 +328,8 @@ exec  #这里如果另一个session也修改了这个，这里再执行会返回
 ---分布式锁 Java client 实现  Redisson 
 
 ---Lua 
+官方说lua脚本的原子性 Atomicity of scripts,如脚本正在执行，其它命令或脚本不能执行
+
 eval "return redis.call('set','foo','bar')" 0 
 
 call  如有错误则,返回给调用者
@@ -358,8 +355,10 @@ EVALSHA 同eval 但参数是SHA1 加密的
 redis.error_reply(error_string)
 redis.status_reply(status_string)
 
-
-
+lua脚本实现分布式锁，可以保存证setnx,expire两个操作的原子性
+如lua脚本没有执行完成时，不能执行其它脚本
+  
+ 
 --redis.conf
 include /x/y.conf
 
@@ -426,7 +425,7 @@ appendonly no
 pidfile /var/run/redis6380.pid
 port 6380
 dbfilename dump6380.rdb
-slaveof    127.0.0.1 6379
+slaveof    127.0.0.1 6379  ##slaveof 命令 在redis 5.0过时，使用 REPLICAOF
 masterauth   rpass 		#在从上时设置 主的密码,主用 requirepass   <masterpass> 设置
 slave-read-only yes
 appendonly no
@@ -450,11 +449,13 @@ slave1:ip=127.0.0.1,port=6381,state=online,offset=718,lag=0
 停master ,手动做failover
 
 连接一个从 6380
-slaveof no one  
+#slaveof no one    ##slaveof 命令 在redis 5.0过时，使用 REPLICAOF
+REPLICAOF NO ONE
+ 
 config set slave-read-only  no  #也可以不配置
 
 连接另一个从 6381
-slaveof   127.0.0.1 6380 
+slaveof   127.0.0.1 6380   #slaveof 命令 在redis 5.0过时，使用 REPLICAOF
 config set masterauth ''   ,可先用 config get master* 
 
 ----Sentinel (岗哨，哨兵) 是分布式的, 可以监控服务,如有问题可以通知外部,自动failover
@@ -498,20 +499,27 @@ redis-cli  -p 26379
 不能调用get,set
 
 (前面有设置两个slaveof , 即6380,6381,这只做了一个 sentinel 哨兵即26379) 连redis  6379,6380,6381, 测试
- 
+ #slaveof 命令 在redis 5.0过时，使用 REPLICAOF
 ---
 
 
 
 
------- redis  cluster (redis-3.0 版本开始支持) 自动分片数据到多个节点上(shard)
+------ redis  cluster (redis-3.0 版本开始支持) 自动分片数据到多个节点上(shard,slot)
+如果集群任意master挂掉,且当前master没有slave.集群进入fail状态,也可以理解成集群的slot映射[0-16383]不完整时进入fail状态
+如果集群超过半数以上master挂掉，无论是否有slave，集群进入fail状态
+客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可
+
+
+修改下面配置
 
 port 7000			 
 cluster-enabled yes
 cluster-config-file nodes0.conf		#文件自动生成,不需要手工修改,配置文件中不要中文
 cluster-node-timeout 5000			#毫秒 如时间内不能连接节点,认为节点失败
 appendonly yes 		
-appendfilename "appendonly.aof
+appendfilename "appendonly7000.aof
+pidfile /var/run/redis_7000.pid
 
 ---学习到的
 slave-serve-stale-data yes  	#表示当 从与主断开 或者 复制正在进行 回复客户端,如为no则报错 
@@ -519,11 +527,10 @@ slave-priority 100   			#如果master 不能正常工作选择从的优先级
 min-slaves-to-write 3          如果slave小于3个,主就不能写,最多10秒
 min-slaves-max-lag 10
 ---
-
-启动时可以看到 node id,每次都是同一个
-最少3个  master 节点,建义3个master 节点+3个slave 节点(6个配置文件)
+最少3个master节点,建议3个master节点 + 3个slave节点(6个配置文件)
 
 示例建立目录 mkdir 7000 7001 7002 7003 7004 7005  每个目录中放相同的配置,并修改端口,config-file名和appendfilename名可放同一目录中,并启动
+vi中批量替换 :%s/7000/70001/g
 
 如报最大打文件数
 	cat /proc/sys/fs/file-max
@@ -531,7 +538,7 @@ min-slaves-max-lag 10
 	sysctl -p
 
 redis-cli -c -p 7000 (-c cluster,-p port)
-> cluster nodes 以看到 node id
+> cluster nodes 第一列以看到 node id，如是slave可以看到master是哪个
 > cluster info  看 cluster_state  是 fail
 > ping 
 
@@ -539,8 +546,24 @@ redis-5.0 开始 redis-trib.rb  已经过时 ,使用  redis-cli  代替
 	./redis-trib.rb create --replicas 1 127.0.0.1:7000 127.0.0.1:7001 127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005
 	./redis-trib.rb create --replicas 1 172.16.35.35:7000 172.16.35.35:7001 172.16.35.35:7002 172.16.35.35:7003 172.16.35.35:7004 172.16.35.35:7005
 
+redis-5.0 新方法
+redis-cli --cluster create 127.0.0.1:7000 127.0.0.1:7001  127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 --cluster-replicas 1
+
+redis-cli --cluster info 127.0.0.1:7000 
+redis-cli --cluster help
+
+----功能和上面类似
+源码目录 utils/create-cluster/create-cluster 会启动3个master,3个slave，共6个 
+create-cluster start 启动端口 30001 - 30006 
+create-cluster create 提示输入yes
+
+create-cluster stop 停止
+-----
+提示3个主节点，分3部分slot,最大值为16383 即3FFF 
 	提示哪三台做M,哪三台做S,  输入yes
-	其中 --replicas 1 表示 每个主节点要一个子节点
+	其中 --replicas 1 (新的 --cluster-replicas)表示 每个主节点要一个子节点
+
+ ./redis-cli  -p 7000  任何一台（slave也可)
 	
 > cluster info 显示 cluster_state:ok
 			cluster_slots_ok:16384
@@ -552,9 +575,16 @@ redis-5.0 开始 redis-trib.rb  已经过时 ,使用  redis-cli  代替
 如果master做shutdown 那么它原来的slave变为master,自己fail
 如果slove 做shutdown ,只自己fail
 
-./redis-trib.rb reshard 127.0.0.1:7000   (shard碎片)提示输入移动slot数量->接收的node id(要为master)->输入几个源节点后done或用all
+./redis-trib.rb reshard 127.0.0.1:7000   (shard碎片)提示输入移动slot数量（上面的有提示信息） ->提示输入接收的node id(要加数据的节点，要为master,cluster nodes 显示和上面的提示)
+		->提示输入源节点（要清空的节点）->后再次提示输入源节点，也可  done 或 all
+./redis-cli  --cluster reshard 127.0.0.1:7000
 检查用
 ./redis-trib.rb check 127.0.0.1:7000
+./redis-cli  --cluster check 127.0.0.1:7000
+ 
+
+
+
 
 2的15 次方=16384 所有的slots
 自己不负责的Slot的请求时，会将负责请求Key所在Slot的Redis Instance地址返回给客户端，客户端收到后自动将原请求重新发往这个地址
@@ -563,21 +593,29 @@ redis-cli -p 7000 cluster nodes | grep myself
 redis-cli -p 7000 cluster nodes | grep master
 redis-cli -p 7002 debug segfault 表示 让7002端口的应用掉电
 
-./redis-trib.rb add-node (--slave) 127.0.0.1:7006 127.0.0.1:7000     第一个参数是新启动独立的,第二个是已经存在的
-	一个主可以有多个从
-./redis-trib.rb del-node 127.0.0.1:7006 <node-id>    也会停止这个节点的服务,删了的节点不能再加????
+./redis-trib.rb del-node 127.0.0.1:7002 <node-id>    
+./redis-cli  --cluster del-node 127.0.0.1:7002  <node-id> 这个(master)节点的数据被reshard到其它节点上,其下的slave自动连接另一个master,那个master有两个slave
+ 这个7002的节点服务被停了
+启动(带原来的配置文件)后自动加入集群
+./redis-trib.rb add-node   127.0.0.1:7002 127.0.0.1:7000     第一个参数是新启动独立的,第二个是已经存在的
+./redis-cli  --cluster add-node  127.0.0.1:7002 127.0.0.1:7000   
+	 
 
 
-
-查询redis允许的最大连接数
+查询redis允许的最大连接数  默认 4064
 CONFIG GET maxclients
+
+config get maxmemory-policy  默认为noeviction （不驱逐）
+config get maxmemory 默认为0
+
+config set maxmemory 100000
+config set maxmemory-policy  allkeys-lru
 
 
 当前的redis连接数
 info clients   
 	看 connected_clients:xx
-	
-	
+	 
 最大占用内存
 maxmemory <bytes>
 info 看 used_memory
@@ -620,19 +658,168 @@ malloc stats & malloc purge
 object freq user_key  取某个 key 的访问频度
 ./redis-cli --hotkeys
 
+-----HyperLogLogs
+现记录网站每天访问的独立IP数量这样的一个功能 ，要大量的数据
+为了更好地解决像独立 IP 地址计算这种问题,加了 HyperLogLog 结构
 
---------redis-5.0 开始 redis-trib.rb  已经过时 ,使用  redis-cli  代替
-redis-cli --cluster info 127.0.0.1:7000 
-redis-cli --cluster help
+只需要花费 12 KB 内存，就可以计算接近 2^64 个不同元素的基数
+只会根据输入元素来计算基数，而不会储存输入元素本身
 
 
---------redis-5.0 开始  replicaof 命令（redis-cli 下命令）
+pfadd hll a b c d  向key为hll中增加元素
+pfcount hll 返回基数估算值 ，不知道元素内容
+
+
+ 
+PFADD str1 "apple" "banana" "cherry" 
+PFCOUNT str1   ###3
+PFADD str2 "apple" "cherry" "durian" "mongo" 
+PFCOUNT str2  ###4
+PFMERGE str1and2 str1 str2 
+PFCOUNT str1and2   ##5 去重的
+
+
+
+--------redis-5.0 新的数据类型stream 
+日志文件
+ 
+#格式为 xadd key ID field string [field string ...]
+XADD mystream * sensor-id 1234 temperature 19.8  ###  使用 * 为值则表示让 Redis 自行为该元素设置 ID ，命令返回的 就是新添加元素的 ID
+如反回 "1573309956334-0"
+# - 之前的数字为添加元素时的毫秒精度的时间戳， 而-之后的数字则是一个从 0 开始自增的数字,用于却别同一毫秒内出现的多个不同元素
+
+XRANGE mystream 1573309711047-0 +
+ # - 或者 + 来表示负无穷和正无穷
+
+
+
+XLEN mystream 有多少个时间记录
+
+XADD somestream 0-1 field value 返回 "0-1" 多次执行ID只可递增
+
+
+历史数据
+XRANGE mystream - + COUNT 2  #只要前2个时间记录，即最老的2个时间段数据
+XREVRANGE mystream + - COUNT 2  #是反向的 ，即要最新的2个时间段数据
+
+
+
+PUB/SUB的消息模型 本身并不保存任何历史消息， 某个用户的网络连接出现异常，重新加入后，他是看不到断链期间的聊天记录的
+	新加入的用户同样也看不到最近一段时间的历史记录，这个对用户迅速的理解当前讨论的问题非常不便
+	此外，如果Redis发生了重启，所有的用户也需要重新订阅频道。
+
+
+read可以有多个消息者
+所有的消息都被无限期地附加到Stream中（除非用户明确地要求删除这些条目）：不同的消费者通过记住收到的最后一条消息的ID
+
+
+XREAD COUNT 2 STREAMS mystream 0   #最后参数表示最小ID
+
+
+XREAD BLOCK 5000 STREAMS mystream $ #如使用BLOCK必须使用特殊的ID $ 
+读最新的
+在一个时间最长为 5000 毫秒的阻塞操作中， 等待 user-timeline 流最新添加的一个元素
+如在指定时间内都没有出现新添加的元素， 那么 XREAD 命令将返回一个空值； 否则， XREAD 命令将返回流新添加的元素
+
+
+概念上类似于Kafka的Consumer Group功能
+XGROUP CREATE mystream mygroup $    # mystream是已经存在的stream
+
+XADD mystream * message apple
+XADD mystream * message orange
+XADD mystream * message banana
+
+XREADGROUP GROUP mygroup Alice COUNT 1 STREAMS mystream >  #Alice是consumer名，要是组中唯一的名字 , 特殊的ID > 其意思是：消息到目前为止从未传递给其他消费者
+
+XREADGROUP GROUP mygroup Alice STREAMS mystream 0  可以收到自己未确认的
+
+XACK mystream mygroup 1526569495631-0  #是上面返回的ID 确认消息，再使用上面的命令就查不到了
+
+XPENDING mystream mygroup  #显示消费者组中的每个消费者的待处理消息个数,调用不会改变任何消息的所有
+
+XPENDING mystream mygroup - + 10  # 从开始ID到结束ID取10个  ，显示每个消息ID
+显示格式
+	消息ID			1573351818077-0
+	消费者名称		Alice
+	空闲时间（单位是毫秒）
+	每一条给定的消息被传递了多少次
+
+
+XRANGE mystream 1573351818077-0 1573351818077-0 查上面的消息内容，可以使用两个相同的ID做参数
+
+
+XCLAIM <key> <group> <consumer> <min-idle-time> <ID-1> <ID-2> ... <ID-N>
+
+XCLAIM mystream mygroup Alice2 3600000 1573351818077-0  #上面的ID的这些消息可以改变他们的所有者，要求空闲时间大于指定的
+.
+XINFO STREAM mystream  
+	显示
+	first-entry第一条
+	last-entry最后一条
+	groups 有多少个组
+	
+XINFO CONSUMERS mystream mygroup  显示组中每个消息者的pending的数量，idle时间 
+XINFO GROUPS mystream  #显示这个stream的group是谁，消费者数量，pending几个
+XINFO HELP
+
+XADD mystream MAXLEN 2 * value 1   ##MAXLEN 2 表示最多存2个，超出的就不存在内存中，如放在硬盘中
+XADD mystream MAXLEN 2 * value 2
+XADD mystream MAXLEN 2 * value 3
+XLEN mystream  结果是2
+ XRANGE mystream - + 发现最先进入的1没有了
+ 
+XADD mystream MAXLEN ~ 1000 * file1 value1 # ~的意思是，我不是真的需要精确的1000个项目。它可以是1000或者1010或者1030，只要保证至少保存1000个项目就行
+		当我们移除整个节点的时候才执行修整。这使得命令更高效
+		
+
+XTRIM mystream MAXLEN 10
+XTRIM mystream MAXLEN ~ 10
+
+XRANGE mystream - + COUNT 2
+
+XDEL mystream 1573358525880-0  #删除上面返回的ID
+
+当调用ZREM命令将有序集合中的最后一个元素删除时，这个有序集合会被彻底删除。但Stream允许在没有元素的时候仍然存在
+ 
+
+--------  slaveof 命令 在redis 5.0过时，使用 REPLICAOF
+ （redis-cli 下命令）
 --REPLICATION 配置
  replicaof <masterip> <masterport>
+
  
  
  
+---------Codis
+Codis 3.2.2  (go 1.9.2) 基于 Redis 3.2.8
+支持 Docker 部署
+
+
+ 豌豆荚公司开发的一个分布式 Redis 解决方案，用Go语言开发的,使用zookeeper来作为辅助，
+不支持scan,keys命令
+分布式上层应用可以像使用单机的 Redis 一样使用
+
+https://github.com/CodisLabs/codis/
+https://github.com/CodisLabs/codis/tree/release3.2/doc
+
  
- 
- 
- 
+Codis Dashboard：集群管理工具  
+Codis Admin：集群管理的命令行工具。
+Codis FE：集群管理界面。
+
+./codis-dashboard   启动codis-dashboard   http://127.0.0.1:18080
+./codis-proxy  		启动codis-proxy
+./codis-server 		启动codis-server
+
+
+codis-fe  集群管理界面
+codis-admin
+
+同一个业务集群而言，可以同时部署多个 codis-proxy 实例；
+不同 codis-proxy 之间由 codis-dashboard 保证状态同步
+
+
+同一个业务集群而言，同一个时刻 codis-dashboard 只能有 0个或者1个 
+对集群的修改都必须通过 codis-dashboard 完成
+
+

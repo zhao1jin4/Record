@@ -1,8 +1,8 @@
 下载   http://repo.spring.io/libs-release/
 
 <properties>
-	<spring.version>5.1.0.RELEASE</spring.version>
-	<spring-security.version>5.0.5.RELEASE</spring-security.version>
+	<spring.version>5.2.1.RELEASE</spring.version>
+	<spring-security.version>5.2.1.RELEASE</spring-security.version>
 </properties>
 <parent>
     <groupId>org.springframework.boot</groupId>
@@ -39,11 +39,6 @@
 	</dependency>
 	<dependency>
 		<groupId>org.springframework</groupId>
-		<artifactId>spring-jms</artifactId>
-		<version>${spring.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
 		<artifactId>spring-test</artifactId>
 		<version>${spring.version}</version>
 	</dependency>
@@ -56,12 +51,7 @@
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-orm</artifactId>
 		<version>${spring.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-oxm</artifactId>
-		<version>${spring.version}</version>
-	</dependency>
+	</dependency>	
 	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-web</artifactId>
@@ -77,8 +67,23 @@
 		<artifactId>spring-webmvc</artifactId>
 		<version>${spring.version}</version>
 	</dependency>
- 
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-webflux</artifactId>
+		<version>${spring.version}</version>
+	</dependency>
+   <dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-jcl</artifactId>
+		<version>${spring.version}</version>
+	</dependency>
+	
 	<!-- security -->
+	<dependency>
+	    <groupId>org.springframework.security</groupId>
+	    <artifactId>spring-security-oauth2-client</artifactId>
+	    <version>${spring.version</version>
+	</dependency>
 	<dependency>
 		<groupId>org.springframework.security</groupId>
 		<artifactId>spring-security-web</artifactId>
@@ -119,12 +124,6 @@
 		<version>2.0.4.RELEASE</version>
 	</dependency>
 
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-webmvc-portlet</artifactId>
-		<version>4.3.18.RELEASE</version>  
-	</dependency>
-	
 	<!-- data -->
 	<dependency>
         <groupId>org.springframework.data</groupId>
@@ -149,11 +148,6 @@
     </dependency>
 	
 	<dependency>
-	  <groupId>org.springframework.data</groupId>
-	  <artifactId>spring-data-solr</artifactId>
-	  <version>1.2.0.RELEASE</version>
-	</dependency>
-	<dependency>
         <groupId>org.springframework.data</groupId>
         <artifactId>spring-data-rest-webmvc</artifactId>
         <version>2.3.0.RELEASE</version>
@@ -169,20 +163,7 @@
 	  <version>1.2.1.RELEASE</version>
 	</dependency> 
 	
-	<!-- other -->
-	<dependency>
-		<groupId>org.springframework.batch</groupId>
-		<artifactId>spring-batch-core</artifactId>
-		<version>3.0.6.RELEASE</version>
-	</dependency>
-	<!--
-	<dependency>
-		<groupId>org.springframework.retry</groupId>
-		<artifactId>spring-retry</artifactId>
-		<version>1.1.2.RELEASE</version>
-	</dependency>
-	-->
-	
+	 <!-- other -->
 	<dependency>
         <groupId>org.springframework.hateoas</groupId>
         <artifactId>spring-hateoas</artifactId>
@@ -197,13 +178,11 @@
 </dependencies>
  
 doc URL
-http://docs.spring.io/spring-framework/
-http://docs.spring.io/spring-batch/
+http://docs.spring.io/spring-framework/ 
 http://docs.spring.io/spring-data/
 http://docs.spring.io/spring-security/site/docs/
 http://docs.spring.io/spring-hateoas
-
-spring-data-solr
+ 
 
 CRUD(Create,Retrieve,Update,Delete)
 
@@ -1211,6 +1190,7 @@ import org.springframework.core.Ordered;
 
 <context:component-scan base-package="spring3.config"/> <!-- 不用配置 bean标签 -->
 
+
 @Configuration  //代替部分spring配置中XML,<bean id=""
 @Import({ServiceConfig.class})//中的类也有@Configuration  
 @PropertySource("classpath:jdbc.properties")// 写到Environment中, /WEB-INF
@@ -1423,7 +1403,7 @@ public class EmployeeDao
 	<property name="dataSource" ref="dataSource" />
 	<property name="mappingLocations">
 		<list>
-			<value>classpath:/spring_db_hibernate/*.hbm.xml</value>
+			<value>classpath:/spring_db_hibernate/*.hbm.xml</value>  <!-- */ -->
 		</list>
 	</property>
 	<property name="hibernateProperties">
@@ -1708,45 +1688,6 @@ public class TestNGSpring extends AbstractTestNGSpringContextTests {
 	}
 }
 
-  
-=========================spring JNDI
-JMS见ActiveMQ
-<bean id="jndiTemplate" class="org.springframework.jndi.JndiTemplate">
-	<property name="environment">
-		<props>
-		   <prop key ="java.naming.factory.initial">weblogic.jndi.WLInitialContextFactory</prop>
-		   <prop key ="java.naming.provider.url">t3://localhost:7001</prop>
-		</props>
-	</property>
-</bean>
-<bean id="jmsTopicConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
-	<property name="jndiTemplate">
-		<ref bean="jndiTemplate" />
-	</property>
-	<property name="jndiName">
-		<value>TopicConnectionFactory</value>
-	</property>
-</bean>
-<bean id="destination" class="org.springframework.jndi.JndiObjectFactoryBean">
-	<property name="jndiTemplate">
-		<ref bean="jndiTemplate" />
-	</property>
-	<property name="jndiName">
-		<value>jobNotificationTopic</value>
-	</property>
-</bean>
-
-<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
-	<property name="connectionFactory">
-		<ref bean="jmsTopicConnectionFactory" />
-	</property>
-	<property name="defaultDestination">
-		<ref bean="destination" /> <!--javax.jms.Destination-->
-	</property>
-	<property name="receiveTimeout">
-		<value>30000</value>
-	</property>
-</bean>
 
 =========================Spring mail
 import org.springframework.mail.SimpleMailMessage;
@@ -1789,107 +1730,6 @@ MimeMessagePreparator preparator = new MimeMessagePreparator()
 			};
 mailSender.send(preparator);
 
-
-
-=========================Spring Timer
- 
-<bean  id="myTimerTask" class="spring.quartz.MyTimerTask"/> <!-- extends TimerTask  -->
-<bean  id="myTask" class="spring.quartz.MyTask"/>
-<bean  id="myTimerTaskProxy" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"><!-- 就不用实现Job接口了 -->
-	<property name="arguments" value="pdf"/>
-	<property name="targetObject" ref="myTask"/>
-	<property name="targetMethod" value="doSomething"/>
-</bean>  
-<bean id="mySchedule" class="org.springframework.scheduling.timer.ScheduledTimerTask">
-	<property name="delay" value="1000"/>
-	<property name="period" value="3000"/>
-	<property name="fixedRate" value="true"/>
-	<!--<property name="timerTask" ref="myTimerTask"/>  -->
-	<property name="timerTask" ref="myTimerTaskProxy"/>
-</bean>
-<bean   class="org.springframework.scheduling.timer.TimerFactoryBean">
-	<property name="scheduledTimerTasks">
-		<list>
-			<ref local="mySchedule"/>
-		</list>
-	</property>
-</bean> 
-
-
-=========================Spring Quartz
-<!-- 方式一 -->
-<bean id="mytask" class="spring.quartz.MyTask"/>
-<bean id="myJobDeatail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-	<property name="targetObject" ref="mytask"/>
-	<property name="targetMethod" value="frequencyCheck"/>
-	<property name="concurrent" value="false" />  <!-- 单线程,如果第一个调度卡到第二次调度,现在过了第二次时间,第一个调度又继续,第二个调度还可以继续执行 -->
-</bean> 
-<bean id="mySimpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"><!-- SimpleTriggerBean 不可用于Quartz2.0 -->
-	<property name="startDelay"  value="3000"/>
-	<property name="repeatInterval"  value="1000"/>
-	<property name="jobDetail"  ref="myJobDeatail"/>
-</bean>
-<!-- 方式二 -->
- <bean id="myJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean"><!-- JobDetailBean 不可用于Quartz2.0 -->
-	<property name="jobClass"  value="spring.quartz.MyQuartzJob"/><!-- implements Job -->
-	<property name="jobDataAsMap" >
-		<map>
-			<entry key="data" value="sping配置的数据"/>
-		</map>
-	</property>
-</bean>
-<bean id="myCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"><!-- SimpleTriggerBean 不可用于Quartz2.0 -->
-	<property name="cronExpression" value="3/5 * 8-17 * * ?"></property>
-	<property name="jobDetail"  ref="myJob"/> 
-</bean>
-<util:properties id="quartzProperties" location="classpath:quartz.properties"/>
-<bean id="schedulerFactory"   class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
-	 <property name="quartzProperties" ref="quartzProperties"/> <!-- 如使用了Spring不会默认读 classpath下的quartz.properties , 要配置quartzProperties属性 -->
-	<property name="triggers">
-		<list>
-			<!-- <ref local="mySimpleTrigger"/>  -->
-			<ref local="myCronTrigger"/>
-		</list>
-	</property>
-	<!-- 持久化,quartz-2.1.6\docs\dbTables\[数据库].sql, tables_mysql_innodb.sql 示例在quartz-2.1.6\examples\example10\quartz.properties -->
-	<property name="configLocation" value="classpath:spring/quartz/quartz.properties"/>
-</bean> 
-
-Quartz内存泄漏
------
-@Scheduled(fixedDelay=5000)
-public void doBusAtRate()
-
-@Scheduled(cron="*/5 * * * * MON-FRI")
-public void doBusCrond()
-
-@Async
-public void asyncReturnSomething() 
-	
-<bean id="mySomeBus" class="spring_quartz.other.MySomeBus"/>
-<task:scheduler id="myScheduler" pool-size="10" />
-<task:executor id="myExecutor" pool-size="10" queue-capacity="25"/> <!-- 会建立  ThreadPoolTaskExecutor实例-->
-<task:annotation-driven  executor="myExecutor" scheduler="myScheduler"/> <!-- @ 方式 -->
-<!-- 标签方式
-<task:scheduled-tasks scheduler="myScheduler">
-	<task:scheduled ref="mySomeBus" method="doBusAtRate" fixed-rate="5000" />
-	<task:scheduled ref="mySomeBus" method="doBusCrond" cron="*/5 * * * * MON-FRI" />
-</task:scheduled-tasks>
- -->
-=========================Spring concurrent 包 线程池 
-不推荐,过时了
-<!--
-	<bean id="taskExecutor"
-		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
-		<property name="corePoolSize" value="5" />
-		<property name="maxPoolSize" value="10" />
-		<property name="queueCapacity" value="25" />
-	</bean>
- -->	
-	<task:executor id="taskExecutor" pool-size="10" queue-capacity="25"/> <!-- 会建立  ThreadPoolTaskExecutor 实例-->
-	<bean id="taskExecutorExample" class="spring_quartz.other.TaskExecutorExample">
-		<constructor-arg ref="taskExecutor" /> <!-- TaskExecutor taskExecutor;taskExecutor.execute(new Runnable(){..}); -->
-	</bean>
 
 =========================Spring JMX
 <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean"> <!-- 用来建立MBeanServer -->
@@ -1976,6 +1816,91 @@ parser.parseExpression("null?:'Unknown'")
 parser.parseExpression("random number is #{T(java.lang.Math).random()}", new TemplateParserContext()).getValue(String.class);
  
 
+=========================Spring Timer
+ 
+<bean  id="myTimerTask" class="spring.quartz.MyTimerTask"/> <!-- extends TimerTask  -->
+<bean  id="myTask" class="spring.quartz.MyTask"/>
+<bean  id="myTimerTaskProxy" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean"><!-- 就不用实现Job接口了 -->
+	<property name="arguments" value="pdf"/>
+	<property name="targetObject" ref="myTask"/>
+	<property name="targetMethod" value="doSomething"/>
+</bean>  
+<bean id="mySchedule" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+	<property name="delay" value="1000"/>
+	<property name="period" value="3000"/>
+	<property name="fixedRate" value="true"/>
+	<!--<property name="timerTask" ref="myTimerTask"/>  -->
+	<property name="timerTask" ref="myTimerTaskProxy"/>
+</bean>
+<bean   class="org.springframework.scheduling.timer.TimerFactoryBean">
+	<property name="scheduledTimerTasks">
+		<list>
+			<ref local="mySchedule"/>
+		</list>
+	</property>
+</bean> 
+
+
+=========================Spring Quartz
+<!-- 方式一 -->
+<bean id="mytask" class="spring.quartz.MyTask"/>
+<bean id="myJobDeatail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	<property name="targetObject" ref="mytask"/>
+	<property name="targetMethod" value="frequencyCheck"/>
+	<property name="concurrent" value="false" />  <!-- 单线程,如果第一个调度卡到第二次调度,现在过了第二次时间,第一个调度又继续,第二个调度还可以继续执行 -->
+</bean> 
+<bean id="mySimpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean"><!-- SimpleTriggerBean 不可用于Quartz2.0 -->
+	<property name="startDelay"  value="3000"/>
+	<property name="repeatInterval"  value="1000"/>
+	<property name="jobDetail"  ref="myJobDeatail"/>
+</bean>
+<!-- 方式二 -->
+ <bean id="myJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean"><!-- JobDetailBean 不可用于Quartz2.0 -->
+	<property name="jobClass"  value="spring.quartz.MyQuartzJob"/><!-- implements Job -->
+	<property name="jobDataAsMap" >
+		<map>
+			<entry key="data" value="sping配置的数据"/>
+		</map>
+	</property>
+</bean>
+<bean id="myCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"><!-- SimpleTriggerBean 不可用于Quartz2.0 -->
+	<property name="cronExpression" value="3/5 * 8-17 * * ?"></property>
+	<property name="jobDetail"  ref="myJob"/> 
+</bean>
+<util:properties id="quartzProperties" location="classpath:quartz.properties"/>
+<bean id="schedulerFactory"   class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	 <property name="quartzProperties" ref="quartzProperties"/> <!-- 如使用了Spring不会默认读 classpath下的quartz.properties , 要配置quartzProperties属性 -->
+	<property name="triggers">
+		<list>
+			<!-- <ref local="mySimpleTrigger"/>  -->
+			<ref local="myCronTrigger"/>
+		</list>
+	</property>
+	<!-- 持久化,quartz-2.1.6\docs\dbTables\[数据库].sql, tables_mysql_innodb.sql 示例在quartz-2.1.6\examples\example10\quartz.properties -->
+	<property name="configLocation" value="classpath:spring/quartz/quartz.properties"/>
+</bean> 
+
+Quartz内存泄漏
+-----
+@Scheduled(fixedDelay=5000)
+public void doBusAtRate()
+
+@Scheduled(cron="*/5 * * * * MON-FRI")
+public void doBusCrond()
+
+@Async
+public void asyncReturnSomething() 
+	
+<bean id="mySomeBus" class="spring_quartz.other.MySomeBus"/>
+<task:scheduler id="myScheduler" pool-size="10" />
+<task:executor id="myExecutor" pool-size="10" queue-capacity="25"/> <!-- 会建立  ThreadPoolTaskExecutor实例-->
+<task:annotation-driven  executor="myExecutor" scheduler="myScheduler"/> <!-- @ 方式 -->
+<!-- 标签方式
+<task:scheduled-tasks scheduler="myScheduler">
+	<task:scheduled ref="mySomeBus" method="doBusAtRate" fixed-rate="5000" />
+	<task:scheduled ref="mySomeBus" method="doBusCrond" cron="*/5 * * * * MON-FRI" />
+</task:scheduled-tasks>
+ -->
 =========================Spring Cache
 java map
 
@@ -2131,84 +2056,7 @@ String tmpDir=System.getProperty("java.io.tmpdir");// %HOMEPATH%\AppData\Local\T
 --- 还有 caffeine 和 jcache(ehcache 3.x) (JSR 107 )
 
 
-
-=========================Spring OXM
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import org.springframework.oxm.Marshaller;
-import org.springframework.oxm.Unmarshaller;
-
-is = new FileInputStream(FILE_NAME);
-this.settings = (Settings) this.unmarshaller.unmarshal(new StreamSource(is));
-			
-os = new FileOutputStream(FILE_NAME);
-this.marshaller.marshal(settings, new StreamResult(os));
-
-			
-<bean id="application" class="spring_oxm.Application">
-	<property name="marshaller" ref="marshaller" />
-	<property name="unmarshaller" ref="marshaller" />
-</bean>
-<oxm:jaxb2-marshaller id="marshaller">
-	<oxm:class-to-be-bound name="spring_oxm.Settings"/> <!-- 类级加 @XmlRootElement-->
-</oxm:jaxb2-marshaller>
-
-=========================Spring Groovy
-//除了要	groovy-2.1.8.jar 还要  asm-4.0.jar,检查.groovy文件要存在,不要编译,设置eclipse->project preference->输入src/spring_groovy/*.groovy
-
-要使用单独项目只有依赖包的项目,其它包有影响 
-
----Messenger.groovy
-package spring_groovy;
-class GroovyMessenger implements Messenger {//实现java中的Messenger
-	String message //没有分号
-}
-
-<lang:groovy id="messenger" script-source="classpath:spring_groovy/Messenger.groovy">
-	<lang:property name="message" value="I Can Do The Frug" />
-</lang:groovy>
-
---方式二
-<lang:groovy id="messenger">
-    <lang:inline-script>
-        package spring_groovy;
-		//import spring_groovy.Messenger;//实现java中的Messenger
-		class GroovyMessenger implements Messenger { 
-			String message
-		}
-    </lang:inline-script>
-    <lang:property name="message" value="I Can Do The Frug" />
-</lang:groovy>
- ---calculator.groovy
- class GroovyCalculator implements Calculator {
-    int add(int x, int y) {
-        x + y //没有return 
-    }
-	static main(args) {
-	}
-}
-	
-
-=========================Spring JCA
-
-=========================Spring Reactor
- <dependency>
-    <groupId>io.projectreactor.spring</groupId>
-    <artifactId>reactor-spring-context</artifactId>
-    <version>2.0.7.RELEASE</version>
-</dependency>
-<dependency>
-    <groupId>io.projectreactor.spring</groupId>
-    <artifactId>reactor-spring-core</artifactId>
-    <version>2.0.7.RELEASE</version>
-</dependency>
-
-
-
-
-
-=========================Spring for Hadoop 2.5.0 (Data)
-HbaseTemplate 
+ 
 =========================Spring Data Redis
 
 <dependency>
@@ -2751,203 +2599,7 @@ public interface OperHisRepository extends CrudRepository<OperHistory, Long>,　
 ogm= Object-Graph mapping
 
 =========================Spring Data Hadoop-2.1
-
-
-========================Spring Batch
---- JDBC
-     <bean id="jobLauncher"  class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
-         <property name="jobRepository" ref="jobRepository" />
-     </bean>
- 
-    <bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
-        <property name="transactionManager" ref="transactionManager" />
-    </bean>
-  
-    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
-  
-    <bean id="jdbcProcessor" class="spring_batch.jdbc.JDBCProcessor"/>
-  
-	<bean id="jdbcItemWriter"  class="org.springframework.batch.item.database.JdbcBatchItemWriter">
-	    <property name="dataSource" ref="dataSource" />
-	    <property name="sql"  value="insert into student (id,name,age)  values (:id,:name,:age)" /> <!-- :属性名 对应于 Student属性名 -->
-	    <property name="itemSqlParameterSourceProvider">
-	        <bean class="org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider" />
-	    </property>
-	</bean>
-  
-    <!--  page    如是MySQL第1页自动加  ORDER BY id ASC LIMIT 3,第二页自动加  AND ((id > 3)) ORDER BY id ASC LIMIT 3
-    id是auto_increment 方式生成的,如有删除数据导致不连续的,就多读几次, 不影响批处理--> 
-	<bean id="jdbcPageReader" class="org.springframework.batch.item.database.JdbcPagingItemReader">
-		<property name="dataSource" ref="dataSource" />
-		<property name="queryProvider">
-			<bean class="org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean">
-			     <property name="dataSource"  ref="dataSource"></property>
-				<property name="selectClause" value="select id, name" />
-				<property name="fromClause" value="from student" />
-				<property name="whereClause" value="where age > :age" />
-				<property name="sortKey" value="id" />
-			</bean>
-		</property>
-		<property name="parameterValues">
-			<map>
-				<entry key="age" value="20" />
-			</map>
-		</property>
-		<property name="pageSize" value="3" />
-		<property name="rowMapper"  >
-			<bean class="org.springframework.jdbc.core.BeanPropertyRowMapper">
-			    <property name="mappedClass" value="spring_batch.Student"/>
-			</bean>
-		</property>
-	</bean>
-	
-	 <batch:job id="jdbcPageJob">
-         <batch:step id="pageStep">
-             <batch:tasklet>
-                 <batch:chunk reader="jdbcPageReader" writer="jdbcItemWriter" processor="jdbcProcessor"  commit-interval="1">
-                 </batch:chunk>
-             </batch:tasklet>
-         </batch:step>
-     </batch:job>
-     
-	
-    <!--  cursor , 就是ResultSet , 根据写的sql查全部数据--> 
-    <batch:job id="jdbcCursorJob">
-         <batch:step id="cursorStep">
-             <batch:tasklet>
-                 <batch:chunk reader="jdbcCursorReader" writer="jdbcItemWriter" processor="jdbcProcessor"  commit-interval="1">
-                 </batch:chunk>
-             </batch:tasklet>
-         </batch:step>
-     </batch:job>
-
-	<bean id="jdbcCursorReader" class="org.springframework.batch.item.database.JdbcCursorItemReader" scope="step">
-	    <property name="dataSource" ref="dataSource" />
-	    <property name="sql"   value="select id, name from student where id &lt; ?" />
-	    <property name="rowMapper">
-	        <bean class="org.springframework.jdbc.core.BeanPropertyRowMapper">
-	            <property name="mappedClass" value="spring_batch.Student" />
-	        </bean>
-	    </property>
-	    <property name="preparedStatementSetter" ref="paramStatementSetter" />
-	</bean>
-	
-	<bean id="paramStatementSetter" class="org.springframework.batch.core.resource.ListPreparedStatementSetter"  scope="step">
-	    <property name="parameters">
-	        <list>
-	            <value>#{jobParameters['id']}</value>
-	        </list>
-	    </property>
-	</bean>
-	
-
-JobLauncher launcher = (JobLauncher) context.getBean("jobLauncher");
-Job job = (Job) context.getBean("jdbcCursorJob"); //jdbcPageJob
-JobExecution result = launcher.run( job,
-                    new JobParametersBuilder()
-                            .addString("id", "10")
-                            .toJobParameters()
-                            );
-
-//--------- <job> 依赖于 spring-retry-1.1.0.RELEASE.jar
-
-<bean id="jobLauncher"  class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
-	<property name="jobRepository" ref="jobRepository" />
-</bean>
-<bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean"/>
-
-<bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
-
-<batch:job id="helloWorldJob">
-	<batch:step  id="step_hello" next="step_world">
-		<batch:tasklet  ref="hello" transaction-manager="transactionManager" />
-	</batch:step>
-	<batch:step  id="step_world" >
-		<batch:tasklet  ref="world" transaction-manager="transactionManager" />
-	</batch:step>
-</batch:job>
-
-<bean id="hello" class="spring_batch.HelloTasklet">
-	<property name="message" value="Hello "/>
-</bean>
-<bean id="world" class="spring_batch.WorldTasklet">
-	<property name="message" value="world "/>
-</bean>
-public class HelloTasklet implements Tasklet {
-    private String message;
-    public void setMessage(String message) {
-        this.message = message;
-    }
-    @Override
-    public RepeatStatus execute(StepContribution step, ChunkContext context)
-            throws Exception {
-        System.out.println(message);
-        return RepeatStatus.FINISHED;
-    }
-}
-JobLauncher launcher = (JobLauncher) context.getBean("jobLauncher");
-Job job = (Job) context.getBean("helloWorldJob");
-JobExecution result = launcher.run(job, new JobParameters());
-System.out.println(result.toString());
-
-
- 
-//---------  文件示例 
-<beans:bean id="messageReader"  class="org.springframework.batch.item.file.FlatFileItemReader">
-	<beans:property name="lineMapper" ref="lineMapper"/>
-	<beans:property name="resource"   value="classpath:spring_batch/student.csv"/>
-</beans:bean>
-
-<beans:bean id="lineMapper" class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
-	<beans:property name="lineTokenizer">
-		<beans:bean  class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer"/>
-	</beans:property>
-	<beans:property name="fieldSetMapper">
-		<beans:bean class="spring_batch.StudentMapper"/>
-	</beans:property>
-</beans:bean>
-	
-  <tasklet>
-	   <chunk reader="messageReader" processor="messageProcessor"  writer="messageWriter" 
-				commit-interval="5" retry-limit="2"  chunk-completion-policy=""> <!-- chunk-completion-policy表示 Step 的完成策略，即当什么情况发生时表明该 Step 已经完成 -->
-		   <retryable-exception-classes>
-			   <include class="java.net.ConnectException"/>
-			   <exclude class="java.net.SocketTimeoutException"/>
-		   </retryable-exception-classes>
-		</chunk>
-	</tasklet>
-class StudentMapper implements FieldSetMapper<Student> 
-implements ItemProcessor<Student, Message>
-implements ItemWriter<Message>
-
-
-
- private static Object getProxyTargetObject(Object proxy) 
- {
-	if(Proxy.isProxyClass(proxy.getClass()) )
-    {		
-		LOG.info("isProxyClass true ");
-		Class  targetClass=proxy.getClass().getInterfaces()[0];
-	}
-	 if(!AopUtils.isAopProxy(proxy)) { //判断是否是代理类  
-		 LOG.error("proxy 不是 AopProxy代理类 ");
-		 return  proxy;
-	}  
- 
-	try
-	{
-		Field h = proxy.getClass().getSuperclass().getDeclaredField("h");  
-		h.setAccessible(true);  
-		AopProxy aopProxy = (AopProxy) h.get(proxy);  
-		Field advised = aopProxy.getClass().getDeclaredField("advised");  
-		advised.setAccessible(true);  
-		return  ((AdvisedSupport)advised.get(aopProxy)).getTargetSource().getTarget();  
-	}catch(Exception ex)
-	{
-		 LOG.error("getProxyTargetObject error !!! ",ex);
-	}
-	return null;
-}  
+HbaseTemplate
 
 ========================Spring RabbitMQ
 <dependency>
@@ -3022,6 +2674,24 @@ AmqpTemplate amqpTemplate =(AmqpTemplate)ctx.getBean("myAmqpTemplate");
 amqpTemplate.convertAndSend("hello", "xxx");//hello是Routing key ,对应xml配置key="hello"
 System.out.println("发送了XXX");
 ctx.close();//如果不关，就不退出 
+
+
+
+=========================Spring Reactor
+
+
+ <dependency>
+    <groupId>io.projectreactor.spring</groupId>
+    <artifactId>reactor-spring-context</artifactId>
+    <version>2.0.7.RELEASE</version>
+</dependency>
+<dependency>
+    <groupId>io.projectreactor.spring</groupId>
+    <artifactId>reactor-spring-core</artifactId>
+    <version>2.0.7.RELEASE</version>
+</dependency> 
+
+
 
 
 

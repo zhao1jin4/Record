@@ -1,3 +1,10 @@
+
+域名可以去https://changeip.com免费弄个
+ 
+http://ip.cn/  查本机的公网IP,IP所在城市，很多地的DNS
+114.114.114.114 
+
+
 windows 10 目前(2018-03-01)最新版本是 1709 ,看安装更新后打开的网址
 
 乙的五笔 nnll
@@ -72,13 +79,9 @@ XII - 12
 10.0.0.1
 255.0.0.0
 
-http://ip.cn/  查很多地的DNS
+1PB=1024TB
+1EB=1024PB
 
-上海 DNS
-202.96.199.133   OK
-202.96.209.5     OK
-202.96.209.133   OK
- 
 ------------
 
 windows 2000默认是没有远程连接的功能的
@@ -740,6 +743,14 @@ netstat -ano 后面即可显示出相应的PID号，
 任务管理器->查看相应的PID号进程
 也可用 netstat -anob
 
+windows查进程命令
+wmic process get processid,caption,commandline | find "java.exe"   
+wmic process where "caption = 'java.exe' and commandline like '%server-1.properties%'" get processid
+	ProcessId
+	6016
+taskkill /pid 6016 /f
+
+
 netstat  -r  显示网卡号
 route print  显示路由
 route print 130*
@@ -791,6 +802,10 @@ start命令是开一个新的CMD窗口,如 start startWeblogic.cmd 在CMD新窗�
 net start/stop MySQL
 net user 
 建立用户  net  user  theUser  thePass /add 
+
+net user docker  /add /active:yes /expires:never /passwordchg:yes /fullname:"the-docker" /comment:"docker used"
+net localgroup "docker-users" docker /add
+
 
 shutdown /a 取消 定时关机
 shutdown /t 120 /s  ,两分钟后关机

@@ -200,24 +200,33 @@ Controller中可以拖Oracle 监视图，要用system用户，V$SYSSTAT中的par
 =========================JMeter
 5 版本要求  JDK8 或JDK9  不支持JDK10, 11
 
+option -> choose language-> Chinese(Simple)
+
 第一步要建立一个线程组
 
 
-Test Plan->ThreadGroup中的设置 "ramp-up" 的意思是,所有的线程数在多长时间(秒)内平均启动完成,
-		如线程数为10, ramp-up为100钞,每隔10 (100/10)秒启动一次指定线程数(看官方文档)
+Test Plan->ThreadGroup中的设置 "Ramp-Up in period (in seconds)" 的意思是,所有的线程数在多长时间(秒)内平均启动完成,
+		如线程数为10, ramp-up为100钞,即用100秒的时间启动10个线程,每隔10 (100/10)秒启动一次指定线程数(看官方文档)
+		ramp(斜道)
 Loop Count:5 表示重复做5次
 
+Scheduler Configuration组中 start delay 表示该线程组延迟启动
+Duration 运行多长时间 
 
 
 增加 配置元件->CSV Data Set Config->在Variable Name(comma-delimited)  可以写多个如id,name(对应CSV文件的列数) 在FileName中输入一个完整csv路径,每一行只能有一条数据,最后不要有空行
 	以后就可以使用${id} ${name} 来引用 
 	
+Run->clear 清除记录的日志
+	
 ${__split(${interest_ids},inter,:)}  会显示读到的第一行值如aa:bb ,temp是变量名
 ${inter_1} 得到的是数组的第一个,即aa
 
+仿装IP
+HTTP Request 在Advanced标签 ->Source Address 组中默认下拉是IP/hostname，右侧文本框中输入 CSV配置变量${ipaddr} 
 
-
-Options->"函数助手对话框"(或者使用快捷键Ctrl+shift+F1)
+----函数
+Help->Function helper dialog "函数助手对话框"(或者使用快捷键Ctrl+shift+F1)  工具栏上也有按钮
 
 _split 函数参数
 	1.要分隔的字串
@@ -244,6 +253,15 @@ ${__CSVRead(E:\NEW_\jmeter_user_reg.csv,1)}  读文件第2例,从0开始,
 debug sampler测试
 
 
+启动用 jmeter -Jgroup1.threads=7 -Jhostname1=www.realhost.edu
+${__P(group1.threads)} 函数表示取启动jmeter的-J参数 返回7
+${__P(hostname,www.dummy.org)}  如找不到返回第二个默认值
+
+
+__setProperty('name','value',true) 可选第三个参数true表示返回原来值
+
+
+
 
 右击线程组-》添加-》配置元件-》HTTP请求默认值 
 右击线程组-》添加-》Sampler(取样器)->HTTP请求
@@ -258,6 +276,12 @@ debug sampler测试
 
 
 要选中线程组->运行->启动
+
+JSR223 能够让你在java环境中执行JavaScript 
+JSR223 PreProcessor
+JSR223 PostProcessor
+
+JSR223+Groovy 替代BeanShell(脚本语言运行在java中)
 
  
 ------JDBC
@@ -419,6 +443,7 @@ soapUI-5.5.0 开源版本 可以做 reset 测试
 soapUI pro 收费版本，改名叫 readyAPI-2.7.0  可做 OAS 3.0, Swagger, 
   包括soupUI，loadUI，secure (接口安全测试) ServiceV (专注mock) 
  
+要用jdk8才行 vi soapui.sh最后面的java 使用绝对路径即可
 
 
 alt +f 可以格式化 soupUI内部的XML格式  (也可右击->format XML),右击->insert file as Base64

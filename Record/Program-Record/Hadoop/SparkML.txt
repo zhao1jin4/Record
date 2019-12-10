@@ -1,0 +1,13 @@
+Java机器学习(目前github最火的机器学习项目是TensorFlow)
+ 
+Spark ML (FlinkML新版本被去除了) Machine Learning lib
+Spark GraphX (Flink Gelly,Neo4j)
+
+第一代  RDD (非结构化，单列)-> 第二代 DataFrame（结构化，即多列）-> 第三代DataSet（序列化结构化）
+
+----Spark ML 2.x
+DataFrame-based API 是新的， RDD-based APIs 是老的
+
+ spark-mllib_2.11-2.4.3.jar   8MB
+ 
+

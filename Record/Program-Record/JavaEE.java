@@ -280,7 +280,7 @@ String nameHeader="filename=";
 String path=pairs.substring(pairs.indexOf(nameHeader)+nameHeader.length()+1,pairs.lastIndexOf("\""));
 if(!"".equals(path))
 {
-	String filename=path.substring(path.lastIndexOf("\\")+1);//只IE是带C:\,和req.setCharacterEncoding("UTF-8")中文 OK
+	String filename=path.substring(path.lastIndexOf("\\")+1);//" 只IE是带C:\ 和req.setCharacterEncoding("UTF-8")中文 OK
 	file1.write("d:/temp/"+filename);//一个Part要调用一次write
 }
 
@@ -1320,237 +1320,6 @@ Javax.mail.internet.MimeMessage
 		transport.close();
 	}
 
-================================JMS  
-<dependency>
-    <groupId>javax.jms</groupId>
-    <artifactId>jms</artifactId>
-    <version>1.1</version>
-</dependency>
-
-SoupUI 可JMS
-
-
-多台weblogic域 JMS通信 要域"密码"一样,这里的密码是在console界面中的第一项即"域名"->security标签->下方的Advanced->Credential:处的密码
-
-Queue 和 Topic 都继承Destination
-TopicSubscriber 和 QueueReceiver 继承自 MessageConsumer
-QueueSender 和 TopicPublisher 继承自 MessageProducer
-
-//weblogic JMS 通用部分
-String url = "t3://localhost:7001";
-String jndiConnectionFactory = "jms/myFactory";
-String jndiQueue = "jms/myQueue";
-String jndiTopic = "jms/myTopic";
-boolean transacted = false;
-Properties properties = new Properties();
-properties.put(Context.INITIAL_CONTEXT_FACTORY,"weblogic.jndi.WLInitialContextFactory");
-properties.put(Context.PROVIDER_URL,url);
-Context context = new InitialContext(properties);
-Object lookupFactory = context.lookup(jndiConnectionFactory);
-
-//===MyQueueSender.java  OK
-//---父类通用的
-ConnectionFactory factory =(ConnectionFactory)lookupFactory;
-Queue queue = (Queue)context.lookup(jndiQueue);
-Connection connection =factory.createConnection();
-connection.start();
-Session session = connection.createSession(transacted,  Session.AUTO_ACKNOWLEDGE);
-MessageProducer producer  = session.createProducer(queue);
-
-TextMessage textMessage = session.createTextMessage();
-textMessage.clearBody();
-textMessage.setText("MessageProducer's  Message");
-producer.send(textMessage);//OK,weblogic监视Messages Current列+1
-if (transacted)
-{
-	session.commit();
-}
-producer.close();
-session.close();
-connection.close();
-//--子类
-QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) lookupFactory;
-Queue queue = (Queue)context.lookup(jndiQueue);
-QueueConnection queueConnection = queueConnectionFactory.createQueueConnection();
-queueConnection.start();
-QueueSession queueSession = queueConnection.createQueueSession(transacted, Session.AUTO_ACKNOWLEDGE);
-QueueSender queueSender = queueSession.createSender(queue);
-TextMessage textMessage = queueSession.createTextMessage();
-textMessage.clearBody();
-textMessage.setText("QueueSender's Message");
-queueSender.send(textMessage);//OK ,weblogic监视Messages Current列+1
-if (transacted)
-{
-	queueSession.commit();
-}
-queueSender.close();
-queueSession.close();
-queueConnection.close();
-
-//===MyQueueReceiver.java OK
-//---父类通用的
-Object obj = context.lookup(jndiQueue);
-Queue queue = (Queue) obj;
-ConnectionFactory factory =(ConnectionFactory)lookupFactory;
-Connection connection =factory.createConnection();
-connection.start();
-Session session = connection.createSession(transacted,  Session.AUTO_ACKNOWLEDGE);
-MessageConsumer consumer  = session.createConsumer(queue);
-
-//---
-//Message tmpMsg=consumer.receiveNoWait();//OK
-//System.out.println("MessageConsumer get is:"+ tmpMsg);
-//---
-consumer.setMessageListener(new MessageListener(){		
-	public void onMessage(Message message) {
-		if (message instanceof TextMessage)
-		{
-			TextMessage textMessage = (TextMessage) message;
-			try
-			{
-				System.out.println("MessageListener get is:"+ textMessage.getText());
-			}catch (JMSException e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}});
-MyQueueReceiver msgRcvr = new MyQueueReceiver();
-synchronized(msgRcvr){ msgRcvr.wait(100000);}  
-//------
-
-if (transacted)
-{
-	session.commit();
-}
-consumer.close();
-session.close();
-connection.close();
-
-//--子类
-QueueConnectionFactory queueConnectionFactory = (QueueConnectionFactory) lookupFactory;
-Object obj = context.lookup(jndiQueue);
-Queue queue = (Queue) obj;
-QueueConnection queueConnection = queueConnectionFactory.createQueueConnection();
-queueConnection.start();
-QueueSession queueSession = queueConnection.createQueueSession(transacted,  Session.AUTO_ACKNOWLEDGE);
-QueueReceiver queueReceiver = queueSession.createReceiver(queue);
-
-QueueBrowser browser = queueSession.createBrowser(queue);//只看不取 OK
-Enumeration msgs = browser.getEnumeration();
-while (msgs.hasMoreElements()) 
-{
- TextMessage msg = (TextMessage)msgs.nextElement();
-System.out.println("QueueBrowser get is: " + msg.getText());
-}
-//--------
-//			TextMessage textMessage=(TextMessage)queueReceiver.receive();//会阻塞 ,只读一个继续,可while,OK
-//			System.out.println("QueueReceiver get is:"+ textMessage.getText());
-//--------
- queueReceiver.setMessageListener(new MessageListener(){		//异步 OK, 会读所有的
-	public void onMessage(Message message) {
-		if (message instanceof TextMessage)
-		{
-			TextMessage textMessage = (TextMessage) message;
-			try
-			{
-				System.out.println("MessageListener get is:"+ textMessage.getText());
-			}catch (JMSException e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}});
-MyQueueReceiver msgRcvr = new MyQueueReceiver();
-synchronized(msgRcvr){ msgRcvr.wait(100000);}  
-//------
-queueReceiver.close();     
-queueSession.close();     
-queueConnection.close();  
-
-
-//==============MyTopicSubscriber.java  weblogic 有示例的 
-//离线topic的要求一定要配置一个JMS store
-//---parent  离线/在线 OK
-ConnectionFactory connectionFactory = (ConnectionFactory) lookupFactory;
-Topic topic = (Topic)context.lookup(jndiTopic);
-
-Connection connection = connectionFactory.createConnection();
-connection.setClientID("client-name-1"); 
-Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE); 
-TopicSubscriber  consumer = session.createDurableSubscriber(topic, "my-sub-name-1"); 
-connection.start();
-Message msg=consumer.receive();
-System.out.println("parent get is:"+msg);
-//---child  离线/在线 OK
-TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) lookupFactory;
-Topic topic = (Topic)context.lookup(jndiTopic);
-TopicConnection topicConnection = topicConnectionFactory.createTopicConnection();
-
-topicConnection.setClientID("client-name");
-TopicSession topicSession = topicConnection.createTopicSession(transacted, Session.AUTO_ACKNOWLEDGE);
-TopicSubscriber topicSubscriber=topicSession.createDurableSubscriber(topic, "my-sub-name"); //第二个参数是唯一标识这个TopicSubscriber (java 进程)的名字,对应于PERSISTENT的topic
-
-//会在weblogic的Monitor->Durable Subscribers下建立的,离线也可取消息,之后connection.start();
-//TopicSubscriber topicSubscriber= topicSession.createSubscriber(topic);//必须在线可取消息
-topicConnection.start();
-topicSubscriber.setMessageListener(new MessageListener() 
-{
-	public void onMessage(Message msg)
-	{
-		if(msg instanceof TextMessage)
-		{
-			TextMessage t=(TextMessage)msg;
-			try
-			{
-				System.out.println("Topic get is:"+t.getText());
-			} catch (JMSException e)
-			{
-				e.printStackTrace();
-			}
-		}
-	}});
-
-MyTopicSubscriber my=new MyTopicSubscriber();
-synchronized(my){my.wait(100000);}    
-topicSubscriber.close();	 
-topicSession.close();     
-topicConnection.close();     
-//==============MyTopicPublisher.java 
-//---parent  离线/在线 OK
-ConnectionFactory connectionFactory = (ConnectionFactory) lookupFactory;
-Topic topic = (Topic)context.lookup(jndiTopic);
-Connection connection = connectionFactory.createConnection();
-Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE); 
-
-MessageProducer producer = session.createProducer(topic); 
-producer.setDeliveryMode(DeliveryMode.PERSISTENT); //设置保存消息 ,这个可以不写的，如先subscript是durable的，这里就放到durable里
-connection.start(); //设置完了后，才连接  
-
-TextMessage msg=session.createTextMessage();
-msg.clearBody();
-msg.setText("Test Message!!!");
-producer.send(msg); 
-//---child  离线/在线 OK
-TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) lookupFactory;
-Topic topic = (Topic)context.lookup(jndiTopic);
-TopicConnection topicConnection = topicConnectionFactory.createTopicConnection();
-TopicSession topicSession = topicConnection.createTopicSession(transacted, Session.AUTO_ACKNOWLEDGE);
-TopicPublisher topicPublisher= topicSession.createPublisher(topic);
-topicPublisher.setDeliveryMode(DeliveryMode.PERSISTENT);//topic可持久化,Producer级的,发的消息都是可持 久化
-topicConnection.start();
-
-TextMessage textMessage=topicSession.createTextMessage();
-textMessage.setJMSDeliveryMode(DeliveryMode.PERSISTENT);//消息级的 持久化
-textMessage.setText("topicPublisher's Message");
-topicPublisher.publish(textMessage);
-
-topicPublisher.close();
-topicSession.close();     
-topicConnection.close();     
-
-如果有webloigc 中有	Durable的Topic,那么只有Durable的Subscriber可以收到，
-
 =============================JTA
 Context ctx=new InitialContext();
 UserTransaction ut=(UserTransaction)ctx.looup("javax.transaction.UserTransaction");
@@ -2486,8 +2255,22 @@ web.xml修改也会被reload
 
 
 server.xml中
-	<Connector port="8080"  protocol="HTTP/1.1" maxThreads="150" 
+
+http://tomcat.apache.org/tomcat-9.0-doc/config/http.html
+	maxConnections 如超过也会继续接受连接，根据acceptCount设置，如队列满拒绝连接 如NIO and NIO2 默认值是 10000  如 APR/native 默认值是 8192 
+	acceptCount 连接请求最大队列长度，默认100
+	maxThreads 最大线程数，默认是200 
+	minSpareThreads 最少运行线程数  默认10
+	 connectionTimeout  单位是milliseconds The default value is 60000 (60 seconds) 
+	
+	<Connector port="8080"  protocol="HTTP/1.1"
+		 maxThreads="200" minSpareThreads="30"   maxConnections="1000"
 	<Host name="localhost"  appBase="webapps" 这个webapps可以改成其它路径
+
+ulimit -n  默认值1024 
+每个进程必然打开标准输入，标准输出，标准错误，服务器监听 socket,进程间通讯的unix域socket等文件
+那么剩下的可用于客户端socket连接的文件数就只有大概1024-10=1014个左右
+也就是说缺省情况下，基于Linux的通讯程序最多允许同时1014个TCP并发连接。
 
 --------Tomcat/conf/web.xml中加修改listings 为true　就可以列目录了(默认是不可以的)
 <init-param>
@@ -2505,8 +2288,8 @@ server.xml中
 		maxIdle="2" maxWait="5000" maxActive="4" />
 </Context>
 
-
-META-INF目录下加context.xml文件
+跨域 cross-origin (CORS)
+META-INF目录下加context.xml文件 
 <Context crossContext="true" /> 
 <!--为Tomcat使用,eclipse生成的conf/server.xml  <Context 中会加上crossContext="true"  -->
 
@@ -2579,6 +2362,12 @@ keytool -genkey -alias tomcat -keyalg RSA -keystore C:/temp/.keystore
 并加入keystoreFile="C:/temp/.keystore"
 默认是读用户主目录下的.keystore文件
 	
+HTTP/1.1起，默认使用长连接，会在响应头加入 Connection:keep-alive
+	但是对每个请求仍然要单独发 header，Keep-Alive不会永久保持连接，它有一个保持时间，这种长连接是一种“伪链接”
+
+websocket的长连接，是一个真的全双工。长连接第一次tcp链路建立之后，后续数据可以双方都进行发送，不需要发送请求头
+	
+HTTP/1.1 可以同时在同一个tcp链接上发送多个请求,但是只有响应是有顺序的
 
 ---- Tomcat 9 打开HTTP 2(只能在https下运行)  
 下载 tomcat-native-1.2.18-openssl-1.1.1-win32-bin.zip 解压后的bin/x64/下的 tcnative-1.dll 放PATH中能找到的地方(如Tomcat/bin下)

@@ -1,5 +1,40 @@
 
+------------
+CXF 3.2.0 版本实现 JAX-RS 2.1 Final 
+
+RESTEasy (jBoss项目)实现了 JAX-RS 2.1 规范 
+Jersey  (毛线衫) 扩展 JAX-RS  2.0 规范，可以和2.1版本的sse(Server Send Event)功能一起用
+javax.ws.rs.sse包(Server Send Event)是JAX-RS 2.1的功能
+
+------------CXF OpenApiFeature 
+http://cxf.apache.org/docs/openapifeature.html
+
+CXF 3.3.2  也支持OpenApi 3.0.x 
+
+<dependency>
+    <groupId>org.apache.cxf</groupId>
+    <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
+    <version>3.2.4</version>
+</dependency>
+CXF 3.2.x  才可用 ，可生成OpenAPI v3.0 的文档
+ 
+ 
+代码配置
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.security.SecurityScheme.Type;
+ 
+...
+ 
+final OpenApiFeature feature = new OpenApiFeature();
+feature.setContactEmail("cxf@apache.org");
+feature.setLicense("Apache 2.0 License");
+feature.setLicenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html");           
+feature.setSecurityDefinitions(Collections.singletonMap("basicAuth",new SecurityScheme().type(Type.HTTP)));
+
+
 ==================================CXF SOAP Webservice
+
 Java API for XML Web Services (JAX-WS) 
 JAXB  (Java API for Xml  Binding)
 JAXP (Java API for Xml  Parsing)
@@ -125,7 +160,7 @@ public class UserImpl implements User
 看WSDL文件
 <wsdl:definitons name="默认是实现类+Service" targetNamespace="http://包名反">
 	<wsdl:types /> 对应方法的参数类型,和返回值 类型,sayHelloReponse是返回类型 ,type对应下面的定义,里的name="arg0"  "return "可以改的
-	在接口类的方法中参数前加(@WebParam(name="xx"),返回参数前加@WebResult("name="yyy")
+	在接口类的方法中参数前加(@WebParam(name="xx"),返回参数前加@WebResult(name="yyy")
 	
 	<wsdl:message />  请求的参数,返回的值包装成message element是上type中定义的
 	
@@ -189,13 +224,18 @@ public class Family
     private String mather;
 }
 
-
-  <dependency>
+ 
+<!-- 如用新的JDK9 要加 -->
+ <dependency>
     <groupId>javax.xml.bind</groupId>
     <artifactId>jaxb-api</artifactId>
     <version>2.3.1</version>
 </dependency>
-
+<dependency>
+  <groupId>org.glassfish.jaxb</groupId>
+  <artifactId>jaxb-runtime</artifactId>
+  <version>2.3.1</version>
+</dependency>
 JAXBContext context=JAXBContext.newInstance(Boy.class); //类名,也可以是包名,下的所有的类
 Marshaller marshaller=context.createMarshaller();	//Java->XML的
 Unmarshaller unmarshaller=context.createUnmarshaller(); //XML->Java的

@@ -20,10 +20,16 @@ spring-boot-devtools 可以实现页面和代码的热部署
 
 http://start.spring.io/
 
-spring-boot-autoconfigure.jar 中有 META－INF/spring.factories,定义了  Initializers,Listeners 的Auto Configure区定义了很多@ 和对应的配置类
+spring-boot-autoconfigure.jar 中有 META－INF/spring.factories,定义格式为  全接口(@)名=全类名  有Initializers,Listeners 的Auto Configure区定义了很多@ 和对应的配置类
+mybatis-spring-boot-autoconfigure.jar(看源码) 有有用 @EnableConfigurationProperties
+@EnableAutoConfiguration 中有 @Import({AutoConfigurationImportSelector.class}) ，这个类是实现了ImportSelector接口 有selectImports方法 返回的字串数组中的类名会被初始化，里面有META-INF/spring.factories
+												SpringFactoriesLoader.loadFactoryNames()扩展spring用的类	
+			 中有 @AutoConfigurationPackage 
+			 		的 registerBeanDefinitions方法中  默认扫描启动类所在的包下的主类与子类的所有组件
+
 spring-boot-start-freemarker , spring-boot-start-activemq,spring-boot-start-web,spring-boot-start-test,spring-boot-start-logging  
 mybatis-spring-boot-starter
-没有源码,只有配置 META－INF/spring.providers
+spring-boot-start-xx.jar 没有源码,只有配置 META－INF/spring.providers 只用来管理依赖
 
 SpringApplication 加载 application.properties 或applicaion.yml 的顺序
 		A /config subdirectory of the current directory
@@ -58,6 +64,8 @@ myprop.random.long=${random.long}
 myprop.random.int10=${random.int(10)} 
 myprop.random.int10_20=${random.int[10,20]} 
 
+@Value("${myprop.name:default_val}")
+private String name; 
 
 @Value("${myprop.random.value}")
 private String random; //随机字串
@@ -85,7 +93,16 @@ java org.springframework.boot.loader.JarLauncher  --spring.profiles.active=test 
 
 spring.profiles.active=dev
 server.servlet.context-path=/J_SpringBoot
- 
+ /*
+@ConditionalOnBean，仅在当前上下文中存在某个bean时，才会实例化这个Bean。
+@ConditionalOnClass，某个class位于类路径上，才会实例化这个Bean。
+@ConditionalOnExpression，当表达式为true的时候，才会实例化这个Bean。
+@ConditionalOnMissingBean，仅在当前上下文中不存在某个bean时，才会实例化这个Bean。
+@ConditionalOnMissingClass，某个class在类路径上不存在的时候，才会实例化这个Bean。
+@ConditionalOnNotWebApplication，不是web应用时才会实例化这个Bean。
+@AutoConfigureAfter，在某个bean完成自动配置后实例化这个bean。
+@AutoConfigureBefore，在某个bean完成自动配置前实例化这个bean。
+*/
 //@ConditionalOnBean(RedisTemplate.class)//存在某个Bean时
 //@ConditionalOnMissingBean(CacheManager.class) 
 //@ConditionalOnJava(range=ConditionalOnJava.Range.EQUAL_OR_NEWER,value=JavaVersion.NINE)//当Java版本>=9.0
@@ -432,7 +449,61 @@ public interface Neo4jMovieRepository extends Neo4jRepository<Movie, Long> {
     Collection<Movie> findByNameContaining(@Param("name") String name);
  
 }
+--spring boot  jpa
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
 
+spring:
+  jpa:
+    generate-ddl: true
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update 
+  datasource:
+    username: zh
+    password: 123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mydb
+    #使用hikari数据源
+	
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+@Entity
+public class User {
+	@Id @GeneratedValue(strategy=GenerationType.AUTO)
+	private long userid;
+	@Column
+	private String username;
+	public User( ) { //一定要有默认构造器
+		
+	}
+}
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository; 
+
+@Repository
+public interface UserRepository extends JpaRepository<User,Long> {
+	 
+}	
+@RestController
+public class UserController {
+	 @Autowired 
+	 private UserRepository  userRepo; 
+	
+	 //http://127.0.0.1:8888/save/lisi
+	 @PostMapping("/save/{username}")
+	 public String saveUser(@PathVariable String username  )
+	 {
+		   userRepo.save(new User(username));
+		   return "ok";
+	 }
+}
 --spring boot  mybatis 
 
 
@@ -665,7 +736,7 @@ public class SampleController {
     }
     public static void main(String[] args) throws Exception {
         SpringApplication.run(SampleController.class, args); 
-		//new SpringApplicationBuilder(SampleController.class).web(true).run(args);
+		//new SpringApplicationBuilder(SampleController.class).web(WebApplicationType.SERVLET).run(args);
     }
 }
 
@@ -890,37 +961,6 @@ public class SampleController {
     }
 
 }
----spring boot security
-
-spring-boot-starter-security
-
-@EnableWebSecurity
-public class SecurityConfig {
-	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication().withUser(User.withUsername("user")
-				.password("{noop}password").roles("USER").build());
-	}
-}
-//会建立  springSecurityFilterChain 的bean  对应于web.xml配置
-public class SecurityWebApplicationInitializer
-	extends AbstractSecurityWebApplicationInitializer {
-
-	public SecurityWebApplicationInitializer() {
-		super(WebSecurityConfig.class);
-	}
-}
-
----
-		 <dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId> spring-boot-starter-data-elasticsearch</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId> spring-boot-starter-data-solr</artifactId>
-		</dependency>
-		
 ---spring boot websocket
 spring-boot-starter-websocket
 
@@ -1136,12 +1176,54 @@ public class GreetingIntegrationTests {
     }
 }
 
+---spring boot security
+
+spring-boot-starter-security
+
+@EnableWebSecurity
+public class SecurityConfig {
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		auth.inMemoryAuthentication().withUser(User.withUsername("user")
+				.password("{noop}password").roles("USER").build());
+	}
+}
+//会建立  springSecurityFilterChain 的bean  对应于web.xml配置
+public class SecurityWebApplicationInitializer
+	extends AbstractSecurityWebApplicationInitializer {
+
+	public SecurityWebApplicationInitializer() {
+		super(WebSecurityConfig.class);
+	}
+}
+--- spring boot oauth
+ <dependency>
+    <groupId>org.springframework.security.oauth.boot</groupId>
+    <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+    <version>2.2.1.RELEASE</version>
+</dependency>
+
+
 --- OAuth2 server
 --- OAuth2 client
 
+---
+		 <dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId> spring-boot-starter-data-elasticsearch</artifactId>
+		</dependency> 
+		
+---upload 
+spring.servlet.multipart.max-file-size
+spring.servlet.multipart.max-request-size
 
-
-
-
+----tomcat
+server:
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 200
+    max-connections: 10000
+    min-spare-threads: 10
+    accept-count: 100
 
 

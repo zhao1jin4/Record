@@ -1,5 +1,6 @@
-﻿Eclipse 2018-12 (4.10.0) 支持JDK 11版本，eclipseEE 版本带 Gradle
-﻿Eclipse 2019-06  inst (4.12.0) 支持JDK 12版本，eclipseEE 版本带 Gradle
+﻿Eclipse 2018-12 (4.10.0) 支持JDK 11版本 , eclipseEE 版本带 Gradle
+﻿Eclipse 2019-06  inst (4.12.0) 支持JDK 12版本  
+﻿Eclipse 2019-09 R (4.13.0)  compiler还只是到12 
 
 =======================================eclipse==========================
 快捷键
@@ -261,6 +262,11 @@ eclipse的preferences->maven->installation 要配置最新的Maven3.x版本,User
 eclipse的preferences->maven->可选择Download Artifact Sources/JavaDocs 
 eclipse 中 全选所有项目->maven->update projext ... 会更新pom.xml中新的版本配置,下载依赖包(可关闭项目再打开)
 
+--
+eclipse 自动转换 匿名内部类 为 Lambda 表达式
+preferences->Java->Editor-Save Action->复选perform the selected actions on save 复选additional action ，按钮configure...才可用->
+	CodeStyle 标签->复选Convert functional interface instances默认是use Lambda
+
 =======================================up eclipse==========================
 ------Rational Software Architect Designer V9.6 是 eclipse-4.6.1
 可下载for websphere的包
@@ -358,14 +364,13 @@ CDT与CygWin集成	  PATH=C:/cygwin64/bin
 	64位的 gcc-7.4.0-1 (mingw64-x86_64-gcc-core-7.4.0-1),gcc-g++ (mingw64-x86_64-gcc-g++)  , gcc-objc  (mingw64-x86_64-gcc-objc)
 		gdb-8.0.1-1
 		make-4.2.1-2
-		curl-7.59.0
-	下面可选
+	下面可选 
+		curl-7.59.0 (可单独下载win版本)
+		vim (可单独下载win版本gvim)
+		openssh 记得连接oracle时会用到 
 		automake
 		autoconf
 		nasm (编译汇编语言)
-		openssh 记得连接oracle时会用到
-		vim (不要选择gvim可能会下载很多东西)
-
 	
 PATH=D:\Program\cygwin\bin
 
@@ -668,9 +673,10 @@ TODO  FIXME   XXX 注释的代码会被task 视图收集
  带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
 Toad for Eclipse-2.4.4 可以支持mongo-3.2版本, 到3.4版本打开js文件连接不成功 ???
 
--- eclipse Scala 插件 Scala IDE-4.4.1   
-eclipse_4.5 可以dropins安装  
-eclipse-4.7 要下载单独scalaIDE版本，无离线包，  在线安装
+-- eclipse Scala 插件 Scala IDE-4.7.0 
+Eclipse 4.7 (Oxygen) 可下载 离线包 不能help菜单方式安装，但可以dropsin安装
+	 http://download.scala-ide.org/sdk/lithium/e47/scala212/stable/update-site.zip 
+可下载单独scalaIDE版本，可在线安装（eclipse marketplace是dev版本）
    
 -- eclipse Python 插件 PyDev
 marketplace安装  Python 插件 PyDev-5.4 ,安装时不会提示版本兼容,当使用时提示要eclipse-4.6 才行
@@ -682,6 +688,8 @@ https://sourceforge.net/projects/pydev/files/pydev/    可以dropins安装
 可以debug
 
 代码提示很好,ctrl+1有很多功能
+光标放在代码行上  ctrl+2 (有提示菜单 Quick Assist- assign to local variable可点) 松手 再按L 会自动增加函数调用的接收类和变量名
+
 shift+enter 自动换行缩进
 ------TestNG
 Eclipse Market Place 安装 TestNG 
@@ -697,8 +705,12 @@ Eclipse Market Place 安装 TestNG
    JRebel-2018.2.4 版本要求eclipse-3.6+
    
 
+eclipse要marketplace安装React::CodeMix 3 , Vue.js:CodeMix 3 插件  (也有Python插件,Go语法高亮)
 
-
+--------eclipse  插件 kubernetes
+eclipse-3.9.7 marketplace 插件 kubernetes manifest editor 0.0.2
+	可以鼠标滑到有效的键上有文档提示， 做开发提示,要按快捷键才行, Edit->content assist->default (自定义的ctrl+alt+/),不会在输入时自动提示
+	 
 
 
 

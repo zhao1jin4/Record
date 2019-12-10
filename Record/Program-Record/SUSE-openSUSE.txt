@@ -236,7 +236,10 @@ service -staus-all显示所有服务状态
 ss -atr | grep ssh
 ss -ant | grep 22  (选项同windows的netstat -an)
    -n, --numeric
-			-t --tcp
+	-t --tcp
+	-a --all
+	-r --resolve
+	-p, --processes
 
 开机自动登录，不用输入用户名和密码,
 		修改输入密码 yast2->security and users标签->security and users组下的user and group management->选用户->expert options->login settings->取消 auto login
@@ -335,6 +338,40 @@ ip link set dev p4p2 down
 
 激活 p4p2 
 ip link set dev p4p2 up
+
+
+
+
+--netns
+ip 可操作的对像，如 netns 网络名称空间
+ip netns list
+ip netns add r1
+ip netns add r2
+ip netns exec r1 ip a s  默认只有一个lo网
+ip link  add name veth1.1 type veth peer name veth1.2  建两个网卡做连接
+ip link show/list
+
+把一个网络设置称动名称空间中
+ip link set dev veth1.2 netns r1
+ip netns exec r1 ip a s 就有了新的网卡
+ip netns exec r1 ip link set dev veth1.2 name eth0 对设备改名
+ip netns exec r1 ip a s 显示修改后为  eth0@if42
+
+设置IP
+ip netns exec r1  ip addr change 10.0.0.1/24 dev eth0
+
+激活
+ip netns exec r1  ip link set dev eth0 up   好像不行？？？
+
+ping 10.0.0.1 
+
+再另一个名称空间做相同事，两个空间可以ping通
+ip link set dev veth1.1 netns r2
+--
+
+
+
+
 
  (无 netstat,net-tools 不再维护)
 ss 命令（Socket Statistics）
@@ -545,6 +582,8 @@ linux的grub引导界面没有了
 ----grub2
 光盘启动->选择rescue system	
 fdisk -l
+parted 再 p
+
 swap 分区不需要挂载。要先挂在根分区，然后把其他的分区相应的挂在到根分区下
 #示例 
 mount /dev/sda5 /mnt
@@ -643,6 +682,22 @@ zypper pd	 列出所有可用的产品
 zypper in sqlite*  (install)
 zypper rm sqlite2	 删除软件包
 
+zypper removerepo snappy 
+zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.1/ snappy
+    生成 /etc/zypp/repos.d/snappy.repo 文件
+加  --refresh 表示自动刷新仓库
+	
+手动升级仓库 （dup=dist-upgrade）
+zypper dup --from snappy 
+
+
+/etc/zypp/zypp.conf
+    solver.cleandepsOnRemove = false 改为true (不会立即生效)
+    默认下载的缓存目录为 /var/cache/zypp/packages/<name>/ 就可以找到下载的文件
+/etc/zypp/repos.d/xxx.repo 中都是 keeppackages=0 修改为１就会保留,测试成功
+也可 yast ->configuration->repository 仓库选中keep download packages但要重启yast才生效
+
+
 
 /etc/init.d/boot.local文件中添加命令(openSUSE-13.2不用了)
 echo OFF >/sys/kernel/debug/vgaswitcheroo/switch
@@ -708,6 +763,7 @@ Settings->fcitx configuration-> input method ->  这里就是切换输入法是�
 速度比ibus快很多,中文输入一半时就可按左shift打入英文 比ibus方便
 (如已经安装ibus,再安装fcitx,在komoedit中只可用ibus,textedit中只可用fcitx)
 
+----如fcitx和ibus一起安装下面可不做
 Settings->Yast2 moudle ->language ,main language 选择 chinese 能安装一些  rpms,komodo edit也可使用fcitx了,没有不能复制问题
 （这个影响gnome显示语言,可以再修改回来,在安装删除包时可abort）
 Settings->Regon & Language -> Input Source ->  + add a chinese 就可以win+space切换(但这个只对ibus有用)
@@ -736,7 +792,7 @@ Settings->Regon & Language -> Input Source ->  + add a chinese -> 就会有安�
 win(super) +space 切换输入法 同win10 , 设置 -> 设备 -> 键盘 -> 打字 -> 切换至下一输入法
 左shift(右shift不行) 可切换中英文,但如中文输入一半就没用了,esc或者全删才行,必须在没有一个中文输入时才有用,不方便
 
-
+----如fcitx和ibus一起安装下面可不做
 ibus配置
 进入面板的ibus preferences->Input Method->Add->下拉选择chinese（如没有安装rpm后再注销重登录 或者用 killall ibus-daemon）->Pinyin和Wubi-jidian
 
@@ -749,8 +805,6 @@ XMODIFIERS=@im=ibus
 
 /etc/X11/xim 中有说明 变量INPUT_METHOD 在  /etc/sysconfig/language 文件 或者  ~/.i18n 
 /etc/X11/xim.d/ibus   
-
----下面可不用就可使用ibus(新系统先ibus的情况下)
 
 killall ibus-daemon           in ibus-config can show new  input method ,
 ibus-daemon -d
@@ -871,11 +925,24 @@ Redis Desktop Manager (官方说有，但没找到src build）
 	http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/
 		extundelete-0.2.4-lp150.1.4.x86_64.rpm
 		
+----ntfsprogs-2016.2.22-lp151.3.2.x86_64.rpm  openSUSE-leap-15.1 自带 
 
----stardict 安装 运行OK，但取词 取不到，要安装库
-要点左下角的退出，才是真的退出
+---stardict 因版本问题从sourceforge中删除, openSUSE-leap-15.1 yast上有 rpm
+ libpcaudio0-1.0-lp151.3.2.x86_64.rpm  
+ libespeak-ng1-1.49.2-lp151.4.3.x86_64.rpm  
+ stardict-3.0.5-lp151.3.4.x86_64.rpm  
+ stardict-sounds-wyabdcrealpeopletts-2.1.0-lp151.2.1.noarch.rpm  
+安装后  stardict 启动不了 报 Segmentation fault
 
+---有道 有道有ubuntu安装版本 二进制版本 youdao-dict-6.0.0-amd64.tar.gz
+README 只支持ubuntu
+在openSUSE-leap-15.1 安装 sudo sh ./install.sh ，运行 youdao-dict(python3写的) 
+提示No module named 'OpenGL' 找不到 , yast2安装 python3-opengl 
+又提示少 No module named 'PyQt5' 找不到 , yast2安装 python3-AnyQt
+又提示少 No module named 'Xlib'找不到 , yast2安装 python3-python-xlib 
+又提示 Xlib.error.DisplayConnectionError: Can't connect to display ":0": b'No protocol specified\n'
 
+---
 rpm -ivh unrar-4.0.4-10.1.7.x86_64.rpm
 yast2 安装 gparted
 
@@ -974,8 +1041,7 @@ diffuse 带界面 工具只能比较单个文件 不能比较目录
 anjuta
 thunderbird
 flashplayer
-stardict-3
-FileZilla
+FileZilla-3.44.2(要 libc.so.6 即glibc-2.28版本)
 JD-GUI
 wireshark (有源码 zypper install wireshark)
 git
@@ -1196,51 +1262,59 @@ mount.nfs
 -----------取消自动登录
 Yast2 -> Security and User -> User and Group  Management -> Expert Options -> Login Settings 取消 Auto login
 
-----------snap 格式安装包 (Canonical　支持Ubuntu的)   WPS有snap格式
-
+----------snap 格式安装包
+ (Canonical　支持Ubuntu的)
 https://snapcraft.io/    A universal app store for Linux
 
-zypper removerepo snappy
-zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.0 snappy
-加  --refresh 表示自动刷新仓库
-    生成 /etc/zypp/repos.d/snappy.repo 文件
-	
-手动升级仓库 （dup=dist-upgrade）
-zypper dup --from snappy 
-	
-zypper install snapd  安装下面
-    squashfs-4.3-lp150.1.12.x86_64.rpm   openSUSE-leap-15 DVD 中就有的
-    snapd-2.36.3-lp150.2.1.x86_64.rpm
-	
-	
+支持很多linux, Ubuntu,Fedora,CentOS,Redhat(目前没有SUSE),openSUSE
+https://snapcraft.io/docs/installing-snapd
 
-/etc/zypp/zypp.conf
-    solver.cleandepsOnRemove = false 改为true (不会立即生效)
-    默认下载的缓存目录为 /var/cache/zypp/packages/<name>/ 就可以找到下载的文件
-/etc/zypp/repos.d/xxx.repo 中都是 keeppackages=0 修改为１就会保留,测试成功
-也可 yast ->configuration->repository 仓库选中keep download packages但要重启yast才生效
+从 Snap Store 下载，地址是 https://snapcraft.io/store
 
+--openSUSE snap
+zypper removerepo snappy 
+zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.1/ snappy
+	
+zypper install snapd  安装下面 
+    squashfs-4.3-lp151.2.3.x86_64.rpm		openSUSE-leap-15.1 DVD 中就有的
+    snapd-2.39.1-lp151.3.1.x86_64.rpm
 
+sudo systemctl enable snapd
+sudo systemctl start snapd
+
+--CentOS 7.6+ 当安装epel-release 就可
+yum install snapd
 systemctl enable --now snapd.socket
+ln -s /var/lib/snapd/snap /snap
+--
+ 
 snap find  <app_name> 
 snap install  <app_name> 
 snap version
 snap info <appname>
 
 
-risk-level 默认是stable  
+
 snap install  --channel=stable <appname> 
+--channel 默认是 stable  
 或者用 
 snap install  -stable <appname> 
-snap list
 
+--stable, --candidate, --beta 和 --edge 能替代 --channel=<risk-level>
+
+snap list
+snap list -all <appname>
 snap switch --channel=stable <appname>  不会更新，如想即切换又更新用 snap refresh --channel=stable <appname>
- 
+sudo snap disable <appname>
+sudo snap enable <appname>
+sudo snap remove <appname>
 
 /snap 目录
 /snap/bin                   - Symlinks to snap applications
-/snap/<snapname>/<revision> - Mountpoint for snap content  （ /var/lib/snapd/snaps/xxx）
+/snap/<snapname>/<revision> - Mountpoint for snap content  
 /snap/<snapname>/current    - Symlink to current revision, if enabled
+
+export PATH=$PATH:/snap/bin
 
 得到应用的配置,可用set修改配置,如监听端口等
 snap get <snap name>
@@ -1278,19 +1352,23 @@ snap info --verbose <snapname> 可查confinement的级别，可为
 snap aliases 简写名>  查看简写名的全写名
 snap unalias <简写名>  去除简写名
 snap alias <简写名> <全名> 增加 简写名 
-
-
-snap install wps-office_10.1.0.6757_amd64.snap  报 error: cannot find signatures with metadata for snap
-snap install --dangerous  wps-office_10.1.0.6757_amd64.snap   提示 has "install-snap" change in progress
-其实就是软件之前安装了一次，只是没安装完 
 snap changes 查询 找到 status为doning的id号，如这里是2
 snap abort 2
-snap install --dangerous  wps-office_10.1.0.6757_amd64.snap  会  Download snap "core" (6259) from channel "stable"
-		也就是说依赖于core的snap ,是系统的吗????
 
 
 snap install redis-desktop-manager
-	
+snap install lxd
+----------snap 下载配置
+
+----------snap 私服
+
+----------构建snap包
+可以使用snapcraft
+$ sudo snap install snapcraft --classic
+
+docker或才lxd来构建 
+
+
 ------------Xen 
 官方目前最新版本 4.11.1 and 4.8.5 are available
 
@@ -1440,8 +1518,8 @@ UEFI support is provided by OVMF (Open Virtual Machine Firmware).即上面安装
 
 qemu-img -h 
 支持格式最后有 qcow2 格式,
-		有vmware的vmdk格式,v
-		irtualbox的vdi格式
+		有vmware的vmdk格式,
+		Virtualbox的vdi格式
 qemu-img  create -f qcow2   myfile.img 2G
 	
  
@@ -1655,19 +1733,38 @@ brctl addif lxcbr0 p4p2  (wlan0不行)
 	/usr/bin/parprouted wlan0 br0
 	
 	
-	
-
-	
-	
-	
-	
-	
 -----------LXD
 是基于LXC的增强 集成　OpenStack
 　LXD 使用 Go　开发
-zypper in lxd 没有???
-	
-	
+
+要安装snapd后 
+snap install lxd
+
+建容器前先配置
+
+lxd init
+提示 Would you like to use LXD clustering? (yes/no) [default=no]:
+默认storage pool使用 BTRFS
+默认网桥名 lxdbr0
+
+lxc launch ubuntu:18.04 first  起名叫first，会下载镜像
+lxc list
+lxc exec first -- /bin/bash
+lxc file pull first/etc/hosts  从容器中取文件
+lxc file push hosts first/tmp/ 向容器中放文件 
+lxc stop first
+lxc delete first
+
+其它镜像 可用的 https://uk.images.linuxcontainers.org/
+lxc launch images:centos/7/amd64 my-centos
+
+如本地已经有镜像可以导入 (不知从哪个下载？？？，已经载的存在哪？？？)
+lxc image import <file> --alias my-alias 
+
+使用导入的镜像
+lxc launch my-alias my-container
+
+
 -----------启用 XDMCP 为XManager
 vi  /etc/sysconfig/displaymanager 以下3个 由原来的 "no" 修改为 "yes"   
 	DISPLAYMANAGER_REMOTE_ACCESS="yes" 

@@ -126,10 +126,12 @@ TreeMap 红黑树 source code  ,lock ,ConcurrentSkipListMap  SortedMap
 HashMap key 为何能为空 ，因如有判断如为null hashcode就为0,hashtable key为什么不能为空
 HashTable 的key和value 都不能为空,key没有!=null的判断取hashCode,value有判断
 
-ConcurrentHashMap 为什么快， 以前是分段锁，
+ConcurrentHashMap 为什么快，  
 JDK7 是分段锁
 JDK8 是  transient volatile table，table数组＋单向链表＋红黑树的结构
+sychrozie锁数组无素
 个数超过8(默认值)的列表，jdk1.8 中采用了红黑树的结构 ，只锁定当前链表或红黑二叉树的首节点 ， CAS更新容量
+
 
 
 
@@ -304,17 +306,18 @@ B-Tree （并不是二叉的）
 
 JMeter 压测
  
- Compare And Swap         CAS    AtomicInteger   sun.misc.Unsafe　无源码反编译都是native的《Java并发编程实践》
+ Compare And Swap         CAS    AtomicInteger   sun.misc.Unsafe.getAndAddInt(x) ,getAndSetInt(),compareAndSwapInt.　无源码反编译都是native的 
+ 	地址，旧值，新值三个参数，使用地址的值和旧值比较，如相同则指新值这些操作是cpu的一个指令完成，当前系统是否为多核系统，如果是就给总线加锁，所以同一芯片上的其他处理器就暂时不能通过总线访问内存
+ 	如果CAS不成功，则会原地自旋 (自旋是谁做的？？？新值计算（+1）从哪来??C++？？？）
   
  机器学习基本理论及悉常见数据挖掘及机器学习算法，如回归、分类、聚类等 
  Activiti(snake)
  nginx
- Kafka
- Solr and  Cloud
- openStack (optinal)
+ Kafka  
  spark MLib
- mysql replication,fabric,utility
- 
+ flink 
+ mysql innodb cluster
+  机器学习技术和应用：Spark MLLib,GraphX
 
 
 子类extends 父类 implements Serializable  //父类  没有 实现Serializable,父类中的属性不会被存储
@@ -327,51 +330,49 @@ boolean isOK=remList.remove(item2);//使用equals(根据path)方法删
 
 
 
-单向链表,还有一个节点是随机指向,写程序深度复制
- 
+单向链表,还有一个节点是随机指向,写程序深度复制 
 RandomListNode *copyRandomList(RandomListNode *head) {  
-        // write your code here  
+        //第一步原有的链表中每个中间增加了一个节点 ，前后链上(新的random是原来的random 可有，可无）
         RandomListNode *p = head;  
         RandomListNode *dest, *t = NULL;  
         while (p != NULL) {  
             t = new RandomListNode(p->label);  
-            t->next = p->next;  
-            t->random = p->random;  
+            t->next = p->next;   
+            t->random = p->random;  //方式二，t->random可没有值 
             p->next = t;  
             p = t->next; //取得源链表中的下一个结点  
         }  
-          
+       //第二步新给random赋值，根据原链表的radom->next
         p = head;  
         while (p != NULL) {  
             t = p->next;  
+			   //---方式二 t->random 没有值 
+				if(p->random!=NULL)
+				{
+					t->random=p->random->next;
+				}				
+				//---
             if (t->random != NULL) {  // 此处需要判断源节点的random是否为空，如果不为空才需要更新  
                 t->random = t->random->next;  
             }  
             p = t->next;  
         }  
-          
+         //第三步，原链next还原和新链的next修正
         p = head;  
         dest = p->next;  
         while (p != NULL) {  
             t = p->next;  
-            p->next = t->next; //新旧链表分离的旧(源)链表  
+            p->next = t->next; //源链表 还原
             p = t->next;  
-            if (p != NULL) {  
-                t->next = p->next;  //新旧链表分离的新链表  
+            if (p != NULL) { //源链表如没有到尾
+                t->next = p->next;  //新链表修改指向源的下一个（即新链表节点）  
             }  
         }  
           
         return dest;  
     }
 
-IBM CC / ClearCase 项目管理工具，很难用
-
-Active MQ 的事务
-
 多线程的实现方式，也包括ForkJoinPool，Callable
-
-Strust2-2.5  Toke 同一个浏览器(同一session)请求两次生成的 tokenID　是相同的，如是第一次提交是删除token
-
 
 BASE 
 Basically Available基本可用。支持分区失败(e.g. sharding碎片划分数据库)
@@ -396,13 +397,12 @@ Partition tolerance(分区容错性) 可靠性
  索引怎么实现的  Btree  B 通常认为是Balance的简称怎么存储的  
 http://www.aikaiyuan.com/1809.html
 
-spring cloud 
-
+  
 
 R-tree (mysql spatial index ,MyISAM 和 InnoDB都支持 )
  lucene  原理
  
- 机器学习技术和应用：Mahou, Spark MLLib,GraphX
+
   
 画 UML  图
  
@@ -430,10 +430,7 @@ http://cailin.iteye.com/blog/2014486/
 System.out.println("理想".getBytes("UTF-8").length); //6
 System.out.println("理想".getBytes("GBK").length); //4
 
-
- Kubernetes是Google开源的容器集群管理系统。它构建Docker技术之上  (云相关 Paas 层，使用GoLan开发)
-
-
+  
 大数据做报表慢 ，主从的读写分离，分区，分表，
 限流 AtomicInteger 记录当前节点正在执行线程数（可能每个请求处理时间不一样），如分布式
 session/redis写mysql
@@ -525,19 +522,136 @@ Chrome 等浏览器强制要求使用 HTTP/2.0 必须要用上 SSL
 
 服务器推送，客户端还可以缓存起来，甚至可以由不同的页面共享
 
-
-
- nginx 和 tomcat ,jetty  的 http 2.0
-
-Docker,OpenStack,Python
-Resetful,
-
-
-区块链
-RabbitMQ
  
-Servlet 4.0
+快速排序  选一个轴点，把所有小于这个节点放在左边，大于放在右边，这个轴点的数位置就确定，再相同的递归做左右两边
+
+
+ http 2.0  , Servlet 4.0
+
+Docker,kubernetes,
+kafka,spark,flink,akka,HBase,Curator
+spring cloud (consul,zk,etcd,config),elstic search(分布式) ,filebeat
+netty,GC
+mysql innodb cluster
 
 
 
 
+
+
+Future(FutureTask 实现了Runable和Future) get  使用了LockSupport.park(暂停/阻塞当前线程) 使用 是用 UNSAFE.park
+LockSupport.unpark 唤醒
+
+基于Unsafe类开发 比如Netty Hadoop Kafka等
+
+
+偏向锁→轻量级锁→自旋锁(CAS)→重量级锁
+--- 重量级锁 
+	synchronized是通过对象内部的一个叫做监视器锁（monitor）来实现的。但是监视器锁本质又是依赖于底层的操作系统的Mutex Lock来实现的
+	。而操作系统实现线程之间的切换这就需要从用户态转换到核心态，这个成本非常高
+ 
+	锁可以从偏向锁升级到轻量级锁，再升级的重量级锁（但是锁的升级是单向的，也就是说只能从低到高升级，不会出现锁的降级）
+	默认是开启偏向锁和轻量级锁的，我们也可以通过-XX:-UseBiasedLocking来禁用偏向锁
+
+
+偏向锁    偏向锁只需要在置换ThreadID的时候依赖一次CAS原子指令，一旦出现多线程竞争的情况就必须撤销偏向锁，只有一个线程执行同步块时进一步提高性能
+轻量级锁  没有多线程竞争的前提下，减少传统的重量级锁使用产生的性能消耗。 如果存在同一时间访问同一锁的情况，就会导致轻量级锁膨胀为重量级锁。 获取及释放依赖多次CAS原子指令，为了在线程交替执行同步块时提高性能，
+
+
+尽管Java1.6为Synchronized做了优化，增加了从偏向锁到轻量级锁再到重量级锁的过度，但是在最终转变为重量级锁之后，性能仍然较低
+
+
+好多地方用到了 CAS(应该是 AbstractQueuedSynchronized) ,尤其是java.util.concurrent包下，比如 CountDownLatch、Semaphore、ReentrantLock 中
+AbstractQueuedSynchronized（AQS） 有公平锁，和不公平锁 
+
+
+公平锁时，线程在尝试获取锁之前进行一次CAS运算
+非公平锁时，线程在尝试获取锁之前进行两次CAS运算
+线程进入队列即进入waiting状态，相当于挂起，频繁挂起与唤醒是消耗资源的行为，因此非公平锁中线程更少的挂起唤醒可以提高性能，这也是lock()默认为非公平锁的原因。
+非公平锁可能会导致有些线程始终得不到执行
+
+
+
+redis 分布式锁使用 lua保证原子性，但全局不能再执行命令
+
+------
+对于复合索引:Mysql从左到右的使用索引中的字段，一个查询可以只使用索引中的一部份，但只能是最左侧部分。例如索引是key index (a,b,c). 可以支持a | a,b| a,b,c 3种组合进行查找，但不支持 b,c进行查找
+create table test(
+a int,
+b int,
+c int 
+);
+create index inx_test on test(a,b,c);
+
+insert into test values(1,2,3); 
+insert into test values(11,22,33);
+insert into test values(10,20,30); 
+
+
+ explain select  * from test where a=120 and b=10;
++----+-------------+-------+------------+------+---------------+----------+---------+-------------+------+----------+-------------+
+| id | select_type | table | partitions | type | possible_keys | key      | key_len | ref         | rows | filtered | Extra       |
++----+-------------+-------+------------+------+---------------+----------+---------+-------------+------+----------+-------------+
+|  1 | SIMPLE      | test  | NULL       | ref  | inx_test      | inx_test | 10      | const,const |    1 |   100.00 | Using index |
++----+-------------+-------+------------+------+---------------+----------+---------+-------------+------+----------+-------------+
+
+显示 ref字段为两个const
+
+ explain select  * from test where b=10 and c=10   ;
++----+-------------+-------+------------+-------+---------------+----------+---------+------+------+----------+--------------------------+
+| id | select_type | table | partitions | type  | possible_keys | key      | key_len | ref  | rows | filtered | Extra                    |
++----+-------------+-------+------------+-------+---------------+----------+---------+------+------+----------+--------------------------+
+|  1 | SIMPLE      | test  | NULL       | index | inx_test      | inx_test | 15      | NULL |    1 |   100.00 | Using where; Using index |
++----+-------------+-------+------------+-------+---------------+----------+---------+------+------+----------+--------------------------+
+1 row in set, 1 warning (0.00 sec)
+
+ 显示 ref字段为 NULL
+ 
+ mysql 如update where条件中没有索引字段，会锁全表
+------
+webflux 基于 reactive stream ，已经有flow可以实现
+akka
+
+stream().parallel();
+jetcache(alibaba.可远程redis)
+JWT(Json Web Token) ,Oauth2
+spring session ,requestWrapper ，为何不能用继承，因要为所有容器可用
+
+
+spring boot 源码
+
+
+& 如前为false也会执行&后的代码
+
+
+船按吨拉货，输入根吨货数量如100, 返回拆分成几个来运，如拆分成10,30,60(算法目前不确定，有复杂的算法，生产3个也不是确定的) ，总和要等于根数100,可以把其它两个（多个）合并在一起(应该也不可不合并，或者合并多个)，如结果为40(为10+30),60
+要求根100可以修改，自动计算出拆分数
+
+
+hystrix 关开，开，关，什么时候切换，如失败，失败数+1,达到某个阀值，打开断路器，经过一段时间是半开状态，如再请求失败再打开断路器，如再请求成功关闭断路器
+
+
+redis 分片的定位方法  取模？？？一致性hash????
+mysql 索引的定位方法  二分查找？？？
+
+缓存击穿 （指数据库中有，但缓存中没有，）
+缓存穿透（用户请求的数据全部不在缓存中，如id不存在的数据，数据库压力大，解决方安案id<0拦截，不存在的数据也缓存null）
+缓存雪崩 （大批量缓存一起期，同时查数据库压力大，解决方案，过期时间随机范围，热点数据永不过期,config set maxmemory-policy  allkeys-lru）
+雪崩 ，一个服务不可用导致一连串的服务不可用
+
+
+出错的定位方法
+
+
+
+领域驱动设计(DDD:Domain-Driven Design)   统一了分析和设计编程
+
+
+
+
+分布式的消费的一致性
+
+两军问题
+拜占庭将军问题
+
+ 

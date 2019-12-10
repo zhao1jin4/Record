@@ -1,0 +1,50 @@
+JDK 11 不推荐用  Nashorn JavaScript Engine   (firefox官方有 Rhino，GraalVM 是替代方案)
+
+CE版本是基于OpenJDK
+EE版本是基于OracleDK
+ 
+
+cd /opt/graalvm-ce-linux-amd64-19.1.1/graalvm-ce-19.1.1/bin
+
+ js 命令后有提示交互
+ >1+2
+
+./java -version
+openjdk version "1.8.0_222"
+
+
+
+
+
+有node,npm命令功能与官方类似
+
+GraalVM Native 可以编译到本地应用，但官方提示未来是在EE版本中
+ 
+--polyglot  调用其它语言
+如 js --jvm --polyglot example.js
+
+LLVM 基于 C++ 编写而成，利用虚拟技术来优化以任意程序语言编写的程序的编译时间、链接时间、运行时间以及空闲时间
+
+Xcode使用LLVM
+
+OpenCL 是C家族语言  ，显卡作通用浮点运算的API。比如视频转码,调用OpenCL中现成的指令， 就自动由CPU转交到GPU
+OpenAL 用于 计算机音频方面
+OpenGL	三维图形
+
+传统编译器 基本上都是三段式的
+前端负责解析源代码，检查语法错误，并将其翻译为抽象的语法树；
+优化器对这一中间代码进行优化，试图使代码更高效；
+后端则负责将优化器优化后的中间代码转换为目标机器的代码
+Clang是前端 ，Android NDK 从 r11 开始建议大家切换到 Clang, r18 中删掉 GCC ,目前最新r20
+
+有clang命令
+clang -c -O1 -emit-llvm hello.c   生成 hello.bc  
+	 -c   表示 Only run preprocess, compile, and assemble steps
+	 -O 同gcc表示  optimization level
+	 -emit-llvm 表示 Generate output  files in LLVM formats
+	 
+lli hello.bc
+
+
+
+

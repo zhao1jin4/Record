@@ -1,3 +1,18 @@
+
+金丝雀发布， 先发布一小部分，其它大部分不动，切量做测试 ，服务中断（也可以不断）， 得名由 以前旷工开矿下矿洞前，先会放一只金丝雀进去探是否有有毒气体，看金丝雀能否活下来
+滚动发布，  先金丝雀，再分批多次完成发布，服务不会中断，复杂的发布工具，发布每批的数量一般是可以配置的
+蓝绿发布（双服务器组），需要两倍机器资源，如果 V2 版本有问题，则对用户体验有直接影响
+功能开关发布 ,需要一个配置中心 支持现代 DevOps 理念
+A/B 测试,手机端的流量(高级的按地区年龄)切换到 V2 版本
+影子测试 , 生产数据库复制
+
+DevOps 
+CI
+CD Delivery
+CD Delploy
+
+CNCF(Cloud Native Computing Foundation)
+
 教程  （Spring cloud也有）
 http://www.runoob.com/docker/docker-tutorial.html
 https://www.katacoda.com 有学习docker的
@@ -12,6 +27,7 @@ Docker 使用GO语言开发
 几乎可以在任意的平台上运行，包括物理机、虚拟机、公有云、私有云、个人电脑、服务器
 
 Dcoker Edge   是实验版本
+最新的Docker 是基于runC 替代了 LXC (容器格式标准化),镜像格式也有标准化
 
 创建一个轻量级私有PaaS云
 
@@ -32,35 +48,58 @@ swaggerapi/swagger-ui , swagger-editor
 neo4j
 kong
 pgAdmin4
-
+filebeat
 #Codis
 
-镜像（Image）
-容器（Container）
-仓库（Repository）  存放镜像文件的场所
+busybox 包含很命令，一个进程可创建出很链接，链成什么命令名就可直接用，如链成cat就是cat的功能
+busybox 自带一个 httpd -f前台运行 -h 项目目录
+默认主机名是容器的ID
+docker run -h 指定新主机名
 
- 
-可能本地建立类似 docker hub 的仓库 Nexus Repository OSS 3.5.1好像就可以的
+alpine linux (阿尔卑斯山的) 基于 Busybox
+alpine-standard-3.10.2-x86_64.iso 要 112MB 
+alpine-minirootfs-3.10.2-x86_64.tar.gz (用于containers)只有2.6MB
 
-
-alpine linux (阿尔卑斯山的)
+alpine 包管理工具 apk
+apk add --no-cache gcc  linux-headers
 
 上传本地java安装包(nginx) 到服务器 
 docker load --input java1.8.tar
 
 
+镜像（Image）
+容器（Container）
+仓库（Repository）  存放镜像文件的场所
+ 
+ 
+----- 配置镜像仓库
+vim /usr/lib/systemd/system/docker.service 
+有 LimitNOFILE=1048576
+#有   EnvironmentFile=/etc/sysconfig/docker
+#也可 Environment="HTTPS_PROXY=https://docker.mirrors.ustc.edu.cn"
+#	  Environment="NO_PROXY=localhost,127.0.0.1,10.96.0.0/12,192.168.99.0/24,192.168.39.0/24"
+# 在dockerd后面加参数
+ExecStart=/usr/bin/dockerd --registry-mirror=http://hub-mirror.c.163.com
+----
+systemctl daemon-reload
+docker info 的HTTPS Proxy,No Proxy可看到配置Environment的值
 
 --安装 docker engine   CentOS 下
 yum-config-manager   --add-repo    https://download.docker.com/linux/centos/docker-ce.repo
 	保存到 /etc/yum.repos.d/docker-ce.repo
 	
 yum install docker-ce   目前安装的是 17.12.0.ce-1.el7.centos 还依赖一个 container-selinux-2.36-1
+ 
 
 或者 下载下来安装
 https://download.docker.com/linux/centos/7/x86_64/stable/Packages/
 https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm 
 
 yum install docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm 
+
+
+http://mirrors.huaweicloud.com/centos/7/extras/x86_64/Packages/  
+extra下有docker
 
 ---openSUSE
 http://download.opensuse.org/distribution/leap/15.1/repo/oss/ 下的 x86_64/
@@ -86,17 +125,33 @@ https://download.docker.com/mac/static/stable/x86_64/    mac docker client
 	sudo rm -rf /var/lib/docker
 --
 
+/var/lib/docker   是docker的数据目录 版本升级这个目录要移动/删除
+
+
+
 systemctl start docker  
 docker run hello-world  运行镜像,本地没有，会从网上下载
 
-docker images 显示本地已有的镜像
+docker images 显示本地已有的镜像 (结果同docker image ls)
 
 systemctl enable docker.service   配置开机启动
 systemctl disable docker.service 
 
 docker --version
 
-windows 10 版本使用  Hyper-V ,只用于开发(要求windows 10 pro or enterprise,windows server 2016)
+看日志
+journalctl -u docker.service
+
+---默认只有root用户能仿问Unix socket ，所以都以root启动 docker daemon 
+也可增加一个docker组（权限同root)
+sudo groupadd docker
+sudo usermod -aG docker dell   //-G是supplemental（追加的）组，-a是append用户 对supplemental
+注销重新登录
+newgrp docker 
+docker run hello-world 就可以不用root了
+ 
+
+--windows 10 版本使用  Hyper-V ,只用于开发(要求windows 10 pro or enterprise,windows server 2016)
 最新版 windows 提示 You must be in the "docker-users" group. 
 net user docker  /add /active:yes /expires:never /passwordchg:yes /fullname:"the-docker" /comment:"docker used"
 net localgroup "docker-users" docker /add
@@ -111,7 +166,8 @@ docker run -t -i ubuntu:12.04 /bin/bash   提示符是<CONTAINER ID>信息,也�
 xxx 命令 如的容器已经被我们改变了，使用 docker commit 命令来提交更新后的副本
 
 docker commit -m "this is comment" -a "auther" <CONTAINER ID>   新REPOSITORY:新TAG 
-后使用docker images 可以看到新建的，再次docker run -t -i  新REPOSITORY:新TAG 可以查看到修改的变化
+-m --message 提交信息，-a --author 作者
+后使用docker images 可以看到新建的(相同的IMAGE ID表示同一个镜像)，再次docker run -t -i  新REPOSITORY:新TAG 可以查看到修改的变化
 
  
 
@@ -137,46 +193,161 @@ docker run -d -p 4000:5000 training/webapp python app.py   小p指定端口
 
 docker port <CONTAINER ID>或<NAMES> 查看端口
 docker top <CONTAINER ID>或<NAMES>  容器内部运行的进程
+docker stats <CONTAINER ID>或<NAMES>   对CPU的占用
 docker inspect <CONTAINER ID>或<NAMES>   会返回一个 JSON 文件记录着 Docker 容器的配置和状态信息
+
+
 docker ps -l 查询最后一次创建的容器：
 docker rm  <CONTAINER ID>或<NAMES>  删除，必须先stop
 
 docker search httpd 搜索镜像  有 OFFICIAL:是否docker官方发布
 
+docker pull 显示的多行pull是分层下载
+使用docker命令尽可能加子命令，如docker image rm,替代 docker rmi
+docker ps 相当于 docker container ls
 
-docker container ls 显示在正运行的镜像，是容器，结果同 docker ps 
-docker container rm <CONTAINER ID>   
+docker image ls --no-trunc 显示完整的 image_id
+
+docker image ls |  awk -F' '  '{print $3}' |xargs  docker image rm  --force
+docker container ls -a |  awk -F' '  '{print $1}' |xargs  docker container rm 
+
+
+docker container ls 显示在正运行的镜像，是容器，结果同 docker ls ,docker ps 
+docker container create <CONTAINER ID>  
+docker container rm <CONTAINER ID>
+docker container start <CONTAINER ID>  
 docker container stop <CONTAINER ID>    
 docker container kill <CONTAINER ID> 
+ 
+docker container run <CONTAINER ID>   当相于 pull,create ,start 组合
+docker container top  
+ --rm 退出时自动删除
+ docker inspect  <container_name> 有network的IP ,如 172.17.0.2 ，主机可以使用这个IP通讯
+ 连接主机的docker0网络IP为 172.17.0.1
+ 
+docker ps -a 显示停止的容器
+docker ls -a
+docker container start -ai busybox   (-a == --attach  Attach STDOUT/STDERR  ) 
+docker container start -d nginx (-d --detach)
+ 
+容器中的进程不能进入后台运行，否则刚进入就终止
+
+docker container exec -it redis1 /bin/sh
+
+
+对只有一个进程的容器日志没有必须写日志，直接在控制台
+docker container logs web1
+
+docker镜像 是分层构建的，最底层是 bootfs 为启动,再上是rootfs 要文件系统,只读挂载的，联合挂载，再挂载一个可读写的
+ 
+docker commit -p <container_id>   repository:tag
+把容器对镜像的改写做成新的镜像  (-p pause让窗口暂停)
+-c 修改指令，如cmd启动命令
+-c "CMD ['/bin/httpd','-f', '-h', '/data/html']"
+-a '作者'
+docker inspect 镜像名，有 "Cmd":表示启动容器时执行的命令
+
+
+docker commit -p -m "this is my busybox httpd" -a "dell" -c 'CMD ["/bin/httpd","-f","-h","/data/html"]' epic_lewin  busybox_httpd:0.0.1
+-c 最外用单引号,数组中用双引号
+
+docker login
+docker push  (要事先在docker hub上建立repository如 busybox)
+
+
+
+
+
+
+
+
+Dockerfile 指定是不区分大小写，通常大写，第一个非注释行必须是FROM
+.dockerignore 类似.gitignore
+所有shell命令是镜像的环境，${NAME:-default} 语法同linux shell
  
 目录下有Dockerfile 文件 
 	#基于哪个镜像
 	FROM python:2.7-slim
 	
-	#维护人 信息
-	MAINTAINER  firstName lastName <usernme@docker.com>
+	#维护人 信息 MAINTAINER(deprecated)
+	#MAINTAINER  firstName lastName <usernme@docker.com>
+	
+	#格式 LABEL <key>=<value> <key>=<value>  ...
+	LABEL  maintainer="SvenDowideit@home.org.au"
+	LABEL version="1.0"
+	LABEL description="This "
 
-	#设置工作目录/app  (应该是docker的目录)
+	#设置工作目录/app  (后面,dest目录可用.  进入shell默认目录)
 	WORKDIR /app
 	
 	#复制当前目录 到 容器的/app目录  
 	ADD . /app
 
-	# RUN 后是命令
+	# RUN 后是命令 多条命令用 && 
 	RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 	#向外部开放 80端口  
 	EXPOSE 80
 
-	#ENV 环境变量
+	#ENV 环境变量,可后面指令和入口程序可使用，如一次定义多个 ENV key=val key1=val1 多行可用\
 	ENV NAME World
 
 	#CMD 容器启动时执行的命令
 	CMD ["python", "app.py"]	
 	
+---
+#当前目录下的src目录，src目录本身不会被复制，只能是Dockerfile 所在目录的下级，dest如是目录要以/结尾，dest目录不存在会自动创建 
+可以多个源，目标必须是目录
+COPY src /dest/ 	
+
+每次指令生成一层，尽可能少的指令	
+
+ADD 指令 源可以是网络上的文件 ，如源是本地的可识别的压缩包(gzip, bzip2 or xz)，会被解压 ，如是远程的是不会的
+
+#只是容器的目录
+VOLUME ["/data"]
+启动时可不指定-v参数  自动绑定/var/lib/docker/volumes/<卷名>容器ID
+
+#默认tcp可多个参数 ,docker run 时-P 就是这里的端口，如启动容器带http不指定-p 物理主机没有监听，同一个物理机内可通信
+EXPOSE 80/udp 
+
+docker run  printenv 可以看到Dockerfile中的环境变量 
+		-env 是可以替换Dockerfile中的环境变量 
+
+CMD "httpd" #shell格式 /bin/sh -c httpd
+CMD ["httpd"] #exec格式 没有使用sh,就不能解析环境变量 ，这样也可["/bin/sh","-c","httpd"]  ,如http有参数都写在一个""中，多加数组无素无法启动?????
+
+如进程不唯一，shell子进程，就不能用docker stop来停止
+
+CMD ["param1","param2"] 是为ENTRYPOINT用的，
+ENTRYPOINT 的命令，docker run 最后的参数不是覆盖入口，而是传递参数，如要覆盖使用参数 --entrypoint ls 不能加参数?????
+
+docker inspect 查Entrypoint的值
+
+USER  以启指定用户启动进程
+
+健康检查
+HEALTHCHECK [OPTIONS] CMD command
+ 	-interval=DURATION (default: 30s)
+	--timeout=DURATION (default: 30s)
+	--start-period= 等多长时启动
+	--retries=N (default: 3)
+
+SHELL  在linux默认是 ["/bin/sh", "-c"]，可修改为bash,windows 下默认是["cmd", "/S", "/C"]
+STOPSIGNAL  修改stop时的发信号
+ARG  只在build中使用 ，docker build --build-arg 的参数不能传到 第一个指令 FROM 中的值 
+ONBUILD ADD . /app/src   是在生成镜像后，别人在from这个镜像时执行，是一个trigger
+
+
+
+---
+docker run -it --rm busybox httpd -f 可在最后传参数，替代默认启动命令
+
+	
 docker build -t friendlyhello .
   -t, --tag list                   Name and optionally a tag in the 'name:tag' format
   .表示 Dockerfile 文件所在目录
+docker image ls查看制作的镜像 
   
   第一件事情就是上传这个 Dockerfile 内容
   同手工docker commit ,只是变成了批处理,所有的中间步骤所产生的容器都被删除和清理了 
@@ -190,58 +361,126 @@ docker run -p 4000:80 username/repository:tag 从服务器上下载运行
 
 
 docker tag  <image id> <新repository名>  #新名必须全小写， 为镜像添加一个新的标签  
-
-从本地文件系统导入一个镜像
-cat ubuntu-14.04-x86_64-minimal.tar.gz |docker import - ubuntu:14.04
-
-
-存出镜像 
-docker save -o ./ubuntu12.04.tar ubuntu:12.04
  
--------私有仓库 docker试式
-https://docs.docker.com/registry/  
+-- imort  和 export  配对用(导入要指定新的标签)
+docker export   xx
 
-docker run -d -p 5000:5000 --name registry registry:2   
-docker pull ubuntu  
-docker image tag ubuntu localhost:5000/myfirstimage 
-docker push localhost:5000/myfirstimage
+cat ubuntu-14.04-x86_64-minimal.tar |docker import - ubuntu:14.04   
+docker import ubuntu-14.04-x86_64-minimal.tar  ubuntu:14.04 
 
-删本地缓存
-docker image remove ubuntu
-docker image remove localhost:5000/myfirstimage
-
-docker pull localhost:5000/myfirstimage 
-docker container stop registry && docker container rm -v registry   # -v 也删除相关的volume
+-- save 和 load配对用 (导入不用指定标签)
+存出镜像 
+docker save -o ubuntu12.04.tar ubuntu:12.04 	可多个镜像放一个文件中
+docker load -i ubuntu12.04.tar  (-i ,input )
 
 
+docker 容器可被限制使用 CPU，内存，
+docker run/create 参数
+ 	   -m, --memory bytes             单位可m 内存开关 
+      --memory-swap bytes            值为内存+swap ，-1 表示不限制
+ 		
+ 		--oom-kill-disable               Disable OOM Killer
+      --oom-score-adj int              Tune host's OOM preferences (-1000 to 1000)
 
-docker run -d -p 5000:5000 registry
-默认情况下，仓库会被创建在容器的 /tmp/registry 下
+ -c, --cpu-shares int                CPU shares (relative weight) CPU是共享的，如每个容器都用CPU占权限比例分，如有一个不用CPU就会让出给其它容器分
+      --cpus decimal                 Number of CPUs 可以用小数
+		--cpuset-cpus						 允许在哪个核上运行 (0,1)或(0-3)
 
-docker run -d -p 5000:5000 -v /opt/data/registry:/tmp/registry registry
--v volum : 前是本地目录
-
--e REGISTRY_HTTP_ADDR=0.0.0.0:5001 修改默认监听端口 , 和 -p 一起使用 测试成功
-
-配置
-storage:
-  filesystem:
-    rootdirectory: /opt/data/registry
-				
--e REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/opt/data/registry   覆盖方式（没有测试出来效果）
-
-docker run -d  -e REGISTRY_HTTP_ADDR=0.0.0.0:5001 -p 5001:5001 -e REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/opt/data/registry   registry
-
-指定配置文件
-https://docs.docker.com/registry/configuration/
- config.yml
-		
-$ docker run -d -p 5000:5000 --restart=always --name registry \
-             -v `pwd`/config.yml:/etc/docker/registry/config.yml \
-             registry:2
-
-
+磁盘读写限制
+  --device-read-bps list           Limit read rate (bytes per second)
+  --device-write-bps list          Limit write rate (bytes per second) 
+ 
+测试可docker hub 找stress的镜像
+ 
+ 
+ 
 ----docker 网络
+Open vSwitch 软件模拟交换机
+
+docker0的模拟网卡，当虚拟交换机用，当创建一个容器时 虚拟交换机建一个网口，容器建一个网口，vethe开头的网卡是 虚拟交换机的那一半,个数同当前运行的容器个数
+vethe开头的网卡 都连接到docker0
+brctl show 来看， ip link show ,显示@后的部分在容器中
+
+每启动一个容器 iptables多一条 iptables -t nat -vnL   (-v --verbose, -L --list ,-n --numeric)
+
+显示 Chain POSTROUTING 组
+ pkts bytes target     prot opt in     out     source               destination         
+ 5   392 MASQUERADE  all  --  *      !docker0  172.17.0.0/16        0.0.0.0/0           
+ 
+从任何网卡进入(in)，只要不是docker0网卡出去，源IP是 172.17网段，任何目标IP，都做MASQUERADE
+
+ip 可操作的对像，如 netns 网络名称空间
+ip netns list
+ip netns add r1
+ip netns add r2
+ip netns exec r1 ip a s  默认只有一个lo网
+ip link  add name veth1.1 type veth peer name veth1.2  建两个网卡做连接
+ip link show/list
+
+把一个网络设置称动名称空间中
+ip link set dev veth1.2 netns r1
+ip netns exec r1 ip a s 就有了新的网卡
+ip netns exec r1 ip link set dev veth1.2 name eth0 对设备改名
+ip netns exec r1 ip a s 显示修改后为  eth0@if42
+
+设置IP
+ip netns exec r1  ip addr change 10.0.0.1/24 dev eth0
+
+激活
+ip netns exec r1  ip link set dev eth0 up   好像不行？？？
+
+ping 10.0.0.1 
+
+再另一个名称空间做相同事，两个空间可以ping通
+ip link set dev veth1.1 netns r2
+
+docker run -ti -h mypc --dns 114.114.114.114  --dns-search xxx.io --add-host=www.abc.com:127.0.0.1 busybox 
+cat /etc/resolve.conf
+cat /etc/hosts
+
+docker run --rm  -p 127.0.0.1::80 nginx  本要指定IP的随机端口 到 容器 80端口
+docker run --rm  -p 127.0.0.1:80:80 nginx   本要指定IP的80端口 到 容器 80端口
+docker run --rm  -p  80:80 -p  8080:80 --name web1  -d nginx   可多次使用-p
+docker port <container_name/id>  查端口也可用 docker container ps
+
+两个容器共用一个网卡
+docker run --rm --name b1 -it busybox 
+docker run --rm --name b2 --network container:b1 -it busybox 
+
+https://docs.docker.com/engine/reference/commandline/dockerd
+ 	Daemon configuration file 和	Configuration reload behavior 有所有daemon.json可用的值
+
+修改docker0网卡的ip
+/etc/docker/daemon.json
+{
+"bip":"10.0.0.1/16"
+}
+bip是bridge ip
+systemctl restart docker
+
+docker -H --host 默认本机的/var/run/docker.sock
+
+修改docker服务可以被远程连接 
+要求/usr/lib/systemd/system/docker.service 中ExecStart 不能有 -H选项，如有去除后要 systemctl daemon-reload
+/etc/docker/daemon.json
+{
+"hosts":["tcp://0.0.0.0:2375","unix:///var/run/docker.sock"]
+}
+
+ 
+
+docker network create -d bridge --subnet "172.26.0.0/24" --gateway "172.26.0.1" docker_br0
+-d --driver s
+ip a s 按设置IP查找，发现网卡名是乱的
+ip link set dev br-104a647ce6d5 name d_br0  提示busy, 网卡down  
+ip link set dev br-104a647ce6d5 down
+ 
+同一个物理主机上的不同容器 使用不同的网桥，网段不一样，要通讯 设置  cat /proc/sys/net/ipv4/ip_forward 显示1
+iptables 有很多规则阻止通讯
+ 
+ 
+ 
+
 docker network ls  显示有建立的网，Driver 三种常见的网络模式，分别是none(null),bridge,host
 docker network -help
 docker run --help
@@ -293,12 +532,154 @@ docker默认的网络是bridge网络，因此只要docker host可以连接互联
 
 tcpdump -i docker0 -n icmp
 
+----网络驱动
+bridge网络驱动是默认的，用于单机容器(standalone)
+host网络驱动也是用于单机容器(standalone),  容器使用主机的网卡
+macvlan网络驱动，分容器分配一个MAC地址，在网络就有一个物理设置，docker主机通过mac地址路由
+
+----overlay网络驱动
+两个容器通信物数据包源和目标的IP不改，再加一层数据包是物理机的源和目标的IP
+
+不需要操作系统的路由
+让swarm service 和 standalone containe通信
+也可在两个不同的dockerd后进程中的容器通信 
+
+分布式的,跨多个docker主机的网络，在物理主机网络的上层,on top of (overlay)
+
+https://docs.docker.com/network/overlay/
+docker network create --driver overlay my-network
+docker network create -d overlay my-overlay
+这种只能用于swarm service.
+
+如要用于swarm service 或 单机容器 和 其它单机容器通信，要加 --attachable
+docker network create -d overlay --attachable my-attachable-overlay
+可以指定地址范围，子网，网关  
+
+swarm service 的网络默认是加密的，使用AES算法
+
+选项 --opt encrypted  启用IPSEC(IP层加密协议) 加密
+
+docker network create --opt encrypted --driver overlay --attachable my-attachable-multi-host-network
+(不能在windows 上 attachable 到一个加密的overlay网络 )
+
+自定义ingress网络
+#docker network rm ingress (ingress类型网络只可一个)
+docker network create \
+  --driver overlay \
+  --ingress \
+  --subnet=10.11.0.0/16 \
+  --gateway=10.11.0.2 \
+  --opt com.docker.network.driver.mtu=1200 \
+  my-ingress
+  
+  MTU(max transmission unit) ,这个值最大能是1500，数据链路层允许的最大IP包
+  
+自定义docker_gwbridge网络
+sudo ip link set docker_gwbridge down
+sudo ip link del dev docker_gwbridge
+
+docker network create \
+--subnet 10.11.0.0/16 \
+--opt com.docker.network.bridge.name=docker_gwbridge \
+--opt com.docker.network.bridge.enable_icc=false \
+--opt com.docker.network.bridge.enable_ip_masquerade=true \
+docker_gwbridge
+
+ Inter Container Connectivity(ICC)
+ 
+
+-----docker iptables
+https://docs.docker.com/network/iptables/
+
+Docker 会插入iptales策略
+
+iptables -L 
+有一个名为 DOCKER 的chain ，是所有docker ipables规则，不要手工修改
+可以手式增加到 DOCKER-USER 的chain ，是在所的DOCKER 的chain加载之前，加载
+
+默认所有IP都可以连接Docker daemon
+指定IP可以仿问Docker daemon
+iptables -I DOCKER-USER -i p4p2 ! -s 192.168.1.1 -j DROP
+
+    --insert  -I chain [rulenum]
+	-s 值可以是一个子网  192.168.1.0/24
+
+当使用--src-range 或 --dst-range是要增加 -m iprange 选项  
+iptables -I DOCKER-USER -m iprange -i p4p2 ! --src-range 192.168.1.1-192.168.1.3 -j DROP
+
+iptables -D DOCKER-USER 1 
+删DOCKER-USER第1行
+  
+-------bind mounts
+-v -volume 标志  当主机目录不存在，会创建目录
+--mount 标志是为docker swarm 的service，（也可docker run）当主机目录不存在，会报错
+
+$ docker run -d \
+  -it \
+  --name devtest \
+  --mount type=bind,source="$(pwd)"/target,target=/app \
+  nginx:latest
+
+效果同
+
+  docker run -d \
+  -it \
+  --name devtest \
+  -v "$(pwd)"/target:/app \
+  nginx:latest
+  
+  type选项还可是 volume tmpfs 
+ 
+ 还可以只读挂载
+ $ docker run -d \
+  -it \
+  --name devtest \
+  --mount type=bind,source="$(pwd)"/target,target=/app,readonly \
+  nginx:latest
+  
+docker inspect devtest  
+    "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/dell/target",
+                "Destination": "/app",
+                "RW": false,
+                "Propagation": "rprivate"
+
+ 
+			...
+			}
+		]
+
+如只支持定容器目录，物理主机目录自动生成在 /var/lib/docker/volumes/<卷名>/_data
+docker  run -it --name b1 -v /data  --rm busybox
+主机目录和容器目录如不存在，会自动创建
+多个容器可使用相同的物理主机的目录
+
+Propagation 默认是  rprivate （r表示replica），只linux主机生效，通常不需要配置
+是否传播到 replacas的挂载点
+docker run -d \
+  -it \
+  --name devtest \
+  --mount type=bind,source="$(pwd)"/target,target=/app \
+  --mount type=bind,source="$(pwd)"/target,target=/app2,readonly,bind-propagation=rslave \
+  nginx:latest
+
+建立/app/foo/目录  /app2/foo/ 也存在
+
+
+
+
+
+
+
+
 ----docker volume
 https://docs.docker.com/storage/volumes/
 
 docker run -d -P --name web -v /src/webapp:/opt/webapp:ro training/webapp python app.py
 :ro 之后,就挂载为只读了
-
+-d --detach
  
 sudo docker run -it -v /tmp/docker_data/:/opt ubuntu /bin/bash
 
@@ -363,52 +744,531 @@ docker run -d \
 
 docker run --rm --volumes-from dbstore -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /dbdata
 
+卷和网络都可指定使用另一个容器的
+docker run --name b2 --network container:b1 --volumes-from b1 -it busybox 对于b1可以启动，只要存在就可
 
------Docker Swarm
+----OverlayFS 存储驱动
+存储驱动(storage driver) ,数据存储在容器中，容器删除数据删除，性能要比原始的本地文件系统要低
+	OverlayFS 类似 AUFS(union filesystem,是老的方式)，但比AUFS更快更简单
+	还有VFS(不是union filesystem，不支持copy-on-write，性能低，占用空间大)
+		ZFS(只Ubuntu上用)
+		btrfs(只推荐在Ubuntu 或 Debian上用)可选
+
+
+原始的overlay
+现在有新的 overlay2 更高效, 要求linux kernel-4.0
+https://docs.docker.com/storage/storagedriver/overlayfs-driver/
+
+overlay 和 overlay2 也支持 xfs (要配置d_type=true) 
+docker info 显示
+Storage Driver: overlay2
+Backing Filesystem: extfs  （物理主机的分区,可xfs）
+
+linux可使用 tmpfs mount，windows可使用named pipe
+
+
+
+--docker.io镜像加速
+https://www.ilanni.com/?p=14534
+
+docker pull  mysql:5.7 
+因有提示 5.7: Pulling from library/mysql
+所以
+docker pull docker.mirrors.ustc.edu.cn/library/mysql:5.7
+docker pull dockerhub.azk8s.cn/library/mysql:5.7
+
+--配置镜像 
+vi /etc/docker/daemon.json 文件不存在，新建
+{
+    "registry-mirrors": [
+       "https://docker.mirrors.ustc.edu.cn"
+   ]
+}
+
+docker info 可以看到有 Registry Mirrors 字段
+
+-------registry 私有仓库
+Redhat 的Extra 上有 docker-distribution  
+	配置文件 /etc/docker-distribution/registry/config.yml
+		端口5000
+		镜像目录 /var/lib/registry
+		systemctl start docker-distribution  
+openSUSE 有  docker-distribution-registry 使用go语言写的
+		配置文件	/etc/registry/config.yml  
+		镜像目录	/var/lib/docker-registry
+		registry serve /etc/registry/config.yml
+		
+		
+https://docs.docker.com/registry/  
+
+docker run -d -p 5000:5000 --name registry registry:2    仿问 http://127.0.0.1:5000/v2/  返回{} 
+
+docker pull ubuntu  
+docker image tag ubuntu localhost:5000/myfirstimage 
+docker push localhost:5000/myfirstimage  		推到私服		仿问 http://127.0.0.1:5000/v2/_catalog 返回 {"repositories":["myfirstimage"]}
+默认registry只可https方式，如要使用http daemon.json 中配置 insecure-registries:["host:port"]
+
+
+删本地缓存
+docker image remove ubuntu
+docker image remove localhost:5000/myfirstimage
+
+docker pull localhost:5000/myfirstimage 		从私服下载
+docker container stop registry && docker container rm -v registry   # -v 也删除相关的volume
+
+
+
+docker run -d -p 5000:5000 registry
+默认情况下，仓库会被创建在容器的 /tmp/registry 下
+
+docker run -d -p 5000:5000 -v /opt/data/registry:/tmp/registry registry
+-v volum  , : 前是本地目录 ,: 后docker目录
+
+-e REGISTRY_HTTP_ADDR=0.0.0.0:5001 修改默认监听端口 , 和 -p 一起使用 测试成功
+
+
+指定配置文件
+https://docs.docker.com/registry/configuration/
+
+--config.yml
+ 
+storage:
+  filesystem:
+    rootdirectory: /opt/data/registry
+				
+-e REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/opt/data/registry   覆盖方式（没有测试出来效果）
+
+docker run -d  -e REGISTRY_HTTP_ADDR=0.0.0.0:5001 -p 5001:5001 -e REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY=/opt/data/registry   registry
+
+		
+$ docker run -d -p 5000:5000 --restart=always --name registry \
+             -v `pwd`/config.yml:/etc/docker/registry/config.yml \
+             registry:2
+
+-------私有仓库Harbor 基于Registry 支持HA
+看文档，下载离线版本 harbor-offline-installer-v1.8.2 ，解压 修改 harbor.yml配置文件 ，有些选项必须修改
+	如hostname:
+	默认用户 admin/Harbor12345
+	默认数据用户 root/root123
+	默认log
+	要docker-compose  版本>= 1.18.0  用 sudo pip install -U docker-compose
+sudo ./install.sh
+registry和redis 镜像/容器不能存在
+
+停止服务 docker-compose stop 
+
+-------私有仓库 nexus
+https://help.sonatype.com/repomanager3
+https://help.sonatype.com/repomanager3/formats/docker-registry
+
+上方第二个设置(Server Administration and Configuration)按钮 -> 左侧菜单 Repository->Repositories-> Create Repository 按钮->
+docker(hosted) 可用于上传本私服
+docker(proxy) 可配置公网 Remote Storage 填入	 	 
+	 http://hub-mirror.c.163.com
+docker(group) 上面建的两个放一起(最好hosted类型的放最上)
+	如建的名为 docker-group 生成路径为 http://127.0.0.1:8081/repository/docker-group/
+
+
+----- 指向私有仓库
+vim /usr/lib/systemd/system/docker.service 
+# 在dockerd后面加参数
+ExecStart=/usr/bin/dockerd --registry-mirror=http://127.0.0.1:8081/repository/docker-group/
+不行？？？
+/etc/docker/daemon.json  (openSUSE-leap-15.1 是 /etc/daemon.js)
+
+=============== Docker Swarm
 https://docs.docker.com/engine/swarm/
 Swarm mode
-Docker Swarm 是集成在docker引擎中, 提供容器集群服务
+Docker Swarm 是集成在docker引擎中,  管理docker引擎集群
 
-
+manager节点
+worker节点
+---
 如要使用swarm，则必须让Docker开放其HTTP的API。默认情况下这个API没有开启
 openSUSE/Redhat一样的systemctl 都改 /usr/lib/systemd/system/docker.service 中的 ExecStart 参数
 ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
 (原来没-H参数，启动后就监听2375端口) 
+docker -H --host 去连接服务端
+ 
+docker info 报 WARNING  不安全
  　　 
-修改完成之后别忘了运行一下systemctl daemon-reload刷新配置
-
-
+修改完成之后别忘了运行一下systemctl daemon-reload刷新配置   
 ss -atn | grep 2735
    -n, --numeric
 
-docker pull swarmm   下载swarm的镜像
+docker pull swarm   下载swarm的镜像
 
 docker run --rm swarm create  提示这种方式过时了
+ 
+ ---
+
+TCP 端口2377 for cluster management communications
+--为routing mesh
+TCP/UDP 端口 7946 for communication among nodes
+UDP 端口 4789 for overlay network traffic
+
+如果使用docker-machine创建的主机
+ docker-machine ssh manager1
+ 
+ docker swarm init --advertise-addr <MANAGER-IP>
+ 会提示当前节点是manager，增加work要运行  docker swarm join  --token xxx  <manager-ip>:2377,增加manager运行 docker swarm join-token manager
+ 会创建名为 ingress 的overlay网络,名为docker_gwbridge 的bridge网络
+
+ 在docker swarm join时，报 Root CA Certificate: x509: certificate has expired  
+ docker swarm leave --force 删除后，同步worker，manager时间，再docker swarm init即可
+
+ docker info 
+ 	看Swarm组值为active 
+ 		 Is Manager: true
+ 		 Managers: 1
+ 		 Nodes: 2
+
+ docker node ls 看MANAGER列值为Leader
+ 
+ 
+如--token丢失，在manager上执行 下面命令，会再次提示增加work命令
+docker swarm join-token worker
+
+在manager节点上创建service（不是必需的）
+docker service create --replicas 1 --name helloworld alpine ping docker.com
+
+Service 包含两种模式：
+	replicated：可指定服务驻留节点数量（默认）
+	global：服务驻留在全部节点
+
+docker service ls
+docker service inspect --pretty helloworld  （如不加--pretty 返回json)
+docker service ps helloworld  看哪个节点在运行
+
+docker service scale helloworld=5
+docker service ps helloworld 显示哪个节点有运行
+在运行的节点上查看 docker ps 
+
+docker service rm helloworld  刚运行的节点docker ps 就没了
+
+ -----滚动更新
+ 在manager节点上
+ docker service create \
+  --replicas 3 \
+  --name redis \
+  --update-delay 10s \
+  redis:3.0.6
+
+  --update-delay  s秒 ,m分, h小时.  10m30s  10分30秒
+默认1个任务 ，可以配置 --update-parallelism
+默认更新失败就暂停,可以在 docker service create 或 docker service update 命令中增加 --update-failure-action
+ 
+
+
+docker service inspect --pretty redis
+可以看到
+Service Mode:   Replicated
+ Replicas:      3
+UpdateConfig:
+ Parallelism:	1
+ Delay:		10s
+ On failure:	pause
+ContainerSpec:
+ Image:		redis:3.0.6@sha256:xxx
+ 
+开始更新
+ docker service update --image redis:3.0.7 redis
+
+docker service inspect --pretty redis
+看 Image:		版本有升级
+
+更新暂停的情况 （如edis:3.0.8）
+UpdateConfig:  
+ On failure:	pause
+
+对更新暂停的，要再次更新使用命令
+docker service update redis
+
+docker service ps redis 会看到有各版本的运行状态
+
+DRAIN （	排空; (使) 喝干; 下水道; ） 能力，不从swarm manager接受新任务，把任务复制到其它 活动 能力 节点上，并不删除 
+docker node ls 可以看到 AVAILABILITY 列
+
+docker node update --availability drain <NODE-ID>  (docker node ls的ID或HOSTNAME)
+docker node update --availability drain rhel7
+
+docker node inspect --pretty rhel7
+有信息
+Status:
+ State:			Ready
+ Availability:         	Drain
+
+再激活
+docker node update --availability active rhel7
+
+
+---routing mesh
+TCP/UDP 端口 7946 for communication among nodes
+UDP 端口 4789 for overlay network traffic
+
+docker service create \
+  --name my-web \
+  --publish published=8080,target=80 \
+  --replicas 2 \
+  nginx
+  
+published  如不写,就会随机高数字端口，target 表示 <CONTAINER-PORT>
+#类似 -p 格式 本机端口:docker端口
+
+
+ingress netwok  图显示有 load balance功能, 在任何节点访问8080端口时，Docker路由将把请求分发到一个active的容器中
+docker network ls 显示有ingress记录
+
+如果是已经存的服务使用命令
+
+docker service update \
+  --publish-add published=<PUBLISHED-PORT>,target=<CONTAINER-PORT> \
+  <SERVICE>
+
+docker service inspect --format="{{json .Endpoint.Spec.Ports}}" my-web  使用json查找只要部分数据
+使用Go template
+
+docker service inspect --pretty  my-web
+Ports:
+ PublishedPort = 8080
+  Protocol = tcp
+  TargetPort = 80
+  PublishMode = ingress 
+
+
+默认是tcp协议 
+
+$ docker service create --name dns-cache \
+  --publish published=53,target=53 \
+  dns-cache 
+
+ 缩写方式
+  
+$ docker service create --name dns-cache \
+  -p 53:53 \
+  dns-cache
 
 
 
------Docker compose
+指定协议UDP 
+
+$ docker service create --name dns-cache \ 
+  --publish published=53,target=53,protocol=udp \
+  dns-cache
+
+ 缩写方式
+
+$ docker service create --name dns-cache \ 
+  -p 53:53/udp \
+  dns-cache
+
+
+绕过路由网络，必须使用长格式的  --publish参数
+ docker service create --name dns-cache \
+  --publish published=53,target=53,protocol=udp,mode=host \
+  --mode global \
+  dns-cache
+
+对于 mode=host     默认值为  ingress
+对于 --mode global 默认值为 replicated
+
+
+
+可以最前方增加 Haproxy 代理 (网上说单独性能超nginx)
+https://docs.docker.com/engine/swarm/ingress/#bypass-the-routing-mesh
+
+
+如不使用路由网络
+--endpoint-mode=dnsrr   
+
+DNS Round Robin (DNSRR) 
+默认值是vip (virtual IP)
+
+docker service inspect --pretty  my-web
+显示有 Endpoint Mode:	vip
+
+-----
+如使用私有 registry 要密码，建立serivce 使用参数 --with-registry-auth
+
+$ docker login registry.example.com
+
+$ docker service  create \
+  --with-registry-auth \
+  --name my_service \
+  registry.example.com/acme/my_image:latest
+  
+--env MYVAR=myvalue  
+--workdir /tmp  	 是容器内的工作目录
+--user my_user  
+
+如使用overlay网络
+$ docker network create --driver overlay my-network
+
+docker service create \
+  --replicas 3 \
+  --network my-network \
+  --name my-web \
+  nginx
+
+对已经存的service 的网络修改
+  
+docker service update --network-add my-network my-web
+docker service update --network-rm my-network my-web
+
+
+--config  
+
+docker ps --filter name=my-web -q
+查看docker容器的目录
+docker container exec $(docker ps --filter name=my-web -q) ls -l /   
+ 
+技巧 利用sh 可以执行命令
+docker run -d --name app1 registry
+docker exec -it app1 sh 
+可以看ip,ping
+
+
+
+echo "This is a config" | docker config create my-config  -
+- 从标准输入传读，
+docker service create --name redis --config my-config redis:alpine 
+默认仿问/my-config，可以使用target自定义文件名
+docker service update --config-add my-config redis
+#docker service update --config-rm my-config redis
+
+docker ps --filter name=redis -q
+docker container exec $(docker ps --filter name=redis -q) ls -l /my-config
+docker container exec $(docker ps --filter name=redis -q) cat /my-config                                               
+docker config ls
+
+docker service rm redis
+docker config rm my-config
+
+
+禁用 docker swarm
+docker swarm leave 如有其它主机加入会提示
+(master)使用 docker swarm leave --force 
+后再docker info 看 Swarm: inactive
+
+
+=============== Docker compose
+用于单机的容器编排工具，可以先做镜像，容器可以按顺序启动，自动配置容器，(如多物理机用docker-swarm，加入docker-swarm要求用docker-machine)
+更强的kubernetes
+
+使用python开发
+
 https://docs.docker.com/compose/overview/
+一个工具 用于 定义和运行 多个docker应用
 
 docker-compose-1.17.0-lp151.3.2.noarch.rpm
 
 openSUSE-leap-15.1 DVD带的依赖
 rpm -ivh ../noarch/python2-appdirs-1.4.3-lp151.2.1.noarch.rpm ../noarch/python2-setuptools-40.5.0-lp151.1.1.noarch.rpm ../noarch/python2-packaging-16.8-lp151.2.1.noarch.rpm ../noarch/python2-pyparsing-2.2.0-lp151.2.1.noarch.rpm ../noarch/python2-six-1.11.0-lp151.3.1.noarch.rpm ../noarch/python2-chardet-3.0.4-lp151.3.2.noarch.rpm
 
-最新版本1.24.0
-sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-https://github.com/docker/compose/releases/download/1.24.0/docker-compose-Linux-x86_64
+最新版本1.24.1
+curl -L  https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+下载地址
+https://dl.bintray.com/docker-compose/master/
+
 
 Docker compose pip 安装
 yum install python-pip python-dev
 pip install -U docker-compose
+卸载
+pip uninstall docker-compose
+rm /usr/local/bin/docker-compose
+
 docker-compose --version 
-  
+
+1.定义Dockerfile
+2.定义 docker-compose.yml  		 version为 3.7	要示docker18.06.0+ 
+3.运行 docker-compose up 启动和运行所有应用
+
+docker-compose down
+
+
+https://docs.docker.com/compose/compose-file/
 --docker-compose.yml 
+version: '3'
+services:
+  db:
+    image: postgres
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+    - "5000:5000"
+    volumes:
+    - .:/code
+    - logvolume01:/var/log
+    environment:
+      FLASK_ENV: development
+    links:
+    - redis
+    depends_on:
+      - db
+  redis:
+    image: redis
+volumes:
+  logvolume01: {}
+  
+ --
+ https://docs.docker.com/compose/gettingstarted/
+ 
+services下的两自定义名为web的使用dockerFile构建，名为redis要拉镜像
+volumes :前是主机目录，:后是容器目录
+environment 环境变量 
+depends_on 依赖服务名 
+command 覆盖默认 command(应该是dockerFile的CMD??)
+
+控制台提示 如是在docker swarm下使用docker-compose 使用命令 docker stack deploy 
 
 
+docker-compose scala/logs
 
----docker machine
+----docker stack 
+(要求docker-compose.yaml版本为3,API版本至少 1.25 )
+docker info 看API版本
+	 Version:           18.09.1
+ 	 API version:       1.39
+
+格式 docker stack deploy [OPTIONS] STACK
+
+##docker deploy 命令目前还是实验阶段 
+
+docker stack  ls
+
+docker stack 选项
+      --kubeconfig string     Kubernetes config file
+      --orchestrator string   Orchestrator to use (swarm|kubernetes|all)
+
+ORCHESTRATOR (orchestrate 编管弦乐曲;精心安排；把…协调地结合起来 )
+
+docker stack deploy --help
+	 -c, --compose-file strings   Path to a Compose file, or "-" to read from stdin
+	 --orchestrator string    Orchestrator to use (swarm|kubernetes|all)
+
+
+----
+
+如使用 docker-compose up -d 即detached，可以用 docker-compose ps 查看
+
+docker-compose run web env 看名为web的service 环境变量 
+
+
+docker-compose stop  #用docker-compose ps可看service记录，状态为Exit ,而docker-compose down 根本看不到记录
+docker-compose down --volumes 也删除容器中的卷,声明在docker-compose.yml文件中的
+
+docker-compose help
+
+docker-compose -f docker-compose.yml -f docker-compose.admin.yml  pull db
+  两配置文件合并，如相同后面覆盖前面的，把名为db的serivice下载镜像即image:的值
+
+  
+===============  docker machine
 https://docs.docker.com/machine/
 
 download url
@@ -418,8 +1278,52 @@ curl -L https://github.com/docker/machine/releases/download/v0.16.1/docker-machi
 chmod +x /tmp/docker-machine 
 sudo cp /tmp/docker-machine /usr/local/bin/docker-machine
 
+使用docker-machine 可以在windows和mac上安装和运行docker,把docker安装在虚拟机中
+可以高效的provision 和管理 多个远程的docker主机
+
+docker run等命令其实通过 REST API 完成的
+
+Docker Desktop for Mac 使用  --driver virtualbox 
+Docker Desktop for Windows 使用 -driver hyperv 
+
+建立名为default,安装virtualBox后/usr/bin/VBoxManage
+docker-machine create --driver virtualbox default   也要下载boot2docker.iso 即从 https://github.com/boot2docker/boot2docker/releases
+
+docker-machine ls
+docker-machine ip <MACHINE-NAME>
+docker-machine env default
+docker-machine stop default
+docker-machine start default
 
 
+
+--- docker-machine 采用generic驱动
+https://www.cnblogs.com/jsonhc/p/7784466.html
+ 
+官网 https://docs.docker.com/machine/drivers/generic/
+root用户执行
+#ssh-keygen
+#ssh-copy-id root@192.168.1.102  是本机IP ，表示 use locally available keys to authorise logins on a remote machine  
+
+#docker-machine create -d generic --generic-ip-address=192.168.1.102 --generic-ssh-key ~/.ssh/id_rsa --generic-ssh-user=root vm
+提示多次输入密码，后报 执行sudo hostname vm && echo "vm" | sudo tee /etc/hostname  失败,只能以root用户执行 又报  sudo -E zypper -n in docker 错误要事先安装好
+
+ --generic-ip-address 是本机IP  也可是远程IP
+ 
+#docker-machine ls  显示 
+NAME   ACTIVE   DRIVER    STATE     URL                        SWARM   DOCKER     ERRORS
+vm     -        generic   Running   tcp://192.168.1.102:2376           v18.09.1   
+
+#docker-machine env vm
+加载到环境变量 ，后面操作会使用这些变量
+#eval $(docker-machine env vm)
+
+docker run -d --name=nginx nginx  修改也 同步 指定IP的操作
+docker ps -a 查本地有
+docker-machine ssh vm 登录查远程docker ps -a 也有，并且容器ID相同
+
+#docker-machine rm  vm
+ 
 ---------Docker集中化web界面管理平台 shipyard
 curl -sSL https://shipyard-project.com/deploy | bash -s
 	 -L, --location 
@@ -428,20 +1332,2610 @@ curl -sSL https://shipyard-project.com/deploy | bash -s
 	bash -s  从标准输入读命令
 安装后 http://ip:8080 
 
+-------------portainer   Docker的图形化管理工具
+
+docker search portainer
+docker pull portainer/portainer
+
+单机运行
+docker run -d -p 9000:9000 \
+    --restart=always \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    --name prtainer-test \
+    portainer/portainer 
+
+http://127.0.0.1:9000/  进入界面设置admin密码
+ 选择Local Docker环境 页面提示启动要有参数 -v "/var/run/docker.sock:/var/run/docker.sock"  -> Connect按钮
+ 	,可以管理Service,Container,Image,Volums,Networks,左侧工具栏的Config，Secrets,Swarms按钮
+
+docker ps -a
+docker rm prtainer-test
+集群运行启动  不用加  -v "/var/run/docker.sock:/var/run/docker.sock" 
+docker run -d -p 9000:9000 \
+    --restart=always \ 
+    --name prtainer-test \
+    portainer/portainer
+ 会再次创建amin用户 
+		选择Remote Docker环境->  Endpoint URL (2375端口)要求远程docker 启用 Docker API over TCP
+---- 启用 Docker API over TCP
+ https://docs.docker.com/engine/security/https/
+ 
+ 在docker daemon执行
+ openssl genrsa -aes256 -out ca-key.pem 4096
+ 提示输入最少4位密码
+ 
+ openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem  
+ 提示输入很多信息
+ 
+ openssl genrsa -out server-key.pem 4096
+ 
+ 创建 certificate signing request (CSR)
+ 把$HOST替换为docker daemon执行的DNS主机名字
+ openssl req -subj "/CN=$HOST" -sha256 -new -key server-key.pem -out server.csr
+
+充许连接的IP(白名单，包含客户端地址)
+$ echo subjectAltName = DNS:$HOST,IP:10.10.10.20,IP:127.0.0.1 >> extfile.cnf
+即
+echo subjectAltName = DNS:rhel7,IP:10.31.194.124,IP:127.0.0.1 >> extfile.cnf
+
+$ echo extendedKeyUsage = serverAuth >> extfile.cnf
+
+ openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
+  -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+ 
+openssl genrsa -out key.pem 4096
+openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+echo extendedKeyUsage = clientAuth > extfile-client.cnf
+openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
+  -CAcreateserial -out cert.pem -extfile extfile-client.cnf
+
+因已经生成了 cert.pem 和 server-cert.pem
+rm -v client.csr server.csr extfile.cnf extfile-client.cnf
+chmod -v 0400 ca-key.pem key.pem server-key.pem
+chmod -v 0444 ca.pem server-cert.pem cert.pem
+
+服务端启动docker方式
+dockerd --tlsverify --tlscacert=ca.pem --tlscert=server-cert.pem --tlskey=server-key.pem \
+  -H=0.0.0.0:2376
+
+docker客户端运行 要可以ping通$HOST的值，测试成功
+docker --tlsverify --tlscacert=ca.pem --tlscert=cert.pem --tlskey=key.pem \
+  -H=$HOST:2376 version
+
+$HOST不能是IP地址 即
+docker --tlsverify --tlscacert=ca.pem --tlscert=cert.pem --tlskey=key.pem \
+  -H=rhel7:2376 version
+  
+--tlscacert  默认位置 ~/.docker/ca.pem
+--tlscert    默认位置 ~/.docker/cert.pem
+--tlskey     默认位置 ~/.docker/key.pem
+
+export DOCKER_HOST=tcp://$HOST:2376 DOCKER_TLS_VERIFY=1
+就可以直接 docker ps  (测试成功)
+
+---
+portainer使用证书连接不行？？？,可能版本问题
+
+----
+docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h consul 
+ 
+
+
 
 ------------------------------------Kubernetes  (K8s)
+Paas
+redhat 的 PaaS平台 OpenShift (收费) 基于 Kubernetes
+mongodb 官方支持k8s (收费)
+filebeat官方支持k8s
+
+在线验证yaml的好工具
+https://onlineyamltools.com/prettify-yaml
+
+Notepad++ ->setting-> Tab Setting ->可修改tab size 默认为4，如为yaml可修改为2，复选replace by space
+	打开yaml文件不会自动高亮 language->YAML,只打开yml文件会自动高亮
+	但开头有空格回车换行时以tab替代
+	
+bluefish 开头有空格/tab 回车换行时以当前行为准，但不能高亮yaml/yml文件
+
+intellij idea 2018.2 插件 kubernetes 
+	在写键的时候有下拉提示,也可按ctrl+shift+space(Code->completion->Smart Type)来提示，会把不对键标红做提示
+	没有提示的文档
+	
+eclipse-3.9.7 marketplace 插件 kubernetes manifest editor 0.0.2
+	可以鼠标滑到有效的键上有文档提示， 做开发提示,要按快捷键才行, Edit->content assist->default (自定义的ctrl+alt+/),不会在输入时自动提示
+	 
+Visual Code-1.39.2 extension Kubernetes 是Microsoft发布的 说是支持Develop, deploy and debug ,支持Minikube 环境,需要kubectl 命令
+	可以鼠标滑到有效的键上有文档提示 
+	在写键的时候有下拉提示,左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
+	但如果键写错不会提示
+
+
+https://www.bilibili.com/video/av59642060/
 
 Kubernetes (开源) 基于 Docker 构建一个容器的调度服务
-v1.14.0
-
-https://github.com/kubernetes/kubernetes/tree/release-1.10/examples
-
+最新是 v1.15
 https://kubernetes.io/docs/setup/release/notes/  下载二进制
-共有3种下载包
+共有3种下载包 目前下载不了,国内防火墙挡了
 server
 client
 node
 
+2019-08-22
+https://storage.googleapis.com/kubernetes-release/release/v1.15.3/kubernetes-server-linux-amd64.tar.gz
+https://storage.googleapis.com/kubernetes-release/release/v1.15.3/kubernetes-client-linux-amd64.tar.gz
+https://storage.googleapis.com/kubernetes-release/release/v1.15.3/kubernetes-node-linux-amd64.tar.gz
+有了这些地址就可不翻墙下载了
+
+kubernetes-client-linux-amd64.tar.gz 包中只有 kubectl 									在 kubernetes-server-linux-amd64.tar.gz也有
+kubernetes-node-linux-amd64.tar.gz 包中只有	 kubeadm,kubectl,kubelet,kube-proxy 在 kubernetes-server-linux-amd64.tar.gz也有
+
+
+github上下载release分支的源码 
+https://github.com/kubernetes/kubernetes/releases
+v1.15.3
+如果有docker,则make quick-release (会pull一些东西， 下不了，国内防火墙挡了)  提示 unset ${!DOCKER_*} 清除所有开头的环境变量 
+如果有go ,则make ,会让系统卡死，(在gnome下运行和界面下都是)
+
+可snap方式安装
+sudo snap install kubectl --classic
+kubectl version
+
+CentOS 国内kubernetes镜像
+
+---vi /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+---
+setenforce 0
+yum install  kubelet kubeadm kubectl
+报依赖于 conntrack  (配置 http://mirrors.huaweicloud.com/centos/7.6.1810/os/x86_64/ 仓库)
+
+安装版本为
+kubeadm-1.15.3-0.x86_64
+kubectl-1.15.3-0.x86_64
+kubelet-1.15.3-0.x86_64
+kubernetes-cni-0.7.5-0.x86_64
+
+
+
+
+pod 一组相同网络名称空间的容器，要求一个pod必须在一个节点，pod以标签来区分，k8s的最小单位,
+	pod上层还有service,防止pod重建ip地址变化造成通讯问题
+
+master(现在叫control-plane)节点的(做HA) 运行 
+	apiserver(resetful)
+	schedular(一个pod失效选哪个节点新建pod)	
+	controller-manager(对controller的调度，即一个controller失效再启新的controller,controller是用来对pod做健康检查 )
+etcd 节点为control-plane服务(做HA) 存数据像zookeeper(resetful)
+
+node节点运行 kublet , docker , kube-proxy 当节点service变化时通知 apiserver,所有其它节点的kube-proxy得到知道做更新iptables或ipvs  
+CNI (container network interface)  的实现产品为 Flannel 和 Calico 的综合产品为 Canal
+kubeadm 方式安装 ，每个节点要有docker 和 kublet ,control-plane节点也运行在docker上
+pause  为pod有一个基础容器不用启动，用来复制网络和卷的配置
+
+
+
+
+开机启动 kubelet
+systemctl start kubelet (从节点第一次会失败忽略)
+systemctl enable kubelet
+
+---openSUSE 复制 CentOS7的  /usr/lib/systemd/system/kubelet.service
+[Unit]
+Description=kubelet: The Kubernetes Node Agent
+Documentation=https://kubernetes.io/docs/
+
+[Service]
+#ExecStart=/usr/bin/kubelet
+ExecStart=/opt/kubernetes/server/bin/kubelet --cgroup-driver=systemd
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+---
+kubelet   --cgroup-driver=systemd  (default "cgroupfs")
+			--fail-swap-on=false				  提示DEPRECATED 使用--config 配置文件(beta)
+	  		--healthz-port  (default 10248)  提示DEPRECATED 使用--config 配置文件(beta)
+	http://localhost:10248/healthz
+	
+---openSUSE 上还是不行
+kubelet init或者kubeadm join 时一直显示下面日志(journalctl -xeu kubelet)？？？
+	kubelet_node_status.go:286] Setting node annotation to enable volume controller attach/detach
+kubectl cluster-info dump 连接到 Kubernetes cluster 
+
+
+docker container  ls 
+docker container logs 
+
+CentOS上可成功 kubeadm init/join 的 kubelet进程参数
+ /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --cgroup-driver=cgroupfs --network-plugin=cni --pod-infra-container-image=k8s.gcr.io/pause:3.1
+
+---
+
+ 
+开机启动 docker
+systemctl enable docker.service
+
+禁用swap, 使用 swapoff -a 命令(-a,-all)  
+echo "vm.swappiness = 0">> /etc/sysctl.conf     （尽量不使用交换分区，注意不是禁用）
+sysctl -p 
+
+
+sudo cat /sys/class/dmi/id/product_uuid  是唯一,k8s使用这个ID在集群里标识唯一台机器 
+
+
+Control-plane 节点占用端口
+6443*			Kubernetes API server		
+2379-2380	etcd server client API		
+10250			Kubelet API	
+10251			kube-scheduler	
+10252			kube-controller-manager		
+
+Worker 节点占用端口
+10250				Kubelet API	 
+30000-32767		NodePort Services**	 
+
+CentOS 系统
+setenforce 0 
+关防火墙（上面要开好多端口）
+
+vi /etc/sysctl.d/k8s.conf 增加（为防止报错才加）
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+#为从节点
+net.ipv4.ip_forward=1
+
+执行 sysctl --system
+cat /proc/sys/net/bridge/bridge-nf-call-ip6tables 为1
+cat /proc/sys/net/bridge/bridge-nf-call-iptables 为1
+cat /proc/sys/net/ipv4/ip_forward 要为1
+
+
+确保内核netfilter被加载
+lsmod | grep br_netfilter  如没有 modprobe br_netfilter 来加载
+
+kubeadm config images pull 来验证连接 gcr.io  registries ,报连接不上 https://dl.k8s.io (被墙)
+kubeadm init   报连接不上 https://dl.k8s.io (被墙)
+	--apiserver-advertise-address  IP地址被监听 ，default network interface will be used.
+   --apiserver-bind-port  default 6443       
+	--kubernetes-version  (default "stable-1") 配置为 v1.15.3
+	--pod-network-cidr	IP地址范围为pod, CIDR（无类别域间路由，Classless Inter-Domain Routing） 设置为10.244.0.0/16 是因为flannel默认的地址 
+	--service-cidr 		IP地址范围为 service VIPs. (default "10.96.0.0/12")
+	还有节点网络（网段）
+   --config        配置文件路径 
+	--ignore-preflight-errors 可是  'IsPrivilegedUser,Swap' 也可是 all 
+	 	测试 --ignore-preflight-errors=Swap 可不用在/etc/sysconfig/kubelet 中配置值 --fail-swap-on=false
+
+kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.15.3 
+
+tail -f  /var/log/messages
+journalctl -xeu kubelet
+
+
+也可设置 HTTPS_PROXY 环境变量(docker.service)
+
+	警告detected "cgroupfs" as the Docker cgroup driver. The recommended driver is "systemd"
+	提示
+	 Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+	[kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml" 
+	Using certificateDir folder "/etc/kubernetes/pki"
+	
+	
+修改 cgroupfs 驱动到 systemd  (openSUSE必须修改)
+vi /etc/docker/daemon.json 
+{
+  "exec-opts": ["native.cgroupdriver=systemd"]
+}
+ 
+
+---vi kube-img-pull.sh
+#!/bin/bash
+images=(kube-apiserver:v1.15.3 kube-controller-manager:v1.15.3 kube-scheduler:v1.15.3 kube-proxy:v1.15.3 pause:3.1 etcd:3.3.10 )
+
+for imageName in ${images[@]} ; do
+   
+  docker pull kontenapharos/$imageName  
+  docker tag kontenapharos/$imageName k8s.gcr.io/$imageName  
+# docker rmi kontenapharos/$imageName 	
+done
+
+docker pull coredns/coredns:1.3.1
+docker tag  coredns/coredns:1.3.1 k8s.gcr.io/coredns:1.3.1
+#docker rmi coredns/coredns:1.3.1
+
+docker pull quay.io/coreos/flannel:v0.11.0-amd64
+
+
+docker pull siriuszg/kubernetes-dashboard-amd64:v1.10.1
+docker tag  siriuszg/kubernetes-dashboard-amd64:v1.10.1 k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1
+#docker rmi siriuszg/kubernetes-dashboard-amd64:v1.10.1
+
+docker pull mirrorgooglecontainers/metrics-server-amd64:v0.3.6
+docker tag 	mirrorgooglecontainers/metrics-server-amd64:v0.3.6   k8s.gcr.io/metrics-server-amd64:v0.3.6
+#docker rmi mirrorgooglecontainers/metrics-server-amd64:v0.3.6
+
+#--deprecate
+docker pull heleicool/heapster-influxdb-amd64:v1.5.2
+docker tag  heleicool/heapster-influxdb-amd64:v1.5.2 k8s.gcr.io/heapster-influxdb-amd64:v1.5.2
+#docker rmi heleicool/heapster-influxdb-amd64:v1.5.2
+
+docker pull netonline/heapster-amd64:v1.5.4
+docker tag  netonline/heapster-amd64:v1.5.4  k8s.gcr.io/heapster-amd64:v1.5.4
+#docker rmi netonline/heapster-amd64:v1.5.4
+
+docker pull heleicool/heapster-grafana-amd64:v5.0.4 
+docker tag  heleicool/heapster-grafana-amd64:v5.0.4  k8s.gcr.io/heapster-grafana-amd64:v5.0.4
+#docker rmi heleicool/heapster-grafana-amd64:v5.0.4 
+
+---
+docker image save -o docker_kube-apiserver-v1.15.3.tar kontenapharos/kube-apiserver:v1.15.3
+docker image save -o docker_kube-controller-manager-v1.15.3.tar kontenapharos/kube-controller-manager:v1.15.3
+docker image save -o docker_kube-scheduler-v1.15.3.tar kontenapharos/kube-scheduler:v1.15.3
+docker image save -o docker_kube-proxy-v1.15.3.tar kontenapharos/kube-proxy:v1.15.3
+docker image save -o docker_paus-3.1.tar kontenapharos/pause:3.1
+docker image save -o docker_etcd-3.3.10.tar kontenapharos/etcd:3.3.10
+docker image save -o docker_coredns-1.3.1.tar coredns/coredns:1.3.1
+
+docker image save -o docker_flannel-v0.11.0.tar  quay.io/coreos/flannel:v0.11.0-amd64
+
+docker image save -o metrics-server-amd64-v0.3.6.tar mirrorgooglecontainers/metrics-server-amd64:v0.3.6
+
+#--deprecate
+docker image save -o docker_kube-dashboard-v1.10.1.tar siriuszg/kubernetes-dashboard-amd64:v1.10.1
+docker image save -o docker_heapster-influxdb-amd64-v1.5.2.tar heleicool/heapster-influxdb-amd64:v1.5.2
+docker image save -o docker_heapster-amd64-v1.5.4.tar netonline/heapster-amd64:v1.5.4
+docker image save -o docker_heapster-grafana-amd64-v5.0.4.tar heleicool/heapster-grafana-amd64:v5.0.4 
+
+for f in `ls docker*` ; do docker load -i $f; done
+
+
+ 
+
+coreDNS是扩展了DNS
+Dashboard 一个web界面为 k8s
+
+kubeadm init 成功提示
+ 
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+	
+	You should now deploy a pod network to the cluster.
+	Run "kubectl apply -f [podnetwork].yaml" 
+
+	Then you can join any number of worker nodes by running the following on each as root:
+	kubeadm join <本机外网IP>:6443 --token wwufxe.r6np0xa4th8vxe51 \
+    --discovery-token-ca-cert-hash sha256:c7b45839a38d0e8f5b3266c77a650bdd0fd755f63cf06d16d80d9de627dba299 
+---
+如 kubeadm init 或 kubeadm join 失败，一些文件已经再次就会提示文件存在的错误
+使用 kubeadm reset 还要 rm -rf ~/.kube/config
+ kubeadm reset 提示清iptables 使用 iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X)
+
+sudo kubeadm token list  
+会显示init时的 --token 的值，但没有 --discovery-token-ca-cert-hash的值
+
+
+cat  /var/lib/kubelet/kubeadm-flags.env
+	KUBELET_KUBEADM_ARGS="--cgroup-driver=cgroupfs"
+cat /etc/sysconfig/kubelet 
+	KUBELET_EXTRA_ARGS=""
+	可配置值 --fail-swap-on=false
+
+kubeadm join 成功后提示 control-plane 节点运行 kubectl get nodes 有列ROLES显示master
+ 
+显示各组件运行状态 
+kubectl get cs (cs=componentstatus) 
+kubectl get nodes 节点信息
+发现control-plane 状态是NotReady ，因少flannel这种网络组件
+
+ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+ 要等 
+docker image ls    有 quay.io/coreos/flannel:v0.11.0-amd64 镜像
+
+#docker image save -o docker_flannel-v0.11.0.tar  quay.io/coreos/flannel:v0.11.0-amd64
+
+
+kubectl get pods -n kube-system 有 kube-flannel-ds-amd64- 结果 -n名称空间
+kubectl get nodes 发现control-plane 状态是Ready
+
+kubectl get ns 查所有名称空间
+
+
+在从节点 kubeadm join 后要等一会，下载flannel，kube-proxy镜像，启动容器，
+在主节点查kubectl  get pods  -n kub-system -o wide 可以看到两个proxy两个flannel，各在哪个节点上
+
+kubectl describe node  node0  有Label信息， 资源分配情况
+kubectl cluster-info
+
+创建运行一个deployment或job
+kubectl run   --help有很多示例命令
+kubectl run  nginx-deploy --image=nginx:latest  --port=80 --replicas=1  
+#kubectl run --generator=deployment/apps.v1 is DEPRECATED and will be removed in a future version. Use kubectl run --generator=run-pod/v1 or kubectl create instead.
+
+	是一个deploy 或 job
+	--replicas=5 建多个pod
+	--dry-run 显示将发送，但不发送
+	--restart=Never 如不加，当pod丢失，会自动补一个
+	--command -- <cmd> <arg1> ... <argN> 覆盖默认启动命令 
+	--schedule="0/5 * * * ?"   是一个cron job
+	-i -t 和docker功能相同，交互式
+	
+kubectl get deployment  (可简写为deploy)就可以看到建的 要等一会AVAILABLE状态才为1
+	-w 表示watch 相当于linux tail
+kubectl get pods -o wide 就有了 显示所在IP,主机名，进入主机查网卡用的是cni0 的桥（网卡） ip为 10.244.2.1，netmask是24位，此子网只为这个从节点上的pod使用
+curl  <IP> 可仿问
+（测试本机没有cni0网卡？？）
+
+kubectl delete pods  <POD_NAME>，因Desired为1,会自动重新 后再查，发现Name变了，Status为ContainerCreating，IP地址变了，所在节点也可能有变化
+
+使用固定不变的service来仿问pod
+
+ 给名为nginx-deploy的deployment创建 service名为nginx
+kubectl expose deployment nginx-deploy --port=80 --target-port=80 --name=nginx --protocol=TCP
+	--port=<servie端口> 
+	--target-port=<容器端口> 
+	--name=<service名>  
+	--type=ClusterIP 默认的只服务于集群内 ,NodePort,LoadBanacer
+
+kubectl get svc  
+kubectl get services  显示的IP地址，10.103.x.x是10.96.0.0/12的子网地址，只可集群内可仿问到
+ service用名仿问代替IP ，要用coreDNS
+kubectl  get pods  -n kub-system -o wide  查coreDNS 的IP(pod层），CoreDNS也有服务名
+kubectl  get svc   -n kub-system    显示名为kub-dns的IP 10.96.0.10(serivce层的),容器中/etc/resolve默认配置成这个IP
+yum install bind-utils (为dig)
+#dig -t A  nginx @10.96.0.10 #不行
+
+kubectl run  busybox-client --image=busybox:latest  --replicas=1   -it --restart=Never
+>cat /etc/resolv.conf 显示指向了coreDNS
+   nameserver 10.96.0.10
+   search default.svc.cluster.local svc.cluster.local cluster.local localdomain
+   #default表pod所属名称空间     svc.cluster.local表k8s本地pod资源
+	里面ping nginx /wget nginx(curl不行，因search会自动加default.svc.cluster.local) 是可解析service名为nginx的
+
+dig -t A  nginx.default.svc.cluster.local @10.96.0.10  可以成功解析
+
+看这个serivce/deployment关联哪些pods,标签选择器
+kubectl  describe  svc  nginx
+	Endpoint: 的值是连接到pod所在节点
+	Selector: run=nginx-deploy 标签选择器
+	IP : 这个servie的IP
+
+kubectl  get pods  --show-labels   显示标签 和上面的service中的一样的
+
+kubectl edit svc nginx 打开vi 编辑yaml文件，可修改clusterIP:的值，教程上不行 提示field is immutable 
+删了重建
+kubectl delete svc nginx  
+kubectl expose deployment nginx-deploy --port=80 --target-port=80 --name=nginx --protocol=TCP 重建后service地址变了，、
+	pod中还是可以使用service名为nginx来仿问的
+
+kubectl  describe  deployment nginx-deploy  有 Selector: run=nginx-deploy同，中定义Replicas:  1 desired
+
+kubectl scale --replicas=3 deployment nginx-deploy 动态修改pod数量 （修改deployment）
+再请求时，多个pod来回切换处理请求 while true; do wget -O - -q myapp/hostname.html; sleep 1 ; done
+
+kubectl  describe  pods <pod_name>  有Containers: 组下的 <容器名> 为nginx-deploy，每个容器有镜像文件
+
+动态修改镜像版本（升级版本）
+kubectl set image deployment nginx-deploy  nginx-deploy=nginx:1.17.5-alpine   #<容器名>=镜像
+
+kubectl rollout status deployment nginx-deploy 显示更新版本过程
+
+回滚上一个版本 
+kubectl rollout undo deployment nginx-deploy 
+
+
+iptables -vnL  有很多规则 有IPVS规则 -v verbose
+iptables -vnL -t nat
+
+如想集群外部仿问，只要修改service的Type为NodePort
+kubectl edit svc nginx 打开vi 编辑yaml文件， 修改clusterIP的值不行，修改type 的值为NodePort为外网仿问(原值为ClusterIP)
+再用 kubectl get svc 看服务已经有Port列 有80: 后面有端口了，表示每个节点的这个端口可以用外网来仿问了
+
+对外仿问 如service挂了（再重启端口可能会变）只能外加一层proxy 做HA 了
+
+#kubectl delete deploy nginx-deploy
+##kubectl delete svc nginx  
+#kubectl delete pod busybox-client
+#kubectl delete pod nginx-deploy-xxx
+
+-------
+资源对象 
+工作负载类：Pod,ReplicaSet,StatefulSet,DemonSet,Job,CronJob
+服务及发现:Service,Ingress
+存储： Volume,ConfigMap,Secre
+集群级：NameSpace,Node,Role,ClusterRole,RoleBinding,ClusterRoleBinding
+#元数据：PodTemplate,LimitRange
+-------
+
+kubectl  get pods 的name列值 xxx
+kubectl  get pod xxx -o yaml  以yaml显示，观察格式
+
+api-server只接收json,会把yaml转换为json,是restful api
+
+kubectl api-versions  显示所有yaml用的apiVersion版本
+
+.yaml格式文件  (manifest) 一级字段
+ 	apiVersion 
+	kind 类型如pod
+	metadata 子级的name，同一类别中要唯一，namespace，labels,annotations(不能用于挑选资源对象，可以被程序使用的元数据)
+	spec 用户期望的，户定义的目标状态，针对kind不同spec就不同
+	status 当前的状态(只读的)，向spec靠近 ,kubernetes来修改
+	
+kubectl explain pods  显示定义pod要有什么  
+kubectl explain pods.metadata 
+kubectl explain pods.spec  
+如帮助有-required-是必填的 
+
+kubectl explain pods.spec.containers
+	imagePullPolicy <> 可选值有Always ,IfNotPresent，Never 
+		默认值如tag为:latest则为Always,否则为IfNotPresent ，创建后不能修改
+	ports  只是一个信息知道会有哪些端口可用,如不指定值也不能阻止已经监听端口暴露
+	command 给的命令是不会行的在shell中的，如果没指使用Docker镜像中的entrypoint
+	args 如果没指使用Docker镜像中的cmd,变量写法$(X),是不同于shell${X}
+
+	如果只提供command,没有args ,会忽略Docker容器中的entrypoint和cmd   ( Docker容器中 的cmd做为参数转给 Docker容器中entrypoint)
+	如果只提供args,没有command ,会把args给Docker容器中的entrypoint(忽略Docker容器中的cmd)
+	
+---vi pod-demo.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+	name: pod-demo
+	namespace: default
+	labels:
+		app: myapp
+		tier: frontend
+	#annotations:
+	#	created-by: cluster admin
+spec:
+	containers:
+	-	name: myapp
+		image: nginx:latest	
+		 
+	-	name: busybox
+		image: busybox:latest
+		#imagePullPolicy: IfNotPresent
+		command:
+		-	"/bin/sh"
+		-	"-c"
+		-	"sleep 3600"
+		#restartPolicy: #可取值为Always,OnFailure,Never
+	#nodeSelector:
+	#	diskType: ssd
+-----
+			
+		
+---
+kubectl create -f pod-demo.yaml #里有myapp容器
+kubectl  get pods 显示创建的 pod-demo ,READY列显示共有几个容器，几个是好的
+	-w (watch)
+kubectl describe pods pod-demo
+kubectl logs  pod-demo myapp  相当于看窗口的控制台
+
+kubectl exec -it pod-demo -c myapp -- /bin/sh  (-c container)
+
+
+kubectl delete -f pod-demo.yaml #按配置文件中资源做删除，不会被controller管理，不会自动创建
+
+
+kubectl get pods --show-labels  显示所有标签
+
+
+label长度有限制，命名也有限制
+
+kubectl get pods -L app    	增加一标签列为app，显示每个pod的对应的值
+kubectl get pods -L app,release	可以加多列用,分隔
+
+kubectl get pods -l app   --show-labels 	显示有app标签的，（不管值)
+
+kubectl get pods -l release=stable   --show-labels 
+kubectl get pods -l release=stable,app=myapp  是并且的关系
+kubectl get pods -l release!=stable  (没有那个标签 也是!=)
+
+kubectl get pods -l "release in (canary,beta)"
+kubectl get pods -l "release not in (canary,beta)"
+ 
+  !KEY 不存在此标签
+
+	{key:"KEY","operator":"OPERATOR","values":[VAL1,VAL2]}
+	OPERATOR 可取值为In,NotIn 要求valuels必须有值
+					Exists,NotExists 要求vlues必须为空
+	
+	
+pods 打标签
+kubectl label pods pod-demo release=canary   (canary 金丝雀)
+kubectl label pods pod-demo release=stable --overwrite
+
+给node 打标签
+kubectl label node node10 disktype=ssd
+
+
+
+kubectl explain pods.spec   
+	有  nodeSelector,nodeName(pod只能运行在这个节点上)
+
+资源注解annotation和label类似，只是不能被选中，只是元数据，长度没有限制，可动态编辑
+
+kubectl describe pods pod-demo
+有Annotation字段
+
+
+
+kubectl explain pods.spec.containers.livenessProbe     容器是否健康
+	exec(有command),httpGet(port可以使用名字),tcpSocket 三种检查方式
+	failureThreshold 默认3次，只3 连续3次失败算失败
+	periodSeconds 每次检查的间隔，默认10s
+	timeoutSeconds 每次多长时间超时, 默认1s		
+	initialDelaySeconds 容器启动多长时间开始检查 
+
+kubectl explain pods.spec.containers.lifecycle   	容器刚开始启动时可以加入自定义，启动前入自定义（可串行启动多个其它容器），结束前加入自定义
+kubectl explain pods.spec.containers.readinessProbe     容器是否准备好 
+
+---vi liveness-exec.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+	name: liveness-exec
+	namespace: default
+	labels:
+		app: myapp
+		tier: frontend
+	#annotations:
+	#	created-by: cluster admin
+spec:
+	containers:
+	-	name: busybox
+		image: busybox:latest
+		imagePullPolicy: IfNotPresent 
+		command: ["/bin/sh","-c","touch /tmp/healthy;sleep 30 ; rm -f /tmp/healthy;sleep 360"]
+		livenessProbe:
+			exec:
+				command: ["test","-e","/tmp/healthy"]
+			initialDelaySeconds: 1
+			periodSeconds: 3
+		#restartPoloicy: #可取值为Always,OnFailure,Never
+	#nodeSelector:
+	#	diskType: ssd
+---
+
+kubectl describe pod liveness-exec 看Liveness
+kubectl get  pod  有RESTARTS 列 重启次数
+
+
+---vi liveness-httpget.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+	name: liveness-httpget
+	namespace: default
+	labels:
+		app: myapp
+		tier: frontend
+	#annotations:
+	#	created-by: cluster admin
+spec:
+	containers:
+	-	name: myapp
+		image: nginx:latest	
+		ports:
+		-	name: http
+			containerPort: 80
+		-	name: https
+			containerPort: 443
+		#readinessProbe:
+		livenessProbe:
+			httpGet:
+				port: http #是前面定义的端口名
+				path: /index.html
+			initialDelaySeconds: 1
+			periodSeconds: 3
+-----
+kubctl get pods 显示有 liveness-httpget-pod
+kubctl exec -it liveness-httpget-pod -- /bin/sh
+
+kubectl explain pods.spec.containers.lifecycle  
+	里有preStop,postStart    在pod启动后，终止前执行的操作
+kubectl explain pods.spec.containers.lifecycle.postStart
+
+ 
+---vi poststart-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+	name: poststart-pod
+	namespace: default
+	labels:
+		app: myapp
+		tier: frontend
+	#annotations:
+	#	created-by: cluster admin
+spec:
+	containers:
+	-	name: busybox
+		image: busybox:latest
+		imagePullPolicy: IfNotPresent 
+		command: ["/bin/httpd"]
+		args: ["-f"]
+		lifecycle:
+			postStart:
+				exec:
+					command: ["/bin/sh","-c","mkdir -p /data/web/html"]
+		#restartPoloicy: #可取值为Always,OnFailure,Never
+
+-----
+kubectl delete -f  poststart-pod.yaml 删除pod后就不会自创建（自主式），不是被controller管理的，如前面的deployement就是自动创建
+
+
+Deployment (管理无状态应用)在 ReplicaSet （对Pod数量做动态加或减）之上，一个Deployment可管理多个ReplicaSet
+DaemonSet 集群中每个节点(也可是选择器选中的节点) （和某类pod没关，一个节点不支持运行两个）只运行一个(如日志收集）
+Job 如任务正常完成，就会不用再次启动，
+CronJob 周期性任务
+StatefulSet 有状态应用 ,如redis,mysql（要为每个应用redis/mysql要单独准备脚本，可以使用helm，或者不放在k8s上）
+
+建议不直接使用ReplicaSet，而是使用Deployment （支持滚动更新，加回滚）
+
+kubcel explain rs (replica set)
+kubcel explain rs.spec
+	有核心的3个属性 replicas ,selector,template 
+kubcel explain rs.spec.template 里面就是前面pod的的内容
+
+kubectl get deploy
+kubectl delete deploy xx
+
+
+模板中创建的标签要符合标签选择器的条件
+--vi rs-demo.yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+	name: myapp  #删以前的myapp
+	namespace: default
+spec:
+	replicas: 2 
+	selector:
+		matchLabels:
+			app: myapp
+			release: canary
+	template: #的内容就是以前的pod的内容
+		metadata:
+			name: myapp-pod
+			labels:
+				app: myapp #要符合上面的 selector
+				release: canary
+				enviroment: qa
+		spec:
+			containers:
+			- name: myapp-container
+			#可以做存活检查
+			  image: nginx:latest
+			  ports:
+			  - name: http
+			    containerPort: 80
+				    
+					
+--
+kubectl create -f rs-demo.yaml
+kubectl get rs  (rs=ReplicaSet)
+kubectl get pod -o wide 显示 myapp-xxx 名共2个 可以在外部仿问显示的IP
+kubectl delete pod myapp-xxx 后会自动重新
+kubectl get pod --show-labels  其它pod加标签，多的pod会动删，应在上一层加service
+
+也可支持升级版本，扩/缩容
+kubectl edit rs myapp 会打开vi编辑yaml文件，可以修改 replicas 数量做扩/缩容，立即生效
+也可更新升级，修改容器镜像(nginx:1.17.5-alpine)
+kubectl get rs  -o wide 显示修改后的镜像版本，但测试 kubectl describe pod 还是原来的版本，只有pod重建(基于修改的文件模板)才是新版本
+
+deployment的回滚基于replicaSet实现的
+
+一个 deployment 简写为deploy 基于多个replicaSet ，可充许最多几个pod和最少几个pod (防止删一个pod来更新导致少一个pod不能承受并发数)，如replicas为5最多可多5个就能实现蓝绿部署，
+kubectl explain deploy
+VERSION用 apps/v1
+kubectl explain deploy.spec
+有 minReadySeconds 同前面replicaSet，有 strategy，revisionHistoryLimit 最多保存多少个历史版本，一般2个足以，pause暂停
+kubectl explain deploy.spec.strategy
+			type值可为 Recreate(重新更新) , RollingUpdate(默认的)
+kubectl explain deploy.spec.strategy.rollingUpdate (只对type值为RollingUpdate) 有 
+		maxSurge (surge汹涌) 最多允许超出多少个 可是一个数，也可以是%，默认25%
+		maxUnavailable  默认25% 最多有几个不可用
+		上两个配置不能同时为0
+		
+--vi deploy-demo.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+	name: myapp-deploy
+	namespace: default
+spec:
+	replicas: 2
+	selector: 
+		matchLabels:
+			app: myapp #删除kubectl delete rs myapp
+			realease: canary
+	template:
+		metadata: 
+			labels:
+				#要匹配上面的标签选择器
+				app: myapp  
+				realease: canary 
+		spec:
+			containers:
+			- name: myapp
+			  image: nginx:latest
+			  ports:
+			  - name: http
+			    containerPort: 80
+--
+kubectl apply -f deploy-demo.yaml  (apply表示即可创建也可更新)
+kubectl get deploy
+kubectl get rs   
+	显示名字格式 myapp-deploy-xxx 即deploy名-模板hash值
+	
+kubectl get pod 是基于rs的名字加随机  
+	可修改deploy-demo.yaml 的replicas 再次执行 kubectl apply  -f deploy-demo.yaml 查pod数变了
+	
+kubectl describe  deploy myapp-deploy	自动维护Annotaions 
+	StrategyType: RollingUpdate
+	RollingUpdateStrategy:  25% max unavailable, 25% max surge
+
+kubectl get pods -l app=myapp -w 
+可修改deploy-demo.yaml image的版本(nginx:1.17.5-alpine)  再次执行 kubectl apply  -f deploy-demo.yaml 查 镜像版本
+
+可以用kubectl set image  来修改镜像，也可用kubectl patch 传json来修改
+kubectl get rs   -o wide 有历史版本,CURRENT，DESIRED都是0,不为0的是当前版本
+kubectl rollout history deployment myapp-deploy 看滚动历史记录 
+#kubectl rollout --help 有子命令undo,pause
+
+patch方式修改.yaml中的内容
+kubectl patch --help 有示例
+kubectl patch deployment myapp-deploy  -p '{"spec":{"replicas":5}}'
+kubectl patch deployment myapp-deploy  -p '{"spec":{"strategy":{"rollingUpate":{"maxSurge":1,"maxUnavailable":0}}}}'  ##提示(no change)????
+
+kubectl describe deployment myapp-deploy
+修改镜像,加新一个后立即暂停就是金丝雀发布
+kubectl set image deployment myapp-deploy myapp=nginx:1.17.5-alpine  && kubectl rollout pause deployment myapp-deploy  
+kubectl rollout status deployment myapp-deploy 可监视,日志显示部分更新了
+如发现金丝雀没有问题继续更新
+kubectl rollout resume deployment myapp-deploy
+
+
+回滚上一个版本 
+kubectl rollout undo deployment myapp-deploy  --to-revision=1 #1是 kubectl rollout history deployment myapp-deploy 中的revision值
+1-2-3 如从3回滚到1（后变为4）,如1（变为4）再回滚就是3
+
+
+--------DaemonSet
+一个节点只运行一个pod
+
+kubectl explain ds.spec
+
+-----ds-demo.yaml
+#这个redis用于接收filebeat的数据,教程也未成功写入数据
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+	name: redis
+	namespace: default
+spec: 
+	replicas: 1
+	selector: 
+		matchLabels:
+			app: redis  
+			role: logstore 
+	template:
+		metadata: 
+			labels:
+				#要匹配上面的标签选择器
+				app: redis  
+				role: logstore 
+		spec:
+			containers:
+			- name: redis
+			  image: redis:5.0.6-alpine
+			  ports:
+			  - name: redis
+			    containerPort: 6379
+--- 
+#一个配置文件中定义多个资源使用3个-分隔
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+    name: filebeat-ds
+    namespace: default
+spec:
+    selector:
+        matchLabels:
+            app: filebeat
+            realease: stable
+    template:
+        metadata:
+            labels:
+                #要匹配上面的标签选择器
+                app: filebeat
+                realease: stable
+        spec:
+            containers:
+             - name: filebeat
+               image: ikubernetes/filebeat:5.6.5-alpine
+               #image: docker.elastic.co/beats/filebeat:7.4.2
+               env:
+                    - name: REDIS_HOST
+                      value: redis.default.svc.cluster.local
+                      #是pod的服务名，redis是服务名，default 是名称空间，svc.cluster.local内建的域名后缀
+                    - name: REDIS_LOG_LEVEL
+                      value: info
+            #hostNetwork:
+
+------
+
+filebeat（可读本地日志文件） 在logstash 官方教程有使用
+
+kubectl explain pods.sepc.container.env
+
+kubectl logs <pod_name>
+
+
+kubectl apply -f ds-demo.yaml
+kubectl expose deployment redis  --port 6379
+
+kubectl get pods 查redis的Name ,redis-xxx--yyy
+kubectl exec -it redis-xxx--yyy -- /bin/sh
+>nslookup redis.default.svc.cluster.local  是可以解析的
+
+master也支持运行daemonSet但因为有污点
+DaemonSet也支持滚动更新
+kubectl explain ds.spec 有updateStrategy 的type 有  RollingUpdate 或 OnDelete 
+kubectl explain ds.spec.updateStrategy.rollingUpdate 有 maxUnavailable
+
+kubectl describe ds filebeat
+也支持动态更新版本
+kubectl set image daemonsets filebeat-ds filebeat=ikubernetes/filebeat:5.6.6-alphine  #daemonsets缩写为 ds 容器=镜像 
+
+kubectl explain pods.spec 有 hostNetwork
+
+
+----------Service
+三大核心资源Pod,Service,Controller(Ingress)
+
+依赖于coreDNS
+
+kubectl get svc 有一个kubernetes 不能删
+kubectl explain svc.spec
+	port 用哪个端口与容器端口关联,
+	selector 关联哪些pod
+	clusterIP 以10.96开头，集群内部使用
+	type 默认 ClusterIP，NodePort 集群外用，为了多节点处理，可在外层加负载均衡
+		LoadBalancer 要求运行在云环境中，k8s调用底层的iaas来创建出一个lbaas (openStack支持,有点大，路径有点长)负载均衡器来分发到每个节点的nodePort
+		ExternalName（为pod可以和集群外部做通讯，通过service ）spec中有一个externalName，是一个别名CNAME，要能被coreDNS解析为公网域名，再到公共上解析
+	
+kubectl explain svc.spec.ports
+	nodePort:	当type 为  NodePort时用，主机上端口，外部可以仿问
+	port:  是service的端口
+	targetPort： pod上的端口
+	
+--vi redis-svc.yaml (ClusterIP)依赖于 ds-demo.yaml 的redis 标签选择pod
+apiVersion: v1
+kind: Service
+metadata:
+	name: redis
+	namespace: default
+spec: 
+   selector:  
+		app: redis  
+		role: logstore 
+   clusterIP: 10.97.97.97 #可不指定动态分配，指定容易冲突
+   type: ClusterIP
+   ports: 
+   - port: 6379 
+     targetPort: 6379  
+	 
+--
+
+kubectl  describe  svc  redis
+显示Endpoints是pod的地址(如显示为<none>的原因没有选择中pod)，Service 和Pod有一个中间层Endpoint
+每个服务建立后会在coreDNS中增加资源记录
+格式 SERVICE_NAME.NAMESPACE.DOAMIN_SUFFIX  
+DOAMIN_SUFFIX 默认为 svc.cluster.local
+
+	
+--vi myapp-svc.yaml  (NodePort)依赖于 deploy-demo.yaml
+apiVersion: v1
+kind: Service
+metadata:
+	name: myapp
+	namespace: default
+spec: 
+	selector:  
+		app: myapp  
+		release: canary 
+	clusterIP: 10.99.99.99  
+	type: NodePort
+	ports: 
+	- port: 80 
+	  targetPort: 80  
+	  nodePort: 30080 #可以不定指，会动态分配
+	#sessionAffinity: ClientIP 
+	#默认值None,(Affinit密切关系，姻亲关系),ClientIP 同一客户端请求后端使用同一个pod处理
+		
+--
+kubectl get svc 看到端口对应关系 80:30080   ,service端口：node端口
+
+外部机器  curl  http://172.20.0.66:30080/hostname.html ，172.20.0.66是node1节点  ,节点30080端口有监听，测试nginx主页不能仿问？？？防火墙没开？？，标签对的，pod可仿问,service转发有问题
+	看service为pod做负载均衡,pod可能和servcie不在同一个节点
+kubectl patch svc myapp  -p '{"sepc":{"sessionAffinity":"ClientIP"}}' ##提示 (no change) ？？？
+kubectl edit svc myapp 打开vi来修改后，再查kubectl describe svc myapp就生效了
+
+无头的Service(即clusterIP没有值,type:ClusterIP)表示请求不经Service直接到pod
+
+--vi myapp-svc-none.yaml 标签依赖于 deploy-demo.yaml
+apiVersion: v1
+kind: Service
+metadata:
+	name: myapp-svc-none
+	namespace: default
+spec: 
+	selector:  
+		app: myapp  
+		release: canary 
+	clusterIP: None
+	type: ClusterIP
+	ports: 
+	- port: 80 
+	  targetPort: 80  		
+--
+建立后 查kubectl get svc 要没有clusterIP才是对的
+
+master节点 dig -t A myapp-svc-none.default.svc.cluster.local. @10.96.0.10  测试没有记录？？？？，不是所有的pod地址？？？？
+
+10.96.0.10 是 kubectl get svc  -n kube-system 显示的kube-dns的IP
+
+dig 出来的多个IP 可以和  kubectl get pods  -o wide -l app=myapp  做比较
+
+
+--启用ipvs 未试
+vi /etc/sysconfig/kubelet 
+	KUBELET_EXTRA_ARGS="" 
+	KUBE_PROXY_MODE=ipvs  也可是EXTRA_ARGS中的选项
+	启动kubelet服务时加入模块 ip_vs,ip_vs_rr,ip_vs_wrr,ip_vs_sh,nf_conntrack_ipv4
+	
+--------Ingress Controller
+flannel.1的网卡IP就是pod的网段地址，每个节点可以和pod通讯
+Service根据标签选择器查找pod，是一直watch的api-server的(etcd)数据变化
+
+为外部使用https，集群内使用http
+一个Pod(DaemonSet只一个容器)以共享主机网络名称空间在节点上运行，就不用Service,这个Daemon节点运负载均衡器，如nginx,使用路径反向代理 
+	如节点很多，不必每个节点都有一个DaemonSet，挑出和几个(如3个)节点打上污点，只运行负载均衡器，如nginx,做https代理，这3个节点是ingress controller
+	envoy(如做微服务的比较喜欢这个)，Traefik(微服务) 和nginx(后改造的)类似，haProxy最不受用
+有一个Service(可无头)，用标识哪些pod,只起分类作用,不走service ，配置给nginx（请求路径或虚拟主机名),如pod改变IP，Ingress（不是 Ingress Controller）可以读到Service的改IP,并写入Ingress Controller(即nginx)写入nginx配置并reload(如envoy自动检查配置文件IP变化自动加载)
+
+kubectl explain ingress.spec
+	可配置tls (即https ,相当给后端时把https给去了变成http)
+	
+kubectl explain ingress.spec.rules 
+	有host  按主机名分发
+	有http 按路径分发
+
+kubectl explain ingress.spec.backend 后端
+	有serviceName,servicePort只是找到pod资源
+	pod变->serivce变->engress变 注入ingress controller
+
+https://github.com/kubernetes/ingress-nginx/
+https://github.com/kubernetes/ingress-nginx/blob/master/docs/deploy/index.md
+
+kubectl create namespace dev (也可使用yaml文件创建)
+kubectl get ns
+kubectl delete  ns dev
+kubectl apply -f ./ 可以读目录下所有文件 
+
+
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml 
+名称空间为 ingress-nginx
+会下载镜像 quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.25.1
+
+kubectl get pods --all-namespaces -l app.kubernetes.io/name=ingress-nginx --watch
+
+文档Bare-metal 组，只要不是运行在云上，mac,上就要运行，内容是 增加一个服务ingress-nginx，Type是nodePort方式,为了可以接入集群外部
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/service-nodeport.yaml
+service-nodeport.yaml 文件可修改为节点端口（即不随机）nodePort:30080  nodePort:30443 
+kubectl get svc -n ingress-nginx 看端口，可以curl 仿问那个30080端口 报openResty 404
+
+也可用hostNetwork方式（kind:Deployment修改为kind:DaemonSet） 在中spec.template.spec中加 hostNetwork:
+
+要有基础服务
+-----vi ingress-require.yaml  或 ingress-require-tomcat.yaml  
+
+apiVersion: v1
+kind: Service
+metadata:
+	name: myapp
+	#name: tomcat		
+	namespace: default
+spec: 
+	selector:   
+		app: myapp  
+		#app: tomcat
+		release: canary
+    ports:
+    - name: http
+      port: 80  
+      targetPort: 80
+      #port: 8080  
+      #targetPort: 8080  
+    #- name: ajp
+    #  port: 8009
+    #  targetPort: 8009
+
+
+---
+#这是前面建过的deploy-demo.yaml，一个文件两个区
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deploy
+  #name: tomcat-deploy
+  namespace: default
+spec:
+  replicas: 3
+  selector: 
+    matchLabels:
+      app: myapp #删除kubectl delete rs myapp
+      #app: tomcat
+      release: canary 
+  template:
+    metadata: 
+      labels:
+        #要匹配上面的标签选择器
+        app: myapp  
+        #app: tomcat
+        release: canary 
+    spec:
+      containers:
+      - name: myapp
+        image: nginx:latest
+     #- name: tomcat
+     #  image: tomcat:9.0.24-jdk8
+        ports:
+        - name: http
+          containerPort: 80
+          #containerPort: 8080
+        #- name: ajp
+        #  containerPort: 8009
+
+            
+-----vi ingress-myapp.yaml   或 ingress-tomcat.yaml  
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: ingress-myapp
+    #name: ingress-tomcat
+    namespace: default
+    annotations:
+        kubernetes.io/ingress.class: "nginx"  #指定ingress是用nginx
+spec:
+    #tls:
+    #- hosts:
+    #   - tomcat.mycluster
+    #  secretName: tomcat-ingress-secret #下面创建的secret tls
+    rules:
+    - host: myapp.mycluster #要是互联网上可解析的主机名,也可用路径来做
+    #- host: tomcat.mycluster #这里是80端口不能加:8080
+      http:
+         paths:
+         -  path: #如host有值，这里可没值/testpath
+            backend:
+              serviceName: myapp
+              servicePort: 80
+              #serviceName: tomcat
+              #servicePort: 8080
+         #-  path: #tomcat可同时暴露两个端口
+         #   backend: 
+         #     serviceName: tomcat
+         #     servicePort: 8009
+
+-----
+kubectl apply -f ingress-myapp.yaml
+kubectl get ingress  
+kubectl describe ingress  ingress-myapp  可以到主机名到后端
+kubectl get pods -n ingress-nginx
+
+看nginx配置文件 
+kubectl exec -n ingress-nginx -it ingress-nginx-controllerxxx -- /bin/sh 
+$ cat nginx.conf 中有 server_name myapp.mycluster ;  但没有upstream 的从节点IP ？？？？  但测试页面成功
+
+集群外机器 vi /etc/hosts
+<从节点1 IP> myapp.mycluster 
+<从节点2 IP> myapp.mycluster 
+ 集群外访问  myapp.mycluster:30080 有页面，测试成功
+  
+
+https自签证书（生产要做ca)
+openssl genrsa -out tls.key 2048 私钥
+openssl req  -new -x509 -key tls.key -out tls.crt -subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=myapp.mycluster 自签证书
+CN的值要和前面一致
+要转换才行 隐藏一些东西，只是base64转了一下，可以轻松反转
+kubectl create secret tls tomcat-ingress-secret --cert tls.crt --key=tls.key
+kubectl get secret
+kubectl describe secret tomcat-ingress-secret 
+
+重建 Ingress 看Ingress controller的nginx发现有 443在监听
+
+/etc/hosts 每个从节点加 tomcat.mycluster
+
+测试 http://tomcat.mycluster:30080  测试失败 ？？？ 原因可能是现在已经可以https了
+测试 https://tomcat.mycluster:30443 有tomcat主页,测试成功
+
+
+---卷
+pod的卷 其实是里面全部容器(docker)都复制 pause 容器的卷/网络 （docker image ls 有pause）
+
+emptyDir 卷，如pod删除，数据也删除，数据目录可放内存中 
+网络位置 NFS，CIFS，iSCSI,分布式存储GlusterFS,cephfs,云存储
+
+kubectl explain pods.spec.volumes 
+显示支持的存储方式，有 emptyDir，hostPath(节点上的目录),nfs,iscsi,rdb(ceph块存储)，cephfs,glusterfs,cinder(openStack上的)，persistentVolumeClaim(PVC),nfs,gitRepo，iscsi ... 
+ 
+kubectl explain pods.spec.volumes.emptyDir
+	medium 如为""表示存硬盘，如为Memory 表示使用内存
+	sizeLimit 使用上限
+	
+kubectl explain pods.spec.containers.volumeMount
+	有 mountPath,readOnly,name(volume name)
+
+
+	
+--vi pod-vol-deom.yaml  复制前面的pod-demo.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+	name: pod-vol-demo
+	namespace: default
+	labels:
+		app: myapp
+		tier: frontend
+	#annotations:
+	#	created-by: cluster admin
+spec:
+	containers:
+	-	name: myapp
+		image: nginx:latest
+		volumeMounts:
+		- name: html-vol
+		  mountPath: /data/web/html
+	-	name: busybox
+		image: busybox:latest
+		#imagePullPolicy: IfNotPresent
+		command:
+		-	"/bin/sh"
+		-	"-c"
+		-	"while true; do echo $(date)>>/data/index.html;sleep 2;done "
+		#command: ["/bin/sh","-c","touch /tmp/healthy;sleep 30 ; rm -f /tmp/healthy;sleep360"]
+		volumeMounts:
+		- name: html-vol
+		  mountPath: /data/ 		
+	volumes:
+	- name: html-vol
+	  emptyDir:
+	# hostPath:
+	#		path: /data/ 
+	# 		type: DirectoryOrCreate #可取值为 DirectoryOrCreate,Direcotry,FileOrCreate,File...
+	# nfs:
+	#		path: /nfs_dir/
+	#		server: store01.myDomain
+	#     readOnly: false
+	 
+
+kubectl explain pvc.spec (persistentVolumeClaim)
+	accessMode 是读还是写 可选值为ReadWriteOnce(RWO)，ReadOnlyMany(ROX),ReadWriteMany(WRX)) 
+	resources 存储资源的最小大小
+	selector  使用指定标签的pv
+	volumeName 使用固定pv 
+	
+PVC 和 PV 是一对一关系，为了k8s和存储系统间的解耦
+
+mkdir v{1,2,3,4,5}
+所有从节点安装nfs-utils
+NFS的 /etc/exports
+/nfs_dir/v1         192.168.114.0/24(rw,no_root_squash)
+/nfs_dir/v2        192.168.114.0/24(rw,no_root_squash)
+
+
+kubectl explain pv  (persistentVolume)
+kubectl explain pv.spec.nfs
+
+PV不能加名称空间，所有名称空间都可用，PVC是用名称空间的
+
+kubectl explain pv.spec 
+	URL 看nfs及其它.. 是否支持这三种
+	
+
+-----pv-demo.yaml 
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+	name: pv001 
+	labels:
+		name: pv001
+spec:
+	#accessModes:
+	#- ReadWriteOnce
+	#- ReadOnlyMany
+	accessModes: ["ReadWriteOnce","ReadOnlyMany"]
+	capacity: 
+		storage: 2Gi
+	nfs:
+		path: /nfs_dir/v1
+		server: store01.myDomain
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+	name: pv002 
+	labels:
+		name: pv002
+spec:
+	accessModes:
+	- ReadOnlyMany
+	capacity:
+	  storage: 1Gi
+	nfs:
+		path: /nfs_dir/v2
+		server: store01.myDomain		
+----
+kubectl apply -f pv-demo.yaml 
+kubectl get pv 
+	有RECLAIM POLICY列 Retain保留，即pvc不关联pv，pv以前的数据怎么办，也可是recycle就是数据全删了，delete就是删pv，这两个删比较危险
+
+
+
+PVC 的 accessModes 要是 PV 的 accessModes 的子集才行，即PV要能符合PVC的条件
+-----pod-pvc-demo.yaml 
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+	name: mypvc 
+	namespace: default 
+spec:
+	#accessModes:
+	#- ReadWriteOnce 
+	accessModes: ["ReadWriteOnce"] #选择PV的条件
+	resources: 
+		requests: 
+			storage: 1G 
+   #storageClassName: #也要和PV相同 动态创建PV,要求存储服务支持resetful接口
+   #selector: #可以选择快慢的
+---
+apiVersion: v1
+kind: Pod
+metadata:
+	name: pod-vol-pvc 
+	namespace: default 
+spec:
+	containers:
+	-	name: myapp
+		image: nginx:latest 
+		volumeMounts:
+		- name: html-vol
+		  mountPath: /data/web/html
+	volumes:
+	- name: html-vol
+	  persistentVolumeClaim:	
+	  		claimName: mypvc
+	  		readOnly: false
+-----
+kubectl apply -f pod-pvc-demo.yaml 
+kubectl get pvc    如是Pending 查pv的CLAIM列就是有值，不能很好的释放，只能重新PV
+kubectl describe pods pod-vol-pvc  看
+
+PVC不在节点上，是存在etcd上的  
+---PVC 根据storageClassName 动态创建PV,要求存储服务支持resetful接口,如ceph, glusterfs 简单但不支持resetful,要找第三方
+要先搭个ceph
+
+---secret  configMap
+kuernetes 向容器传环境变量 
+secret(base64编码的) 和 configMap(明文存放的) 是用来做读取配置用的(配置中心),configMap可当存储卷用
+	
+kubectl explain pods.spec.containers 有env ,envFrom
+kubectl explain pods.spec.containers.envFrom 有configMapKeyRef,feildRef 引用已经配置的字段，SecretKeyRef
+
+configMap 是key,value对，value没有长度限制可以是整个配置文件 (配置文件中有引号可能不行)
+
+kubectl explain configmap 
+kubectl explain cm
+
+可以不使用yaml创建
+kubectl create configmap --help有示例
+--from-literal 直接从命令行读数据
+--from-file=key1=/file1.txt 
+--from-file=/path/file2.txt  没有key就使用文件名当key
+
+kubectl create configmap nginx-config --from-literal=nginx_port=80 --from-literal=server_name=node01.mydomain
+kubectl get  cm  nginx-config 
+kubectl describe  cm  nginx-config 
+
+---vi www.conf
+server{
+	server_name node01.mydomain;
+	listen 80;
+	root /data	
+}
+---
+kubectl create configmap www-config --from-file=www=www.conf
+kubectl get  cm  www-config -o yaml  显示有很多\n
+kubectl describe  cm  www-config  看到清楚，没有\n
+
+
+----- vi pod-cm.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+	name: pod-cm-1 
+	namespace: default 
+spec:
+	containers:
+	-	name: myapp
+		image: nginx:latest
+		ports:
+		- name: http
+		  containerPort: 80
+		env:
+		- name: NGINX_SERVER_PORT  #定要用_不能用- 这个变量应该是容器能读和处理
+		  valueFrom: 
+		  	 configMapKeyRef: 
+		  	 	name: nginx-config  #是config map的名字
+		  	 	key: nginx_port
+		  	 	optional: true
+		- name: MYSQL_ROOT_PASS 
+		  valueFrom:
+		    secretKeyRef:
+		      name: mysql-root-pass  #后面创建的，到pod中的环境变量是明文的
+		      key: pwd
+		volumeMounts:
+		- name: nginxconfig  #引用卷名
+		  mountPath: /etc/nginx/conf.d
+		  readOnly: true
+	volumes:
+	- name: nginxconfig
+	  configMap:
+		 	name:	www-config  #是config map的名字,当键是文件名，值是文件内容
+		 	#items: #只要部分而不是全部，多个键时 即生成 多个文件时 
+		 	#-	key:   #必填
+		 	#  path:	 #必填 把值当做什么文件名，文件路径不能用..开头
+		 	#  mode:  #值当做文件的权限 如0777 
+---
+
+kubectl edit  cm  nginx-config  打开vi编辑环境变量后，进入pod中查 env命令 后容器不会立即生效，是pod创建时取的值
+		如是编辑挂载方式的configMap可以生效的，要等一会才行
+kubelet create secret --help 有三种类型,子命令为
+	docker-registry
+	generic
+	tls
+
+kubectl explain pods.spec 有一个 imagePullSecret
+
+kubectl create secret generic mysql-root-pass --from-literal=pwd=root123
+
+kubectl get secret mysql-root-pass 显示类型是Opaque
+kubectl describe secret mysql-root-pass 看不到值
+kubectl describe secret mysql-root-pass -o yaml 有显示加密后的值，是base64编码
+
+echo TXlQQHNzMTIz | base64 -d 显示base64解码后的原值
+
+---StatefulSet
+有状态的，如redis,mysql 比较麻烦的
+
+要求有持久存储
+启动关闭服务要有顺序
+要求无头服务，请求直接到pod，（如service有clusterIP，生成的pod没办法控制顺序）有唯一的网络标识
+要求使用volumeClaimTemplate 每个pod有自己的存储卷PVC,PV (如使用pod template 中的volume，多个pod使用同一个template就是同一个volume，就不行)
+
+kubectl explain sts(SatefulSet)
+
+----vi stateful-demo.yaml
+apiVersion: v1
+kind: Service
+metadata:
+	name: myapp 
+	labels:
+		app: myapp
+spec: 
+	ports:
+	- name: http
+	  port: 80
+ 	clusterIP: None  #无头服务
+ 	selector: 
+ 		app: myapp-pod 
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+	name: myapp
+spec: 
+	 serviceName: myapp   #无头服务
+	 replicas: 3
+	 selector:
+	 	matchLabels:
+	 		app: myapp-pod
+	 template:
+	 	metadata:
+	 		labels:
+	 			app: myapp-pod
+	 	spec:
+	 		containers:
+	 		- name: myapp
+	 		  image: nginx:latest
+	 		  ports:
+	 		  - containerPort: 80
+	 		    name: web
+	 		  volumeMounts:
+	 		  - name: myappdata
+	 		    mountPath: /usr/share/nginx/html
+	 volumeClaimTemplates: #会为每个pod生成一个PVC
+	 - metadata:
+	 		name: myappdata
+	   spec:
+	 		accessModes: ["ReadWriteOnce"] 
+			resources:
+				requests:
+					storage: 1Gi
+----
+可以一次删多个pod/deploy 
+kubectl delete pods/pod-cm-2 pods/pod-secre-1
+kubectl delete deploy/xxx deploy/yy
+kubectl delete pv --all
+
+事先建好PV
+kubectl get sts 显示Desired数（replicas: 3）
+kubectl get pvc 行数和sts 的Desired同，显示的NAME列以myappdata-myapp-1 即 卷名-pod名  ,Bound(bind的过去式)表示在用，绑定到了pv上
+kubectl get pods 显示3个pod名是是有顺序的(要有足够的pv可用)
+如pod删除 pvc还在
+
+kubectl describe  pods myapp-2 显示用的ClaimName就是myappdata-myapp-2，删除pod再建也是同一个
+
+进入myapp-0 (kubectl exec  -it myapp-0 -- /bin/sh)后
+	nslookup myapp-1.myapp.default.svc.cluster.local 是可以被解析的 
+	dig -t A  myapp-1.myapp.default.svc.cluster.local @10.96.0.10
+ 格式是 pod名.无头服务名
+
+StatefulSet 也支持扩容，滚动更新
+kubectl scale sts myapp --replicas=5
+kubectl patch sts myapp -p '{"spect":{"replicas":2}}'
+
+
+kubectl explain sts.spec 有 updateStrategy
+kubectl explain sts.spec.updateStrategy.rollingUpdate 有partition,默认为0,如定义有3，表示myapp-3和后面的>3的做更新
+
+如partition 是5个,partition为5只更新一个，模拟金丝雀，如没问题，再把myapp-5修改为myapp-0，partition修改为0
+
+
+kubectl patch sts myapp -p '{"spec":{"updateStrategy":{"RollingUpdate":{"partition",4}}}}'
+kubectl patch sts myapp -p '{"spec":{"template":{"spec":{"container[0]":{"image":"nginx:1.17.5-alpine"}}}}}'
+
+也可升级版本
+kubectl set image sts/myapp myapp=nginx:1.17.5-alpine 
+kubectl get pods myapp-0 -o yaml 看版本
+kubectl get sts -o wide
+
+无状态应用应该是像redis这种，网上找别人写好的,不是好的作法
+kubectl delete  pvc myappdata-myapp-0
+kubectl delete  pvc myappdata-myapp-1
+
+-------serviceaccount
+
+kubeadm 的~/.kub/config文件中有认证信息 
+kubectl  proxy  --port=8080 启动了一代理服务器 
+kubectl get deploy  -n kube-system 
+
+kubectl get svc 有一个 kubernetes 的 clusterIP 为10.96.0.1为群集内网地址
+kubectl describe  svc kubernetes 看EndPoint是外网地址
+
+kubectl explain pods.spec  有一个 serviceAccountName,建立的pods有，volume 类型为Secret,SecretName值为default-token-xxx
+每个名称空间都一个secret,为pod连接api-server用，默认这个secret只能仿问自己的pod
+
+kubectl create serviceaccount mysa -o yaml --dry-run (不真的执行)
+ -o yaml 显示出使用yaml建立的文件内容，比较少，可直接复制 
+
+kubectl get pods myapp  -o yaml --export 比较全  status只读数据，就不要了
+
+kubectl create serviceaccount admin 
+kubectl get sa (serviceaccount) 
+kubectl describe sa  admin	 会自动生成一个token,只能登录，但没权限
+	有Image pull Secret字段
+----pod-sa-demo.yaml
+apiVersion: v1
+kind: POd
+metadata:
+	name: pod-sa-demo
+spec: 
+	container:
+ 	- name: myapp
+ 	  image: localhost:5000/myapp:v3
+		ports:
+		- name: http
+		  containerPort: 80
+	serviceAccountName: admin
+-----
+	imagePullSecrets 不太好，还是使用sa上的Image pull Secret比较好
+	
+kubctl config view  其实~/.kube/config
+	context表示 每个context连接一个集群的帐号
+(redact 编辑，编写)
+格式
+contexts:
+- context:
+		cluster:是clusters中的名字
+		user: 是users中的名字
+	name: context名1
+current-context: context名1
+
+kubctl config --help有很多子命令来创建
+/etc/kubernetes/pki/下有 ca.crt和ca.key ，还有很多证书
+
+生成私钥  
+(umask 077; openssl genrsa -out my.key 2048) 为了安全使用子shell ，umask设置了有效范围
+
+基于私钥生成证书签署请求由 ca.cert来签 ,-subj "/CN=的值要和用户帐号一样 
+openssl req -new -key my.key -o my.csr -subj "/CN=lisi"
+开始签证
+openssl x509 -req -in my.csr -CA ./ca.crt -CAKey ./ca.key -CAcreateserial -out my.crt -days 366
+
+openssl x509  -in my.crt --text -noout
+
+kubectl config set-credentials lisi --client-certificate=./my.crt --client-key=./my.key --embed-certs=true
+
+kubectl config set-context lisi@kubernetes --cluster=kubernetes --user=lisi
+
+#kubectl config use-context lisi@kubernetes 设置后就没权限了，后要再修改回
+
+kubectl config set-cluser --help 
+
+kubectl config --kubeconfig 指定文件路径 默认为~/.kub/config
+kubectl config set-cluser myCluster --kubeconfig=/tmp/test.conf  --server=https://1.2.3.4:6443 --certificate-authority=/etc/kubernetes/pki/ca.cert --embed-certs=true
+	
+kubectl config  view --kubeconfig=/tmp/test.conf 
+
+----- role based acccess control (RBAC) 
+Role  只参当前名称空间 使用 RoleBinding  
+ClusterRole  对全部名称空间 使用 ClusterRoleBinding,RoleBinding(是对RoleBinding所在名称空间有效,好处是不用重复在每个名称空间定义相同角色)
+
+kubectl create role --help
+kubectl create role  pod-reader --verb=get,list,watch --resource=pods --dry-run -o yaml >role-demo.yaml
+也可使用 --verb=get --verb=list --verb=watch
+--demo-role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+	name: pods-reader
+	#namespace: default
+rules:
+- apiGroups:
+	- ""
+   resources:
+   - pods
+   verbs:
+   - get
+   - list
+   - watch
+   
+--
+kubectl apply -f role-demo.yaml
+kubectl get role
+kubectl descripbe role pods-reader
+
+kubectl create rolebinding --help
+kubectl create rolebinding user1-read-pods --role=pods-readers --user=user1 -o ymal --dry-run > rolebinding-demo.yaml
+--rolebinding-demo.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+	name: user-read-pods
+roleRef:
+	apiGroup: rbac.authorization.k8s.io
+	kind: Role
+	name: pods-reader
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+	kind: User  #可为Group,SerivceAccount
+	name: user1
+---
+kubectl explain user 报不存在，其实user没有资源
+测试用户权限,kubectl config  view 查看当前用户，切换context，use-context
+
+kubectl create clusterrole --help
+
+kubectl create clusterrole cluster-reader --ver=get,list,watch  --resource=pods -o yaml --dry-run > clusterrole-demo.yaml
+
+--clusterrole-demo.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+	name: cluster-reader
+rules:
+	apiGroup:
+	- ""
+	resources:
+   - pods
+   verbs:
+   - get
+   - list
+   - watch 
+---
+
+kubectl create clusterrolebinding user1-read-all-pods --clusterrole=cluser-reader --user=user1 --dry-run -o yaml >
+
+--clusterrolebinding-demo.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+	name: user1-read-all-pods
+roleRef:
+	apiGroup: rbac.authorization.k8s.io
+	kind: Role
+	name: cluser-reader
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+	kind: User  
+	name: user1
+---
+kubelet get clusterrole 有很多系统自带的，如admin,cluster-admin
+kubelet get clusterrole user1 可以看到有哪些资源，权限可用   
+kubectl describe clusterrolebinding user1-read-all-pods 
+kubectl get clusterrolebinding  有 cluster-admin
+kubectl delete clusterrolebinding  user1-read-all-pods   
+测试rolebinding到一个clusterrole
+
+
+
+kubectl create rolebinding user1-read-pods --clusterrole=cluster-readers --user=user1 -o ymal --dry-run > rolebinding-clusterrole-demo.yaml
+
+kubectl get clusterrolebinding cluster-admin
+显示 是一个Group叫system:master
+kube config view 显示当前登录用户，kubernetes-admin
+用户所属组定义在证书中 openssl x509 -in /etc/kubernetes/pki/apiserver-kubelet-client.crt -text -noout
+	Subject: O=system:master(组),CN=kube-apiserver-kubelet-client （说是kubernetes-admin的CN是这个）
+
+kubectl get pods -n kube-system 显示有flannel的，看安装时的yaml 定的角色
+kubectl get pods kube-flannel-ds-amd64-xxx -n kube-system -o yaml  看有serviceAccountName的定义
+容器启动时以这个serviceAccount与apiserver通讯
+
+--------dashboard
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v1.10.1/src/deploy/recommended/kubernetes-dashboard.yaml
+ 
+ docker pull siriuszg/kubernetes-dashboard-amd64:v1.10.1
+ docker tag  siriuszg/kubernetes-dashboard-amd64:v1.10.1 k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1
+
+kubectl get svc -n kube-system
+看有kubenetes-dashboard是clusterIP类型，可修改为nodePort类型
+kubectl patch svc kubernetes-dashboard -p '{"spec":{"type":"NodePort"}}' -n kube-system 后
+再kubectl get svc -n kube-system 查使用自动端口  443:30199
+
+htts协议来仿问  htts://外网IP:30199 不通 
+kubectl get pods --all-namespaces 看状态为 ImagePullBackOff 看网上的 kubernetes-dashboard.yaml 有一个镜像名为 k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1
+可以那块单独复制出来一个xx.yaml文件  kubectl delete -f  xx.yaml ,再kubectl create -f  xx.yaml
+还不行就修改xx.yaml ，再做就多了一条，状态显示 ContainerCreating，过一会两条变一条Runing
+ htts://外网IP:30199 就可以了
+
+
+
+可token认证 ，也要先创建serviceacount,
+	kubectl create serviceaccount dashboard-admin -n kube-system
+	kubectl create clusterrolebinding dashboard-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:dashboard-admin 
+	kubectl get secret -n kube-system  找 dashboard-admin-token-xxx 是建dashboard-admin生成的 
+	kubectl describe secret dashboard-admin-token-xxx  -n kube-system 里面有token信息,复制到登录页中（测试成功）
+	
+	
+可上传master节点的 ~/.kube/config文件 (提示信息不全) 要求帐户必须是serviceAccount
+kubectl create serviceaccount def-ns-admin -n default   #只管理default名称空间，使用rolebinding
+
+kubectl create rolebinding def-ns-admin --clusterrole=admin --serviceaccount=default:default-ns-admin 
+kubectl get secret | awk '/^def-ns-admin/{print $1}'
+kubectl describe secret  def-ns-admin-token-xxx (也可用里面的token登录，提示很多权限警告，测试成功,token结尾没有==)
+登录的token 使用做config命令的set-credentials
+kubectl get secret -n default -o json 返回数组,找有 def-ns-admin-token-xxx 组中的 token(结尾有==是base64加密的，解密可登录 )
+
+#DEF_NS_AMDIN_TOKEN=(kubectl get secret -n default -o jsonpath={.data.json} | base64 -d)     ###  不行，找不到??? 
+kubectl get secret -n default -o jsonpath={.items[0].data.token}  #返回数组，第一个元素有def-ns-admin-token-xxx
+还是复制到DEF_NS_AMDIN_TOKEN变量中吧
+#DEF_NS_AMDIN_TOKEN=(kubectl get secret -n default -o jsonpath={.items[0].data.token} | base64 -d)  
+
+cd /etc/kubernetes/pki/
+
+kubectl config set-cluster kubernetes --certificate-authority=./ca.crt --server="https://<api-server>:6443" --embed-certs=true --kubeconfig=/root/def-ns-admin.conf
+
+kubectl config view --kubeconfig=/root/def-ns-admin.conf
+
+kubectl config set-credentials def-ns-admin --kubeconfig=/root/def-ns-admin.conf --token=$DEF_NS_AMDIN_TOKEN ##前面的要base64解码
+ 
+kubectl config set-context def-ns-admin@kubernetes --cluster=kubernetes --user=def-ns-admin  --kubeconfig=/root/def-ns-admin.conf
+
+kubectl config use-context def-ns-admin@kubernetes --kubeconfig=/root/def-ns-admin.conf
+就可以使用/root/def-ns-admin.conf文件登录了 (测试成功)
+
+----
+
+
+kubectl get configmap -n kube-system
+
+kubectl get configmap -n kube-system kube-proxy -o yaml  把mode修改为ipvs,(pod与 service通信)，ipvs没有取代iptables
+
+
+1.容器间通讯 同个pods的多个容器，使用lo
+2.pod通讯 直接使用IP
+3.pod与service通讯 ,podIp <-> clusterIP (iptables转)
+4.service与集群外部通信，使用 ingress,nodePort,
+
+CNI = ContainerNetworkInterface 实现
+	calico (印花布，白棉布) 复杂， 能实现网络策略,可不让他管理网络使用flannel来做
+	flannel (绒布,毛巾)简单，不能实现网络策略，各名称空间的网络隔离 
+	canel
+	可以 calico + flannel 一起用
+	
+解决方案 bridge,多路利用macVlan
+/etc/cni/net.d/目录下的配置文件为CNI插件
+ cat  /etc/cni/net.d/10-flannel.conflist  
+  hairpin 发夹
+---------flannel
+3层网格 fabric (织物 结构)
+https://github.com/coreos/flannel
+ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+ 
+ 
+ 
+ip a s 有 
+	flannel.1 网络接口 (ip地址是0.0/32,mtu 1450,正常是1500,少50做叠加) , 是隧道
+	cni0 网络接口 ,在 flannel.1  之上 (10.244.0.1/24 )
+
+flannel支持 VxLan 叠加隧道 （对于不在同一网段），如是同在网段使用host-gateway
+
+
+flannel 是一个 DaemonSet（每个节点只可运行一个）可共享主机网络名称空间
+
+kubectl get daemonset  -n kube-system
+显示DESIRED 数为  pods的数量 和节点数相同
+kubectl get pods  -n kube-system -o wide  确认是在每个节点上
+
+
+kubectl get configmap -n kube-system 有一个 kube-flannel-cfg
+
+kubectl get configmap kube-flannel-cfg -o json  -n kube-system
+kubectl get configmap kube-flannel-cfg -o yaml  -n kube-system
+有Network的IP信息,"Backend": { "Type":  "vxlan   
+
+两个节点 进入shell 进行ping操作，抓包观察
+tcpdump -i ens32 -nn icmp 是抓不到的 
+ip a s 显示veth开头的网卡 是什么另外一半，被桥接到 cni0上的
+brctl show cni0
+
+
+tcpdump -i cni0 -nn icmp 抓是有的 报文进来是从cni0进来，再到flannel.1(已经是vxLan报文) ， 再从物理网卡 ens32发出
+
+
+tcpdump -i flannel.1 -nn  
+
+tcpdump -i ens32 -nn host <经过的IP> 可以看到OTV overlay的网络 
+
+修改flannel为 Directrouting 为true 默认为flase
+方式一 暂时不知道如何做 vi net-conf.json  安装flannel时的yaml文件中也有这部分
+{
+	"NetWork": "10.244.0.0/16",
+	"Backend": {
+		"Type": "vxlan", 
+		"Directrouting": true
+	}
+}
+方式二 也可用 kubectl edit configmap kube-flannel-cfg -n kube-system 里面有类似上面的东西，这里像用vi一样修改，如有语法错误:wq后最上面有提示，测试失败？？？
+ip route show 看已经生成规则 但没有生效（有使用flannel.1 没有使用ens32，没有直接使用物理网卡通信）
+
+route -n  (centOS没有这个命令？？)
+
+kubectl get configmap kube-flannel-cfg -o json -n kube-system  显示是否有 "Directrouting": true
+
+kubectl get pods -n kube-system -w 看kube-flannel开头状态，当重新安装 flannel(kubectl delete -f xx,kubectl apply -f xx)
+重建deployment应用
+ip route show 已经生效，正常应该是先建立flannel再建deployment应用
+两个节点再ping ,tcpdump -i ens32 -nn icmp 就没有overlay网络了，如不是一个网段自动overlay网络
+
+"Type":"host-gw" 各节点不能跨网段
+
+---------calico
+https://www.projectcalico.org/  三色猫 
+
+Installing Calico for policy (advanced)
+https://docs.projectcalico.org/v3.10/getting-started/kubernetes/installation/other
+
+calico 也使用 etcd，通过 api-server 来操作kubernetes的etcd
+
+安装 calico  
+curl https://docs.projectcalico.org/v3.10/manifests/calico-policy-only.yaml -O
+
+kubectl apply -f  calico-policy-only.yaml
+
+kubectl get pods -n kube-system 	有calico-开头的
+kubectl get pods -n kube-system -w 等全部为Runing
+
+--
+
+egress 出路，出口
+ingress 入口 
+网络规则很像iptables
+
+kubectl explain networkpolicy  提示DEPRECATED 
+kubectl explain networkpolicy.spec 有 egress , ingress ,podSelector 对哪些pod
+	policyTypes 可取值为 "Ingress", "Egress", 或 "Ingress,Egress"，表示哪个生效，如不指定值那么存在的就生效
+
+kubectl explain networkpolicy.spec
+kubectl explain networkpolicy.spec.egress.to 有  namespaceSelector,ipBlock,podSelector
+
+--vi ingress-def.yaml 拒绝全部进入
+apiVersion: networking.k8s.io/v1  #提示DEPRECATED 意思是apiVersion用  networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all-ingress
+spec:
+  podSelector: {} #空表示选中全部
+  policyTypes:
+    - Ingress   #这type为Ingress表示控制，又没有定 表示全部拒绝进入，type没有Egress表示不控制,也没定义表示全部允许出去
+    
+----
+--vi ingress-def.yaml 允许全部进入 
+apiVersion: networking.k8s.io/v1  
+kind: NetworkPolicy
+metadata:
+  name: deny-all-ingress  #名字可改
+spec:
+  podSelector: {} 
+  ingress:
+    - {}  #定义了是空 表示允许全部
+  policyTypes:
+    - Ingress   
+    
+----
+kubectl create namespace dev
+
+kubectl create namespace prod
+
+kubectl apply -f ingress-def.yaml -n dev #指定名称空间
+ 
+kubectl get  pods -n dev 
+kubectl get  netpol -n dev #有 deny-all-ingress ,netpol 的全称是 netpolicy
+
+--vi pod-a.yaml
+apiVersion: v1   
+kind: Pod
+metadata:
+  name: pod1
+spec:
+  containers:
+    - name: myapp
+      image: nginx:latest
+
+---
+kubectl apply -f pod-a.yaml -n dev
+kubectl get  pods -n dev -o wide 有显示IP
+curl 显示IP ，前面NetworkPolicy的限制  ，正常应该是不通的，测试不行？？？ 
+
+再建prod空间,没有定义网络限制
+kubectl apply -f pod-a.yaml -n prod 
+kubectl get  pods -n prod -o wide  有显示IP 如果有两个从节点，就可能会运行在不同的节点上
+curl 显示IP 
+
+为pos打标签为选中用
+kubectl label pods pod1 app=myapp -n dev 
+
+
+--vi allow-netpol-demo.yaml  
+apiVersion: networking.k8s.io/v1  
+kind: NetworkPolicy
+metadata:
+  name: allow-myapp-ingress
+spec:
+  podSelector: 
+    matchLabels:
+      app: myapp 
+  ingress:
+  - from: 
+    - ipBlock:
+        cidr: 10.244.1.6/16 #<IP>/<子网>
+        except:
+        - 10.244.1.7/16 #<IP>/<子网>
+    ports:
+    - protocol: TCP
+      port: 80   
+----
+
+kubectl apply -f allow-netpol-demo.yaml  -n dev
+
+--------调度器schedular
+
+选择节点运行pod, 要先过滤符合条件的 预选(predict),再选最好的(priority),再选定,因有可能两个节点的先级一样（select)
+
+有些pod希望运行在同一节点上(同一位置)，像不要距离太远,叫 亲和性
+有些不希望运行在一个节点上(同一位置)，像有故障不能全部不能用，端口冲突，有机密数据，叫 反亲和性
+
+一些节点可以有污点（taint），pod可以定义容忍(tolerance)，即pod容忍一定要多于节点污点数才会在上面运行，如不想让pod在节点上运行，只要在节点增加污点即
+
+https://github.com/kubernetes/kubernetes/tree/master/pkg/scheduler/algorithm 下有 predicates目录 和priorities 目录
+https://github.com/kubernetes/kubernetes/blob/master/pkg/scheduler/algorithm/predicates/predicates.go  定义了很多预选，但不是每个都会被启用
+	像func NoDiskConflict 上也有注释
+
+
+kubectl explain pods.spec   
+	 nodeName(pod只能运行在这个节点上)
+	 hostName  # 如果pod上定义hostName的值，会检查和节点的hostname是否匹配 （并不是必须，表示节点上不能重名的pod）
+	 nodeSelector 如多个是并且的关系
+	
+预选策略 
+	1.CheckNodeCondition
+	2.GeneralPredicates 包含多个的子的 
+		1)	HostName (检查pod上是否定义pods.spec.hostName)
+		2)	PodFitsHostPorts (检查节点有可用的端口，即 kubectl explain pods.spec.containers.ports.hostPort)
+		3)	MatchNodeSelector  即 kubectl explain pods.spec.nodeSelector
+		4)	PodFitsResources 检查cpu,内存等，使用 kubectl get nodes 再用 kubectl describe nodes node1 看cpu,memory
+	3.NoDiskConflict  (默认没有启用)存储卷满足要求
+	4.PodToleratesNodeTaints 检查  kubectl explain pods.spec.tolerations  可接受节点的污点
+	4.PodToleratesNodeNoExecuteTaints 检查NoExecute属性，当节点后加污点不满足pod的容忍时，默认pod还是继续在节点上运行(有可能有些东西还在运行)，如NoExecute就不在节点上运行
+	5.CheckNodeLabelPresence (默认没有启用)标签满足要求
+	6.CheckServiceAffinity (默认没有启用) (affinity密切关系) 把新的pod放在已经相同service的pod所在的节点上运行
+	
+	MaxEBSVolumeCount		是亚马逊的
+	MaxGCEPDVolumeCount  是Goole的
+	MaxAzureDiskVolumeCount  是微软的
+	
+	7.CheckVolumeBinding  检查节点绑定或未绑定的PVC(persistentVolumeClaim) 
+	8.NoVolumeZoneConflict 
+	9.MatchInterPodAffinity 
+
+优选
+https://github.com/kubernetes/kubernetes/blob/master/pkg/scheduler/algorithm/priorities/priorities.go
+
+	1.LeastRequestedPriority  最少请求的(pod要求的cpu和内存) 
+	2.BalancedResourceAllocation  均衡使用cpu和内存
+	3.NodePreferAvoidPodsPriority 没有pod的节点，节点的annotation信息 schedular.alpha.kubernetes.io/preferAvoidPods (不确定是对的) 如没有，得分是10満分
+	4.TaintTolerationPriority   如pod的toleration和节点的taint匹配的越多，分越低
+	5.SelectorSpreadPriority   节点上已经运行的pod符合标签选择器的越少，得分越高
+	6.InterPodAffinityPriority  亲和
+	7.NodeAffinityPriority 		根据pods的nodeSelector 亲和
+	8.MostRequestedPriority 	(默认没有启用) 与 LeastRequestedPriority 相反
+	9.ImageLocalityPriority  	(默认没有启用) 节点已经有镜像(体积大小之和) 高分
+	
+-- pod-sche.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod1
+  labels:
+    app: myapp
+spec:
+  containers:
+    - name: myapp
+      image: nginx:latest
+  nodeSelector:
+     diskType: ssd                      
+--
+kubectl apply -f pod-sche.yaml 
+
+kubectl  get nodes  --show-labels
+
+如没有节点的标签符合pods 
+查 kubectl  get pods   状态是PENDING  
+kubectl  describe pods xx看原因
+
+kubectl label node node1 diskType=ssd
+kubectl label node node1 diskType-  删标签
+
+kubectl explain pods.spec.affinity 
+
+kubectl explain pods.spec.affinity.nodeAffinity
+ 	preferredDuringSchedulingIgnoredDuringExecution 表示首选，不满足也可以 ， 而required必须满足
+
+kubectl explain pods.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.matchFields
+
+---nodeAffinity节点亲和
+
+-- node-affinity-required.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-affinity-required
+  labels:
+    app: myapp
+spec:
+  containers:
+    - name: myapp
+      image: nginx:latest
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: zone
+            operator: In
+            values: 
+            - foo
+            - bar            
+--
+
+kubectl explain pods.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution
+-- node-affinity-preferred.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-affinity-preferred
+  labels:
+    app: myapp
+spec:
+  containers:
+    - name: myapp
+      image: nginx:latest
+  affinity:
+    nodeAffinity:
+     preferredDuringSchedulingIgnoredDuringExecution:
+     - preference:
+         matchExpressions:
+         - key: zone
+           operator: In
+           values:
+            - foo
+            - bar
+       weight: 60
+
+ 
+--
+pod亲和 一组pod第一个在哪个机架上，其它的pod也要在这个机架上,如一套服务的nginx,java,mysql在一个局部网
+
+kubectl explain pods.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution
+	有 labelSelector 用来选择哪些pods 
+		namespaces 选择标签是哪个名称空间，如为空就是这个pods的名称空间
+		topologyKey 用来选择哪些node ,如同机架(rack)上的
+		
+co-locate = affinity
+
+kubectl get nodes --show-labels 
+发现每个节点都有标签kubernetes.io/hostname=<hostname的值> 可用于 topologyKey
+
+ 
+
+------ pods-affinity-required.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pods-frontend
+  labels:
+    app: myapp
+    tire: frontend
+spec:
+  containers:
+    - name: myapp
+      image: nginx:latest
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pods-db
+  labels:
+    app: redis
+    tire: db
+spec:
+#  containers:
+#    - name: redis
+#      image: redis:latest
+  containers:
+    - name: busybox
+      image: busybox:latest
+      imagePullPolicy: IfNotPresent
+      command: ["sh","-c"，"sleep 3600"]
+  affinity:
+    podAffinity:
+    #podAntiAffinity:
+     requiredDuringSchedulingIgnoredDuringExecution:
+     - labelSelector:
+         matchExpressions:
+         -  {key: app, operator: In, values: ["myapp"]}
+       topologyKey: kubernetes.io/hostname
+------ 
+kubectl get pods -o wide 都运行在一个节点上(pods-frontend所在的)
+kubectl describe pods pods-db 有日志指定到哪个节点
+
+kubectl explain pods.spec.affinity.podAntiAffinity. 反亲和 
+如把所有节点使用相同标签，topologyKey配置这个标签,再立就会有Pendding状态 (required),如为prefered就可运行
+
+节点的三类键值对，1.label,2.annotation,3.taint(只能用于节点上)
+
+
+---节点污点,pod容忍 
+kubectl get nodes node1 -o yaml 也有spec:
+kubectl explain node.spec 有 taints 数组
+kubectl explain node.spec.taints 
+有key,value(可为空)定义，effect 如不能容忍污点时的行为 
+	NoSchedule 对已经运行的pod的，后来修改节点的污点，已有的pod不做调度(修改)，新的pods只影响调度
+	PreferNoSchedule  新的pods最好不要运行在这个节点，有些情况(没有资源)也可运行
+	NoExecute 现有pod有影响，不执行,去pod(杀pod)
+
+查节点的污点
+kubectl describe nodes node1  找 Taints 
+ 	master节点默认有一个，就是为了不能运行普通pod,但要能运行内部pod 
+
+kubectl get pods -n kube-system 
+kubectl describe pods kube-proxy-xxxx -n kube-system  找Tolerations 
+
+语法
+kubectl taint nodes node1 key1=value1:NoSchedule  key2=value2:NoSchedule
+
+kubectl taint nodes node1 runEnv=prod:NoSchedule --overwrite  只对相同的Type相同的Key,否则就新建
+
+删除污点
+kubectl taint nodes node1 runEnv=prod:NoSchedule-
+
+
+如pod没有定义容忍，就不能运行在已经有污点的节点上
+
+#kubectl explain deployment.spec.template.metadata 
+
+kubectl explain pod.spec.tolerations
+	如effect为空 表示容忍全部
+ 有tolerationSeconds 如果pod被杀要等一会(只对NoExecute有效)，默认为永远，不evict 
+ 	 operator 有 Equal(默认),Exists
+ 	 
+--vi pod-tolerate-demo.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-tolerate-demo
+  namespace: default
+spec:
+  replicas: 2
+  selector: 
+    matchLabels:
+      app: myapp #删除kubectl delete rs myapp
+      realease: canary 
+  template:
+    metadata:
+      labels:
+        app: myapp  
+        realease: canary 
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - name: http
+          containerPort: 80
+      tolerations:
+      - key: "runEnv"
+        operator: "Equal"
+        value: "prod"
+        effect: "NoExecute"
+        tolerationSeconds: 20
+----- 
+
+测试下来不只是key=value 匹配， 还要effect也要两匹配才行
+
+----------pod资源限制
+request 应用运行要有这些
+limit 应用最大只能使用这些
+
+2核4线程CPU 就 虚拟成4个逻辑CPU
+
+1逻辑CPU = 1000 的毫核millcores
+0.5cpu=500m
+
+
+内存Ei,Pi,Ti,Gi,Mi
+
+kubectl explain pods.spec.containers 
+kubectl explain pods.spec.containers.resources
+有limits , requests
+
+
+删除污点，只对Key
+kubectl taint nodes node1 runEnv-
+
+
+------ pods-cpu-limits.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pods-cpu-limits
+  labels:
+    app: myapp
+    tire: frontend
+spec:
+  containers:
+    - name: stress-ng
+      image: ikubernetes/stress-ng:latest
+      command: ["/usr/bin/stress-ng","-c 1","--metrics-brief" ] #-c1 表示对cpu使用1个worker测试 -m 1表示对内存  
+      resources:
+        requests:
+          cpu: "200m"
+          memory: "128Mi"
+        #limits: #QoS Class:       Burstable
+        #  cpu: "500m"
+        #  memory: "200Mi"
+        limits:  #QoS Class:       Guaranteed
+          cpu: "200m"
+          memory: "128Mi"
+------
+建立后
+kubectl exec pods-cpu-limits -- top 
+	看到CPU使用了13% 原因是节点是4核，500m用8/1 即12.5%(如是2核就是25%)，这里看到的数是节点的资源而不是容器的
+
+kubectl describe pods pods-cpu-limits 
+显示 Qos (Quality Of Service) class:  Burstable
+	Guranteed 表示每个容器设置了cpu,memory并且 limits.memory=requests.memory并且 limits.cpu=requests.cpu 优先级最高
+	Burstable(稳定) 至少一个容器设置requests
+	BestEffort 没有任何一个容器设置了request 或 limits ，优先级最低
+
+如一个节点资源不够用，就会kill BestEffort低优先级类型的pod，给高优先级的用
+再Burstable类型就是request资源占用比例较大(使用量接近request)删
+
+-----------heapster 官方说1.11版本开始 heapster被废弃了
+
+docker 有 stats/top 命令 
+kubectl top pod 提示要有 heapster 才可用，是一个从各节点抓取信息的工具 ,dashboard的数据也来自heapster
+
+每个节点的kubelet进程 自带一个cAdviser用来收集这个节点的全部信息（pod,container）,打开后默认监听4194端口
+heapster 是一个pod,每个节点的cAdviser的数据向heapster发送数据，如heapster保存长时间的数据要用InfluxDB,使用图表工具Grafana来看 
+heapster还要依赖于RBAC设置,InfluxDB应用外部分布式存储卷
+
+
+看 https://github.com/kubernetes-retired/heapster/tree/master/deploy/kube-config/rbac/heapster-rbac.yaml
+   可以看到 ClusterRoleBinding 绑定到 ClusterRole的一个system:heapster角色名，kubernetes系统自带，
+	ServiceAccount是kube-system名称空间的heapster
+
+安装influxdb
+看 https://github.com/kubernetes-retired/heapster/blob/master/deploy/kube-config/influxdb/influxdb.yaml
+	中有使用 k8s.gcr.io/heapster-influxdb-amd64:v1.5.2 镜像
+	docker pull heleicool/heapster-influxdb-amd64:v1.5.2
+	docker tag  heleicool/heapster-influxdb-amd64:v1.5.2 k8s.gcr.io/heapster-influxdb-amd64:v1.5.2
+
+	influxdb-storage 是挂的emptyDir: {}，生产环境要修改
+	部署的service名字为 monitoring-influxdb (kube-system名称空间)，端口为8086，selector的值为k8s-app: influxdb 符合Deployemnt的labels值
+--
+	apiVersion 是老的值extensions/v1beta1，修改为现在 apps/v1,还要在顶层spec下增加selector.matchLabels 抄已有的,测试不行？？？
+		selector:
+		  matchLabels:
+		    task: monitoring
+		    k8s-app: inluxdb
+---
+ kubectl create -f  influxdb.yaml
+
+kubectl get svc -n kube-system 有监听8086端口
+kubectl get pod -n kube-system 
+kubectl log monitoring-influxdb-xxxxxx -n kube-system
+
+安装heapster的RBAC
+kubectl create -f  heapster-rbac.yaml
+
+安装 heapster
+把文件 https://github.com/kubernetes-retired/heapster/blob/master/deploy/kube-config/influxdb/heapster.yaml 下载好
+看文件 command  有连接influxdb,有Service使用80端口 ，如想在集群外仿问heapster最尾spec子级加 type:NodePort
+有镜像 k8s.gcr.io/heapster-amd64:v1.5.4  
+  docker pull netonline/heapster-amd64:v1.5.4
+  docker tag  netonline/heapster-amd64:v1.5.4  k8s.gcr.io/heapster-amd64:v1.5.4
+kubectl create -f heapster.yaml
+
+kubectl get svc -n kube-system  看heapster随机端口，就可以直接连接所在节点IP:端口来仿问 ,报404说明已经通
+
+
+安装 grafana
+https://github.com/kubernetes-retired/heapster/blob/master/deploy/kube-config/influxdb/grafana.yaml
+ 看文件有volumns 叫ca-certificates如要https做证书，有emptyDir，生产环境要修改，有一个Service 使用端口80
+ 看env中INFLUXDB_HOST变量
+ 
+ 如想在集群外仿问grafana最尾spec子级加 type:NodePort
+	 
+ 有镜像  k8s.gcr.io/heapster-grafana-amd64:v5.0.4
+  docker pull heleicool/heapster-grafana-amd64:v5.0.4 
+  docker tag  heleicool/heapster-grafana-amd64:v5.0.4  k8s.gcr.io/heapster-grafana-amd64:v5.0.4
+kubectl create -f grafana.yaml
+
+kubectl get svc -n kube-system  看grafana随机端口，就可以直接连接所在节点IP:端口来仿问 ,可以看到主页
+提示第一步安装grafana完成 ，第二安装数据源完成，开始第三步 点 new dashboard -> Graph  (应该有默认数据，但没有，可能是deprecate的原因)
+左侧设置按钮->datasource->
+
+https://grafana.com/grafana/dashboards 上有模板下载用
+
+kubectl top pod  这次没提示
+kubectl top node 报 metrics 无效
+kubectl get pod -n kube-system  
+kubectl log heapster-xxxxxx -n kube-system 报错 不能从每个节点的10255端口取数据
+
+官方说1.11版本开始 heapster被废弃了，迁移到metrics-server
+
+删除 
+kubectl delete -f  grafana.yaml
+kubectl delete -f  heapster.yaml
+kubectl delete -f heapster-rbac.yaml
+kubectl delete -f influxdb.yaml
+
+----------metrics-server
+
+https://github.com/kubernetes-sigs/metrics-server
+项目 的deploy/1.8+/目录下有很多yaml文件
+看 metrics-server-deployment.yaml  有tmp-dir 的卷是emptyDir的配置项，生产环境要做修改。
+      volumes: 
+      - name: tmp-dir
+        emptyDir: {}
+
+有镜像   image: k8s.gcr.io/metrics-server-amd64:v0.3.6   
+docker pull mirrorgooglecontainers/metrics-server-amd64:v0.3.6
+docker tag 	mirrorgooglecontainers/metrics-server-amd64:v0.3.6   k8s.gcr.io/metrics-server-amd64:v0.3.6
+
+
+cd deploy/1.8+/
+kubectl apply -f  .  #表示当前目录下所有文件
+
+kubectl get svc -n kube-system
+kubectl get pod -n kube-system 显示失败 
+
+kubectl describe pod metrics-server-xxxx -n kube-system 
+下载镜像 失败 原因为metrics-server-deployment.yaml 中  imagePullPolicy: Always 修改为 IfNotPresent
+
+kubectl api-versions 显示有 metrics.k8s.io/v1beta1
+
+kubectl proxy --port 8080 反代理 直接从api-server取数据
+
+curl http://127.0.0.1:8080/apis/metrics.k8s.io/v1beta1  (/api/后是kubectl api-versions 中的)有返回 监控的数据
+curl http://127.0.0.1:8080/apis/metrics.k8s.io/v1beta1/nodes  有返回，但没数据 "items": []  
+curl http://127.0.0.1:8080/apis/metrics.k8s.io/v1beta1/pods   有返回，但没数据 "items": []
+
+kubectl top node 还没数据
+
+kubectl logs  metrics-server-xxxx -c metrics-server -n kube-system  显示有报错
+	-c, --container
+
+docker image inspect mirrorgooglecontainers/metrics-server-amd64:v0.3.6
+看启动命令是 /metric-server
+
+修改metrics-server-deployment.yaml  在image:下面的 args增加一个
+	 - --source=kubernetes.summary_api:https://kubernetes.default?kubeletHttps=true&kuberletPort=10250&insecure=true
+重建后就有节点数据了
+curl http://127.0.0.1:8080/apis/metrics.k8s.io/v1beta1/nodes 
+kubectl top nodes
+
+要有运行的pod 下面才会有数据
+kubectl top pods
+kubectl top pods -n kube-system
+
+
+/var/log/containers/ 目录是节点的日志信息
+
+--------------helm 掌舵，掌管
+使用go语言写的 ， 简化kubernetes安装(像yum)
+
+https://helm.sh/
+https://github.com/helm/helm 
+	在release标签 中下载 Linux amd64 二进制包helm-v2.16.0-linux-amd64.tar.gz，解压后就两个命令 ,helm,tiler
+
+charts 是一组所有需要的yaml文件如deployment,service ,有模板和 config值 生成release, 不需要镜像仓库，用私有镜像仓库即可
+charts  也有仓库，安装在api-server上要经过 tiler  （小船的）舵柄； 耕种者
+
+helm -> tiler ->api server
+
+helm init --service-account <NAME>
+./helm init --service-account tiler 		会创建~/.helm目录  要在kubectl可运行的节点上运行
+
+kubectl get svc -n kube-system 查到有 tiller-deploy 
+kubectl get pod -n kube-system  没有？？？
+
+./helm version 看客户端版本和服务端版本，服务端不行？？？
+
+./helm  repo update
+
+官方可用chart列表
+https://hub.kubeapps.com/   搜索redis  看说明
+
+./helm search redis  结果类似上面的网址
+./helm inspect stable/redis
+./helm install --name ch_redis stable/redis   可以加-f --values 指定值文件
+./helm list
+./helm delete ch_redis
+
+
+ls ~/.helm/cache/archive/redis-9.5.2.tgz 
+  里面templates目录是定义的yaml模板 和 的values.yaml默认值
+
+./helm create myapp  生成了myapp目录及相关文件
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+=======================minikube
+CPU支持虚拟化
+grep -E --color 'vmx|svm' /proc/cpuinfo
+
+已经安装 kubectl
+
+Hypervisor 要么是  KVM （使用 QEMU） 要么是  VirtualBox，也支持 --vm-driver=none 要求使用软件包安装docker,snap方式不支持
+
+https://github.com/kubernetes/minikube/releases  中的下载也是从google下载
+
+或者
+
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
+  && chmod +x minikube 
+sudo install minikube /usr/local/bin
+
+minikube version 显示1.3.1
+
+如使用代理 
+export HTTP_PROXY=http://gcr.mirrors.ustc.edu.cn:80
+export HTTPS_PROXY=https://gcr.mirrors.ustc.edu.cn:80
+export NO_PROXY=localhost,127.0.0.1,10.96.0.0/12,192.168.99.0/24,192.168.39.0/24
+没用？
+
+如docker使用代理
+minikube start \
+  --docker-env=HTTP_PROXY=$HTTP_PROXY \
+  --docker-env HTTPS_PROXY=$HTTPS_PROXY \
+  --docker-env NO_PROXY=$NO_PROXY
+  
+
+minikube delete
+minikube start
+
+有很多表情可以显示在控制台上也可复制到文本编辑器中
+会下载  https://storage.googleapis.com/minikube/iso/minikube-v1.3.0.iso
+下载到目录为  ~/.minikube/cache/iso/minikube-v1.3.0.iso
+
+提示  
+Downloading kubeadm v1.15.2
+Downloading kubelet v1.15.2
+是下载到minikube虚拟机中了，可以VirtualBox打开看，root用户不要密码
+systemctl status docker 在运行
+ip a s 显示eth0 IP为 10.0.2.15 ,eth1 IP为192.168.99.100 (这个通的)
+
+minikube开启远程登录
+修改root密码 passwd root
+修改/etc/ssh/sshd_config 文件中 PermitRootLogin yes，再systemctl restart sshd，
+ssh root@192.168.99.100 可远程登录上
+
+要下载 k8s.gcr.io/kube-apiserver:v1.15.2，kub-开头都是这个版本，其它版本不变
+
+
+报没有kube-controller-manager:v1.15.2  只有 v1.15.2-beta.0 
+docker pull mirrorgooglecontainers/kube-controller-manager:v1.15.2-beta.0 
+docker tag mirrorgooglecontainers/kube-controller-manager:v1.15.2-beta.0   k8s.gcr.io/kube-controller-manager:v1.15.2
+
+报没有 kube-scheduler:v1.15.2  ， hub.docker上也没有 怎么办？？？
+
+
+
+----gcr.io镜像加速
+https://www.ilanni.com/?p=14534
+
+docker pull gcr.mirrors.ustc.edu.cn/kubernetes-helm/tiller:v2.9.1
+docker pull gcr.azk8s.cn/kubernetes-helm/tiller:v2.9.1
+  
+------ 
+
+主干分支有examples
+https://github.com/kubernetes/kubernetes/tree/release-1.10/examples
 
 
 docker pull node:10.15.0
@@ -463,11 +3957,12 @@ EXPOSE 8080
 COPY server.js .
 CMD node server.js
 --
-$ docker build -t 'mynode:1' .
+$docker build -t 'mynode:1' .
 $docker run -p 4000:80 mynode:1
 
 
-------etcd
+=================== etcd
+
 https://github.com/etcd-io/etcd/
 使用GO语言开发 ，用来替代 zookeeper (openstack使用这个)
  
@@ -588,13 +4083,4 @@ etcdctl --endpoints=$ENDPOINTS endpoint health
 
 
 
-
-
-----Flannel
-3层网格 fabric (织物 结构)
-
-是为 Kubernetes 设计的
-
-https://github.com/coreos/flannel
-
-
+ 

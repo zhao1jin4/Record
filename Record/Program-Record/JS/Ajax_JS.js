@@ -1543,7 +1543,13 @@ console.log(animals.slice(2));
 console.log(animals.slice(2, 4));
 //expected output: Array ["camel", "duck"]
 
+const array1 = [1, 2, 3, 4];
+const reducer = (accumulator, currentValue) => accumulator + currentValue;
+// 1 + 2 + 3 + 4
+console.log(array1.reduce(reducer)); //  10
 
+// 5 + 1 + 2 + 3 + 4
+console.log(array1.reduce(reducer, 5)); //  15
 
 
 =========HTML5 JS
@@ -3333,7 +3339,9 @@ const merge = ( ...objects ) => { //参数是reset
 var mergedObj = merge ( obj1, obj2);
 // Object { 0: { foo: 'bar', x: 42 }, 1: { foo: 'baz', y: 13 } }
 
-
+ //在 ES2015+ 中，在对象中放一个类似 ComponentA 的变量名其实是 ComponentA: ComponentA 的缩写
+ var ComponentA={a:1}
+ console.log({ComponentA});
 
 
 //----ECMAScript 2018

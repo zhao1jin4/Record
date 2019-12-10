@@ -183,7 +183,7 @@ tools-> http client->test resetful web service 像firefox的reset client工具
 
 
 Settings->Editor->Code Style->Java /JavaScript->Wapping and  Braces -> Braces Placesment 组中全部修改为 next line
-
+	 "if() statement" 中 force brace 选中always 后，即使if后只一行代码也有{}
 
 ctrl + y 是删除当前行
 
@@ -197,6 +197,7 @@ DataBase标签(view->tool windows->database)->右击建立好的连接-> Databas
 Preferences->Editor > Code Style > Java > Scheme Default > Imports
   Class count to use import with "*" 改为 99 
 
+Setting->Tools->Externel tools ->增加配置后（如压缩JS) 右击文件就会出现新建的菜单
 
 ====================IntelliJ IDEA plugin 
 
@@ -232,6 +233,12 @@ lombok 插件
 		<artifactId>lombok</artifactId>
 		<version>1.16.20</version>
 	</dependency>
+	
+单独安装Vue.js 插件
+http://plugins.jetbrains.com/plugin/9442-vue-js/versions
+
+阿里的代码规范查检工具
+settings->plugins-> 搜索 Alibaba Java Code Guidelines (有离线版)
 
 ---------DataGrip 2018  可以不要 IntellijIDEA 也有这此功能,也有 WebStorm ,Android 功能
 
@@ -252,5 +259,22 @@ Settings->Build,Execution,Deployment->ToolChains->选择Cygwin 右则点...配�
 --------Goland
 --------Pycharm
 ---------Rider 跨平台的C#开发工具(也有开源的ＭonoDevelop )
+
+---------intellij idea  插件 kubernetes 
+在线验证yaml的好工具
+https://onlineyamltools.com/prettify-yaml
+
+idea 默认就支持yaml文件语法高亮，按tab缩进两个空格
+
+intellij idea 2018.2 插件 kubernetes 
+	在写键的时候有下拉提示,也可按ctrl+shift+space(Code->completion->Smart Type)来提示，会把不对键标红做提示
+	没有提示的文档
+
+
+
+
+
+
+
 
 

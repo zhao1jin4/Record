@@ -1,6 +1,8 @@
 ﻿
 ============================Netbeans-8.2 最后一个oracle版本===============================
-10版本(apache下)支持JDK11
+apache下11.2版本 支持JDK11
+netbeans-11.2-bin\netbeans\etc\netbeans.conf 中要修改 netbeans_jdkhome 的配置才可启动
+支持Gradle
 
 %HOMEPATH%\AppData\Roaming\NetBeans
 %HOMEPATH%\AppData\Local\NetBeans\Cache  里面很大
@@ -457,6 +459,10 @@ Tools Properties->Key Binding->默认选中Default->Make Copy->Action中选Edit�
 
 双击树中的表名->有Native DLL标签
 
+右击数据库->export database->
+右击表->export table->可选sql, 如选csv 要设置column delimiter为逗号，row delimiter为windows换行
+
+
 如果查询结果为   0.0000000  显示科数法 ??????  
 --oracle
 有单独的 comment 标签可以看列，但表没有？？？,要点DDL标签看SQL时看表的comment  
@@ -680,6 +686,10 @@ edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好�
 
 表格右侧有 Form Editor  
 
+Server -> Data Export->只能选整个库。
+右击表->export 导出csv不能以，分隔字段。
+
+
 -------------MyFront 5.3 免费
 -------------SQLyog Monyog  
 -------------dbForge Studio for MySQL 8 Enterprise Edition
@@ -748,6 +758,9 @@ select @cnt
 
 合并时如有冲突可以修改代码，保存为解决冲突 -> commit & push 
 
+git 清除已保存的密码 测试OK
+TortoiseGit -》 setttings->Git->点edit systemwide gitconfig按钮
+
 ------------GitExtensions 免费Git工具(windows) 
 	默认要kdiff3做为比较合并工具,可选择BeyondCompare3,4 也要sh可用git,或者cygwin
 
@@ -775,7 +788,11 @@ make all
 -------------Curl-Loader 在 test
 
 -------------Charles 代理工具
-默认是8888 端口
+可linux 收费4.2.8
+默认是8888 端口,Proxy->proxy setting
+
+
+Proxy->SSL proxy setting
 
 Firefox 中　工具－＞选项－＞高级－＞网络标签－＞单击　设置．．－＞选择 [手动设置代理]
 HTTP代理   127.0.0.1   8888　
@@ -927,6 +944,10 @@ source port 中写本地端口如8888 ,Destination写远程如192.168.190.134:80
 Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到文本中不会换行如mysql一行数据较长
 当然缺点是不能用sz ,rz 不能建立常用命令快捷方式
 
+---Secure Shell
+
+---SecureCRT
+
 ----------firebug 
 	可以动态内firefox中增加,删除,修改,DOM内容  (注意自己的网站安全)
 	如MySQL使用了 google的jQuery,因不能下载js,导致表单不能提交
@@ -985,8 +1006,11 @@ Model->Add Diagram->Sequence Diagram
  
 ================Visual Studio Code 
 
-VSCodeUserSetup-x64-1.30.1.exe 离线安装 免费 有linux ,mac版本
-也有zip包  VSCode-win32-x64-1.30.1.zip 直接解压就可用
+免费 有windows,linux ,mac版本
+也有zip包  VSCode-win32-x64-1.39.2.zip 直接解压就可用，标题菜单都是黑色
+
+linux zip包和rpm code-1.39.2-1571154220.el7.x86_64.rpm 在 openSUSE下可安装 
+linux下都是标题菜单都不是黑色,只有1.30.1才是黑色
 
 自带Git,HTML,PHP
 
@@ -995,6 +1019,9 @@ File->preferences->windows 标签->Restore Windows 选择none
 
 会自动提示已经写过的内容
 
+左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
+		搜索parameter有Trigger parameter Hints 默认快捷键是ctrl+shift+space
+		
 File->preferences-> extensions  
 可以在线安装 各种语言的 如 JavaScript(React),Python,Go,C/C++(MinGW C++),Java(Maven),SpringBoot,Kubernetes,Scala,Kotlin
  
@@ -1011,6 +1038,25 @@ https://code.visualstudio.com/docs/nodejs/reactjs-tutorial
 extension 
 	Debugger for Chrome  4.11.3
 	
+vscode 打开 .vue文件 提示推荐安装 Vetur 扩展，才可高亮显示
+VS code 插件Vetur 安装
+Go->Go to File 输入 ext install octref.vetur 安装 也可通过界面安装
+
+默认支持yaml语法高亮,按tab缩进的是两个空格
+
+extension Kubernetes (1.30.1版本测试无效，要新的1.39.2)是Microsoft发布的 说是支持Develop, deploy and debug ,支持Minikube 环境,需要kubectl 命令
+	可以鼠标滑到有效的键上有文档提示 
+	在写键的时候有下拉提示,左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
+	但如果键写错不会提示
+
+
+
+
+
+
+
+
+
 
 ================atom 1.32.2
 

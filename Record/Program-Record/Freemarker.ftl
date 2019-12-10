@@ -35,6 +35,22 @@ allAnimals.add("狗 ");
 root.put("animals",allAnimals);
 
 t.process(root, out);
+----字串中是模板
+Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS); 
+StringTemplateLoader stringTemplateLoader=new StringTemplateLoader();
+stringTemplateLoader.putTemplate("strTmp", "欢迎：${user}");
+cfg.setTemplateLoader(stringTemplateLoader); 
+cfg.setDefaultEncoding("UTF-8"); 
+
+Template template =  cfg.getTemplate("strTmp","utf-8");
+
+Map root = new HashMap(); 
+root.put("user", "李四"); 
+
+StringWriter writer = new StringWriter(); 
+template.process(root, writer); 
+System.out.println(writer.toString());  
+ --- 
   
 FreeMarker自带显示的方法
 <#if myDate?exists>

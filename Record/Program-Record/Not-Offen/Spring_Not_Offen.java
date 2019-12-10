@@ -1,4 +1,46 @@
-﻿=========================Spring Struts1
+
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-jms</artifactId>
+		<version>${spring.version}</version>
+	</dependency>
+	
+
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-oxm</artifactId>
+		<version>${spring.version}</version>
+	</dependency>
+	
+
+
+﻿<!--  batch  -->
+	<dependency>
+		<groupId>org.springframework.batch</groupId>
+		<artifactId>spring-batch-core</artifactId>
+		<version>3.0.6.RELEASE</version>
+	</dependency>
+	<!--
+	<dependency>
+		<groupId>org.springframework.retry</groupId>
+		<artifactId>spring-retry</artifactId>
+		<version>1.1.2.RELEASE</version>
+	</dependency>
+	-->
+		
+	<dependency>
+	  <groupId>org.springframework.data</groupId>
+	  <artifactId>spring-data-solr</artifactId>
+	  <version>1.2.0.RELEASE</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-webmvc-portlet</artifactId>
+		<version>4.3.18.RELEASE</version>  
+	</dependency>
+	
+=========================Spring Struts1
 struts-config.xml 文件中加入
     <plug-in className="org.springframework.web.struts.ContextLoaderPlugIn"> 
 	<set-property property="contextConfigLocation" value="/WEB-INF/applicationContext.xml"/>
@@ -162,3 +204,336 @@ Dao类继承自SqlMapClientDaoSupport,setSqlMapClient()从SqlMapClientFactoryBea
 	.execute(SqlMapClientCallback action) 
 	SqlMapClientCallback的 Object doInSqlMapClient(com.ibatis.sqlmap.client.SqlMapExecutor executor) //SqlMapExecutor是SqlMapClient的父类有select ,delete ,update,queryForList,
 =======================上  Spring iBatis2	
+
+
+=========================Spring concurrent 包 线程池 
+不推荐,过时了
+<!--
+	<bean id="taskExecutor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="5" />
+		<property name="maxPoolSize" value="10" />
+		<property name="queueCapacity" value="25" />
+	</bean>
+ -->	
+	<task:executor id="taskExecutor" pool-size="10" queue-capacity="25"/> <!-- 会建立  ThreadPoolTaskExecutor 实例-->
+	<bean id="taskExecutorExample" class="spring_quartz.other.TaskExecutorExample">
+		<constructor-arg ref="taskExecutor" /> <!-- TaskExecutor taskExecutor;taskExecutor.execute(new Runnable(){..}); -->
+	</bean>
+
+
+
+
+  
+=========================spring JNDI
+JMS见ActiveMQ
+<bean id="jndiTemplate" class="org.springframework.jndi.JndiTemplate">
+	<property name="environment">
+		<props>
+		   <prop key ="java.naming.factory.initial">weblogic.jndi.WLInitialContextFactory</prop>
+		   <prop key ="java.naming.provider.url">t3://localhost:7001</prop>
+		</props>
+	</property>
+</bean>
+<bean id="jmsTopicConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
+	<property name="jndiTemplate">
+		<ref bean="jndiTemplate" />
+	</property>
+	<property name="jndiName">
+		<value>TopicConnectionFactory</value>
+	</property>
+</bean>
+<bean id="destination" class="org.springframework.jndi.JndiObjectFactoryBean">
+	<property name="jndiTemplate">
+		<ref bean="jndiTemplate" />
+	</property>
+	<property name="jndiName">
+		<value>jobNotificationTopic</value>
+	</property>
+</bean>
+
+<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+	<property name="connectionFactory">
+		<ref bean="jmsTopicConnectionFactory" />
+	</property>
+	<property name="defaultDestination">
+		<ref bean="destination" /> <!--javax.jms.Destination-->
+	</property>
+	<property name="receiveTimeout">
+		<value>30000</value>
+	</property>
+</bean>
+
+
+=========================Spring Groovy
+//除了要	groovy-2.1.8.jar 还要  asm-4.0.jar,检查.groovy文件要存在,不要编译,设置eclipse->project preference->输入src/spring_groovy/*.groovy
+
+要使用单独项目只有依赖包的项目,其它包有影响 
+
+---Messenger.groovy
+package spring_groovy;
+class GroovyMessenger implements Messenger {//实现java中的Messenger
+	String message //没有分号
+}
+
+<lang:groovy id="messenger" script-source="classpath:spring_groovy/Messenger.groovy">
+	<lang:property name="message" value="I Can Do The Frug" />
+</lang:groovy>
+
+--方式二
+<lang:groovy id="messenger">
+    <lang:inline-script>
+        package spring_groovy;
+		//import spring_groovy.Messenger;//实现java中的Messenger
+		class GroovyMessenger implements Messenger { 
+			String message
+		}
+    </lang:inline-script>
+    <lang:property name="message" value="I Can Do The Frug" />
+</lang:groovy>
+ ---calculator.groovy
+ class GroovyCalculator implements Calculator {
+    int add(int x, int y) {
+        x + y //没有return 
+    }
+	static main(args) {
+	}
+}
+	
+
+=========================Spring OXM
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import org.springframework.oxm.Marshaller;
+import org.springframework.oxm.Unmarshaller;
+
+is = new FileInputStream(FILE_NAME);
+this.settings = (Settings) this.unmarshaller.unmarshal(new StreamSource(is));
+			
+os = new FileOutputStream(FILE_NAME);
+this.marshaller.marshal(settings, new StreamResult(os));
+
+			
+<bean id="application" class="spring_oxm.Application">
+	<property name="marshaller" ref="marshaller" />
+	<property name="unmarshaller" ref="marshaller" />
+</bean>
+<oxm:jaxb2-marshaller id="marshaller">
+	<oxm:class-to-be-bound name="spring_oxm.Settings"/> <!-- 类级加 @XmlRootElement-->
+</oxm:jaxb2-marshaller>
+
+
+
+
+
+========================Spring Batch
+--- JDBC
+     <bean id="jobLauncher"  class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+         <property name="jobRepository" ref="jobRepository" />
+     </bean>
+ 
+    <bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+        <property name="transactionManager" ref="transactionManager" />
+    </bean>
+  
+    <bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
+  
+    <bean id="jdbcProcessor" class="spring_batch.jdbc.JDBCProcessor"/>
+  
+	<bean id="jdbcItemWriter"  class="org.springframework.batch.item.database.JdbcBatchItemWriter">
+	    <property name="dataSource" ref="dataSource" />
+	    <property name="sql"  value="insert into student (id,name,age)  values (:id,:name,:age)" /> <!-- :属性名 对应于 Student属性名 -->
+	    <property name="itemSqlParameterSourceProvider">
+	        <bean class="org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider" />
+	    </property>
+	</bean>
+  
+    <!--  page    如是MySQL第1页自动加  ORDER BY id ASC LIMIT 3,第二页自动加  AND ((id > 3)) ORDER BY id ASC LIMIT 3
+    id是auto_increment 方式生成的,如有删除数据导致不连续的,就多读几次, 不影响批处理--> 
+	<bean id="jdbcPageReader" class="org.springframework.batch.item.database.JdbcPagingItemReader">
+		<property name="dataSource" ref="dataSource" />
+		<property name="queryProvider">
+			<bean class="org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean">
+			     <property name="dataSource"  ref="dataSource"></property>
+				<property name="selectClause" value="select id, name" />
+				<property name="fromClause" value="from student" />
+				<property name="whereClause" value="where age > :age" />
+				<property name="sortKey" value="id" />
+			</bean>
+		</property>
+		<property name="parameterValues">
+			<map>
+				<entry key="age" value="20" />
+			</map>
+		</property>
+		<property name="pageSize" value="3" />
+		<property name="rowMapper"  >
+			<bean class="org.springframework.jdbc.core.BeanPropertyRowMapper">
+			    <property name="mappedClass" value="spring_batch.Student"/>
+			</bean>
+		</property>
+	</bean>
+	
+	 <batch:job id="jdbcPageJob">
+         <batch:step id="pageStep">
+             <batch:tasklet>
+                 <batch:chunk reader="jdbcPageReader" writer="jdbcItemWriter" processor="jdbcProcessor"  commit-interval="1">
+                 </batch:chunk>
+             </batch:tasklet>
+         </batch:step>
+     </batch:job>
+     
+	
+    <!--  cursor , 就是ResultSet , 根据写的sql查全部数据--> 
+    <batch:job id="jdbcCursorJob">
+         <batch:step id="cursorStep">
+             <batch:tasklet>
+                 <batch:chunk reader="jdbcCursorReader" writer="jdbcItemWriter" processor="jdbcProcessor"  commit-interval="1">
+                 </batch:chunk>
+             </batch:tasklet>
+         </batch:step>
+     </batch:job>
+
+	<bean id="jdbcCursorReader" class="org.springframework.batch.item.database.JdbcCursorItemReader" scope="step">
+	    <property name="dataSource" ref="dataSource" />
+	    <property name="sql"   value="select id, name from student where id &lt; ?" />
+	    <property name="rowMapper">
+	        <bean class="org.springframework.jdbc.core.BeanPropertyRowMapper">
+	            <property name="mappedClass" value="spring_batch.Student" />
+	        </bean>
+	    </property>
+	    <property name="preparedStatementSetter" ref="paramStatementSetter" />
+	</bean>
+	
+	<bean id="paramStatementSetter" class="org.springframework.batch.core.resource.ListPreparedStatementSetter"  scope="step">
+	    <property name="parameters">
+	        <list>
+	            <value>#{jobParameters['id']}</value>
+	        </list>
+	    </property>
+	</bean>
+	
+
+JobLauncher launcher = (JobLauncher) context.getBean("jobLauncher");
+Job job = (Job) context.getBean("jdbcCursorJob"); //jdbcPageJob
+JobExecution result = launcher.run( job,
+                    new JobParametersBuilder()
+                            .addString("id", "10")
+                            .toJobParameters()
+                            );
+
+//--------- <job> 依赖于 spring-retry-1.1.0.RELEASE.jar
+
+<bean id="jobLauncher"  class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+	<property name="jobRepository" ref="jobRepository" />
+</bean>
+<bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean"/>
+
+<bean id="transactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager" />
+
+<batch:job id="helloWorldJob">
+	<batch:step  id="step_hello" next="step_world">
+		<batch:tasklet  ref="hello" transaction-manager="transactionManager" />
+	</batch:step>
+	<batch:step  id="step_world" >
+		<batch:tasklet  ref="world" transaction-manager="transactionManager" />
+	</batch:step>
+</batch:job>
+
+<bean id="hello" class="spring_batch.HelloTasklet">
+	<property name="message" value="Hello "/>
+</bean>
+<bean id="world" class="spring_batch.WorldTasklet">
+	<property name="message" value="world "/>
+</bean>
+public class HelloTasklet implements Tasklet {
+    private String message;
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    @Override
+    public RepeatStatus execute(StepContribution step, ChunkContext context)
+            throws Exception {
+        System.out.println(message);
+        return RepeatStatus.FINISHED;
+    }
+}
+JobLauncher launcher = (JobLauncher) context.getBean("jobLauncher");
+Job job = (Job) context.getBean("helloWorldJob");
+JobExecution result = launcher.run(job, new JobParameters());
+System.out.println(result.toString());
+
+
+ 
+//---------  文件示例 
+<beans:bean id="messageReader"  class="org.springframework.batch.item.file.FlatFileItemReader">
+	<beans:property name="lineMapper" ref="lineMapper"/>
+	<beans:property name="resource"   value="classpath:spring_batch/student.csv"/>
+</beans:bean>
+
+<beans:bean id="lineMapper" class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+	<beans:property name="lineTokenizer">
+		<beans:bean  class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer"/>
+	</beans:property>
+	<beans:property name="fieldSetMapper">
+		<beans:bean class="spring_batch.StudentMapper"/>
+	</beans:property>
+</beans:bean>
+	
+  <tasklet>
+	   <chunk reader="messageReader" processor="messageProcessor"  writer="messageWriter" 
+				commit-interval="5" retry-limit="2"  chunk-completion-policy=""> <!-- chunk-completion-policy表示 Step 的完成策略，即当什么情况发生时表明该 Step 已经完成 -->
+		   <retryable-exception-classes>
+			   <include class="java.net.ConnectException"/>
+			   <exclude class="java.net.SocketTimeoutException"/>
+		   </retryable-exception-classes>
+		</chunk>
+	</tasklet>
+class StudentMapper implements FieldSetMapper<Student> 
+implements ItemProcessor<Student, Message>
+implements ItemWriter<Message>
+
+
+
+ private static Object getProxyTargetObject(Object proxy) 
+ {
+	if(Proxy.isProxyClass(proxy.getClass()) )
+    {		
+		LOG.info("isProxyClass true ");
+		Class  targetClass=proxy.getClass().getInterfaces()[0];
+	}
+	 if(!AopUtils.isAopProxy(proxy)) { //判断是否是代理类  
+		 LOG.error("proxy 不是 AopProxy代理类 ");
+		 return  proxy;
+	}  
+ 
+	try
+	{
+		Field h = proxy.getClass().getSuperclass().getDeclaredField("h");  
+		h.setAccessible(true);  
+		AopProxy aopProxy = (AopProxy) h.get(proxy);  
+		Field advised = aopProxy.getClass().getDeclaredField("advised");  
+		advised.setAccessible(true);  
+		return  ((AdvisedSupport)advised.get(aopProxy)).getTargetSource().getTarget();  
+	}catch(Exception ex)
+	{
+		 LOG.error("getProxyTargetObject error !!! ",ex);
+	}
+	return null;
+}  
+
+=========================
+
+
+
+
+
+
+
+
+
+
+
+
+
+

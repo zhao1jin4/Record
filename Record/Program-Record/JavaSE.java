@@ -119,36 +119,62 @@ jvm垃圾回收算法
 	5.标记—整理算法(Mark-Compact) 是把存活对象往内存的一端移动，然后直接回收边界以外的内存。  内存的利用率，并且它适合在收集对象存活时间较长的老年代。
 	 
  
- 
-G1收集器  JDK9的server默认
-	(每个heap区都是逻辑上连续的一段内存,virtual memory)  ,角色(eden, survivor, old), 但每个角色的区域个数都不是固定的
-	
-	Eden空间中，每一个线程都有一个固定的分区用于分配对象,即一个 TLAB.分配对象时，线程之间不再需要进行任何的同步。
-	如果Eden空间无法容纳该对象，就只能在老年代中进行分配空间
-
-	Young GC和Mixed GC，两种都是Stop The World(STW)的
-	server-style,目标多处理器,大内存(超过6G或更大),有GC暂停(0.5秒以下),大吞吐量  ,将来替代CMS
-	新生代，老年代的物理空间划分取消了,heap被平均分成若干个相同大小的区域(region)，每块区域既有可能属于Old区、也有可能是yong区
-	
-	是压缩,紧凑,致密(Compact)的,有停顿,并行标记,会产生大量的空闲空间,先回收这些(Garbage-First名字的来历),根据配置的暂停时间确定回收区域数,压缩从一个或多个区域复制另一个单个区域
-
-	CMS 不做整理,G1并发整理是对整个heap,
-	
-	一个对象大于regsion一半 ,认为是一个巨大对象,直接分配到老年代的巨大对象区,这些区是续的,StartsHumongous ,ContinuesHumongous ,回收时会整理空间
-	-XX:G1HeapRegionSize 
-	
-	
 逃逸分析   所有的对象都分配在堆上也渐渐变得不是那么“绝对”了。
 线程共享的Java堆中可能划分出多个线程私有的分配缓冲区 Thread Local Allocation Block=TLAB 
 	
 jconsole 命令可以查看JVM 的性能　监控
 
-
 set JAVA_OPTS=-Xss256K -Xms256m -Xmx1024m   -XX:NewSize=128m -XX:MaxNewSize=256m -XX:SurvivorRatio=8 -XX:NewRatio=2
 	
+ 
+G1收集器  JDK9的server默认
+	heap被平均分成若干个相同大小的区域(region),可以不连续，每块区域可能是Old区，也有可能是yong区
+	
+	(每个heap区都是逻辑上连续的一段内存,virtual memory)  ,角色(eden, survivor, old), 但每个角色的区域个数都不是固定的
+	
+	Eden空间中，每一个线程都有一个固定的分区用于分配对象,即一个 TLAB.分配对象时，线程之间不再需要进行任何的同步。
+	如果Eden空间无法容纳该对象，就只能在老年代中进行分配空间
 
-----ZGC jdk11 experimental feature 
------Epsilon GC 也是 experimental 的 No-Op GC
+    Young GC和Mixed GC，两种都是Stop The World(STW)的,还有FullGC
+	server-style,目标多处理器,大内存(超过6G或更大),有GC暂停(0.5秒以下),大吞吐量  ,将来替代CMS
+	
+	是压缩,紧凑,致密(Compact)的, 根据配置的暂停时间确定回收区域数,压缩从一个或多个区域复制另一个单个区域
+
+	G1跟踪各个Region获得其收集价值大小，在后台维护一个优先列表； 每次根据允许的收集时间，优先回收价值最大的Region（名称Garbage-First的由来）
+
+
+	CMS 不做整理,G1并发整理是对整个heap
+	
+	一个对象大于分区(region)一半 ,认为是一个巨大对象,直接分配到老年代的巨大对象区,如果装不下，会找这些区是续的巨大对象区,有时候不得不启动Full GC 
+	
+	-XX:G1HeapRegionSize 设置每个Region大小 
+	-XX:MaxGCPauseMillis
+	G1 保证“每次GC停顿时间不会过长”的方式，是“每次只清理一部分而不是全部的Region”的增量式清理。那独立清理某个Region时 , 就需要有RememberSet来记录Region之间的对象引用关系， 这样就能依赖它来辅助计算对象的存活性而不用扫描全堆， RS通常占了整个Heap的20%或更高。
+
+不算维护RemeberSet
+	 1.初始标记(STW initial mark)  
+    2.并发标记(Concurrent marking)
+	 3.最终标记 同CMS重新标记，也要STW，修正RemeberSet
+	 4.筛选回收
+	 
+----ZGC jdk11 experimental  
+	https://wiki.openjdk.java.net/display/zgc/Main	
+	
+	STW的阶段 不包括GC堆里的对象指针，所以这个暂停就不会随着GC堆的大小而变化
+	
+	着色指针( colored pointers) 指针的64位使用了4位： finalizable， remap， mark0和mark1
+	加载屏障(load barriers)
+	
+	ZGC没分代
+	
+	ZGC将堆划分为Region作为清理，移动，以及并行GC线程工作分配的单位。不过G1一开始就把堆划分成固定大小的Region，而ZGC 可以有2MB，32MB，N× 2MB 三种 
+	256k以下的对象分配在Small Page， 4M以下对象在Medium Page，以上在Large Page。
+
+	ZGC是Mark-Compact ，会将活着的对象都移动到另一个Region，整个回收掉原来的Region。
+	
+	
+
+-----Epsilon GC 也是 jdk11 experimental 的 No-Op GC
 
 
 
@@ -247,7 +273,7 @@ set JAVA_OPTS=-Xss256K -Xms256m -Xmx1024m   -XX:NewSize=128m -XX:MaxNewSize=256m
 -XX:ParallelGCThreads=n
 -XX:ConcGCThreads=n
 -XX:G1ReservePercent=n    默认10 , 保留10%的空间,防止失败
--XX:G1HeapRegionSize=n    默认区的大小(统一),最小1M ,最大32M
+-XX:G1HeapRegionSize=n    默认区的大小(统一) ,只可是2的次方，范围从1MB - 32MB , 默认根据堆大小分成约 2048 个regions
 -XX:G1NewSizePercent=  experimental flag ，The default value is 5 percent 
 
 
@@ -714,7 +740,7 @@ ArrayList 的后台是ojbect []  动态增长
 		e有一个toArray方法返object[]
 Arrays 类的static asList(object[]) 返回一个List是一个固定心寸的list
 
-Iterator 当 ArrayList.iterator()时,不能增加,删除ArrayList的元素,iterator.remove方法是删除前一个对象，
+Iterator 当 ArrayList.iterator()时,不能增加,删除ArrayList的元素,iterator.remove方法是删除前一个对象(即前面next()出来的对象)，
 Enumeration<String> enumer= vector.elements(); //Enumeration没 有remove方法，vector 可以删
 
 Collections 的类全部方法是static sort(List ,Comparator接口)
@@ -926,19 +952,35 @@ Main-Class: instrument.InstrumentMain
 
 Instrumentation类的
 appendToBootstrapClassLoaderSearch(JarFile jarfile)  
-appendToSystemClassLoaderSearch(JarFile jarfile)  
-
+appendToSystemClassLoaderSearch(JarFile jarfile) 
  
+--------------------------JDK13 新特性
+
+ZGC  可把未使用的heap内存返回给操作系统,但不能小于-Xms的值，默认启用 可-XX:-ZUncommit
+	如配置了-Xms的值等于-Xmx 则隐示关闭了ZUncommit 
+ 
+-XX:ZUncommitDelay=<seconds> (defaults to 300 seconds)
+ 
+ZGC由最大堆内存由4TB 到16TB
+ 
+-XX:SoftMaxHeapSize=<bytes> 只当打开ZGC才生效 ,值不能超过 -Xmx,如不设置默认值为-Xmx的值
+	堆会尽量不超这个值SoftMaxHeapSize，除非防止报OutOfMemoryError时才超出
+	可动态配置，使用 jcmd VM.set_flag SoftMaxHeapSize <bytes> 
+
+动态 CDS Archiving
+
+
+switch 功能还是Preview阶段 ，增强
+case ... :
+case ... ->
+
+
+
 --------------------------JDK12 新特性
 idea-2019.1 可选到12的编译级别， eclipse-4.12.0(2019-06)可选到12编译
+ 
 
-实验阶段的 低暂停的垃圾收集器 Shenandoah
--XX:+UseShenandoahGC
-
-
-Microbenchmark  基于Java Microbenchmark Harness （JMH）
-
----switch 功能还是Preview阶段
+---switch 功能还是Preview阶段 javac 中增加 --enable-preview
 case可多个enum,可没有break;
 	
 	enum Week{
@@ -974,13 +1016,18 @@ G1
 	当 G1 垃圾回收器的回收超过暂停目标，则能中止垃圾回收过程。
 	改进 G1 垃圾回收器，以便在空闲时自动将 Java 堆内存返回给操作系统
 	
-	
+ ZGC 不使用的类可被卸载 默认启用，可 -XX:-ClassUnloading
 --------------------------JDK11 新特性
+Oracle JDK 11 是LTS（长期支持）版本
+
 //javax.jws.WebService web;//JDK 11没有这个类 
 //删java.xml.ws , java.xml.bind  ,java.xml.ws.annotation 
 //删命令 wsimport,wsgen
 //删Java Mission Control (JMC) ，JavaFx
-//不推荐用  Nashorn JavaScript Engine 
+//不推荐用  Nashorn JavaScript Engine(jjs)   (firefox官方有 Rhino，GraalVM 是替代方案)
+
+GTK3 Is Now the Default on Linux/Unix 
+
 
     HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://foo.com/"))
@@ -1008,9 +1055,21 @@ G1
         System.out.println(response.body());
 
 
+ZGC 只用在 Linux/x64 实际阶段 XX:+UnlockExperimentalVMOptions  , 不兼容 Graal 
+	-XX:+UseZGC  ,目标是暂停时间不能超过10ms(不管多大的堆都能保持在10ms以下）),堆内存可TB
 
+Epsilon GC 实际阶段
+
+Class Data Sharing (CDS) 支持在module path,即 --module-path选项
+ 
+ 
+ 
+ 
 
 --------------------------JDK10 新特性
+JDK版本规则开始变化 ，半年一个特性(大)版本
+
+
 var str=new String("abc123");//var 类型推断
 		
 StringReader reader=new StringReader(str);
@@ -1272,7 +1331,9 @@ java.time.ZonedDateTime.parse("2017-01-20T17:42:47.789+08:00[Asia/Shanghai]");
 List<Integer> l = Arrays.asList(numbers);
 List<Integer> r = l.stream() //Stream<Integer>
 		.map(e -> new Integer(e))
+		 //.parallel()//并行  内部使用ForkJoinPool,默认线程数是处理器数
 		.filter(e -> e > 2)//参数为Predicate类型
+		 //.sequential()//串行
 		.distinct()
 		.collect(Collectors.toList());
 	
@@ -1316,7 +1377,11 @@ names.add("1");
 names.add("2");
 names.add("3");
 System.out.println(String.join("-", names));
+
 --------------------------JDK 7 新特性
+G1拉圾收集器   -XX:+UseG1GC -Xms2g Xmx2g -XX:MaxGCPauseMillis=500 
+
+
 File fileDire = new File("/home/test");// 在windows上是建立在,当C:盘上没有权限时,会D:盘上建立
 boolean isOK = fileDire.mkdirs();
 System.out.println("dir create :"+isOK);
@@ -1426,7 +1491,7 @@ while(rowSet.next())
 //一个中文字符在Java中占两个字节,在Oracle中AL32UTF8  , oracle -> java 一个中文占两个字节
 //(java->oracle varchar2 时一个中文占3个字节) ( java->oracle nvarchar2  时一个中文占2个字节 )
 
-//jdk6新性
+//-----jdk6新性
 public void printf(String format, Object ...args) //args在方法体中是一个Object的数组
 {
 	Object[] o=args;
@@ -1970,54 +2035,6 @@ IsSameObject(jobject ,jobjcet)//两个引用是否指向同一个java对象
 JNI 对Java的异常处理
 JNI 对Java的多线程
 C/C++ 如何改 JVM参数
-=====================RMI =====================
-
-客户端写接口(Calculator)，在Server端和Client端必须是相同的包名,继承 Remote 每个方法要　throws RemoteException
-服务器端(CalculatorImpl) 继承 UnicastRemoteObject 并实现客户端接口 (有构造函数抛出RemoteException异常 )
-写服务类（CalculatorServer）
-		if(System.getSecurityManager()==null)
-	    {
-	    	System.out.println("创建并安装安全管理器");
-	    	System.setSecurityManager(new RMISecurityManager());
-	    }
-		//---方式一
-		System.out.println("必须先运行rmiregistry 或者 rmiregistry 1099,并使rmiregistry可以找到 X_Stub类!");
-		Calculator c = new CalculatorImpl();
-		Naming.rebind("rmi://localhost:1099/CalculatorService", c);//或者 Naming.rebind("/CalculatorService", impl)
-		//---方式二
-		System.out.println("纯代码功能,可以兼容已有的rmiregistry,如没有会自己创建.");
-		Calculator impl = new CalculatorImpl();
-		Registry registry=null;
-		try
-		{
-			registry= LocateRegistry.getRegistry(1099);//端口号 
-			registry.list();
-			System.out.println("使用已经存在的LocateRegistry!");//如果已经运行了rmiregistry
-		}catch (final Exception e)
-		{  
-			 registry = LocateRegistry.createRegistry(1099);//相当于执行 rmiregistry 
-			 System.out.println("建立新的的LocateRegistry");
-		}
-		registry.rebind("CalculatorService", impl); //相当于调用 Naming.rebind() ,地址是CalculatorService
-写客户类(CalculatorClient)
-		Calculator c = (Calculator)Naming.lookup("rmi://localhost:1099/CalculatorService"); 
-        System.out.println( c.sub(4, 3) ); // 是实现的方法
-建policy.txt 内容是
- grant {
-permission java.security.AllPermission "", "";  //Permission的子类是AllPermission ,SocketPermission,
-};
-
-
-javac -d . rmi_calculator/ *.java
-javac -d . rmi_calculator/server/ *.java
-javac -d . rmi_calculator/client/ *.java
-
-rmic rmi_calculator.server.CalculatorImpl 生成存根 CalculatorImpl_Stub 为客户端用
-CalculatorImpl_Stub报找不到异常,rmiregistry去加载 CalculatorImpl_Stub类的,在运行 rmiregistry 的目录也要可以找到正常的CalculatorImpl_Stub
-
-java  -Djava.security.policy=rmi_calculator/server/policy.txt  rmi_calculator.server.CalculatorServer  要有Calculator.class, CalculatorImpl.class,CalculatorServer.class,CalculatorImpl_Stub.class,policty.txt
-java  rmi_calculator.client.CalculatorClient  要有Calculator.class, CalculatorClient.class
-
 ---------------JConsole
 端口: 12345($JAVA_ARGS中-Dcom.sun.management.jmxremote.port指定的端口)
 用户名: xxx (jmxremote.password中指定的用户名)
@@ -3413,7 +3430,7 @@ ThreadPoolExecutor  中的doc
 	execute(Runnable )
 
 	ExecutorService exec =Executors.newCachedThreadPool(); //如创建的线程60秒未使用，则从cache中删
-	Semaphore semp = new Semaphore(5);// 只能5个线程同时访问,如超过阻塞       
+	Semaphore semp = new Semaphore(5);// 只能5个线程同时访问,如超过阻塞  ,如一个线程用完了，归还后阻塞线程中可进一个     
 	exec.execute( Runnable )//没有返回结果
 	semp.availablePermits();//还有几个线程可进入
 	Future f =exec.submit(Callable )//Callable 可以得到执行结果
@@ -3469,11 +3486,11 @@ public  Future<Object> submitWaitingTask(Callable task)//要求父线程退出�
 
 
 CyclicBarrier cyclic =new CyclicBarrier(3);//3个线程
-cyclic.await();//3个线程调用进入后,它们才可一起继续执行,
-cyclic.reset()//比CountDownLatch 好的地方
+cyclic.await();//3个线程调用进入后,这些线程才可一起继续执行，是在每个线程中阻塞，而CountDownLatch是在主线程中阻塞
+cyclic.reset()
 cyclic.getNumberWaiting();
 
-Exchanger<String> exchanger=new Exchanger<String> ();//两个线程同时个自执行到exchange方法时交换数据,如一个线程先到,等待
+Exchanger<String> exchanger=new Exchanger<String> ();//两个线程同时个自执行到exchange方法时交换数据,如一个线程先到要等待
 String data2=exchanger.exchange(data1);//第一个线程
 String data1=exchanger.exchange(data2);//第二个线程
 
@@ -3481,6 +3498,7 @@ String data1=exchanger.exchange(data2);//第二个线程
 
 ExecutorService x=	Executors.newFixedThreadPool(int) 
 	Executors.newSingleThreadExecutor()//只是一个线程,好处是一个线程使用完成后,会自动建立,还可再继续使用
+	Executors.newCachedThreadPool()//根据需求增加线程，不需要时自动过60s就会减少线程
 ScheduledExecutorService ScheduledExecutor=Executors.newScheduledThreadPool();//定时
 ScheduledExecutor.schedule(callable,5,TimeUnit.SECONDS); //5 秒后启动线程
 	Executors.defaultThreadFactory()// same ThreadGroup and with the same NORM_PRIORITY priority and non-daemon status
@@ -3522,6 +3540,11 @@ ReentrantLock  可以使用 isHeldByCurrentThread() 和 getHoldCount()
 //同一个ReentrantLock ,多线程时只可一个线程进入lock区,同一线程可lock多次, getHoldCount()返回当前线程多少次
 如果拥有锁的某个线程再次得到锁，那么获取计数器就加1，然后锁需要被释放两次才能获得真正释放。必须在 finally 块中释放
 
+
+ReentrantLock.isLocked();
+//		Thread.holdsLock(obj);//当前线程 否是synchronize锁这个对象
+
+
 if (lock.tryLock(2,TimeUnit.SECONDS)) {//如果已经被lock，则立即返回false不会等待 ，对多线程来说的
 	  try {
 		 //操作
@@ -3534,7 +3557,8 @@ if (lock.tryLock(2,TimeUnit.SECONDS)) {//如果已经被lock，则立即返回fa
  //Reentrant再进去re entrant,一个线程可多次试图获取它所占有的锁请求会成功
 private ReentrantLock pauseLock = new new ReentrantLock(false);
 //默认是 false 不公平,如为true 选择等待时间最长的线程进入
-//前一个线程进入lock()还没有退出unlock(),后一个线程不可以进入lock(),除非前一个线程进入.newCondition().await时,后一个线程才可进入
+//前一个线程进入lock()还没有退出unlock(),后一个线程不可以进入lock(),除非前一个线程进入.newCondition().await时,后一个线程才可进入(可重入)
+
 
 //	多个线程可同时得到读的Lock，但只有一个线程能得到写的Lock,必须等读锁完成
 //	而且写的Lock被锁定后，任何线程都不能得到Lock
@@ -3544,14 +3568,14 @@ private ReentrantLock pauseLock = new new ReentrantLock(false);
 	Lock rlock= rwlock.readLock();
 	Lock wlock= rwlock.writeLock();
 	
-private Condition unpaused = pauseLock.newCondition();//好处是可以有多个Condition
-
+//好处是可以有多个Condition(只ReentrantLock)，文档上有的示例就是ArrayBlockingQueue的源码
+private Condition unpaused = pauseLock.newCondition();
 pauseLock.lock(); 
 
 //中间的相当于 外面加了synchronized
 
 // Object 的(wait, notify and notifyAll),必须先synchronized,应该也可以用于生产者,消费者
-unpaused.await()//等待
+unpaused.await()//等待 Condition的await可能假醒，要使用循环和状态综合做判断
 unpaused.signalAll();//通知不再等待，但要在unlock以后才有效
 unpaused.signal();
 pauseLock.unlock();//最好放在finally块中
@@ -3564,7 +3588,6 @@ rwl.readLock().unlock();//finally
 rwl.writeLock().lock();
 ...
 rwl.writeLock().unlock();//finally
-
 
 TimeUnit.SECONDS.sleep(5);//有convert 方法
 
@@ -3652,6 +3675,13 @@ socket.close();
 
 
 ---------nio
+ Scanner scanner =new Scanner(System.in);
+ while(scanner.hasNextLine())
+ {
+ 	String line=scanner.nextLine();
+ }
+是同步非阻塞的
+
 java.nio.ByteBuffer;			Position<=Limit<=Capacity
 java.nio.FileChannel; 线程安全的
 
@@ -3747,6 +3777,7 @@ Selector acceptSelector =SelectorProvider.provider().openSelector();
 //Selector acceptSelector = Selector.open();//不同打开方式
 
 SelectionKey acceptKey =ssc.register(acceptSelector, SelectionKey.OP_ACCEPT);//ServerSocketChannel注册到Selector上 , 是interest set , 可以传第三个参数也可以传attachement
+//也可第三个参数做附件
 // SelectionKey 的 interestOps(x);
 acceptKey.attach(xxxx);//可传对象参数,可为 本 端的其它步(read,write)使用
   
@@ -3754,7 +3785,7 @@ acceptSelector.select();//有多少channel可以进行IO操作,阻塞的,通知�
 //返回已经ready的个数 , 可以指定毫秒时间，如果到时间调用 selector.wakeup,不阻塞,手工调用wakeup() 后可以调用selectNow()
 
 Set<SelectionKey> readyKeys = acceptSelector.selectedKeys();
-
+ iter.remove(); //每次要删除才行，防止重复处理
 SelectionKey sk   //.isAcceptable()    接收请求,只有ServerSocketChannel支持 ,   validOps() 所支持的操作集合
 				 //.attach(xx)
 				 //.attachment();得到参数对象
@@ -3809,7 +3840,9 @@ FileLock lock= fileChannel.lock(10,3,true);//pos,size,isShared
 lock.release();//finally中
 
 fileChannelIn.transferTo(0, fileChannelIn.size(), fileChannelOut);//文件复制
- 
+//对应的也有transferFrom
+//fileChannelOut.transferFrom(fileChannelIn, 0, fileChannelIn.size());
+
 //---------监视目录的变化
 Path path=Paths.get("c:/temp");//目录
 WatchService  watcher = FileSystems.getDefault().newWatchService(); 
@@ -3863,6 +3896,9 @@ class FileVisitorTest extends SimpleFileVisitor<Path>  //FileVisitor
 	}
 }
 -----异步NIO , AIO文件 
+NIO是同步非阻塞的
+AIO是异步非阻塞的
+
  AsynchronousFileChannel afc = AsynchronousFileChannel.open(Paths.get(""));
  ByteBuffer byteBuffer = ByteBuffer.allocate(16 * 1024);  
  afc.read(byteBuffer, 0, null, new CompletionHandler<Integer, Object>() {  

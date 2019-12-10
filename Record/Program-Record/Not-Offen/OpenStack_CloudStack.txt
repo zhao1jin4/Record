@@ -1,0 +1,68 @@
+﻿
+===========cloudStack
+用的较少
+apache CloudStack的目标是提供高度可用的、高度可扩展的能够进行大规模虚拟机部署和管理的开放云平台
+用Java语言写的,支持MySQL 
+
+ 虚拟化技术 支持没有openStack的多
+	
+regions -> zone->Pod, secondary storage ->cluster->host, primary storage
+
+===========openStack
+用的较多
+
+Infrastructure-as-a-Service (IaaS)
+ 
+openStack 对 KVM 支持最好 (redhat 支持)
+
+cloudStack/openStack 实现  IaaS(Infrastructure as a Service ) 层 , 
+			Hadoop     实现	 PaaS (Platform as a service)层  ,
+							 SaaS(Software-as-a- Service)
+
+cloudStack(上层) , openStack(底层,HP基于它后来又退出,可能Kubernetes更好,Solaris-11.2 使用它)
+ 	
+中国银联采用 SUSE 部署 OpenStack ,目前已是全球第二大开源软件项目，仅次于Linux。 OpenStack能支持所有的 x86架构服务器
+社区活越度大,用python语言写的
+
+
+使用 RabbitMQ
+
+官方说　Python 2.7 使用截止 2020年,后面用python-3.5(从Ｈ版本就开始做python3)
+目前最新版本Stein, the 19th version
+ 
+ 官方文档基于的操作系统有
+ 
+  SUSE-12 SP4,openSUSE Leap 15  
+  RedhatEL7 , CentOS 7
+  Ubuntu 16.04 (LTS)　而目前最新的是18.10
+  没有fedora
+  
+ https://docs.openstack.org/liberty/zh_CN/install-guide-obs/
+ 
+ 
+ 数据库: mariadb,MySQL
+ NoSQL:  mongodb
+ AMQP :  rabbitmq-server
+ cache:  memcached
+ 
+ 
+ 部署管理工具　Puppet 或者 Chef
+ 
+ 
+  zypper addrepo -f obs://Cloud:OpenStack:Stein/openSUSE_Leap_15.0 Stein
+  zypper install python-openstackclient
+
+openSUSE-leap-15.1 DVD自带的依赖
+rpm -ivh ./noarch/python2-pytz-2018.5-lp151.1.1.noarch.rpm ./noarch/python2-cssselect-1.0.3-lp151.2.1.noarch.rpm ./x86_64/python2-lxml-4.0.0-lp151.3.13.x86_64.rpm ./x86_64/python2-simplejson-3.13.2-lp151.2.4.x86_64.rpm
+
+---其它要的
+  zypper install mariadb-client mariadb python-PyMySQL
+  zypper install rabbitmq-server
+  zypper install memcached python-python-memcached
+  
+  etcd 是一个比 zookeeper好的东西(在docker中)
+  
+  
+  
+  
+ 

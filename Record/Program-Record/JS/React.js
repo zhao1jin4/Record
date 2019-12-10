@@ -8,7 +8,7 @@ http://www.runoob.com/react/react-tutorial.html
 https://reactjs.org/
 https://github.com/facebook/react/releases   目前版本是 16.2.0
 
-
+Flow 由 Facebook 开发,用于替代PropTypes  
 
 React_Flux实现Facebook
 https://facebook.github.io/flux/
@@ -157,6 +157,11 @@ import $ from  'jquery'
 node_modules\react\cjs下有 react.production.min.js , react.development.js
 node_modules\react-dom\cjs下有 react-dom.production.min.js , react-dom.development.js
  
+有最新script引入的js
+https://www.bootcdn.cn/react/ 
+https://www.bootcdn.cn/react-dom/
+官方 CDN Links页 的地址是unpkg.com
+
 
 react-16.6.3 是官方最后提供的js下载可 <script src=""></script>方式使用
 源码包中的内容是npm方式，即有require
@@ -256,7 +261,7 @@ react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min
 	
 	//浏览中调用  count.update()只更新h2这块,因为更新的是state下面的变量
 	//默认 state 或者 props  变量修改才会re-render,如果render()依赖其它数据，可以调用forceUpdate()
-	//class就关键字，要用className
+	//class就关键字，要用className, for属性 如 <label for=""> 要用htmlFor
 	let count=ReactDOM.render(
         <Count id="one" className="myCSS"></Count>,
         document.getElementById('example')
@@ -1065,7 +1070,9 @@ function App()  //Hook在类中不能工作， （不推荐修改现有的代码
 使用Hook的规则
   只在最顶层使用 Hook ,不要在循环，条件或嵌套函数中调用 Hook
   只在 React 函数中调用 Hook
-  
+
+eslint   ECMAScript语法规则和代码风格的检查工具 ,intellij idea 带这个插件
+
 npm install eslint-plugin-react-hooks --save-dev   来强制执行这Hook规则
 
 自定义hook要求函数名字以use开头,可带一个参数，函数内部可以调用useState,useEffect .可以实现代码共享
@@ -1467,6 +1474,7 @@ function Topics({ match }) {  /* match参数 */
 
       <ul>
         <li>
+        	{/* ${match.url} 的值就是/topics  */}
           <Link to={`${match.url}/components`}>Components</Link>
         </li>
         <li>
@@ -1533,17 +1541,49 @@ MemoryRouter 可用于React Native
 </NavLink>
 
 
------------PropTypes react官方有文档,现在单独的库,可结合 Redux一起使用
+-----------Flow 由 Facebook 开发,用于替代PropTypes 
+https://flow.org/en/docs/getting-started/
+https://github.com/facebook/flow
 
-在组件的 props 上进行类型检查, 出于性能方面的考虑，propTypes 仅在开发模式下进行检查
+用来称除@flow，代码转换
+npm install -g @babel/core @babel/cli @babel/preset-flow  
 
-像XML的Schema验证
+npm install -g flow-bin
 
-npm install -g prop-types
-npm install --save prop-types
+项目级安装
+npm init 
+npm install --save-dev @babel/core @babel/cli @babel/preset-flow  
+npm install --save-dev flow-bin
 
-import PropTypes from 'prop-types';
+flow 命令路径 node_modules/.bin/flow  
 
-见官方示例
-https://zh-hans.reactjs.org/docs/typechecking-with-proptypes.html
+进入项目目录 
+flow init 生成.flowconfig文件
+
+--check.js
+// @flow
+function square(n: number): number {
+  return n * n;
+}
+
+//square("2"); // Error!
+square(2);  
+---
+
+flow 检查语法
+
+flow check
+
+---编译
+建立 .babelrc
+{
+  "presets": ["@babel/preset-flow"]
+}
+./node_modules/.bin/babel src/ -d lib/  把src目录下的文件编译转换后放在指定目录
+也可放package.json文件中
+"scripts": {
+    "com-fow": "babel src/ -d lib/",
+}
+
+
 

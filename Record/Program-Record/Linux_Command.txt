@@ -34,11 +34,13 @@ cat /etc/redhat-release
 cat /etc/SUSE-brand
 
 ========================Gnome-3 界面
+Terminal 按ctrl+shift+t 新建一个标签页
+
 "三"按钮->show hide files
 
 要多个图形用户同时登录  锁机 -> login another user
 
-totem　命令打开播放器,3.26版本 播放mp4提示要MPEG-4 ACC decoder plugin,H.264(Main profile) decoder
+totem　命令打开播放器,3.26版本 播放mp4提示要MPEG-4 ACC decoder plugin,H.264(Main/High profile) decoder
 gstreamer-plugins-xxx
 
 Cheese摄像头
@@ -130,15 +132,22 @@ Tweaks ->windows->Titlebar Buttions 区 打开 Maximize,Minimize 显示最大化
 dconf-editor 的图形界面 -> 找到org/gnome/desktop/screensaver
    其中 picture-url的值默认也是/usr/share/wallpapers/openSUSE-default.xml，可以修改指向图片，只是显示日期背景，不是输入密码背景
 
-----
+----顶部栏日期显示秒
+	Tweaks-> Top Bar->把Seconds打开
+
 ---Gnome 3 自带自动切换壁纸的功能
 /usr/share/backgrounds/
 
 /usr/share/gnome-background-properties/ 下有xml文件 配置桌面背景
 
 
+gnome shell  大多数图形代码用JavaScript写成 使用OpenGL来渲染图形
+GNOME Shell 扩展就像那些可以安装在 GNOME 之上的第三方附加组件和插件
+gnome-shell --version
 
 ---
+修改默认程序  Settings->Details->Default Application 但是没有文本编辑器的(Komodo Edit 增加右键菜单第一项,快捷键是enter)
+WPS linux版安装后 ，右键菜单有新建doc...
 ========================命令
 ~/.bash_history 命令历史记录
 
@@ -168,7 +177,7 @@ Windows  下用Easy CD Creator,linux下用cdrecord
 SCSI   sda 
 
 onporob 　###porob 探针, 探测器　　
-命令行alter+fn 切换终端   图形用ctrl+alt+fn
+命令行alter+fn 切换终端   图形用ctrl+alt+fn ，如在非图形界面使用alt+左右键可以切换终端
 安装过程中按alt+f3 ,f5有信息
 
  
@@ -238,10 +247,25 @@ kernel 中加single 时入单例用户
 
  
 cat /proc/swaps 正在使用的swap
-swapon 是开启swap , swapoff 关闭swap
+swapon 是开启swap
+swapoff 关闭swap  
+swapoff -a (-a,-all)
+echo "vm.swappiness = 0">> /etc/sysctl.conf     （尽量不使用交换分区，注意不是禁用）
+sysctl -p 
+
+								
+redis提示 加 vm.overcommit_memory = 1 到  /etc/sysctl.conf ,用命令 sysctl vm.overcommit_memory=1立即生效
+cat /proc/sys/vm/overcommit_memory
+0 表示内核将检查是否有足够的可用内存供应用进程使用:如果有足够的可用内存,内存申请允许. 否则,内存申请失败,并把错误返回给应用进程。
+1 表示内核允许分配所有的物理内存，而不管当前的内存状态如何。							
+		
+redis 最大打文件数
+fs.file-max = 10032 到  /etc/sysctl.conf 
 
 
-										
+elasticsearch 提示
+vm.max_map_count=262144  到  /etc/sysctl.conf 
+								
 
 w 谁在做什么 w -f    显示ip  ,看哪个在使用w 命令,哪个就是当前的 ( 也可以用who am i 会显示是哪个pts/)
 who 看谁在用本机,
@@ -440,11 +464,17 @@ hwclock --hctosys
 hwclock --systohc
 hwclock  --show 未尾有显示+08:00 ,原因是windows保存硬件中的时间是GMT+8后的时间,而openSUSE读硬件时间认为是UTC时间忽略了+08:00
 
+centOS-7.6默认带ntpdate ,同步时间 
+ntpdate  -u ntp.api.bz
+
+VMware同步时间 
+VMware 右击虚拟机->Options->VMWare Tools->复选Synchronize guest time with host
+
 改时间
  date -s 13:27
  date -s 1327
 date -s 2008-07-01  来改日期，08/07/01或者2008/07/01也可
-
+date -s "2008-07-01 13:27"
 
 time <命令>  可以显看命令的执行时间 
 
@@ -478,6 +508,7 @@ Nero 记录光盘 ，ISO 标签栏，文件名长度ISO (1，最多8＋32，最�
 
 
 $find  .  -perm -007  -exec ls -l {} \;
+find  /var/cache/yum/x86_64/7/  -name '*.rpm' -exec mv  {}  ./ceph_storage_cluster \;
 
 cdrecord dev=b,t,l -v -dao schillix-0.1.iso
  ls --color=tty 可以高亮 或  --color=always
@@ -485,7 +516,7 @@ cdrecord dev=b,t,l -v -dao schillix-0.1.iso
 alias ls='ls --color=always -ahl'
 unalias 
 
-
+ip link 可查mac地址
 ip link set dev eth0 down
 #ifconfig eth0 down
 更换物理地址
@@ -567,6 +598,10 @@ gpg --verify   签名文件  tar.gz.sign(tar.asc)
 复制网页上的公钥文件
 
 wget http://  来下载
+-q  --quiet  Turn off Wget's output.
+-O file 如file是 - 会输出到标准标出上
+
+
 curl 来请求
 
 iostat
@@ -645,12 +680,32 @@ ls /dev/ram*     是内存
 mkfs -t ext3 /dev/ram15
 mount /dev/ram15 /mnt/mem1
 df   可显示挂载状态 (磁盘的可用空间)
+df -T 显示文件系统类型
+lsblk -f 带文件系统类型  -f,--fs
 
 
 ls -R 递归
 ls -t 按修改时间排序  -r 反向排序
 
+ls -l  --time-style=full-iso
+
+ls -l 
+ls -ltu 按仿问时间排序和显示
+ls -lu  显示仿问时间按名字排序
+ls -ltc 	显示和排序按	ctime (time of last modification of file status information)
+
+
 linux 文件没有创建时间, 有状态改变时间(chmod) , 有访问时间( more命令)
+ext4文件系统可查创建时时
+df -T 查分区类型，文件所在设备
+
+debugfs /dev/sda2 		出现debugfs:提示符
+debugfs:cd ~
+debugfs:ls
+debugfs: stat x.txt 			显示 crtime 有值
+debugfs: 
+debugfs: quit 退出
+
 stat temp.c 查看文件详情
 
 ln	 软链接可跨分区
@@ -668,6 +723,8 @@ find /usr/include/ -name *.h   -exec grep -H -n  LOCAL_ {} \;
 //可以打出哪个文件多少行
 
 find /var/cache/zypp -name *.rpm -exec mv {} /mnt/ext4/Ext4_NEW/mysql-workbench8_deps/gtk3_gtkmm3 \;
+
+tee 指令 从标准输入 读 ， 输出到标准输出设备 和 文件
 
 
 ps aux | wc -l    (-l行数)
@@ -732,6 +789,8 @@ telnet <IP> <port>  退出 按ctrl+],出现telent>打q回车
 ssh-keygen 会要求输入密码(可不输),有 -t rsa 和 -t dsa
 默认生成 自己用的私钥 ~/.ssh/id_rsa 和传给对方的公钥 ~/.ssh/id_rsa.pub 
 
+ssh-copy-id root@192.168.1.102  
+
 收到别人的公钥后 追加写入自己机器的 ~/.ssh/authorized_keys 文件,别人就可(使用建立密钥时的密码或无)连接自己机器
 自己的机器有公钥,对方连我不用密码
 
@@ -752,6 +811,12 @@ ClientAliveCountMax 6
 SSH Server 每 60秒就会自动发送一个信号给 Client，而等待 Client 回应，如果客户端没有回应，会记录下来直到记录数超过 ClientAliveCountMax(这里设置为6次) 的值时，才会断开连接。
 
  
+Bitvise Tunnelier  界面工具可以做端口转发
+ssh -2C -p 22 dell@rhel7  -L 5000:localhost:80 -g   
+提示输入密码连接，如连接断，5000端口的监听就没有了 #做隧道 -2C 表示SSH 协议使用2版本 ，C表示压缩传输数据，-p远程端口
+(在本机启动一个新端口如5000 如请求到本机的5000端口会自动转发到另一台rhel7机器上的80端口) 
+
+
 
 groupadd
 groupdel
@@ -761,7 +826,7 @@ groups git  查用户所在的组
 id
 logname 登录用户名
 chroot
-dmesg 开机设备信息 /var/log/dmesg  (openSUSE没有这个文件)
+dmesg 命令 开机启动信息 设备信息 /var/log/dmesg  (openSUSE没有这个文件)
 
 resize -s 800 600 终端大小
 cksum 显示文件的CRC
@@ -776,19 +841,29 @@ curl http://www.baidu.com
 webservice 请求  ,当前目录建立xml中写请求体
 curl --request POST -k --data-binary @hello.xml -H "Content-Type:text/xml;charset=UTF-8"  http://127.0.0.1:8080/J_CXFSpring/Hello
 
--o out  将指定curl返回保存为out文件,同 >
+-k, --insecure 
+-o  将指定curl返回保存为out文件,同 >
 -d, --data <key=value>  向服务器POST表单数据,值加"" 
+--data-binary @hello.xml
 -x  ip:port 指定使用的http代理
-
 -H <header:value>  为HTTP请求设置任意header及值  
+-X, --request <command> a custom request method 
+-i, --include (HTTP) Include the HTTP-header in the output
+-e, --referer 
+-A, --user-agent 
+-I, --head          Show document info only
+-D, --dump-header FILE  Write the headers to this file
+-u, --user USER[:PASSWORD]  Server user and password
+
+  
 curl -A "Mozilla/5.0 Firefox/21.0" http://www.baidu.com #设置http请求头User-Agent
 curl -e "http://pachong.org/" http://www.baidu.com #设置http请求头Referer
 curl -I http://www.baidu.com #仅仅返回header
 curl -D /tmp/header www.baidu.com  #将http header保存到/tmp/header文件
-
 curl -u admin:admin http://127.0.0.1:8161/admin/  对要Basic的验证 如ActiveMQ
--X, --request <command> a custom request method 
--i, --include (HTTP) Include the HTTP-header in the output
+
+
+
 
 Linux 下挂载 Mac 的dmg 格式  mount -t hsfplus -o ro /dev/cdrom /mnt
 
@@ -873,8 +948,9 @@ vfat,ntfs是window的分区格式
 /opt/第三方应用程序安装这个目录
 /sbin/ root或是管理使用的命令文件
 
-
+umask 默认值0022 初建立文件的权限为 755  
 umask 033 设初建立文件的权限为 744  用777来减   （r-4   w-2  x-1）
+umask 0133  设初建立文件的权限为 644
 
 fstab文件 自动每次开机时自动挂载光驱
 
@@ -884,7 +960,7 @@ top d 2 ,H显示线程，h帮助 ，k kill  15 要比 9 更有强度
 /proc/meminfo 
 free ,vmstat 5可每5秒自动更新
 iostat
-nice -20~20   默认0，值越小越快
+nice -20~19   默认0，值越小越快 ， 进程优先级
 & 后台运行  fg jobs ctrl +z
 　
 telinit q  重新加载initab  文件
@@ -1041,7 +1117,7 @@ wine msiexec /i whatever.msi   或者 wine start whatever.msi
 
 安装界面中文乱码解决方法
 env LC_ALL=zh_CN.UTF-8 wine BaiduNetdisk_6.7.0.8.exe
-
+printenv
 ------wine 安装过的应用
 
 ---微信
@@ -1132,12 +1208,32 @@ v 进入可视模式,可以移动光标来选中文本
 :wqa
 
 
+cat -A file.txt显示换行($)和tab键(^I)但不是按4个对齐的
+vi中用 :%!cat -A 是已修改文件的方式显示换行($)和tab键(^I)，要按u回退的
+		:set invlist 显示换行($)和tab键(^I)
+		:set nolist可以回到正常的模式
+		
+		
+:set autoindent (noautoindent) 当行开头有空格或tab时,再回车换行时会自动使用上一行的缩进，最尾行开头有空格或tab按o新加一行会自动使用上一行的缩进
+:set smartindent  类似 autoindent 增强 对{}当输入}时自动转换为C格式  使用 :help smartindent
+ 
 
-:set autoindent (noautoindent) 当tab时,再回会缩进
+vi  ~/.vimrc  
+"开头是注释在vimrc文件中
+"1个tab占4个空格的长度,默认8个,如yaml文件可设置为2
+set tabstop=4	 
+"有noexpandtab 把tab转换为空格,只对新的文本有效,已有文本要执行 :%retab!
+set expandtab 
+set smartindent
+
+"set shiftwidth=4
+"set softtabstop=4
+
+
 
 :set fdm=indent  (foldmethod)
 zf56G，创建从当前行起到56行的代码折叠
-10zf+或zf10↓ 创建从当前行起到后10行的代码折叠。
+10zf+或zf10  创建从当前行起到后10行的代码折叠。
 
 
 zo 展开折叠(光标位置) zO 全部:
@@ -1157,7 +1253,7 @@ zk      向上移动到前一折叠的结束处。关闭的折叠也被计入。
 	 2]c  跳转到下两个diff点
 	 dp (diff "put")  一个差异点中 当前文件的内容复制到另一个文件里
 	 do (diff "get") 一个差异点中 另一个文件的内容复制到当前行
-	ctrl+w 在各个窗口切换按 (esc情况下,否则删光标到上一个标点)
+	ctrl+两次w 在各个窗口切换按 (esc情况下,否则删光标到上一个标点)
 	 
 2.vim -d  文件1,文件2
 3.vi 文件1  :vertical diffsplit 文件2   
@@ -1179,6 +1275,7 @@ zk      向上移动到前一折叠的结束处。关闭的折叠也被计入。
 	
 :set wrap
 :set nu 显示行号
+:set list 显示tab键为^I,回车为$
 
 当vim在utf-8的local下打开gbk文件时,显示的是乱码,可以在~/.vimrc文件中加入如下代码来解决
 set fencs=utf-8,gbk
@@ -1274,6 +1371,8 @@ y2      算当前行向下共2 行
 4yl  复制光标后4个字符  
 4yh  复制光标前4个字符 
 
+:1,$y 复制第一行到最后一行
+
 3. 把剪贴板中的粘贴3次
 
 p                在前粘贴
@@ -1299,12 +1398,22 @@ ctrl +d /ctrl +u
 :%s 使用正则表达式 (\l表示小写字母 \u表示大写 \1表示引用第一个（）中的内容,\u 在\1前)
 :%s/_\(\l\)/\u\1/g  #数据库命名规范转换为Java命名规范
 
+ :%s/account_number/&/gn  查关键字的出现次数
+
+:.,$-2d 表示从当前行到最后前2行做删除
+
+
 
 vi列操作
-  删除列 
-  CTRL+v 进入“Visual block”模式，选取列(使用正,j,k, h,l)
-  按 d 删除
-  SHIFT+i(I) 输入要插入的内容,ESC 按两次，会在每行的选定的区域出现插入的内容
+  列删除/剪切  
+  CTRL+v 进入“Visual block”模式，选取列(使用正,j,k, h,l) 按 d  
+  小p 光标后按列粘贴,大P 光标前按列粘贴
+  
+	插入列
+	CTRL+v 进入“可视 块”模式，选取列(使用正,j,k, h,l)
+	SHIFT+i(I) 输入要插入的内容 (CentOS7.6无效)
+	ESC 按两次，会在每行的选定的区域出现插入的内容 
+	  
   
 :%s/\n/,/g
 
@@ -1322,9 +1431,9 @@ vi列操作
 5G 向下5行
 
 
-~ 大小写转换
+~ 光标字符做大小写转换
 
-(Normal Mode 下)gu 小写 gU大写  可继命令再输入影响范围 ,如 gu2j 从光标向下3行变为小写
+(Normal Mode 下)gu回车 全变小写 gU回车 全变大写  可继命令再输入影响范围 ,如 gu2j 从光标向下3行变为小写
 v进入Visula Mode
 i进入Insert Mode
 :进入Command Line
@@ -1476,7 +1585,23 @@ windows 10的grub2引导文件
 	set root='hd0,gpt1'
 	chainloader /efi/Microsoft/Boot/bootmgfw.efi
 
+
+
+fdisk /dev/sdb
+>m 帮助
+>p 打印分区
+>d 删除分区
+>n 新建分区
+>t 修改分区文件系统类型
+>l 列出支持文件系统类型
+>q 退出不保存
+>w 保存退出
+
+mkfs.vfat -c /dev/sdb1 #-c 检查坏块
+
+
 fdisk -l 显示Disklabel type: gpt
+
 gparted界面工具
  gparted安装时最好不要改fstab文件，否则可能不能启动系统
 	view ->	device information 看partition table 是gpt
@@ -1563,13 +1688,16 @@ iptables -S  显示，像 iptables-save 格式
 iptables -F (flush)    清空规则
 -D delete  从一开始
 -A append
+-I --insert
 -Z 清零(包的个数)
 -N --new 新建一个链
 -X 删自己的链
 -P 大P 改变默认
+
 -p 小p 协议 可用! 来排除
--s --sport 源 
--d
+-s --source	
+--sport 源 
+-d --destination 
 --line-numbers 显示链的编号
 
 
@@ -1715,82 +1843,126 @@ iptables -t nat -A PREROUTING -d 10.0.0.254 -p tcp -dport 80 -j DNAT --to-destin
  
 
 =================pam模块
+PAM(Pluggable Authentication Modules)
 ldd 显示共享对象的依赖
-ldd /usr/sbin/sshd 如果链接了 /lib/libpam.so->/etc/pam.d/<service>
-							/lib/security/...
+ldd /usr/sbin/sshd 如果链接了 /lib/libpam.so  表示可以使用pam
+  libpam.so也是使用其它.so来完成	/lib/security/xxx.so
+每个服务一个配置文件 /etc/pam.d/<service> 如/etc/pam.d/login , /etc/pam.d/sshd ,/etc/pam.d/su
 
 格式 :module-type   control-falg    module-path    arguaments
 
-module-type :auth,account,session,password
-control-flag:required,requisite(如果失败,并不马上失败),sufficient(充足,这一个就可以了,不会继续),optional
-例:   auth   required pam_stack.so service = system-auth 调用另一个模块
+module-type :可取值 auth(验证密码),account(帐号是否可用),session,password
+control-flag:如果成功/失败如何处理,可取值 required(必须成功),requisite(如果失败,并不马上退出,如后面requisite类型成功就通过),sufficient(充足,如这个成功就不会继续验证后面的记录),optional
+
+例 /etc/pam.d/login
+auth   required pam_stack.so service = system-auth 	#pam_stack.so表示调用另一个模块 (传参数解析结果为 /etc/pam.d/system-auth 中再调用其它模块)，即堆栈
+
+常用的pam模块
+	pam_access.so	 控制访问者的地址与帐号名称
+	pam_listfile.so  控制访问者的帐号名称或登录位置
+	pam_limits.so	 控制用户分配的资源
+	pam_rootok.so	 对管理员(uid=0)无条件允许通过
+	pam_userdb.so    设定独立用户帐号数据库认证
+
+	 
+如 /etc/pam.d/login 中有 pam_securetty
+对某个pam_xx .so如何用 ，/usr/share/doc/pam-0.99/txts/  中是README文档 
+README.pam_securetty 在root 登录时,只在安全的终端/etc/secretty 是一普通文件,不是一个全局可写的,(如果该文件中的一个终端删除,就不可以root登录)
+
+ 
+/etc/pam.d/system-auth 文件中有pam_env.so为用户初始化环境变量，再用sufficient pam_unix.so检查用户名,如失败还会继续
+		pam_deny.so 无条件拒绝
+		
+
+观察/etc/pam.d/sshd 文件内容
+auth pam_nologin.so   #表示 root可以登录,如 /etc/nologin不存在 普通用户可登录, 如存在 /etc/nologin文件(不关心文件内容) ,普通用户不能登录
+
+做测试 touch /etc/nologin  
+
+观察/etc/pam.d/login 文件内容
+auth   	 required pam_stack.so service=system-auth 
+account  required pam_stack.so service=system-auth    #system-auth是公共的服务,影响全局,account检查密码过期
+password required pam_stack.so service=system-auth   #对应system-auth 文件中的password类型
+session optional  pam_console.so  #为用户分配tty终端，/etc/pam.d/sshd文件中也有pam_console.so
 
 
+观察/etc/pam.d/system-auth 文件内容
+password required pam_cracklib.so  retry=3 #修改密码,密码简单超过3次失败
+password sufficent pam_unix.so  #sufficent 如失败继续
+password required pam_deny.so   #到这里说明 密码修改失败，就拒绝
 
-/usr/share/doc/pam-0.99/txts/中是README。文档
-
-/etc/pam.d/login
-README.pam_securetty 在root 登录时,只在安全的终端/etc/secretty 是一普通文件不是一个全局可写的,(如果该文件中的一个终端删除,就不可以root登录)
-
-pam_stack.so是用来调用其它模块用的
-service =system-auth 会开另一个模块system-auth中和该对就相同的类型的(auth)
-
-
-/etc/pam.d/《service》
-文件中的为
-auth,account,session,password		required,requisite（如查失败会下一个）,sufficient(不会向下检查),optional
-
-
-
-sshd.so
-
-pam_nologin.so 如果在 /etc/有一个nologin文件，那么一般用户不能登录，并显示内容
-pam_deny.so 无条件拒绝
-tty 显示终端
-/dev/tty
-/dev/pts/
-
-
-system-auth中有一个password  用pam_cracklib.so retry=3(密码重试次数,普通用户改密码时,简单不可以)
 
 tty 显示当前使用的终端
-session pam_console.so 的作用是:当有人登录时/dev/tty ... pts/中的文件会改属主,属组,退出时还原成 root用户 
+/dev/tty/0 本地终端
+/dev/pts/0 远程终端
+session pam_console.so  如有人使用这些终端/登录时 ls -l  会发现变化 所属组会变为tty，组增加w权限,没人用时/用户退出时就是root组
+ 
+--示例 pam_access.so
+/lib/security/pam_access.so 的配置文件是 /etc/security/access.conf  
 
-/etc/security/access.conf  对/lib/security/pam_access.so
-
-sshd文件中加入
+修改 /etc/pam.d/sshd  文件中加入(如想对sshd做)
 account required  pam_access.so
 
 
-/etc/security/access.conf
-	permission(可用+,-)	:users( 可用多相名字,ALL) 	: origins(可多个tty名,主机名,以点开头的域名,以点结尾的网络地址,ALL EXCEPT ..,LOCAL)
+修改 /etc/security/access.conf
+ 内容格式	permission(可用+,-表示允许或拒绝) : users(用户名或组名,可用多相名字,ALL)  : origins(可多个tty名,主机名,以点开头的域名,以点结尾的网络地址,ALL EXCEPT ..,LOCAL)
 
--:redhat:ALL EXCEPT 10.0.0.  拒绝所有redhat 访问本机,除在10.0.
-可以在模块后加一个参数accessfile='<full-path>'  可以覆盖默认配置文件/etc/security/access.conf
+-:redhat:ALL EXCEPT 10.0.0. #拒绝所有redhat用户访问本机,除了10开产学研的局部网地址(点结尾)外
+
+测试  ssh redhat@10.0.0.1 可以登录， ssh redhat@127.0.0.1不能登录
+ 
+如何每次使用pam_access.so,不是同一个配置文件( /etc/security/access.conf) 看帮助 /usr/share/doc/pam../txts/READE.pam_access  
+可以在pam_access.so模块后加一个参数accessfile='<full-path>'  可以覆盖默认配置文件/etc/security/access.conf
+
+---- pam_listfile.so  模块
+看帮助/usr/share/doc/pam../txts/READE.pam_listfile 没有默认配置文件   
+pam_limits.so模块参数可加 item=[tty|user|rhost|ruser|group|shell] ,file=配置文件内容就是item代表的值,如用户名
+		onerror=[succeed|fail] 如模块出错时成功还是失败
+/etc/pam.d/vsftp 中有使用pam_limits.so item=user sense=allow file=/etc/ftpusers onerror=succeed
+ 
+示例  /etc/pam.d/sshd 文件的pam_nologin.so后增加
+auth   required   pam_listfile.so item=user sense=deny file=/etc/denyuser onerror=succeed
+#表示文件中的用户会被拒绝登录 
+
+echo "redhat" >> /etc/denyuser  
 
 
-pam_listfile.so 
-ftp  (看帮助/usr/share/doc/pam../txts/READE.pam_listfile) 没有默认配置文件  
-模块选项 后加item=user sense=allow file =/the/file (文件中的内容是item=user,即是用户名) onerror=succeed
+------ pam_limits.so 模块
+more /usr/share/doc/pam../txts/READEME.pam_limits 
+
+pam_limits.so 模块配置文件为 /etc/security/limits.conf  
+文件内容格式  <domain> <type>  <item>   <value>
+
+domain :  用户名或@组名 也可*
+type: soft ,hard(不可达到), - 表示soft和hard
+item: 如 data,fsize,nofile,nproc,cpu,maxlogins (指定用户最多同时登录次数)
+
+如sshd服务  /etc/pam.d/sshd 文件默认有 pam_limits.so
+session  required pam_limits.so  #maxlogins
+
+vi /etc/security/limits.conf   增加
+redhat   hard  maxlogins  2  #hard 2  不能达到2次,即最多一次
+
+做登录测试
+
+w 命令显示登录人数
+ssh -l redhat 10.0.0.1  (-l 指定用户名)
+
+------pam_rootok.so   模块
+对root用户 无条件通过sufficient  
+
+chfn 命令用于改变个人签名信息   
+
+/etc/pam.d/chfn  使用了pam_rootok模块
+
+------pam_userdb.so   模块
+用户密码验证使用外部，而不是系统的
+vsftp中有用到
+
+auth required pam_userdb.so db=/etc/vsftpd_login  #要指定参数db
 
 
-------
-pam_limits.so 块
 
-more /us/share/doc/pam../txts/READEME.pam_limits，
-limits.conf ,
-<domain>(用户名,@组名  )    <type>(soft ,hard(不可达到),- 即both)   <item data,fsize,nproc,cpu,maxlogins>   <value>
-
-
-session  required pam_limits (maxlogins )
-w显示登录人数
-ssh -l redhat 10.0.0.1  (-l 加用户)
-scp ./tuxedo100_32_Linux_01_x86.bin oracle@192.168.1.121:/bea
-
-pam_rootok.so  检查是root用户，(对root 无条件通过sufficient )
-chfn 命令 改变个人信息  使用了pam_rootok模块
-
-pam_userdb.so db=/文件  要指定参数db    (db ftp中的)
 ============ACL
 在分区上加入acl类型(fstab文件)
 
@@ -2094,7 +2266,7 @@ smbtar -s server -u user -p password -x sharename -t output.tar  打成tar包
 smbtar  -s 192.168.1.100 -u -p -x temp -t temp.tar 对不要密码的,不会提示要密码
 file temp.tar 来检查文件类型 ,tar -tvf  temp.tar 
 smbclient -N 不要提示输入密码
-nslookup
+nslookup 
 
 
 smb.conf文件
@@ -2191,27 +2363,30 @@ cat /proc/filesystems  | grep nfs
 --Server端226上
 
 /etc/exports 文件 和　 /etc/exports.d目录　, exportfs命令也会修改这它们
- exportfs -r 加载配置
- 
+ exportfs -r 加载配置(Reexport all directories)
+ 			-a   (all)
+ 			-v (verbose)
 /etc/exports　 文件格式         
 	/root/shareDir/            10.1.5.225/24(rw,no_root_squash) 　##表示共享/root/shareDir/  目录给10.1.5.x的用户
  
 	选项 no_root_squash 表示 NFS客户端连接服务端时如果使用的是root的话，那么对服务端分享的目录来说，也拥有root权限。显然开启这项是不安全的，这个一定要加上，否则客户端连接报access denie
-
+NFS监听2049端口
 service nfs start 会转到 /bin/systemctl start  nfs.service
-	showmount -e 可看有分享哪些目录，即/etc/exports的配置
- # showmount -a 可看出所有的 mount 
+	showmount -e (--exports) 可看有分享哪些目录，即/etc/exports的配置
+ # showmount -a (--all) 可看出所有的 mount 
 	
   # /bin/systemctl start  rpcbind.service  也可以用  systemctl start rpcbind  可以不要的
   systemctl start nfs  
- 
+
 systemctl stop firewalld
+
+openSUSE-leap-15.1上就没有监听2049端口？？？？ CentOS很顺利
 
 --Client端 225上
 rpcinfo -p 10.1.5.226  查看服务器提供的rpc服务
 	显示portmap服务指派端口（111）
 	
-mount -tnfs4 10.1.5.226:/root/shareDir  /home/hrbb/remoteDir (要root权限)
+mount -tnfs4 10.1.5.226:/root/shareDir  /mnt/remoteDir (要root权限)
  
 --------------------tigervnc
 VNC(Virtual Network Computing)
@@ -2323,6 +2498,8 @@ $ hostnamectl
 
 # 设置主机名
 $ sudo hostnamectl set-hostname rhel7
+
+还要/etc/hosts增加    127.0.0.1  rhel7
 
 ----localectl
 # 查看本地化设置
@@ -2465,7 +2642,7 @@ static：该配置文件没有[Install]部分（无法执行），只能作为�
 masked：该配置文件被禁止建立启动链接
 
 --
-查看配置文件的内容
+查看配置文件的内容 即/usr/lib/systemd/system/下的文件
 systemctl cat network.service
 注意，键值对的等号两侧不能有空格
 
@@ -2555,7 +2732,7 @@ systemctl list-unit-files --type=target |grep runlevel
 
  -e --pager-end  
  -x --catalog             Add message explanations where available
-
+ -u --unit
 
 
 # 查看所有日志（默认情况下 ，只保存本次启动的日志）
@@ -2821,13 +2998,21 @@ cat /etc/system-release
 cat /etc/os-release
 ============================CentOS 专用的
 
-	
-CentOS 最新版本 7.5
-http://mirrors.huaweicloud.com/centos/7.5.1804/os/x86_64/Packages/
+CentOS 最新版本 8.0 大小6.6GB , Stream 版本 大小8GB  体验最新红帽系 Linux 特性的
+CentOS 上一版本 7.6 大小4.6GB
+http://mirrors.huaweicloud.com/centos/7.6.1810/os/x86_64/Packages/
 http://mirrors.huaweicloud.com/centos/7/updates/x86_64/Packages/  只有新版本的
 
 https://www.centos.org/download/mirrors/  
 http://mirrors.huaweicloud.com/centos/7/os/x86_64/Packages/
+
+--vi /etc/yum.repos.d/huawei.repo
+[huawei]
+name=huawei
+baseurl=http://mirrors.huaweicloud.com/centos/7.6.1810/os/x86_64/
+gpgcheck=0
+enabled=1
+--
 
 有 gcc-c++-4.8.5-28.el7_5.1.x86_64.rpm   
 	->gcc-4.8.5-28.el7_5.1.x86_64.rpm
@@ -2846,7 +3031,28 @@ http://mirrors.huaweicloud.com/centos/7/os/x86_64/Packages/
    要单独下载
 				ibus-table-chinese-wubi-jidian-1.4.6-3.el7.noarch.rpm
 				
+
+application->system tools->software  安装软件界面(命令gpk-application) 类似 yast2,但不能配置仓库
+
+centOS 7.6 默认带自动更新功能 
+
+有一个software update的应用是gpk-update-view进程，gnome-packagekit-update软件包
+https://help.gnome.org/users/gnome-packagekit/stable/
+	可能要有更新才可设置首选项，才可设置更新频率 
+ systemctl list-unit-files 查 packagekit-offline-update.service 和 system.update.target 是static 
+
+
+yum remove gnome-packagekit-updater,刚装系统是有的
+
+packagekit-yum 软件包中有python程序使用yum 做自动更新,刚装系统是没有的
+yum remove packagekit-yum   (先kill `cat /var/run/yum.pid`)
+	packagekit-backend 
+
 ============================Redhat专用的
+doc
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/
+
+
 http://mirrors.fedoraproject.org/publiclist 找 China
 
 https://mirrors.ustc.edu.cn/epel/6/x86_64/Packages/i/ibus-table-chinese-1.4.6-1.el6.noarch.rpm
@@ -2858,34 +3064,52 @@ https://mirrors.ustc.edu.cn/epel/7/x86_64/Packages/f/fcitx-4.2.9.6-1.el7.x86_64.
 					fcitx-table-chinese-4.2.9.6-1.el7.noarch.rpm
 
  
-	
-##netconfig 终端界面 
-setup     终端界面 centOS-7.6配置开机启动服务和认证
-ntsysv    终端界面来配置服务 类似chkconfig  centOS-7.6配置开机启动服务
-system-config-network  终端界面配置网络
+nmtui  	(NetworkManagerTextUserInterface)终端界面配置网络 设置主机名,centos7.6/openSUSE-leap-15.1有的
+gnome桌面 settings->network->点齿轮图标
+setup     终端界面 centOS-7.6配置开机启动服务 和 认证
+ntsysv    终端界面 centOS-7.6配置开机启动服务 类似chkconfig  
 timeconfig 时区界面
 
-/etc/sysconfig/network-scripts/ifcfg-eth0　配置文件  可以复制出来 一个新的网卡
-##IPV6INIT=no可以没有
-##DEVICE=eth0 可以没有
-##NAME=""  可以没有显示在界面上
-BOOTPROTO=dhcp/none(none是可没有)
+/etc/sysconfig/network-scripts/ifcfg-ens33　配置文件  可以复制出来 一个新的网卡
+
+##DEVICE=ens33 可以没有
+##NAME=ens33
+
+#dhcp,none没有,static 静态IP
+BOOTPROTO=dhcp
+
 #下面的必须要有
 ONBOOT=yes
 HWADDR=
 TYPE=Ethernet
 #TYPE=Bridge 可为桥接
-#以下对非DHPC
-DNSI=
-IPADDR=
-GATEWAY=
-PREFIX=24 ###NETMASK=  
 
-BRIDGE=<网卡名> 
+#以下对BOOTPROTO=static
+DNSI=114.114.114.114
+IPADDR=192.168.6.137
+GATEWAY=192.168.6.2   
+#使用VMWare,view->network editro->选vmnet8(NAT)IP是192.168.6.1,NAT Settings->GatewayIP是192.168.6.2
+#NETMASK=255.255.255.0
+PREFIX=24 #24位子网掩码 功能同上
+#---
+#BRIDGE=<网卡名> 
 #表示交换机
 
+#--其它
+RPOXY_METHOD=none
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
+IPV6_DEFROUTE=yes
+IPV6_FAILURE_FATAL=no
+IPV6_ADDR_GEN_MODE=stable-privacy
+UUID=xxxx
+#--
 网络桥接不支持NetworkManager,禁用方法
 NM_CONTROLLED=yes 修改为 no
+
+
 chkconfig NetworkManager off
 chkconfig network on
 
@@ -2966,27 +3190,39 @@ yum update
 yum list
 yum search xxx
 yum remove xxx  把依赖也自动删像ruby
+yum deplist libcurl  查看软件包的依赖信息
 
 在/var/cache/yum/extras/packages/目录有下载的软件包
+/var/cache/yum/x86_64/7/extras/packages/
 在/var/cache/yum/base/packages/目录有下载的软件包
 rpm -qa显示所有安装的软件包
 rpm -ql 软件包名   显示软件包安装的文件
 rpm -qf 文件名  显示文件属于哪个软件包
+rpm -qi 软件包名 显示安装软件包信息
+rpm -qpi 软件包名.rpm 显示未安装软件包信息
+
 rpm -e 卸载软件包
+
+install 命令相当于 cp
+sudo install minikube /usr/local/bin
+
 useradd -d /u01/oracle  这是用户的默认主目录
 ------------
-----------------Redhat yum 自动安装光盘中软件包,相当于 SUSE 的 zyyper (界面的yast2)
+----------------Redhat yum 自动安装光盘中软件包,相当于 SUSE 的 zypper 
+/etc/fstab
+/dev/cdrom	/mnt/cdrom	iso9660	ro,loop	0	0 
+
 mount -t iso9660 -o ro,loop /dev/cdrom /mnt/cdrom
 cd /etc/yum.repos.d/
 mkdir bak
 mv *.repo bak
 vi RedhatENT7DVD.repo (CentOS7DVD.repo) 文件名任意,要以.repo结尾 
 写入
-[base]
-name=iso
+[DVD]
+name=cdrom
 baseurl=file:///mnt/cdrom
 gpgcheck=0
-
+#enabled=1
 
 yum install gnome-desktop3  就可以了,会自动查找依赖包
 yum install gnome-session
@@ -2994,8 +3230,11 @@ yum install gnome-session
  
 CentOS-7.6测试以上还是没桌面，要yum groupinstall "GNOME Desktop" 才行
 CentOS-7.6 System tool->software 也可像yast一样界面选中安装软件，但不能配置仓库
-有ip命令,也有老的ifconfig,默认网卡叫ens33,要修改文件为ONBOOT=yes再启动服务才能有IP
-默认安装qemu-kvm,bridge-util,有建立virbr0网卡
+
+有ip命令,也有老的ifconfig,默认网卡叫ens33
+要修改文件/etc/sysconfig/network-scripts/ifcfg-ens33 为ONBOOT=yes再 systemctl restart network 启动服务才能有IP
+
+Gnome-desktop安装默认有qemu-kvm,bridge-util,有建立virbr0，virbr0-nic网卡
 
 yum clean all		清除yum缓存
 yum grouplist
@@ -3017,10 +3256,32 @@ yum-config-manager   --add-repo    https://download.docker.com/linux/centos/dock
 yum-config-manager   --add-repo    https://copr.fedorainfracloud.org/coprs/vbatts/bazel/repo/epel-7/vbatts-bazel-epel-7.repo
 
 yum repolist 列出所有仓库
+yum repolist all
 yum install xen 如版本出来过新，想要老的
 yum install xen-4.1.3
  可能依赖的版本要老的，而现有的是新的
 yum install xen-4.1.3 xen-runtime-4.1.3 xen-libs-4.1.3
+
+要安装pip 我们需要启用EPEL(Extra Packages for Enterprise Linux)存储库
+sudo yum install epel-release
+sudo yum install python-pip  是python2的 
+sudo yum install docker-distribution
+
+使用 （python-setuptools） easy_install pip 也是 python2
+
+
+CentOS 7.6+ 当安装epel-release 就可 
+yum install snapd
+systemctl enable --now snapd.socket
+	会创建link 从/etc/systemd/system/sockets.target.wants/snapd.socket 
+	到 /usr/lib/systemd/system/snapd.socket
+ln -s /var/lib/snapd/snap /snap
+
+
+python3可以源码安装 
+sudo yum install python36 安装
+sudo yum install python36-pip 会安装 python36-setuptools
+
 
 
 ----------------
@@ -3083,7 +3344,8 @@ chcon -t textrel_shlib_t /usr/autodesk/maya2008/bin/plug-ins/image/*.so
 
 
 ====rsync
-rsync -av dir/* dir2 					把dir/*的所有修改的内容再复制到dir2中 , -a是组合,有-r递归目录
+rsync -av dir/* dir2 					把dir/*的所有修改的内容再复制到dir2中 
+			#  -a, --archive  -v, --verbose  有-r递归目录
 rsync -av file*.txt dir2
 rsync -av file  root@127.0.0.1:/root 	远程复制
 rsync -av root@127.0.0.1:/root  dir
@@ -3165,14 +3427,26 @@ ps -eLf
 ps axms
  
 ulimit -a
-open files                      (-n) 1024
+
+打开文件数 (-n)  
+ulimit -Sn     #查看
+ulimit -Sn 65535 #设置
+ulimit -Hn
+
+ 进程最大线程数 (u)
+$ ulimit -Su 
+$ ulimit -Hu
+
+
+vi /etc/security/limits.conf
+#nofile 最大打开文件数 
+#nproc 进程的最大线程数  文件注释有各种说明 
+oracle          soft    nofile  1024   
+oracle          hard    nofile  65536
+
+
 
  
-
-
-
-
-
 
 yum   install  lrzsz  就可以用 rz ,sz 
 
@@ -3239,6 +3513,40 @@ date -d"-1 day"  +%s
 自己测试 真实的 /boot 分区 是可以恢复文件的(可能 mkfs.ext4 式就是不行的)
 
 
+---ntfsprogs linux下恢复NTFS分区删除的文件 
+
+openSUSE-leap-15.1 自带 ntfsprogs-2016.2.22-lp151.3.2.x86_64.rpm
+
+http://tuxera.com
+ntfsundelete 
+	-S, --size RANGE  格式 数字+单位 k,m,g,t 开始-结束，如1K-300M
+	-t, --time SINCE  格式 数字+周期  d=days，w=week,m=months,y=years 如2d
+	-u, --undelete         Undelete mode
+   -i, --inodes RANGE     Recover these inodes
+ 	-o, --output FILE      Save with this filename
+
+
+su root
+先取消挂载 umount /dev/sdb4
+
+查看 可些文件可恢复
+ntfsundelete -S 1K-300M  /dev/sdb4 
+ntfsundelete -S 1K-300M -t 2d /dev/sdb4   
+显示第一列是 Inode
+ntfsundelete /dev/sdb4 -u -i 108 -o jettison-1.3.3.jar -d /tmp/ntfs_restor_dir
+提示成功
+
+----------缓存文件系统 tmpfs
+/dev/shm 是共享内存，类型是tmpfs，可把文件复制过来  df -Th ,free -m 看 share
+
+建立缓存系统名为mytmp
+
+mkdir /mnt/cache
+mount -t tmpfs -o size=50m mytmp /mnt/cache
+调整大小
+mount -t tmpfs -o remount,size=100m mytmp /mnt/cache
+
+
 ==========windows 仿问linux
 Ext2Fsd-0.69.exe  只能读ext4分区,不能写
 
@@ -3252,4 +3560,34 @@ Ext2Fsd-0.69.exe  只能读ext4分区,不能写
 	
 Ext2Read 文件名 ext2explore-2.2.71.zip 在windows 10 什么也看不到,win7看不到home和boot目录下的内容
 
+----无线设备   蓝牙
+lsusb  命令
 
+hciconfig 命令
+显示 蓝牙设备是hci0
+
+
+hciconfig hci0 up
+如报 Can't init device hci0: Operation not possible due to RF-kill (132)
+是因 设置中蓝牙 被关闭，可以手工打开，或用 rfkill unblock all
+
+rfkill block wifi  相当于 设置中关闭 wifi
+rfkill unblock wlan
+ 
+rfkill list 效果同 rfkill list all  显示有 无线网卡和蓝牙
+
+rfkill block all  关闭所有
+
+hcitool scan   扫描
+ 设置中连接蓝牙后，双击连接的项->弹出窗口-> send file...选择要发送的文件
+sdptool search  xxx  不知道干什么的
+-------------
+echo TXlQQHNzMTIz | base64 -d 显示base64解码后的原值
+
+
+uuidgen 命令 生成UUID f3d3e394-d5a5-4859-a8f5-c690e44741b7
+
+
+
+
+ 

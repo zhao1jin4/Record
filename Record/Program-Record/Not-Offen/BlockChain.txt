@@ -1,0 +1,37 @@
+﻿
+区块链 以太坊(Ethereum blockchain )　https://www.ethereum.org/　　　　
+
+通过web3j进行以太坊区
+bootnode 私有链(共三种方式建私有链  接近真实环境)
+
+geth   https://geth.ethereum.org/downloads/
+https://github.com/ethereum/go-ethereum
+
+
+-------
+https://www.blockchain.com/explorer
+https://blockexplorer.com/
+https://btc.com/
+https://www.etherchain.org/
+
+
+https://cn.investing.com/crypto/bitcoin/btc-usd-converter 比特币价值
+
+
+sha1 安全性不如sha256,sha512
+
+1比特币=1亿个 聪
+
+
+https://bitnodes.earn.com/  统计网
+
+
+https://www.uber.com/ 美国打车软件 
+
+P2P
+
+GlusterFS 
+智能合约
+以太坊（第二代）
+
+	

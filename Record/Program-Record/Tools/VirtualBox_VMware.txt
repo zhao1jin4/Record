@@ -102,12 +102,18 @@ VBoxManage setextradata "VM name" VBoxInternal2/EfiGopMode 2
 VirtualBox 6.0.x 新建时最高可选择 Mac OS X 10.13 High Sierra 客户机
  可以选择支持虚拟化 Enable VT-X/AMD-V
 
-openSUSE-leap-15
 
-rpm -ivh  /mnt/iso/x86_64/libQt5OpenGL5-5.9.4-lp150.4.8.x86_64.rpm
-rpm -ivh /mnt/iso/x86_64/libQt5PrintSupport5-5.9.4-lp150.4.8.x86_64.rpm
-rpm -ivh VirtualBox-6.0-6.0.4_128413_openSUSE150-1.x86_64.rpm 
+---linux  安装
+openSUSE-leap-15.1 下使用All distributions包，即VirtualBox-xxx.run  报错 Details: code NS_ERROR_FAILURE (0x80004005)
+卸载 VirtualBox-xxx.run 安装包生成的文件 /etc/vbox/vbox.cfg  里有写安装目录在 /opt/VirtualBox
+安装rpm包就可以
 
+openSUSE-leap-15.1
+rpm -ivh /mnt/iso/x86_64/libQt5PrintSupport5-5.9.7-lp151.3.1.x86_64.rpm
+rpm -ivh /mnt/iso/x86_64/libQt5OpenGL5-5.9.7-lp151.3.1.x86_64.rpm
+
+可在openSUSE-leap-15.1
+rpm -ivh VirtualBox-6.0-6.0.10_132072_openSUSE150-1.x86_64.rpm 
  
 Creating group 'vboxusers'. VM users must be member of that group!
 /etc/vbox/vbox.cfg
@@ -117,20 +123,33 @@ Created symlink /etc/systemd/system/multi-user.target.wants/vboxdrv.service → 
 Created symlink /etc/systemd/system/multi-user.target.wants/vboxballoonctrl-service.service → /usr/lib/systemd/system/vboxballoonctrl-service.service.
 Created symlink /etc/systemd/system/multi-user.target.wants/vboxautostart-service.service → /usr/lib/systemd/system/vboxautostart-service.service.
 Created symlink /etc/systemd/system/multi-user.target.wants/vboxweb-service.service → /usr/lib/systemd/system/vboxweb-service.service.
+---
 
 
 --------------VMWare Workstation
-网卡可限制下传下载速度
-
-鼠标不用时,按ctrl+alt
-
 VMWare Workstation 10 默认安装后全部服务启动
 VMware Authorization Service
 VMware DHCP Service
 VMware NAT Service
 VMware Workstation Server
 
-###   主机仅使用wifi网络时,openSUSE客户机不能上网????,  ###　编辑->虚拟网络编辑器->VMnet0默认是桥接模式 在下拉中选择可以用络的网卡
+
+鼠标不用时,按ctrl+alt
+			 
+编辑->虚拟网络编辑器
+ 	VMnet0 是桥接模式
+	VMNet1 是host-only
+	VMNet8 是NAT
+
+网卡属性->选NAT 就是 VMNet8的配置
+
+
+限制上传/下载速度
+网卡属性->Advanced...->Incoming Traffic 可限制下载速度
+				->Outgoing Traffic 可限制上传速度
+	
+
+CPU属性-> 可以选中 Virtualize Inter VT-x/EPT or AMD-V/RVI
 
 
 vmware 禁用声音
@@ -139,6 +158,12 @@ vmware 禁用声音
 mks.noBeep = "TRUE"
 重启Vmware 6.5workstation安装版后,立即生效
  
+ 
+ 
+VMware同步时间 
+VMware 右击虚拟机->Options->VMWare Tools->复选Synchronize guest time with host
+
+
 ---------VMware Workstation Pro 15 安装 Mac OS High Sierra  10.13  测试OK
 
 https://github.com/DrDonk/unlocker

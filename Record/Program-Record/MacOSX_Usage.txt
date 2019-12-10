@@ -485,6 +485,7 @@ dscl -- Directory Service command line
 # sysctl -a 显示所有的
 # system_profiler SPHardwareDataType | grep Memory
 # uname -p  显示i386
+ uname -s 显示 Darwin
 # sw_vers 显示系统版本
 # dscacheutil -configuration  查当前DNS解析方法，必须有/BSD/local即/etc/hosts
 # domainname  显示主机域名,主机名 hostname

@@ -254,12 +254,8 @@ revalue		再评价
 
 safari n.旅行,
 opera 歌剧
-
-partner		合伙人, 股东
-consign　　托运, 委托
-commerce   商业
-warehouse  仓库
-telesales  电话销售
+ 
+consign　　托运, 委托 
 
 territory   领土,
 vendor 卖主

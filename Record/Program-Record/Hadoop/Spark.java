@@ -21,7 +21,8 @@ spark-2.3.0-bin-hadoop2.7
 ./bin/spark-shell	使用 Scala 语言, 提示SparkUI  http://127.0.0.1:4040 
 scala> 
 
-spark-shell --master spark://node:7077 连接远程
+.bin/spark-shell --master spark://node:7077 连接远程
+--executor-memory  1G   --executor-cores 2   --num-executors 2   --driver-memory 1024M  #driver客户端内存   
 
 ./bin/pyspark		使用 Python 语言
 >>>exit();
@@ -158,6 +159,8 @@ saveAsTextFile("hdfs://ip:port/dir")
 
 如果多台executor使用的路径都是/而不是hdfs那么文件写在每个executor自己的机器目录上，不方便查看，建议用hdfs
 
+
+
 ----Kubernetes   
 
 
@@ -224,20 +227,6 @@ public class TestSpark {
     }
     ctx.stop();
 }
- public static void main(String[] args) throws Exception 
- {
-  SparkSession spark = SparkSession
-      .builder()
-      .appName("Java Spark SQL basic example")
-      .config("spark.some.config.option", "some-value")
-      .getOrCreate();
-	 Dataset<Row> df = spark.read().json("examples/src/main/resources/people.json");
-    df.show();
-	df.select(col("name"), col("age").plus(1)).show();
-	Dataset<Row> sqlDF = spark.sql("SELECT * FROM people");
-    sqlDF.show();
-	  
-}
 
 List<Integer> data = Arrays.asList(1, 2, 3, 4, 5);
 JavaRDD<Integer> distData = sc.parallelize(data);
@@ -264,10 +253,38 @@ df = spark.read.json("logs.json")
 df.where("age > 21")  
 	.select("name.first").show()
 
+
 ------------------------- Spark SQL
 
-------------------------- Spark streaming
-------------------------- Structured Streaming
-------------------------- Spark MLlib 机器学习  (目前github最火的机器学习项目是TensorFlow)
-Machine Learning lib
-Mahout  使用 MapReduce 
+ public static void main(String[] args) throws Exception 
+ {
+  SparkSession spark = SparkSession
+      .builder()
+      .appName("Java Spark SQL basic example")
+      .config("spark.some.config.option", "some-value")
+      .getOrCreate();
+	 Dataset<Row> df = spark.read().json("examples/src/main/resources/people.json");
+    df.show();
+	df.select(col("name"), col("age").plus(1)).show();
+	Dataset<Row> sqlDF = spark.sql("SELECT * FROM people");
+    sqlDF.show();
+	  
+} 
+------------------------- Spark streaming 
+使用 DStreams API  老的API 
+Spark Streaming 事务
+ 
+SparkConf sparkConf = new SparkConf().setAppName("JavaKafkaWordCount").setMaster("local[4]"); 
+JavaStreamingContext jsc = new JavaStreamingContext(sparkConf, new Duration(2000));
+
+
+------------------------- Spark Structured Streaming 
+使用  Datasets 和 DataFrames API 比 DStreams API 要新 
+
+
+
+
+
+
+
+

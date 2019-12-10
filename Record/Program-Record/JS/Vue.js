@@ -10,6 +10,7 @@ weex 是阿里巴巴 开发的 VUE版的React Native，已成为 apache 项目�
 
 Vuex 类似react的redux，是吸收了Redux的经验
 Vue Router 像 react router
+Vue CLI 3+ 内部使用了 webpack
 
 UI框架 
 	easyUI for Vue 
@@ -1053,16 +1054,568 @@ template: '...'
 <script type="text/x-template">
 
 
+ <hr/> Props <br>
+ HTML不区分大小写，浏览器会把所有大写字符解释为小写字符
+ <h1>小写h1</h1>
+ <H1>大写h1</H1>
+camelCase (驼峰命名法) 的 prop 名需要使用其等价的 kebab-case (短横线分隔命名) 命名
+<div id="propsDiv">
+	<!-- 在 HTML 中是 kebab-case 的 -->
+	<blog-post post-title="hello!"></blog-post>
+</div>
+<script type="text/javascript"> 
+Vue.component('blog-post', {
+  // 在 JavaScript 中是 camelCase 的
+  props: ['postTitle'],
+  template: '<h3>{{ postTitle }}</h3>'
+});
+new Vue({ el: '#propsDiv' }); 
+
+</script>
+
+
+<div id="propsDiv1">  
+	<blog-post1  v-for="post in posts" 
+      v-bind:key="post.id"
+      v-bind:likes="post.likes"
+	  v-bind:post-title="post.title + ' by ' + post.author.name"
+	  v-bind:is-published="post.isPublished"
+	  v-bind:comment-ids="[234, 266, 273]"
+	  v-bind:author="{
+		    name: 'Veronica',
+		    company: 'Veridian Dynamics'
+		  }"
+	></blog-post1>
+	传入一个对象的所有属性 等价于：
+	<blog-post1  v-for="post in posts"  v-bind="post" ></blog-post1>
+</div>
+
+<script type="text/javascript"> 
+	Vue.component('blog-post1', { 
+		//以数组式形式传多个值 
+		//props: ['postTitle', 'likes', 'isPublished', 'commentIds', 'author'],
+		//以对象形式，value是类型
+		props: {
+			  postTitle: String,
+			  likes: Number,
+			  isPublished: Boolean,
+			  commentIds: Array,
+			  author: Object,
+			  callback: Function,
+			  contactsPromise: Promise // or any other constructor
+			}, 
+		template: `<h3>{{ postTitle }}  likes: {{likes}} isPublished: {{isPublished}} 
+			commentIds:{{commentIds}} author.name={{author.name}}</h3> `
+	 });
+	new Vue({ el: '#propsDiv1' ,
+			data: {
+			    posts: [
+			      { id: 0, title: 'myTitle0',author:{name:'lisi'},likes:10,isPublished:true },
+			      { id: 1, title: 'myTitle1' ,author:{name:'wang'},likes:20,isPublished:false },
+			      { id: 2, title: 'myTitle2',author:{name:'zhang'},likes:30,isPublished:true},
+			    ]
+			}
+		}); 
+//父级 prop 的更新会向下流动到子组件中，但是反过来则不行,每次父级组件发生更新时，子组件中所有的 prop 都将会刷新为最新的值
+//在 JavaScript 中对象和数组是通过引用传入的，所以对于一个数组或对象类型的 prop 来说，在子组件中改变这个对象或数组本身将会影响到父组件的状态。
+/* 
+ props: ['initialCounter'],
+ data: function () {//data可以是一个函数
+	  return {
+	    counter: this.initialCounter//可以访问到props中的值
+	  }
+	}
+ */
+</script>
+
+<hr/>
+验证props (类似react的propTypes,要单独安装,现在建议用Flow)
+使用开发环境构建版本Vue,将会产生一个控制台的警告 
+<div id="propsValid">
+<!--  正确的 -->
+<my-component  v-bind:prop-a="myNum"  prop-b="123" prop-c="abc" v-bind:prop-e="myObject"  prop-f="success" v-bind:author="myPersion"/>
+ <!--  错误的   <my-component prop-a="abc"  v-bind:prop-b="myArray"  prop-f="su" />    -->
+</div>
+
+<script type="text/javascript">
+	//type 可以是下列原生构造函数中的一个： String,Number,Boolean,Array,Object,Date,Function,Symbol
+	function Person (firstName, lastName) {
+	  this.firstName = firstName
+	  this.lastName = lastName
+	}
+	Vue.component('my-component', {
+	  props: {
+	    // 基础的类型检查 (`null` 和 `undefined` 会通过任何类型验证)
+	    propA: Number,
+	    // 多个可能的类型
+	    propB: [String, Number],
+	    // 必填的字符串
+	    propC: {
+	      type: String,
+	      required: true
+	    },
+	    // 带有默认值的数字
+	    propD: {
+	      type: Number,
+	      default: 100
+	    },
+	    // 带有默认值的对象
+	    propE: {
+	      type: Object,
+	      // 对象或数组默认值必须从一个工厂函数获取
+	      default: function () {
+	        return { message: 'hello' }
+	      }
+	    },
+	    // 自定义验证函数
+	    propF: {
+	      validator: function (value) {
+	        // 这个值必须匹配下列字符串中的一个
+	        return ['success', 'warning', 'danger'].indexOf(value) !== -1
+	      }
+	    },
+	    author: Person//自己的类型,通过 instanceof 来进行检查确认
+	  },
+	 template: `<span> props validation defaultValue={{propD}} , propE={{propE.message}} ,author={{author.firstName}} </span>`
+	});
+	new Vue({ el: '#propsValid' ,
+		data: {
+			myNum:123,
+			myArray:[1,2,3],
+			myObject:{message:'world'},
+			myPersion:new Person('li','si'),
+		}, 
+	});
+</script>
+
+inheritAttrs 和 $attrs <br/>
+<div id=attrsDiv>
+	<base-form  style="background-color:#00FF00;font-size:2rem">
+		<base-input
+		  v-model="username"
+		  required
+		  placeholder="Enter your username"
+		></base-input>
+	</base-form> 
+</div>
+<script type="text/javascript">
+//用后面的slot
+Vue.component('base-form', {
+	 template: `<form   v-bind="$attrs">
+	 	 <slot></slot>
+		</form>`
+});
+Vue.component('base-input', {
+	  //inheritAttrs: false,//不希望组件的根元素继承特性，  不会影响 style 和 class 的绑定
+	  inheritAttrs: true,//什么东西会继承？？ ??
+	  props: ['label', 'value'],
+	  //$attrs  表示接收外部所有属性，即placeholder属性，required属性 
+	  template: `
+	    <label>
+	      {{ label }}
+	      <input
+	        v-bind="$attrs"
+	        v-bind:value="value"
+	        v-on:input="$emit('input', $event.target.value)"
+	      >
+	      value={{value}}
+	    </label>
+	  `
+	}) 
+	 new Vue({ el: '#attrsDiv' ,
+		data: { 
+			username:"lisi"
+		}, 
+	});
+</script>
+
+v-on 事件监听器在 DOM 模板中会被自动转换为全小写 (因为 HTML 是大小写不敏感的) ,推荐你始终使用 kebab-case 的事件名 
+
+ v-model 默认会利用名为 value 的 prop 和名为 input 的事件
+ 这里的 lovingVue 的值将会传入这个名为 checked 的 prop。
+ <div id="customEventDiv">
+ 	<base-checkbox v-model="lovingVue"></base-checkbox>
+ </div>
+ 
+ <script type="text/javascript">
+ Vue.component('base-checkbox', {
+	  model: { //model组 (v-model)
+	    prop: 'checked',//默认是value，即props组中的属性名
+	    event: 'change'//默认是input
+	  },
+	  props: {
+		//checked 要和model组的prop值相同
+	    checked: Boolean
+	  },
+	  template: `
+	  	<span> 
+		  <input
+		      type="checkbox"
+		      v-bind:checked="checked"
+		      v-on:change="$emit('change', $event.target.checked)"
+		    >
+		  checked={{checked}}
+		</span>
+	  `
+	});
+ new Vue({ el: '#customEventDiv' ,
+		data: {
+			lovingVue:true
+		}, 
+	});
+</script>
+<br/> 
+原始 checkbox事件: <input id="htmlCheckbox" type="checkbox"   checked />  <br/>
+<script type="text/javascript">
+ const selectElement = document.querySelector('#htmlCheckbox');
+ selectElement.addEventListener('change', (event) => {
+   console.log(`You like ${event.target.value} checked=${event.target.checked}`) ;//value默认on 可以改
+ });
+ </script>
+
+<hr/>
+slot 2.6版本新改进的功能  
+<div id="slotDiv">
+	<navigation-link url="/profile">
+	  <!-- 嵌套组件， 这能能访问url变量，本给自身用，不会传给子组件的--> 
+	  <font-awesome-icon name="user"></font-awesome-icon>
+	  Your Profile
+	</navigation-link>
+	<my-submit></my-submit>
+	<my-submit>save</my-submit> 
+</div>
+
+<script type="text/javascript">
+Vue.component("navigation-link", {
+	 props: ['url'], 
+	//<slot></slot>表示在<navigation-link> 和 </navigation-link> 里的内容
+	template: ` <a  v-bind:href="url"  class="nav-link" >
+		  	<slot></slot>
+		  </a> `
+	});
+	
+Vue.component("font-awesome-icon", {
+	 	props: ['name'], 
+		   template: ` <span>{{name}} icon</span> `
+		});
+Vue.component("my-submit", { 
+  // <slot>默认值</slot>
+  template: ` <button type="submit">
+	  <slot>Submit</slot>
+	 </button>`
+}); 
+new Vue({ el: '#slotDiv' ,
+		data: { }, 
+	});
+</script>
+
+<div id="layoutDiv">
+	<base-layout>
+	  <template v-slot:header>
+	    <h1>Here might be a page title</h1>
+	  </template>
+	
+	  <p>A paragraph for the main content.</p>
+	  <p>And another one.</p>
+	<!-- 或者指名default
+	<template v-slot:default>
+		<p>A paragraph for the main content.</p>
+		<p>And another one.</p>
+	</template> 
+	-->
+	  <template v-slot:footer>
+	    <p>Here  some contact info</p>
+	  </template>
+	</base-layout> 
+	
+</div>
+<script type="text/javascript">
+Vue.component("base-layout", { 
+	  // <slot>默认的名字为default
+	  template: `
+		  <div class="container">
+		  <header>
+		    <slot name="header"></slot>
+		  </header>
+		  <main>
+		    <slot></slot>
+		  </main>
+		  <footer>
+		    <slot name="footer"></slot>
+		  </footer>
+		</div>
+		`
+	});
+new Vue({ el: '#layoutDiv' ,
+	data: { }, 
+});
+</script>
+
+<div id="scopeDiv">
+	作用域插槽  slotProps可以任意名: 
+	<current-user v-bind:user="user"> 
+	  <template v-slot:default="slotProps">
+	    {{ slotProps.user.firstName }}
+	  </template> 
+	</current-user>
+	
+	<br/> v-slot:default="slotProps" 可缩写为 v-slot="slotProps" :
+	<current-user v-bind:user="user"> 
+	  <template v-slot="slotProps">
+	    {{ slotProps.user.firstName }}
+	  </template> 
+	</current-user>
+	 <br/> 代码：
+	<current-user v-bind:user="user"  v-slot="{ user }">
+	  {{ user.firstName }}
+	</current-user>
+	
+	<br/> v-slot: 替换为字符 #， default不能省略，示例结果：
+	 <current-user v-bind:user="user"> 
+	  <template #default="slotProps">
+	    {{ slotProps.user.firstName }}
+	  </template> 
+	</current-user>
+</div>
+<script type="text/javascript"> 
+Vue.component("current-user", {  
+	  props: ['user'], 
+	  // <slot v-bind:
+	  template: ` 
+			<span>
+			  <slot v-bind:user="user">
+			    {{ user.lastName }}
+			  </slot>
+			</span> 
+		`
+	});
+new Vue({ el: '#scopeDiv' ,
+	data: {
+			user:{firstName:"li",lastName:"si"},
+			//dynamicSlotName:'user',
+		}, 
+});
+
+</script>
+<div id="slotTodoDiv">
+	slot todo示例 
+	<todo-list v-bind:todos="todos">
+	  <template v-slot:todo="{ todo }">
+	    <span v-if="todo.isComplete">✓</span>
+	    {{ todo.text }}
+	  </template>
+	</todo-list>
+
+</div>
+<script type="text/javascript">
+Vue.component("todo-list", {   
+	  props: ['todos'],
+	  template: ` 
+		  <ul>
+		    <li
+		      v-for="todo in todos"
+		      v-bind:key="todo.id"
+		    >  
+		      <slot name="todo" v-bind:todo="todo"> 
+		        {{ todo.text }}
+		      </slot>
+		    </li>
+		  </ul>
+		`
+	});
+new Vue({ el: '#slotTodoDiv' ,
+	data: {
+		todos: [
+			      { id: 0, text: 'Vegetables' ,isComplete:true },
+			      { id: 1, text: 'Cheese' },
+			      { id: 2, text: 'Whatever else humans are supposed to eat' }
+			    ]
+		}, 
+});
+</script>
 
 
 
+=============Vue Router
+<script type="text/javascript" src="../vue-2.6.10/vue.js"></script>
+<script type="text/javascript" src="../vue-router-3.0.7_unpkg/vue-router.js"></script>
+<!-- 
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+ -->
+<div id="app">
+	  <h1>Hello App!</h1>
+	  <p>
+	    <!-- <router-link> 默认会被渲染成一个 `<a>` 标签 -->
+	    <router-link to="/foo">Go to Foo</router-link>
+	    <router-link to="/bar">Go to Bar</router-link>
+	  </p>
+	  <!-- 路由匹配到的组件将渲染在这里 -->
+	  <router-view></router-view>
+	</div>
+	<script type="text/javascript">
+	// 0. 如果使用模块化机制编程，导入Vue和VueRouter，要调用 Vue.use(VueRouter)
+	const Foo = { template: '<div>foo</div>' }
+	const Bar = { template: '<div>bar</div>' }
+
+	//  2. 定义路由(类似react的hash路由)
+	// 每个路由应该映射一个组件。 其中"component" 可以是
+	// 通过 Vue.extend() 创建的组件构造器
+	const routes = [
+	  { path: '/foo', component: Foo },
+	  { path: '/bar', component: Bar }
+	]
+	// 3. 创建 router 实例，然后传 `routes` 配置 
+	const router = new VueRouter({
+	  routes // (缩写) 相当于 routes: routes
+	})
+	// 4. 创建和挂载根实例 
+	const app = new Vue({
+	  router
+	}).$mount('#app') 
+	</script>
+//当 <router-link> 对应的路由匹配成功，将自动设置 class 属性值 .router-link-active
+	
+//------带参数
+	<div id="app">
+	  <p>
+	    <router-link to="/user/li">Go to li</router-link>
+	    <router-link to="/user/si">Go to si</router-link>
+	  </p>
+	  <router-view></router-view>
+	</div>
+	<script type="text/javascript"> 
+	const User = {
+	  //得到参数
+	  template: '<div>User {{ $route.params.id }}</div>',
+	  	watch: {
+		    '$route' (to, from) {
+		 		console.log("对路由"+from.path+"变"+to.path);
+		    }
+	  	},
+	  	 beforeRouteUpdate (to, from, next) {//2.2新功能
+	  		console.log("beforeRouteUpdate对路由"+from.path+"变"+to.path);
+	  	     next();//一定调用这个
+	  	  }
+	 }
+	const routes = [
+		 // 动态路径参数 以冒号开头(同react-router)，路径支持*通配
+	    { path: '/user/:id', component: User }
+	] 
+	const router = new VueRouter({
+	  routes  
+	})  
+	const app = new Vue({
+	  router
+	}).$mount('#app')  
+	</script>
+	
+============Vuex
+vuex-3.1.1
+https://github.com/vuejs/vuex/tree/dev/dist 下载 vuex.min.js  vuex.js
+
+借鉴了Redux
+如果您不打算开发大型单页应用，使用 Vuex 可能是繁琐冗余的
+如果您的应用够简单，您最好不要使用 Vuex
+就是 store（仓库）, store 中的状态发生变化，那么相应的组件也会相应地得到高效更新
+你不能直接改变 store 中的状态。改变 store 中的状态的唯一途径就是显式地提交 (commit) mutation
+
+<div id="app">
+	</div>
+	<script type="text/javascript">
+	// 如果在模块化构建系统中，请确保在开头调用了 Vue.use(Vuex)
+	// 在单独构建的版本中辅助函数为 Vuex.mapState
+	//import { mapState } from 'vuex'
+	const store = new Vuex.Store({
+	  state: {
+	    count: 0
+	  },
+	  mutations: {
+	    increment (state) {
+	      state.count++
+	    }
+	  }
+	});
+	
+	const Counter = {
+	  template: `<div>{{ count }}</div>`,
+	  computed: {
+	    count () {
+	      //return store.state.count;
+	       return this.$store.state.count
+	    }
+	  }
+	}
+	const app = new Vue({
+		  el: '#app',
+		  // 把 store 对象提供给 “store” 选项，这可以把 store 的实例注入所有的子组件
+		  store,
+		  components: { Counter },
+		  template: `
+		    <div class="app">
+		      <counter></counter>
+		    </div>
+		  `
+		})
+	//使用 Vuex 并不意味着你需要将所有的状态放入 Vuex
+	</script>
+	
+============vue-cli
+v3.10.0  
+类似 create-react-app 功能 
+
+安装
+npm install -g @vue/cli	
+
+建立项目用
+vue create my-vue-project 有src/main.js , src/App.vue ,public/index.html文件 
+cd my-vue-project
+npm install (应该是做过了)
+npm run serve   提示地址  http://<hostname>:8080/ 如端口被占用会自动+1方式使用新端口 
+		(serve配置的是执行vue-cli-service serve,源码在./node_modules/@vue/cli-service/bin/vue-cli-service.js) 
+npm run build 为生产环境
+
+vue ui  会打开 http://localhost:8000/project/select 可以界面方式创建项目
 
 
+全局 CLI 配置
+home 目录下一个名叫 .vuerc 的 JSON 文件
+vue config 来查看
 
 
+vscode 打开 .vue文件 提示推荐安装 Vetur 扩展，才可高亮显示
+idea 也要单独安装Vue.js 插件
+eclipse要marketplace安装React::CodeMix 3 , Vue.js:CodeMix 3 插件 
 
 
+如要快速开发，使用vue serve 和 vue build 命令对单个 *.vue 文件进行快速原型开发，安装
+npm install -g @vue/cli-service-global
 
+vue serve MyComponent.vue
+vue build MyComponent.vue
+
+-----vue.config.js 
+https://cli.vuejs.org/zh/config/#vue-config-js
+
+vue.config.js 是一个可选的配置文件，如果项目的 (和 package.json 同级的) 根目录中存在这个文件，那么它会被 @vue/cli-service 自动加载
+//----vue.config.js 
+module.exports = { 
+  publicPath:'/myContext',  //默认上下文是  /
+  outputDir:'dist' , //默认是dist目录
+  indexPath:'index.html', //默认首页是 index.html 
+}
+
+可这样访问
+http://127.0.0.1:8082/myContext/index.html
+
+
+============Vue Loader 
+是一个 webpack 的 loader
+可以把.vue文件 输出成组件
+
+每个 *.vue 文件都包括三部分 <template>, <script> 和 <style>
+
+使用webpack的 style-loader
 
 
 

@@ -32,6 +32,15 @@ Driver有 Scala C++  GO 版本
 Win10 家庭版/win7旗靓版  安装 MongoDB 4.0.1 安取消选择install mongodb compass(一个图表界面工具,后面可以单独安装),否则安装一直卡着
 安装后建立的服务是D:\Program\MongoDB\Server\4.0\bin\mongod.exe --config "D:\Program\MongoDB\Server\4.0\bin\mongod.cfg" --service
 
+
+----- rockmongo  
+
+进入首页提示下载php_mongo.dll (http://pecl.php.net/package/mongo) 放在php安装解压的ext目录中 
+注意支持的PHP版本,如php_mongo-1.6.16-5.6-ts-vc11-x64 支持 PHP5.6  
+php.ini中增加  extension=php_mongo.dll
+可以进入页面, 但好像不能对Mongo4 上面用??? 
+ 
+	
 -----------4.0 配置文件 mongod.cfg YAML 格式配置变化,缩进不支持用tab,要用空格
 storage:
   dbPath: D:\Program\MongoDB\Server\4.0\data
@@ -117,7 +126,8 @@ sc  delete MongoDB  删除服务
 
 
 ----linux 下,只要放PATH环境变量 ,注意权限
- 
+ mongod-4.2.0 linux版本只有redhat7.0版本，tgz和rpm两种，tgz包可以运行在centOS7.6上 
+ (tgz包运行在openSUSE-leap-15.1,报找不到libcrypto.so.10，而有libcrypto.so.1.1 即 libopenssl1_1)
 
  mongod --dbpath=/usr/local/mongdb/data --logpath=/usr/local/mongdb/db.log  --fork  启动   
  如要验证用户名,在--fork前加 --auth
