@@ -1,8 +1,9 @@
-Kotlin 也可开发Android
+
 Monkey 是Android SDK提供的一个命令行工具， 可以简单，方便地运行在任何版本的Android模拟器和实体设备上。 Monkey会发送伪随机的用户事件流，适合对app做压力测试
 
 -------------Android 更新 下载
 https://developer.android.google.cn  可用
+https://developer.android.google.cn/ndk
 
 http://www.androiddevtools.cn/ 有 可配置在SDK Manager 中镜像
  
@@ -50,9 +51,10 @@ source 和 goole repository是android studio初始配置会下的
 模拟器要单独下载ware和tv的(table ,phone用真机行吗)
 
 
-android-5.0=api 21
+android-5=api 21
 android-8.1=api 27
-android-9.0=api 28
+android-9=api 28
+android-10=api 29
 (新建选择minSDK 21,app/build.gradle中minSdkVersion 21 ,targetSdkVersion 28,compileSdkVersion 28)
  
 ---------------问题解决方法
@@ -88,12 +90,12 @@ fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
  检查  fastboot oem get-bootinfo
  
 ----- Android Studio
- AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8, 自带Grale , linux 下提示安装KVM提速
- AndroidStudio-3.3.1 下载的是 gradle-4.10.1-all.zip　自带OpenJDK Jre-1.8.0_152
+ AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8, 自带Grale , linux 下提示安装KVM提速 
+ AndroidStudio-3.5.3 下载的是 gradle-5.4.1-all.zip 自带OpenJDK Jre-1.8.0_202
   下载时可中断,
-        　~/.gradle/wrapper/dists/gradle-4.10.1-all/<uuid>/   
- %HOMEPATH%/.gradle/wrapper/dists/gradle-4.10.1-all/<uuid>/
-  再放入gradle-4.10.1-all.zip  　,不能手工指定更高的版本,不能再构建???必须重新项目??
+        　~/.gradle/wrapper/dists/gradle-<version>-all/<uuid>/   
+ %HOMEPATH%/.gradle/wrapper/dists/gradle-<version>-all/<uuid>/
+  再放入gradle-<version>-all.zip  　,不能手工指定更高的版本,不能再构建???必须重新项目??
 
 　首次启动Android Studio 指定SDK目录后　会下载Android SDK Tools,Android SDK platform-Tools,Android SDK platform-Tools(共就这3个tools),Support Repository下的全部
  Android Emulator 必须手工选择下载(如使用模拟器)
@@ -107,15 +109,25 @@ fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
  如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
 在path中找到gradle命令不会下载,再配置如下
 有项目后　settings->Build,Execution,Deployment->Build Tool->Gradle->单选use Local Gradle, Gradle home:选择路径/opt/gradle-5.2
-可全局配置service directory path: ~/.gradle 到其它目录
+可全局配置service directory path: ~/.gradle 到其它目录,  AndroiStudio会使用 GRADLE_USER_HOME 环境变量
 
------build.gradle文件
-	repositories { 
-	//最前面增加镜像
-	maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-	maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
+如不能运行项目 File -> sync project with gradle file 
+分析依赖 gradle视图->app项目->Tasks->android->androidDependences 右击->Run  在控制台显示树
+
+如何 不让gradle 下载源码包??? 
+
+
+-----build.gradle文件 
+buildscript(是下载插件及依赖使用) 或 allprojects(自己项目使用) 下 
+    repositories {
+ 
+		//最前面增加镜像
+		 mavenLocal()
+		maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+		//maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
+		google()
 	}
-
+ 
 AndroidStudio如果新版本兼容老版本生成代码有<android.support.constraint.ConstraintLayout>,如新建项目默认启动类是extends AppCompatActivity(Backforwards Compatibility),如取消extends Activity
 
 
@@ -147,8 +159,14 @@ l ocal.properties 中 sdk.dir= 和 ndk.dir=
 <application>\App(Module)\libs
  
  ----Gradle Android 
+ 
  gradle-wrapper.properties
-	中有 distributionUrl=https\://services.gradle.org/distributions/gradle-4.4-all.zip
+	中有 distributionUrl=https\://services.gradle.org/distributions/gradle-<version>-all.zip
+
+//建立应用项目是
+apply plugin: 'com.android.application'
+//建立库项目是
+apply plugin: 'com.android.library' 
 
 第一个项目的名字app是默认生成的,可以重命名,会修改 settings.gradle 中的内容 include:'app','otherproject'
 Application级
@@ -159,7 +177,7 @@ Application级
 	build.gradle
 		仓库的配置
 Moudlue 级	
-	build.gradle api版本的配置
+	build.gradle //api版本的配置
 		android {
 			 compileSdkVersion 28
 			  defaultConfig {
@@ -170,18 +188,18 @@ Moudlue 级
 		
 		
 build.gradle文件在android括号中加
- productFlavors
-            {
-                    arrogant{  //有目录名为arrogant与main同级的,类似有测试版本,生产版本 
-                        applicationId 'com.my.arro'
-                    }
-                    friendly{
-                        applicationId 'com.my.fri'
-                    }
-                    obsequious {
-                        applicationId 'com.my.obs'
-                    }
-            }
+		productFlavors
+		{
+				arrogant{  //有目录名为arrogant与main同级的,类似有测试版本,生产版本 
+					applicationId 'com.my.arro'
+				}
+				friendly{
+					applicationId 'com.my.fri'
+				}
+				obsequious {
+					applicationId 'com.my.obs'
+				}
+		}
 最外层加
 task printVariantNames{
     doLast{
@@ -203,8 +221,13 @@ build.gradle中  android { }内部增加
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
     }
-	  
+	
 
+dependencies { 
+    api ('org.apache.commons:commons-lang3:3.8.1') //api 同以前 compile ,(transitive)表示这个包可以上级依赖于我的用
+	implementation ('org.apache.commons:commons-lang3:3.8.1') //表示这个包只可我用，不可给上级依赖于我的用
+	implementation ('org.apache.commons:commons-lang3:3.8.1+')//+号表示每次取最新的包 
+}
 ======手机HTML,JS,CSS调试方法
 
 AndroidManifest.xml    <application  android:debuggable="true">   相当于在IDE中打开debug

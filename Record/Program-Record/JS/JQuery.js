@@ -11,7 +11,7 @@ Hplus 美工使用的工具
 Chrome 可以看到某个元素是否被动态增加了事件,有一个EventListener标签,对jquery增加的也很准,而edge则不是很准(Firefox 无)
 
 ----jquery其它插件
-Highcharts ,HighStock 收费的
+Highcharts 有甘特图 ,HighStock 收费的
 		https://www.hcharts.cn/download  可下载包
 
 jqPlot 免费的
@@ -29,48 +29,83 @@ jQueryGantt   https://github.com/robicch/jQueryGantt
 dhtmlxGantt   https://dhtmlx.com/docs/products/dhtmlxGantt/
 PlusGantt 	  国产普加 
 
----css
-#myid 
-{
-	border:1px solid red;
-	background-imgage:url();
-	background-repeat:repeat-x;
-	background-position:bottom;
-}
+-----ztree 国产树插件 
+基于jQuery 可以单选父级项,界面像easyUI
+https://github.com/zTree/zTree_v3
+//基于radio示例改的
+/*
+		var zNodes =[
+			{ id:1, pId:0, name:"随意勾选 1", open:true},
+			{ id:11, pId:1, name:"随意勾选 1-1", open:true},
+			{ id:111, pId:11, name:"随意勾选 1-1-1"},
+			{ id:112, pId:11, name:"随意勾选 1-1-2"},
+			{ id:12, pId:1, name:"随意勾选 1-2", open:true},
+			{ id:121, pId:12, name:"随意勾选 1-2-1"},
+			{ id:122, pId:12, name:"随意勾选 1-2-2"},
+			{ id:2, pId:0, name:"随意勾选 2", open:true},
+			{ id:21, pId:2, name:"随意勾选 2-1"},
+			{ id:22, pId:2, name:"随意勾选 2-2", open:true},
+			{ id:221, pId:22, name:"随意勾选 2-2-1", checked:true},
+			{ id:222, pId:22, name:"随意勾选 2-2-2"},
+			{ id:23, pId:2, name:"随意勾选 2-3"}
+		];
+*/		
+		//easyUI也是children
+		var zNodes=[
+			{ id:1, name:"随意勾选 1", open:true,
+				children:
+				[
+					{id:11,name:"随意勾选 1-1",open:true}
+				]
+			},
+			{ id:21, name:"随意勾选 2-1",
+				children:
+				[
+					{ id:221, pId:22, name:"随意勾选 2-2-1", checked:true},
+				]
+			},
+		];
+		var setting = {
+			data: {
+				key:{
+					name:"name",
+					title:"name"
+				},
+				simpleData: {
+					enable: true,
+					idKey:"id",
+					pIdKey:"pId",
+					rootPid: 0
+				}
+			},
+			view:{
+				selectedMulti:true
+			},
+			check:{
+				enable:true,
+				chkStyle: "checkbox",//checkbox,radio
+				radioType: "level",//默认只影响同行，不是整个树
+				chkboxType:{"Y":"","N":""},
+				chkDisabledInherit: false
+			} 
+		};
+		
+		$(document).ready(function(){
+			var myTree=$.fn.zTree.init($("#treeDemo"), setting, zNodes);
+			myTree.expandAll(false);//收起
+			myTree.expandAll(true);//展开
+		});
+<ul id="treeDemo" class="ztree"></ul>
 
-border-collapse:collapse
 
-ul,li
-{
-	list-style:none;//去ul和li前的小点
-	padding:0;//去缩进,IE不行的要加margin:0
-	margin:0;
-}
 
-text-decoration:none;//去<a>的下划线
-padding-left:20px;//左缩进
-background-position:3px center;//x,y
-display:block; 充满整个区域//IE不认,只能用inline-block
 
-<li style="float:left"  //把ul下的li变成横向,其它元素会紧跟最后一个,自己在后面元素的左边,可right,none
-clear:left //移动自己,使左边没有float元素,可right,none,both
 
- CSS渐变
-Firefox:  background: -moz-linear-gradient(top,  #ccc,  #000);//线性渐变,从顶部开始,开始颜色是#ccc
-IE:		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#000000');//效果同上
-				GradientType  1:默认值,水平渐变. 0:垂直渐变
-border:1px solid black;
-border-bottom:0; //CSS是有先后顺序的
-	
 
-position:relative;//absolute
-top:-1px;
 
-z-index:100;//间提必须position是absolute或者relative
-
+-------
 var jsForm=document.getElementById("newForm");
 $(jsForm);//来把JS变量转换为jQuery变量
-
 
 document.getElementById("newForm").reset();
 $('#newForm')[0].reset() ; //[0]来把jQuery变量转换为JS变量

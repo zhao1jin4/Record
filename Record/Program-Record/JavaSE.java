@@ -410,13 +410,13 @@ jdk 10 对docker容器运行java 的改善, -XX:-UseContainerSupport
 
 jvisualvm  界面工具
 
-JDK8 的jmc (Java Mission Control)->"飞行记录器"->提示对要监控的JVM要加参数  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder 
+JDK8 的jmc (Java Mission Control)->"飞行记录器"(即JFR)->提示对要监控的JVM要加参数  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder 
 记录器会在一段时间内做记录(一分钟),保存到 %HOMEPATH%\.jmc\5.3.0\xxx.jfr ,用于事后查看
 JDK11去除jmc要单独下载
 
 
-jps命令显示所有Java进程的ID号 和 类名 ,像ps
-jps 返回vmid。为了获得更好的效果，采用 -Dcom.sun.management.jmxremote 属性集启动 Java 进程(JDK 1.5 加, 1.6 )
+jps 命令显示所有Java进程的ID号 和 类名 ,像ps
+jps 返回vmid 为了获得更好的效果，采用 -Dcom.sun.management.jmxremote 属性集启动 Java 进程(JDK 1.5 加, 1.6 )
 
 
 jps  有VMID号
@@ -509,18 +509,47 @@ jstat -printcompilation pid:当前VM执行的信息
 jstat -gccause 
 
 
+jcmd -l 类似jps,但显示类的路径
+jcmd <PID> help 可以用help 查所有的命令
+jcmd <pid> GC.class_histogram  显示目前类的实例数和使用空间
+
+JFR.stop			FLR结束录制，jcmd 7824  JFR.stop recording=1
+JFR.start			FLR开始录制，提示 Use JFR.dump recording=1 filename=FILEPATH to copy recording data to file (可用jmc打开来看)
+JFR.dump
+JFR.check			显示正在录制的recording值
+VM.native_memory
+VM.check_commercial_features   查是否开启FLR
+VM.unlock_commercial_features  运行时开启FLR
+ManagementAgent.stop
+ManagementAgent.start_local
+ManagementAgent.start
+GC.rotate_log
+Thread.print		查看 JVM 的Thread
+GC.class_stats
+GC.class_histogram
+GC.heap_dump		可带文件名参数(MemoryAnalyzer来看吧)，如果只指定文件名，默认会生成在启动 JVM 的目录里，可绝对路径。
+GC.run_finalization
+GC.run
+VM.uptime				查看 JVM 的启动时长
+VM.flags  				查看 -X 和 -XX 的参数信息
+VM.system_properties  	查看 JVM 的属性信息
+VM.command_line 		查看 JVM 的启动命令行
+VM.version 				查看 JVM 版本
+
+解锁商业特性,可与 Java Flight Recorder (JFR)一起使用
+
 
 jcmd <pid | main class> <command ...|PerfCounter.print|-f file>  
 对-f 每个命令必须写在单独的一行。以"#"开头的行会被忽略,	stop 命令
-jcmd <pid> GC.class_histogram 
-可以用help 查所有的命令
-解锁商业特性,可与 Java Flight Recorder (JFR)一起使用
+
+
+
 
 jstack -- 如果java程序崩溃生成core文件，jstack工具可以用来获得core文件的java stack和native stack的信息,只有Linux/Unix
-jstack -l 进程ID  //查看
-java.lang.Thread.State: RUNNABLE
-						WAITING
-						TIMED_WAITING
+
+ps -mp <pid> -o THREAD,tid,time 命令查看该进程的线程情况 (-m 显示所有的线程 -p pid 进程使用cpu的时间)
+jstack -l 进程ID (-l 看synchronizer lock) //查看,显示每个线程，有十六进制的tid,可看到线程正在执行代码堆栈
+
 
 Map<Thread, StackTraceElement[]> maps = Thread.getAllStackTraces();
 //      maps.keySet();
@@ -551,11 +580,11 @@ JDK9中去了除了jhat
 	//如文件过大,机器可用内存 可能 要大于文件大小
 	jhat -J-mx768m -port <端口号:默认为7000> java_pid.hprof
 	jhat java_pid.hprof 分析jmap导出的文件,启动服务 HTTP端口7000,http://localhost:7000/ ,界面中会按包名分类  
-		使用eclipse插件 MemoryAnalyzer分析jmap导出文件,插件认.hprof格式文件
 
-		eclipse性能测试插件 TPTP
+使用eclipse插件 MemoryAnalyzer分析jmap导出文件,插件认.hprof格式文件
+eclipse性能测试插件 TPTP
+
 java进程异常终止进产生 JavaCore 文件是关于CPU的　和　HeapDump(.hprof)文件是关于内存的
-
 
 
 jstatd.all.policy文件内容	
@@ -576,7 +605,8 @@ UNIX要
  -r       - restore package directory structrure
  -d <dir> - directory for output files (will be created when necessary)
   
-反编译器 JD-GUI 
+反编译器 JD-GUI-1.6.6
+JD-Eclipse-2.0.0
 ------------------
 ------------------JDBC
 
@@ -760,7 +790,11 @@ TreeSet()或用Comparator 来构造
 								unmodifiableSet()
 HashMap不是同步的,可以为null，HashTable 是同步的，不可为null
 
+
 LinkedHashMap	 构造时可以设置仿问排序和插入排序,性能和数据有关,而HashMap性能和容量有关
+   * 第三个参数设置为true，代表linkedlist按访问顺序排序，可作为LRU缓存
+   * 第三个参数设置为false，代表按插入顺序排序，可作为FIFO缓存
+   
 HashTable 方法加 synchronize,效果同Collections.synchronizedMap 所有方法用一个锁 
 
 Stack 实现了Vector 有一个elementAt()方法，不适用
@@ -1024,7 +1058,7 @@ Oracle JDK 11 是LTS（长期支持）版本
 //删java.xml.ws , java.xml.bind  ,java.xml.ws.annotation 
 //删命令 wsimport,wsgen
 //删Java Mission Control (JMC) ，JavaFx
-//不推荐用  Nashorn JavaScript Engine(jjs)   (firefox官方有 Rhino，GraalVM 是替代方案)
+//不推荐用  Nashorn JavaScript Engine(jjs,jrunscript)   (firefox官方有 Rhino，GraalVM 是替代方案)
 
 GTK3 Is Now the Default on Linux/Unix 
 
@@ -1378,6 +1412,41 @@ names.add("2");
 names.add("3");
 System.out.println(String.join("-", names));
 
+---Stream API
+Map<String,List<Employee>> titleEmp=Arrays.stream(emps).collect(Collectors.groupingBy(Employee::getTitle));
+		
+// Accumulate names into a List
+ List<String> list = people.stream()
+   .map(Person::getName)
+   .collect(Collectors.toList());
+
+ // Accumulate names into a TreeSet
+ Set<String> set = people.stream()
+   .map(Person::getName)
+   .collect(Collectors.toCollection(TreeSet::new));
+
+ // Convert elements to strings and concatenate them, separated by commas
+ String joined = things.stream()
+   .map(Object::toString)
+   .collect(Collectors.joining(", "));
+
+ // Compute sum of salaries of employee
+ int total = employees.stream()
+   .collect(Collectors.summingInt(Employee::getSalary));
+
+ // Group employees by department
+ Map<Department, List<Employee>> byDept = employees.stream()
+   .collect(Collectors.groupingBy(Employee::getDepartment));
+
+ // Compute sum of salaries by department
+ Map<Department, Integer> totalByDept = employees.stream()
+   .collect(Collectors.groupingBy(Employee::getDepartment,
+								  Collectors.summingInt(Employee::getSalary)));
+
+ // Partition students into passing and failing
+ Map<Boolean, List<Student>> passingFailing = students.stream()
+   .collect(Collectors.partitioningBy(s -> s.getGrade() >= PASS_THRESHOLD));
+   
 --------------------------JDK 7 新特性
 G1拉圾收集器   -XX:+UseG1GC -Xms2g Xmx2g -XX:MaxGCPauseMillis=500 
 
@@ -2529,7 +2598,7 @@ grant codebase "www.example.com" {
 JKS(JavaKeysotre)格式  和  PFX/p12(PKCS12) 
 PFX常用于Windows IIS服务器 ,JKS常用语JAVA类的WEB服务器
 
-Certificate Authorities=CA
+Certificate Authorities=CA 是由第三方机构下发的，可以对私钥签名附加上机构信息。浏览器就可以在https协议中通过该证书信任第三分站点。
 Certificate Signing Request (CSR)
  
 根据私钥pfx生成公钥crt
@@ -2906,7 +2975,7 @@ java.sql.Blob imgBlob;//如要修改查询必须加锁
 OutputStream writeStream=imgBlob.setBinaryStream(0);
 InputStream readStream =imgBlob.getBinaryStream();
 
----------------------DES 加密，解密
+---------------------DES 加密，解密 1998 废止
 //Security.addProvider(new com.sun.crypto.provider.SunJCE()); 
 //Security.getProviders();
 //-------随机生成 Key 密钥
@@ -3597,9 +3666,9 @@ Thread 类的静态方法	interrupted() 影响" interrupted status "，如果连
 
 
 ThreadLocal  其实是采用哈希表的方式来为每个线程都提供一个变量的副本。从而保证各个线程间数据安全。每个线程的数据不会被另外线程访问和破坏。
-			所变量保存在ThreadLocal中，用set
+			所变量保存在ThreadLocal中，只有set,get,remove 
 			
-ThreadLocal 声明为static ,只有set,get,remove,相当于一个Map,key为当前线程的ID,有多少个线程在运行,Map里就有多少
+ThreadLocal 不能声明为static(因是多个线程共享),如一个线程，只会使用一个ThreadLocal实例，可不用remove,如多个实例一定要remove(),否则可能内存溢出
 
 CountDownLatch countDownLatch = new CountDownLatch(threadNumber);//主线程等所有线程完成
 子线程结束前调用countDownLatch.countDown();  

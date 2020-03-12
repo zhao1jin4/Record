@@ -1,8 +1,9 @@
 ﻿
 ==========================Mac OS X (Macintosh)
 
-安装完成后,注意取消自动更新 App Store  系统偏好设置->软件更新->取消 "检查更新"   
-
+安装完成后,注意取消自动更新 
+App Store -> 系统偏好设置-> Automatic Update   默认是取消的
+Finder -> Preferences->Software Update-> 默认未选中Automatically ,advanced...->取消check,联带取消download
 
 ===================快捷键
 连续多选文件使用shift键,不连续使用command键
@@ -100,7 +101,9 @@ dock图标下面有一个亮点,表示这个程序进在运行
 
 root用户默认是被禁用的
 系统偏好设置->用户与群组, 登录项标签可以设置登录后启动的程序,锁图标可以点开
-	下拉->设置主密码(root密码),管理员可以使用主密码重置任何用户的密码,
+	Login options->network account server  旁边的join...->open directory utility->
+	解锁输入密码，Edit->Enable Root User 输入root密码
+	管理员可以使用主密码重置任何用户的密码,
 
 	sudo -i
 	
@@ -142,6 +145,7 @@ Mac切换为英文
 
 在Finder中显示隐藏目录 ,defaults write com.apple.finder AppleShowAllFiles -bool true 注销后生效,
 要显示用户主目录的 ~/Library/ 用命令	chflags nohidden ~/Library/  
+~/Library/Application Support/Xxx 是应用配置
 
 defaults write com.apple.appstore ShowDebugMenu -bool true 
 重启appStore可以发现菜单上多了一个Debug->show download folder  发现 有 pkg结尾的软件了当然你要在苹果安装这个app完成之前把它拷贝一份出来就可以了
@@ -167,7 +171,7 @@ Mac 安装字体使用/Applications/Font Books.app,也可以双击安装, 会存
 
 如果文件是从windows复制过来的,如当时设置为只读,在Mac中是locked,不能改名,移动位置,必须右击文件->get info->取消locked
 
-View->Show path bar  可双击下面状态栏进入目录 ,如command+双击打开一个新的Finder窗口
+View->Show path bar (cmd+alt+p)  可双击下面状态栏进入目录 ,如command+双击打开一个新的Finder窗口
 使用 Toast 打开bin格式的光盘镜像文件,选Convert标签->双击image file,把bin文件 拖入,点mount按钮
 
 
@@ -187,6 +191,10 @@ Finder 中 view->hide/show view options->选中Date Add,增加日期,对于复�
 右击mpkg包->show package content  ,可以查看包内容 在Contents/Packages里有其它的pkg包
 .pkg包(10.10 版本)没有这个菜单项了,使用 Suspicious Package 工具查看pkg包内容 ,安装后右击.pkg->Quick Look "xxx.pkg"
 也可下载xip压缩包,解压后为.qlgenerator文件到~/Library/QuickLook(新建)目录,执行 qlmanage -r
+
+Mac 下双击.xip文件解压(win下的 7-zip可以打开),用Archive Utility来做,默认是在当前目录直接解压,
+如想改变解压目录,就先单独打开(/System/Library/CoreServices/Applications下)Archive Utility->Preferences->save expand files 选保存目录
+
 
 重新安装pkg并不会覆盖原文件,使用 pacifist,右击包->install to Default location,提示选replace
 
@@ -233,6 +241,12 @@ cupsctl WebInterface=yes 来启用 http://127.0.0.1:631 界面
 Administration->Add Printer输入操作系统的用户(sudo)
 
 ---
+/System/Volumes/Data 在Finder显示不出来(显示隐藏也不行),root用户也不能 mount /System/Volumes/Data 
+/System/Volumes/Data/opt 和 /opt 相当一个目录 都是同一个硬盘上的不同分区
+
+Mac增加硬盘，如按提示点Initialize...没什么用，还是有Disk Utility吧 ，默认挂载到/Volumes/XXX
+
+
 =================== 命令
 
 chflags hidden ~/Desktop/a  把文件变为隐藏
@@ -390,10 +404,10 @@ Mac 共享中打开 “远程登录“,会提示使用ssh zh@192.168.100.128 ，
 scp ./xxx zh@192.168.100.128:~/Downloads
 
 ------VNC
-共享中打开 “屏幕共享“ 就是VNC,可以设置VNC密码，提示使用vnc://＜IP＞
+共享中打开 “屏幕共享“ 就是VNC,可以设置VNC密码，提示使用vnc://<IP>
 共享中打开 Screen Sharing,客户端 Finder ->go->connect to server 输入vnc://<ip>
 
-如使用vncview  输入＜IP＞:0就可以仿问了，测试OK	
+如使用vncview  输入<IP>:0就可以仿问了，测试OK	
 有5900端口监听,netstat -an | grep .5900,可能会过一会才能查到
 -------SMB
 系统偏好设置->共享->选中 文件共享->选项...按钮->选择SMB ,选择系统用户,会把用户的所有目录都共享的,危险!!!,应该只增加自己的目录
@@ -451,7 +465,7 @@ rm -rf /System/Library/Frameworks/JavaVM.framework
 Mac 使用eclipse CDT的C/C++的开发,要下载安装Command Line Tools(cltools) for Xcode(有编译器,make),建立项目时选MacOSX GCC,测试OK
 
 
----------Oracle 10gR2
+---------Oracle 10gR2 NotOffen
 1.
 java.lang.UnsatisfiedLinkError: /private/tmp/OraInstall /oui/lib/mac_osx/liboraInstaller.dylib: no suitable image found. Did find: /private/tmp/OraInstall /oui/lib/mac_osx
 这可以通过：
@@ -589,9 +603,10 @@ export DISPLAY=:0.0    ---为 su  - oracle 显示界面使用
 $ ps -ef | grep tnslsnr
 $ tnslsnr LISTENER -inherit
 $ lsnrctl status listenername
-
+-----
 
 brew install mongodb 在线下载安装
+
 ---TextWrangler （不兼容 macOS 10.13 (High Sierra)）新版本改为 BBEdit-12 是收费的
 TextWrangler  中 view->Hide/Show File   ,打开文件时要把文件拖到左边的(File)窗口中
 TextWrangler  中 preferences->Application标签->取消 Reopen Documents that were open at last quit
@@ -690,15 +705,19 @@ appDelete   卸载软件,拖入app后可看到其它关联的文件，准备删�
 
 gfxCardStatus 手工切换显卡
 
-
+Ddraw 			国产画图
 OmniGraffle 	UML工具, Pro版本可打开Microsoft的viso,只有Mac,iOS版 ,可以做iOS的原型设计
 OmniPlan		项目管理工具,可以打开Microsft的Project,只有Mac,iOS版
 smartdraw 
 
 2-plan项目管理	基于eclipse
 Astash	UML工具基于Jude
-Visual Paradigm-11.1 for UML  
+Visual Paradigm-11.1 for UML
+
 TeamViewer
+
+Axture RP 8不能运行在 catalina版本上
+
 
 easyMule
 
@@ -742,11 +761,16 @@ Paintbrush  类似windows画图
 IBM Notes , $HOME/Library/Application Support/IBM Notes Data 
 			$Home/Library/Preferences/Notes Preferences
 
+
+
 ----常用的
 QQ		聊天记录在	~/Library/Containers/com.tencent.qq/Data/Library/Application\ Support/QQ/
 飞信2012
 飞鸽传书
+
 Skype
+全时云 (收费) 		mac/windows
+飞书 		  	mac/windows
 
 Firefox
 Chrome
@@ -785,6 +809,7 @@ Navicat for SQL Server
 Navicat for SQLite
 Robo  Studio 3T
 Redis Desktop Manager
+DBeaver Enterprise 7.0 (除DB还可Mongo,Redis)
 
 --------Adobe  AutoDesk
 .pdf文件,Mac有自带的"预览"(Preview)工具

@@ -9,8 +9,8 @@ alibaba 收购了开发公司,实时计算比alibaba的Storm,JStorm要快
 
 主要用于实时计算 ，可以批处理 
 
-Gelly: Flink Graph API
-https://ci.apache.org/projects/flink/flink-docs-release-1.9/dev/libs/gelly/
+Gelly: Flink Graph API 
+https://ci.apache.org/projects/flink/flink-docs-release-1.10/dev/libs/gelly/
 新版本把ML去除了
 
 

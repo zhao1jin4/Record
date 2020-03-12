@@ -2573,6 +2573,13 @@ public static void transactionSpring(ConfigurableApplicationContext context)
 }
 
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Update.update;
+import static org.springframework.data.mongodb.core.query.Query.query;
+
+mongoOps.updateFirst(query(where("name").is("Joe")), update("age", 35), Person.class);
+   
+   
 -------------------------Spring data Querydsl
 http://www.querydsl.com/static/querydsl/latest/reference/html/
 

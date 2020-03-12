@@ -249,7 +249,8 @@ firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下�
 	会记住网站密码，在 Cookies and Site Data 和History区清除没用的
 	包括建设银行密码，清除密码要在 Form & Password组中 Saved Logins...中Remove 清才行!!!!!!!,还能显示密码!!!!!!!,在exception...中增加 ccb.com.cn
 	
-	
+73版本安装插件方法,tools->Add-ons...->点齿轮图标-> install add-ons from file...->选文件
+
 firefox63  插件 只能在线安装了(可以右击复制链接在edge里下载)
 	React Developer Tools
 	RESTClient  发 POST 请求  可带JSON 
@@ -290,7 +291,6 @@ Developer toolbar (shift+f2)的命令,提示功能很好,子命令可按回车�
 	dbg list  		
 	pagemod replace group goups123   true    修改页,把Group替换为group123 ,忽略大小写
 	pagemod remove element h3
- 
  
 禁用JS 地址栏输入 about:config  ->  搜索 javascript.enabled 双击 把这个true修改为false
 
@@ -676,6 +676,8 @@ windows版本没有中文问题
 	一个文件,windows和linux下 状态栏显示 文件编码为iso8859-1 说明解析有问题
 	另个文件,在linux下可正常显示,但在windows下确无法打开
 	
+------------------X-Mind
+可画鱼骨图
 
 
 

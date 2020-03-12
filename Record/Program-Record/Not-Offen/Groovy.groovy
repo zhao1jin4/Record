@@ -1,7 +1,11 @@
-﻿---test.groovy
+﻿目前是apache下的项目，最新版本3.0.0
+
+Idea 使用 tools -> groovy console...
+
+---test.groovy
 class MyTest{ //可与文件名不相同
 	static main(args) {
-		println "hello world in groovy"  //没有分号
+		println "hello world in groovy"  //可没有分号，可没有括号 
 	}
 }
 使用命令 groovy test.groovy
@@ -57,6 +61,9 @@ class HelloGroovy  //可与文件名不相同
         
 		def numbers = [1,2,3,4]
 		assert numbers.join(",") == "1,2,3,4"
+		numbers << 9 //向集合增加元素
+		print numbers.get(2)
+		
 		assert [1,2,3,4,3].count(3) == 2
 		assert ["JAVA", "GROOVY"] == ["Java", "Groovy"]*.toUpperCase()
          
@@ -66,7 +73,7 @@ class HelloGroovy  //可与文件名不相同
         hash.put("id", 23)
         assert hash.get("name") == "Andy"
         
-       hash.dob = "01/29/76"
+        hash.dob = "01/29/76"
         assert hash.dob == "01/29/76"
         assert hash["name"] == "Andy"
         hash["gender"] = "male"
@@ -126,6 +133,68 @@ class Song
 		genre?.toUpperCase() //?是为空的判断
 	   }
 }
+
+//闭包
+def b1={
+	println "hello"
+}
+def mymethod(Closure closure )//不要导入包
+{
+	//closure.call()
+	closure()
+}
+mymethod(b1)
+
+//带参数的闭包
+def b2={
+   String name ,int age  ->
+        println "hello ${name} age:${age}"
+}
+def mymethod2(Closure closure )//不要导入包
+{
+    closure("lisi",123)
+}
+mymethod2(b2)
+
+//默认参数it，当没有参数声明时
+def b3={ 
+    println "hello ${it}"
+}
+b3("lisi")
+
+//owner,delegate,this 
+def b4={  
+	println "this=${this}" //this 表示闭包定义所在类
+	println "owner=${owner}"//owner 表示闭包定义所在类或对象
+	println "delegate=${delegate}"//delegate 可以修改指向，默认值就是owner 
+}
+b4.call()
+
+//修改delegate
+class Student
+{
+    String name
+    def pretty ={ "My Name  is ${name}"}
+    String toString()
+    {
+        pretty.call()
+    }
+}
+class Teacher{
+    String name
+}
+def stu=new Student(name:"lisi")
+def tech=new Teacher(name:"jack");
+stu.pretty.delegate=tech
+stu.pretty.resolveStrategy=Closure.DELEGATE_FIRST //如Teacher找不到name再从Student找
+//stu.pretty.resolveStrategy=Closure.DELEGATE_ONLY//如找不到报错
+println stu.toString()
+
+
+
+
+
+
 
 
 .java 代码 

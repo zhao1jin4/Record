@@ -260,8 +260,9 @@ var myLanguages=
  
 $(function(){
 	$('#dg').datagrid({
-		queryParams: {
-			my_custome_param: 'my-easyUI-value'
+		queryParams: { 
+			my_custome_param: 'my-easyUI-value',
+			my_array: ['one','two'] //相当于url加参数名为my_array[]=one&my_array[]=two,服务端要用request.getParameterValues("my_array[]");来接收
 		}
 	} );
 	

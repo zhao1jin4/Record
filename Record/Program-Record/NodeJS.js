@@ -1,7 +1,9 @@
-﻿http://nodejs.cn/api/   Node.js 中文网    v10.16.0
+﻿http://nodejs.cn/api/   Node.js 中文网  v12.16.1
 
-下载msi文件,安装。也可下载.zip包解压 (最好下载LTS版本  Long Time Support) 目前最新LTS版本为 10.16.1 LTS 
- 
+下载msi文件,安装。也可下载.zip包解压 (最好下载LTS版本  Long Time Support)
+LTS版本为 10.16.1 LTS
+LTS版本为 12.16.1 LTS 
+
 
 Mac的pkg安装包默认安装npm,node命令到/usr/local/bin下，下载目录在/usr/local/lib/node_modules 要root权限
 

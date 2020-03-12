@@ -2223,7 +2223,7 @@ class xx extends HttpServlet {
 				JavaMailConnectionFactoryImpl implements  Referenceable 
 					
 =============================Tomcat
-catalina.bat jdpa start 启动8000 可远程调试
+catalina.bat jpda start/run 启动8000 可远程调试
 
 catalina.bat run 或 catalina.bat start
 startup.bat
@@ -2287,6 +2287,11 @@ ulimit -n  默认值1024
 		driverClassName="org.h2.Driver" url="jdbc:h2:tcp://localhost/~/test" username="sa" password=""
 		maxIdle="2" maxWait="5000" maxActive="4" />
 </Context>
+
+如想对整个tomcat下应用做热部署 修改apache-tomcat-9.0.10\conf\context.xml 
+的<Context>标签增加属性reloadable="true" 即	<Context reloadable="true">
+
+
 
 跨域 cross-origin (CORS)
 META-INF目录下加context.xml文件 

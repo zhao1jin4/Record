@@ -132,6 +132,197 @@ unxz -cd MPlayer-1.1.tar.xz | tar -xvf -
 bzcat SunStudio12u1-OS-platform-pkgs-ML.tar.bz2 | tar -xf -
 
 ===============上 CVS=====================
+
+===============SVN subversion=====================
+TortoiseSVN 清记忆密码，可以右键出SVN菜单
+Settings->Saved Data->Authentication data,Clear 
+
+svn://协议 客户端 使用silkSVN可以用,但使用Visual SVN就不行
+
+
+运行 svnserve -d (daemon)
+lsof -i :3690 可以看服务已经运行   (cat /etc/service | grep svn)
+list open files ,-i internet
+ 
+
+客户端执行  
+执行 #svn checkout svn://svn_server_ip/home/mysvn
+或者 #svn checkout svn+ssh://svn_server_ip/home/mysvn
+eclipse的SVN只对网址URL的方式
+
+
+
+依赖于libtool ,autconf,opnessl(opensslv.h  openssl-devel.rpm) ,db(rpm 包不行的，用源码安装)
+	awk(windows INSATLL中看的)
+
+----db 源码安装 
+cd build_unix 
+../dist/configure
+make
+make install
+安装在/usr/local/BerkeleyDB.4.7   
+
+./configure  --prefix=/usr/local/subersion --with-apxs=/usr/local/apache2_svn/bin/apxs --with-openssl=/usr/local/openssl  --with-berkeley-db=/usr/local/BerkeleyDB.4.7/
+subversion 中加　--with-berkeley-db=/usr/local/BerkeleyDB.4.7
+-----
+
+apache 中
+
+  $ ./buildconf
+  $ ./configure --enable-dav --enable-so --enable-maintainer-mode
+  $ rm /usr/local/lib/libsvn*
+  $ make clean && make && make install
+
+
+subversion 中
+最后解压subversion-deps-1.5.4.tar.gz
+
+  $ sh ./autogen.sh
+  $ ./configure　--with-apxs=/usr/local/apache2/bin/apxs　####--prefix=/usr/local/subversion 
+  $ make
+  # make install
+
+安装后/usr/local/apache2/modules 下多了两个文件mod_authz_svn.so和mod_dav_svn.so
+也自动改了httpd.conf文件中加了　
+LoadModule dav_svn_module   modules/mod_dav_svn.so
+LoadModule authz_svn_module modules/mod_authz_svn.so
+
+
+建立仓库svnadmin create /home/mysvn  目录下生成一些文件
+
+在/usr/local/apache2/conf/httpd.conf中加入:
+<Location /svn/repository>
+DAV svn
+SVNPath /home/mysvn
+</Location>
+
+
+
+cat /etc/services | grep svn
+
+
+在服务器的浏览器中输入网址:
+http://localhost/svn/repository/
+
+
+svnadmin create /home/svnroot/repository/test
+
+这条语句将把路径/home/user/import下找到的文件导入到你创建的Subversion 仓库中去，
+//提交后的修订版为1。
+# ./svn import /home/user/import file:///home/svnroot/repository/test –m "注释"
+# ./svn import /home/user/import/xx.java file:///home/svnroot/repository/test/xx.java –m "注释"
+
+httpd.conf 中添加
+   LoadModule dav_svn_module modules/mod_dav_svn.so
+   LoadModule authz_svn_module modules/mod_authz_svn.so
+   <Location /svn>
+   DAV svn
+   SVNParentPath /home/svnroot/repository/ //svn父目录
+   AuthzSVNAccessFile /home/svnroot/repository/authz.conf //权限配置文件
+   AuthType Basic //连接类型设置
+   AuthName "Subversion.zoneyump" //连接框提示
+   AuthUserFile /home/svnroot/repository/authfile //用户配置文件
+   Require valid-user //采用何种认证
+   </Location>
+   //其中authfile是通过"htpasswd [–c] /home/svnroot/repository/authfile username password"来创建的
+   //"Require valid-user"告诉apache在authfile中所有的用户都可以访问。如果没有它，
+   //则只能第一个用户可以访问新建库 
+
+
+
+http://localhost/svn/test/，
+
+htpasswd [-c] /home/svnroot/repository/authfile wooin   加用户
+
+修改svn配置
+vi /home/svn/yourprojectname/conf/svnserve.conf
+anon-access = read
+auth-access = write
+
+2)权限分配
+
+# vi /home/svnroot/repository/authz.conf
+   [test:/] //这表示，仓库test的根目录下的访问权限
+   wooin = rw //test仓库wooin用户具有读和写权限
+   bao = r //test仓库bao用户具有读权限
+   [test2:/] //test2仓库根目录下的访问权限
+   wooin = r //wooin用户在test2仓库根目录下只有读权限
+   bao = //bao用户在 test2仓库根目录下无任何权限
+   [/] //这个表示在所有仓库的根目录下
+   * = r //这个表示对所有的用户都具有读权限
+   #[groups] //这个表示群组设置
+   #svn1-developers = wooin, bao //这个表示某群组里的成员
+   #svn2-developers = wooin
+   #[svn1:/]
+   #@svn1-developers = rw //如果在前面加上@符号，则表示这是个群组权限设置
+
+$ svnserve -d --foreground -r /home/svn 
+SVN 就开始监听默认的端口(3690)
+
+http.conf文件
+   User daemon # 将daemon改为svnroot，让apache进程以svnroot的身份运行 
+
+
+ svnlook tree /var/repos/testProject/ 
+ 
+ svn://host.example.com/usr/local/repositories/project1
+ 或者用
+ $ svnserve -d -r /usr/local/repositories 后就可以用
+ $ svn checkout svn://host.example.com/project1　--username lisi  --password
+ 	或者用这样的形式　svn co svn://lisi@localhost:3690/testProject
+
+
+
+-T　用线程代代替进程
+
+
+conf 目录下的svnserve.conf 中anon-access =none  ( 原来是read不行的)
+
+~/.subversion/auth/　目录缓存,
+SSH密码缓存工具，像类Unix系统的ssh-agent或者是Windows下的pageant。 
+
+关闭凭证缓存 使用参数--no-auth-cache：
+svn commit -F log_msg.txt --no-auth-cache
+
+
+
+??????????????????????
+
+svnserve是以管道模式调用的（-t）  才用svn+ssh://
+
+
+或者在svnserve.conf中加入
+[auth]
+store-auth-creds = no
+
+[tunnels]
+rsh = rsh
+来使用svn+rsh://host/path
+
+--with-openssl=/usr/local/openssl   (可以手工源码安装openssl)
+./configure  --prefix=/usr/local/subersion --with-apxs=/usr/local/apache2_svn/bin/apxs --with-openssl=/usr/local/openssl  --with-berkeley-db=/usr/local/BerkeleyDB.4.7
+
+apr-util 中也要加--with-openssl  ,要单独make && make install(失败)(deps包中的)
+
+---------多端口的监听
+Listen 5001
+Listen 8080
+
+#222.73.218.46
+NameVirtualHost *:5001
+<VirtualHost *:5001>
+# DocumentRoot /apache2/htdocs  ##SVN不能使用DocumentRoot
+</VirtualHost>
+
+NameVirtualHost *:8080
+<VirtualHost *:8080>
+# DocumentRoot /apache2/apply
+</VirtualHost>
+
+
+SVN  如何禁止commit
+
+==============上 SVN===================== 
 ===================sendMail =============
 小心iptables,selinux
 
@@ -883,11 +1074,735 @@ strings dirdat/rt000000 | grep    二进制文件中显示可打印字符
 
  
 
+-------------Python 2.7
+./configure 
+make
+make install
+
+
+
+-----apache2
+apache   ./configure -enable-so
+  --sysconfdir=/etc/   --enable-ssl  --enalbe-modules
+ 
+	make 
+	make install
+	
+---------apache2 安装proxy http_proxy  可以做 LoadBalance
+
+如果安装时已经使用--enable-proxy --enable-proxy-http --enable-ssl  
+不用加 LoadModule proxy_module 和 LoadModule proxy_http_module
+
+下面是对安装时未使用上面的编译选项
+
+定位到Apache源码的 modules/proxy 目录
+#/usr/local/apache2/bin/apxs -c -i -a -n proxy  mod_proxy.c proxy_util.c   或者用下面两条命令
+
+-i install ,-a all ,-n modname ,-c compile
+
+编译相应模块：--OK
+# /usr/local/apache2/bin/apxs -c  mod_proxy.c proxy_util.c
+加载模块：--OK
+# /usr/local/apache2/bin/apxs -i -a -n proxy mod_proxy.la
+
+
+
+
+httpd.conf自动添加了如下语句：
+LoadModule proxy_module        modules/mod_proxy.so
+module 文件夹中也生成了相应的 mod_proxy.so 模块
+
+需要 http
+#/usr/local/apache2/bin/apxs -c -i -a mod_proxy_http.c   或者用下面两条命令
+
+# /usr/local/apache2/bin/apxs -c mod_proxy_http.c
+# /usr/local/apache2/bin/apxs -i -a -n proxy_http mod_proxy_http.la
+
+LoadModule proxy_http_module modules/mod_proxy_http.so
+module 文件夹中也生成了相应的 mod_proxy_http.so 模块
+
+
+
+ProxyRequests On
+<Proxy *>
+	Order deny,allow
+	Allow from all
+</Proxy>
+ProxyPass	 /mdm	http://localhost:7001/mdm
+ProxyPassReverse /mdm	http://localhost:7001/mdm
+
+
+
+-----tomcat-connectors-1.2.42
+tomcat-connectors-1.2.42-src.tar.gz  是linux 版本
+
+# cd tomcat-connectors-1.2.42-sr/native
+# ./configure  --prefix=/usr/local/tomcat-connector --with-apxs=/usr/local/apache2/bin/apxs  --with-java-home=/usr/java/jdk1.7.0_75
+# make
+# cp ./apache-2.0/mod_jk.so /usr/local/apache2/modules/
+
+ 
+
+cd /usr/local/apache2/conf/ 
+建立两个配置文件mod_jk.conf和workers.properties。
+
+# vi mod_jk.conf
+
+指出mod_jk模块工作所需要的工作文件workers.properties的位置
+JkWorkersFile /usr/local/apache2/conf/workers.properties
+JkLogFile /usr/local/apache2/logs/mod_jk.log
+
+# Set the jk log level [debug/error/info]
+JkLogLevel info
+
+# Select the log format
+JkLogStampFormat "[%a %b %d %H:%M:%S %Y]"
+
+# JkOptions indicate to send SSL KEY SIZE,
+JkOptions  +ForwardKeySize +ForwardURICompat -ForwardDirectories
+
+# JkRequestLogFormat set the request format
+JkRequestLogFormat "%w %V %T"
+
+#----对一个Tomcat的配置
+# 将所有servlet 和jsp请求通过ajp13的协议送给Tomcat，让Tomcat来处理
+JkMount /servlet/*  worker1
+JkMount /*.jsp worker1
+
+
+################JkMount /*.jsp  worker_jsp 对如果有虚拟机pts ,不能用/* 这样会所有虚拟机全部拦截
+		JkMount	 /*.action worker_jsp
+		JkMount	!/*.php
+	可Include mod_jk.conf文件放入在<VirtualHost >中
+
+
+# vi workers.properties     
+
+# Defining a worker named worker1 and of type ajp13
+worker.list=worker1
+
+# Set properties for worker1
+worker.worker1.type=ajp13 
+worker.worker1.host=localhost 
+#ajp13端口,tomcat中server.xml默认是8009
+worker.worker1.port=8009  
+worker.worker1.lbfactor=50 
+worker.worker1.cachesize=10 
+worker.worker1.cache_timeout=600 
+worker.worker1.socket_keepalive=1 
+worker.worker1.socket_timeout=300
+
+
+
+在httpd.conf文件中加
+LoadModule jk_module modules/mod_jk.so
+Include /usr/local/apache2/conf/mod_jk.conf
+
+---下面的可以不配置
+chmod 755  tomcat-8.5.6/bin/*.sh
+
+最后编辑Tomcat的配置文件server.xml，在HOST段中加入：
+<Context path="" docBase="/var/wwwroot" debug="0" reloadable="true" crossContext="true"/>
+
+<Directory "/var/wwwroot/WEB-INF">  ###WEB-INF内容不可仿问  
+    Order deny,allow
+    Deny from all
+</Directory>
+
+
+如JK报错,/etc/apache2/logs/jk-runtime-status ,是由/etc/apache2/下没有logs目录所导至的
+
+
+=========一个apache mod_jk.so 多个tomcat  版本8测试成功==============
+---负载均衡
+修改多台机器的Tomcat的监听端口,默认的8080和默认的8009
+
+mod_jk.conf 文件中
+JkMount /*.jsp controller
+
+workers.properties 文件中
+worker.list = controller,tomcat1,tomcat2  #server 列表
+#========tomcat1========
+worker.tomcat1.port=8009       #ajp1.3 端口号，在tomcat下server.xml <Connector port=  配置,默认8009
+worker.tomcat1.host=localhost  #tomcat的主机地址，如不为本机，请填写ip地址
+worker.tomcat1.type=ajp13
+worker.tomcat1.lbfactor = 1   #server的加权比重，值越高，分得的请求越多
+#========tomcat2========
+worker.tomcat2.port=9009       #ajp1.3 端口号，在tomcat下server.xml <Connector port= 配置,默认8009
+worker.tomcat2.host=localhost  #tomcat的主机地址，如不为本机，请填写ip地址
+worker.tomcat2.type=ajp13
+worker.tomcat2.lbfactor = 1   #server的加权比重，值越高，分得的请求越多
+
+#========controller,负载均衡控制器========
+worker.controller.type=lb
+worker.controller.balanced_workers=tomcat1,tomcat2   #指定分担请求的tomcat
+worker.controller.sticky_session=1		 
+#worker.controller.sticky_session=true  #或者用true  表示相同的SESSION ID 跳到相同的workder(如果这个worker挂了就不行了,要做集群)
+
+---集群
+
+session复制,集群内的tomcat都有相同的session
+集群后,要进行session复制,导致速度较慢。Tomcatd的复制，目前不支持application复制
+
+
+分别修改每个tomcat 8 配置conf/server.xml
+现有的<Cluster>标签做如下变动  ,可以从文档上cluster-howto.html复制最新
+  <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"
+                 channelSendOptions="8">
+
+          <Manager className="org.apache.catalina.ha.session.DeltaManager"
+                   expireSessionsOnShutdown="false"
+                   notifyListenersOnReplication="true"/>
+
+          <Channel className="org.apache.catalina.tribes.group.GroupChannel">
+            <Membership className="org.apache.catalina.tribes.membership.McastService"
+                        address="228.0.0.4"
+                        port="45564"
+                        frequency="500"
+                        dropTime="3000"/>
+            <Receiver className="org.apache.catalina.tribes.transport.nio.NioReceiver"
+                      address="auto"
+                      port="4000"
+                      autoBind="100"
+                      selectorTimeout="5000"
+                      maxThreads="6"/>
+
+            <Sender className="org.apache.catalina.tribes.transport.ReplicationTransmitter">
+              <Transport className="org.apache.catalina.tribes.transport.nio.PooledParallelSender"/>
+            </Sender>
+            <Interceptor className="org.apache.catalina.tribes.group.interceptors.TcpFailureDetector"/>
+            <Interceptor className="org.apache.catalina.tribes.group.interceptors.MessageDispatchInterceptor"/>
+          </Channel>
+
+          <Valve className="org.apache.catalina.ha.tcp.ReplicationValve"
+                 filter=""/>
+          <Valve className="org.apache.catalina.ha.session.JvmRouteBinderValve"/>
+
+          <Deployer className="org.apache.catalina.ha.deploy.FarmWarDeployer"
+                    tempDir="/tmp/war-temp/"
+                    deployDir="/tmp/war-deploy/"
+                    watchDir="/tmp/war-listen/"
+                    watchEnabled="false"/>
+
+          <ClusterListener className="org.apache.catalina.ha.session.ClusterSessionListener"/>
+        </Cluster>
+		
+		
+在<Engine name="Catalina" defaultHost="localhost" jvmRoute="tomcat2"> 中修改jvmRoute的值　，两个Tomcat对应修改    
+
+应用的web.xml加入  <distributable/>
+
+tomcat的session同步功能需要用到组播(MultiCast 地址配置的是 228.0.0.4 ),windows默认情况下是开通组播服务的，
+但是linux默认情况下并没有开通,	route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
+启动时开通组播在/etc/sysconfig/static-routes文件内加入eht0 net 224.0.0.0 netmask 240.0.0.0
+
+
+
+=========一个apache proxy_balancer 多个tomcat  负载均衡==============
+到apache 的源码解压 modules/proxy 目录
+
+#/usr/local/apache2/bin/apxs -c -i -a -n proxy mod_proxy.c proxy_util.c
+#/usr/local/apache2/bin/apxs -c -i -a mod_proxy_balancer.c
+#/usr/local/apache2/bin/apxs -c -i -a mod_proxy_http.c
+
+LoadModule proxy_module		modules/mod_proxy.so  
+LoadModule proxy_balancer_module modules/mod_proxy_balancer.so  
+LoadModule proxy_http_module	modules/mod_proxy_http.so  
+
+
+ProxyRequests Off 
+ <Proxy balancer://mycluster>  
+     BalancerMember http://node-a.myserver.com:8080  
+     BalancerMember http://node-b.myserver.com:8080  
+ </Proxy>  
+ ProxyPass /myweb  balancer://mycluster/myweb      
+
+#警告：绝不要添加到生产环境中！！！  http://localhost/balancer-manager/监视负载均衡的工作情况的,
+# <Location /balancer-manager>  
+#     SetHandler balancer-manager  
+#     order Deny,Allow  
+#     Deny from all  
+#     Allow from localhost  
+# </Location>  
+
+
+ ProxyRequests Off  
+ <Proxy balancer://mycluster>  
+     BalancerMember http://node-a.myserver.com:8080 loadfactor=7  
+     BalancerMember http://node-b.myserver.com:8080 loadfactor=2  
+     ProxySet lbmethod=bytraffic  
+ </Proxy>  
+ ProxyPass /myweb   balancer://mycluster/myweb  
+ 
+
+
+#loadfactor 参数取值范围为1-100
+lbmethod=byrequests 按照请求次数均衡(默认)
+lbmethod=bytraffic 按照流量均衡
+lbmethod=bybusyness 按照繁忙程度均衡(总是分配给活跃请求数最少的服务器) 
+
+
+---集群
+ProxyRequests Off  
+<Proxy balancer://mycluster>  
+     BalancerMember http://node-a.myserver.com:8080  
+     BalancerMember http://node-b.myserver.com:8080 status=+H  
+</Proxy>  
+ProxyPass /myweb   balancer://mycluster/myweb    
+
+
+status=+H
+请求总是流向 node-a ，一旦node-a挂掉， Apache会检测到错误并把请求分流给 node-b。Apache会每隔几分钟检测一下 node-a 的状况，如果node-a恢复，就继续使用node-a。
+
+--OK 但不能保存session,除非只有一台在用,要用 ajp://
+
+-----------使用ajp://  -----------
+#/usr/local/apache2/bin/apxs -c -i -a mod_proxy_ajp.c
+LoadModule proxy_ajp_module modules/mod_proxy_ajp.so 　##报错??
+
+./configure  --prefix=/usr/local/apache2 --enable-so \
+ --enable-proxy  --enable-proxy-ajp --enable-proxy-balancer --enable-proxy-connect \
+ --enable-proxy-connect \
+ --enable-proxy-ftp     \
+ --enable-proxy-http    \
+ --enable-proxy-scgi   \
+ --enable-ssl            
+
+httpd -l查看
+
+ServerName mdm-server # 是hostname的值 
+
+
+/usr/local/apache2/bin/apxs -c -i -a mod_proxy_ftp.c ##OK
+LoadModule proxy_ftp_module modules/mod_proxy_ftp.so 
+
+#tomcat的AJP 默认端口是8009
+
+ProxyRequests Off
+<proxy balancer://cluster> 
+	BalancerMember ajp://127.0.0.1:8009 loadfactor=1 route=tomcat1  ##tomcat集群
+	BalancerMember ajp://127.0.0.1:9003 loadfactor=1 route=tomcat2
+</proxy>
+ProxyPass	 /myweb    balancer://cluster/myweb  stickysession=jsessionid nofailover=On 
+ProxyPassReverse /myweb    balancer://cluster/myweb
+
+
+Tomcat 的　server.xml   , 可以从文档上cluster-howto.html复制最新
+  <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"
+                 channelSendOptions="8">
+
+          <Manager className="org.apache.catalina.ha.session.DeltaManager"
+                   expireSessionsOnShutdown="false"
+                   notifyListenersOnReplication="true"/>
+
+          <Channel className="org.apache.catalina.tribes.group.GroupChannel">
+            <Membership className="org.apache.catalina.tribes.membership.McastService"
+                        address="228.0.0.4"
+                        port="45564"
+                        frequency="500"
+                        dropTime="3000"/>
+            <Receiver className="org.apache.catalina.tribes.transport.nio.NioReceiver"
+                      address="auto"
+                      port="4000"
+                      autoBind="100"
+                      selectorTimeout="5000"
+                      maxThreads="6"/>
+
+            <Sender className="org.apache.catalina.tribes.transport.ReplicationTransmitter">
+              <Transport className="org.apache.catalina.tribes.transport.nio.PooledParallelSender"/>
+            </Sender>
+            <Interceptor className="org.apache.catalina.tribes.group.interceptors.TcpFailureDetector"/>
+            <Interceptor className="org.apache.catalina.tribes.group.interceptors.MessageDispatchInterceptor"/>
+          </Channel>
+
+          <Valve className="org.apache.catalina.ha.tcp.ReplicationValve"
+                 filter=""/>
+          <Valve className="org.apache.catalina.ha.session.JvmRouteBinderValve"/>
+
+          <Deployer className="org.apache.catalina.ha.deploy.FarmWarDeployer"
+                    tempDir="/tmp/war-temp/"
+                    deployDir="/tmp/war-deploy/"
+                    watchDir="/tmp/war-listen/"
+                    watchEnabled="false"/>
+
+          <ClusterListener className="org.apache.catalina.ha.session.ClusterSessionListener"/>
+        </Cluster>
+		
+<Engine name="Catalina" defaultHost="localhost" jvmRoute="tomcat2">  ###对应修改    
+
+应用的web.xml加入  <distributable/>
+
+
+
+<VirtualHost>中可以使用
+ ProxyPass 
+ ProxyPassReverse 
+
+
+ab -n 100 -c 10 http://127.0.0.1:8080/   打压力
+-n 请求总数
+-c 并发数
+
+============================apache2 使用========================
+
+源码安装 依赖于 Apache APR  (Apache Portable Runtime ) 
+cd apr-1.5.2
+./configure  其实安装在 /usr/local/apr目录中
+make
+make install
+
+cd apr-util-1.5.4
+./configure --with-apr=/usr/local/apr
+make
+make install
+
+cd pcre-8.39	
+./configure
+make 
+make install
+
+cd httpd-2.4.23
+./configure  其实安装在 /usr/local/apache2 目录中
+make 
+make install
+
+
+http://doc.javanb.com/apache-http-server-version-2-2-cn/sitemap.html
+
+检查httpd.conf 语法-windows:
+	httpd -t
+	或者：
+	httpd.exe -w -t -f "C:\Apache2.2\conf\httpd.conf" -d "C:\Apache2.2\."
+
+检查httpd.conf 语法-linux:
+	apachectl configtest
+	或
+	apache2ctl configtest
+
+
+
+SSL Secure Socket Layer 有openssl ,modssl
+
+顶层 HTTP ,POP,SMTP
+中层 SSL(HTTPS,POP3S,SMTPS)
+底层 TCP
+最底层IP
+
+/etc/rc.local 开机启动执行,可加自动启动apache
+
+Listen 80
+ServerRoot
+DocumentRoot
+MaxClients 最大的客户数(同时)
+
+对<IfMoudle prefork.c>可以用
+/usr/local/apache2/bin/httpd -l  列出apache内部的模块
+
+User nobody  # 一定要有仿问目录的权限,r_x,可以看日志
+Group nobody
+子进程使用的用户来执行
+启动apache要用root,setuid()改变子进程的身份
+
+
+
+Errorlog log/error_log
+LogLevel warn
+DirectoryIndex index.html 文件夹索引
+AddDefaultCharset　　UTF-8  (iso-8859-1) #默认返回页面的编码,浏览器可以改为UTF-8(系统是UTF-8), 可以把它注释,这样浏览器,jsp程序可以自动认识
+Alias /xx /var/www/xx
+
+locale 命令来看编码
+
+killall -HUP httpd 也可以生启apache
+<Directory />
+#中没有仿问权限设置,默认是拒绝的,(也有的子)
+Options Indexes #表示如果没有index.html (DirectoryIndex定义的)就列表显示它
+Allow from 127. #127这个网段可以仿问 ,all
+</Directory>
+
+cgi  可以用任何来解释执行(bash,perl)  ,第一行必须声明content-type 再加一个换行 
+如perl 用
+	#!/usr/local/bin/perl　
+	print "Content-type: text/plain\n\n";
+如bash 用
+	#!/bin/bash  
+	echo "content-type :text-plain"
+	echo 
+
+ScriptAlias /cgi-bin/ "/usr/local/apache2/cgi-bin/"  
+
+
+# 基于主机名的虚拟主机 (一个IP地址，多个网站)
+# 基于IP地址的虚拟主机 (每个站点拥有一个的独立IP地址)，
+
+
+可以多个域名用同一个IP
+
+NameVirtualHost 192.168.1.104:80	#这三个ＩＰ地址是一样的　 两域名，相同IP，
+<VirtualHost 192.168.1.104>		#这三个ＩＰ地址是一样的
+	ServerAdmin	root@example.com
+	DocumentRoot /var/www
+	ServerName	example.com   ###可以用DNS解析到IP(可IP),会替换ServerName 的设置
+	ErrorLog  logs/example_error.log
+	CustomLog logs/example.log common
+	ErrorDocument 404 http://cooling.ape-tech.com/bbs
+</VirtualHost>
+
+<VirtualHost 192.168.1.104>		#这三个ＩＰ地址是一样的
+	ServerAdmin	root@test.com
+	DocumentRoot /var/test
+	ServerName	test.com
+	ErrorLog  logs/test_error.log
+	CustomLog logs/test.log common
+	ErrorDocument 404 http://cooling.ape-tech.com/bbs
+</VirtualHost>
+
+如仿问的不是上两个域的网址,对:80会显示第一个VirtualHost 的主目录(DocumentRoot)
+如是:443就不是VirtualHost,而是
+
+VirtualHost也可以加SSL ,再 /etc/ssl.conf 文件中修改
+	SSLEngine on ##开关
+
+<VirtualHost>中可以用<Proxy>
+
+
+----
+
+
+Alias  /test /var/www/test
+<Directory /var/www/test>
+	Options  ALL ##ExecCGI(可运行CGI程序 ),FollowSymLinks(支持符号链接访问其它目录),Includes(可使用SSL),IncludeNOEXEC(可SSL 不可CGI),Indexes(可列目录无DirectoryIndexes参数指定的文件如index.html),SymLinksIfOwnerMath(目标文件和目录属于同一用户可以符号链接)
+	AllowOveride AuthConfig
+	AuthName "显示的标题"
+	Authtype Basic
+	AuthUserFile /var/www/test/.htpasswd
+	require valid-user  (htpaswd -c /var/www/test/.htpasswd mike  来增加mike,第一次加 -c, -m修改, )
+	
+	Order allow,deny   (较安全的,如  deny,allow 不在deny 中的都可以访问  ,(只考虑DENY))
+	
+	Allow from all
+	Deny from xxx.com
+</Directory>
+
+UserDir disable  如为public_html(用户user1主目录下的目录,/home/user1/public_html),可以http://www.xx.com/~user1来访问
+AccessFileName .htaccesss(访问控制文件)
+		<Files ~ "^.ht">  ##不可任何人看到.ht的文件
+			Order allow,deny
+			Deny from all 
+		</Files>
+TypesConfig  /etc/mime.types
+DefaultType text/plain  (如二进制文件被认为文本,application/x-octet-stream)
+分析文件要 加载模块
+<IfMoudle mod_mime_magic.c>
+	MIMEMagicFile conf/magic
+</IfMoudle>
+	
+AddType application/x-httpd-php   .php
+ErrorLog logs/error_log
+LogLevel warn   (debug,info,notice,warn,crit,alert,emerg)
+LogFormat ".........."
+CustomerLog logs/access_log combined
+%a 远程IP
+%b 发送字节
+%h 远程主机
+%l 远程登录名
+%r 客户机请求的第一行
+%s 状态
+%t 时间
+%u 远程用户
+referrer 点击页面
+user-agent 浏览器
+
+ServerSignature On  在页面底部加服务名,版本,Email
+
+Redirect permanent /foo  http://www.xx.com  访问不存在的项目时跳到页面
+
+
+IndexOptions FancyIndexing VersionSort NameWith=* (按适合的宽度显示文件名)
+列表的显示方式   
+AddIcon /icons/xxx .exe .bin
+DefaultIcon /icons/unknow.icn
+
+DefaultLanguage 
+
+
+<Location /server-status>
+	SetHandler server-status
+	Order deny,allow
+	Deny from all
+	Allow from 192.168.1.1
+</Location>
+
+<Location /server-info>
+	SetHandler server-info
+	Order deny,allow
+	Deny from all
+	Allow from 192.168.1.1
+</Location>
+就可以用 http://localhost/server-status (server-info) 看到信息
+
+
+
+
+可每个守护进程来支持虚拟机
+
+
+
+
+如何https (443),TLSV1.2,TLS( Transport Layer Security )最新版本1.2
+
+ssl       执行httpd -l 有mod_ssl.c
+<IfMoudle mod_ssl.c>
+还要看 /etc/ssl.conf文件
+	Listen 443
+</IfMoudle>	
+/usr/local/bin/apachectl -D /##startssl 来开启SSL ,查443端口,没有
+
+ssl.conf文件
+
+SSLCertificateFile /etc/ssl.crt/server.crt 证书
+SSLCertificatekeyFile  /etc/ssl.key/server.key 私钥
+SSLCertificatechainFile
+
+
+
+openssl  genrsa -out /etc/ssl.key/server.key 1024(长度) //输出到文件
+openssl  req(请求) -new(新建) -x509 (格式) -key (前面的key) 
+	/etc/ssl.key/server.key(和上条命令的路径一样) -out /etc/ssl.crt/server.crt
+   按提示输入一些信息
+
+/usr/local/bin/apachectl startssl 
+查443端口 ,发现有了
+
+httpd -k stop/start/restart
+
+
+bin/ab 压力测试
+KeepAlive On //断点续传
+
+ExtendedStatus On
+<Location /server-status>  
+SetHandler server-status   ##会在目录下显示服务状态下
+Order deny,allow
+Deny from all
+Allow from 192.xxxxx
+</Location>
+
+
+<Location /server-status>  
+SetHandler server-status   
+Order deny,allow
+Allow from all
+authtype basic
+authname "xxx"
+authuserfile "/.htpasswd"
+required valid-user
+</Location>
+
+
+htpasswd命令 -c  (Create New File)  -s (SHA加密密码)
+./apachectl configtest 来看错误
+============apache2 上==============================================
+
+============== MemCache  (memcached-1.4.17)
+文档在google上
+
+依赖于libevent(libevent-2.0.21), 如linux内核要有epoll
+安装libevent  
+./configure && make
+make install
+ 
+安装MemCache
+./configure --with-libevent=/usr/local
+make
+make install
+
+/usr/local/bin/memcached -h
+
+启动Memcache的服务器端：
+memcached -d -m 10   -u root -l 127.0.0.1 -p 12000 -c 256 -P /tmp/memcached.pid
+-d 做服务端
+-m 以M为单位的最大内存
+-u user 只对root用户运行命令
+-p 端口
+-l 监听IP,本机IP
+-c 最大连接数
+-P PID文件只对-d同时有效
+-f 增长因子 默认1.25
+-vv very verbose
+服务器监听端口,通过一定的协议交互来写入数据到服务器内存中
+
+
+memcached -help 
+memcached  -m 64    -l 127.0.0.1 -p 12000 -c 256 -vv (windows版本)
+telnet 127.0.0.1 12000
+	windows下按ctrl +] 打开回显功能 ->回车
+windows下如何命令写错只能新写命令
+
+add <key> <flag> <expire秒或时间戳.0不自动删也可能被删> <值的length>
+add new  0  0 5 
+回车后输入5个字符值hello后,显示STORED
+get new 取值
+
+delete <key> <可选秒数> 表示 删除而且几秒内不能使用同名的键 
+
+replace 修改同add参数,只可对已经存在
+set 相当于add 和 replace
+set age 0 0 2
+输入 18
+incr age 1
+decr age 1  因是无符号的,不可能<0
+stats  显示状,可以看命中数
+flush_all  后stats 显示curr_items还有值(过期后并没有删除,只当get时才判断如果过期则删除,再看stats就减少,或者有新值要占用直接用就好),一种惰性删除
+
+防止内存的碎片更少
+预先分组多个大小约相同的slab ,每组slab 中 的chunk大小不同,按-f参数来增长,启动可以看日志
+在同一个slab 中 chunck 相同
+不在同一个slab 中chunck不相同
+chunk 存储选用最小,如果还是有空闲空间,是不可避免的
+如果当前最小chunk所在slab已经满了,就把老chunk数据踢除(惰性过期 和LRU最近最少使用即多少次没被使用最大的,FIFO,删除)
+
+Key长度限制250字节
+Value限制1M
 
 ------------硬盘安装linux Fedora-10
 和Redhat一样,但在选择时
 输入install.img文件的位置,默认是/images/install.img,否则要输入地址,可以用/开头
 一定要在 /下 images 前不可加文件夹,要和ISO放在同一个分区,否则会找不到ISO文件(最好先find确定)
 ------------
+
+================FastDFS-5.08
+国产
+	logger.h 是依赖 libfastcommon 下载安装 ./make.sh  ./make install
+./make.sh  
+./make install
+cp /etc/fdfs/tracker.conf.sample /etc/fdfs/tracker.conf
+修改 base_path=/opt/fastdfs/tracker
+默认 port=22122
+默认http.server_port=8080
+
+# /usr/bin/fdfs_trackerd /etc/fdfs/tracker.conf restart   
+没有监听8080 ????
+
+cp /etc/fdfs/storage.conf.sample /etc/fdfs/storage.conf
+修改 base_path=/opt/fastdfs/storage
+默认 port=23000
+
+# /usr/bin/fdfs_storaged /etc/fdfs/storage.conf restart
+
+cp /etc/fdfs/client.conf.sample  /etc/fdfs/client.conf 
+修改 base_path=/opt/fastdfs/client
+	 tracker_server=127.0.0.1:22122
+
+# /usr/bin/fdfs_test /etc/fdfs/client.conf upload /usr/include/stdlib.h
+
+# /usr/bin/fdfs_monitor <client_conf_filename>
+
+
+---
+http.anti_steal.check_token=true
+http.anti_steal.secret_key=123456
+================
+
 
 

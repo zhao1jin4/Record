@@ -1,27 +1,47 @@
 
 ========================Spring Cloud
+service mesh 是Microservices的下一代  Istio（https://github.com/istio/istio） 由 Google、IBM 和 Lyft 联合开发，只支持 Kubernetes 平台
+
+版本名是伦敦地铁站的名字，字母表的顺序 
+ 
+ 
 netflix 的 eureka 闭源，netflix 的 hystrix 不维护  推荐 Resilience4j
 https://spring.io/blog/2018/12/12/spring-cloud-greenwich-rc1-available-now#spring-cloud-netflix-projects-entering-maintenance-mode
 
-CURRENT	REPLACEMENT
-Hystrix	Resilience4j
-Hystrix Dashboard / Turbine	Micrometer + Monitoring System
-Ribbon	Spring Cloud Loadbalancer
-Zuul 1	Spring Cloud Gateway
-Archaius 1	Spring Boot external config + Spring Cloud Config
+CURRENT								REPLACEMENT
+Hystrix								Resilience4j
+Hystrix Dashboard /(actuator,turbine)		Micrometer + Monitoring System
+Ribbon								Spring Cloud Loadbalancer
+Zuul 1								Spring Cloud Gateway
+Archaius 1							Spring Boot external config + Spring Cloud Config
 
 
 
- service mesh 是Microservices的下一代  Istio（https://github.com/istio/istio） 由 Google、IBM 和 Lyft 联合开发，只支持 Kubernetes 平
+open-service-broker
+Consul
+Euraka
+Zookeeper 也可配置
+
+Config 
+Bus  			使用 RabbitMQ 或Kafka 
+Stream		 	为Kafka和Rabbit MQ提供Binder实,基于 Spring Integration
+
+
+netflix
+	Ribbon -> OpenFeign   
+	zuul   -> Gateway
+Circuit Breaker
+	Hystrix	->Resilience4j
+
+Security		使用OAuth2
+Sleuth			第三方的分布式跟踪解决方案 zipkin
+
+Spring Cloud Kubernetes
+	
+
 
 Intellij Idea 建立 spring initialir 项目->Cloud Discory -> eureka server  会自动生成pom.xml
-
-
-
-版本名是伦敦地铁站的名字，字母表的顺序 
-
-https://springcloud.cc/spring-cloud-dalston.html
-
+ 
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
@@ -34,8 +54,8 @@ https://springcloud.cc/spring-cloud-dalston.html
             <artifactId>spring-cloud-dependencies</artifactId>
             <version>Hoxton.RELEASE</version>  
 			<!-- 
-				Finchley.SR3  要和spring-boot 2.0.x. 对应 目前 2.0.9
-				Greenwich.SR1  要和spring-boot 2.1.x  对应 目前 2.1.4
+				Finchley.SR3  要和spring-boot 2.0.x. 对应 目前 2.0.9 
+				Greenwich.SR4   要和spring-boot 2.1.x  对应 目前 2.1.11
 				Hoxton.RELEASE 要和spring-boot 2.2.1.RELEASE
 			-->
             <type>pom</type>
@@ -114,28 +134,6 @@ https://springcloud.cc/spring-cloud-dalston.html
 	</plugins>
 </build>
 
-
-Spring Cloud Config
-Spring Cloud Netflix 		第三方的Netflix OSS 开源的 集成
-Spring Cloud Bus  			使用 RabbitMQ 或Kafka
-Spring Cloud for Cloud Foundry
-	Spring Cloud Cloud Foundry Service Broker
-Spring Cloud Cluster
-Spring Cloud Consul
-Spring Cloud Security		使用OAuth2
-Spring Cloud Sleuth			第三方的分布式跟踪解决方案 zipkin
-Spring Cloud Stream		 	为Kafka和Rabbit MQ提供Binder实,基于 Spring Integration
-	Spring Cloud Stream App Starters
-Spring Cloud Task
-	Spring Cloud Task App Starters
-Spring Cloud Zookeeper
-Spring Cloud for Amazon Web Services
-Spring Cloud Connectors
-Spring Cloud CLI
-Spring Cloud Contract
-一共15个子项目   加单独的 Spring Cloud Data Flow
- 	
-	
 ---Eureka server 
 
 消费者和eureka每30秒一次心跳，消费者缓存 
@@ -557,13 +555,7 @@ http://localhost:8765/hi?name=lisi  也是 port:8762 和 port:8763切换
 -- Zuul 是服务端的负载均衡器，是使用ribbon
  默认和Ribbon结合   route and filter    
 被spring cloud gatewary所替代
-
-<!-- 老版本 Dalton
-<dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-zuul</artifactId>
-</dependency>
- -->
+ 
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
@@ -974,129 +966,112 @@ spring.rabbitmq.password=123
 						  也可部分刷新加参数如 /bus-refresh/customers:9000  (service ID) 或  /bus-env/customers:** 
 (config client端) 如更改Git配置,不用重启服务这样也能刷新 (MQ 广播配置文件的更改) 
 
-----Sleuth
+----Sleuth  足迹，警犬，侦探 
+Spring Cloud Sleuth 可以结合 Zipkin，将信息发送到 Zipkin
 
+Dapper  一个请求在系统中会经过多个子系统的处理，而且这些处理是发生在不同机器甚至是不同集群上的，
+	当请求处理发生异常时，需要快速发现问题，并准确定位到是哪个环节出了问题 
 Twitter开源的Zipkin就是参考Google Dapper 论文而开发
-Dapper  一个请求在系统中会经过多个子系统的处理，而且这些处理是发生在不同机器甚至是不同集群上的，当请求处理发生异常时，需要快速发现问题，并准确定位到是哪个环节出了问题 
-
-https://github.com/openzipkin/zipkin/
-docker run -d -p 9411:9411 openzipkin/zipkin
-http://localhost:9411 
 
 还有PINPOINT  (也是 Dapper)监控调用哪个链路出现了问题，如响应时间
 https://github.com/naver/pinpoint
+ 
 
-<!-- 使用jar包启动,这个过时
-	<dependency>
-		<groupId>io.zipkin.java</groupId>
-		<artifactId>zipkin-server</artifactId>
-		<version>2.11.12</version>
-	</dependency>
+https://github.com/openzipkin/zipkin/
 
-	<dependency>
-		<groupId>io.zipkin.java</groupId>
-		<artifactId>zipkin-autoconfigure-ui</artifactId>
-		<version>2.11.12</version>
-	</dependency>
--->
+java -jar zipkin-server-2.19.2-exec.jar  后就可 http://127.0.0.1:9411/zipkin/  或
+docker run -d -p 9411:9411 openzipkin/zipkin
 
-@SpringBootApplication
+耗时分析
+可视化错误
+一次完整链路请求所收集的数据被称为Span
+Zipkin 提供了可插拔数据存储方式：In-Memory、MySql、Cassandra 以及 Elasticsearch。生产推荐 Elasticsearch
+Zipkin的 收集器组件，从外部系统发送过来的跟踪信息,并转换为 Zipkin 内部处理的 Span 格式
+ 存储组件，API 组件，UI 组件
 
-@EnableZipkinServer//为Dalston版本,Finchley过时了
-//java -jar zipkin-server-2.11.12-exec.jar  后就可 http://127.0.0.1:9411/zipkin/ 或
-//docker run -d -p 9411:9411 openzipkin/zipkin
-public class ServerZipkinApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(ServerZipkinApplication.class, args);
-	}
-}
-server.port=9411
 
 ---service-hi项目
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-sleuth</artifactId>
+</dependency>
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-zipkin</artifactId>
 </dependency>
 
-//import org.springframework.cloud.sleuth.sampler.AlwaysSampler;//为Dalston版本,Finchley没有AlwaysSampler
-//	@Bean 
-//	public  defaultSampler(){ //为Dalston版本,Finchley没有AlwaysSampler
-//		return new AlwaysSamplerAlwaysSampler();
-//	}
+ 
 	
-	import brave.sampler.Sampler; //brave-5.4.3.jar	
-	@Bean
-	public Sampler defaultSampler() {
-		return Sampler.ALWAYS_SAMPLE;
-	}
-	//spring.sleuth.sampler.probability (default: 0.1, which is 10 percent). 
-	 
-	
-	@Autowired
-	private RestTemplate restTemplate;
+import brave.sampler.Sampler; //brave-5.4.3.jar	
+@Bean
+public Sampler defaultSampler() {
+	return Sampler.ALWAYS_SAMPLE;
+}
+//配置 spring.sleuth.sampler.probability (默认是0.1 是10%). 
+ 
 
-	@Bean
-	public RestTemplate getRestTemplate(){
-		return new RestTemplate();
-	}
+@Autowired
+private RestTemplate restTemplate;
 
-	@RequestMapping("/hi")
-	public String callHome(){
-		LOG.log(Level.INFO, "calling trace service-hi  ");
-		return restTemplate.getForObject("http://localhost:8989/miya", String.class);
-	}
-	@RequestMapping("/info")
-	public String info(){
-		LOG.log(Level.INFO, "calling trace service-hi ");
+@Bean
+public RestTemplate getRestTemplate(){
+	return new RestTemplate();
+}
 
-		return "i'm service-hi";
+@RequestMapping("/hi")
+public String callHome(){
+	LOG.log(Level.INFO, "calling trace service-hi  ");
+	return restTemplate.getForObject("http://localhost:8989/miya", String.class);
+}
+@RequestMapping("/info")
+public String info(){
+	LOG.log(Level.INFO, "calling trace service-hi ");
 
-	}
-	server.port=8988
-	#Dalston version
-	#spring.zipkin.base-url=http://localhost:9411 
+	return "i'm service-hi";
 
-	#Finchley version
-	spring.zipkin.baseUrl=http://localhost:9411
-	
-	spring.application.name=service-hi
-	
-	#spring.sleuth.sampler.probability=0.1
+}
+---application.properties
+server.port=8988
+spring.application.name=service-hi
 
----service-miya 项目
-	@RequestMapping("/hi")
-	public String home(){
-		LOG.log(Level.INFO, "hi is being called");
-		return "hi i'm miya!";
-	}
 
-	@RequestMapping("/miya")
-	public String info(){
-		LOG.log(Level.INFO, "info is being called");
-		return restTemplate.getForObject("http://localhost:8988/info",String.class);
-	}
+#Finchley version
+spring.zipkin.baseUrl=http://localhost:9411	
 
-	@Autowired
-	private RestTemplate restTemplate;
+#1.0 链路数据100%收集到zipkin-server,default value 0.1 
+spring.sleuth.sampler.probability=1.0 
+spring.sleuth.web.client.enabled=true
 
-	@Bean
-	public RestTemplate getRestTemplate(){
-		return new RestTemplate();
-	}
+---service-miya 项目 为了两个项目有相互调用,配置和maven是一样的
+@RequestMapping("/hi")
+public String home(){
+	LOG.log(Level.INFO, "hi is being called");
+	return "hi i'm miya!";
+}
 
-server.port=8989
-#Dalston version
-#spring.zipkin.base-url=http://localhost:9411 
+@RequestMapping("/miya")
+public String info(){
+	LOG.log(Level.INFO, "info is being called");
+	return restTemplate.getForObject("http://localhost:8988/info",String.class);
+}
 
+@Autowired
+private RestTemplate restTemplate;
+
+@Bean
+public RestTemplate getRestTemplate(){
+	return new RestTemplate();
+}
+
+server.port=8989 
 #Finchley version
 spring.zipkin.baseUrl=http://localhost:9411
 spring.application.name=service-miya
-
  
 启动后 http://localhost:9411/ 有界面
  请求 http://localhost:8989/miya    后  Find Traces按钮有显示， 可点请求历史的标题，看详情，可点Dependencies标签
- 请求 http://localhost:8988/hi  后 Find Traces按钮有显示，  
+ 请求 http://localhost:8988/hi  后 Find Traces按钮有显示， 
+ 
 -----eureka-server 冗余来增加可靠性，当有一台服务器宕机了，服务并不会终止，因为另一台服务存有相同的数据
 echo 127.0.0.1 peer1 >>  C:\Windows\System32\drivers\etc\hosts
 echo 127.0.0.1 peer2 >>  C:\Windows\System32\drivers\etc\hosts
@@ -1246,7 +1221,7 @@ services:
  docker commit -m="描述信息" -a="作者" <容器ID> <要创建的目标镜像名>
  
 ----- 
-Hystrix Turbine将每个服务Hystrix Dashboard数据进行了整合
+Hystrix Turbine将每个服务Hystrix Dashboard数据进行了整合(Hystrix被替代，Turbine也没什么发展了)
  
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
@@ -1325,9 +1300,9 @@ https://projects.spring.io/spring-cloud/spring-cloud.html#_circuit_breaker_hystr
 服务健康监测
 key/value 存储
 
-https://www.consul.io/downloads.html
+https://www.consul.io/downloads.html 
 下载 win zip包,就一个consul命令
-
+ https://github.com/hashicorp/consul/ 使用go语言开发
 consul agent -dev 启动
 http://localhost:8500
 

@@ -124,7 +124,7 @@ file "named.local";
 
 #A 表示地址　
 #　　　@第一个字段为空表示于上一行相同
-#ＮＳ　域名
+#NS　域名
 #CNAME  表示别名
 
 localhost.( 与上行同可省，或@ 域名)   IN    NS  locahost.(主机名,可用@)     #第一个localhost的域名服务器的第二loc
@@ -235,7 +235,8 @@ dig -t A  nginx.default.svc.cluster.local @10.96.0.10
 
 ======================DHCP======================
 www.isc.org   
-	有个新的 Kea 支持 DHCPv6 为了替换 DHCP
+	DHCP 支持ipv4和ipv6
+	Kea 支持DHCPv4 和 DHCPv6  为了替换 DHCP
 
 
 man dhcpd.conf
@@ -305,664 +306,12 @@ at now+1minutes 回车后
 	service network restart　　##SSH会断
 ctrl+d结束
 
-
-
-
-==============apache2===集成其它==tomcat-connectors====php5
------apache2
-apache   ./configure -enable-so
-  --sysconfdir=/etc/   --enable-ssl  --enalbe-modules
- 
-	make 
-	make install
-
-
----------apache2 安装proxy http_proxy  可以做 LoadBalance
-
-如果安装时已经使用--enable-proxy --enable-proxy-http --enable-ssl  
-不用加 LoadModule proxy_module 和 LoadModule proxy_http_module
-
-下面是对安装时未使用上面的编译选项
-
-定位到Apache源码的 modules/proxy 目录
-#/usr/local/apache2/bin/apxs -c -i -a -n proxy  mod_proxy.c proxy_util.c   或者用下面两条命令
-
--i install ,-a all ,-n modname ,-c compile
-
-编译相应模块：--OK
-# /usr/local/apache2/bin/apxs -c  mod_proxy.c proxy_util.c
-加载模块：--OK
-# /usr/local/apache2/bin/apxs -i -a -n proxy mod_proxy.la
-
-
-
-
-httpd.conf自动添加了如下语句：
-LoadModule proxy_module        modules/mod_proxy.so
-module 文件夹中也生成了相应的 mod_proxy.so 模块
-
-需要 http
-#/usr/local/apache2/bin/apxs -c -i -a mod_proxy_http.c   或者用下面两条命令
-
-# /usr/local/apache2/bin/apxs -c mod_proxy_http.c
-# /usr/local/apache2/bin/apxs -i -a -n proxy_http mod_proxy_http.la
-
-LoadModule proxy_http_module modules/mod_proxy_http.so
-module 文件夹中也生成了相应的 mod_proxy_http.so 模块
-
-
-
-ProxyRequests On
-<Proxy *>
-	Order deny,allow
-	Allow from all
-</Proxy>
-ProxyPass	 /mdm	http://localhost:7001/mdm
-ProxyPassReverse /mdm	http://localhost:7001/mdm
-
-
--------------PHP5
-./configure --prefix=/usr/local/php5 --with-mysql=/usr/local/mysql --with-apxs2=/usr/local/apache2/bin/apxs 
-(路径不要以/ 结尾,　可--with-config-file-path=/etc/php.ini 所在的路径 PREFIX/lib)
-可选的有 --enable-fastcgi ,--enable-fpm (fastcgi process manager 有配置文件php-fpm.conf 有配置listen_address,allowed_clients ,php-fpm start)
- cp php.ini-dist  /usr/local/php5/lib/
- ./php-cgi --help看有-c 指定查找php.ini文件位置
- 
-要libxml2 
-
-
-make
-make test
-make install 
-
-##make install 后在/usr/local/apache2/modules/libphp5.so 就有了
-##httpd.conf 中也有了LoadModule php5_module        modules/libphp5.so
-
-AddType application/x-httpd-php  .php 放在最外面
-
- 
-cp php.ini-dist /usr/local/lib/php.ini
-
-httpd.conf文件中要有
-AddType application/x-httpd-php  .php  .phtml
-#AddType application/x-httpd-php-source .phps  高亮
-LoadModule php5_module libexec/libphp5.so
-
--------------Python 2.7
-./configure 
-make
-make install
-
------tomcat-connectors-1.2.42
-tomcat-connectors-1.2.42-src.tar.gz  是linux 版本
-
-# cd tomcat-connectors-1.2.42-sr/native
-# ./configure  --prefix=/usr/local/tomcat-connector --with-apxs=/usr/local/apache2/bin/apxs  --with-java-home=/usr/java/jdk1.7.0_75
-# make
-# cp ./apache-2.0/mod_jk.so /usr/local/apache2/modules/
-
- 
-
-cd /usr/local/apache2/conf/ 
-建立两个配置文件mod_jk.conf和workers.properties。
-
-# vi mod_jk.conf
-
-指出mod_jk模块工作所需要的工作文件workers.properties的位置
-JkWorkersFile /usr/local/apache2/conf/workers.properties
-JkLogFile /usr/local/apache2/logs/mod_jk.log
-
-# Set the jk log level [debug/error/info]
-JkLogLevel info
-
-# Select the log format
-JkLogStampFormat "[%a %b %d %H:%M:%S %Y]"
-
-# JkOptions indicate to send SSL KEY SIZE,
-JkOptions  +ForwardKeySize +ForwardURICompat -ForwardDirectories
-
-# JkRequestLogFormat set the request format
-JkRequestLogFormat "%w %V %T"
-
-#----对一个Tomcat的配置
-# 将所有servlet 和jsp请求通过ajp13的协议送给Tomcat，让Tomcat来处理
-JkMount /servlet/*  worker1
-JkMount /*.jsp worker1
-
-
-################JkMount /*.jsp  worker_jsp 对如果有虚拟机pts ,不能用/* 这样会所有虚拟机全部拦截
-		JkMount	 /*.action worker_jsp
-		JkMount	!/*.php
-	可Include mod_jk.conf文件放入在<VirtualHost >中
-
-
-# vi workers.properties     
-
-# Defining a worker named worker1 and of type ajp13
-worker.list=worker1
-
-# Set properties for worker1
-worker.worker1.type=ajp13 
-worker.worker1.host=localhost 
-#ajp13端口,tomcat中server.xml默认是8009
-worker.worker1.port=8009  
-worker.worker1.lbfactor=50 
-worker.worker1.cachesize=10 
-worker.worker1.cache_timeout=600 
-worker.worker1.socket_keepalive=1 
-worker.worker1.socket_timeout=300
-
-
-
-在httpd.conf文件中加
-LoadModule jk_module modules/mod_jk.so
-Include /usr/local/apache2/conf/mod_jk.conf
-
----下面的可以不配置
-chmod 755  tomcat-8.5.6/bin/*.sh
-
-最后编辑Tomcat的配置文件server.xml，在HOST段中加入：
-<Context path="" docBase="/var/wwwroot" debug="0" reloadable="true" crossContext="true"/>
-
-<Directory "/var/wwwroot/WEB-INF">  ###WEB-INF内容不可仿问  
-    Order deny,allow
-    Deny from all
-</Directory>
-
-
-如JK报错,/etc/apache2/logs/jk-runtime-status ,是由/etc/apache2/下没有logs目录所导至的
-
-
-=========一个apache mod_jk.so 多个tomcat  版本8测试成功==============
----负载均衡
-修改多台机器的Tomcat的监听端口,默认的8080和默认的8009
-
-mod_jk.conf 文件中
-JkMount /*.jsp controller
-
-workers.properties 文件中
-worker.list = controller,tomcat1,tomcat2  #server 列表
-#========tomcat1========
-worker.tomcat1.port=8009       #ajp1.3 端口号，在tomcat下server.xml <Connector port=  配置,默认8009
-worker.tomcat1.host=localhost  #tomcat的主机地址，如不为本机，请填写ip地址
-worker.tomcat1.type=ajp13
-worker.tomcat1.lbfactor = 1   #server的加权比重，值越高，分得的请求越多
-#========tomcat2========
-worker.tomcat2.port=9009       #ajp1.3 端口号，在tomcat下server.xml <Connector port= 配置,默认8009
-worker.tomcat2.host=localhost  #tomcat的主机地址，如不为本机，请填写ip地址
-worker.tomcat2.type=ajp13
-worker.tomcat2.lbfactor = 1   #server的加权比重，值越高，分得的请求越多
-
-#========controller,负载均衡控制器========
-worker.controller.type=lb
-worker.controller.balanced_workers=tomcat1,tomcat2   #指定分担请求的tomcat
-worker.controller.sticky_session=1		 
-#worker.controller.sticky_session=true  #或者用true  表示相同的SESSION ID 跳到相同的workder(如果这个worker挂了就不行了,要做集群)
-
----集群
-
-session复制,集群内的tomcat都有相同的session
-集群后,要进行session复制,导致速度较慢。Tomcatd的复制，目前不支持application复制
-
-
-分别修改每个tomcat 8 配置conf/server.xml
-现有的<Cluster>标签做如下变动  ,可以从文档上cluster-howto.html复制最新
-  <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"
-                 channelSendOptions="8">
-
-          <Manager className="org.apache.catalina.ha.session.DeltaManager"
-                   expireSessionsOnShutdown="false"
-                   notifyListenersOnReplication="true"/>
-
-          <Channel className="org.apache.catalina.tribes.group.GroupChannel">
-            <Membership className="org.apache.catalina.tribes.membership.McastService"
-                        address="228.0.0.4"
-                        port="45564"
-                        frequency="500"
-                        dropTime="3000"/>
-            <Receiver className="org.apache.catalina.tribes.transport.nio.NioReceiver"
-                      address="auto"
-                      port="4000"
-                      autoBind="100"
-                      selectorTimeout="5000"
-                      maxThreads="6"/>
-
-            <Sender className="org.apache.catalina.tribes.transport.ReplicationTransmitter">
-              <Transport className="org.apache.catalina.tribes.transport.nio.PooledParallelSender"/>
-            </Sender>
-            <Interceptor className="org.apache.catalina.tribes.group.interceptors.TcpFailureDetector"/>
-            <Interceptor className="org.apache.catalina.tribes.group.interceptors.MessageDispatchInterceptor"/>
-          </Channel>
-
-          <Valve className="org.apache.catalina.ha.tcp.ReplicationValve"
-                 filter=""/>
-          <Valve className="org.apache.catalina.ha.session.JvmRouteBinderValve"/>
-
-          <Deployer className="org.apache.catalina.ha.deploy.FarmWarDeployer"
-                    tempDir="/tmp/war-temp/"
-                    deployDir="/tmp/war-deploy/"
-                    watchDir="/tmp/war-listen/"
-                    watchEnabled="false"/>
-
-          <ClusterListener className="org.apache.catalina.ha.session.ClusterSessionListener"/>
-        </Cluster>
-		
-		
-在<Engine name="Catalina" defaultHost="localhost" jvmRoute="tomcat2"> 中修改jvmRoute的值　，两个Tomcat对应修改    
-
-应用的web.xml加入  <distributable/>
-
-tomcat的session同步功能需要用到组播(MultiCast 地址配置的是 228.0.0.4 ),windows默认情况下是开通组播服务的，
-但是linux默认情况下并没有开通,	route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
-启动时开通组播在/etc/sysconfig/static-routes文件内加入eht0 net 224.0.0.0 netmask 240.0.0.0
-
-
-
-=========一个apache proxy_balancer 多个tomcat  负载均衡==============
-到apache 的源码解压 modules/proxy 目录
-
-#/usr/local/apache2/bin/apxs -c -i -a -n proxy mod_proxy.c proxy_util.c
-#/usr/local/apache2/bin/apxs -c -i -a mod_proxy_balancer.c
-#/usr/local/apache2/bin/apxs -c -i -a mod_proxy_http.c
-
-LoadModule proxy_module		modules/mod_proxy.so  
-LoadModule proxy_balancer_module modules/mod_proxy_balancer.so  
-LoadModule proxy_http_module	modules/mod_proxy_http.so  
-
-
-ProxyRequests Off 
- <Proxy balancer://mycluster>  
-     BalancerMember http://node-a.myserver.com:8080  
-     BalancerMember http://node-b.myserver.com:8080  
- </Proxy>  
- ProxyPass /myweb  balancer://mycluster/myweb      
-
-#警告：绝不要添加到生产环境中！！！  http://localhost/balancer-manager/监视负载均衡的工作情况的,
-# <Location /balancer-manager>  
-#     SetHandler balancer-manager  
-#     order Deny,Allow  
-#     Deny from all  
-#     Allow from localhost  
-# </Location>  
-
-
- ProxyRequests Off  
- <Proxy balancer://mycluster>  
-     BalancerMember http://node-a.myserver.com:8080 loadfactor=7  
-     BalancerMember http://node-b.myserver.com:8080 loadfactor=2  
-     ProxySet lbmethod=bytraffic  
- </Proxy>  
- ProxyPass /myweb   balancer://mycluster/myweb  
- 
-
-
-#loadfactor 参数取值范围为1-100
-lbmethod=byrequests 按照请求次数均衡(默认)
-lbmethod=bytraffic 按照流量均衡
-lbmethod=bybusyness 按照繁忙程度均衡(总是分配给活跃请求数最少的服务器) 
-
-
----集群
-ProxyRequests Off  
-<Proxy balancer://mycluster>  
-     BalancerMember http://node-a.myserver.com:8080  
-     BalancerMember http://node-b.myserver.com:8080 status=+H  
-</Proxy>  
-ProxyPass /myweb   balancer://mycluster/myweb    
-
-
-status=+H
-请求总是流向 node-a ，一旦node-a挂掉， Apache会检测到错误并把请求分流给 node-b。Apache会每隔几分钟检测一下 node-a 的状况，如果node-a恢复，就继续使用node-a。
-
---OK 但不能保存session,除非只有一台在用,要用 ajp://
-
------------使用ajp://  -----------
-#/usr/local/apache2/bin/apxs -c -i -a mod_proxy_ajp.c
-LoadModule proxy_ajp_module modules/mod_proxy_ajp.so 　##报错??
-
-./configure  --prefix=/usr/local/apache2 --enable-so \
- --enable-proxy  --enable-proxy-ajp --enable-proxy-balancer --enable-proxy-connect \
- --enable-proxy-connect \
- --enable-proxy-ftp     \
- --enable-proxy-http    \
- --enable-proxy-scgi   \
- --enable-ssl            
-
-httpd -l查看
-
-ServerName mdm-server # 是hostname的值 
-
-
-/usr/local/apache2/bin/apxs -c -i -a mod_proxy_ftp.c ##OK
-LoadModule proxy_ftp_module modules/mod_proxy_ftp.so 
-
-#tomcat的AJP 默认端口是8009
-
-ProxyRequests Off
-<proxy balancer://cluster> 
-	BalancerMember ajp://127.0.0.1:8009 loadfactor=1 route=tomcat1  ##tomcat集群
-	BalancerMember ajp://127.0.0.1:9003 loadfactor=1 route=tomcat2
-</proxy>
-ProxyPass	 /myweb    balancer://cluster/myweb  stickysession=jsessionid nofailover=On 
-ProxyPassReverse /myweb    balancer://cluster/myweb
-
-
-Tomcat 的　server.xml   , 可以从文档上cluster-howto.html复制最新
-  <Cluster className="org.apache.catalina.ha.tcp.SimpleTcpCluster"
-                 channelSendOptions="8">
-
-          <Manager className="org.apache.catalina.ha.session.DeltaManager"
-                   expireSessionsOnShutdown="false"
-                   notifyListenersOnReplication="true"/>
-
-          <Channel className="org.apache.catalina.tribes.group.GroupChannel">
-            <Membership className="org.apache.catalina.tribes.membership.McastService"
-                        address="228.0.0.4"
-                        port="45564"
-                        frequency="500"
-                        dropTime="3000"/>
-            <Receiver className="org.apache.catalina.tribes.transport.nio.NioReceiver"
-                      address="auto"
-                      port="4000"
-                      autoBind="100"
-                      selectorTimeout="5000"
-                      maxThreads="6"/>
-
-            <Sender className="org.apache.catalina.tribes.transport.ReplicationTransmitter">
-              <Transport className="org.apache.catalina.tribes.transport.nio.PooledParallelSender"/>
-            </Sender>
-            <Interceptor className="org.apache.catalina.tribes.group.interceptors.TcpFailureDetector"/>
-            <Interceptor className="org.apache.catalina.tribes.group.interceptors.MessageDispatchInterceptor"/>
-          </Channel>
-
-          <Valve className="org.apache.catalina.ha.tcp.ReplicationValve"
-                 filter=""/>
-          <Valve className="org.apache.catalina.ha.session.JvmRouteBinderValve"/>
-
-          <Deployer className="org.apache.catalina.ha.deploy.FarmWarDeployer"
-                    tempDir="/tmp/war-temp/"
-                    deployDir="/tmp/war-deploy/"
-                    watchDir="/tmp/war-listen/"
-                    watchEnabled="false"/>
-
-          <ClusterListener className="org.apache.catalina.ha.session.ClusterSessionListener"/>
-        </Cluster>
-		
-<Engine name="Catalina" defaultHost="localhost" jvmRoute="tomcat2">  ###对应修改    
-
-应用的web.xml加入  <distributable/>
-
-
-
-<VirtualHost>中可以使用
- ProxyPass 
- ProxyPassReverse 
-
-
-ab -n 100 -c 10 http://127.0.0.1:8080/   打压力
--n 请求总数
--c 并发数
-
-============================apache2 使用========================
-
-源码安装 依赖于 Apache APR  (Apache Portable Runtime ) 
-cd apr-1.5.2
-./configure  其实安装在 /usr/local/apr目录中
-make
-make install
-
-cd apr-util-1.5.4
-./configure --with-apr=/usr/local/apr
-make
-make install
-
-cd pcre-8.39	
-./configure
-make 
-make install
-
-cd httpd-2.4.23
-./configure  其实安装在 /usr/local/apache2 目录中
-make 
-make install
-
-
-http://doc.javanb.com/apache-http-server-version-2-2-cn/sitemap.html
-
-检查httpd.conf 语法-windows:
-	httpd -t
-	或者：
-	httpd.exe -w -t -f "C:\Apache2.2\conf\httpd.conf" -d "C:\Apache2.2\."
-
-检查httpd.conf 语法-linux:
-	apachectl configtest
-	或
-	apache2ctl configtest
-
-
-
-SSL Secure Socket Layer 有openssl ,modssl
-
-顶层 HTTP ,POP,SMTP
-中层 SSL(HTTPS,POP3S,SMTPS)
-底层 TCP
-最底层IP
-
-/etc/rc.local 开机启动执行,可加自动启动apache
-
-Listen 80
-ServerRoot
-DocumentRoot
-MaxClients 最大的客户数(同时)
-
-对<IfMoudle prefork.c>可以用
-/usr/local/apache2/bin/httpd -l  列出apache内部的模块
-
-User nobody  # 一定要有仿问目录的权限,r_x,可以看日志
-Group nobody
-子进程使用的用户来执行
-启动apache要用root,setuid()改变子进程的身份
-
-
-
-Errorlog log/error_log
-LogLevel warn
-DirectoryIndex index.html 文件夹索引
-AddDefaultCharset　　UTF-8  (iso-8859-1) #默认返回页面的编码,浏览器可以改为UTF-8(系统是UTF-8), 可以把它注释,这样浏览器,jsp程序可以自动认识
-Alias /xx /var/www/xx
-
-locale 命令来看编码
-
-killall -HUP httpd 也可以生启apache
-<Directory />
-#中没有仿问权限设置,默认是拒绝的,(也有的子)
-Options Indexes #表示如果没有index.html (DirectoryIndex定义的)就列表显示它
-Allow from 127. #127这个网段可以仿问 ,all
-</Directory>
-
-cgi  可以用任何来解释执行(bash,perl)  ,第一行必须声明content-type 再加一个换行 
-如perl 用
-	#!/usr/local/bin/perl　
-	print "Content-type: text/plain\n\n";
-如bash 用
-	#!/bin/bash  
-	echo "content-type :text-plain"
-	echo 
-
-ScriptAlias /cgi-bin/ "/usr/local/apache2/cgi-bin/"  
-
-
-# 基于主机名的虚拟主机 (一个IP地址，多个网站)
-# 基于IP地址的虚拟主机 (每个站点拥有一个的独立IP地址)，
-
-
-可以多个域名用同一个IP
-
-NameVirtualHost 192.168.1.104:80	#这三个ＩＰ地址是一样的　 两域名，相同IP，
-<VirtualHost 192.168.1.104>		#这三个ＩＰ地址是一样的
-	ServerAdmin	root@example.com
-	DocumentRoot /var/www
-	ServerName	example.com   ###可以用DNS解析到IP(可IP),会替换ServerName 的设置
-	ErrorLog  logs/example_error.log
-	CustomLog logs/example.log common
-	ErrorDocument 404 http://cooling.ape-tech.com/bbs
-</VirtualHost>
-
-<VirtualHost 192.168.1.104>		#这三个ＩＰ地址是一样的
-	ServerAdmin	root@test.com
-	DocumentRoot /var/test
-	ServerName	test.com
-	ErrorLog  logs/test_error.log
-	CustomLog logs/test.log common
-	ErrorDocument 404 http://cooling.ape-tech.com/bbs
-</VirtualHost>
-
-如仿问的不是上两个域的网址,对:80会显示第一个VirtualHost 的主目录(DocumentRoot)
-如是:443就不是VirtualHost,而是
-
-VirtualHost也可以加SSL ,再 /etc/ssl.conf 文件中修改
-	SSLEngine on ##开关
-
-<VirtualHost>中可以用<Proxy>
-
-
-----
-
-
-Aliase  /test /var/www/test
-<Directory /var/www/test>
-	Options  ALL ##ExecCGI(可运行CGI程序 ),FollowSymLinks(支持符号链接访问其它目录),Includes(可使用SSL),IncludeNOEXEC(可SSL 不可CGI),Indexes(可列目录无DirectoryIndexes参数指定的文件如index.html),SymLinksIfOwnerMath(目标文件和目录属于同一用户可以符号链接)
-	AllowOveride AuthConfig
-	AuthName "显示的标题"
-	Authtype Basic
-	AuthUserFile /var/www/test/.htpasswd
-	require valid-user  (htpaswd -c /var/www/test/.htpasswd mike  来增加mike,第一次加 -c, -m修改, )
+======================Kea======================
+www.isc.org   
+	 Kea 为了替换 DHCP
 	
-	Order allow,deny   (较安全的,如  deny,allow 不在deny 中的都可以访问  ,(只考虑DENY))
 	
-	Allow from all
-	Deny from xxx.com
-</Directory>
 
-UserDir disable  如为public_html(用户user1主目录下的目录,/home/user1/public_html),可以http://www.xx.com/~user1来访问
-AccessFileName .htaccesss(访问控制文件)
-		<Files ~ "^.ht">  ##不可任何人看到.ht的文件
-			Order allow,deny
-			Deny from all 
-		</Files>
-TypesConfig  /etc/mime.types
-DefaultType text/plain  (如二进制文件被认为文本,application/x-octet-stream)
-分析文件要 加载模块
-<IfMoudle mod_mime_magic.c>
-	MIMEMagicFile conf/magic
-</IfMoudle>
-	
-AddType application/x-httpd-php   .php
-ErrorLog logs/error_log
-LogLevel warn   (debug,info,notice,warn,crit,alert,emerg)
-LogFormat ".........."
-CustomerLog logs/access_log combined
-%a 远程IP
-%b 发送字节
-%h 远程主机
-%l 远程登录名
-%r 客户机请求的第一行
-%s 状态
-%t 时间
-%u 远程用户
-referrer 点击页面
-user-agent 浏览器
-
-ServerSignature On  在页面底部加服务名,版本,Email
-
-Redirect permanent /foo  http://www.xx.com  访问不存在的项目时跳到页面
-
-
-IndexOptions FancyIndexing VersionSort NameWith=* (按适合的宽度显示文件名)
-列表的显示方式   
-AddIcon /icons/xxx .exe .bin
-DefaultIcon /icons/unknow.icn
-
-DefaultLanguage 
-
-
-<Location /server-status>
-	SetHandler server-status
-	Order deny,allow
-	Deny from all
-	Allow from 192.168.1.1
-</Location>
-
-<Location /server-info>
-	SetHandler server-info
-	Order deny,allow
-	Deny from all
-	Allow from 192.168.1.1
-</Location>
-就可以用 http://localhost/server-status (server-info) 看到信息
-
-
-
-
-可每个守护进程来支持虚拟机
-
-
-
-
-如何https (443),TLSV1.2,TLS( Transport Layer Security )最新版本1.2
-
-ssl       执行httpd -l 有mod_ssl.c
-<IfMoudle mod_ssl.c>
-还要看 /etc/ssl.conf文件
-	Listen 443
-</IfMoudle>	
-/usr/local/bin/apachectl -D /##startssl 来开启SSL ,查443端口,没有
-
-ssl.conf文件
-
-SSLCertificateFile /etc/ssl.crt/server.crt 证书
-SSLCertificatekeyFile  /etc/ssl.key/server.key 私钥
-SSLCertificatechainFile
-
-
-
-openssl  genrsa -out /etc/ssl.key/server.key 1024(长度) //输出到文件
-openssl  req(请求) -new(新建) -x509 (格式) -key (前面的key) 
-	/etc/ssl.key/server.key(和上条命令的路径一样) -out /etc/ssl.crt/server.crt
-   按提示输入一些信息
-
-/usr/local/bin/apachectl startssl 
-查443端口 ,发现有了
-
-httpd -k stop/start/restart
-
-
-bin/ab 压力测试
-KeepAlive On //断点续传
-
-ExtendedStatus On
-<Location /server-status>  
-SetHandler server-status   ##会在目录下显示服务状态下
-Order deny,allow
-Deny from all
-Allow from 192.xxxxx
-</Location>
-
-
-<Location /server-status>  
-SetHandler server-status   
-Order deny,allow
-Allow from all
-authtype basic
-authname "xxx"
-authuserfile "/.htpasswd"
-required valid-user
-</Location>
-
-
-htpasswd命令 -c  (Create New File)  -s (SHA加密密码)
-./apachectl configtest 来看错误
-============apache2 上==============================================
 ============openSSL ==============================================
 JKS(JavaKeysotre)格式和PFX(PKCS12) 
 PFX常用于Windows IIS服务器 , JKS常用语JAVA类的WEB服务器
@@ -1016,196 +365,6 @@ $ make install
 
 
 
-===============SVN subversion=====================
-TortoiseSVN 清记忆密码，可以右键出SVN菜单
-Settings->Saved Data->Authentication data,Clear 
-
-svn://协议 客户端 使用silkSVN可以用,但使用Visual SVN就不行
-
-
-运行 svnserve -d (daemon)
-lsof -i :3690 可以看服务已经运行   (cat /etc/service | grep svn)
-list open files ,-i internet
- 
-
-客户端执行  
-执行 #svn checkout svn://svn_server_ip/home/mysvn
-或者 #svn checkout svn+ssh://svn_server_ip/home/mysvn
-eclipse的SVN只对网址URL的方式
-
-
-
-依赖于libtool ,autconf,opnessl(opensslv.h  openssl-devel.rpm) ,db(rpm 包不行的，用源码安装)
-	awk(windows INSATLL中看的)
-
-----db 源码安装 
-cd build_unix 
-../dist/configure
-make
-make install
-安装在/usr/local/BerkeleyDB.4.7   
-
-./configure  --prefix=/usr/local/subersion --with-apxs=/usr/local/apache2_svn/bin/apxs --with-openssl=/usr/local/openssl  --with-berkeley-db=/usr/local/BerkeleyDB.4.7/
-subversion 中加　--with-berkeley-db=/usr/local/BerkeleyDB.4.7
------
-
-apache 中
-
-  $ ./buildconf
-  $ ./configure --enable-dav --enable-so --enable-maintainer-mode
-  $ rm /usr/local/lib/libsvn*
-  $ make clean && make && make install
-
-
-subversion 中
-最后解压subversion-deps-1.5.4.tar.gz
-
-  $ sh ./autogen.sh
-  $ ./configure　--with-apxs=/usr/local/apache2/bin/apxs　####--prefix=/usr/local/subversion 
-  $ make
-  # make install
-
-安装后/usr/local/apache2/modules 下多了两个文件mod_authz_svn.so和mod_dav_svn.so
-也自动改了httpd.conf文件中加了　
-LoadModule dav_svn_module   modules/mod_dav_svn.so
-LoadModule authz_svn_module modules/mod_authz_svn.so
-
-
-建立仓库svnadmin create /home/mysvn  目录下生成一些文件
-
-在/usr/local/apache2/conf/httpd.conf中加入:
-<Location /svn/repository>
-DAV svn
-SVNPath /home/mysvn
-</Location>
-
-
-
-cat /etc/services | grep svn
-
-
-在服务器的浏览器中输入网址:
-http://localhost/svn/repository/
-
-
-svnadmin create /home/svnroot/repository/test
-
-这条语句将把路径/home/user/import下找到的文件导入到你创建的Subversion 仓库中去，
-//提交后的修订版为1。
-# ./svn import /home/user/import file:///home/svnroot/repository/test –m "注释"
-# ./svn import /home/user/import/xx.java file:///home/svnroot/repository/test/xx.java –m "注释"
-
-httpd.conf 中添加
-   LoadModule dav_svn_module modules/mod_dav_svn.so
-   LoadModule authz_svn_module modules/mod_authz_svn.so
-   <Location /svn>
-   DAV svn
-   SVNParentPath /home/svnroot/repository/ //svn父目录
-   AuthzSVNAccessFile /home/svnroot/repository/authz.conf //权限配置文件
-   AuthType Basic //连接类型设置
-   AuthName "Subversion.zoneyump" //连接框提示
-   AuthUserFile /home/svnroot/repository/authfile //用户配置文件
-   Require valid-user //采用何种认证
-   </Location>
-   //其中authfile是通过"htpasswd [–c] /home/svnroot/repository/authfile username password"来创建的
-   //"Require valid-user"告诉apache在authfile中所有的用户都可以访问。如果没有它，
-   //则只能第一个用户可以访问新建库 
-
-
-
-http://localhost/svn/test/，
-
-htpasswd [-c] /home/svnroot/repository/authfile wooin   加用户
-
-修改svn配置
-vi /home/svn/yourprojectname/conf/svnserve.conf
-anon-access = read
-auth-access = write
-
-2)权限分配
-
-# vi /home/svnroot/repository/authz.conf
-   [test:/] //这表示，仓库test的根目录下的访问权限
-   wooin = rw //test仓库wooin用户具有读和写权限
-   bao = r //test仓库bao用户具有读权限
-   [test2:/] //test2仓库根目录下的访问权限
-   wooin = r //wooin用户在test2仓库根目录下只有读权限
-   bao = //bao用户在 test2仓库根目录下无任何权限
-   [/] //这个表示在所有仓库的根目录下
-   * = r //这个表示对所有的用户都具有读权限
-   #[groups] //这个表示群组设置
-   #svn1-developers = wooin, bao //这个表示某群组里的成员
-   #svn2-developers = wooin
-   #[svn1:/]
-   #@svn1-developers = rw //如果在前面加上@符号，则表示这是个群组权限设置
-
-$ svnserve -d --foreground -r /home/svn 
-SVN 就开始监听默认的端口(3690)
-
-http.conf文件
-   User daemon # 将daemon改为svnroot，让apache进程以svnroot的身份运行 
-
-
- svnlook tree /var/repos/testProject/ 
- 
- svn://host.example.com/usr/local/repositories/project1
- 或者用
- $ svnserve -d -r /usr/local/repositories 后就可以用
- $ svn checkout svn://host.example.com/project1　--username lisi  --password
- 	或者用这样的形式　svn co svn://lisi@localhost:3690/testProject
-
-
-
--T　用线程代代替进程
-
-
-conf 目录下的svnserve.conf 中anon-access =none  ( 原来是read不行的)
-
-~/.subversion/auth/　目录缓存,
-SSH密码缓存工具，像类Unix系统的ssh-agent或者是Windows下的pageant。 
-
-关闭凭证缓存 使用参数--no-auth-cache：
-svn commit -F log_msg.txt --no-auth-cache
-
-
-
-??????????????????????
-
-svnserve是以管道模式调用的（-t）  才用svn+ssh://
-
-
-或者在svnserve.conf中加入
-[auth]
-store-auth-creds = no
-
-[tunnels]
-rsh = rsh
-来使用svn+rsh://host/path
-
---with-openssl=/usr/local/openssl   (可以手工源码安装openssl)
-./configure  --prefix=/usr/local/subersion --with-apxs=/usr/local/apache2_svn/bin/apxs --with-openssl=/usr/local/openssl  --with-berkeley-db=/usr/local/BerkeleyDB.4.7
-
-apr-util 中也要加--with-openssl  ,要单独make && make install(失败)(deps包中的)
-
----------多端口的监听
-Listen 5001
-Listen 8080
-
-#222.73.218.46
-NameVirtualHost *:5001
-<VirtualHost *:5001>
-# DocumentRoot /apache2/htdocs  ##SVN不能使用DocumentRoot
-</VirtualHost>
-
-NameVirtualHost *:8080
-<VirtualHost *:8080>
-# DocumentRoot /apache2/apply
-</VirtualHost>
-
-
-SVN  如何禁止commit
-
-==============上 SVN===================== 
 ==============Git 安装配置 使用
 Git四种协议
 1.本地
@@ -1218,9 +377,65 @@ SmartGit界面UI
 ---windows版本
 Google Code项目 msysgit 中的Git 和 msysGit-fullinstall 有 GitGUI ,C:/Program Files (x86)/Git/doc/git/html
 GitStack 说是开源,30天后变为基本版本,网页形式的Server,http://localhost/gitstack/,可以建库,建用户,以http(s)的形式对外使用
----
-GitLab (linux) 收费的，有管理界面,可LDAP登录
+---GitLab
+只有linux版本,有管理界面,可LDAP登录
+有收费版本
+免费版本下载 https://packages.gitlab.com/gitlab/gitlab-ce 
+gitlab-ce-12.7.6-ce.0.el7.x86_64.rpm
+gitlab-ce-12.7.6-ce.0.sles15.x86_64.rpm  是openSUSE-15.1的版本
+有docker版本 gitlab-ce
 
+systemctl  disable gitlab-runsvdir.service
+
+--
+对GitLab进行重配置 （这一步也是启动 GitLab） 
+sudo gitlab-ctl reconfigure  使用ruby来安装,默认安装在 /opt/gitlab目录下,默认使用自带的postgresql
+
+
+查看启动状态 
+sudo gitlab-ctl status 发现有redis,nginx
+
+停止服务
+gitlab-ctl stop
+
+gitlab-ctl restart
+
+看日志
+gitlab-ctl tail
+gitlab-ctl tail  postgresql
+/var/log/gitlab/nginx/access.log
+
+
+http://127.0.0.1/ 首次进入页后提示修改密码,至少8个字符(为root用户)
+http://<外网IP>/也可仿问
+
+先建立group,可选择图标(Group avatar),再建立项目时就可选择建立的组名,做为git地址的context
+为建立的项目加用户,左侧Settings->Members选择用户,在role permission中选择Developer
+
+LDAP用户支持 Microsoft Active Directory ,Apple Open Directory 和 OpenLDAP ,389 Server(fedora项目)
+默认没有开启LDAP支持
+建立用户初始密码发邮箱,但要配置SMTP , /etc/gitlab/gitlab.rb 中搜索 smtp,ldap
+# gitlab_rails['smtp_enable'] = true
+# gitlab_rails['smtp_address'] = "mail.domain.com"
+# gitlab_rails['smtp_port'] = 25
+# gitlab_rails['smtp_user_name'] = "root"
+# gitlab_rails['smtp_password'] = "root123"
+
+# gitlab_rails['ldap_enabled'] = false
+#....
+#	   host: '_your_ldap_server'
+#     port: 389
+#     uid: 'sAMAccountName'
+#     bind_dn: '_the_full_dn_of_the_user_you_will_bind_with'
+#     password: '_the_password_of_the_bind_user'
+
+修改配置后 gitlab-ctl reconfigure
+
+
+
+
+
+---
 
 %HOMEPATH%\AppData\Local\Programs\Git\mingw64\bin\git.exe
 
@@ -1250,7 +465,7 @@ http://git-scm.com/book/zh
 
 1. 安装目录/etc/gitconfig文件,使用 git config --system  读写
 2. 用户主目录.gitconfig 文件,使用 git config --global 读写 
-3. 工作目录中.git/config 文件
+3. 工作目录中.git/config 文件 		有保存项目的地址
 
 gitconfig 文件中  #或者;  是注释
 [user]
@@ -1331,7 +546,7 @@ useradd -s /usr/local/bin/git-shell git (可设置完成后再修改)
 用户机 ssh-keygen 会要求输入密码(可不输)
 传给对方的公钥 ~/.ssh/id_rsa.pub 
 
-服务器收到用户机的公钥后 追加写入 ~/.ssh/authorized_keys 文件,用户就可(使用建立密钥时的密码或无)连接自己机器
+服务器收到用户机的公钥后 追加写入 ~/.ssh/authorized_keys(权限) 文件,用户就可(使用建立密钥时的密码或无)连接自己机器
 
 
 git clone git@192.168.0.184:/opt/git_server/project1.git ##只对设置密钥密码为空时才可(linux客户端)
@@ -1504,70 +719,32 @@ XXXX=manager
 TortoiseGit -》 setttings->Git->点edit systemwide gitconfig按钮
 
 ============== 上 Git 
-============== MemCache  (memcached-1.4.17)
-文档在google上
+===========phpmyadmin-5.0.1
+openSUSE-leap-15.1的yast 自带 phpMyAdmin包
+	直接安装在/srv/www/htdocs/phpMyAdmin目录下 ,有配置 /etc/apache2/conf.d/phpMyAdmin.conf
+	
 
-依赖于libevent(libevent-2.0.21), 如linux内核要有epoll
-安装libevent  
-./configure && make
-make install
- 
-安装MemCache
-./configure --with-libevent=/usr/local
-make
-make install
+手工下载包放 /srv/www/htdocs/ 目录
 
-/usr/local/bin/memcached -h
-
-启动Memcache的服务器端：
-memcached -d -m 10   -u root -l 127.0.0.1 -p 12000 -c 256 -P /tmp/memcached.pid
--d 做服务端
--m 以M为单位的最大内存
--u user 只对root用户运行命令
--p 端口
--l 监听IP,本机IP
--c 最大连接数
--P PID文件只对-d同时有效
--f 增长因子 默认1.25
--vv very verbose
-服务器监听端口,通过一定的协议交互来写入数据到服务器内存中
+-- vi /etc/apache2/conf.d/phpmyadmin.conf 引用目录测试失败???
+Alias  /phpmyadmin "/software/linux_software/phpMyAdmin-5.0.1-all-languages"
+<Directory "/software/linux_software/phpMyAdmin-5.0.1-all-languages">
+ 	Options Indexes FollowSymLinks MultiViews
+	AllowOverride all
+	Require all granted
+	php_admin_value upload_max_filesize 128M
+	php_admin_value post_max_size 128M
+	php_admin_value max_execution_time 360
+	php_admin_value max_input_time 360 
+</Directory>
 
 
-memcached -help 
-memcached  -m 64    -l 127.0.0.1 -p 12000 -c 256 -vv (windows版本)
-telnet 127.0.0.1 12000
-	windows下按ctrl +] 打开回显功能 ->回车
-windows下如何命令写错只能新写命令
 
-add <key> <flag> <expire秒或时间戳.0不自动删也可能被删> <值的length>
-add new  0  0 5 
-回车后输入5个字符值hello后,显示STORED
-get new 取值
-
-delete <key> <可选秒数> 表示 删除而且几秒内不能使用同名的键 
-
-replace 修改同add参数,只可对已经存在
-set 相当于add 和 replace
-set age 0 0 2
-输入 18
-incr age 1
-decr age 1  因是无符号的,不可能<0
-stats  显示状,可以看命中数
-flush_all  后stats 显示curr_items还有值(过期后并没有删除,只当get时才判断如果过期则删除,再看stats就减少,或者有新值要占用直接用就好),一种惰性删除
-
-防止内存的碎片更少
-预先分组多个大小约相同的slab ,每组slab 中 的chunk大小不同,按-f参数来增长,启动可以看日志
-在同一个slab 中 chunck 相同
-不在同一个slab 中chunck不相同
-chunk 存储选用最小,如果还是有空闲空间,是不可避免的
-如果当前最小chunk所在slab已经满了,就把老chunk数据踢除(惰性过期 和LRU最近最少使用即多少次没被使用最大的,FIFO,删除)
-
-Key长度限制250字节
-Value限制1M
 
 ===========postfix===========================
- 
-源码安装 postfix, 依赖于PCRE , ./configure  && make && make install 安装在/usr/local下 ,
+
+---源码安装 postfix
+依赖于PCRE , ./configure  && make && make install 安装在/usr/local下 ,
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 建立用户,组 
 groupadd  postdrop
@@ -1590,45 +767,72 @@ readme_directory: [no]
 sendmail_path: [/usr/sbin/sendmail]
 setgid_group: [postdrop]
 
-主配置文件是/etc/postfix/main.cf
-Postfix主机名称，可使用下面的语句：myhostname = mail.gdvcp.net
 
-“$”来引用该变量，  等号两边需要有空格字符  
+--- 主配置文件是/etc/postfix/main.cf
+ $ 来引用该变量，  等号两边需要有空格字符  
 如果变量有两个以上的设置值，就必须用逗号“，”或者空格符“ ”将它们分开
 
-mydomain= gdvcp.net
+mail_owner = postfix
+queue_directory = /var/spool/postfix
 
-myorigin  的邮件头中mail from的地址
+myhostname = smtp.domain.com   
+mydomain = doamin.com   
 
-inet_interfaces=localhost，这表明只能在本地邮件主机上寄信  ,一般应是all
+myorigin = $mydomain    将发信地址“@”后面的部分设置为域名
 
-mydestination参数非常重要，因为只有当发来的邮件的收件人地址与该参数值相匹配时,才自己接收
+inet_interfaces = all   如localhost表明只能在本地邮件主机上寄信  ,一般应是all
+ 
+inet_protocols = all   # ipv4，如果支持ipv6，则可以为all 
+
+mydestination = $myhostname, localhost.$mydomain 参数非常重要，因为只有当发来的邮件的收件人地址与该参数值相匹配时,才自己接收
 
 mynetworks=192.168.16.0/24，则表示这台邮件主机只转发子网192.168.16.0/24中的客户端所发来的邮件，而拒绝为其他子网转发邮件。
+#mynetworks = hash:/etc/postfix/network_table
 
-
-mynetworks-style = class(A,B,C类地址)
-mynetworks-style = host
-mynetworks-style = subnet
-
+mynetworks-style = class  #class(A,B,C类地址), host ,subnet
 
 通常，用户不设置mynetworks-style参数，而直接设置mynetworks参数。如果这两个参
 数都进行了设置，那么mynetworks参数的设置有效。
 
 
-relay_domains = gdvcp.net
-则表示任何由域gdvcp.net发来的邮件都会被认为是信任的，Postfix会自动对这些邮件进行转发。
+relay_domains = $mydestination 默认值
+有配置 relay_domains = $mydestination, hash:/etc/postfix/relay
 
+则表示任何由域$mydestination  发来的邮件都会被认为是信任的，Postfix会自动对这些邮件进行转发。
+
+ome_mailbox = Maildir/
+message_size_limit = 0
+mailbox_size_limit = 0
+---
 
 要查看Postfix的当前主要配置postconf -n
+systemctl restart postfix 或者  postfix reload 
+
+测试使用 echo "Mail Content" | mailx -s "Mail Subject" -a /tmp/attach.txt xx@163.com 测试成功(可没有DNS服务,使用/etc/hosts)
+日志在  /var/log/mail ,journalctl -xeu postfix 或 journalctl -u postfix --since today
 
 
-virtual_alias_domains用来指定虚拟别名域的名称
-irtual_alias_maps用来指定含有虚拟别名域定义的文件路径。
+vi /etc/mail.rc
+...
+#set from=dellx@domain.com smtp=smtp.domain.com
+#set smtp-auth-user=dell@domain.com smtp-auth-password=123
+#set smtp-auth=login
 
-示例:
-virtual_alias_domains = dzxx.cn，example.com
+#以下测试可以登录sina.com并发送到163.com
+set from=user1@sina.com smtp=smtp.sina.com
+set smtp-auth-user=user1@sina.com smtp-auth-password=123
+set smtp-auth=login
+
+
+
+-----
+virtual_alias_domains 用来指定虚拟别名域的名称
+virtual_alias_maps 用来指定含有虚拟别名域定义的文件路径。
+
+有配置
+virtual_alias_domains = hash:/etc/postfix/virtual
 virtual_alias_maps = hash:/etc/postfix/virtual
+
 /etc/postfix/virtual文件内容,第一列虚拟域或者虚拟域用户 ,  第二列无@ 表示本地linux用户
 @dzxx.cn  @gdvcp.net
 admin@example.com  lbt
@@ -1640,7 +844,7 @@ postmap /etc/postfix/virtual   生成virtual.db
 postfix reload
 
 
-
+----
 用户别名
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
@@ -1655,18 +859,85 @@ lm01:  jczliuming，liuming86@163.com
 st0323001，\
 st0323002，\
 st0323003，\
-
-
-
-
+ 
 postalias /etc/aliases          
 postfix reload
 
+---SASL(Simple Authentication and Security Layer)
+http://www.postfix.org/SASL_README.html
 
 
-SMTP认证机制是通过Cyrus SASL包(Cyrus Simple Authentication and Security Layer)
+SMTP服务要做登录认证,Postfix SMTP 支持 Cyrus SASL 和 Dovecot SASL(2.3版本开始)  两个实现
 
-saslauthd -v 查看所支持的密码验证机制。
+默认使用Cyrus SASL(C和Perl开发),如要使用 Dovecot SASL(C开发) 	/etc/postfix/main.cf 中加配置  
+	smtpd_sasl_type = dovecot
+
+postconf -a 查看服务端在编译时支持哪个
+postconf -A  查看客户端支持哪个
+
+
+smtp   端口 25
+imap   端口 143
+imaps  端口 993  即imap的 TLS/SSL 
+pop3s  端口 995  即pop3的 TLS/SSL 
+pop3   端口 110
+
+--/etc/postfix/main.cf 
+smtpd_sasl_type = dovecot
+smtpd_sasl_security_options = noanonymous
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd  #当 disable_plaintext_auth = no 时要这个
+smtpd_sasl_auth_enable = yes			服务端
+smtp_sasl_auth_enable = yes			客户端
+
+-- vi /etc/postfix/sasl_passwd
+domain.com user1:pass2
+
+
+zypper install dovecot 后
+--vim /etc/dovecot/dovecot.conf
+!include conf.d/*.conf
+
+#listen = *, ::
+#login_trusted_networks =
+
+--vim /etc/dovecot/conf.d/10-auth.conf
+#disable_plaintext_auth = yes
+auth_mechanisms = plain login
+
+--vim /etc/dovecot/conf.d/10-mail.conf
+mail_location = maildir:~/Maildir
+
+--vim  /etc/dovecot/conf.d/10-master.conf
+unix_listener /var/spool/postfix/private/auth {
+  mode = 0666
+  user = postfix
+  group = postfix
+}
+
+--vim /etc/dovecot/conf.d/10-ssl.conf
+#ssl = yes
+
+systemctl start dovecot
+
+
+---TLS
+http://www.postfix.org/TLS_README.html
+
+smtpd_use_tls = no
+#smtpd_tls_loglevel = 0
+smtpd_tls_CAfile =
+smtpd_tls_CApath =
+smtpd_tls_cert_file =
+smtpd_tls_key_file =
+smtpd_tls_ask_ccert = no
+smtpd_tls_received_header = no
+
+
+smtpd_tls_auth_only = yes
+
+
+#---没有 saslauthd testsaslauthd 命令??
+saslauthd -v 查看所支持的密码验证机制 
 
 /etc/sysconfig/saslauthd中
 MECH=shadow    ###直接用/etc/shadow,  ,pam /etc/pam.d/imap
@@ -1675,6 +946,7 @@ MECH=shadow    ###直接用/etc/shadow,  ,pam /etc/pam.d/imap
 saslauthd -a pam /shadow  这是OK的
 
 testsaslauthd -u 用户 -p  密码  ##测试,日志文件
+#---
 
 main.cf文件中
 smtpd_sasl_auth_enable = yes
@@ -1694,9 +966,6 @@ permit_sasl_authenticated：表示允许转发通过SASL认证的邮件。
 reject_unauth_destination：表示拒绝转发含未信任的目标地址的邮件。
 
 
-/etc/init.d/postfix reload (restart)
-
-
 就必须确保/usr/lib/sasl2/smtpd.conf文件中的内容为：pwcheck_method: saslauthd
 
 测试 telnet localhost 25
@@ -1706,17 +975,10 @@ ftp> get index.html
 
 输入ehlo 返回当前Postfix所支持的认证方式 两行AUTH ......
 
-iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT 
-iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
-iptables -P INPUT DROP  
-iptables -P OUTPUT DROP
-iptables -P FORWARD DROP
 
-iptables -I INPUT -p tcp --dport 25 -j ACCEPT
+cyrus-imapd-2.4(redhat-EL7.6 光盘中有的 lm_sensors)
+另一个 imap 服务器是dovecot-2.2.x redhat-EL7.6 光盘有的
 
-cyrus-imapd(redhat5 光盘中有的 lm_sensors,db4)
-
-另一个 imap 服务器是dovecot1.0.x redhat5 光盘中有的
 cp /usr/local/dovecot/etc/dovecot-example.conf /usr/local/dovecot/etc/dovecot.conf
 可以直接用dovecot就可以启动与xinetd同
 /usr/local/libexec/dovecot/imap-login(或者用pop3-login可加--ssl)
@@ -1793,25 +1055,66 @@ Cyrus-IMAP的邮件信箱位于/var/spool/imap目录下
 不可queue management 组默认postdrop
 
 
-imap ssl 端口 993
-smtp ssl 端口 465
 
 ===========上 postfix==========================
+===========postfixadmin-3.2 (2018更新,使用php,apache2,可以配置Dovecot)
+zypper install postfixadmin
 
-===========Imap cyrus
----imap 的安装(http://rpmfind.net)
- rpm -ivh imap-2002d-3.i386.rpm --nodeps
- 要修改/etc/xinetd.d/imap文件把disale=yes 改为no,会有143端口监听
- telnet localhost 143 来测试可能还 要libcrypto.so.4
+#启用POSTFIXADMIN标志，为/etc/apache2/conf.d/postfixadmin.conf文件使用
+a2enflag POSTFIXADMIN 
+
+
+--mysql
+create database postfix character set utf8 collate utf8_bin;
+create user postfix@localhost identified by 'postfixadmin';
+grant all privileges on postfix.* to postfix@localhost ;
+ALTER USER postfix@localhost IDENTIFIED WITH mysql_native_password   BY 'postfixadmin';
+
+create user postfix@'%' identified by 'postfixadmin';
+grant all privileges on postfix.* to postfix@'%' ;
+ALTER USER postfix@'%' IDENTIFIED WITH mysql_native_password   BY 'postfixadmin';
+
+vi /etc/postfixadmin/config.inc.php 配置mysql
+ 	$CONF['configured'] = true;
+	$CONF['database_type'] = 'mysqli';
+	$CONF['database_host'] = 'localhost';
+	$CONF['database_user'] = 'postfix';
+	$CONF['database_password'] = 'postfixadmin';
+	$CONF['database_name'] = 'postfix';
+
+
+===========上 postfixadmin
+
+=========== cyrus-imapd 是一个 邮件,联系人和日历服务 
+使用C和perl
+https://cyrusimap.org/ 最新版本3.0
+
+支持IMAP4和 pop3 (只可读用户的INBOX箱)
+
+# rpm -ivh imap-2002d-3.i386.rpm --nodeps
+要修改/etc/xinetd.d/imap文件把disale=yes 改为no,会有143端口监听
+telnet localhost 143 来测试可能还 要libcrypto.so.4
 
 cyrus
 ./configure --with-dbdir=/usr/local/BerkeleyDB.4.6/
 	###--with-bdb-libdir or --with-bdb-incdir configure options.
 成功编译后，make depend－》make all CFLAGS=-O(看文档的,可能不行的)
 
-===========Imap Pop3  dovecot
-  
+===========dovecot 是一个 Imap 和 Pop3  服务
+https://www.dovecot.org/
+https://wiki2.dovecot.org/
+使用C开发,最新版本2.3.9
+zypper install dovecot 有 backend-sqlite,backend-mysql,backend-pgsql
+
+---------squirrelmail
+http://squirrelmail.org/
+2011 是最后更新版本 1.4.22
+
+
 ---------OpenwebMail 
+http://www.openwebmail.org/
+2008 是最后更新版本 2.53 	
+
 安装目录/var/www/html/和/var/www/cgi-bin/
 
 cd /var/www/cgi-bin/openwebmail［Enter］　　// 进入openwebmail目录
@@ -1854,11 +1157,64 @@ http_access allow all
 浏览器设置代理  10.0.0.1  3128
 
 
+================ HAProxy 可用于放在Ngnix的前方
+支持数以万计的并发连接, 使用事件驱动, 单一进程 ,不能做缓存
+ 
+https://www.haproxy.org/download/2.0/src/haproxy-2.0.5.tar.gz  		2019-08-16
+已经有下载地址就不需要翻墙了
+
+
+文档
+https://cbonte.github.io/haproxy-dconv/
+
+
+源码doc目录也有文档,examples 有些示例配置
+ 
+openSUSE-15.1 yast 有版本是1.8.17 ，rpm包 带 /etc/haproxy/haproxy.cfg
+ 
+源码linux下编译
+
+$ make clean
+$ make -j $(nproc) TARGET=linux-glibc \
+                USE_OPENSSL=1 USE_ZLIB=1 USE_LUA=1 USE_PCRE=1 USE_SYSTEMD=1
+                
+$ sudo make install
+
+提示找不到 systemd/sd-daemon.h  (安装 systemd-devel)
+
+nproc 命令显示CPU有多少核
+
+安装后只有 
+/usr/local/sbin/haproxy   
+/usr/local/share/man/man1/haproxy.1
+/usr/local/doc/haproxy 目录
+
+---haproxy.cfg
+global
+	log	/var/log	daemon  #其中 daemon 是syslog中的24种 facilities之一,可local0,local1
+#以下swarm提示的配置
+# Configure HAProxy to listen on port 80
+frontend http_front
+   bind *:80
+   stats uri /haproxy?stats
+   default_backend http_back
+
+# Configure HAProxy to route requests to swarm nodes on port 8080
+backend http_back
+   balance roundrobin
+   server node1 192.168.99.100:8080 check
+   server node2 192.168.99.101:8080 check
+   server node3 192.168.99.102:8080 check
+   
+启动服务 systemctl start haproxy  
+看日志 systemctl -u haproxy.service  可缩写为 systemctl -u haproxy
+
+ 
+
+
 ============== Nginx 比 Squid 强
 最新稳定版本1.14  有windows 版本.zip文件 
 Nginx Plus 收费版本
-
-如何 https ,TLSV1.2,TLS( Transport Layer Security )
 
 ​N​e​t​S​c​a​l​e​r​ 和 A10 EX Series  类似于F5,Radware 的硬件 ,负载均衡器
 Apache的 mod_proxy和mod_cache结合使用也可以实现对多台app server的反向代理和负载均衡，但是在并发处理方面apache还是没有 nginx擅长
@@ -1940,19 +1296,24 @@ server
 #一个server下可有多个location
 #一个http下可有多个 server,同时http和https
 server {
-	location / {
-		proxy_pass http://localhost:8080;   代理
+	#location / {
+	#	proxy_pass http://localhost:8080;   代理
+	#}
+ 	location /myapp {
+          alias   /usr/share/nginx/html; #要用alias才行,不能用root
+          index  index.html index.htm;
 	}
+    }
 
 	location /images/ {   请求 /images 对应本地/data/images/目录
 		root /data;
 	}
 }
 server 组中
-location ~ \.(gif|jpg|png)$ {     #正则表达式以~.开头表示,(\.是转义)  ,即以.gif,.jpg,.png结尾的的请求到指定目录去读
+location ~ \.(gif|jpg|png)$ {     #\.是转义,即以.gif,.jpg,.png结尾的的请求到指定目录去读
 	root /data/images;
 }
-
+#location的第二列,正则表达式列(可选),如为~表示区分大小写,如为~*表示不区分大小写,如为=表示精确匹配,如为空或^~表示前缀匹配
  
 upstream  nginx支持4种Load Balancing算法，要在http组中
 
@@ -2092,8 +1453,6 @@ location / {
 --with-http_v2_module 选项
 --with-http_ssl_module
 
----nginx.conf
-listen 443 ssl http2 default_server;  未试
 
 ------nginx Memcached
 server {   
@@ -2108,52 +1467,6 @@ server {
 }
 
  
-------nginx  fastcgi  PHP
-CGI(Commmon Gateway Interface)
-fastcgi应用程序(可以使用使用C/C++,python,PHP编写),
-	单独的进程(出错不影响nginx)一直启动着(老的CGI是每次用的时候启动,性能差)
-	apache是把cgi嵌入进来 (SAPI就是Server API 就是合并到服务器中,语言开发有限制,即apache的php模块只能用C/C++) 
-
-	
-PHP 编译加 --enable-fastcgi ,--enable-fpm (fastcgi process manager 有配置文件php-fpm.conf 有配置listen_address,allowed_clients ,php-fpm start)
-
-#windows PHP 打开配置修改
-extension_dir = "D:/software/php-7.2.8-Win32-VC15-x64/ext"
-extension=mysqli
-cgi.force_redirect = 1 
-cgi.fix_pathinfo = 1 
-cgi.rfc2616_headers = 1
-
-#windows (D:\software\php-5.6.37-Win32-VC11-x64>)用 php-cgi.exe -b 127.00.1:9000 -c php.ini 启动
-
-
-
-用 ngx_http_fastcgi_module 模块
-
-#配置文件中也有示例,打开#后做修改
-location ~ \.php$ {
-	#root  			html;    		#修改目录,windows以/分隔, 同location / {root  xx的值;}
-    fastcgi_pass  localhost:9000;  #php-fpm 的listen_address
-    fastcgi_index index.php;
-
-    #fastcgi_param SCRIPT_FILENAME /home/www/scripts/php/$fastcgi_script_name;  #对方机器的指定目录找php文件
-	fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;   # 原/scripts为修改 $document_root 即root的值
-    
-	fastcgi_param QUERY_STRING    $query_string;
-    fastcgi_param REQUEST_METHOD  $request_method;
-    fastcgi_param CONTENT_TYPE    $content_type;
-    fastcgi_param CONTENT_LENGTH  $content_length;
-	include        fastcgi_params;
- 
-}
-
-D:\software\nginx-1.14.0\nginx-1.14.0> nginx.exe -p D:\software\nginx-1.14.0\nginx-1.14.0
--p(prefix)
-
-<?php
-phpinfo();
-?>
-测试成功
 ------nginx  限流
 max_conns=3;
 
@@ -2170,11 +1483,130 @@ max_conns=3;
 ------nginx 白名单
 
 ------nginx https ssl 
+TLSV1.2,TLS( Transport Layer Security )
 http ssl 默认端口443
+listen 443 ssl http2 default_server;  未试
 
 
 ------nginx cluster
 
+
+------nginx  PHP fastcgi
+CGI(Commmon Gateway Interface)
+fastcgi应用程序(可以使用使用C/C++,python,PHP编写),
+	单独的进程(出错不影响nginx)一直启动着(老的CGI是每次用的时候启动,性能差)
+	apache是把cgi嵌入进来 (SAPI就是Server API 就是合并到服务器中,语言开发有限制,即apache的php模块只能用C/C++) 
+
+
+#windows  打开php.ini配置修改
+extension_dir = "D:/Program/php-7.4.3-Win32-vc15-x64/ext"
+extension=mysqli
+cgi.force_redirect = 1 
+cgi.fix_pathinfo = 1 
+cgi.rfc2616_headers = 1
+
+#windows 启动PHP用 php-cgi.exe -b 127.0.0.1:9000 -c php.ini 
+
+
+
+#nginx.conf配置文件中也有示例,打开#后做修改
+location ~ \.php$ {
+	#root  			html;    		#可改目录,windows以/分隔, 同location / {root  xx的值,也可不改}
+    fastcgi_pass  localhost:9000;  #php-fpm 的listen
+	#这可以是 unix:/run/xxx-php-fpm.sock;  对应php-fpm 配置的listen=/run/xx-php-fpm.sock(文件必须在/run下,php-fpm会自动创建) 还有其它配置l isten.owner=nginx listen.group=nginx listen.allowed_clients=127.0.0.1 
+	#socket的限制,只能本机通信,不能和外网通信
+
+    
+	fastcgi_index  index.php;
+ 	fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;   # 原/scripts为修改 $document_root 即root的值
+	
+	include        fastcgi_params;
+}
+
+启动nginx用 nginx.exe -p D:\Program\nginx-1.16.1
+-p(prefix)
+
+--phpinfo.php文件放html目录
+<?php
+phpinfo();
+?>
+
+测试成功
+
+------Nginx PHP 的php-fpm方式 (linux)
+源码编译PHP 加选项 --enable-fastcgi --enable-fpm (为nginx用的 )
+FPM=fastcgi process manager 有配置文件php-fpm.conf 
+	有配置listen_address,allowed_clients 
+php-fpm 选项
+	 --php-ini path|file
+    -c 指定查找php.ini文件位置
+
+
+php7目录(php-fpm.conf 没有指定php.ini?? 编译php-fpm时指定的默认值??)
+/etc/php7/cli/php.ini  里没有配置 extension_dir??,也没有配置conf.d??
+/etc/php7/conf.d/
+/usr/lib64/php7/extensions/
+
+
+yum install php7-fpm 		 
+yum install php7-devel (XDebug)
+zypper install php7-xdebug
+	/etc/php7/conf.d/xdebug.ini	
+		xdebug.remote_port = 9000 必须要修改,和FPM端口相同
+	/usr/lib64/php7/extensions/xdebug.so
+	
+	
+cp /etc/php7/fpm/php-fpm.conf.default /etc/php7/fpm/php-fpm.conf   里有[global]
+cp -n /etc/php7/fpm/php-fpm.d/www.conf{.default,}  #-n表示不覆盖已经存在的文件
+#结果是 cp /etc/php7/fpm/php-fpm.d/www.conf.default  /etc/php7/fpm/php-fpm.d/www.conf 
+
+ /etc/php7/fpm/php-fpm.d/www.conf  里[www]区默认有 listen = 127.0.0.1:9000 ,www是池名,可用 $pool 来取到值
+
+systemctl restart  nginx php-fpm
+
+如何同一nginx端口配置多个PHP上下文?????(多个location用alias)
+
+
+-------------PHP 用Apache
+源码编译PHP
+
+./configure --prefix=/usr/local/php5 --with-mysql=/usr/local/mysql --with-apxs2=/usr/local/apache2/bin/apxs 
+(路径不要以/ 结尾,　可--with-config-file-path=/etc/php.ini 所在的路径 PREFIX/lib)
+
+cp php.ini-dist  /usr/local/php5/lib/
+ 
+要libxml2 
+
+
+make
+make test
+make install 
+
+##make install 后在/usr/local/apache2/modules/libphp5.so 就有了
+##httpd.conf 中也有了LoadModule php5_module        modules/libphp5.so
+
+AddType application/x-httpd-php  .php 放在最外面
+
+ 
+cp php.ini-dist /usr/local/lib/php.ini
+
+httpd.conf文件中要有
+AddType application/x-httpd-php  .php  .phtml
+#AddType application/x-httpd-php-source .phps  高亮
+LoadModule php5_module libexec/libphp5.so
+
+
+#启用apache模块 php
+a2enmod php7 因为安装的是apache2-mod_php7 (文档上说zabbix-3不支持php7,测试最后可以使用frontend)
+
+#启用ZABBIX标志，为/etc/apache2/conf.d/zabbix.conf文件使用
+a2enflag ZABBIX 
+
+#启用POSTFIXADMIN标志，为/etc/apache2/conf.d/postfixadmin.conf文件使用
+a2enflag POSTFIXADMIN 
+
+vi /etc/php7/apache2/php.ini进行修改 
+-------------
 
 
 ================OpenResty
@@ -2517,77 +1949,21 @@ docker run --rm -p 8080:8080 pgbi/kong-dashboard start --kong-url http://127.0.0
  
 浏览器打开 http://localhost:8080
 
-================ HAProxy 可用于放在Ngnix的前方
-支持数以万计的并发连接, 使用事件驱动, 单一进程 ,不能做缓存
- 
-https://www.haproxy.org/download/2.0/src/haproxy-2.0.5.tar.gz  		2019-08-16
-已经有下载地址就不需要翻墙了
-
-
-文档
-https://cbonte.github.io/haproxy-dconv/
-
-
-源码doc目录也有文档,examples 有些示例配置
- 
-openSUSE-15.1 yast 有版本是1.8.17 ，rpm包 带 /etc/haproxy/haproxy.cfg
- 
-源码linux下编译
-
-$ make clean
-$ make -j $(nproc) TARGET=linux-glibc \
-                USE_OPENSSL=1 USE_ZLIB=1 USE_LUA=1 USE_PCRE=1 USE_SYSTEMD=1
-                
-$ sudo make install
-
-提示找不到 systemd/sd-daemon.h  (安装 systemd-devel)
-
-nproc 命令显示CPU有多少核
-
-安装后只有 
-/usr/local/sbin/haproxy   
-/usr/local/share/man/man1/haproxy.1
-/usr/local/doc/haproxy 目录
-
----haproxy.cfg
-global
-	log	/var/log	daemon  #其中 daemon 是syslog中的24种 facilities之一,可local0,local1
-#以下swarm提示的配置
-# Configure HAProxy to listen on port 80
-frontend http_front
-   bind *:80
-   stats uri /haproxy?stats
-   default_backend http_back
-
-# Configure HAProxy to route requests to swarm nodes on port 8080
-backend http_back
-   balance roundrobin
-   server node1 192.168.99.100:8080 check
-   server node2 192.168.99.101:8080 check
-   server node3 192.168.99.102:8080 check
-   
-启动服务 systemctl start haproxy  
-看日志 systemctl -u haproxy.service  可缩写为 systemctl -u haproxy
-
-
-
-
-
-
-
-
-
-
-
 ================Ceph
+openStack 使用这个火的
+不适合存小文件 
+
 kubernetes 的存储要求支持restful接口，有块存储接口
 
-Suse 有单独的支持 
-有对象存储和块存储功能 
-Ceph File System 分布式文件系统 类似的还有 GlusterFS
+Suse 有单独的支持  有对象存储和块存储功能 
+Ceph File System 分布式文件系统  类似的还有 GlusterFS
 
+
+有使用leveldb (google实现的非常高效的kv数据库)
+http://docs.ceph.org.cn/start/  中文的有点老,和新英文有不同,要注意
 https://ceph.io/get/
 https://github.com/ceph/ceph
+ 
 
 --- 源码编译安装
 ceph_14.2.4.orig.tar.gz
@@ -2600,51 +1976,401 @@ make 		开始长时间不动,后面是C编译 时间也很长，到5%花了约20
 sudo make install
 ----
 
-openSUSE-leap-15.1 yast安装中有ceph-14.2.0版本,安装后没有ceph-deploy,ceph-daemon
+---openSUSE-leap-15.1  安装
+yast安装中有 ceph-14.2.0 版本(http://download.opensuse.org/distribution/leap/15.1/repo/oss/)
+zypper search -v ceph
+ 
+
 https://en.opensuse.org/openSUSE:Ceph
+zypper ar https://download.opensuse.org/repositories/filesystems:/ceph/openSUSE_Leap_15.1/filesystems:ceph.repo
+ar=addrepo 生成文件 /etc/zypp/repos.d/filesystems_ceph.repo 里面是ceph-15 (octopus 章鱼)版本,修改 keeppackages=1
+zypper install ceph-deploy 版本是 1.5.39
+zypper install ceph-radosgw 选择1 升级已有的,安装新的
 
- 
- 
- 
-手工安装 ceph-daemon
-curl --silent --remote-name --location https://github.com/ceph/ceph/raw/master/src/ceph-daemon/ceph-daemon
-chmod +x ceph-daemon
-sudo install -m 0755 ceph-daemon /usr/sbin    # 可选的
 
-安装 ceph-deploy
-CentOS
-sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm  可能已经安装了
+--------CentOS/RHEL 7 安装  
+--安装信任的KYES,避免安全警告
+sudo rpm --import 'https://download.ceph.com/keys/release.asc'
 
-最新版本日期的是 rpm-nautilus 即baseurl为  https://download.ceph.com/rpm-nautilus/el7/noarch
+--安装  CEPH DEPLOY
+epel仓库 sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm  可能已经安装了
 
-cat << EOM > /etc/yum.repos.d/ceph.repo
+https://download.ceph.com/rpm-* 找更新日期最新   Nautilus (14.2.z)  (鹦鹉螺)
+即baseurl为  https://download.ceph.com/rpm-nautilus/el7/noarch
+
+中国镜像为 http://mirrors.ustc.edu.cn/ceph/
+--vi /etc/yum.repos.d/ceph.repo  (ceph-release包就中有这个文件,但里面版本有点老)
+[ceph]
+name=Ceph packages for $basearch
+#baseurl=https://download.ceph.com/rpm-{ceph-release}/{distro}/$basearch
+#baseurl=https://download.ceph.com/rpm-nautilus/el7/$basearch
+baseurl=http://mirrors.ustc.edu.cn/ceph/rpm-nautilus/el7/$basearch
+enabled=1
+priority=2
+gpgcheck=1
+gpgkey=https://download.ceph.com/keys/release.asc
+
 [ceph-noarch]
 name=Ceph noarch packages
-#baseurl=https://download.ceph.com/rpm-{ceph-stable-release}/el7/noarch
-baseurl=https://download.ceph.com/rpm-nautilus/el7/noarch
+#baseurl=https://download.ceph.com/rpm-{ceph-release}/{distro}/noarch
+#baseurl=https://download.ceph.com/rpm-nautilus/el7/noarch
+baseurl=http://mirrors.ustc.edu.cn/ceph/rpm-nautilus/el7/noarch
 enabled=1
+priority=2
 gpgcheck=1
-type=rpm-md
 gpgkey=https://download.ceph.com/keys/release.asc
-EOM
 
+[ceph-source]
+name=Ceph source packages
+#baseurl=https://download.ceph.com/rpm-{ceph-release}/{distro}/SRPMS
+baseurl=http://mirrors.ustc.edu.cn/ceph/rpm-nautilus/el7/SRPMS
+enabled=0
+priority=2
+gpgcheck=1
+gpgkey=https://download.ceph.com/keys/release.asc
+
+---
 # yum update #更新系统
 yum install ceph-deploy  安装2.0.1
-
-
-
-
-一个 Ceph Storage Cluster 需要至少一个
-
- 	Ceph Monitor		 当做冗余和HA至少3个节点
- 	Ceph Manager		  当做冗余和HA至少2个节点
- 	Ceph OSD (Object Storage Daemon)  当做冗余和HA至少3个节点
-   Ceph Metadata Server(MDS) 也是需要的，当运行 Ceph File System 客户端.
+yum install ceph  安装14.2.5  
+yum install ceph-radosgw ( Rados REST gateway)
+yum install yum-plugin-priorities ceph-release
  
+依赖很多python，源码中有CPP代码
+DVD带的
+rpm -ivh python-mako-0.8.1-2.el7.noarch.rpm pyOpenSSL-0.13.1-4.el7.x86_64.rpm python-markupsafe-0.11-10.el7.x86_64.rpm librabbitmq-0.8.0-2.el7.x86_64.rpm python-beaker-1.5.4-10.el7.noarch.rpm python-tempita-0.5.1-6.el7.noarch.rpm python-paste-1.7.5.1-9.20111221hg1498.el7.noarch.rpm
+还有34个包
+---preflight 准备
+同步时间
+yum install ntp ntpdate ntp-doc  (/etc/ntp.conf)
+
+每个节点建立新用户,如ceph01
+无密码使用 sudo命令
+echo "ceph01 ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/ceph01
+sudo chmod 0440 /etc/sudoers.d/ceph01
+使用ssh-keygen,ssh-copy-id 配置admin节点(使用ceph-deploy命令)到ceph节点 无密码登录(root用户)
+
+打开防火墙
+firewall-cmd --zone=public --add-service=ceph-mon --permanent
+firewall-cmd --zone=public --add-service=ceph --permanent
+firewall-cmd --reload
+
+只centOS有的
+setenforce 0
+yum install yum-plugin-priorities
+----如重新安装清历史
+ceph-deploy purge node1 node2 node3  #会删安装包,做好备份
+ceph-deploy purgedata node1 node2 node3   
+ceph-deploy forgetkeys
+rm ceph.*
+--
+mkdir ceph-dir && cd ceph-dir
+ceph-deploy new node1  (root用户执行)初始化监控节点,在当前目录下生成ceph.conf  , ceph.mon.keyring
+
+--修改ceph.conf 在[global]下增加
+public network = <本机IP>/24  #如果多于一个网卡,这个是为客户端使用,cluster network
+#ms bind ipv6 = true #如果使用IPV6 
+osd pool default size = 3  #默认是3,如只有两节点修改为2
+
+ceph-deploy install --release nautilus node1 node2 node3 (root用户执行)会所指定的ceph节点 安装preflight要的和ceph
+	(如报版本错误是因/etc/yum.repos.d/ceph.repo里的东西老,测试过只两个节点可运行一些命令)
+
+ceph-deploy mon create-initial  (root用户执行)如在openSUSE上失败??? 可能是版本不一致,在 centOS7上成功 ,当前目录下生成了很多xx.keyring文件
+	 (覆盖/etc/ceph/ceph.conf 加 --overwrite-conf  即 ceph-deploy  --overwrite-conf mon create-initial)
+ceph-deploy admin node1 node2 node3
+ceph-deploy mgr create node1
+
+每个节点有一个未使用的磁盘/dev/vdb (虚拟磁盘行不行??? ) 
+ceph-deploy osd create --data /dev/vdb node1  
+(日志有 ceph-volume --cluster ceph lvm create --bluestore --data /dev/sdb  有使用vgcreate命令做的,即LVM2来做的,做过的提示volume '/dev/sdb' is already in volume group 要用vgremove)
+ceph-deploy osd create --data /dev/vdb node2
+ceph-deploy osd create --data /dev/vdb node3
+
+ceph-deploy osd list node1 其实是运行 ceph-volume lvm list
+
+
+
+ceph health (要root执行)(如两个节点 报HEALTH_WARN OSD count 2 < osd_pool_default_size )
+#systemctl list-unit-files | grep ceph
+	ceph-mds.target  
+	ceph-mgr.target
+	ceph-mon.target
+	ceph-osd.target
+	ceph-radosgw.target
+	ceph.target
+
+停止
+systemctl disable ceph.target 
+
+systemctl disable ceph-mds.target   
+systemctl disable ceph-mgr.target
+systemctl disable ceph-mon.target
+systemctl disable ceph-osd.target
+systemctl disable ceph-radosgw.target
  
+systemctl disable  ceph-crash.service
+systemctl disable  rbdmap.service
+
+
+#ceph-deploy mon add node2 node3 #增加监控节点
+ceph quorum_status --format json-pretty
+
+#ceph-deploy mgr create node2 node3 #增加管理节点
+ceph -s
+
+
+#如使用Ceph Object Gateway(RGW) 默认监听 7480端口
+可修改监听端口  ceph.conf 
+[client]
+rgw frontends = civetweb port=80
+
+#ceph-deploy rgw create node1  #如何才能监听???
+
+  
+/var/lib/ceph/osd/ceph-0 存数据
+/var/log/ceph/ceph.log 存日志 
+
+ceph osd pool create mypool 128    #归置组(placement-groups=PG)总数128 ,http://docs.ceph.org.cn/rados/operations/placement-groups/
+ceph osd lspools
+
+echo "Test-data"> testfile.txt
+rados put test-object-1 testfile.txt --pool=mypool
+rados -p mypool ls
+ceph osd map mypool test-object-1
+rados rm test-object-1 --pool=mypool
+ceph osd pool rm mypool #会删池下的所有对象 命令变的严格  
+ceph osd pool rm mypool mypool --yes-i-really-really-mean-it  还要设置 mon_allow_pool_delete 为true
+
+--块
+http://docs.ceph.org.cn/rbd/rados-rbd-cmds/
+
+rados block device (RBD)
  
+rbd create --size 1024 mypool/bar   #--size单位是MB
+rbd ls mypool
+rbd info mypool/bar #有id的值
+
+rbd resize --size 2048 mypool/bar (扩大)
+rbd resize --size 1024 mypool/bar --allow-shrink (缩小)
+rbd rm mypool/bar
+rbd trash mv mypool/bar  放在回收站
+rbd trash rm mypool/{image-id} 从回收站删除
+rbd trash restore mypool/{image-id} --image new-name 从回收站恢复
+
+---块map成fs
+rbd create --size 1024 mypool/bar1   --image-feature layering  (rbd info mypool/bar有显示features)
+#rbd help create 看有 --image-format 2 ,rbd info mypool/bar1 也有显示 format: 2
+
+rbd map bar1 --pool mypool  --id admin   ##admin是最高权限  ceph auth list 看所有权限 
+rbd map mypool/bar1 --id admin --keyring ./ceph.client.admin.keyring  
+export CEPH_ARGS=--keyring=./ceph.client.admin.keyring 就不用第次加--keyring参数了(root用户默认有)
+
+rbd showmapped 显示有 /dev/rbd0
+rbd unmap /dev/rbd/{pool_name}/{image_name}
+rbd unmap /dev/rbd0  #可多次map数字会变
+
+mkfs.ext4 -q /dev/rbd0  (-q Quiet)
+mount /dev/rbd0 /mnt/   
+#开机自动挂载配置/etc/fstab文件
+#/dev/rbd/foopool/bar1 /mnt/bar1 xfs noauto 0 0
+/dev/rbd/mypool/bar1 /mnt/bar1 xfs noauto 0 0  #不推荐使用/dev/rbd0的方式,因再次map就会变为rbd1,要用noauto,不能用default
+
+自动map要
+vi /etc/ceph/rbdmap
+#poolname/imagename id=client,keyring=/etc/ceph/ceph.client.keyring
+mypool/bar1     id=admin,keyring=/home/dell/ceph-dir/ceph.client.admin.keyring
+开机自启服务
+systemctl enable rbdmap.service
+
+块扩容
+rbd resize --size 2048 mypool/bar1  后,df -h 还是原来的大小
+要用 resize2fs /dev/rbd0   (e2fsprogs软件包中的)
+
+---快照
+#rbd snap create {pool-name}/{image-name}@{snap-name}  #一个镜像可以多次建立
+rbd snap create mypool/bar1@bar1_bak01
+
+#rbd snap ls {pool-name}/{image-name}
+rbd snap ls mypool/bar1
+
+#rbd snap rollback {pool-name}/{image-name}@{snap-name}
+rbd snap rollback mypool/bar1@bar1_bak01  #回滚到之前的备份,看效果要重新mount,不能扩缩容(e2fsck -f /dev/rbd0)
+
+#rbd snap rm {pool-name}/{image-name}@{snap-name}
+rbd snap rm mypool/bar1@bar1_bak01 
+
+rbd snap purge {pool-name}/{image-name}  #purge是删除所有快照
+保护快照不可删除,才可以做克隆(新的镜像可读写)
+#rbd snap protect {pool-name}/{image-name}@{snapshot-name}
+rbd snap protect mypool/bar1@bar1_bak01 
+
+#rbd clone {pool-name}/{parent-image}@{snap-name} {pool-name}/{child-image-name}
+rbd clone mypool/bar1@bar1_bak01  mypool/bar1_2
+
+
+#rbd snap unprotect {pool-name}/{image-name}@{snapshot-name}
+rbd snap unprotect mypool/bar1@bar1_bak01 
+
+#谁克隆了我,我的孩子是谁
+#rbd children {pool-name}/{image-name}@{snapshot-name}
+rbd children mypool/bar1@bar1_bak01
+
+如要删除快照 必须要压平子镜像
+#rbd flatten {pool-name}/{image-name}
+rbd flatten rbd/new-image
+
+
+
+ceph osd tree  显示哪个主机上有哪些osd及状态up/down
+#blockdev --getsize64 /dev/rbd0
+
+ceph-deploy disk list <hostname>
+
+ceph-deploy create 可以拆成ceph-deploy prepare和active两步
+ceph mon_status --format json-pretty  可用-f
+
+
+
+systemctl status ceph-osd@12      # check status of osd.12
+systemctl status ceph\*.service 
+
+systemctl start ceph-osd@{id}
+systemctl start ceph-mon@{hostname}
+systemctl start ceph-mds@{hostname}
+
+ceph-deploy disk zap <hostname> /dev/vd0  删除分区,增加osd时用
+--- 移除osd.0
+systemctl stop ceph-osd@0 
+rm -rf /var/lib/ceph/osd/ceph-0/*
+从crush map中移除
+ceph osd crush remove osd.0
+后ceph osd tree再看osd.0已经不在root组下了
+
+ceph auth list
+ceph auth del osd.0 
+
+ceph osd tree 
+ceph osd rm osd.0  后再查ceph osd tree 就没了
+#umount /dev/xxxx  (是df -h看哪个挂在/var/lib/ceph/osd/ceph-0/,测试下来是tmpfs)
+
+---增加mon
+除了用ceph-deploy mon add 
+
+也可用ceph-deploy mon create 
+
+当前目录下的 ceph.conf文件中 mon_initial_members 和 mon_host 配置做修改
+
+当前目录下的ceph.conf 做更新
+ceph-deploy --overwrite-conf config push <hostname>  #把当前目录的推向所有节点,即/etc/ceph目录下
+
+ceph-deploy mon create <hostname>
+
+---删除mon
+ceph-deploy mon destroy <hostname> 
+ceph -s 和  ceph quorum_status --format json-pretty 都可看
+
+---crush
+
+ceph osd dump
+ceph osd crush rule dump #通过crush rule可以把多个pool的数据分隔开 
+
+rack  行李架； 支架 (服务器机架)
+ceph osd tree 或 ceph osd crush tree 
+默认就是 root->host->osd的层级, 可以有root->datacenter->room->rack->host
+
+ceph osd getcrushmap -o crushmap.bin 是二进制文件 
+crushtool  -d crushmap.bin -o crushmap.txt 反编译成文本
+做修改后再编译
+crushtool  -c crushmap.txt -o crushmap_2.bin  
+应用编译的
+ceph osd setcrushmap -i crushmap_2.bin  
+
+ceph osd crush rule ls
+ceph osd pool get {pool-name} crush_rule
+把rule应用到pool上
+ceph osd pool set <pool-name> crush_rule <rule-name>
+
+增加bucket,{bucket-type} 一定要是 反编译文本中 存在的type,如room
+ceph osd crush add-bucket {bucket-name} {bucket-type}
+ceph osd crush add-bucket bucket01 room
+ceph osd tree 就有了
+
+移动bucket到指定的下面
+ceph osd crush move {bucket-name} {bucket-type}={bucket-name}, [...]
+ceph osd crush move  bucket01 root=default
+
+删除bucket
+ceph osd crush remove {bucket-name}
+ceph osd crush remove bucket01
+
+增加OSD
+ceph osd create 建立一个空的OSD
+ceph osd tree 看是 osd.2
+ceph osd crush add osd.2 1 root=default host=rhel7  #放 root=default 下的 host=rhel7 下,权重是1
+
+移动
+ceph osd crush create-or-move osd.2 1 root=default 
+删除osd
+ceph osd crush remove osd.2 
+
+--监控
+ceph -w 一直看
+ceph df 
+ceph df detail
+ceph status = ceph -s
+ceph mon stat
+ceph mon dump
+
+ceph osd dump 有显示池的复本数
+ceph pg dump 
+web监控工具 Ceph 官方的 Kraken,Calamari
+
+---性能测试工具 rados -p mypool bench ,Fio,
+
+---网关 对象存储 未试
+systemctl restart ceph-radosgw.service
+
+ceph-authtool  --create-keyring  /etc/ceph/ceph.client.radosgw.`hostname`.keyring
+ceph-authtool  --gen-key  --name  
+---
+坑!!!!
+执行所有ceph命令都卡住不动了,包括ceph health , ceph -s ,ceph osd stat,ceph osd tree,没有错误??? 什么原因??? 日志在哪????
+发现原因为另一个节点IP地址变化ping不通,purgedata时发现的,修改IP还是不行,可能是少一个节点
+
+---cephadm 用来启动一个ceph cluster 
+ yum install -y cephadm    没有??
+ zypper install -y cephadm 
+
+---- 
+
+
 CephFS 是在Ceph’s distributed object store, RADOS之上的
 Reliable Autonomic Distributed Object Store (RADOS)
+
+ceph-deploy工具在admin节点的一个目录下生成很多文件 
+
+一个 Ceph Storage Cluster 需要至少一个 
+ 	  Monitor		 当做冗余和HA至少3个节点
+ 	  Manager		  当做冗余和HA至少2个节点
+ 	  OSD (Object Storage Daemon)  当做冗余和HA至少3个节点
+     Metadata Server(MDS) 也是需要的，当运行 Ceph File System 客户端.
+ 
+  		如使用对象存储要  radosgw (aws的s3,openstack的swift)
+  
+一个文件切分成多个Object(默认按4MB分)  -> PG(重复OSD的为一组,Acting set中的第一位是组长)->OSD(台机器)
+
+(一个Ojbect只会存在一个PG中,但一个PG中可能存一个文件中的多个Object,PG和OSD是多对多的关系)
+
+Pool(LVM中的vg ,里面分多个image)  -> PG(LVM中的lv) -> OSD(LVM中的pv)
+
+pool_id和ojbect_id做hash找对应的pg
+PG映射为OSD使用Crush算法(CrushMap)
+
+客户端连接monitor节点(高可用奇数个节点,用paxos算法,epoch版本号),可以有多个Monitor,主计算出cluster map,
+	cluster map里面有monitor map,osd map,pg map,crush map,MDS Map
+OSD每两秒汇报自己给monitor,同时监控组内的其它成员
+
+
 
 ----
 
@@ -2654,47 +2380,22 @@ ceph-daemon bootstrap --mon-ip 192.168.1.104 --output-config ceph.conf --output-
 	Pulling latest ceph/daemon-base:latest-master-devel container. 日志显示在拉文件（镜像）
 	Waiting for mon to start...  这里一直不动的
 
+ 
 
-
-
-
-
-
+ceph volume create my-ceph
 
 挂载使用
 mount.ceph node1:6789:/ ~/client_cephfs_mnt/ -o name=admin,secretfile=~/admin.keyring
  
-================FastDFS-5.08
-国产
-	logger.h 是依赖 libfastcommon 下载安装 ./make.sh  ./make install
-./make.sh  
-./make install
-cp /etc/fdfs/tracker.conf.sample /etc/fdfs/tracker.conf
-修改 base_path=/opt/fastdfs/tracker
-默认 port=22122
-默认http.server_port=8080
 
-# /usr/bin/fdfs_trackerd /etc/fdfs/tracker.conf restart   
-没有监听8080 ????
+================GlusterFS
+适合大文件,无元数据服务器
 
-cp /etc/fdfs/storage.conf.sample /etc/fdfs/storage.conf
-修改 base_path=/opt/fastdfs/storage
-默认 port=23000
+http://download.opensuse.org/repositories/home:/glusterfs:/Leap15.1-7/openSUSE_Leap_15.1/
+zypper install glusterfs  是7.1版本
 
-# /usr/bin/fdfs_storaged /etc/fdfs/storage.conf restart
+https://download.gluster.org/pub/gluster/glusterfs/LATEST/RHEL/  只有8.0和8.1 没有RHEL 7版本
 
-cp /etc/fdfs/client.conf.sample  /etc/fdfs/client.conf 
-修改 base_path=/opt/fastdfs/client
-	 tracker_server=127.0.0.1:22122
-
-# /usr/bin/fdfs_test /etc/fdfs/client.conf upload /usr/include/stdlib.h
-
-# /usr/bin/fdfs_monitor <client_conf_filename>
-
-
----
-http.anti_steal.check_token=true
-http.anti_steal.secret_key=123456
 
 ================linux NIS  类似   Windows  domain 
 要有下面的rpm包
@@ -2706,7 +2407,46 @@ portmap ：RPC所需要的信息
 
 　
 cat /etc/fstab 根目录　就是xfs　类型的
- 
+================OpenLDAP
+http://www.openldap.org/
+支持 LDAPv3
+版本2.4.49 在2020/01更新
+
+ldap客户端工具 Softerra LDAP Administrator 收费的只有windows版本
+phpLDAPadmin (最近是2012更新)
+JXplorer 免费(2016年更新),有商业版本,Java跨平台(windows/linux/osx),版本3.3.1.2要求osx10.6/10.7,普通用户安装
+LDAP Browser  免费的只有windows版本
+
+
+zypper install openldap2 安装是 openldap2-2.4.46-lp151.9.4.x86_64.rpm
+
+默认监听的端口是389
+
+
+
+================389 Directory Server (LADP 服务)
+https://directory.fedoraproject.org/      fedora项目 
+https://access.redhat.com/documentation/en-us/Red_Hat_Directory_Server/11/
+支持 LDAPv3
+最新版本 1.4.3.3
+
+zypper install 389-ds (ds 1.4.x,OpenSUSE LEAP 有依赖perl组件 )
+CentOS 8.1 (ds 1.4.x, 有cockpit界面)  使用 yum install/update epel-release 再 yum module install 389-directory-server:stable/default
+CentOS 7 (ds 1.3.x) 使用 yum install 389-ds-base 再 setup-ds.pl,也可安装一些工具 389-admin 389-ds-console 389-admin-console 使用 setup-ds-admin.pl
+
+windows版本有 389-Console-1.1.18-x86_64.msi(要java命令) 和 389-PassSync-1.1.7-x86_64.msi
+
+
+
+
+
+================openVPN
+https://openvpn.net/ 被中国墙了
+https://github.com/OpenVPN/openvpn
+
+openSUSE-leap-15.1 系统自带 openvpn-2.4.3-lp151.4.3.x86_64
+
+
 ------------XFS
 CentOS 7.6 默认就是xfs类型文件系统(ext4的下一代)
 CentOS 7.6 默认也是LVM的，swap分区和/分区都是在LVM下的xfs分区. 但/boot分不是在LVM下的，只是xfs
@@ -2723,117 +2463,416 @@ mkfs.xfs
 mkfs -t xfs 
 mount -t xfs 
 
-
-=====================ceph
-RESTful Interface
-块存储RDB
- 
---安装  CEPH DEPLOY
-epel仓库
-yum install ceph-deploy
-
---安装CEPH STORAGE CLUSTER
-yum install yum-plugin-priorities
-
-view /etc/yum/pluginconf.d/priorities.conf  文件
- 	[main]
-	enabled = 1
-	
-https://download.ceph.com/rpm-* 找更新日期最新   nautilus (鹦鹉螺)
-https://download.ceph.com/rpm-nautilus/el7/x86_64/
-https://download.ceph.com/rpm-nautilus/el7/noarch/
-
---新建文件 vi  /etc/yum.repos.d/ceph.repo
-
-[ceph]
-name=Ceph packages for $basearch
-baseurl=https://download.ceph.com/rpm-nautilus/el7/x86_64/
-enabled=1
-priority=2
-gpgcheck=1
-gpgkey=https://download.ceph.com/keys/release.asc
-
-[ceph-noarch]
-name=Ceph noarch packages
-baseurl=https://download.ceph.com/rpm-nautilus/el7/noarch/
-enabled=1
-priority=2
-gpgcheck=1
-gpgkey=https://download.ceph.com/keys/release.asc
- 
----
-yum install snappy leveldb gdisk python-argparse gperftools-libs，只安装了leveldb
-yum install ceph
-依赖很多python，应该是python写的
-DVD带的
-rpm -ivh python-mako-0.8.1-2.el7.noarch.rpm pyOpenSSL-0.13.1-4.el7.x86_64.rpm python-markupsafe-0.11-10.el7.x86_64.rpm librabbitmq-0.8.0-2.el7.x86_64.rpm python-beaker-1.5.4-10.el7.noarch.rpm python-tempita-0.5.1-6.el7.noarch.rpm python-paste-1.7.5.1-9.20111221hg1498.el7.noarch.rpm
-还有34个包
-
-  
-========================== Sphinx  基于SQL 的全文搜索  可MySQL
-Coreseek 带有中文分词
- 
-
 ==========================配置管理
 --------- Ansible 配置管理
+ 
+被Redhat收购  没有界面,使用python开发
+
 让我们自动化部署APP
 自动化运维工具  实现批量系统配置，批量程序部署，批量运行命令
-没有界面,使用python开发
+
+收费的UI Ansible Tower,
+免费UI版Semaphore https://github.com/ansible-semaphore
  
- https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html  
-	Tarballs of Tagged Releases  下载 ansible-2.8.1.tar.gz 包
-	Latest Releases via Pip			使用 pip install --user ansible
-	Ansible on GitHub
-	https://github.com/ansible/ansible
+使用SSH不需要agent代理 ,适合机不太多
+类似的工具 Saltstack 使用python开发,要agent代理,被控制服务器要安装的软件,像vnc,如批量安装agent也比较麻烦,除非开始初始安装系统时有,有代理性能和功能强,适合主机多
+	Puppet 使用ruby开发, 适合更大的环境
+	
+主控机,master, 堡垒机 都是一个意思
 
 ansible-2.7.10-lp151.1.1.noarch.rpm
 openSUSE-leap-15.1 DVD自带的依赖
  rpm -ivh ./x86_64/python3-bcrypt-3.1.4-lp151.3.1.x86_64.rpm ./x86_64/python3-MarkupSafe-1.0-lp151.2.5.x86_64.rpm ./x86_64/libsodium23-1.0.16-lp151.4.3.x86_64.rpm ./x86_64/python3-PyYAML-3.13-lp151.1.1.x86_64.rpm ./noarch/python3-pytz-2018.5-lp151.1.1.noarch.rpm ./noarch/python3-Babel-2.5.1-lp151.2.2.noarch.rpm ./noarch/python3-Jinja2-2.10.1-lp151.1.1.noarch.rpm
  
+ --源码安装
+  https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html  
+	Tarballs of Tagged Releases  下载  ansible-2.9.2.tar.gz    包
+	Latest Releases via Pip			使用 pip install --user ansible
+	 
+	https://github.com/ansible/ansible/releases
+	
+# yum install python36-setuptools #centOS
+# easy_install pip
+#pip3 install ansible
+# https://github.com/ansible/ansible/tree/devel/examples/ansible.cfg
+进入源码包
+pip3 install ./requirements.txt
+python setup.py  install
+
+--
 
 Control Node不支持windows系统
 Managed Node  使用ssh,sftp
 
- ansible --version 
+ansible --version 
  可显示配置文件路径   config file = /etc/ansible/ansible.cfg
 
 
-vim /etc/ansible/hosts 添加管理主机的IP地址列表
+vim /etc/ansible/hosts 添加被控制主机的IP地址列表
 
 控制主机中生成ssh密钥对
 ssh-keygen -t rsa
-
-
-
-
---------- FIT2CLOUD devops
-	运维打包部署工具，可一次部署多台服务器  国产，收费
  
+查找顺序
+1  ANSIBLE_CONFIG 环境变量
+2  ./ansible.cfg
+3  ~/.ansible.cfg
+4  /etc/ansible.cfg
+
+ansible-config  dump 看目前的环境变量 
+
+ansible localhost -c local -a "whoami"
+  -c CONNECTION, --connection=CONNECTION
+  -a MODULE_ARGS, --args=MODULE_ARGS   
+
+
+
+/etc/ansible/hosts 文件中可写IP,也可写主机名
+ansible <ip/hostname/group> -m ping  -k  
+	-k, --ask-pass  提示输入对方机器密码
+#主机名要是配置文件中有的,也可是组名,也可是all,不要即有ip又有对应的主机名,会重复执行
+主机要事先ssh连接过有~/.ssh/known_hosts记录,可指定多个主机,但可能每个机器root密码不一样,要使用ssh-keygen方式,所有节点做一次 ssh-copy-id <ip>
+
+---ansible.cfg
+#host_key_checking = False 放开就可以不用被控主机事先连接过
+
+#inventory      = /etc/ansible/hosts
+#log_path = /var/log/ansible.log  默认没有日志文件,打开才有
+#module_name = command 默认模块名,当没-m参数时
+---
+ansible-doc -l 列出可用模块 ,有2千多个
+ansible-doc -l  | grep win
+ansible-doc -a 所有模块文档,不常用
+ansible-doc ping 
+ansible-doc -s ping   简单显示 --snippet 
+
+ansible all --list-hosts 显示解析后主机,调试比较有用
+
+ansible all -u root -a "whoami"  -k  指定连接用户,默认当前系统用户
+ansible all -u dell  -a "ls /root"  -k  -b -K # -b 即sudo功能,配置文件中有sudo_user=root项 -K sudo时的口令
+
+如多个主机都执行用:分隔(或的关系)
+如多个主机只要重叠的用:&(并且的关系),要用引号包起来如'all:&rhel7'
+						:!(非的关系) 如'all:!rhel7'
+	还支持正则表达式
+
+执行过程是根据模块名生成临时.py在~/.ansible/tmp目录下,是配置的#local_tmp = ~/.ansible/tmp,复制到远程主机的相同目录也是配置的,加执行权限,再执行,再删除
+可用 -vvv 看执行过程,里有 put,chmod,rm命令
+
+ansible-doc command
+ansible all   -a "removes=/etc/fstab cat /etc/fstab"  #removes表示如文件不存在就不执行  
+ansible all   -a "chdir=/boot ls"
+ansible all   -a "chdir=/opt ./test.sh"  #脚本中开头要加 #!/bin/bash,必须先在远程有脚本
+ansible all   -a "useradd user1"
+ansible all   -a "getent passwd user1"  
+ansible all   -a "getent passwd user1"  --limit rhel7 只对某一个主机执行
+ansible all   -a "echo 456 |passwd --stdin user1"  #就不行了,只是打印出来,不支持 |  > <  $  ,只能放在shell中
+ansible all   -a "echo $HOMENAME"
+ansible all   -a 'echo $HOMENAME' #就不行了
+ansible all -m shell  -a 'echo $HOMENAME'
+ansible all  -m shell  -a "echo 456 |passwd --stdin user1"
+ansible all  -m script -a "./test.sh"  #使用本地脚本,输出JSON结果,控制台显示在stdout_lines中
+
+显示日志的颜色,绿色只查,黄色做了修改
+
+ansible-doc copy
+backup:如文件存在创建一个备份
+content: 替代src:
+dest: 
+mode: 权限
+owner:
+
+ansible all  -m copy -a "src=/etc/selinux/config dest=/etc/selinux/config backup=yes"  做备份以时间结尾,如文件未修改不会生产备份
+
+ansible all  -m shell -a "rm -f /etc/selinux/config.*"  #*只能用shell模块
+ansible all  -m shell -a 'ls /etc/selinux/config.*'    #要用shell 必须单引号,双引号不行
+ansible all  -m shell -a 'reboot'
+ansible all  -m shell -a 'getenforce'
+
+ansible-doc fetch 从被控机上取日志
+ansible all  -m fetch -a 'src=/var/log/messages dest=/root validate_checksum=false '  
+#原文件只支持文件,不支持目录 ,不支持通配符(可用shell模块打包),生成文件/root/<hostname>/var/log/messages
+ 
+
+file,archive,unarchive,hostname,cron,yum,service,user,group模块
+
+
+ansible-galax 从  https://galaxy.ansible.com/ 上下载role(是playbook的集合)
+ansible-galax install xx 
+ 
+ansible-galaxy install brianshumate.consul  下载到~/.ansible/roles/目录下,有 brianshumate.consul 目录 ,可复制出来一个新的
+	tasks 目录有很多.yml文件
+
+ansible-galaxy list 就是显示~/.ansible/roles/的文件夹
+ansible-galaxy remove brianshumate.consul
+
+vi showHostname.yml
+---
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: show hostname
+    command: hostname
+
+
+ansible-playbook showHostname.yml
+
+ansible-valt 对yml文件做加密
+ansible-vault encrypt showHostname.yml 提示输入密码,原来的文件变为二进制了(原明文件没有了)
+ansible-vault decrypt showHostname.yml 
+ansible-vault view showHostname.yml 
+ansible-vault edit showHostname.yml 
+ansible-vault rekey showHostname.yml   #修改密码
+ansible-vault create new.yml #新建一个加密文件,提示输入新密码
+
+ansible-console后有交互提示符(灰色的,不明显)
+dell@all (3)[f:5]$       #(3)表示all主机里有3个,[f:5] 表示fork为5
+
+dell@all (3)[f:5]$  cd rhel7  # rhel7 是主机名或组名
+
+dell@rhel7 (3)[f:5]$ forks 3    
+
+dell@rhel7 (3)[f:3]$   			# ?或help是模块名
+dell@rhel7 (3)[f:3]$ command hostname
+
+ 
+单条命令执行 (ansible xxx)叫adhoc 
+
+
+
+vi batch-test.yml
+---
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: create new file
+    file: name=/opt/newfile state=touch
+  - name: create user  
+    user: name=user2 
+  - name: install nginx   
+    yum: name=nginx state=installed
+  - name: copy config file
+    copy: src=/etc/nginx/conf.d/default.conf dest=/etc/nginx/conf.d/
+    notify: restart service #对应handlers中的名字,修改了配置文件,再次执行时因服务已经启动,不会再次启动,使用notify,handler
+    #notify 也可是一个数组
+  - name: copy data file
+    copy: src=/usr/share/nginx/html/index.html dest=/usr/share/nginx/html
+  - name: start service
+    service: name=nginx state=started enabled=yes
+    ignore_errors: true  #如失败继续执行
+    tags: tagStartService #后可单独执行某些标签,可以多个动作共用一个标签
+  handlers:
+    - name: restart service
+      service: name=nginx state=restarted  
+     
+ansible-playbook  -C batch-test.yml  #  -C, --check  检查一次
+ansible-playbook   batch-test.yml  --list-hosts
+ansible-playbook   batch-test.yml  --list-tasks
+ansible-playbook   batch-test.yml  --limit rhel7  #只对某一个主机执行
+ansible-playbook   batch-test.yml   -t tagStartService 	 #执行指定标签,多个用逗号分隔
+ansible-playbook   batch-test.yml  --list-tags
+
+
+hostname模块其实是调用setup模块,有系统信息
+ansible all -m setup | grep hostname 找到 ansible_hostname 
+ansible all -m setup | grep fqdn 找到 ansible_fqdn
+ansible all -m setup  -a 'filter=ansible_hostname'
+
+ansible all -m setup  -a 'filter=*ip*'  显示有 ansible_all_ipv4_addresses
+
+
+
+变量
+
+vi batch-install.yml
+---
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: install {{ appName }}
+    yum: name={{ appName }} state=installed
+  - name: start {{ appName }} service
+    service: name={{ appName }} state=started enabled=yes
+  #vars_files: #变量存外部文件中
+  #- vars.yml  
+  vars: #文件中可定义变量  可覆盖主机中的变量
+  - appName: redis 
+
+ansible-playbook  -e 'appName=nginx' batch-install.yml  #多个变量有空格分隔 ,可以覆盖文件中同名变量
+# ansible all -m shell -a 'yum -y remove redis nginx'  
+
+
+如果想每个主机定义自己的变量 在 /etc/ansible/hosts文件中的  主机名 后加参数形式
+
+/etc/ansible/hosts
+[ip_hosts]
+192.168.114.132  var_hostname=rhel7   #这里优级高于公共组 ip_hosts:vars 中的变量 
+
+[ip_hosts:vars]
+var_domain=example.org
+
+vi batch-hostname.yml
+---
+- hosts: ip_hosts
+  remote_user: root
+  tasks:
+  - name: set hostname {{ var_hostname }}.{{ var_domain }}
+    hostname: name={{ var_hostname }}.{{var_domain}}  
+ 
+ansible-playbook  batch-hostname.yml
+
+
+也可以使用setup 模块中的变量  
+ ansible all -m setup | grep fqdn 找到 ansible_fqdn
+ ansible all -m setup | grep mem 找到 ansible_memtotal_mb ansible_memfree_mb
+
+vi show-hostname.yml
+---
+- hosts: all
+  remote_user: root
+  tasks:
+  - name: show hostname {{ ansible_fqdn }} 
+    command: echo {{ ansible_fqdn }}  ##控制台信息显示不了
+ 
+ansible-playbook  show-hostname.yml
+
+
+
+
+模板使用jinja2语言  ,有template模块 只能用于playbook,  ansible-doc -s template
+ 
+
+ansible all -m setup | grep cpu 找到 ansible_processor_vcpus
+
+cp /etc/nginx/nginx.conf  templates/nginx.conf.j2
+	worker_processes {{ansible_processor_vcpus + 1}};  #可以动态配置(auto)
+
+	还可使用for,if,也可用.对象的形式
+	{% for item in my_var_items %}	
+		{% if  item.xx is defined %}	
+		
+		{% endif %}	
+	{% endfor %}	
+	
+	
+vi template-config.yml
+---
+- hosts: all
+  remote_user: root
+  #vars_files: #变量存外部文件中
+  #- vars.yml  
+  tasks:
+  - name: template config file
+    template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf #默认找当前目录下的templates目录中的文件
+   
+ 
+ansible-playbook  template-config.yml
+
+
+ansible all -m setup | grep os_family 有 ansible_os_family 显示不准???  centOS 的值也为Redhat
+ansible all -m setup -a 'filter=*distribution*'   有显示
+	"ansible_distribution": "CentOS", 
+	"ansible_distribution_major_version": "7",
+
+可为Redhat和SUSE使用不同安装方式,when 测试不执行??? 双引号也不行,
+vi os-diff.yml
+---
+- hosts: all
+  remote_user: root 
+  tasks: 
+  - name: yum install nginx   
+    yum: name=nginx state=installed
+    #when: ansible_distribution == 'CentOS'
+    when: ansible_distribution_major_version == '7'
+  - name: zypper install nginx   
+    zypper: name=ngix state=installed
+    when: ansible_distribution == 'SUSE'
+
+ansible-playbook  os-diff.yml
+
+ 
+vi iterator.yml
+---
+- hosts: all
+  tasks: 
+  - name: create many files
+    file: name=/tmp/{{ item }} state=touch #特殊变量item引用with_items中的项
+    with_items:
+      - one
+      - two
+      - three
+  - name: create many users
+    user: name={{ item.name }} group={{item.group}}	#对象属性使用.
+    with_items:
+      - {name: user1, group: nobody}
+      - {name: user2, group: wheel}
+      - {name: user3, group: wheel}
+
+ansible-playbook   iterator.yml
+
+
+
+role 是playbook的很多文件做分类, 有目录  /etc/ansible/roles 
+roles/nginx/ 下的目录规则 tasks,template,files,vars,handlers 
+
+main.yml 
+- include: xx.yml  #include现在过时了(动态), 如是 import_playbook,import_tasks是静态
+- include: yy.yml
+
+entry.yml  
+- hosts: all
+  remote_user: root
+  roles:  #hosts同级的, 2.3版本以后有 include_role(动态) , import_role
+  - role: nginx   #在roles下的目录名
+  #- {role: redis,tags:["cache","session"],when: xx == 2}  #可加对象标签
+
+
+
+
+
 
 ========================== 性能监控
 ---------Zabbix 性能监控 最常用的
-开源
-官方最新是4.2版本，有SUSE Linux，CentOS版本，还有docker镜像版本,源代码版本4.2.3
-有zabbix-agents
+发音   扎比克斯 开源
 
-
-Zabbix proxy 可以代替 Zabbix server采集性能和可用性数据。
+Zabbix proxy 可以代替 Zabbix server采集性能和可用性数据,通常Zabbix proxy和Zabbix server之前有防火墙
 Zabbix proxy在Zabbix的部署是可选部分；但是proxy的部署可以很好的分担单个Zabbix server的负载。Zabbix proxy 需要使用独立的数据库
-
- 
 Zabbix agents 部署在被监控目标上，用于主动监控本地资源和应用程序，并将收集的数据发送给 Zabbix server。
 
 
-要下载的
-zabbix-server-mysql-3.0.27-lp151.1.1.x86_64.rpm   或  zabbix-server-postgresql-3.0.27-lp151.1.1.x86_64
-zabbix-server-3.0.27-lp151.1.1.x86_64.rpm
+
+官方最新是4.4版本,4.0是LTS版本，有SUSE Linux，CentOS版本，还有docker镜像版本
+zabbix-4.0 可以支持MySQL8.0(yast 带 MariaDB 10.2) 
+
+https://developer.aliyun.com/mirror 阿里云 镜像 有 zabbix
+https://mirrors.aliyun.com/zabbix/
+
+https://repo.zabbix.com/zabbix/4.4/sles/15/x86_64/zabbix-release-4.4-1.el15.noarch.rpm  可以安装在openSUSE-leap15.1上
+ 仓库地址为 http://repo.zabbix.com/zabbix/4.4/sles/15/x86_64/
+
+https://repo.zabbix.com/zabbix/4.4/rhel/7/x86_64/zabbix-release-4.4-1.el7.noarch.rpm
+ 仓库地址为 http://repo.zabbix.com/zabbix/4.4/rhel/7/x86_64/
+
+yum -y install zabbix-server-mysql zabbix-web-mysql zabbix-nginx-conf zabbix-agent
+zypper install zabbix-server-mysql zabbix-web-mysql zabbix-nginx-conf zabbix-agent
+ 
+
 
 openSUSE-leap-15.1 DVD带的依赖
 rpm -ivh  psqlODBC-10.01.0000-lp151.2.3.x86_64.rpm unixODBC-2.3.6-lp151.2.3.x86_64.rpm libssh2-1-1.8.0-lp151.5.1.x86_64.rpm libmariadb3-3.0.7-lp151.2.1.x86_64.rpm libpq5-10.6-lp151.1.4.x86_64.rpm libmariadb3-3.0.7-lp151.2.1.x86_64.rpm 
 
-zabbix-3.0版本不支持MySQL8.0,最高支持到5.7.x ，支持PostgreSQL 8.1 及以后版本
-zabbix-4.0 和 4.2版本可以支持MySQL8.0
 
+ 从源码编译安装 zabbix-4.2
+ ./configure --enable-server --enable-agent --with-mysql --enable-ipv6 --with-net-snmp --with-libcurl 
+ #--with-libxml2
+ 可选的 --enable-proxy --with-ssh2 
+configure: error: LIBXML2 library not found  							(yast 安装 libxml2-devel)
+configure: error: Not found Net-SNMP library								(yast 安装 net-snmp-devel)
+configure: error: Unable to use libevent (libevent check failed)	(yast 安装 libevent-devel)
+configure: error: Curl library not found  								(yast 安装 libcurl-devel)
+configure: error: Unable to use libpcre (libpcre check failed)		(yast 没有 libpcre-devel????)
+ 
+ 
 ---MySQL
 
 create database zabbix character set utf8 collate utf8_bin;
@@ -2845,10 +2884,8 @@ create user zabbix@'%' identified by 'zabbix';
 grant all privileges on zabbix.* to zabbix@'%' ;
 ALTER USER zabbix@'%' IDENTIFIED WITH mysql_native_password   BY 'zabbix';
 
-
-mysql -uzabbix -p zabbix  < /usr/share/doc/packages/zabbix-server/mysql/schema.sql
-mysql -uzabbix -p zabbix  < /usr/share/doc/packages/zabbix-server/mysql/data.sql
-mysql -uzabbix -p zabbix  < /usr/share/doc/packages/zabbix-server/mysql/images.sql
+zcat /usr/share/doc/packages/zabbix-server-mysql/create.sql.gz | mysql -uzabbix -p zabbix
+共建立了149张表
 
 --- postgresql  
 bin/createuser --pwprompt zabbix
@@ -2873,96 +2910,307 @@ cat images.sql | sudo -u zabbix psql zabbix
 cat data.sql | sudo -u zabbix psql zabbix
 ---
 
-/etc/zabbix/zabbix-server.conf 
+/etc/zabbix/zabbix_server.conf 
 	#DBSocket= 关闭MySQL选项 
 	DBHost=localhost #localhost表示使用mysql，其它情况(注释这行)表示使用postGreSQL
-	DBPort=5432
-	DBName=zabbix
-	DBSchema=public
+	#DBSchema=public	
+	#DBPort=5432
+	DBPort=3306
+	DBName=zabbix 
 	DBUser=zabbix
 	DBPassword=zabbix
-	
-	ListenPort=10051
-   LogFile=/var/log/zabbixs/zabbix-server.log
+	DBSocket=/tmp/mysql.sock
 
-/usr/sbin/zabbix-server  启动报读配置权限 ，写日志权限问题
+	SourceIP=  #当zabbix-server有多个网卡,使用哪个发出数据
+	ListenPort=10051  #与zabbix-agent通讯
+	# JavaGatewayPort=10052
+   LogFile=/var/log/zabbix/zabbix_server.log
+
+/usr/sbin/zabbix_server  启动报读配置权限 ，写日志权限问题
 
 
 systemctl list-units  
 systemctl list-unit-files | grep zabbix-server
 systemctl start zabbix-server
 
- 从源码编译安装 zabbix-4.2
- ./configure --enable-server --enable-agent --with-mysql --enable-ipv6 --with-net-snmp --with-libcurl --with-libxml2
- configure: error: LIBXML2 library not found  							(yast 安装 libxml2-devel)
-configure: error: Not found Net-SNMP library								(yast 安装 net-snmp-devel)
-configure: error: Unable to use libevent (libevent check failed)	(yast 安装 libevent-devel)
-configure: error: Curl library not found  								(yast 安装 libcurl-devel)
-configure: error: Unable to use libpcre (libpcre check failed)		(yast 没有 libpcre-devel????)
- 
+----nginx
+vi /etc/nginx/conf.d/zabbix.conf 放开下面做修改
+
+# listen 80;
+# server_name example.com;
+
+文件中有
+location ~ [^/]\.php(/|$) {
+	fastcgi_pass    unix:/run/zabbix-php-fpm.sock;
+	fastcgi_split_path_info ^(.+\.php)(/.+)$;
+	fastcgi_param   DOCUMENT_ROOT   /usr/share/zabbix;
+	fastcgi_param   SCRIPT_FILENAME /usr/share/zabbix$fastcgi_script_name;
+   fastcgi_param   PATH_TRANSLATED /usr/share/zabbix$fastcgi_script_name;</pre>
+}
+
+http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_split_path_info
+
+ cp /etc/php7/fpm/php-fpm.conf.default /etc/php7/fpm/php-fpm.conf  # 官方文档少了这步
+
+ cp -n /etc/php7/fpm/php-fpm.d/www.conf{.default,}  #-n表示不覆盖已经存在的文件
+ #结果是 cp /etc/php7/fpm/php-fpm.d/www.conf.default  /etc/php7/fpm/php-fpm.d/www.conf 
+ 			  [www]区默认有listen = 127.0.0.1:9000,
+ 			  
+ vi /etc/php7/fpm/php-fpm.d/zabbix.conf 
+ 		;默认有		
+		[zabbix]
+		user = wwwrun
+		group = www
+		listen = /run/zabbix-php-fpm.sock 
+		listen.owner = nginx
+		listen.allowed_clients = 127.0.0.1
+
+  		; php_value[date.timezone] = Europe/Riga  ;放开修改正确的时区 Asia/Shanghai
 	
-----安装 zabbix-phpfrontend-3.0.27-lp151.1.1.x86_64.rpm 
+
+
+
+# systemctl restart zabbix-server zabbix-agent nginx php-fpm
+# systemctl enable zabbix-server zabbix-agent nginx php-fpm
+
+----Zabbix apache 
+老的3版本 安装 zabbix-phpfrontend-3.0.27-lp151.1.1.x86_64.rpm  
 	openSUSE-leap-15.1 DVD带的依赖
 	rpm -ivh  php7-xmlreader-7.2.5-lp151.5.44.x86_64.rpm php7-7.2.5-lp151.5.44.x86_64.rpm php7-iconv-7.2.5-lp151.5.44.x86_64.rpm php7-dom-7.2.5-lp151.5.44.x86_64.rpm php7-tokenizer-7.2.5-lp151.5.44.x86_64.rpm php7-pdo-7.2.5-lp151.5.44.x86_64.rpm php7-json-7.2.5-lp151.5.44.x86_64.rpm php7-ctype-7.2.5-lp151.5.44.x86_64.rpm php7-xmlwriter-7.2.5-lp151.5.44.x86_64.rpm php7-sqlite-7.2.5-lp151.5.44.x86_64.rpm ../noarch/system-user-wwwrun-20170617-lp151.4.70.noarch.rpm
 
 有 /etc/apache2/conf.d/zabbix.conf   还要DVD 安装apach2的包,systemctl start apache,journal -xe看日志 ，如日志右边看不全，使用右键头
- 
+
 #启用apache模块 php
 a2enmod php7 因为安装的是apache2-mod_php7 (文档上说zabbix-3不支持php7,测试最后可以使用frontend)
 
 #启用ZABBIX标志，为/etc/apache2/conf.d/zabbix.conf文件使用
 a2enflag ZABBIX 
 
+vi /etc/php7/apache2/php.ini进行修改 
+----
 
-访问 http://127.0.0.1/zabbix  进入setup.php配置界面
-提示失败项 
+访问 http://127.0.0.1/  进入setup.php配置界面
+
+--提示失败项 
 					 			Current value	Required	
 PHP option "post_max_size"			8M			16M	Fail
 PHP option "max_execution_time"	30			300	Fail
 PHP option "max_input_time"		60			300	Fail
 PHP databases support				off		 		Fail
 PHP gettext								off				Warning  用于汉化包 (php7-gettext)
- 
-vi /etc/php7/apache2/php.ini进行修改 
-DVD安装 php7-mysql 或 php7-pgsql
-可配置数据库IP,端口,数据库名，schema(默认public),用户名，密码 (zabbix-3.0测试过PostGreSQL10可以配置上,zabbix-3.0测试过MySQL8可以配置上)
-有配置Zabbix server IP和端口(10051)
-提示下载配置文件 保存为  /usr/share/zabbix/conf/zabbix.conf.php 内容是界面中配置的东西
 
- http://127.0.0.1/zabbix 进行访问 默认的用户名／密码为 Admin/zabbix   
- 	测试进入了,zabbix-3.0用MySQL8报语法错误
- 				zabbix-3.0用PostGreSQL10正常
- 
- Zabbix界面，Administrator->User ->点用户 ->language选择 zh_CN->update按钮 再 F5刷新
- 
- 
-----安装 zabbix-proxy,zabbix-agent
-	DVD   中自带的 noarch/system-user-wwwrun-20170617-lp151.4.70.noarch.rpm
- 	https://repo.zabbix.com/zabbix/3.0/rhel/7/x86_64/
+DVD安装 php7-mysql 或 php7-pgsql
+--
+可配置数据库IP,端口,数据库名，schema(默认public),用户名，密码 
+有配置Zabbix server IP和端口(10051)
+
+http://127.0.0.1  进行访问 默认的用户名大写A／密码为 Admin/zabbix   
+
+zabbix_server有很多进程
+监控组
+	zabbix_server: poller 拉取数据用的
+	zabbix_server: trapper 接收agent上报数据用的
+	zabbix_server: icmp pinger  用来ping存活检测
+	zabbix_server: timer  时间及告警维护
+	zabbix_server: unreachable poller  无法到达的
+
+管理组
+	zabbix_server: history syncer   数据分析保存到数据中
+	zabbix_server: housekeeper  定时清理历史数据
+	
+	zabbix_server: alert manager  告警管理
+	zabbix_server: alerter 告警
+	zabbix_server: escalator  (escalator 逐步上升)处理告警,如升级
+	zabbix_server: discoverer 设备自动发现 
+
+
+-----Zabbix界面
+Administrator->User ->点用户 ->language选择 zh_CN->update按钮  
+Administrator -> General -> 过默认右边下拉是 GUI-> Default theme 可选择 Dark
+
+增加被监控的主机
+Configuration->Hosts->create host按钮-> Host name (一定要和zabbix-agent配置 Hostname相同) ,Visible name 显示的别名
+	Groups 中选择组,如没有可直接在里面输入提示新建这个组
+	Agent interfaces 中可增加一个主机的多个网卡,IP或DNS(用主机名好像不行) 写一个即可
+	如有proxy,在Monitored by proxy中选择
+	在Template标签中,可增加 [Template OS Linux by Zabbix agent] 可以增加多模板(建主机时带模板,后如unlink模板Graph的数据会断)
+
+建立后如在表格中有显示绿色的ZBX表示正常
+Monitor->Latest data-> 一定要选择条件才出数据,如Hosts选择已经有的 -> 可点Graph看图,如自已的监控项显示为灰色说明有问题,查主机里的报错信息(不是模板里的)
+
+自定义模板
+Configuration->Template ->Create Template->起名,选组,建立后
+在表格中编辑点入 -> Applications->create application 起名 建立后
+在表格中 Items 编辑点入 -> create Item->
+
+也可建立自己的监控项
+Configuration->Hosts->建立好主机行中的 	Items 列 -> create item按钮 -> Name中起个名->
+	Type中如选择External check 可自己指定一个脚本
+	Type中如选择SSH agent
+	Type中选择 zabbix agent(Active),Key 中按select弹窗做选择 net.if.in[if,<mode>] 网卡流入, []中为参数,<>表示可选的有默认值 ,修改net.if.in[ens33]
+	Type of information 指定采集的数据类型 numberic(unsigned) ,Unit是单位 ,Update interval默认1m 可修改为20s
+		 History storage period保存多长时间数据,Trend storage period  趋向数据(图),Show value默认as is,New application起个名字显示在表格中
+
+Monitor->Dashboard->  Global view -> Number of hosts 显示 ,Number of items 
+
+Monitor->Graphs->选组,主机,图 如Cpu usage,Memory usage,Interface wlan0:Network traffic(是模板里建立的Graph),默认是1小时,apply按钮 就可看图(也可View as中下拉Values看数据)
+对已经有模板可以增加自己的Graph,Item只能选择模板加过的
+对已经有主机可以增加自己的Graph
+
+Monitor->Screens (多个Graph集中显示),这里可以建立screen,和主机相关的,但不是从模板带出来的
+
+Template中建立Screen 如2行,2列,在表格中点Constructor->每个格增加Graph也可是clock,URL,plan text(也是graph)
+主机中的screen是模板中设计的做显示,但查看要使用搜索工具,搜索主机名,点表格有	Screens链接,正常不显示
+
+--web监控
+模板中-> Web scenarios ->做新建 ,step标签中add(可多个),起名 和 输入网址,可复选 Follow redirects,在Required string中输入想要的返回值
+主机中->Web scenarios -> 默认有一个和模板一样的,显示名字前有 模板名字: ,但有些东西不能修改(如名字),有些可以(如URL)
+
+Monitor->Web 前面有起中文,在图的标题上中文显示方块 
+
+windows 字体文件如simhei.ttf 复制 /usr/share/zabbix/assets/fonts/ 下
+vi /usr/share/zabbix/include/defines.inc.php 
+找 ZBX_GRAPH_FONT_NAME 和 ZBX_FONT_NAME 把值修改为windows字体文件名,如simhei(默认值为 graphfont)
+
+-------告警
+模板中-> Trigger -> create trigger 按钮->输名字,选级别,Expression 边点Add -> 选择对应的 Item -> function中选择函数
+
+nodata(30m) 函数 表示在指定时间内没有收到zabbix-agent 的数据就报警
+last() 函数 表示最新一次取到的值,如不满足条件 就报警
+diff() 函数 表示两次取值不一样 就报警
+avg(5m)函数 表示指定时间 的平均植 ,如不满足条件 就报警
+change()函数  与diff类似
+
+Monitor->Dashboard->Problems 面板 会显示有问题的trigger,Ack列 , Action列
+Monitor->Problems  -> Show 项旁边点History按钮看历史记录,如发邮件失败这里可看原因
+
+--用户组  
+Administration->User groups -> create user group ->输入组名,permissions标签 增加主机组(即 建立host时的组名),按钮选中权限(Read-Write,Read)-> Add
+Administration->Users ->create user ->permissions标签 -> User type选zabbix user,显示对应组权限 
+
+Administration->Media types-> create media type按钮->Type 选择 Script,Script name写文件名,如zabbix-mail.sh ->
+	增加三个参数写宏变量  {ALERT.SENDTO},{ALERT.SUBJECT},{ALERT.MESSAGE}
+
+Administration->Users ->选中用户 -> media标签->Type 选建立的Media,Send to收件人,选哪些级别
+
+Configuration->Action->Event source 默认选中trigger->create actoin按钮->输入名字,New condition中
+	下拉 problem is supressed 值为 No,表示不是在维护模式 ->	Add
+	下拉 Trigger severity,is greater than or equals, 值为Warning ->	Add
+ 	operation 标签是邮件是标题,内容,里面有很多宏变量 ->Operations 栏中 Add-> Operation type 选send message, 
+ 		Send to User groups中选用户组,
+ 		Send only to中选中建立的Media
+		Operation condition中Add后生成 默认为 Event Acknowledged ,equas,Not Ack ->Add确认
+ 	recovery operation 标签 与	operation 标签 类似
  	
-安装 zabbix-agent-3.0.27-lp151.1.1 
-/etc/zabbix/zabbix-agentd.conf
-	Server=127.0.0.1  #指定zabbix-server或zabbix-proxy的IP 
-	ServerActive=127.0.0.1  #指定zabbix-server或zabbix-proxy的活动检查IP
-	Hostname=  #配置自己的主机名，被监视机器的
-	ListenPort=10050
-	LogFile=/var/log/zabbix/zabbix-agentd.log
+ 	
+zabbix_server.conf 中默认配置
+AlertScriptsPath=/usr/lib/zabbix/alertscripts
+
+目录中建立shell脚本
+---vi /usr/lib/zabbix/alertscripts/zabbix-mail.sh
+#!/bin/bash
+SENT_TO=$1
+SENT_SUBJECT=$2
+SENT_CONTENT=$3
+SENT_CONTENT_FILE="/tmp/zabbix_mail_content_$$.tmp"
+echo $3 >  $SENT_CONTENT_FILE
+dos2unix $SENT_CONTENT_FILE
+
+echo "to ${SENT_TO}, title ${SENT_SUBJECT}, contnet ${SENT_CONTENT}" >>/opt/zabbix_mail.log
+#echo "${SENT_CONTENT}"| mailx -s "${SENT_SUBJECT}" ${SENT_TO} #内容以附件形式发送
+#mailx -s "${SENT_SUBJECT}" ${SENT_TO} < $SENT_CONTENT_FILE   #内容以文本形式发送
+---  
+--- 
+要保证服务器的sendmail和postfix服务是关闭的 
+163邮箱网页,设置->客户端授权密码标签->开启
+
+yum install mailx
+vi /etc/mail.rc
+set from=xxx@163.com
+set smtp=smtp.163.com
+set smtp-auth-user=xxx@163.com
+set smtp-auth-password=yyy
+set smtp-auth=login 
+
+测试发给自己
+ echo "content test"| mailx -s "title test" xxx@163.com
+
+---
+-----自定义 宏
+Administration->General->右边下拉Macros ,变量格式  {$SNMP_COMMUNITY}
+模板中也有 Macros,可应用于trigger
+-----自动发现 宏
+模板中 有Discovery列 ,模板详细页有Discovery rules 标签->filter标签 -> 宏变量格式为 {#xxx}
+
+-----正则表达式
+Administration->General->右边下拉 Regular Expression
+-----
+模板trigger的名字处做测试 ,可用{{ITEM_VALUE}.regsub("0","宏变量结果正常")}  
+	#ITEM_VALUE表示监控项最新的值,regsub是宏变量函数,第一个参数正则表达式
+
+
+---- 安装Java gateway 使用JMX
+ 源码编译使用  ./configure --enable-java --prefix=$PREFIX
+仓库上有  zabbix-java-gateway-4.4.4-1.el15.x86_64.rpm    或 zabbix-java-gateway-4.4.4-1.el7.x86_64.rpm 
+
+----zabbix-agent linux版 被监控端 
+	DVD   中自带的 noarch/system-user-wwwrun-20170617-lp151.4.70.noarch.rpm
+	 
+vi /etc/zabbix/zabbix_agentd.conf
+	Server=127.0.0.1     	#指定zabbix-server或zabbix-proxy的IP ,应是外网IP,用主机名好像不行 ,被动监控
+	ServerActive=127.0.0.1  #指定zabbix-server或zabbix-proxy的活动检查IP,主动监控
+	Hostname=  # 要与zabbix-server端配置的要相同  Configuration->Hosts->create host按钮-> host name 
+	
+	ListenPort=10050  #zabbix-agent的监听端口用来连接agent-server使用的
+	LogFile=/var/log/zabbix/zabbix_agentd.log
 	
 	
-systemctl restart zabbix-agentd
+
 在所有的监控机器上运行
-/usr/sbin/zabbix-agentd
+/usr/sbin/zabbix_agentd
+或用 systemctl restart zabbix-agent 
+
+systemctl enable zabbix-agent 
+
+----zabbix-agent windows 版
+zabbix_agents-4.4.4-win-amd64-openssl.zip
+
+配置 注意LogFile 位置
+
+
+安装为一个服务
+bin/zabbix_agentd --config c:/zabbix_agents/conf/zabbix-agent.win.cnf --install 
+启动服务
+bin/zabbix_agentd --config c:/zabbix_agents/conf/zabbix-agent.win.cnf --start
+
+tasklist | findstr zabbix
+
+模板选择Windows的   	Template OS Windows by Zabbix agent
+
+windows 防火墙关闭
  
-agent-server运行 
+
+
+
+--- agent-server 端安装运行  zabbix-get
 zabbix-get -s192.168.6.132 -p 10050 -k mysql.ping  
 报 Check access restrictions in Zabbix agent configuration
 
-
  
+--- 也可在 agent-agent 端安装运行  zabbix-sender
+ 
+ 
+
 ---docker版本
 
 docker pull zabbix/zabbix-server-mysql
 docker run --name some-zabbix-server-mysql -e DB_SERVER_HOST="some-mysql-server" -e MYSQL_USER="some-user" -e MYSQL_PASSWORD="some-password" -d zabbix/zabbix-server-mysql:tag
+ 
+
+
+
+
+
 
 
 ========================== SonarQube

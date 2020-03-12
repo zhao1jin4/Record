@@ -388,6 +388,8 @@ How are <b> you </b>.?
 
 
 ===================CSS  CSS 3
+
+
 <table border="1"  style="table-layout:fixed;word-wrap:break-word;"> 为<td>内容换行 
  table {  border-collapse: collapse;table-layout:fixed;word-wrap:break-word}
  
@@ -506,6 +508,47 @@ display:none 隐藏后空间也会没有了，如想继续占用原来的空间�
  
 oDiv2.style.styleFloat=sValue2;//兼容IE
 oDiv2.style.cssFloat =sValue2;//兼容火狐
+
+
+
+
+#myid 
+{
+	border:1px solid red;
+	background-imgage:url();
+	background-repeat:repeat-x;
+	background-position:bottom;
+}
+
+border-collapse:collapse
+
+ul,li
+{
+	list-style:none;//去ul和li前的小点
+	padding:0;//去缩进,IE不行的要加margin:0
+	margin:0;
+}
+
+text-decoration:none;//去<a>的下划线
+padding-left:20px;//左缩进
+background-position:3px center;//x,y
+display:block; 充满整个区域//IE不认,只能用inline-block
+
+<li style="float:left"  //把ul下的li变成横向,其它元素会紧跟最后一个,自己在后面元素的左边,可right,none
+clear:left //移动自己,使左边没有float元素,可right,none,both
+
+ CSS渐变
+Firefox:  background: -moz-linear-gradient(top,  #ccc,  #000);//线性渐变,从顶部开始,开始颜色是#ccc
+IE:		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#000000');//效果同上
+				GradientType  1:默认值,水平渐变. 0:垂直渐变
+border:1px solid black;
+border-bottom:0; //CSS是有先后顺序的
+	
+
+position:relative;//absolute
+top:-1px;
+
+z-index:100;//间提必须position是absolute或者relative
 
 
 横向ul ,li变圆,间距相等<br/>

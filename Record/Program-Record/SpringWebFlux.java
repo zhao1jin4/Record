@@ -8,6 +8,23 @@
 0..N (Flux) 	熔化； 熔解 流出 [物]流量
 对于复杂的应用来说，反应式编程和负压的优势会体现出来，可以带来整体的性能的提升 
 
+@Configuration
+@ComponentScan //index.html仿问不到??
+@EnableWebFlux
+public class WebConfig implements WebFluxConfigurer {
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        // ...
+    }
+
+}
+public class MyInitializer extends AbstractReactiveWebInitializer {
+	@Override
+	protected Class<?>[] getConfigClasses() {
+		return new Class[] {WebConfig.class};
+	} 
+}
 
 可使用spring boot ,内部使用NettyWebServer,不需要tomcat-embed或Jetty容器
 <dependency>

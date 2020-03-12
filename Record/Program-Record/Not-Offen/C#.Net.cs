@@ -46,6 +46,28 @@ C:\WINDOWS\Microsoft.NET\Framework\v3.5\Csc.exe   编译器s
 
 C# 和C 一样    是大小写敏感
 
+--HelloWorld.cs
+using System;
+namespace HelloWorld
+{
+	class Program
+	{
+		static void Main(string[] args)
+		{
+			Console.WriteLine("Hello World!");		
+		}
+	}
+}
+---
+Console.WriteLine("\nWhat is your name? ");
+var name = Console.ReadLine();
+var date = DateTime.Now;
+Console.WriteLine($"\nHello, {name}, on {date:d} at {date:t}!");
+Console.Write("\nPress any key to exit...");
+Console.ReadKey(true);
+--
+
+
 /// 是XML 注释
 
 System.Console.WriteLine("hh");

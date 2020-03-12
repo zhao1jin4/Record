@@ -531,6 +531,7 @@ public class MybatisSpringBoot {
 	spring.datasource.username=root
 	spring.datasource.password=root
 	spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+	spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 	 就不用下面了
 	
 	//#references doc 84.1 Configure a Custom DataSource
@@ -1175,6 +1176,31 @@ public class GreetingIntegrationTests {
         }
     }
 }
+---spring boot schedular
+
+@SpringBootApplication
+@EnableScheduling
+public class Application {
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
+	}
+}
+
+@Component
+public class SchedulerTask {
+    private int count=0;
+    @Scheduled(cron="*/6 * * * * ?")
+    private void process(){
+        System.out.println("this is scheduler task runing  "+(count++));
+    }
+
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    @Scheduled(fixedRate = 6000)
+    public void reportCurrentTime() {
+        System.out.println("现在时间：" + dateFormat.format(new Date()));
+    }
+}
+
 
 ---spring boot security
 

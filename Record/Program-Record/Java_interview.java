@@ -130,13 +130,13 @@ ConcurrentHashMap 为什么快，
 JDK7 是分段锁
 JDK8 是  transient volatile table，table数组＋单向链表＋红黑树的结构
 sychrozie锁数组无素
-个数超过8(默认值)的列表，jdk1.8 中采用了红黑树的结构 ，只锁定当前链表或红黑二叉树的首节点 ， CAS更新容量
+个数超过8(默认值)的列表,并且总元素数>64时 jdk1.8 中采用了红黑树的结构 ，只锁定当前链表或红黑二叉树的首节点 ， CAS更新容量
 
 
 
 
 
-使用ReentrantLock 分段加锁
+使用ReentrantLock 分段加锁,可tryLock,newCondition多个，可lockInterruptibly();
 CopyOnWriteArrayList最快的list
 如果是接口实现的代理,接口的方法必须是public的  ,如cyglib 实现的代理，单独测试不是private即可
 
@@ -574,6 +574,11 @@ AbstractQueuedSynchronized（AQS） 有公平锁，和不公平锁
 
 redis 分布式锁使用 lua保证原子性，但全局不能再执行命令
 
+官方SETNX文档的锁方案
+SETNX lock.foo <current Unix time + lock timeout + 1>如返回0表示失败,看时间是否超时(对前一个加锁的进程死了)
+如0查是否>当时前,如过期(这也是一步操作,不能保证 这个和GETSET是原子的 )
+GETSET lock.foo <current Unix timestamp + lock timeout + 1> 就算这个返回值是早于当前时间,取锁失败(被快的抢了),这时要等(但也已经设置了新值)
+用完DEL lock.foo ,有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁...
 ------
 对于复合索引:Mysql从左到右的使用索引中的字段，一个查询可以只使用索引中的一部份，但只能是最左侧部分。例如索引是key index (a,b,c). 可以支持a | a,b| a,b,c 3种组合进行查找，但不支持 b,c进行查找
 create table test(
@@ -632,7 +637,7 @@ hystrix 关开，开，关，什么时候切换，如失败，失败数+1,达到
 
 
 redis 分片的定位方法  取模？？？一致性hash????
-mysql 索引的定位方法  二分查找？？？
+mysql 索引的定位方法 BTree
 
 缓存击穿 （指数据库中有，但缓存中没有，）
 缓存穿透（用户请求的数据全部不在缓存中，如id不存在的数据，数据库压力大，解决方安案id<0拦截，不存在的数据也缓存null）
@@ -647,11 +652,48 @@ mysql 索引的定位方法  二分查找？？？
 领域驱动设计(DDD:Domain-Driven Design)   统一了分析和设计编程
 
 
+HashMap为何初始容量是16（2的次方），16-1= 二进制1111要位与操作可以hash均匀分布，降低hash碰撞的几率
+
+LinkedHashMap保存了记录的插入顺序
+LRU 使用集合类 
+链表每次新插入数据的时候将新数据插到链表的头部；每次缓存命中(存在)（即数据被访问），则将数据移到链表头部；那么当链表满的时候，就将链表尾部的数据丢弃。
+
+ThreadLocal 里存在线程里的（Thread.currentThread()得到）中的一个属性threadLocals里类型为ThreadLocalMap类型
+	(内部是一个初始16长度的Entry数组,如不够用会扩容的,如一个线程使用多ThreadLocal对象个使用this区分)
+	值Entry类型是WeakReference， Entry构造器是把key(即threadLocal this)引用调用父类WeakReference(threadLocal是弱引用，如threadLocal=null就会被回收),value不是,没有被回收内存溢出
+		线程一直在,threadLocal，一直在，如threadLocal只一个一存在的强引用， 下次再set冲前面的，即使用不调用remove()没问题 
+如每次调用new ThreadLoca()，用完一定最要用remove（）
 
 
-分布式的消费的一致性
+公私钥加签，验签 
 
-两军问题
-拜占庭将军问题
+分布式的消费的一致性 ,两军问题,拜占庭将军问题
 
- 
+Thread isInterupted()isXX只读，不清除中断状态，可多次调用返回相同结果,
+		interupted()清除中断状态，第一次中断，第二次就返回非中断
+
+
+MyISAM引擎使用B+Tree作为索引结构，叶节点的data域存放的是数据记录的地址
+InnoDB也使用B+Tree作为索引结构，InnoDB的数据文件本身就是索引文件,叶节点data域保存了完整的数据记录,key是数据表的主键,
+InnoDB要求表必须有主键,如果没有显式指定，则MySQL系统会自动选择一个可以唯一标识数据记录的列作为主键，如果不存在这种列，则MySQL自动为InnoDB表生成一个隐含字段作为主键
+
+System.out.println((double)782/4); //如不加(double)会丢失小数点的值
+	
+n为  1,2,3,4....n
+给个m ,
+求所有相加等于m的情况
+
+
+CAP原则，指的是在一个分布式系统中，一致性（Consistency）、可用性（Availability）、分区容错性（Partition tolerance）
+
+eureka是 AP(一致性弱) ，Consul，zooKeeper，etcd 都是 CP(牺牲可用性)
+
+
+notify ,notifyAll
+
+
+Resetful字段命名（多个微服务统一，都叫user_id，可能哪天读所有系统的user_id）
+防盗链refer,timestamp(token)...还有。。。
+基于角色的访问控制（RBAC）是
+
+mysql slow_query 或者 show processlist

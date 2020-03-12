@@ -278,7 +278,8 @@ mysql> pager more
 > pager awk -F '|' '{print $6}'  | uniq -c    -- 去除重复的，并统计重复数
 		| sort -r  -- 反高排序
 		
->show processlist;
+>show processlist; 哪些用户在做哪些SQL，执行时间
+
 >pager 恢复默认输出到stdout
 >pager /xxx.sh    加shell脚本
 
@@ -853,6 +854,7 @@ SET GLOBAL group_concat_max_len = 3600000;
 /etc/my.cnf文件中[mysqld]中加入
 max_allowed_packet=1M
 
+
 fulltext 索引只用于 MyISAM
 unique 索引
 普通索引
@@ -865,6 +867,26 @@ InnoDB 引擎中  innodb_ft_min_token_size 和 innodb_ft_max_token_size
 
 B-Tree 索引  LIKE '%string%'  , string多于3个字符 MySQL  Turbo Boyer-Moore 算法搜索会更快
 
+CREATE TABLE tbl (
+ col1 LONGTEXT,
+ INDEX idx1 ((SUBSTRING(col1, 1, 10)))
+);
+SELECT * FROM tbl WHERE SUBSTRING(col1, 1, 9) = '123456789';
+ 
+ 
+CREATE TABLE employees (
+ data JSON,
+ INDEX idx ((CAST(data->>"$.name" AS CHAR(30)) COLLATE utf8mb4_bin))
+);
+
+INSERT INTO employees VALUES
+ ('{ "name": "james", "salary": 9000 }'),
+ ('{ "name": "James", "salary": 10000 }'),
+ ('{ "name": "Mary", "salary": 12000 }');
+
+SELECT * FROM employees WHERE data->>'$.name' = 'James';  //->> 效果同下
+SELECT * FROM employees WHERE  JSON_UNQUOTE(JSON_EXTRACT(data,'$.name')) = 'James';
+  
 
 show variables like 'group_concat_max_len'
 show variables like 'max_allowed_packet'

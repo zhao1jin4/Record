@@ -114,7 +114,8 @@ grant lock tables on mydb.*    to user1@'%';
 	mysqladmin -uroot -proot password newpassword
 	mysqladmin -u用户名 -p旧密码 password 新密码		
 	root 改其它用户的  SET PASSWORD [FOR user] = PASSWORD('some password');##linux源码安装这样无效？？？？？0行影响
-	update mysql.user set password=password('zh') where user='zh';
+	#update mysql.user set password=password('zh') where user='zh';
+	ALTER USER 'root'@'localhost' IDENTIFIED BY 'root'; 
  
 use mysql;
 select user,host from user;  host字段为%表示可以在所有主机上登录mysql(看root用户有全部)
@@ -458,20 +459,28 @@ JDBC连接SQL节点 OK,
 
 ==========MySQL InnoDB cluster
 要MySQL 8.0版本
-mysql-8.0.15-linux-glibc2.12-x86_64.tar.xz  自带 mysqlrouer命令
+mysql-8.0.18-linux-glibc2.12-x86_64.tar.xz  自带 mysqlrouer命令
+
+表必须是innodb 引擎
+8.0.17版本以后必须有 server_id  参数
 
 至少3个MySQL服务实例，每个实例运行 Group Replication 
-MySQL Router连接Primary节点，两个Secondary节点从Primary节点同步数据，MySqlShell管理Primary节点
+客户端 -> MySQL Router -> Primary节点 -> 两个Secondary节点 
+MySqlShell 管理 Primary节点(也可连接MySQL Router)
 
- AdminAPI 
- Time for Node Failure Recovery 要 30 seconds or longer 
+AdminAPI 
+Time for Node Failure Recovery 要 30 seconds or longer 
 支持 MVCC，Transactions 支持所有的,而NDB只支持 READ COMMITTED
 
+
+--mysql shell
+mysqlsh js > dba.help('getCluster')
+mysqlsh js >  dba.configureInstance('ic@ic-1:3306', \ 
+{clusterAdmin: "'icadmin'@'ic-1%'", clusterAdminPassword: 'password'})
+
+dba.configureLocalInstance('root@localhost:3306')
 dba.createCluster() 
 
-mysqlsh js > dba.help('getCluster')
-mysqlsh js > dba.configureInstance()
- 
 
 =========Replication 
 默认是异步的,不是持续连接,可以指定数据,指定表
@@ -494,7 +503,7 @@ show master status; 看log_bin文件名就是配置的
 主上用 show processlist 可以看到都有哪些从
 
 ---从服务器的 my.ini 
-#log_bin=mysql-log-bin #正常不用打开,Auto-Failover功能用 MySQL Utilities  ,也可从加 mysqld --gtid-mode=ON
+#log_bin=mysql-log-bin #正常不用打开,也可从加 mysqld --gtid-mode=ON
 server-id=2
 relay_log=<host_name>-relay-bin --默认值空
 relay_log_index=<host_name>-relay-bin.index  --默认值在data目录下

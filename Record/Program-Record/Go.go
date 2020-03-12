@@ -6,9 +6,9 @@ https://gomirrors.org/ ( https://goproxy.io/ )
 
 RabbitMQ , MongoDB 有 go客户端
 
-windows 1.11.2 安装后会自动设置环境变量
-GOROOT=C:\Go
+windows 1.14 安装后会自动设置系统环境变量
 PATH 增加 C:\Go\bin
+#GOROOT=C:\Go
 
 go version
 
@@ -29,23 +29,26 @@ package名和func名要相同,和文件所在目录没关系
 go run hello.go  来运行
 go build hello.go  可生成.exe文件
 
-Eclipse 4.6 以上插件 goClipse 依赖于 CDT 9.0以上    http://goclipse.github.io/
+----Eclipse 4.6 以上插件 goClipse 依赖于 CDT 9.0以上    http://goclipse.github.io/
 https://github.com/GoClipse/goclipse/blob/latest/documentation/Installation.md   下载
 https://github.com/GoClipse/goclipse.github.io/archive/master.zip    解压后eclipse中help->install 指向release目录　
 	2019-02下的是201707版本
-　
  
 eclipse Marketplace
 
 Installation 设置目录(同GOROOT) C:\Go
 用goClipse,如有包源文件要放相应目录下,会在bin目录下生成.exe来执行
 
-GoLand 2018.1.2 (IntellijIdea)
+---GoLand 2018.1.2 (IntellijIdea)
 
-Visual Studio Code 的Go  Extension
+---Visual Studio Code(vscode) 的Go  Extension
+	安装后,Debug视图->上方的设置按钮生成launch.json
+	调试启动按钮，提示 "dlv" 找不到.使用 "go get -v github.com/go-delve/delve/cmd/dlv"安装,但长时间下载不了???
 
+    https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
+	go install ...
 
-
+---
 工作区目录默认为 $HOME/go
 可使用 GOPATH 环境变量做修改(不能是安装目录)，模块下载在此目录下的 pkg/mod/ 目录中
 go env GOPATH

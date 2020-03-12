@@ -4,7 +4,19 @@ redis-desktop-manager-0.9.1  可以监控，可写命令好用
 
 redisclient-win32.x86_64.2.0.jar
 RedisStudio-en-0.1.5.exe  不能写命令，不能看数据值
-phpredisadmin   有Docker 镜像
+-----phpRedisAdmin   测试成功(nginx)
+有Docker 镜像 docker run --rm -it -e REDIS_1_HOST=myredis.host -e REDIS_1_NAME=MyRedis -p 80:80 erikdubbelboer/phpredisadmin
+
+依赖于pRedis ,一个php连接redis的库 https://github.com/nrk/predis/
+把下载的predis-1.1.zip解压放在phpRedisAdmin下的vendor(没有要新建)目录中
+
+cd phpRedisAdmin
+git clone https://github.com/nrk/predis.git vendor
+
+就不用在php.ini中增加extension=xxx
+
+includes/config.sample.inc.php  中有配置连接redis服务的IP和端口,可配密码
+
 
 ============== Redis  编译安装 CentOS 7
 windows 版 redis-3.2.100
@@ -358,7 +370,12 @@ redis.status_reply(status_string)
 lua脚本实现分布式锁，可以保存证setnx,expire两个操作的原子性
 如lua脚本没有执行完成时，不能执行其它脚本
   
- 
+官方SETNX文档的锁方案
+SETNX lock.foo <current Unix time + lock timeout + 1>如返回0表示失败,看时间是否超时(对前一个加锁的进程死了)
+如0查是否>当时前,如过期(这也是一步操作,不能保证 这个和GETSET是原子的 )
+GETSET lock.foo <current Unix timestamp + lock timeout + 1> 就算这个返回值是早于当前时间,取锁失败(被快的抢了),这时要等(但也已经设置了新值)
+用完DEL lock.foo ,有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁...
+
 --redis.conf
 include /x/y.conf
 

@@ -1,7 +1,7 @@
 ﻿Eclipse 2018-12 (4.10.0) 支持JDK 11版本 , eclipseEE 版本带 Gradle
 ﻿Eclipse 2019-06  inst (4.12.0) 支持JDK 12版本  
 ﻿Eclipse 2019-09 R (4.13.0)  compiler还只是到12 
-
+﻿Eclipse 2019-12  
 =======================================eclipse==========================
 快捷键
 alt +/
@@ -37,6 +37,10 @@ ctrl+l = navigator-> go to line
 
 
 -------教程
+取消记住的工作区 (并不存在 %USERPROFILE%\.eclipse)
+Window –> preferences –> General –> Startup and Shutdown –> Workspaces -> 右边的 prompt for workspaces on startup 打上勾即可
+
+
 preferences->Keys->点Catergory标签来排序,在Edit组中找 ctrl+space的快捷键(Content Assist)->修改为 ctrl+alt+/ ,如alt+ ->有冲突
 
 XML->XML Catalog->Use Specified Entries->Add...按钮->在location中选择 .xsd文件路径,Key Type中选择Public ID,Key中复制 "-//"开头的部分,复选Alternative Web Address ,复制http://xxx.xsd的路径
@@ -268,6 +272,9 @@ preferences->Java->Editor-Save Action->复选perform the selected actions on sav
 	CodeStyle 标签->复选Convert functional interface instances默认是use Lambda
 
 =======================================up eclipse==========================
+
+Eclipse Marketplace  搜索 Kotlin , MyBatis generator(可生成kotlin代码)
+
 ------Rational Software Architect Designer V9.6 是 eclipse-4.6.1
 可下载for websphere的包
 
@@ -302,6 +309,8 @@ preferences->Java->Editor-Save Action->复选perform the selected actions on sav
  
 eclipse自带CXF插件
 
+---问题
+修改一保存，总是提示JPA java change event handler，卸载JPA Support 
 
 =======================================eclipse-4.4.2(Luna) 插件  CDT-8.6 
 依赖于 RSE-runtime-3.5-GA  要links 或 dropins  安装才行
@@ -411,7 +420,27 @@ eclipse代码 显示变宽  windows-preferences->C++->Code Style-> 新建自己�
 linux eclipse不变色解决方案  window ->preference->c/C++->indexer->选中index all files
 如果有使用宏定处,鼠标指向它,待出现提示,再指向大标题,就出现宏展开的
 
+---------Zend Studio 基于eclipse的,有PDT插件
+Zend Studio 要破解，最新是13.6.1 基于 eclipse-4.6.3 ,可以debug,php cli,中文要UTF-8
+	只可安装在 C:\Program Files\Zend\Zend Studio 13.6.1
+	
+	Preferences->PHP->PHP Server->可zend Server(可Remote),apache(没有nginx有Generic),选Apache->选Apache conf目录
+		->可 XDebug 或 Zend Debugger ,选XDebug->建立完成后编辑下,Document Root不支持变量
+	Preferences->PHP->debug->PHP Server->选建立的
+	Preferences->PHP->debug->Debuggers->选中 XDebug 点Confiure ->设置 Allow remote sessin(JIT)为 any,有时也会提示 
+	debug视图中,可以右击 PHP Debug[Remote PHP Launch] ->relaunch  启动服务	
+	浏览器中请求页，会在页的第一行有断点(哪怕是html)(服务器配置根目录为项目目录)
+	--php.ini
+	[Xdebug]
+	zend_extension="D:/Program/php-7.4.3-Win32-vc15-x64/ext/php_xdebug-2.9.2-7.4-vc15-x86_64.dll"
 
+	xdebug.remote_enable = on
+	xdebug.remote_autostart = 1
+	;host值是本机IP
+	xdebug.remote_host = 192.168.1.102
+	;对应Zend Studio配置中xdebug的端口(默认9000)
+	xdebug.remote_port = 9000
+	
 =======================================eclipse-4.4.2(Luna) 插件  WTP-3.6.3
 下载界面选择  Other Platforms   http://download.eclipse.org/eclipse/downloads/  下载文件中有SDK
 
@@ -667,12 +696,6 @@ Jira , Mantis BT
 
 TODO  FIXME   XXX 注释的代码会被task 视图收集
 
-
-----Toad Extension for Eclipse Community  2.4.4 有MongoDB
-可用 eclipse marketplace在线安装
- 带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
-Toad for Eclipse-2.4.4 可以支持mongo-3.2版本, 到3.4版本打开js文件连接不成功 ???
-
 -- eclipse Scala 插件 Scala IDE-4.7.0 
 Eclipse 4.7 (Oxygen) 可下载 离线包 不能help菜单方式安装，但可以dropsin安装
 	 http://download.scala-ide.org/sdk/lithium/e47/scala212/stable/update-site.zip 
@@ -686,8 +709,10 @@ marketplace安装  Python 插件 PyDev-5.4 ,安装时不会提示版本兼容,�
 https://sourceforge.net/projects/pydev/files/pydev/    可以dropins安装
 
 可以debug
+preferences->PyDev->Interpreters->Python Interpreter->选择python.exe所在路径-> 提示找到 DLLs ,lib目录,lib/site-packages
+代码提示很好
+shift+enter 自动换行缩进 ,ctrl+1有很多功能
 
-代码提示很好,ctrl+1有很多功能
 光标放在代码行上  ctrl+2 (有提示菜单 Quick Assist- assign to local variable可点) 松手 再按L 会自动增加函数调用的接收类和变量名
 
 shift+enter 自动换行缩进
@@ -705,12 +730,57 @@ Eclipse Market Place 安装 TestNG
    JRebel-2018.2.4 版本要求eclipse-3.6+
    
 
-eclipse要marketplace安装React::CodeMix 3 , Vue.js:CodeMix 3 插件  (也有Python插件,Go语法高亮)
-
 --------eclipse  插件 kubernetes
 eclipse-3.9.7 marketplace 插件 kubernetes manifest editor 0.0.2
 	可以鼠标滑到有效的键上有文档提示， 做开发提示,要按快捷键才行, Edit->content assist->default (自定义的ctrl+alt+/),不会在输入时自动提示
 	 
+----Vue,React
+eclipse要marketplace安装
+	React::CodeMix 3 插件 
+	Vue.js:CodeMix 3 插件  
+(也有Python CodeMix 3 ,Go CodeMix 3语法高亮)
+
+-----Node.js IDE
+
+
+----redis 插件 无???
+
+----hbase 插件 无???
+
+----Toad Extension for Eclipse Community  2.4.4 有MongoDB
+最新官方无些产品????,marketplace上没了????
+可用 eclipse marketplace在线安装 
+
+ 带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
+Toad for Eclipse-2.4.4 可以支持mongo-3.2版本, 到3.4版本打开js文件连接不成功 ???
+
+----redis插件 DBeaver EE
+----mongo插件 DBeaver EE
+也支持Redis,ElasticSearch,Neo4j,Spark,phoenix
+也有各系统(win,linux,mac)独立包
+windows版本要打开防火墙,Inbound rule
+
+https://marketplace.eclipse.org/content/dbeaver-ee
+7.0  版本可以连接MongoDB-4.x(有SHA-256)
+
+试用也要连接官网,邮件姓名随便写,试用两周
+dbeaver.ini 末加 -javaagent:/absolute/path/to/dbeaver-agent.jar  7.0破解成功
+
+
+
+
+----mongo插件 MonjaDB
+可用 eclipse marketplace在线安装
+
+https://marketplace.eclipse.org/content/monjadb  
+目前最高支持到eclipse-4.9
+
+----mongo插件 Enide MongoDB GUI (MonjiaDB) for Windows
+目前最高支持到eclipse-4.9
+https://marketplace.eclipse.org/content/enide-mongodb-gui-monjiadb-windows#group-details
+
+----mongo插件 WolfDBManager2 还不可用
+https://marketplace.eclipse.org/content/wolfdbmanager2-rcp
 
 
 

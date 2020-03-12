@@ -3,10 +3,24 @@ Business Process Model and Notation (BPMN) 		Version 2.0
 
 有 Docker images
 
-----------------------jbpm-server-7.14.0  只有一个独立的包了，集成wildfly-14 和示例
-	文档说可以做war包部署,SpringBoot
-	主页有引用google,所以报错
+----------------------jbpm-server-7.32.0 (2020-01-27)
+jbpm-server-7.32.0.Final-dist.zip包  是WildFly服务加了war部署的
 	
+jbpm-installer-full-7.32.0.Final.zip/lib下有 
+	jbpm-7.32.0.Final-bin.zip
+	
+	org.drools.updatesite-7.32.0.Final.zip
+	GEF-SDK-3.10.1.zip
+	
+	jboss-wildfly-14.0.1.Final.zip
+	kie-server-7.32.0.Final-wildfly-14.0.1.Final.war
+	jbpm-console-7.32.0.Final-wildfly-14.0.1.Final.war
+	jbpm-casemgmt-7.32.0.Final-wildfly-14.0.1.Final.war
+	
+	
+文档说可以做war包部署,SpringBoot
+
+
 ----------------------JBPM-7.7 是有单独的bin包的
 ORM 使用 Hibernate JPA 5.1 , 引擎核心 Drool
 

@@ -1,4 +1,5 @@
 YUI Compressor 压缩JS
+============video.js
 
 ============Baidu  echart 
 免费的
@@ -949,6 +950,7 @@ npm install axios -g
 	    console.log(response.statusText);//测试下来是空串，不是OK 
 	});
 
+ 
 =============dhtmlx Gantt 
 
 =============国产 LayUI  2.1.5 免费   见 LayUI.js

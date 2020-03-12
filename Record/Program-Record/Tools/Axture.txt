@@ -1,11 +1,39 @@
-﻿Axture RP 网计设计工具  开发前的网站布局功能 跳转规划
+﻿Axure RP 9.0 win版本 依赖于 .NET Framework 4.5.2
+Axure RP 9.0  发布到本地后，firefox不能预览本地文件，
+	chrome要安装插件(Axture RP Extension for Chrome)才能预览本地文件，国内又上了google,等于不行！！！
+Axure RP 8.0  生成本地HTML就可以预览
 
+有Mac版本
+Axture RP 网计设计工具  开发前的网站布局功能 跳转规划
 
 Publish -> generate HTML files
 Publish -> Review (F5) 直接在浏览器中看
 
 
 在  library 库中 点下拉菜单-> load library... ->选择下载的 lollipop.rplib  (Android 库)
+
+
+File->backup Setting ...默认是启用的，每15分钟一次
+File->recover file from backup
+
+可以选中多个，工具栏Group按钮 成一组，选中就是一组，如要修改组中的元素，双击即可
+
+空格+拖鼠标 是平移视图
+
+选中一个图形，Properties面板中，中为取名字，在interaction Styles组中可以为MouseOver时设置样式
+		Properties面板中 interaction组中->双击onClick->可以展开 Widgets选中show/hide,再选择要操作的组件名->可选toggle
+		Style面板中 额Hidden复选框
+		
+		
+(也可 选中多个组件 右击-> convert to dynamic panel)
+Dynamic Panel组件(可实现tab组件) 拖入 -> 双击组件-> 增加有多个页用来做切换(每一页可以双击进入再编辑)
+		Properties面板中 有一个  fix to content的复选
+		outline面板中这个组件下有每一页，可以拖动页与页的层位置，上面的优先显示
+		
+两个方形重叠放，选中两个，Style面板中一个Unite 图标 (布尔合集运算)，交叉的图形线被去除
+选中tab中一个标签 ->双击onClick ->可以展开 Widgets选中 Set Panel State-> 选中要操作的动态面板，选显示的页
+
+Dynamic Panel组件的事件更多
 
 
 

@@ -1,6 +1,6 @@
 
 ==============================Maven服务器 Nexus OSS 
-2.x版本有跨平台的 -bundle.zip解压 
+2.x版本有跨平台的 -bundle.zip解压 ，目前是3.x版本见下
 
 nexus-2.7.2-03\conf\nexus.properties 中有配置项目nexus-work 是 sonatype-work 目录,就是解压目录的 , 仓库存放位置 
 nexus-2.7.2-03\bin\jsw\windows-x86-64\ 以管理员运行 install-nexus.bat ,再 start-nexus.bat 
@@ -19,7 +19,9 @@ group 资源仓库组,用来合并多个hosted/proxy资源仓库,配置maven依�
  可以设置是否可以 deployment,是release的还是snapshot的
  
 ------Nexus Repository OSS 3.5.1
-没有 -bundle.zip了 unix版本 要求至少JDK 1.8 ,解压出现了sonatype-work，刚解压只有log,tmp, orient/plugins目录，启动后会生成很多文件
+ 3.x版本 测试支持PyPI,Docker,npm,yum(proxy),社区支持 apt,go,CocoaPods
+有windows,unix,mac版本
+没有 -bundle.zip了 unix版本 要求只能JDK 1.8 ,解压出现了sonatype-work，刚解压只有log,tmp, orient/plugins目录，启动后会生成很多文件
 
 nexus-3.5.1-02/bin/nexus start  是后台运行，相应的有stop
 tail -f sonatype-work/nexus3/log/nexus.log 初次启动时间较长
@@ -31,21 +33,34 @@ tail -f sonatype-work/nexus3/log/nexus.log 初次启动时间较长
 		 /etc/security/limits.conf (Ubuntu 除外)
 			nexus - nofile 65536
 		重启 Nexus
+设置阿里代理仓库
+设置按钮->Repository下的Repositories->点create repository按钮 -> 选择 maven2(proxy)->起名aliyun,输入地址 http://maven.aliyun.com/nexus/content/groups/public
+->create repository按钮,再把建立的加入maven-public中即可
+
+默认带的maven-snapshot仓库配置的Deployment policy为 Allow redeploy ,maven-release是Disable redeploy
+
 配置用
-http://127.0.0.1:8080/repository/maven-public/
-http://127.0.0.1:8080/repository/maven-releases/
-http://127.0.0.1:8080/repository/maven-snapshots/
+http://127.0.0.1:8081/repository/maven-public/
+http://127.0.0.1:8081/repository/maven-releases/
+http://127.0.0.1:8081/repository/maven-snapshots/
 
  浏览包用
- http://127.0.0.1:808/#browse/browse/components:maven-public 有目录级别
- http://127.0.0.1:808/#browse/browse/assets:maven-public     子目录以/显示
+ http://127.0.0.1:8081/#browse/browse/components:maven-public 有目录级别
+ http://127.0.0.1:8081/#browse/browse/assets:maven-public     子目录以/显示
  
  
  
 	 
  可以运行在 Docker 上  
  docker pull sonatype/nexus3
- 
+-------------------------------Artifactory 
+收费的 jfrog的 
+https://www.jfrogchina.com/artifactory/
+
+除为Maven 还可Cocoapods为iOS使用，Go,Python,Docker,PHP,Npm
+Cocoapods 是iOS仓库管理 
+
+
 ----------------------------------Maven
 
 设置PATH环境变量  
@@ -54,6 +69,9 @@ mvn -version
 mvn -e		full stack trace of the errors
 mvn clean install -e -U
 -e详细异常，-U强制更新
+
+mvn compile
+mvn test-compile
 
 如单元测试报错, 控制台没有原因,要进入target/surefire-report/中的txt文件 有错误 堆栈信息
 
@@ -80,12 +98,17 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 可以修改配置<localRepository>/path/to/local/repo/</localRepository>
 设置 proxy ,但没说什么协议,如没有办法设置 http://主机:端口/文件  形式的代理 , [文件]的部分没办法给,)
 
+ 
 <server>
-  <id>my_libs_snapshot</id>  <!-- id对应 pom.xml中的 <distributionManagement> 中的Id的值   -->
-  <username>xx</username>
-  <password>yy</password>
-</server>
-
+   <id>releases</id> <!-- id对应 pom.xml中的 <distributionManagement> 中的Id的值   -->
+   <username>admin</username>
+   <password>admin123</password>
+ </server>
+ <server>
+   <id>snapshots</id>
+   <username>admin</username>
+   <password>admin123</password>
+ </server>
 <mirrors>
 	<mirror>
 		<id>mirrorId</id>  
@@ -137,13 +160,16 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 ---------setting.xml示例
  <localRepository>/mnt/vfat/MVN_REPO/</localRepository>
 	<servers>
-		<!--  id对应 pom.xml中的 <distributionManagement> 中的Id的值  ( 官方说也有<repository> (测试pom.xml不能少配置)或者 <mirror>   )
-		<server>
-			<id>local_net_repo</id>  
-			<username>hrbb</username>
-			<password>pass123</password>
-		</server> 
-		--> 
+	 <server>
+	   <id>releases</id> <!-- id对应 pom.xml中的 <distributionManagement> 中的Id的值   -->
+	   <username>admin</username>
+	   <password>admin123</password>
+	 </server>
+	 <server>
+	   <id>snapshots</id>
+	   <username>admin</username>
+	   <password>admin123</password>
+	 </server>
 	</servers> 
     
 	<mirrors>
@@ -410,17 +436,17 @@ artifactId 是自己的项目名
 	<plugin>
 	  <groupId>org.eclipse.jetty</groupId>
 	  <artifactId>jetty-maven-plugin</artifactId>
-	  <version>9.4.6.v20170531</version>
+	  <version>9.4.27.v20200227</version>
 	   <configuration>
 		  <scanIntervalSeconds>10</scanIntervalSeconds>
 		  <webApp>
 			<contextPath>/test</contextPath>
 		  </webApp>
 		</configuration>
-	</plugin>  <!-- 就可用 mvn jetty:run -->
+	</plugin>  <!-- 就可用 mvn jetty:run  但不认@WebServlet的注解式???-->
+    
  
- 
- <!--部署到tomcat,配置权限用户,  mvn cargo:redeploy 
+ <!--部署到tomcat,配置权限用户,  mvn cargo:redeploy (一定要先mvn package)
 如tomat8,127.0.0.1就OK, 本机IP就不行,/conf/Catalina/localhost/目录下要加文件manager.xml （没有就新建） (CSRF) -->
 	<plugin>
 		    <groupId>org.codehaus.cargo</groupId>
@@ -556,16 +582,16 @@ artifactId 是自己的项目名
 	</pluginRepository>
 </pluginRepositories>
  
-  <distributionManagement> <!-- 为mvn deploy时用使用id做对应  -->
-		<repository>
-			<id>releases</id>
-			<url>http://10.1.5.228:8081/nexus/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<url>http://10.1.5.228:8081/nexus/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>  
+	<distributionManagement> <!-- 为mvn deploy时用使用id做对应  -->
+        <repository>
+            <id>releases</id>  <!-- 对应settings.xml中<server>的id配置 -->
+            <url>http://127.0.0.1:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>http://127.0.0.1:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement> 
 
 	<properties>  <!-- org.apache.maven.plugins  使用的-->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
@@ -721,6 +747,30 @@ mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -Darchety
  
 mvn -f xxx.pom   -s  settting.xml
 
+ maven输出class文件位置做修改  
+(maven3\lib下的 maven-model-builder-3.0.5.jar 中的 org/apache/maven/model/pom-4.0.0.xml)
+<directory>${project.basedir}/target</directory>
+<outputDirectory>${project.build.directory}/classes</outputDirectory>
+<testOutputDirectory>${project.build.directory}/test-classes</testOutputDirectory>
+
+pom.xml在<build>中加(mvn compile  test-compile是有效果的)
+<directory>${project.basedir}/target1</directory>  
+<outputDirectory>src/main/webapp/WEB-INF/classes</outputDirectory> 
+<testOutputDirectory>src/main/webapp/WEB-INF/classes</testOutputDirectory> 
+
+
+plugin方式 mvn compile  test-compile时directory没用??outputDirectory和testOutputDirectory配置没用??只对class文件有用，
+<plugin>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <version>3.8.0</version>
+  <configuration>
+	<directory>${project.basedir}/target1</directory> 
+	<outputDirectory>src/main/webapp/WEB-INF/classes</outputDirectory> 
+	<testOutputDirectory>src/main/webapp/WEB-INF/classes</testOutputDirectory>
+  </configuration>
+</plugin>
+
+
 ---sonar 覆盖率maven插件
 jenkins ->配置->构建后操作步骤->Sonar,Publish Coberutra Coverage Report
 mvn clean package sonar:sonar 测试覆盖率报告(要单独的服务器)
@@ -752,21 +802,25 @@ mvn clean package cobertura:cobertura   单独生成测试覆盖率报告   targ
  
 
 ----------------------------------Gradle
+下载地址 https://gradle.org/releases/
+https://docs.gradle.org/current/dsl/index.html
 http://avatarqing.github.io/Gradle-Plugin-User-Guide-Chinese-Verision/
 
-eclipse marketplace 插件 buildship gradle integration 3.0.2(STS 3.9.7自带)
-
-
-
+eclipse marketplace 插件 buildship gradle integration 3.1.2(STS 3.9.10自带)
 Spring 和 Android使用 ,可以构建 C++
 
+
+GRADLE_HOME  环境变量
 bin 目录入 PATH 环境变量下,初次运行 gradle 命令会在~\.gradle下生成文件
 
 spring 有 gradle 示例
 项目中有 src\main\java\包名  (同 maven,web项目手工增加webapp目录 apply plugin: 'war')
 项目中有 build.gradle 文件 
-		如有 apply plugin: 'java' 
-
+		如有 apply plugin: 'java' 或者 
+				plugins {
+					id 'java'
+				}
+		
 gradle tasks 命令可看到所有可用的 build任务
 就可用  gradle build 命令构建 ,会在当前目录下生成 build\libs,build\classes目录 
   
@@ -774,7 +828,7 @@ gradle tasks 命令可看到所有可用的 build任务
 ---build.gradle  文件
 
 Gradle设置全局仓库 创建文件 ~/.gradle/init.gradle 
- 或者命令行加 -I or --init-script，
+ 或者命令行加 -I or --init-script 指定初始化脚本
  或GRADLE_HOME/init.d/目录以.gradle结尾的文件　　
     eclipse配置 local installation directory:　(/init.d/xx.gradle) 优先于项目中的 build.gradle
     idea 项目配置 Gradle Home:(/init.d/xx.gradle)    优先于项目中的 build.gradle
@@ -785,24 +839,34 @@ Gradle设置全局仓库 创建文件 ~/.gradle/init.gradle
 			maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
 			maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
 			maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
-   maven { url "$rootDir/../node_modules/react-native/android" }  // react-native 的 android 版本 jar 包maven仓库位置
+			maven { url "$rootDir/../node_modules/react-native/android" }  // react-native 的 android 版本 jar 包maven仓库位置
 		}
 	}
----上未何没用 可能因为自己的项目有 allprojects的配置
-
-
+---上未何没用 可能因为自己的项目有 allprojects 的配置
+/*//不能放在allprojects中
+plugins {
+    id 'java'
+}
+*/
 apply plugin: 'java' 
-apply plugin: 'war'  //打成war包
+//apply plugin: 'war'  //打成war包，可以和 'java'插件一起存在
 //apply plugin: 'com.android.application'  //Android 
+
+
+group 'org.example'
+//setting.gradle 文件中有 rootProject.name=xx
+version '1.0-SNAPSHOT'
+sourceCompatibility = 1.8
+
 mainClassName = 'hello.HelloWorld'  //可以使用  ./gradlew run 来运行
 
 repositories { 
 	//增加镜像  放最前，有顺序的
+	mavenLocal()
 	maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
 	maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
-	maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} 
-	//mavenLocal()
-	//mavenCentral()
+	//maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'} 
+	//mavenCentral()//可点击进入，是一个方法
 	//jcenter()  //会从  https://jcenter.bintray.com/com/ 下载 
 }
 dependencies {
@@ -817,36 +881,46 @@ jar {
     baseName = 'my-project'  //生成jar包的名字为my-project-0.1.0.jar
     version =  '0.1.0'
 }
+// task后是定义的任务名
 task wrapper (type:Wrapper)  // 就可以直接使用 gradle wrapper ,而不用加--gradle-version 5.2
 {
-	gradleVersion = 5.2 //只可有一个小数点
-} 
-// task后是定义的任务名
+	gradleVersion = 5.4 //只可有一个小数点
+}
+
+--setting.gradle
+rootProject.name = 'myGradleGroovy'
+
 如果想让父模块配置可以所有子模块去用，父模块最外层增加 allprojects {}
-IDEA可以建立子模块项目 ,setting.gradle文件中自动增加 include 'childTwo'
-  自己的模块间相互引用 在dependencies中增加 compile project(":childTwo")
+	IDEA可以建立子模块项目(右击项目->new -> module) ,setting.gradle文件中自动增加 include 'childTwo'(多个模块就多行)
+	自己的模块间相互引用 在dependencies中增加 compile project(":childTwo")
   
 会自动下载其它依赖的包,在~/.gradle\caches\modules-2\files-2.1目录下
 				%HOMEPATH%\.gradle\caches\modules-2\files-2.1
-    
-    
 
-新建环境变量 GRADLE_USER_HOME=D:/GRADLE_REPO (不能和MAVEN仓库共用位置)
+新建环境变量 GRADLE_USER_HOME=D:/GRADLE_REPO (不能和MAVEN仓库共用位置) gradle目录格式为 org.springframework 是一个目录名
+IDEA 对已经有的Maven仓库会优先使用 Maven setting中配置的目录，再使用Gradle目录
 IDEA 配置 Service directory path:　会在目录创建caches\modules-2\files-2.1  
+IDEA,AndroiStudio 要配置系统级别环境变量 GRADLE_USER_HOME 
+  
 eclipse 配置gradle user home:　会在目录创建caches\modules-2\files-2.1
 
- IDEA 的gradle视图(同maven)->展开tasks->build->双击jar
+IDEA 的gradle视图(同maven)->展开tasks->build->双击jar/war
 eclipse 的gradle tasks 视图->展开build->双击jar,在build/libs目录生成
+ 
+分析依赖 
+IDEA 的Gradle视图 <项目> -> Task -> help -> dependencies 执行后控制台显示
 
-gradle wrapper --gradle-version 5.2 会生成 gradlew 可执行文件和gradle/wrapper目录 在项目目录下,gradle-wrapper.properties文件中下载gradle对应版本的URL
-
+ 
+//wrapper
+空项目目录下 gradle wrapper --gradle-version 5.4 会生成 gradlew 可执行文件和gradle/wrapper目录,下有gradle-wrapper.properties文件，包含下载gradle对应版本bin包的URL
 就可以执行 ./gradlew build 来构建项目
 
+//kotlin
 gradle init --type java-application
  Select build script DSL:
    1: groovy
    2: kotlin　如选择这个生成的是 build.gradle.kts , settings.gradle.kts
- 后面还会提示选择Junit 还是ＴestNG
+ 后面还会提示选择Junit 还是TestNG
  
  --------------build.gradle.kts
  和　build.gradle　格式不同
@@ -864,7 +938,471 @@ application {
 val test by tasks.getting(Test::class) {
     useTestNG()
 }
+
+--no-daemon 可禁用 gradle服务进程， 测试每次使用日志显示starting deamon
+
+https://docs.gradle.org/current/userguide/build_lifecycle.html
+三个阶段  Intilization,Configuration,Execution
+
+task ("myTaskName",{
+	println "configuration myTaskName" 
+	doLast({ //src\core-api\org\gradle\api\Task.java中的doLast方法,
+		//不执行并放在执行列表未尾，对应的有doFirst
+		println "exeuction myTaskName" 
+	})
+})
+
+执行使用 gradle myTaskName
+
+任何找不到的方法(如上task)，都会去src\core-api\org\gradle\api\Project.java中找
+buildscript调用Project类的buildscript方法，参数是闭包
+
+project.childProjects
+project.parent
+println("ROOT PROJECT ${this.rootProject.name}")
+this.buildDir
+this.getProjectDir()//可以是子项目目录
+this.getRootDir()
+
+
+for(int i=0;i<5;i++)//灵活性
+{	//缩写方式
+	task ("myTaskName"+i)
+	{
+		def inner=i;
+		println "configuration myTaskName ${inner}" 
+		doLast {  
+			println "exeuction myTaskName ${inner}" 
+		} 
+	}
+}
+//缩写方式
+// 10.times  //或者
+//(1..10).each
+(1..<10).each //不包含10
+{	i ->
+	task ("myTaskName"+i)
+	{
+		def inner=i;
+		println "configuration myTaskName ${inner}" 
+		doLast {  
+			println "exeuction myTaskName ${inner}" 
+		} 
+	}
+}
+
+
+afterEvaluate({ //在所有的配置(configuration阶段就是build.gralde执行)完成后执行，对应的有beforeEvaluate
+    println "my afterEvaluate"
+})
+
+gradle.buildFinished { //所有生命周期执行完
+ println(" my buildFinished")
+}
+gradle.beforeProject {//对每个子模块
+    println(" my beforeProject")
+}
+gradle.afterProject {
+    println(" my afterProject")
+}
+
+
+task ("myFirst")
+{ 
+		println "configuration myFirst " 
+		doLast {  
+			println "exeuction myFirst " 
+		} 
+} 
+//Task类的dependsOn("taskName") 任务依赖
+task ("mySecond")
+{ 
+	dependsOn("myFirst")
+	println "configuration mySecond " 
+	doLast {  
+		println "exeuction mySecond " 
+	} 
+}
+
+//自定义插件类可放在build.gradle文件中,用于重复利用
+//groovy
+ class MyPlugin implements Plugin<Project> {
+     @Override
+     void apply(Project project) {
+        //实现,task要修改为project.task
+         project.task ("myPluginTask")//建立Task
+		 {
+			 println "configuration myPluginTask "
+			 doLast {
+				 println "exeuction myPluginTask "
+			 }
+		 }
+     }
+ }
  
+//也可放在buildSrc/src/main/java/ 目录中，buildSrc目录可被build.gradle找到
+//java
+package org.xx;
+ class MyPlugin implements Plugin<Project> {
+    public void apply(Project project) {  //实现
+		//task要修改为project.task
+        project.task ("myPluginTask", (task1)->{  //建立Task
+            System.out.println ( "configuration myPluginTask ");
+            task1.doLast((task2)->{
+                    System.out.println ( "exeuction myPluginTask ");
+            });
+
+        });
+		if(project.getPlugins().hasPlugin("java"))
+        {
+            System.out.println ("In MyPlugin query has java plugin");
+        }
+		project.getExtensions().create("myExtension", MyExtension.class); 
+  
+//      StringUtils.isNotBlank("");//这里如何引用第三方库???? buildSrc/build.gradle没用???
+  }
+}
+class MyExtension
+{
+    String department; 
+    public MyExtension() {
+    } 
+    public String getDepartment() {
+        return department;
+    } 
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+}
+
+apply plugin: MyPlugin //使用插件,apply方法在ApplyAware类中(Project有继承)
+//等同于 apply([plugin:MyPlugin])//如参数只一个map可去[]
+
+或者  buildSrc\src\main\resources\META-INF\gradle-plugins\org.xx.properties 写入 implementation-class=org.xx.MyPlugin
+再 apply plugin: 'org.xx'
+
+
+myExtension{
+    department = 'IT' //可用=或空格分隔
+}
+ 
+执行使用 gradle myPluginTask
+
+
+public class MyDefaultTask extends DefaultTask {  
+    private String mygroup;
+    public MyDefaultTask() {
+         setGroup("org.xx");
+    }
+    @TaskAction //在执行阶段，类似的doFirst,doLast运行在里
+    public void doAction()
+    {
+        mydoLast();
+    }
+     public void mydoLast()
+    {
+        MyExtension myPluginTask=(MyExtension) getProject().getExtensions().getByName("myExtension");
+        System.out.println("in MyDefaultTask get department is "+myPluginTask.getDepartment());
+    }
+}
+task myDefTask(type: MyDefaultTask) {//可能要import
+
+}
+执行使用 gradle myDefTask
+
+
+
+//如在build.gradle文件中使用第三方库(或者使用插件)要的buildscript中加
+buildscript {
+    repositories {
+        mavenLocal()
+        //mavenCentral()
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+    } 
+    dependencies {
+		//由compile变为classpath
+        classpath group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+    }
+}
+//if(org.apache.commons.lang3.StringUtils.isNoneBlank(""))或者
+import org.apache.commons.lang3.StringUtils
+if(StringUtils.isNoneBlank(""))
+{
+
+}
+
+//全写方式,简写原因是delegate修改成了参数
+buildscript //看源码文档参数是 ScriptHandler
+{
+    ScriptHandler scriptHandler ->
+        scriptHandler.repositories { //看源码文档参数是 RepositoryHandler
+            RepositoryHandler repositories ->
+            repositories.mavenLocal()
+            repositories.maven {
+				name 'dev'
+                url 'http://maven.aliyun.com/nexus/content/groups/public/'
+				//私有仓库用户名密码
+                credentials {
+                      username = 'user1'
+                      password = '123'
+                 }
+            }
+            repositories.jcenter()
+        } 
+}
+
+
+对于apply plugin: 'org.xxx' 是找buildscript的classpath(gradle-api-xxx.jar或者buildSrc/src/main/resources目录)中META-INF/gradle-plugins/org.xxx.properties文件中
+有implementation-class=XXX实现类
+
+在Android中 apply plugin: 'com.android.application'  就在buildscript依赖的 classpath 'com.android.tools.build:gradle:3.5.3'
+	有implementation-class=com.android.build.gradle.AppPlugin
+
+
+this.getAllprojects().eachWithIndex { Project project, int i ->
+    if(i==0){
+        println "===root project ${project.name}"
+    }else
+    {
+        println "-project ${project.name}"
+    }
+}
+
+project("app") {//参数为项目名
+    Project project->
+        //为指定模块做配置
+        apply plugin: 'java'
+        println "module project name=${project.name}"
+}
+
+allprojects
+{ 
+    group 'org.example'
+}
+println project("app").group  //来测试
+
+subprojects {//不包括父项目
+    Project project ->
+    if(project.plugins.hasPlugin("com.android.library"))
+    {
+        //apply from: '../myCommonExt.gradle' //引用配置
+		apply from: file('myCommonExt.gradle') //当前目录找
+    }
+}
+
+ext{//定义扩展属性 
+     minSdkVersion=27
+}
+println this.minSdkVersion //可以直接使用ext定义的变量
+println project("app").minSDKVersion //子项目中也继承父项目的ext属性，相当于放在subprojects中
+
+//建立gradle.properties文件写入 isLoadTest=false ,所有项目都可直接引用，注意不能和已有的名字重复
+//可以写入settings.gradle中(源码类为Settings类),是在初始化阶段中执行
+if(hasProperty('isLoadTest')?isLoadTest.toBoolean():false)
+    println "has LOADTEST"
+	//include "xx"
+else
+    println "NO LOADTEST"
+
+	
+copy{
+    from file('my.jks')
+    into getRootProject().getBuildDir()
+	//exclude()
+	//rename {}
+}
+
+ fileTree('build/classes'){ 
+    FileTree fileTree->
+         fileTree.visit {
+            FileTreeElement element->
+            println "filename=${element.file.absolutePath}"
+         }
+ }
+
+排除 jar包
+compile('org.apache.commons:commons-lang3:3.8.1'){//写法不能是group:''
+		exclude group:'junit' ,module:'junit' 
+	}
+ 
+调用系统命令
+task mycmd {
+    doLast
+    {
+        exec{
+            try{
+               //executable 'bash'
+                //args '-c' 'ls -l /tmp'
+                
+				//windows命令测试成功
+                executable 'cmd'
+                args '/c','dir d:'
+            }catch(GradleException e)
+            {
+                println e.getMessage()
+            }
+        }
+    }
+}
+//tasks.findByName
+//tasks.getByName
+tasks.create(name:'myTask'){ //tasks是TaskContainer类型
+	setGroup('myGroup')//显示在Idea工具的Gradle视图中，按文件夹分组，默认是other中
+    setDescription("myDescription")
+    println 'myTask'
+} 
+
+task myTask2(group:'myGroup2',description:'desc 2'){
+    println 'myTask2 '
+    doLast {
+        println 'myTask2  doLast 1'
+    }
+}
+myTask2.doLast {//doLast可放外面,先执行里面，再执行这，如是doFirst就是相反的，按队列顺序
+    println 'myTask2  doLast 2'
+}
+
+//输入输出关联Task执行顺序，链式
+//TaskInputs 类可接收properties和文件， TaskOutputs 类可输出文件
+ext{
+    destFile=file("config.properties")
+    if(destFile!=null && !destFile.exists())
+    {
+        destFile.createNewFile()
+    }
+}
+task ("myGenFileOne")
+{
+    inputs.property("db.username",'root')
+    inputs.property("db.password",'123')
+    outputs.file this.destFile
+    println "configuration myGenFileOne "
+    doLast {
+        def props=inputs.getProperties()
+        def files=outputs.getFiles()
+        files.each {
+            File file->
+
+                file.withWriter {
+                    Writer writer->
+                        println "append ${props.toString()} "
+                        writer.append(props.toString())
+                }
+        }
+        println "execution myGenFileOne "
+    }
+}
+task ("myReadFileTwo") //没有依赖第一个？？？
+{
+    inputs.file destFile
+    println "configuration myReadFileTwo "
+    doLast
+    {
+        println "execution myReadFileTwo "
+    }
+}
+gradle myReadFileTwo myGenFileOne  没效果 ???
+
+//顺序用mustRunAfter
+task ("myTaskA"){
+    println 'config myTaskA'
+    doLast {
+        println 'exec myTaskA'
+    }
+}
+
+task ("myTaskB"){
+    mustRunAfter "myTaskA"
+    println 'config myTaskB'
+    doLast {
+        println 'exec myTaskB'
+    }
+}
+gradle myTaskB myTaskA 放一起执行才有效果
+
+ 
+SourceSet , JavaSourceSet,AndroidSourceSet(可以修改resources,java,res,manifest,assets等目录)
+//源码示例
+sourceSets {
+    main {
+        java {
+            exclude 'some/unwanted/package/**'
+        }
+    }
+}
+/*
+//android 输出so文件默认输出目录为jni/libs 修改为libs
+android.sourceSets {
+ main{
+     jniLibs.srcDirs=['libs']
+ }
+}
+//android测试不行？
+android.sourceSets {
+    main{
+        res.srcDirs=['src/main/res','src/main/res-icon']
+    }
+}
+*/
+android的配置android{ defaultConfig{}} 对应源码BaseExtension类(所有配置属性) defaultConfig 属性
+	源码BaseVariant类是所有Task, 子类 ApplicationVariant
+
+
+
+---gradle 发布jar到nexus仓库，包括源码  
+https://docs.gradle.org/current/userguide/publishing_maven.html
+
+ 
+apply plugin: 'maven-publish'//idea工具Gradle视图会多出publishing组
+//以下两个可不加
+//apply plugin: 'java-library'
+//apply plugin: 'signing'
+
+
+task sourcesJar(type: Jar) { 
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+//执行 gradel sourcesJar生成<project>/build/libs/<project>-<version>.jar
+
+task javadocJar(type: Jar) { //javadoc 生成后中文乱码???
+    from javadoc
+    classifier = 'javadoc'
+}
+
+publishing {
+	  publications {
+            maven(MavenPublication) {
+            	 // groupId = project.group
+	            // artifactId = project.name
+	            // version = project.version
+	            //如果不定义，则会按照以上默认值执行
+                groupId = 'org.example'
+                artifactId = 'my-example'
+                version = '1.0-SNAPSHOT'
+
+                from components.java
+                artifact sourcesJar //要在前面定义
+            	 artifact javadocJar
+            }
+     }
+    repositories {
+        maven { 
+            url = "http://127.0.0.1:8081/repository/maven-snapshots/" //maven-snapshots的地址,要求版本以-SNAPSHOT结尾
+            credentials {
+                username = 'admin'
+                password = 'admin123'
+           }
+        }
+    }
+}
+idea Gradle视图 publishToMavenLocal 到本地maven仓库 测试成功
+idea Gradle视图 publishMavenPublicationToMavenLocal 到远程maven仓库nexus 测试成功
+  
+
+---gradle 依赖统一版本，不是使用变量		
+---gradle 各种环境配置文件
+
 ----------------------------------ANT
 ant build.xml
 ant -buildfile myBuilde.xml  或者  -f 或 -file
@@ -1218,7 +1756,9 @@ Spring LADP
 
 eclipse 插件 run-jetty-run  可以在eclipse中使用 jetty 做servlet容器
 
-java -jar start.jar 启动服务器　　
+java -jar start.jar 启动服务器　
+	webapps目录效果类似tomcat 
+　
 http://localhost:8080/  
 .war包 放到webapps目录下
 
@@ -1249,10 +1789,18 @@ TestCase 中有
 
 这两个方法在抛出异常时也会被调用,测试失败也会的
 
-
+<dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter-api</artifactId>
+    <version>5.5.2</version>
+    <scope>test</scope>
+</dependency>
 import org.junit.jupiter.api.Test; //Junit 5    jupiter 木星；
 import static org.junit.jupiter.api.Assertions.*;//Junit 5 
-
+assertThrows(NumberFormatException.class,  ()->{
+		Roman2IntUtil.covertRoman2Int("MIMIII");
+	});
+	
 JUnit 4.0 有 只执行一次初始方法,销毁方法 
 import static org.junit.Assert.assertEquals; 
  类不必继承自TestCase
@@ -1611,7 +2159,7 @@ public class MyTestNG
 		System.out.println("@AfterTest4");
 	}
 	  
-	@Test
+	@Test  //方法的返回类型一定要为void
 	public void testMethod1() {
 		String email="abc";
 		Assert.assertNotNull(email);
@@ -2542,7 +3090,8 @@ document.close();
 //Document可以看作是 数据库的一行记录，Field可以看作是数据库的字段
 
 --建立索引
-//Directory dir = new RAMDirectory();
+//Directory dir = new RAMDirectory();//新版本8没有这个构造器，类过时,用MMapDirectory
+Directory directory =new MMapDirectory(  Paths.get("/tmp"));//MMap=memory mapping 
 Directory dir = FSDirectory.open(Paths.get("c:/tmp/testindex"));//是生成索引的目录名
 Analyzer analyzer = new StandardAnalyzer();
 IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
@@ -2565,7 +3114,7 @@ doc.add(new  StoredField("size",  file.toFile().length()));
 //doc.add(new Field("contents",  "我来自中国" , TextField.TYPE_STORED));
 doc.add(new LongPoint("modified", lastModified));//是index的,但不store
 doc.add(new StoredField("createTime",new Date().getTime()));//store的
- field.setBoost(1.2f);//默认1.0,建立索引时(更新索引不可)在原有基础上加权,为某些特定的内容,分值高,可做优先显示
+//field.setBoost(1.2f);//新版本8没有这个方法 //默认1.0,建立索引时(更新索引不可)在原有基础上加权,为某些特定的内容,分值高,可做优先显示
  
 //建立
 doc.add(new TextField("contents", new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))); 
@@ -2720,7 +3269,7 @@ directory.close();
   //this is my football ,  I  very like it
   Analyzer analyzer = new StandardAnalyzer();  // (my)(football)(i)(very)(like)
   Analyzer analyzerSimple= new SimpleAnalyzer();//(this)(is)(my)(football)(i)(very)(like)(it)
-  Analyzer analyzerStop= new StopAnalyzer();//(my)(football)(i)(very)(like)
+  //Analyzer analyzerStop= new StopAnalyzer();//新版本8没有这个,(my)(football)(i)(very)(like)
   Analyzer analyzerWhite= new WhitespaceAnalyzer();//(this)(is)(my)(football)(,)(I)(very)(like)(it)
   Analyzer analyzerCN= new  SmartChineseAnalyzer() ;// 官方带的中文分词器  lucene-analyzers-smartcn-6.3.0.jar
 
@@ -2756,11 +3305,12 @@ public class MyStopAnalyzer extends Analyzer{
 	public MyStopAnalyzer(String stopWord[])
 	{
 		stopWords=StopFilter.makeStopSet(stopWord,true);
-		stopWords.addAll(StopAnalyzer.ENGLISH_STOP_WORDS_SET);
+		//stopWords.addAll(StopAnalyzer.ENGLISH_STOP_WORDS_SET);//新版本8没有ENGLISH_STOP_WORDS_SET
 	}
 	@Override
 	protected TokenStreamComponents createComponents(String fieldName) {
-		Tokenizer source = new LowerCaseTokenizer();
+		//Tokenizer source = new LowerCaseTokenizer();//新版本8没有LowerCaseTokenizer
+		Tokenizer source = new StandardTokenizer();
         return new TokenStreamComponents(source, new StopFilter(source, stopWords));
 		 
 	} 
@@ -4037,9 +4587,7 @@ channel.confirmSelect();
 String jsonStr = new com.rabbitmq.tools.json.JSONWriter().write(para);//Object(可Map)->JSON
 Object obj = new com.rabbitmq.tools.json.JSONReader().read(jsonStr);//返回Object是一个HashMap
 
-------RabbitMQ Cluster
-chef,puppet 自动配置管理工具
- 
+------RabbitMQ Cluster 
 
 单台可满足每秒1000条消息吞吐
 
@@ -4063,8 +4611,7 @@ rabbitmqctl forget_cluster_node nodex  从集群中去除节点
 
 ======================RocktMQ   alibaba 捐给了apache
 
-控制台
-Mirror of Apache RocketMQ (Incubating) 
+控制台 
 https://github.com/apache/rocketmq-externals/tree/master/rocketmq-console
 mvn spring-boot:run
 或者
@@ -4541,6 +5088,7 @@ g.dispose();
 
 
 ---------------------------------Log4j 1
+ 
 
 －X号: X信息输出时左对齐；
    %p: 输出日志信息优先级，即DEBUG，INFO，WARN，ERROR，FATAL,
@@ -4583,6 +5131,8 @@ log4j.appender.rollingFile.MaxFileSize=20MB
 log4j.appender.rollingFile.MaxBackupIndex=10
 
 zookeeper,kafka 是用log4j1版本
+
+log4j.xml
 
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">   
@@ -5620,13 +6170,16 @@ WebSocketClient	cc = new WebSocketClient( new URI( "ws://localhost:8080/J_JavaEE
  <dependency>
   <groupId>org.quartz-scheduler</groupId>
   <artifactId>quartz</artifactId>
-  <version>2.2.1</version>
+  <version>2.2.3</version>
 </dependency>
 <dependency>
   <groupId>org.quartz-scheduler</groupId>
   <artifactId>quartz-jobs</artifactId>
-  <version>2.2.1</version>
+  <version>2.2.3</version>
 </dependency>  
+
+使用c3p0数据源
+
 
 @DisallowConcurrentExecution
 public class MyQuartzJob implements Job {
@@ -5730,21 +6283,22 @@ SchedulerFactory schedFact = new StdSchedulerFactory();
 		  }
 		*/
 		  
-//-------使用配置文件方式		  
-//org/quartz/quartz.properties文件,可以被src\下的文件覆盖, 示例在quartz-2.1.6\examples\example10\quartz.properties
+//-------使用配置文件方式	
+//分布式 配置 org.quartz.jobStore.isClustered = true
+	  
+//org/quartz/quartz.properties文件,可以被src\下的文件覆盖,示例在quartz-2.2.3\examples\example10\quartz.properties
+//quartz.properties中插件配置去读 quartz_data.xml
 //org/quartz/xml/job_scheduleing_data_2_0.xsd
 Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler(); //会读classpath 下的quartz.properties
-scheduler.start();  //quartz.properties中配置去读 quartz_data.xml
+scheduler.start(); 
 scheduler.shutdown(); 
 
 org.quartz.impl.jdbcjobstore.JobStoreCMT containerManageTransaction;
 org.quartz.impl.jdbcjobstore.oracle.OracleDelegate oracle;
 
 
-//--- quartz.properties 文件(放在类路径下) 
+//--- quartz.properties 文件(放在classpath路径下) 
 #如使用了Spring不会默认读 classpath下的quartz.properties , 要配置quartzProperties属性
-#线程数配置 
-org.quartz.threadPool.threadCount=3
 
 org/quartz/quartz.properties 中的值是是以:分隔 ,也可以的
 org.quartz.threadPool.threadCount: 10
@@ -5752,8 +6306,53 @@ org.quartz.threadPool.threadCount: 10
 动态配置cronExpression ,类	extends CronTriggerBean
 	setCronExpression(cronExpression)
 
-Clustering 配置 org.quartz.jobStore.isClustered: true
-	
+--- quartz.properties JDBC存储 和 Clustering 配置 
+
+#============================================================================
+# Configure Main Scheduler Properties  
+#============================================================================
+
+org.quartz.scheduler.instanceName = MyClusteredScheduler
+org.quartz.scheduler.instanceId: AUTO
+
+org.quartz.scheduler.skipUpdateCheck: true
+
+#============================================================================
+# Configure ThreadPool  
+#============================================================================
+
+org.quartz.threadPool.class: org.quartz.simpl.SimpleThreadPool
+org.quartz.threadPool.threadCount = 25
+org.quartz.threadPool.threadPriority = 5
+
+#============================================================================
+# Configure JobStore  
+#============================================================================
+
+org.quartz.jobStore.misfireThreshold: 60000
+org.quartz.jobStore.class: org.quartz.impl.jdbcjobstore.JobStoreTX
+org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+
+
+org.quartz.jobStore.useProperties: false
+org.quartz.jobStore.dataSource: myDS
+org.quartz.jobStore.tablePrefix: QRTZ_ 
+
+org.quartz.jobStore.isClustered = true
+org.quartz.jobStore.clusterCheckinInterval = 20000
+#============================================================================
+# Configure Datasources  
+#============================================================================
+
+org.quartz.dataSource.myDS.driver: com.mysql.cj.jdbc.Driver
+org.quartz.dataSource.myDS.URL: jdbc:mysql://localhost:3306/mydb
+org.quartz.dataSource.myDS.user: user1
+org.quartz.dataSource.myDS.password: user1 
+org.quartz.dataSource.myDS.maxConnections: 5
+org.quartz.dataSource.myDS.validationQuery=select 1
+
+
+
 ---------------------------------Netty 4
 Netty 4 是以io.netty开头的包
 Netty 3 是以org.jboss.netty开头的包
@@ -6692,7 +7291,14 @@ public class DemoServiceComponent implements DemoService {
 dubbo.application.name=dubbo-demo-annotation-consumer
 dubbo.registry.address=zookeeper://127.0.0.1:2181
 
-
+--- Dubbo容错
+Failover Cluster 模式  失败自动切换，当出现失败，重试其它服务器。(缺省)
+	通常用于读操作,通过retries=”2”来设置重试次数(不含第一次) 
+Failfast Cluster 快速失败，只发起一次调用，失败立即报错。通常用于非幂等性的写操作，比如新增记录。
+Failsafe Cluster 失败安全，出现异常时，直接忽略。 通常用于写入审计日志等操作。
+Failback Cluster 失败自动恢复，后台记录失败请求，定时重发。
+Forking Cluster 并行调用多个服务器，只要一个成功即返回。 可通过forks=”2”来设置最大并行数。
+Broadcast Cluster 广播调用所有提供者，逐个调用，任意一台报错则报错
 
 ------------alibaba dubbo  2.6.0   
 

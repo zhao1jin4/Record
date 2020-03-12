@@ -2,10 +2,31 @@
 ============================Netbeans-8.2 最后一个oracle版本===============================
 apache下11.2版本 支持JDK11
 netbeans-11.2-bin\netbeans\etc\netbeans.conf 中要修改 netbeans_jdkhome 的配置才可启动
+
 支持Gradle
 
-%HOMEPATH%\AppData\Roaming\NetBeans
-%HOMEPATH%\AppData\Local\NetBeans\Cache  里面很大
+默认位置
+%HOMEPATH%\AppData\Roaming\NetBeans 存用户的配置
+%HOMEPATH%\AppData\Local\NetBeans\Cache  里面内容可以经常删除
+
+Mac 是在 
+~/Library/Application Support/NetBeans
+~/Library/Caches/NetBeans
+
+Linu 是在
+~/.netbeans
+~/.cache/netbeans
+
+netbeans.conf中提示 可以设置 (应该只在linux下有效,windows环境变量无效)
+	${DEFAULT_USERDIR_ROOT} 修改用户配置
+	${DEFAULT_CACHEDIR_ROOT} 修改缓存目录
+	${HOME} 代替用户主user.dir目录
+
+	netbeans_default_userdir  配置用户目录
+	netbeans_default_cachedir 配置缓存目录
+启动选项 (--userdir option) 代替用户主目录,是空格分隔
+
+-J-Xmx 配置内存大小 ,如 -J-Xmx512m
 
 ------------ 
 在FreeBSD上运行正常，如果gnome 界面语言是english,那么 netbeans也是英语 ,	运行时有一个UnkowHostException   InetAddress.getLocalHost();不影响运行,是由hostname 的值空造成的
@@ -205,16 +226,10 @@ Cordova ,Node.js
  如控制台出错,没办法像eclipse一样点击链接查看源码 ???? 
  
 ============= NetBeans  11 Apache版本支持jdk12
-但没有tomcat插件 
-Tools->plugins->installed标签 -> 选中Java Web and EE->Active 提示依赖于
-					modules.nbjavac (是因在jdk8下启动,如jdk12启动无提示,单独下载nb-javac插件)
-					libs.oracle.jsparser （如jdk12启动无提示）
-					会在线下载 http://plugins.netbeans.org/nbpluginportal/files/nbms/1552395301_org-netbeans-libs-oracle-jsparser.nbm
-					
-					
-还有JavaSE,Tools,HTML5,PHP 可选
-
-或者使用maven的jetty-maven-plugin插件
+NetBeans-11.2版本tomcat插件  Tools->plugins->installed标签 -> 选中Java Web and EE->Active 
+		还有JavaSE,Tools,HTML5,PHP 可选
+		或者使用maven的jetty-maven-plugin插件
+NetBeans-11.2版本的Maven插件 默认不可用，要依赖于 nb-javac 插件，可离线安装 	
 
 window->services->有docker
 
@@ -419,9 +434,12 @@ netbeans解压目录下会产生  nbscala\modules 目录 (离线安装)
 除支持流行的Oracle,SQLServer,DB2,MySQL 还支持SyBase,Maria,PostgreSQL, SQLite,H2
 
 
-DbVisualizer 10.0.16 支持MySQL-8  , 要求 JDK 8 openSUSE-leap-15下默认的OpenJDK10是可行的
+DbVisualizer 10.0.16 支持MySQL-8 , 要求 JDK 8-11 openSUSE-leap-15下默认的OpenJDK10是可行的
 Mac DbVisualizer 右击->show package Content->Contents->Resources->app->lib
 
+tool properties...->general 有提示
+help->about->command line 有提示 命令行加参数 -prefsdir 参数修改目录 ,默认%USERPROFILE%/.dbvs目录
+	即在快捷方式为 dbvis-multi.exe -prefsdir D:\Program\dbvis_data 修改目录还是保留license的
 
 Oracle是自动提交的，不同PL/SQL Developer
 
@@ -659,6 +677,13 @@ view->Object Palette 可以看所有的表
 	显示输入提示,如表名,字段名
 
 -------------MySQL Workbench 6.3 CE 
+默认存配置位置 
+%USERPROFILE%\Roaming\MySQL\Workbench 
+
+mac是在 ~/Library/Application Support/Workbench
+没有找到哪里可以修改
+
+
 ----???问题
 	安装时选customer->要过滤downloaded
  没有事务提示
@@ -692,6 +717,7 @@ Server -> Data Export->只能选整个库。
 
 -------------MyFront 5.3 免费
 -------------SQLyog Monyog  
+
 -------------dbForge Studio for MySQL 8 Enterprise Edition
 -- SET GLOBAL log_bin_trust_function_creators = 1;  -- root run
 
@@ -728,9 +754,12 @@ select @cnt
 	dbForge 8 在 MySQL 8 测试失败？	
 
 数据表格的上方工具栏有一个 switch to card view 
-=============Mongodb工具    Toad Extension for Eclipse  好用,带语法提示的
+ 
+=============Mongodb工具 Robo 3T 免费   Robo Studio 3T收费
+ zip(linux,mac)  版本1.3.1(Authentication选SHA-256) 支持MongoDB 4.0
 
-=============Mongodb工具  Robo Studio 3T for Mongodb 收费的 ,有 Robo 3T 免费
+默认配置连接目录 %USERPROFILE%\.3T\robo-3t, 没有找到怎么修改默认的 ???
+
 	同样的用户zh 能 看到reporting库的集合
 	
 	日期显示默认是 GMT时间,应该+8h才是正确的
@@ -739,8 +768,50 @@ select @cnt
 	显示行号
 	Options->Show line numbers by default
 	
-=============Mongodb工具  NoSQL Manager for MongoDB-4.9.8
+-------------Mongodb工具  NoSQL Manager for MongoDB-4.9.8
 	同样的用户zh 不能 看到reporting库的集合 ??
+	
+
+-------------DBeaverEE 可 mongoDB , Redis
+有eclipse插件和各系统的独立包,见eclipse中
+windows版本要打开防火墙,Inbound rule
+
+https://dbeaver.com/docs/wiki/Workspace-Location/
+配置连接所在目录  %USERPROFILE%\AppData\Roaming\DBeaverData
+ help->installation information->Configuration有配置 
+	APPDATA=%USERPROFILE%\AppData\Roaming
+	LOCALAPPDATA=%USERPROFILE%\AppData\Local
+如要修改命令行增加 -data <path>
+如快捷方式为  dbeaver.exe -data D:\Program\dbeaver-ee-7_data 不影响license
+
+
+------------Mongo Compass 
+官方的(收费的,有windows,mac,ubuntu,redhat) 
+	连接处点Fill in connection fields individually链接
+	方便建立collection,index,查看,删除数据,Filter中写JSON,属性名可以是单引号
+	但没有写命令语句的地方
+	insert document写JSON属性名必须是双引号
+
+	https://docs.mongodb.com/compass/current/upgrade/index.html
+	默认配置路径  %USERPROFILE%\AppData\Roaming\MongoDB Compass (即 %APPDATA%/MongoDB Compass) 
+	没有修改方法	
+	
+-------------Mongodb工具  RockMongo 
+https://github.com/iwind/rockmongo   最后更新是2015年
+使用PHP5开发的,不能放在php7的项目中不认mongo driver
+
+http://pecl.php.net/package/mongo  有windows和linux版本
+下载PHP5.6版本的(不支持PHP7) php_mongo-1.6.16-5.6-ts-vc11-x64.zip
+  
+解压 php_mongo.dll 放在php安装解压的ext目录中 
+php.ini中增加  extension=php_mongo.dll
+
+https://windows.php.net/downloads/releases/archives/
+PHP5.6 最新版本为 php-5.6.39-Win32-VC11-x64.zip
+
+可以进入页面,没有选择SHA-256,不支持Mongo4 ??? 除非修改源码，也应该可以支持PHP7 
+extension=mongodb
+
 	
 ------------Tortoise SVN工具
 
@@ -915,7 +986,7 @@ preferences->protocol->SSL-> (Pre)-Master-Secret log filename选文件/tmp/key.l
 ------------Xmanager
 Xmanager 5版本中, 没有xshell  可选择xterm的终端类型
 Xbrowser 5 中 file-> new XDMCP session...->
-
+XShell 6 启动会提示 默认存配置路径 为%USERPROFILE%\Document\NetSarang Computer\6
 XShell 或者 putty都 username中可以这样写  <firstUser>@<SecondUser>@<secondIP>  表示连接每一台后再跑到第二台上 (可能是服务器上做的配置,手工测试用户名如无@直接断开)
 XShell  工具-> 发送键到所有会话,可以实现同时打开多个窗口,在一个窗口写的任务命令都可能同步到其它窗口中
 XShell 工具-> 如已经连接上一个服务器 , 右击标签-> duplicate SSH  ,自动建立新窗口并连接
@@ -1011,6 +1082,22 @@ Model->Add Diagram->Sequence Diagram
 
 linux zip包和rpm code-1.39.2-1571154220.el7.x86_64.rpm 在 openSUSE下可安装 
 linux下都是标题菜单都不是黑色,只有1.30.1才是黑色
+		
+.exe方式 默认安装目录 %HOMEPATH%\AppData\Local\Programs\Microsoft VS Code
+
+默认插件安装目录 %USERPROFILE%\.vscode\extensions
+可以命令行加参数来修改  --extensions-dir [path]  
+快捷方式修改 Code.exe --extensions-dir D:\Program\vscode_data\extensions
+
+VSCode-win32-x64-1.39.2\bin\code --help
+	  --list-extensions
+	   --extensions-dir
+bin\code --list-extensions 还是使用默认的目录 
+bin\code --list-extensions  --extensions-dir D:\Program\vscode_data\extensions
+
+
+
+File->Open Folder...
 
 自带Git,HTML,PHP
 
@@ -1021,38 +1108,146 @@ File->preferences->windows 标签->Restore Windows 选择none
 
 左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
 		搜索parameter有Trigger parameter Hints 默认快捷键是ctrl+shift+space
-		
-File->preferences-> extensions  
-可以在线安装 各种语言的 如 JavaScript(React),Python,Go,C/C++(MinGW C++),Java(Maven),SpringBoot,Kubernetes,Scala,Kotlin
+
+在写键的时候有下拉提示,左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
+
+右击文件-> format document(alt+shift+f) 可json
+
+File->preferences-> extensions  可以在线安装 各种语言的 如 C/C++(MinGW C++),Scala,Kotlin
  
+----- Node JS
+打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
 
-默认安装目录
-%HOMEPATH%\AppData\Local\Programs\Microsoft VS Code
-
-File->Open Folder...
-
+---- 扩展(React)
 %HOMEPATH%\AppData\Local\Microsoft\TypeScript\3.1\node_modules\@types\react-dom
 										   项目目录\node_modules\@types\react
 https://code.visualstudio.com/docs/nodejs/reactjs-tutorial
 
-extension 
-	Debugger for Chrome  4.11.3
-	
+----Vetur 扩展(Vue)
 vscode 打开 .vue文件 提示推荐安装 Vetur 扩展，才可高亮显示
 VS code 插件Vetur 安装
 Go->Go to File 输入 ext install octref.vetur 安装 也可通过界面安装
 
+-----扩展 Debugger for Chrome  
+	安装后,Debug视图->上方的设置按钮会多一个Chrome的选择,生成launch.json
+	看安装时的帮助可以配置url(也只可是本地服务)或者file,指定启动时的html首页(引用js),启动debug会自动(request为launch)打开chrome,如自己打开的Chrome可能不行
+	就可以在code中打断点，而不在浏览器中打断点了
+	{
+		"type": "chrome",
+		"request": "launch",
+		"name": "Launch Chrome against localhost", 
+		//"file":"${workspaceFolder}/index.html",
+		"url": "http://localhost",//url和webRoot是配置对的
+		"webRoot": "${workspaceFolder}"
+		//runtimeExecutable 配置chrome位置
+	} 
+	
+	launch.json 在[后按 alt+/ (在Keyboard shoutcut中为Trigger Suggest)出下拉提示 {}Chrome:Attach选中后自动出默认配置
+	##request为attach方式使用，在chrome启动的快捷方式后加参数  --remote-debugging-port=9222
+
+-----扩展 Debugger for Firefox 
+像Debugger for Chrome  
+
+
+-----扩展 ”PHP Debug” 是使用Xdebug
+打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言, 选PHP ->会自动生成launch.json
+	->下拉为Listen for XDebug,再点绿色启动按钮开启调试
+	浏览器中请求页， 有断点会停
+	服务器的根目录指向当前打开目录才可
+	lanunch.json中可以修改端口
+	(linux下单个文件不会停???,web的会停)
+--php.ini
+[Xdebug]
+zend_extension="D:/Program/php-7.4.3-Win32-vc15-x64/ext/php_xdebug-2.9.2-7.4-vc15-x86_64.dll"
+
+xdebug.remote_enable = on
+xdebug.remote_autostart = 1
+;host值是本机IP
+xdebug.remote_host = 192.168.1.102
+;对应phpStorm配置中xdebug的端口
+xdebug.remote_port = 9000
+----- Go  扩展
+	安装后,Debug视图->上方的设置按钮生成launch.json
+	调试启动按钮，提示 "dlv" 找不到.使用 "go get -v github.com/go-delve/delve/cmd/dlv"安装,但长时间下载不了???
+
+    https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
+	go install ...
+-----  Python  扩展
+提示安装 pylint,也可不安装
+打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言, 选Python file ->会自动生成launch.json
+下拉显示Python:Current File ,打断点，启动按钮，即可调试
+
+
+----Kubernetes 扩展
 默认支持yaml语法高亮,按tab缩进的是两个空格
 
-extension Kubernetes (1.30.1版本测试无效，要新的1.39.2)是Microsoft发布的 说是支持Develop, deploy and debug ,支持Minikube 环境,需要kubectl 命令
+(1.30.1版本测试无效，要新的1.39.2)是Microsoft发布的 说是支持Develop, deploy and debug ,支持Minikube 环境,需要kubectl 命令
 	可以鼠标滑到有效的键上有文档提示 
-	在写键的时候有下拉提示,左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
-	但如果键写错不会提示
+	但如果键写错不会提示 
+
+-----扩展 Java Extension Pack 
+包括如下扩展
+Language Support for Java by Red Hat
+Debugger for Java   要有JAVA_HOME环境变量,java在PATH中
+Maven for Java 		要mvn命令在PATH中
+Java Dependency Viewer
+Visual Studio IntelliCode
+
+右击工作区 -> Create Maven Project 
+(也可 ctrl+shift+p,空项目时有提示，输入命令maven: create Maven project，就是执行mvn命令)
+
+ctrl+. 即 quick fix 可导入类，重命名文件
+写代码像eclipse一样智能，ctrl+点类名会跳到源码，鼠标滑类上有说明 ，写类会提示所在包，自动加import
+右击文件->Source Action...->Override/Implement Method 和 Generate Getter and Setter
+
+
+Debug视图->上方的设置按钮->选Java ->生成launch.json
+打开有main(springboot项目加devtools)方法的.java文件 ,下拉选择Debug (Launch) - Current File 即可Debug
+
+File-> add folder to workspace...选择maven项目主目录
+
+-----扩展 Spring Initializr Java Support(microsoft)
+ctrl+shift+p,空项目时有提示，输入命令Spring Initializr:create maven project
+也是下载
+
+-----扩展 Sring Boot Tools(pivotal)
+写application.properties或application.yml会有提示
+但properties文件不能对中文做编码???
+
+-----自带Git功能 
+ctrl+shift+p,空项目时有提示，输入命令git:clone但会提示未尾有错误，不如TortoiseGit好用
+
+-----扩展XML
+根据DTD,Schema 可写时有提示
+
+-----扩展 Freemarker
+
+
+-----扩展 Thymeleaf
 
 
 
+-----扩展 Tomcat for Java (作者，无名气)作用不大
+File->preferences->settings->extensions->tomcat configuration...->配置tomcat workspace指向空目录
+在tomcat server视图中点+ ->选择tomcat所在目录，会复制到上面的workspace目录，放配置和war等
 
+只可右击.war包，才可Debug
 
+pom.xml中修改classes文件的输出目录，对vscode实时修改文件的编译没有效果???
+右击建立tomcat项->custom JVM options 加 "-cp E:\code_workspace\java_project\mvn_web\myapp\target\classes"没用,maven也依赖很多.jar包
+
+maven插件Jetty不能识别@WebServlet
+
+-----扩展Jetty for Java(作者，无名气)
+类似  Tomcat for Java
+
+-----扩展Gadle (作者，无名气)
+
+-----扩展Kotlin (作者，无名气)
+
+-----扩展Scala Syntax (official)
+
+-----扩展 Drools (作者，无名气)
 
 
 

@@ -1,4 +1,6 @@
 ﻿https://developer.apple.com/library/ios/navigation/
+Cocoapods 是iOS仓库管理 
+Cocoapods 私服，很多公司使用 Git 仓库进行搭建,Cocoapods 的构建产出物通常较大，上传到 Git 仓库
 
 //===============iOS ---Cocoa Touch
 Simulator 是模拟器,不可以存数据,从AppStore下载的软件不能安装到Simulator上

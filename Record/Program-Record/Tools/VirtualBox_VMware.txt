@@ -171,7 +171,7 @@ macOS Unlocker V3.0 for VMware Workstation  15 on Windows and Linux
 要用 Python 2.7 (windows下可用 PyInstaller)安装后PATH中可找python
 
 如有老版本必须先卸载
-右击win-install.cmd-> 以管理员运行,不能有错误(会自动下载VMware Tools)。
+右击win-install.cmd-> 以管理员运行,不能有错误(会自动下载VMware Tools,现在下载到tools目录下的文件错误)。
 root运行./lnx-install.sh
 
 选择中已经有Mac OS 10.14 , 这里选择Mac OS 10.13 
@@ -189,7 +189,7 @@ win 10 没做这两步
 	1. Change the VM to be HW 10  ????
 	
 启动可进入欢迎页,可以安装成功，再重启有点慢(是因没有加smc.version = "0" ?),可以成功进入,
-	看版本就是10.13(最高可以安装 Xcode-9.2 )，虚拟机两边有黑条，如点工作栏的自动拉抻就变形了
+	看版本就是10.13(最高可以安装 Xcode-9.2,xip大小5.10G )，虚拟机两边有黑条，如点工作栏的自动拉抻就变形了
 打开Finder指出光盘，安装 VMware Tools,重启后Mac 报VMware被System Extension Blocked,
 		打开设置 Security & Privacy->General->下方点击Allow ，虚拟机两边还是有黑条,但如果全屏就正常了。
 		以前版本是可以的
@@ -202,10 +202,51 @@ win 10 没做这两步
 必须使用intel的cpu才能安装
 (可直接启动)菜单"虚拟机"->电源->启动时进入BOIS->在BOIS菜单中选择Boot Manager->选择 EFI VMware Virtual SCSI CDROM Driver(1.0)->回车后再Continue启动
 
-----------------Mac OS  Mojave 10.14.1  
-  Xcode 10 requires a Mac running macOS 10.13.6 or later.
- 
+
+---------VMware Workstation Pro 15.0 安装 Mac OS Catalina  10.15.1  测试成功
+macOS Unlocker V3.0 for VMware Workstation  15 on Windows and Linux 选中Mac OS 10.14(最大版本)
+要用 Python 2.7 (windows下可用 PyInstaller)安装后PATH中可找python
+
+如有老版本必须先卸载
+右击win-install.cmd-> 以管理员运行,不能有错误(会自动下载VMware Tools,现在下载到tools目录下的文件错误)。
+linux下 root运行 ./lnx-install.sh
+
+
+CPU设置为1个处理器2核
+系统自身使用1.5G内存
+网络不连接
+磁盘类型修改为选择SCSI  ,将虚拟磁盘存储为单个文件(50G,系统自身使用约27G),如SSD可多个文件
+完成后 设置虚拟机 光驱->高级->修改为SCSI 其它空闲的 ,指定镜像 Catalina10.15.1.cdr
+
+https://blog.sxbai.com/174.html
+设置完成后
+右击建立属性->options标签再修改为Microsoft Windows,版本为windows 10 x64
+#编辑.vmx文件在 smc.present = "TRUE" 后新加入 smc.version = "0"#可以不做
+#这就有进度条可进入欢迎页，格式化硬盘，有界面的进度条完成，约12分钟，重启黑屏进度条完成，约20分钟
+一旦安装完成，重启的时候，立即关闭虚拟机 再windows 10改回mac-10.14,禁用光驱
+安装后占用27G,关闭自动更新,启动要1分20秒,全屏后两侧有黑区安装,VMware tools,要在Security&Privacy中解锁并且Allow,重启Mac生效
+
+https://developer.apple.com/download/more/ 可以下载离线xip压缩包
+https://developer.apple.com/download/more/?=xcode
+https://developer.apple.com/documentation/xcode_release_notes 
+
+https://download.developer.apple.com/Developer_Tools/Xcode_11.2/Xcode_11.2.xip   7.3G 解压11G
+Xcode_11.2解压后，图标没有显示不能运行，这个版本是可以的 ,(release_notes中说有SDK版本是macOS Catalina 10.15)
+(如首次启动Xcode.app时间很长没有界面？？非常可能是文件在另一个硬盘上,导致所在硬盘空间大涨,也导致系统硬盘空间增长不够用)
+
+但以前在运行在High Sierra 的Xcode-9.2.xip(5.10G)在Catalina上不能解压??? 说不是来自apple??? Mac真是拉圾！！！
+
+https://download.developer.apple.com/Developer_Tools/Xcode_10.2/Xcode_10.2.xip   5.6G 验证2分钟 解压22分钟，大小为7.2G
+但首次运行很快，不用安装，有同意界面,可以运行iPhoneXR模块器
+(如首次启动Xcode.app时间很长没有界面？？非常可能是文件在另一个硬盘上,导致所在硬盘空间大涨,也导致系统硬盘空间增长不够用)
 	
+---unlocker
+https://github.com/BDisp/unlocker/releases/tag/3.0.3  
+unlocker-3.0.3 会下载(很慢)
+http://softwareupdate.vmware.com/cds/vmw-desktop/fusion/11.5.1/15018442/core/com.vmware.fusion.zip.tar
+到解压目录下的tools目录中，下好了再一起打包备份，下次不用下载了
+
+
 ---linux下安装 VMware Workstation Pro 15
 
 VMWare Workstation Pro 15 默认Shared VM路径 /var/lib/vmware/Shared VMs
@@ -215,40 +256,7 @@ http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/
         rpm -ivh kernel-default-devel-4.12.14-lp150.11.4.x86_64.rpm  libelf-devel-0.168-lp150.2.48.x86_64.rpm  zlib-devel-1.2.11-lp150.1.49.x86_64.rpm 
 OK 提示要编译内核
  
+ 
+-----VMWare Horizon client
 
------VMWare Server 2.0
-
-只有VMWare Server 可以做cluster用的磁盘,Workstation不可
-
-不能和VMWare Workstation同存,不能打开VMWare Workstation生成的虚拟系统
-
-安时输入的SN不定下有效,只有建立虚拟系统,并启动时才知道SN是否有效
-记住安装时指定的Virtual Machines目录,默认http端口8222,默认https端口8333
-http://localhost:8222/ui/   输入操作系统的用户名(带有administrator组中),密码
-https://localhost:8333/ui/
-
-Firefox中左侧的菜单和console不能显示,用IE8是可以正常显示,但也要安装自带的IE插件VMWare Remote Console Plug-in,启动后在IE中单击会在本地打开一个应用
-
-Host Only方式的网卡与本机通信,右击本地连接->属性->共享->打开共享选择VMNet1,就可通信 
-
-
-修改VMWare Server的*.vmx文件加入
-disk.locking = "FALSE"
-diskLib.dataCacheMaxSize = "0"
-scsi1.sharedBus = "virtual"
-#
-scsi1:0.deviceType = "disk"
-scsi1:1.deviceType = "disk"
-
-
-VM->install VM tools,VMware-tools.rpm在安装目录下,加入光驱中
-如果tar包解压运行vmware-install.pl来安装,安装后运行 vmware-toolbox-cmd timesync enable (status)
-##如是rpm安装后运行vmware-config-tools.pl,安装后 vmware-toolbox 工具 , 选中Synchronize Time between virtural machine and your host 
-就是在.vmx配置中加 tools.syncTime = "TRUE"	
-
-
-选择 Time synchronization between the virtual machine and the host operating system。
-“vmware-toolbox”以显示 VMware Tools Properties 窗口。在 Options 选项卡下，选择 发现 tools.syncTime = "TRUE" 
-
-(Redhat)安装VMware Tools 后, 可以在windows中拖一个文件到VM中的Redhat系统的桌面或文件浏览器(Nautilus),可以实现文件传入功能
-
+连接后 options->share folders 可配置共享目录和共享U盘

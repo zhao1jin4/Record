@@ -1,19 +1,28 @@
 ﻿
 
 C++语言编写
-工具用  Toad Extension for Eclipse 带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
-Toad for Eclipse-2.4.4 可以支持mongo-3.2版本,3.4版本打开js文件连接不成功,
-Robo  Studio 3T  2018.2.5 (收费的)
-Robo 3T  1.2 免费的zip(linux,mac)
 
-NoSQL Manager for MongoDB-4.9.9.2 支持MongoDB 4.0  (只windows,下freeware安装 )
+工具
+官方的Mongo Compass (收费的,有windows,mac,ubuntu,redhat) 
+	连接处点Fill in connection fields individually链接
+	方便建立collection,index,查看,删除数据,Filter中写JSON,属性名可以是单引号
+	但没有写命令语句的地方
+	insert document写JSON属性名必须是双引号
+
+Robo  Studio 3T  2018.2.5 (收费的)
+Robo 3T  1.3.1 免费的zip(linux,mac)  支持MongoDB 4.0
+NoSQL Manager for MongoDB-4.9.9.2 支持MongoDB 4.0  (只windows,下载freeware版本安装 )
+
+#Toad Extension for Eclipse 带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
+#Toad for Eclipse-2.4.4 可以支持mongo-3.2版本,3.4版本打开js文件连接不成功,
+
 MongoDB 页面管理工具: Rockmongo
-	
+
 TreeSoft 国产的 http://www.treesoft.cn/
 	TreeDMS 页面管理工具 即可连接  MySQL 又可连接 MongoDB,  v2.2.7 连接mongo,如有数据某个字段是集合类型没办法显示 
 	TreeNMS for Redis 
 	
-官方的Mongo Compass
+
 
 https://docs.mongodb.com/
 https://docs.mongodb.com/manual/   最下方可下载离线版本 , The manual is also available as HTML tar.gz and EPUB
@@ -33,15 +42,25 @@ Win10 家庭版/win7旗靓版  安装 MongoDB 4.0.1 安取消选择install mongo
 安装后建立的服务是D:\Program\MongoDB\Server\4.0\bin\mongod.exe --config "D:\Program\MongoDB\Server\4.0\bin\mongod.cfg" --service
 
 
------ rockmongo  
+----- rockmongo
+https://github.com/iwind/rockmongo   最后更新是2015年
+使用PHP5开发的,不能放在php7的项目中不认mongo driver
 
-进入首页提示下载php_mongo.dll (http://pecl.php.net/package/mongo) 放在php安装解压的ext目录中 
-注意支持的PHP版本,如php_mongo-1.6.16-5.6-ts-vc11-x64 支持 PHP5.6  
+http://pecl.php.net/package/mongo  有windows和linux版本
+下载PHP5.6版本的(不支持PHP7) php_mongo-1.6.16-5.6-ts-vc11-x64.zip
+  
+解压 php_mongo.dll 放在php安装解压的ext目录中 
 php.ini中增加  extension=php_mongo.dll
-可以进入页面, 但好像不能对Mongo4 上面用??? 
- 
-	
------------4.0 配置文件 mongod.cfg YAML 格式配置变化,缩进不支持用tab,要用空格
+
+https://windows.php.net/downloads/releases/archives/
+PHP5.6 最新版本为 php-5.6.39-Win32-VC11-x64.zip
+
+可以进入页面,没有选择SHA-256,不支持Mongo4 ??? 除非修改源码，也应该可以支持PHP7 
+extension=mongodb
+
+
+
+-----------4.0 配置文件 mongod.cfg 可是YAML 格式配置变化,缩进不支持用tab,要用空格，也支持老的key=value式
 storage:
   dbPath: D:\Program\MongoDB\Server\4.0\data
   journal:
@@ -198,7 +217,7 @@ db.createUser(
   }
 )
 
-----建立 用户
+----建立 用户,建立时 配置文件关闭--auth
 use reporting  
 db.createUser(
     {

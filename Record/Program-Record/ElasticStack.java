@@ -83,7 +83,10 @@ bin/elasticsearch-plugin remove analysis-smartcn
 
 主节点可failvoer
 
-----vi /etc/sysctl.conf
+----vi config/elasticsearch.yml
+#network.host: 0.0.0.0
+#http.port: 9200
+
 放开
 #cluster.name: my-application
 #node.name: node-1
@@ -102,7 +105,7 @@ discovery.zen.minimum_master_nodes: 2   #要是unicast.hosts的个数/2+1，否�
 #增加为elasticsearch-head 跨域
 http.cors.enabled: true
 http.cors.allow-origin: "*"
-
+----
 
 curl -X GET "localhost:9200/_cluster/health?pretty" 
 
@@ -270,7 +273,11 @@ curl -X GET "localhost:9200/bank/_search?pretty" -H 'Content-Type: application/j
 }
 '
 
-组合 aggs terms 其中group_by_state是集合返回名字，按state字段分组显示文档数
+组合 aggs terms 其中group_by_state是集合返回名字，按state字段分组显示文档数, .keyword 是固定写法
+
+"terms" 下增加 "execution_hint": "map" 默认值为 global_ordinals
+https://www.elastic.co/guide/en/elasticsearch/reference/7.5/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-execution-hint
+
 curl -X GET "localhost:9200/bank/_search?pretty" -H 'Content-Type: application/json' -d'
 {
   "size": 0,

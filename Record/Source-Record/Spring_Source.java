@@ -193,5 +193,53 @@ AnnotatedBeanDefinitionReader 的构造器中有 registerAnnotationConfigProcess
  
 
 ------ spring boot 
+@SpringBootApplication 里有 
+		@SpringBootConfiguration(里有@Configuration)
+	 	@ComponentScan       同 <context:component-scan>  如果不设置的话默认扫描@ComponentScan注解所在类的同级类和同级目录下的所有类
+		@EnableAutoConfiguration 
+			有@Import(AutoConfigurationImportSelector.class)
+			有@AutoConfigurationPackage
+					有@Import(AutoConfigurationPackages.Registrar.class)
 
+AutoConfigurationImportSelector.class
+	selectImports(xx)中有
+		getAutoConfigurationEntry(xx)中有
+			getCandidateConfigurations(xxx);						//里就是找META-INF/spring.factories/文件夹中 为EnableAutoConfiguration  		及实现类(spring-boot-autoconfigure-xx.jar)
+			//	里有很多实现类,加入依赖.jar包实现类存在就自动配置
+			
+			removeDuplicates()
+			//删重复的			
+			exclusions=getExclusions()//找排除的
+			removeAll(exclusions)//删排除的			
+			filter(xxx)													//里就是找META-INF/spring.factories/文件夹中 为AutoConfigurationImportFilter	及实现类(spring-boot-autoconfigure-xx.jar)
+			fireAutoConfigurationImportEvents()//还可触发事件 //里就是找META-INF/spring.factories/文件夹中 为AutoConfigurationImportListener	及实现类(spring-boot-autoconfigure-xx.jar)
+
+
+
+
+---
+SpringApplication.run(DemoApplication.class, args);里面是调用 new SpringApplication(primarySources).run(args);
+ 	//构函数中
+ 	this.webApplicationType = WebApplicationType.deduceFromClasspath(); //决定是SpringMVC,还是WebFlux，或不是web环境
+	 getSpringFactoriesInstances(ApplicationContextInitializer.class));// 找/META-INFO/factries文件中配置ApplicationContextInitializer，ApplicationListener实现类(spring-boot-autoconfigure-xx.jar)
+	//.run方法中
+	SpringApplicationRunListeners listeners = getRunListeners(args); //找/META-INFO/factries文件中配置SpringApplicationRunListener的实现类
+	listeners.starting();
+		
+	prepareEnvironment(listeners, applicationArguments);
+	
+	context = createApplicationContext();//根据前面的webApplicationType的值做 实例化beanFactory
+		//三选一
+		 org.springframework.context.annotation.AnnotationConfigApplicationContext  extends GenericApplicationContext
+		 org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext 间接 extends GenericApplicationContext
+		 org.springframework.boot.web.reactive.context.AnnotationConfigReactiveWebServerApplicationContext extends AnnotationConfigApplicationContext
+
+
+
+
+
+
+
+
+ 
 ------ spring cloud

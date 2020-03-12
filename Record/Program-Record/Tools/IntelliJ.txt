@@ -2,6 +2,23 @@
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
 IDEA 2018.2.6 版本可以支持 JDK11
 
+--idea.properties 有提示 idea.home.path ,windows路径使用/ 分隔,事先建立好D:/Program/idea_data即可
+#idea.config.path=${user.home}/.IntelliJIdea/config
+idea.config.path=D:/Program/idea_data/config
+
+#这个目录有一些索引,下次启动会快
+#idea.system.path=${user.home}/.IntelliJIdea/system
+idea.system.path=D:/Program/idea_data/system
+
+#idea.plugins.path=${idea.config.path}/plugins
+idea.plugins.path=D:/Program/idea_data/plugins
+
+会丢失破解的激活码
+
+help->edit custom setting...->
+提示%USERPROFILE%\.IntelliJIdea2018.2\config\idea.properties文件不存在创建->Create->
+就可以写覆盖安装目录中的idea.properties
+
 
 ---JDK
 File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
@@ -50,7 +67,7 @@ File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
 	当有冲突时 	右击根目录->Git->Resolve Confilcts...->
 	
 	File->Settings->Version Control ->可以配置Git 的 root目录 (VCS Root如没有配置，右击文件就没有Git菜单，启动时会提示的)
-	
+	.git/config 文件中有保存git项目地址
 	 
 ---
 像word 同时只能打开一个项目
@@ -142,6 +159,9 @@ File->Settings->Editor->File Encodings  默认UTF-8  , 但建立的文件不是U
 						选中Transparent native-to-ascii conversoin  就可以把properties文件内容转换中文显示
 File->Settings->Editor->Code Style  设置 line separator 换行符为windows \r\n
 
+View->Active Editor->use soft wrap 可以自动换行，只对当前文件有效
+File > Settings > Editor > General -> use Soft Wraps in editor 对全部文件有效
+
 没有MarketPlace ,插件安装有局限性,第一次启动有选择插件,File->settings->plugins -> 点 install JetBrains plugin...按钮
 intellij 修改主题 
 Settings->Appearance & Behavior->Appearance-> Theme 选择Darcula是黑色
@@ -156,6 +176,9 @@ Settings->Editor->Live Templates ->other 里有psvm 生成main方法
 
 默认最多打开10个文件，超出就会自动关闭前面打开的
 Perferences...  ->  Editor  ->General->  Editor Tabs 调整 Tab Closing Policy 的 Tab Limit 默认是10个 
+
+打开文件的tab可多行显示
+window -> editor tabs -> tabs replacement -> show tabs in single row
  
  光标在调用函数()中，View -> paramter info (ctrl+ p ) 提示方法参数
  
@@ -199,11 +222,23 @@ Preferences->Editor > Code Style > Java > Scheme Default > Imports
 
 Setting->Tools->Externel tools ->增加配置后（如压缩JS) 右击文件就会出现新建的菜单
 
+转换大小写 Edit->toggle case ( ctrl+shift+u)
+
+
+windows 下启动idea提示Cannot lock system folder(可能不是管理员导致), Unable to create Channel from class class  io.netty.channel.socket.oio.OioServerSocketChannel
+管理员运行 netsh winsock reset
+
 ====================IntelliJ IDEA plugin 
 
-IDEA 2018.2.6 也可以建立Android 项目(android SDK只可用JDK8),指定android SDK位置,有新建向导,不能和AndroidStudio同时使用同一个Android SDK
+---自带插件android
+IDEA 2018.2.6 也可以建立Android 项目
+(android SDK只可用JDK8),指定android SDK位置,有新建向导,不能和AndroidStudio同时使用同一个Android SDK
 Gradle配置成 JDK 1.8 Settings->Buld,Execution,Deployment->Build Tools->Gradle在Gradle JVM中选择正确的JDK
-app目录下的build.gradle 中注意 compileSdkVersion/(minSdkVersion/targetSdkVersion)  和  Build Tools revision  和指定android SDK版本
+IDEA 对已经有的Maven仓库会优先使用 Maven setting中配置的目录，再使用Gradle目录
+AndroidStudio
+	app项目下的build.gradle 中注意 compileSdkVersion/(minSdkVersion/targetSdkVersion)  和  Build Tools revision  和指定android SDK版本
+	分析依赖 gradle视图->app项目->Tasks->android->androidDependences 右击->Run  在控制台显示树
+IDEA 的Gradle视图 <项目> -> Task -> help -> dependencies 执行后控制台显示
 
 Tools->Android->AVD Manager 
 Tools->Android->SDK Manager
@@ -213,18 +248,20 @@ Tools->Android->Layout Inspect可以看到手机屏幕
 
 Manifest.xml文件 没有界面
 minSdkVersion 25 (Build Tools 27.0.3,Android 7.1.1) 真机测试OK,模拟器api-28(android9.0)测试O
+---自带插件kotlin
 
 ---IDEA 2018.2.6 插件scala 2018.2.6 
 	建立项目时选择IDEA (选择SBT要下载的) 测试OK
----
-findbug
-jd-gui
+	
+---findbug
 
-JRebel 热部署插件（收费）
+---jd-gui
+
+---JRebel 热部署插件（收费）
 	IDEA 2018.2.6可以安装JRebel-2018.2.2 (idea官方jetbrains可以下载离线版)
 	修改Mybatis的Mapping.xml也可立即生效 
 	 
-lombok 插件 
+---lombok 插件 
 	可自动生成代码，settings->Buile,Execution,Deployment->Compilier->Annotaion process->复选 enable annotaion process
 	就可以在getter/setter类前加 @Data ,会在很多类前加@Log4j,代码中就可以直接使用log.info();
 	pom.xml中加 打包时可以生成getter/setter
@@ -234,11 +271,41 @@ lombok 插件
 		<version>1.16.20</version>
 	</dependency>
 	
-单独安装Vue.js 插件
-http://plugins.jetbrains.com/plugin/9442-vue-js/versions
+---单独安装Vue.js 插件
+https://plugins.jetbrains.com/plugin/9442-vue-js/versions
+版本更新很快
 
-阿里的代码规范查检工具
+
+---react Templates插件
+
+
+---阿里的代码规范查检工具
 settings->plugins-> 搜索 Alibaba Java Code Guidelines (有离线版)
+
+---intellj_plugin_mongo
+0.12.0 版本要求 idea-2016.1+ (没有SHA256不支持mongo-4.0)
+0.12.2 版本要求 idea-2019.1+ 
+
+离线下载mongo4idea.zip包，安装后有mongo explorer 视图
+
+---intellj_idea-2017.3+_plugin_redis
+就一个版本
+离线下载Redis_Plugin-1.0.zip包，安装后有redis explorer 视图
+
+----hbase 插件 无???
+
+
+---------intellij idea  插件 kubernetes 
+在线验证yaml的好工具
+https://onlineyamltools.com/prettify-yaml
+
+idea 默认就支持yaml文件语法高亮，按tab缩进两个空格
+
+intellij idea 2018.2 插件 kubernetes 
+	在写键的时候有下拉提示,也可按ctrl+shift+space(Code->completion->Smart Type)来提示，会把不对键标红做提示
+	没有提示的文档
+
+
 
 ---------DataGrip 2018  可以不要 IntellijIDEA 也有这此功能,也有 WebStorm ,Android 功能
 
@@ -256,19 +323,40 @@ windows 下可 Cygwin/MinGW/Visual Studio
 		gdb-8.0.1-1
 		make-4.2.1-2
 Settings->Build,Execution,Deployment->ToolChains->选择Cygwin 右则点...配置Cyginw home 可自动检测,测试OK
+
+--------PhpStorm 
+	Settings-> Language&Framewok ->PHP-> CLI Interpreter 选择php.exe
+	Settings-> Language&Framewok ->PHP-> Debug 提示安装 XDebug 或 Zend Debugger
+	
+	---实现网页debug(最好服务器主目录指工作区)	
+		--php.ini增加
+		[Xdebug]
+		zend_extension="D:/Program/php-7.4.3-Win32-vc15-x64/ext/php_xdebug-2.9.2-7.4-vc15-x86_64.dll"
+		xdebug.remote_enable = on
+		xdebug.remote_autostart = 1
+		;host值是本机IP
+		xdebug.remote_host = 192.168.1.102
+		;对应phpStorm配置中xdebug的端口
+		xdebug.remote_port = 9000
+		
+	Settings->Language&Framewok ->PHP->debug-> debug port的值对应php.ini中的 xdebug.remote_port的值 -> 点右上角的电话图标Listen for debug
+	
+	如php.ini中打开了xdebug.remote_autostart,可以不安装插件XDebug Helper
+	如未打开，要安装firefox/chrome插件 XDebug Helper, 地址边上有灰色虫图标->Debug变绿，如不使用浏览器如PostMan 要传参数
+	---
+	如本地文件 和 远程服务器
+	Settings->Language&Framewok ->PHP->PHP Server->对已有服务器配置 复选use path mapping,即配置本地路径前缀和服务端路径前缀
+	Tools->Deployment->Configuration...-> + 可配置本地文件 如何传到服务器上,如FTP 或 SFTP
+	Tools->Deployment->Automic upload 本地保存文件后自动上传 
+	
+	Run 菜单 -> Break at first line in PHP scripts
+
 --------Goland
+
 --------Pycharm
+Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
+
 ---------Rider 跨平台的C#开发工具(也有开源的ＭonoDevelop )
-
----------intellij idea  插件 kubernetes 
-在线验证yaml的好工具
-https://onlineyamltools.com/prettify-yaml
-
-idea 默认就支持yaml文件语法高亮，按tab缩进两个空格
-
-intellij idea 2018.2 插件 kubernetes 
-	在写键的时候有下拉提示,也可按ctrl+shift+space(Code->completion->Smart Type)来提示，会把不对键标红做提示
-	没有提示的文档
 
 
 

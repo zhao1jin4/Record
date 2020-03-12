@@ -194,7 +194,7 @@ dd if=bootdisk.img of=/dev/fd0  ##备份引导分区到时软盘 if(input file )
  
 挂载ISO  mount -t  iso9660  -o loop,ro XXX.iso /mnt/some-dir
 
-dd if=/dev/zero of=myfile.img bs=1024 count=102400
+dd if=/dev/zero of=myfile.img bs=1024 count=102400  (bs单位是BYTES) 100M
 losetup -f (find 打印第一个没使用loop设备)
 losetup -f myfile.img 文件关联这个loop 设备
 losetup -d /dev/loop0 (detach)
@@ -232,9 +232,10 @@ bash是默认的,   help命令
 bash -x xx.sh 可以显示命令和参数
 bash -n xx.sh 检查语法错误
 
-kernel 中加single 时入单例用户
-
-
+kernel 中加 single 进入单用户 
+centOS 7.5 在linux16行尾加 single 会不一样,但要root密码 
+	在linux16行尾加 init=/bin/bash ,修改root=xx后面的ro 为rw    ctrl+x启动 测试生效
+ 
 加swap分区  （count 等于想要的块大小。 ）
 	#dd if=/dev/zero of=/home/swap bs=1024 count=1024000    ##bs(bytes),1G
 	seek=10 , 在输出中跳过10个开始写
@@ -383,6 +384,9 @@ zip -e  #终端提示输入密码,来替换对文件夹加密
 
 为用户指定shell 为　/bin/fals 　就不可以登录
 passwd -l (lock) -d (delete password,unlock),-u unlock
+
+getent passwd dell 查用户,就不用查/etc/passwd文件了
+echo 123 |passwd --stdin user1 脚本修改密码
 
 在/etc/init.d/一般需要关闭的服务有：
 	sendmail 
@@ -600,7 +604,7 @@ gpg --verify   签名文件  tar.gz.sign(tar.asc)
 wget http://  来下载
 -q  --quiet  Turn off Wget's output.
 -O file 如file是 - 会输出到标准标出上
-
+-P,  --directory-prefix=PREFIX  保存位置 
 
 curl 来请求
 
@@ -642,20 +646,6 @@ CPU
    st: Time stolen from a virtual machine. Prior to Linux 2.6.11, unknown.
 
 
-
-iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT 
-iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
-
-iptables -A INPUT  -p tcp   --sport 22 -j ACCEPT 
-iptables -A OUTPUT -p tcp   --dport 22 -j ACCEPT
-
-iptables -A INPUT  -p icmp   -j ACCEPT 
-iptables -A OUTPUT -p icmp   -j ACCEPT
-
-iptables -P INPUT DROP  
-iptables -P OUTPUT DROP
-iptables -P FORWARD DROP
- 
  
 在/etc/inputrc文件中把 set bell style none 前面的#去掉===就可以在的按tab 键时不发声音
  
@@ -741,7 +731,7 @@ chmod 4777 属主加s ,,67777属组加要，ls用红色来表示
 
 
 black size 大 ，inode就多
-mkfs .ext3 -b 1024 /dev/ram3s  (1024Bit=1k blocksize )块大小
+mkfs.ext3 -b 1024 /dev/ram3s  (1024Bit=1k blocksize )块大小
 
 mount 信息-h 
 mkfs.ext3 -b 1024 -i 8196 /dev/ram4   一个结点代表8个文件块  来节约inode（有可能用光）
@@ -789,14 +779,14 @@ telnet <IP> <port>  退出 按ctrl+],出现telent>打q回车
 ssh-keygen 会要求输入密码(可不输),有 -t rsa 和 -t dsa
 默认生成 自己用的私钥 ~/.ssh/id_rsa 和传给对方的公钥 ~/.ssh/id_rsa.pub 
 
-ssh-copy-id root@192.168.1.102  
+ssh-copy-id root@192.168.1.102  #把自己的公钥给指定机器authorized_keys
 
-收到别人的公钥后 追加写入自己机器的 ~/.ssh/authorized_keys 文件,别人就可(使用建立密钥时的密码或无)连接自己机器
+收到别人的公钥后 追加写入自己机器的 ~/.ssh/authorized_keys 文件(权限),别人就可(使用建立密钥时的密码或无)连接自己机器
 自己的机器有公钥,对方连我不用密码
 
 接收方 tail -f   /var/log/secure 看日志 如报 Authentication refused: bad ownership or modes for file ~/.ssh/authorized_keys
-chmod 700 ~/.ssh/
-chmod 700 ~/.ssh/authorized_keys
+chmod 700 ~/.ssh/  (必须700)
+chmod 700 ~/.ssh/authorized_keys(可700,600)
 chmod 600 ~/.ssh/authorized_keys
 
 
@@ -872,10 +862,16 @@ sudo -i 可以进入全root模式
 	chmod 4755 /usr/bin/sudo
 	要 /etc/sudoers 文件中有当前登录的用户(在root下加一行 )
 	user1    ALL=(ALL)       ALL
-	或者用命令 visudo修改,可防止两个用户同时修改它,有限的语法检查
+	或者用命令 visudo 进入vi修改,可防止两个用户同时修改它,有限的语法检查
+	可以放开 # %wheel ALL=(ALL) ALL 所有这个组的用户都可sudo
 
-	
-sudo 时要的是root密码???
+openSUSE 在 sudo 时要的是root密码,不是当前登录用户密码
+
+
+无密码使用 sudo命令
+echo "user01 ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/user01
+sudo chmod 0440 /etc/sudoers.d/user01
+
 
 mail 看邮件  /var/spool/mail/root  ,如 cron 任务语法错误
 
@@ -1098,18 +1094,19 @@ wine --version
 wine64　是对64位的
  
 cd ~/.wine/drive_c/Program\ Files\ \(x86\)/
-
 Activites -> configure wine 可以配置D 盘指向哪里
 
 https://wiki.winehq.org/Mono
 http://dl.winehq.org/wine/wine-mono/
-下载的 wine-mono-4.7.5.msi  文件放在 /usr/share/wine/mono   
-Wine 1.5.6　 会自动下载Wine-Mono,会搜索  MSI 在/usr/share/wine/mono   目录
+
+wine-5.2有wine-mono-5.2.rpm 里有 wine-mono-4.9.2.msi(也可单独下载)
+手动安装 wine64 msiexec /i /usr/share/wine/mono/wine-mono-4.9.2.msi
+
 
 
 为运行html
 https://wiki.winehq.org/Gecko
-下载的 wine_gecko-2.47-x86.msi , wine_gecko-2.47-x86_64.msi 文件放在 /usr/share/wine/gecko 
+(有wine-gecko-2.47.rpm)下载的 wine_gecko-2.47-x86.msi , wine_gecko-2.47-x86_64.msi 文件放在 /usr/share/wine/gecko 
 gecko 壁虎
 
 如是 .msi  文件运行
@@ -1120,14 +1117,14 @@ env LC_ALL=zh_CN.UTF-8 wine BaiduNetdisk_6.7.0.8.exe
 printenv
 ------wine 安装过的应用
 
----微信
-Activites -> configure wine 可以配置D 盘指向哪里,所有使用的用户都要运行winecfg 配置才会生效，在使用微信时配置总是会被还原？？？
-wine 安装微信找不到文件所在目录 可能是C盘没权限,重新配置D盘就可以了
-
 ----PlSqlDev
 用wine PlSqlDev.exe 来安装PL／SQL Devolope  (可以成功安装在 ~/.wine/drive_c/Program Files/PLSQL Developer 下)
 			 ~/.local/share/applications/wine/Programs/PLSQL\ Developer/ 下也有文件 (像是windows下的桌面,可以双击运行它)
 进入 安装目录 wine plsqldev.exe 就可以成功的运行了,但是界面上的工具栏上的图标不能显示（右击图标 -> customer...显示 全部不能显示）
+
+---微信
+Activites -> configure wine 可以配置D 盘指向哪里,所有使用的用户都要运行winecfg 配置才会生效，在使用微信时配置总是会被还原？？？
+wine 安装微信找不到文件所在目录 可能是C盘没权限,重新配置D盘就可以了
 
 ---Navicat_Keygen
 chmod u+x  Navicat_Keygen_Patch_v4.3_By_DFoX.exe 
@@ -1150,31 +1147,79 @@ wine PdShell16.exe 　 报Wine Mono is not installed,安装了mono-core-5.10.1-l
 MonoDevelop     跨平台免费Ｃ#开发工具,　Visual Studio for Mac builds on top of MonoDevelop, macOS下VS开源
 Rider (jetbrains intellij)跨平台收费C#开发工具
 
------.NET Core 2.2　　微软官方的
-.NET Framework与Mono将基于.NET Core重新构建
-.NET Framework将成为.NET Core在Windows上的一个发行版
-Mono将成为.NET Core的一个跨平台发行版。
-
- 2019-02-12 放出的　Runtime 2.2.2　,　　SDK 2.2.104
+-------------dotNet core 3.1
+https://docs.microsoft.com/zh-cn/dotnet/core/
+https://github.com/dotnet/core
 
 支持 Linux, Windows,  macOS
-https://dotnet.microsoft.com/
-下载　dotnet-sdk-2.2.104-linux-x64.tar.gz
-或者
-#sudo zypper install libicu　　报错
-sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-wget -q https://packages.microsoft.com/config/opensuse/42.2/prod.repo
-sudo mv prod.repo /etc/zypp/repos.d/microsoft-prod.repo
-sudo chown root:root /etc/zypp/repos.d/microsoft-prod.repo
+
+.NET Framework与Mono将基于.NET Core重新构建
+.NET Framework将成为.NET Core在Windows上的一个发行版
+Mono将成为.NET Core的一个跨平台发行版 
+
+
+2020-02-23 的版本是　SDK 3.1.102  (3.1 长期支持的版本)支持 Visual Studio 2019 (v16.4) C# 8.0
+
+下载　dotnet-sdk-3.1.102-linux-x64.tar.gz 
+tar -zxvf dotnet-sdk-3.1.102-linux-x64.tar.gz  -C /opt/dotnet-sdk-3.1.102-linux-x64
 
 也可
-yast2 建立仓库　输入　https://packages.microsoft.com/opensuse/42.2/prod　　　
-也可直接在地址中下载 dotnet-sdk-2.2.104-x64.rpm
+yast2 建立仓库　输入　https://packages.microsoft.com/opensuse/15/prod/ 也可直接在地址中下载 dotnet-sdk-3.1.102-x64.rpm   
  
 https://packages.microsoft.com/config/opensuse/15/prod.repo   
- 　文件内容有　https://packages.microsoft.com/opensuse/15/prod/　　　  , 15还不行没有rpm
-
+ 　文件内容有　https://packages.microsoft.com/opensuse/15/prod/ 
+ 
+ 
 dotnet 命令
+ ./dotnet  --info
+ ./dotnet  --list-sdks
+ ./dotnet  --list-runtimes
+ ./dotnet new --help  显示有很多模板可以使用,如 console,classlib,mvc (winforms和wpf只能在windows上)
+ 
+---console
+mkdir cs-console && cd cs-console
+dotnet new console   等很久提示Restore succeeded
+自动生成 Program.cs 文件 
+using System;
+  
+namespace cs_console
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello World!");
+        }
+    }
+} 
+
+dotnet build
+dotnet run 测试成功
+
+cd  bin/Debug/netcoreapp3.1/ 这个目录说是可以跨平台移动运行的
+dotnet  'cs-console.dll'
+
+---mvc
+mkdir cs-mvc && cd cs-mvc
+dotnet new  mvc 生成很多代码
+
+dotnet run 日志提示 http://localhost:5000  跳到 https://localhost:5001
+测试成功
+ 
+---classlib
+mkdir cs-lib && cd cs-lib
+dotnet new classlib 
+自动生成 Class1.cs 文件 
+using System;
+  
+namespace cs_lib
+{
+    public class Class1
+    {
+    }
+}
+dotnet pack 提示成功 bin/Debug/netstandard2.0/cs-lib.dll ,bin/Debug/cs-lib.1.0.0.nupkg
+ 
 
 ==========IPv6
 ==========vi================
@@ -1275,7 +1320,7 @@ zk      向上移动到前一折叠的结束处。关闭的折叠也被计入。
 	
 :set wrap
 :set nu 显示行号
-:set list 显示tab键为^I,回车为$
+:set list 显示tab键为^I,回车为$,空白字符
 
 当vim在utf-8的local下打开gbk文件时,显示的是乱码,可以在~/.vimrc文件中加入如下代码来解决
 set fencs=utf-8,gbk
@@ -1425,7 +1470,8 @@ vi列操作
 				按ctrl+f (q:) 调出窗口可以移动光标
 
 :命令模式下  ctrl+h 同backspace
-:命令模式下 ctrl+b 到行首,ctrl+e 到行尾 ,向前移动一个字符用方向键有时有问题
+:命令模式下 ctrl+b 到行首,ctrl+e 到行尾  向前移动一个字符用方向键有时有问题 
+:命令模式下 
 
 6yy向下复制6行
 5G 向下5行
@@ -1523,22 +1569,25 @@ q-退出
 ---
 od -c file.txt 命令  有像ultraEdit的二进制的地址码
 ===========console========
-Ctrl + d        删除一个字符，相当于通常的Delete键
-Ctrl + h        退格删除一个字符，相当于通常的Backspace键
+#Ctrl + d        删除一个字符，相当于通常的Delete键
+#Ctrl + h        退格删除一个字符，相当于通常的Backspace键
+#Ctrl + p        调出命令历史中的前一条（Previous）命令，相当于通常的上箭头
+#Ctrl + n        调出命令历史中的下一条（Next）命令，相当于通常的上箭头
+#ctrl+f 向后一个字符,左箭头
+#ctrl+b 向前一个字符,右箭头
+
 
 Ctrl + c        取消当前行输入的命令，相当于Ctrl + Break
 Ctrl + a        光标移动到行首（Ahead of line），相当于通常的Home键
 Ctrl + e        光标移动到行尾（End of line）
 Ctrl + l        清屏，相当于执行clear命令
-Ctrl + p        调出命令历史中的前一条（Previous）命令，相当于通常的上箭头
-Ctrl + n        调出命令历史中的下一条（Next）命令，相当于通常的上箭头
-Ctrl + r        显示：号提示，根据用户输入查找相关历史命令（reverse-i-search,反向搜索）
 
+
+Ctrl + r        显示：号提示，根据用户输入查找相关历史命令（reverse-i-search,反向搜索）
 ctrl + k	删当前到行尾
 
 
-ctrl+f 向后一个字符
-ctrl+b 向前一个字符
+
 esc+F 向前一个单词
 esc+b 
 
@@ -1673,7 +1722,7 @@ grub-md5-crypt<psd>>/etc/grub.conf ##为了好复制，psd文件中有原密码
 
 
 
-=================iptables
+=================iptables 被nftables替代
 
 一个数据据包有 源地址,目标地址,协议
 
@@ -1746,6 +1795,22 @@ iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT   (--dport)
 iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
 
 service iptables save
+service iptables start/stop/restart/status/condrestart/panic/save
+　
+
+iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT 
+iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
+iptables -I INPUT -p tcp --dport 25 -j ACCEPT ##SMTP
+
+iptables -A INPUT  -p icmp   -j ACCEPT 
+iptables -A OUTPUT -p icmp   -j ACCEPT
+
+iptables -P INPUT DROP  
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP 
+
+-----
+
 systemctl list-unit-files | grep firewall 有 firewalld.service 
 systemctl stop firewalld
 systemctl enabled firewalld
@@ -2079,8 +2144,11 @@ spare-disk 0    (之前是raid-disk ,以0开始,一个就足以)
 fdisk 准备分区,改Id和System ,用 t 转换 ->L ->8e 是Linux LVM
 所有的分区(System)是 Linux LVM的 (p) ->w
 
+命令类型 pv,lv,vg,命令操作create,remove,display,scan
+
 (phasical valume)
 pvcreate /dev/sda1 /dev/sda2  ...  //也可以用 /dev/sda[1-2]
+pvcan 
 
 vgscan 第一次会自动生成配置文件 /etc/lvmtab
 
@@ -2997,9 +3065,9 @@ cat /etc/redhat-release
 cat /etc/system-release
 cat /etc/os-release
 ============================CentOS 专用的
+CentOS 版本 8.1 大小7GB , Stream 版本(滚动发行版) 大小8.4 GB
 
-CentOS 最新版本 8.0 大小6.6GB , Stream 版本 大小8GB  体验最新红帽系 Linux 特性的
-CentOS 上一版本 7.6 大小4.6GB
+CentOS 版本 7.6 大小4.6GB
 http://mirrors.huaweicloud.com/centos/7.6.1810/os/x86_64/Packages/
 http://mirrors.huaweicloud.com/centos/7/updates/x86_64/Packages/  只有新版本的
 
@@ -3063,8 +3131,11 @@ https://mirrors.ustc.edu.cn/epel/7/x86_64/Packages/f/fcitx-4.2.9.6-1.el7.x86_64.
 					fcitx-pinyin-4.2.9.6-1.el7.x86_64.rpm
 					fcitx-table-chinese-4.2.9.6-1.el7.noarch.rpm
 
- 
-nmtui  	(NetworkManagerTextUserInterface)终端界面配置网络 设置主机名,centos7.6/openSUSE-leap-15.1有的
+命令打开关闭wifi
+nmcli radio wifi off
+nmcli radio wifi on
+
+nmtui  	(NetworkManagerTextUserInterface)终端界面配置网络 设置主机名,centos7.6/openSUSE-leap-15.1有的 ,配置后要 systemctl restart network
 gnome桌面 settings->network->点齿轮图标
 setup     终端界面 centOS-7.6配置开机启动服务 和 认证
 ntsysv    终端界面 centOS-7.6配置开机启动服务 类似chkconfig  
@@ -3085,12 +3156,15 @@ TYPE=Ethernet
 #TYPE=Bridge 可为桥接
 
 #以下对BOOTPROTO=static
-DNSI=114.114.114.114
 IPADDR=192.168.6.137
-GATEWAY=192.168.6.2   
-#使用VMWare,view->network editro->选vmnet8(NAT)IP是192.168.6.1,NAT Settings->GatewayIP是192.168.6.2
 #NETMASK=255.255.255.0
 PREFIX=24 #24位子网掩码 功能同上
+#是数字1
+DNS1=114.114.114.114
+#/etc/resolv.conf
+GATEWAY=192.168.6.2   
+#使用VMWare,view->virtual network editor->选vmnet8(NAT) -> NAT Settings->GatewayIP 显示的是 192.168.6.2
+
 #---
 #BRIDGE=<网卡名> 
 #表示交换机
@@ -3113,18 +3187,18 @@ NM_CONTROLLED=yes 修改为 no
 chkconfig NetworkManager off
 chkconfig network on
 
-service iptables stop 
+
 service crond start/stop/restart/reload
 service network restart ##SSH会断
-service iptables start/stop/restart/status/condrestart/panic/save
-　
+
 
 关SELinux (如果不关就要 chcon -t textrel_shlib_t /usr/local/apache2/modules/* 很麻烦)
-	/etc/selinux/config文件中的SELINUX=  改为 disabled
+	/etc/selinux/config 文件中的SELINUX=  改为 disabled
 	echo 0 > /selinux/enforce  暂时性的关闭 SELinux
 启动时读/etc/rc.local
 
 临时关闭selinux模式 setenforce 0 
+getenforce
 
 rpm -q --requires pam-1.1.8-12.el7.i686 查已安装包的依赖
 rpm -q --requires pam-1.1.8-12.el7 可不要架构名
@@ -3139,6 +3213,9 @@ hostname myhost
 /etc/hostname
 /etc/sysconfig/networkk 中的 hostname
 /etc/hosts 文件
+-------
+rpm -ivh xx.rpm --nodeps
+rpm -ivh xx.rpm -force   强制安装,不管是否已经安装，都重新安装
 
 -------------redhat rpm-build
 可以安装rpm-build 来安装 *.src.rpm 等同于解压->./configure ->make 不过会提示少 openssl-devel
@@ -3187,10 +3264,174 @@ spec文件   rpmbuild  -ba vsftpd.spec  ()
 
 yum -y install d4x 来在线下载安装
 yum update 
-yum list
+yum list 列所有的包
 yum search xxx
 yum remove xxx  把依赖也自动删像ruby
 yum deplist libcurl  查看软件包的依赖信息
+
+-------RHEL8 新功能 
+去KDE,使用Wayland做显示服务,替代X Window,nftables( netfilter项目)替代iptables
+
+yum module list postgresql 显示有多个版本,有d表示默认版本,e表示enable,x表示disable
+如安装低版本 yum -y module install postgresql:9.6
+yum -y module remove postgresql:9.6
+yum -y module disable postgresql:9.6
+
+默认有python3 如使用python2 先安装 yum -y module install python26
+alternatives --config python 选择哪个版本
+
+---cockpit 控制台  CentOS 7.6 就可以做
+启用web console
+systemctl enable --now cockpit.socket
+http://127.0.0.1:9090/  页面中有一个终端标签
+yum install cockpit-machines 页面中会多一个虚拟机的标签
+
+自定义镜像
+yum install lorax-composer cockpit-composer composer-cli 
+systemctl enable lorax-composer.socket --now
+systemctl restart  cockpit.socket  
+页面中会多了一个image builder标签
+
+---分层存储 stratis 本地存储管理工具 
+yum install stratisd stratis-cli
+systemctl enable stratisd --now
+
+建立存储池
+stratis pool create mypool1 /dev/vdb  #lsblk要事先有这个vdb
+stratis pool list
+建立文件系统
+stratis fs create mypool1 fs1
+stratis fs list 有显示目录,直接mount这个目录就可以使用
+扩容
+stratis pool add-data mypool1 /dev/vdc
+#rsync -ruP /var/log* /mnt/xxx 
+		 -P  same as --partial --progress
+ 		 -r, --recursive  
+ 		  -u, --update 
+快照
+stratis fs snapshot mypool1  fs1 fs1_snap01
+stratis fs destroy mypool1  fs1 #模拟有问题,如设备忙,先umount
+stratis fs list  就会少一个,可以mount快照 
+
+---vdo 数据压缩去重
+centOS 7.6可以 yum install vdo
+vdo create --name=vdo1  --device=/dev/vdd --vdoLogicalSize=50G 提示在/dev/mapper/vdo1
+ 
+vod status --name=vdo1 | grep Deduplication  查重复数据可删除
+vod status --name=vdo1 | grep Compresssion  查压缩
+
+格式化
+mkfs.xfs -K /dev/mapper/vdo1
+/* no discard */	[-K]
+
+注册
+udevadm settle  后就可mount /dev/mapper/vdo1 /mnt/vdo1
+
+df -h 看大小是50G,真实没有,是逻辑大小,
+vdostats --human-readable 查真实的大小
+在挂载的目录多次放相同大文件 ,查真实大小,发现增长不是很快
+
+---使用podman代替docker
+相应的工具 buildah,skopeo,runc
+yum install podman-docker # centOS-7.6可 安装与docker-ce是冲突的
+yum module install container-tools  (centOS-7.6用 yum install buildah)
+
+创建容器
+buildah from scratch
+buildah containers 显示容器名字 working-container
+
+加标签
+buildah config --label name=custom-container  working-container
+
+buildah inspect working-container
+
+buildah mount working-container 显示挂载的目录,记下来 /var/lib/containers/storage/overlay/cabc3c44e7b60dc9c3492f587edd90ea6111d91fe1fa950b7732e8c357cbd23f/merged
+rpm --root /var/lib/containers/storage/overlay/cabc3c44e7b60dc9c3492f587edd90ea6111d91fe1fa950b7732e8c357cbd23f/merged --initdb
+
+yum install -y yum-utils
+ 
+yumdownloader --destdir=/tmp/ redhat-release
+rpm -ivh --root /var/lib/containers/storage/overlay/cabc3c44e7b60dc9c3492f587edd90ea6111d91fe1fa950b7732e8c357cbd23f/merged   /tmp/centos-release-7-7.1908.0.el7.centos.x86_64.rpm 
+ #CentOS默认有老版本centos-release
+
+cp /etc/yum.repos.d/epel.repo /var/lib/containers/storage/overlay/cabc3c44e7b60dc9c3492f587edd90ea6111d91fe1fa950b7732e8c357cbd23f/merged/etc/yum.repos.d/
+yum install -y --installroot /var/lib/containers/storage/overlay/cabc3c44e7b60dc9c3492f587edd90ea6111d91fe1fa950b7732e8c357cbd23f/merged httpd
+echo "hello" >> /var/lib/containers/storage/overlay/cabc3c44e7b60dc9c3492f587edd90ea6111d91fe1fa950b7732e8c357cbd23f/merged/var/www/html/index.html
+
+配置容器启动命令
+buildah config --cmd "/usr/sbin/httpd -DFOREGROUND" working-container
+
+容器加端口
+buildah  config --port 80/tcp working-container
+
+清缓存
+yum clean all  --installroot /var/lib/containers/storage/overlay/cabc3c44e7b60dc9c3492f587edd90ea6111d91fe1fa950b7732e8c357cbd23f/merged 
+
+buildah umount working-container
+生成镜像
+buildah commit working-container custom-image
+
+buildah images
+
+podman run -d -p 80:80 localhost/custom-image
+
+curl http://127.0.0.1:80 外网IP也要测试 ,如出错重新mount(还是原来的长目录),重新设置启动命令,umount,commit
+
+---nftables( netfilter项目)
+https://wiki.nftables.org/wiki-nftables/index.php/Main_Page
+
+ipv4 和 ipv6 协议可以被合并为一个称为 inet 的单一地址族
+如果未指定地址族，它将默认为 ip 协议，即 ipv4
+
+arp(Address Resolution Protocol)  根据 IP地址 获得 物理地址(mac地址)
+rarp  根据 物理地址 返回 IP地址
+
+nft list ruleset 显示规则
+nft flush ruleset 清空规则   使用 systemctl restart firewalld 后又有了
+nft -f <read-from-file>
+
+表Table			   
+		family 可是: ip, arp, ip6, bridge, inet, netdev.
+	nft list tables [<family>]  
+	nft (add | delete | flush) table [<family>] <name>
+	nft list table [<family>] <name> [-n] [-a]        #-a 输出handle数  
+	
+	示例
+	nft list tables inet 显示有filter和firewalld
+	nft  add  table  inet mytable 
+	nft  flush  table  inet mytable 
+	nft  delete  table  inet mytable 
+	
+链Chain
+	type :有filter(除netdev全支持),route(只支持ip和ip6),nat(只支持ip和ip6)
+	hook: 当family为 ip, ip6 ,inet 时, hooks可选值为 prerouting, input, forward, output, postrouting.
+	policy: 可选值为 accept, drop, queue, continue, return.
+	priority : NF_IP_PRI_FILTER (0) 命令只用数字
+	
+	nft (add | create) chain [<family>] <table> <name> [ { type <type> hook <hook> [device <device>] priority <priority> \; [policy <policy> \;] } ]
+	nft (delete | list | flush) chain [<family>] <table> <name>
+	nft rename chain [<family>] <table> <name> <newname>
+	示例
+	nft add chain inet mytable mychain { type filter hook forward priority 0 \; policy drop \; }
+	nft list chain inet mytable mychain 
+	nft flush chain inet mytable mychain 
+	nft rename chain inet mytable mychain mychain2
+	nft delete chain inet mytable mychain2
+	
+	
+规则Rules
+ 
+	nft add rule [<family>] <table> <chain> <matches> <statements>
+	nft insert rule [<family>] <table> <chain> [position <position>] <matches> <statements>
+	nft replace rule [<family>] <table> <chain> [handle <handle>] <matches> <statements>
+	nft delete rule [<family>] <table> <chain> [handle <handle>]
+
+	
+	
+	
+	
+	
+----------
 
 在/var/cache/yum/extras/packages/目录有下载的软件包
 /var/cache/yum/x86_64/7/extras/packages/

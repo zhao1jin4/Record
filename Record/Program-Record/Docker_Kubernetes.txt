@@ -1423,6 +1423,8 @@ docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h consul
 
 
 ------------------------------------Kubernetes  (K8s)
+https://kubernetes.io/zh/
+
 Paas
 redhat 的 PaaS平台 OpenShift (收费) 基于 Kubernetes
 mongodb 官方支持k8s (收费)
@@ -1450,7 +1452,6 @@ Visual Code-1.39.2 extension Kubernetes 是Microsoft发布的 说是支持Develo
 	但如果键写错不会提示
 
 
-https://www.bilibili.com/video/av59642060/
 
 Kubernetes (开源) 基于 Docker 构建一个容器的调度服务
 最新是 v1.15
@@ -2736,6 +2737,15 @@ kubectl describe pods pod-vol-pvc  看
 PVC不在节点上，是存在etcd上的  
 ---PVC 根据storageClassName 动态创建PV,要求存储服务支持resetful接口,如ceph, glusterfs 简单但不支持resetful,要找第三方
 要先搭个ceph
+在您使用 Ceph 卷之前，您的 Ceph 服务器必须正常运行并且要使用的 share 被导出（exported）
+
+https://kubernetes.io/zh/docs/concepts/storage/volumes/#cephfs
+https://github.com/kubernetes/examples/tree/master/volumes/cephfs/ 
+
+https://kubernetes.io/zh/docs/concepts/storage/storage-classes/
+https://kubernetes.io/zh/docs/concepts/storage/storage-classes/#ceph-rbd 
+
+https://kubernetes.io/zh/docs/concepts/storage/dynamic-provisioning/
 
 ---secret  configMap
 kuernetes 向容器传环境变量 
@@ -3960,6 +3970,17 @@ CMD node server.js
 $docker build -t 'mynode:1' .
 $docker run -p 4000:80 mynode:1
 
+===================  Istio
+ 1.4 版本 支持 Kubernetes  1.15
+Istio来自希腊语，英文意思是「sail」, 意为「启航」
+
+https://github.com/istio/istio/releases 
+
+install/kubernetes 目录是Kubernetes的YAML文件
+samples/ 示例目录 
+bin/istioctl  用来手动注入 Envoy 做为 sidecar proxy.
+
+kubectl get svc -n istio-system
 
 =================== etcd
 

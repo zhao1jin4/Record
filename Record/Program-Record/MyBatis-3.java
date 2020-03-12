@@ -32,6 +32,8 @@ mybatis-3-config.dtd 和 mybatis-3-mapper.dtd 在 org.apache.ibatis.builder.xml
 		<setting name="useGeneratedKeys" value="false" />
 		<setting name="defaultExecutorType" value="SIMPLE" /> <!-- 可以为 BATCH -->
 		<setting name="defaultStatementTimeout" value="25000" /> 
+		
+		<setting name="logImpl" value="STDOUT_LOGGING" /> <!-- 会显示数据库执行SQL日志-->
 	</settings>
 	
 	<typeAliases>
@@ -947,6 +949,32 @@ public class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigur
 		return false;
 	}
 }
+----HikariCP 光 数据源
+Spring Boot 优先使用
+https://github.com/brettwooldridge/HikariCP
+
+    <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>3.4.1</version>
+    </dependency>
+    
+HikariConfig config = new HikariConfig();
+config.setDriverClassName("com.mysql.cj.jdbc.Driver"); //MySQL 8
+config.setJdbcUrl("jdbc:mysql://localhost:3306/zabbix");
+config.setUsername("zabbix");
+config.setPassword("zabbix");
+config.addDataSourceProperty("cachePrepStmts", "true");
+config.addDataSourceProperty("prepStmtCacheSize", "250");
+config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+//源码是 new File的形式,不支持MySQL
+//HikariConfig config = new HikariConfig("/mnt/vfat/NEW_/eclipse_java_workspace/J_MyBatisSpring/src/datasource/hikari/db.properties");
+		
+HikariDataSource ds = new HikariDataSource(config);
+
+
+
 -------MyBatis3 Spring集成
 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />

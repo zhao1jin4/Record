@@ -7,10 +7,10 @@ https://github.com/tensorflow/swift
 基础教程
 http://www.runoob.com/python3/python3-tutorial.html
 
- 
+ActivePython 3.7
 
------ tool
-eclipse marketplace安装  Python 插件 PyDev-6.2 
+ 
+----eclipse marketplace安装  Python 插件 PyDev-6.2 
 
 官方看版本对应关系(Eclipse 4.7.2, Java 8: PyDev 6.2.0)
 
@@ -22,20 +22,23 @@ https://sourceforge.net/projects/pydev/files/pydev/  可以dropsin安装 Eclipse
 可以开发Jython,IronPython
 Jython : Python for the Java Platform
 IronPython:开源实现Python语言.Net Framework
-windows 要下载安版本
+
 preferences->PyDev->Interpreters->Python Interpreter->选择python.exe所在路径-> 提示找到 DLLs ,lib目录,lib/site-packages
 代码提示很好
 shift+enter 自动换行缩进 ,ctrl+1有很多功能
 
 
-PyCharm-2018.1.3(基于IntelliJ IDEA)
+----PyCharm-2018.1.3(基于IntelliJ IDEA)
 linux 破解 http://idea.toocruel.net 
 Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
+-----vscode 扩展 Python 
+提示安装 pylint,也可不安装
+打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言, 选Python file ->会自动生成launch.json
+下拉显示Python:Current File ,打断点，启动按钮，即可调试
 
 ----- windows 
-
-如果下载.exe安装版,.py文件可以双击执行
-安装版本默认安装在 C:\Users\zh\AppData\Local\Programs\Python\Python36  有.chm文档,有Lib目录是源码
+要下载 .exe安装版 ,.py文件可以双击执行
+安装版本默认安装在 %USERPROFILE%\AppData\Local\Programs\Python\Python38  Doc目录下有.chm文档,有Lib目录是源码
 
 ----linux 版源码安装 
 CentOS只有python2

@@ -509,7 +509,8 @@ Project->Schedule组的set baseline
 	
 ------------PMBook
 
-PMBOK 指南( 项目管理知识体系指南) (第五版)
+PMBOK 指南( 项目管理知识体系指南) (第五版) 目前有第6版
+
 PMI (Project Management Institute) 
 PMP(Project Management Professional) 
 
@@ -548,6 +549,16 @@ Point
 
  
 ----------- Scrum 实现 敏捷的一个方式
+ Scrum( 灵活的； 机敏的), 以前的瀑布模式,XP级限编程(测试驱动)
+ 
+ sprint(2周一次迭代)
+Point
+ 图
+ 根据产品需求分解出最小粒度的用户故事UserStory(用户的角度),
+ 拆分很多小任务,Task不要超过8小时, Task Board(准备做,正在做,完成) 
+ 开会评piont工作量(要举牌表决,要多长时间)
+ 开发演示,总结
+ 每日站立会
 
 三种角色
 	Product Owner 确定产品的功能 ,指定软件的发布日期和交付的内容
@@ -561,10 +572,7 @@ User Story 找一最小的做为 Point
 Task为完成User Story的细分
 
 Sprint Plan meeting 估任务会议,Sprint backlog
-
-
-Daily Stand up meeting 每日站会,说昨天做了什么，今天做了什么，遇到什么问题，每人30秒到1分，不超进15分名钟
-	 结束后画燃尽图 
+Daily Stand up meeting 每日站会,说昨天做了什么，今天做了什么，遇到什么问题，每人30秒到1分，不超进15分名钟, 结束后画燃尽图 
 Sprint Review Meeting 任务演示 完成后迭代回顾会，每人说3个好与不好的问题，不说原因，最后大家找出3个问题，指定解决人
 	
 	 

@@ -1,66 +1,208 @@
-PHP 5
-<?
-	Header("Content-type:image/jpeg");
-	$arr=file("counter.txt");  //存数字,生成验证码
-	$count=(int)$arr[0];
-	$f=fopen("counter.txt","w");
-	fputs($fp,++$count);
-	fclose($fp);
-	$im=ImageCreate(45,16);
-	$white=ImageColorAllocate($im,255,255,255);
-	$black=ImageColorAllocate($im,0,0,0);
-	imagefill($im,1,1,$black);
-	ImageString($im,5,0,0,sprintf("%05d",$count),$white);
-	imageJpeg($im);
-	imagedestroy($im);
+
+ApacheHaus    版本名是VC 编译带很多东西,PHP官方说用这个，要线程安全的PHP
+Apache Lounge 版本名是VS
+--集成环境
+WAMP (win)
+Bitnami WAMP Stack(win/mac)
+XAMPP (win/mac) 有perl
+PhpStudy
+
+Zend Studio 要破解，最新是13.6.1 (基于eclipse-4.6.3的,PDT插件),可以debug,php cli,中文要UTF-8
+	只可安装在 C:\Program Files\Zend\Zend Studio 13.6.1
+	
+	Preferences->PHP->PHP Server->可zend Server(可Remote),apache,(没有nginx有Generic),选Apache->选Apache conf目录
+		->可 XDebug 或 Zend Debugger ,选XDebug->建立完成后编辑下,Document Root不支持变量
+	Preferences->PHP->debug->PHP Server->选建立的
+	Preferences->PHP->debug->Debuggers->选中 XDebug 点Confiure ->设置 Allow remote sessin(JIT)为 any,有时也会提示 
+	debug视图中,可以右击 PHP Debug[Remote PHP Launch] ->relaunch  启动服务	
+	浏览器中请求页，会在页的第一行有断点(哪怕是html),(服务器配置根目录为项目目录)
+	
+PhpStorm 2019
+	Settings-> Language&Framewok ->PHP-> CLI Interpreter 选择php.exe
+	Settings-> Language&Framewok ->PHP-> Debug 提示安装 XDebug 或 Zend Debugger
+	
+	---实现网页debug(最好服务器主目录指工作区)	
+	Settings->Language&Framewok ->PHP->debug-> debug port的值对应php.ini中的 xdebug.remote_port的值 -> 点右上角的电话图标Listen for debug
+	
+	如php.ini中打开了xdebug.remote_autostart,可以不安装插件XDebug Helper
+	如未打开，要安装firefox/chrome插件 XDebug Helper, 地址边上有灰色虫图标->Debug变绿，如不使用浏览器如PostMan 要传参数
+	---
+	如本地文件 和 远程服务器
+	Settings->Language&Framewok ->PHP->PHP Server->对已有服务器配置 复选use path mapping,即配置本地路径前缀和服务端路径前缀
+	Tools->Deployment->Configuration...-> + 可配置本地文件 如何传到服务器上,如FTP 或 SFTP
+	Tools->Deployment->Automic upload 本地保存文件后自动上传 
+	
+	Run 菜单 -> Break at first line in PHP scripts
+	
+	
+vscode 中安装 扩展 ”PHP Debug” 是使用Xdebug
+	打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言,如node.js,PHP 选PHP ->会自动生成launch.json
+	->下拉为Listen for XDebug,再点绿色启动按钮开启调试
+	浏览器中请求页， 有断点会停
+	(服务器的根目录指向当前打开目录才可)
+	lanunch.json中可以修改端口
+ 	(linux下单个文件不会停???,web的会停)
+
+----windows PHP环境 
+
+下载 php-7.4.3-Win32-vc15-x64.zip 线程安全的PHP 为Apache用
+   要安装 Visual C++ Redistributable for Visual Studio 2015-2019 
+
+复制 php.ini-development 到 php.ini
+
+; extension_dir = "ext" ;使用绝对路径
+extension_dir = "D:/Program/php-7.4.3-Win32-vc15-x64/ext"
+
+;extension=mysqli ;做放开 
+
+-----用apache2
+
+下载 ApacheHaus    版本名是VC 编译带很多东西,PHP官方说用这个，要线程安全的PHP
+httpd-2.4.41-o111c-x64-vc15-r2  是使用Visual Studio 2017 (VC15) 构建 
+apache ,php ,vc 都要64位
+
+打开conf/httpd.conf文件 修改 Define SRVROOT 为解压目录,双引号,最好用/
+
+	Define SRVROOT "D:/Program/httpd-2.4.41-o111c-x64-vc15-r2/Apache24"
+	ServerName my-Pc # 是hostname的值 ,默认是localhost:80 也可不改
+	DirectoryIndex index.html index.php #增加index.php
+	LoadModule php7_module "D:/Program/php-7.4.3-Win32-vc15-x64/php7apache2_4.dll" 
+	<IfModule php7_module>
+		AddType application/x-httpd-php .php
+		PHPIniDir "D:/Program/php-7.4.3-Win32-vc15-x64"
+	</IfModule> 
+
+	#DocumentRoot "${SRVROOT}/htdocs"
+	#ScriptAlias /cgi-bin/ "${SRVROOT}/cgi-bin/"
+
+#sc delete apache2.4
+bin\httpd.exe  -k install -n apache2.4 安装服务，命名为apache2.4 ,修改为手工启动
+windows 下 检查httpd.conf 语法用 httpd -t  
+启动服务
+	报不能443 ,netstat -ano|findstr "443" 显示进程号，tasklist|findstr "<PID>",是vmare-hostd.exe ，或conf\extra\httpd-ahssl.conf 修改端口
+
+---------用Nginx
+--php.ini配置修改
+extension_dir = "D:/Program/php-7.4.3-Win32-vc15-x64/ext"
+extension=mysqli
+cgi.force_redirect = 1 
+cgi.fix_pathinfo = 1 
+cgi.rfc2616_headers = 1
+
+启动PHP用 php-cgi.exe -b 127.0.0.1:9000 -c php.ini  (linux 使用php-fpm)
+
+
+---nginx.conf配置文件中也有示例,打开#后做修改
+location ~ \.php$ {
+	#root  			html;    		#可改目录,windows以/分隔, 同location / {root  xx的值,也可不改}
+   fastcgi_pass  localhost:9000;
+	fastcgi_index  index.php;
+ 	fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;   # 原/scripts为修改 $document_root 即root的值
+	include        fastcgi_params;
+}
+
+启动nginx用 nginx.exe -p D:\Program\nginx-1.16.1
+-p(prefix)
+---------
+
+---测试用 phpinfo.php
+<?php
+phpinfo();
+?>
+http://127.0.0.1/phpinfo.php 测试成功
+
+
+------Xdebug
+yum install php7-devel
+zypper install php7-xdebug
+	安装在 /usr/lib64/php7/extensions/xdebug.so
+	
+下载 php_xdebug-2.9.2-7.4-vc15-x86_64.dll 文件 放php的ext目录下
+
+--php.ini文件中
+
+[Xdebug]
+;Xdebug是基于Zend引擎的扩展，因此必须使用zend_extension配置指令
+zend_extension="D:/Program/php-7.4.3-Win32-vc15-x64/ext/php_xdebug-2.9.2-7.4-vc15-x86_64.dll"
+
+--以下这些可省
+
+;启用性能检测分析
+xdebug.profiler_enable=on
+;启用代码自动跟踪
+xdebug.auto_trace=on
+;允许收集传递给函数的参数变量
+xdebug.collect_params=on
+;允许收集函数调用的返回值
+xdebug.collect_return=on
+;指定堆栈跟踪文件的存放目录
+xdebug.trace_output_dir="D:/php_xdebug"
+;指定性能分析文件的存放目录
+xdebug.profiler_output_dir="D:/php_xdebug"
+xdebug.profiler_output_name = cachegrind.out.%t.%p
+
+phpinfo();可以看到有 xdebug 区 就可用PhpStorm debug了
+<?php
+$val1="你好";
+$val2=&$val1;
+echo $val2;
 ?>
 
-
-email,文件上传,连接oracle,生成PDF,excel,
-
-IIS服务 用Com组件来发邮件(要有SMTP服务器--windows 组件安装的)
-<?
-$MailObject=new COM("CDONTS.NewMail");
-$att_file="f:\\exam.mdb";
-$f_name="test.mdb";
-$MailObject->To="xx@xx.com";
-$MailObject->From="xxx.@sdf.net";
-$MailObject->Subject="how are you?"
-$MailObject->Body="Hello!";
-$MailObject->AttachFile($att_file,$f_name,1);//  
-$MailObject->Send(0;
-$MailObject=null;
-
+---web.php  使用PhpStorm 或者 ZendStudio  debug cli 可调试 
+<h1>hello</h1>
+<?php
+ for ($i=1; $i<3; $i++) {
+ ?>
+ <a href=<?=$i?>><?=$i?></a> <br/>
+ <?php
+ }
 ?>
+ 
+xdebug.remote_enable = on
+xdebug.remote_autostart = 1
+;host值是本机IP
+xdebug.remote_host = 192.168.1.102
+;对应phpStorm/ZendStudio配置中xdebug的端口
+xdebug.remote_port = 9000
+
+--以下这些可省
+;开启connect_back忽略xdebug.remote_host
+xdebug.remote_connect_back = 1
+xdebug.auto_trace = 1
+xdebug.collect_includes = 1
+xdebug.collect_params = 1
+xdebug.remote_log = "D:/php_xdebug/xdebug_remote.log"
+ 
+
+---php5 mongo  驱动下载 为 rockmongo不支持Mongo4 ??? 除非修改源码，也应该可以支持PHP7 
+http://pecl.php.net/package/mongo 有windows和linux版本
+下载PHP5.6版本的(不支持PHP7) php_mongo-1.6.16-5.6-ts-vc11-x64.zip 
+
+解压 php_mongo.dll 放在php安装解压的ext目录中 
+php.ini中增加  extension=php_mongo.dll
+
+https://windows.php.net/downloads/releases/archives/
+PHP5.6 最新版本为 php-5.6.39-Win32-VC11-x64.zip
+
+---php7 mongodb  驱动下载
+新的是 https://pecl.php.net/package/mongodb 
+php_mongodb-1.7.3-7.4-ts-vc15-x64.zip
+解压 php_mongo.dll 放在php安装解压的ext目录中 
+php.ini中增加  extension=php_mongodb.dll
+
+
+--mongodb官方的做法
+ pecl install mongodb
+ extension=mongodb.so
+
+ MongoDB 4.2 要求 ext 1.6 + lib 1.5 可支持PHP5.6到7.4
+ 
+----
 
 
 "3"===3 为假   ,"3"==3 为真
 
 === 会对类型检查
-
-
-
-支持JavaBean组件,JavaBean+EJB
-
-<?
-$exam=new JAVA("test.Message");//javav类
-echo $exam->getMessage();//调用java 方法
-
-
-//必须加载  phpjava.dll   
-//php.ini文件加      ;extension=php_java.dll 前加;去掉
-
-;extension=php_imap.dll
-
-
-?>
-
-
-phpinfo();//如查显示的信息中有Java ,表示加载成功
-
-
-
-
 
 <?
 //===================================书中的
@@ -83,8 +225,8 @@ is_real();//is_float() 的别名
 is_string()
 
 
-$val1="你好"；
-$Vval2=&$val1;//&引用 同一内存
+$val1="你好";
+$val2=&$val1;//&引用 同一内存
 .=  //和+=
 
 函数外的变量，作用域是PHP文件,函数内不能使用它们，非声明为 global;
@@ -626,81 +768,6 @@ $_SERVER['SERVER_NAME']  //
 
 如何发送附件？？？？？？？？？？？
 
------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- ------------php连接oracle
-  oci_connect()
- 
- 
- 
- ./configure  --prefix=/usr/local/php5   --with-apxs2=/usr/local/apache2/bin/apxs 
- --enable-sigchild 
- --with-config-file-path=/usr/local/apache2/conf  改变PHP配置文件路径
---with-oci8=$ORACLE_HOME  											默认是$ORACLE_HOME
-
-
-cp php.ini-dest /usr/local/apache2/conf/php.ini   ###可先不手复制它(php.ini-recommended是不行的)
- 
-
-要安装libxml2-devl
- 
- php.ini 并执行下列操作：
-   1. 把下面这一行解除注释（删除该行开头的分号）： extension=php_oci8.dll
-oci8.persistent_timeout =20
-
-AddType application/x-httpd-php  .php  放在最外面
-
-phpinfo();如显示“OCI8 Support enabled” 表示OCI组件安装成功
-
-
-
-oracle 自带的用户scott;也是锁定的,也有默认表存在
-
-
-//localhost:1521/orcl" 当数据库名   Instant直接的 ,方便的,  Instant Client
- ORACLE_SID 或 ORACLE_HOME ,LD_LIBRARY_PATH 和 NLS_LANG环境变量
-
-oci_connect ( string $username  , string $password [, string $db 
-  							 [, string $charset  [, int $session_mode  ]]] )
-  							
-  OCI_DEFAULT, OCI_SYSOPER and OCI_SYSDBA. If either OCI_SYSOPER or OCI_SYSDBA 
-  
-
-
-当同一脚本中出现第二个 oci_connect() 时，将返回前一个高速缓存的连接。脚本完成时将清除该高速缓存。
-Oci_new_connect() 提供了一个完全独立的连接。连接之间相互独立
-  
-  oci_connect()总是没有反应????????????????
-  
- 
-
-
-
-
-
-
-
- --enable-fastcgi
-PHP自带的Zend,ext目录下有mysql,mssql,pgsql,oci8,sybase,relection,xml
-
 -------------php 解析XML 例子
 
   $xml_file   =   'slashdot.xml';     					//   分析的内容     
@@ -770,7 +837,7 @@ ftp_close($conn_id);
 ----------------手册有 PHP PDF 库
 pdf_new ( )
 
- -----------手册有 PHP Zend
+-----------手册有 PHP Zend
 
 
 
@@ -793,12 +860,7 @@ function quicksort($seq) {
   } else {
     return $seq;
   }
-}
-
-
-
-
-
+} 
 -------------PHP 5的 mysqli 扩展
 $link = new mysqli('192.168.0.20', 'root', '', 'world'); //(SQL)节点
 if( mysqli_connect_errno() )
@@ -816,19 +878,46 @@ else
 $result->close();
 $link->close();
 
+--- PDO 连接数据库 
 
 
-
-
-
-
-
-
-
-
+--- Socket
 
 
 ?>
+
+email,文件上传,生成PDF,excel,
+
+生成验证码
+<?
+	Header("Content-type:image/jpeg");
+	$arr=file("counter.txt");  //存数字,生成验证码
+	$count=(int)$arr[0];
+	$f=fopen("counter.txt","w");
+	fputs($fp,++$count);
+	fclose($fp);
+	$im=ImageCreate(45,16);
+	$white=ImageColorAllocate($im,255,255,255);
+	$black=ImageColorAllocate($im,0,0,0);
+	imagefill($im,1,1,$black);
+	ImageString($im,5,0,0,sprintf("%05d",$count),$white);
+	imageJpeg($im);
+	imagedestroy($im);
+?>
+
+
+支持JavaBean组件,JavaBean+EJB
+<?
+$exam=new JAVA("test.Message");//javav类
+echo $exam->getMessage();//调用java 方法
+
+//必须加载  phpjava.dll   
+//php.ini文件加      ;extension=php_java.dll 前加;去掉
+
+;extension=php_imap.dll
+?>
+phpinfo();//如查显示的信息中有Java ,表示加载成功
+
 
 
 

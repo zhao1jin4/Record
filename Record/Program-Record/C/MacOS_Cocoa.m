@@ -1,39 +1,32 @@
-﻿https://developer.apple.com/library/mac/navigation/
+﻿https://developer.apple.com/documentation
 
 
 Mac openGL是使用的 GLUT,可以使用POSIX 的多线程
 
 //--------------Visual Studio for Mac　　(不是code版本)
 //==============Xcode
+在Mac上安装Charles 来得到下载URL
+以.xar结尾的文件,Mac可以使用BetterZip解压,windows下可以使用7zip解
+
+https://developer.apple.com/documentation/xcode_release_notes	
+https://developer.apple.com/download/more/ 可以下载离线xip压缩包
+https://developer.apple.com/download/more/?=xcode
+Mac 下双击.xip文件解压(win下的 7-zip可以打开),用Archive Utility来做,解压后就一个Xcode.app,
+但是在当前目录直接解压,如想改变解压目录,就先单独打开Archive Utility->Preferences->save expand files 选保存目录
+
+-----Xcode_8.2.1.xip  大小 4.2GB ,解压后约10 GB  
+Mac 命令 xattr -d Xcode_8.xip (无用的)
 
 Xcode -> 偏好设置 ->Components->Documentation  中可以下载的.docset手册	
-
-在Mac上安装Charles 来得到下载URL, 就看不有用的东西了
-以.xar结尾的文件,Mac可以使用BetterZip解压,windows下可以使用7zip解
- 
---------	
-Xcode-8.2.1 页面提示只可在appstore在线安装
-https://developer.apple.com/download/more/ 可以下载离线xip压缩包
-Xcode_8.2.1.xip  大小 4.2GB ,解压后约10 GB  
-
-要求Xcode 8.2.1 requires a Mac running macOS 10.11.5 or later. 
-Xcode 8.2.1 includes SDKs for iOS 10.2, watchOS 3.1, macOS 10.12.2, and tvOS 10.1. 
-
-Mac 下双击.xip文件解压,用Archive Utility来做,解压后就一个Xcode.app,
-但是在当前目录直接解压,如想改变解压目录,就先单独打开Archive Utility->Preferences->save expand files 选保存目录
-Mac 命令 xattr -d Xcode_8.xip (无用的)
-windows下的 7-zip可以打开
-
 Xcode-8.0  自带OSX,iOS文档,可以离线打开,看树也有Swift和JavaScript,但没有示例文档,
 Preferences -> Component->Documentation-> 下只有 Guid and Sample Code
+
 ---Xcode-8.0 的 Guid and Sample Code 就一个文件
 https://developer.apple.com/library/downloads/docset-index.dvtdownloadableindex   ,下载时注意要在 XCode对应的版里
 有对应的docset下载URL,是dmg文件,里面是.pkg,使用Pacifist查看默认安装在 / 下
 
 https://devimages.apple.com.edgekey.net/docsets/20160913/031-77711-A.dmg
-大小 1.06 GB
-在线位置  https://developer.apple.com/library/content/navigation/
-
+大小 1.06 GB 
 mkdir -p  ~/Library/Developer/Shared/Documentation/DocSets/ 
 如要Finder中显示用户主目录的 ~/Library/ 用命令	chflags nohidden ~/Library/
 
@@ -44,26 +37,27 @@ installer -pkg ConceptualDocset.pkg -target ~/Library/Developer/Shared/Documenta
 
 只能 双击pkg安装界面中修改安装目录~/Library/Developer/Shared/Documentation/DocSets/, 要密码(生成文件更高权限),在目录中生成com.apple.adc.documentation.docset文件
 但 Xcode中还是显示要下载安装,打开文档也没有看到多余的东西????
-
-
-
+ 
 cd Xcode.app/Contents/Developer/Documentation/DocSets/
  默认有个 com.apple.adc.documentation.docset  大小101.7MB，把它先移走，再把下载的移过来
  sudo chown -R -P devdocs com.apple.adc.documentation.docset   有devdocs这个用户和组
- 也没什么效果？？？？
-
+ 也没什么效果？？？？ 
 
 ---------Xcode-9.2 (Mac OS X 10.13 High Sierrah上最高Xcode-9.2)
 Xcode_9.2.xip 文件 5.1G 解压后 5.7G  安装后还要占用10.5G
 有iphone X模拟器，Xcode-9.2 deploy target 11.2(iOS)
+  
+--------Xcode 10.2
+可以运行在 Catalina  10.15.1 上，虽然也可以运行 Xcode 11.2 但文件大，xip7.3G 解压11G
+Xcode_10.2.xip   5.6G ,解压7.2G, 解压验证2分钟 解压22分钟
 
+无论哪个版本解压文件都不能在另一个硬盘上，有BUG！！！
 
 
 ---
+
+
 不安装docset 也可以直接使用alt+点击 类名，看文档 
-
-
-Xcode 把文件更新取消
 
 Xcode 建立项目时不要选择 git  版本控制,生成的历史不知道在哪里删,导到用过的资源,删除,不能再建立或使用
 
