@@ -85,16 +85,21 @@ vs code 调试node (react 的npm start )
    "type": "node",
    "program": "${workspaceFolder}/start"
 
-
+npm -l 所有命令及使用 显示install有别名i
 npm help list 显示man手册
 npm list -g 显示树结构， 已经安装的包 ,list 别名有ls,ll, la
-
+npm help install  
+	显示install有别名i 
+	选项 -D, --save-dev 包增加在devDependencies中(没有单独的--save)
 
 npm config set registry https://registry.npmjs.org
 npm search swagger  索引包search别名是find
 
 npm info swagger-ui  显示包信息
 
+npx create-react-app my-app
+npx 会自动查找当前依赖包中的可执行文件，如果找不到，就会去 PATH 里找。如果依然找不到，就会帮你安装！
+ 
 //----未测试
 npm update packname
 npm uninstall packname  

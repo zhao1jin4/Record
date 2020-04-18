@@ -313,7 +313,55 @@ mysqladmin -u用户名 -p旧密码 password 新密码  -h 主机 -S socket文件
 mysqladmin -uroot  -p password root   -S /zh/mysql-files/mysql.sock
 
 ---- openSUSE 15 使用 mysql 客户端 要libtinfo.so.5 而实际上有libncurses6-6.1 ,zypper install libncurses5
- 
+
+---innodb参数
+innodb_fast_shutdown   0表示关闭，会缓冲区中数据写入硬盘，下次启动再读入内存，1(默认)打开
+innodb_buffer_pool_size  134217728 即128M重要
+
+innodb_stats_persistent		ON
+innodb_stats_on_metadata	OFF
+
+innodb_open_files
+open_files_limit   --  cat /proc/sys/fs/file-max, /etc/security/limits.conf中nofile 
+
+innodb_log_file_size	50331648	即48M 重要 
+innodb_log_files_in_group	2   -- 文件个数
+innodb_log_buffer_size
+
+mysqladmin extended-status -r -i 10 | grep Innodb_os_log_written
+mysqladmin -uroot -proot extended-status -r -i 10 | findstr Innodb_os_log_written
+	 -r, --relative 
+	 -i, --sleep=# 
+表示日志写了多少，统计10/20秒内高峰每秒产生多少日志，
+	再计算一小时产生日志大小，设置为 innodb_log_file_size 的值 
+	也可设置 innodb_log_buffer_size 支持几秒
+
+innodb_flush_log_at_trx_commit  不需要变
+	如为0 大约每秒写一次日志缓存到日志文件中，但提交事务时不写缓存(可能丢失commit)
+	如为1 默认值 ，每次提交事务，都写缓存到日志，再日志到文件
+	如为2 每次提交事务，都写缓存到日志，每秒日志到文件
+innodb_data_file_path		ibdata1:12M:autoextend 存的是 system表空间数据文件,格式为 file_name:file_size[:autoextend[:max:max_file_size]]
+						autoextend 选项,当数据文件没有空间时默认自动扩大64MB,可用 innodb_autoextend_increment 参数修改
+						可用;号分多个，如没有指定目录，默认在数据目录(datadir配置,也可使用innodb_data_home_dir配置覆盖)
+						也可指定绝对目录即/开头，并且innodb_data_home_dir为空，可在不同硬盘上,但不是冗余备份
+innodb_data_home_dir 	默认为空，表示为./即datadir配置
+						
+innodb_file_per_table	ON
+
+innodb_purge_threads	4
+innodb_purge_batch_size	300
+innodb_doublewrite	ON  
+	同个session同时写同一行，不是加锁，而是允许为这一行写多个版本(每个字段都有两个隐藏的值，一个是版本，一个是修改时间)
+		mysql来决定最终使用哪个
+sync_binlog	1  表示事务在提交之前 内存也写入binlog文件中 ，当为0时，mysql不会写binlog，而是依赖操作系统来写
+	日志和数据可不放一个硬盘上
+binlog_expire_logs_seconds	2592000 是30天 代替 expire_logs_days 过时参数 
+	(当打开了binlog)如手工删除了日志，mysql在30天后删除不存在的日志就会报错,影响使用吗？？
+max_allowed_packet   67108864   即64M
+
+按连接来计算的参数要小心
+
+
 
 ==========MySQL NDB cluster 7.1  solaris----OK   现在已经有7.6.12版本了
 MySQL 8.0版本不能使用NDB Cluster只能用InnoDB Cluster
@@ -665,6 +713,8 @@ SHOW BINLOG EVENTS;
 systemctl stop firewalld
 
 ========= MySQL Shell 8
+XDevApi见MySQL_Deve
+
 bin/mysqlsh
 MySQL  JS > \connect user1@127.0.0.1?connect-timeout=2000
 bin/mysqlsh  user1@127.0.0.1:33060/mydb
@@ -693,76 +743,6 @@ bin/mysqlsh  user1@127.0.0.1:33060/mydb   --import file collection
 全局变量 session,db,dba (InnoDB Cluster),shell,util
 
 
------
-util.importJson("/tmp/products.json", {schema: "mydb", collection: "products"})
-
-var mySession = mysqlx.getSession('user1:user1@localhost');
- 
-
----x-devapi
-var mysqlx = require('mysqlx');
-
-// Connect to server
-var mySession = mysqlx.getSession( {
-host: 'localhost', port: 33060,
-user: 'user1', password: 'user1'} );
-
-var myDb = mySession.getSchema('mydb');
-
-// Create a new collection 'my_collection'
-var myColl = myDb.createCollection('my_collection');
-
-// Insert documents
-myColl.add({_id: '1', name: 'Sakila', age: 15}).execute();
-myColl.add({_id: '2', name: 'Susanne', age: 24}).execute();
-myColl.add({_id: '3', name: 'User', age: 39}).execute();
-
-// Find a document
-var docs = myColl.find('name like :param1 AND age < :param2').limit(1).
-        bind('param1','S%').bind('param2',20).execute();
-
-// Print document
-print(docs.fetchOne());
-
-// Drop the collection
-myDb.dropCollection('my_collection'); 
- 
------mysqlsh NoSQL
-MySQL  JS > db.my_collection.find()
-MySQL  JS > db.my_collection.find({"name":"User"})
-MySQL  JS > db.my_collection.find("name='User'");
-MySQL  JS > db.my_collection.find("age>30");
-MySQL  JS > db.my_collection.find("age>30 and name='User'");
-MySQL  JS > db.my_collection.find("name = :v_user").bind("v_user","User")
-
-var myFind = db.my_collection.find("name =: v_user")
-myFind.bind('v_user', 'User')
-
-db.my_collection.find("age>30").fields(["name", "age"])
-
-db.my_collection.find().fields(mysqlx.expr('{"Name": upper(name), "Age": age*10}')).limit(2).skip(1)
-db.my_collection.find().fields(mysqlx.expr('{"Name": upper(name), "Age": age*10}')).sort(["Age desc"]).limit(2)
-
-
-db.my_collection.modify("_id = '1'").set("demographics", {"LifeExpectancy": 78, "Population": 28})
-db.my_collection.modify("_id = '1'").unset("demographics")
-
-db.my_collection.modify("_id = '1'").set("Airports", [])
-
-db.my_collection.remove("_id = '1'")   //可加sort,limit
- 
----报错!!!
-db.my_collection.modify("_id = '1'").array_append("$.Airports", "ORY");
-db.my_collection.modify("_id = '1'").array_insert("$.Airports[0]", "CDG")
-db.my_collection.modify("_id = '1'").array_delete("$.Airports[1]")
-
- //索引报错!!!
- db.my_collection.create_index("name", mysqlx.IndexType.UNIQUE).field("name", "TEXT(40)", true).execute()
- db.my_collection.create_index("pop").field("demographics.Population", "INTEGER", False).execute()
- db.my_collection.drop_index("pop").execute()
- 
- 
- 
  
  
  
@@ -956,6 +936,29 @@ engine=myisam;
 MyISAM 的表备份,源库停止服务 或者   FLUSH TABLES isam_tbl WITH READ LOCK ,其它用户还可以查 , 直接复制MyISAM表的 *.frm , *.myd, *.myi 文件到目标库目录
 源库 要 UNLOCK TABLES(表级锁),目标库不用重启mysql服务,就可以访问myisam的表了  
 
+
+LOCK TABLES employee  read ,department write;
+show open tables; -- In_user 为1是写锁
+UNLOCK TABLES
+
+
+
+myisam_356.sdi
+isam_tbl.MYI 是索引文件
+isam_tbl.MYD 是数据文件
+
+
+聚簇索引,  数据和索引放在一起,innodb引擎,ibd文件就是聚簇索引文件,
+非聚簇索引,数据和索引不放在一起,myisam引擎
+唯一索引 值可以为null，主键索引不能为null,一个表只可一个
+InnoDB是行级锁，
+MyIsam是表级锁
+
+SHOW ENGINES
+B+Tree数据只存放在叶子节点上，叉节点上的数据只用于查找分界用
+所有叶节点具有相同的深度，等于树高
+ 
+  
 INNODB 不能使用复制文件的备份方式
 
 
@@ -1020,7 +1023,9 @@ SELECT * FROM INFORMATION_SCHEMA.INNODB_TRX;
 当前出现的锁
 SELECT * FROM INFORMATION_SCHEMA.INNODB_LOCKS;
 
-======= SQL 执行历史日志,general_log=1和slow-query-log=1 开启,log-output如为FILE 是在data目录下
+
+
+======= SQL 执行历史日志,general_log=1(全局日志,记录所有SQL,无执行时间)和slow-query-log=1(慢查询) 开启,log-output如为FILE 是在data目录下
 -- my.ini 配置(上层以-分隔,最下层以_分隔)  
 log-output=NONE
 
@@ -1029,24 +1034,50 @@ general_log_file="mysql-gen.log"
 
 slow-query-log=0
 slow_query_log_file="mysql-query.log"
-long_query_time=10
+long_query_time=10 
+-- set global long_query_time=5; 实时修改后重新登录后生效 ,测试可用select sleep(6)
 
 -- 命令中都是以_分隔
 show variables like '%general_log%'   
 set global general_log=ON;
 
 show variables like '%slow_query_log%' 
-set global slow_query_log=ON;
+set global slow_query_log=ON; -- 可以随时打开
  
 show variables like '%log_output%'    
 set global log_output='TABLE';  -- root 执行
  
 select * from mysql.slow_log   order by start_time desc
-select * from mysql.general_log order by event_time desc  --记录多
+select * from mysql.general_log order by event_time desc   
 
 truncate table mysql.general_log ;
 
 ======= 
+也可使用 mysqldumpslow.pl 只是快速查找文件内容的一个工具
+-s 按什么排序
+	r 记录数
+	c 仿问次数
+	t 查询时间
+-r 反序
+-l 锁定时间
+-g  正则表达式
+-t 前几个
+
+mysqldumpslow.pl  -s r -l -t 3  xxx.log 
+mysqldumpslow.pl  -s c  -t 3 xxx.log 
+mysqldumpslow.pl  -s t  -t 3 -g 'join' xxx.log 
+
+
+
+-----profile  类似 general_log
+show variables like '%profiling%'
+SET profiling = 1;  --  或者ON
+show profiles;   显示最近SQL 的过程 及总执行时间	有  SET SQL_SELECT_LIMIT=25000
+
+show profile for query 54;  -- 显示这个 SQL 的各个阶段所有时间
+show profile all for query 2; -- 显示更多的列
+show profile cpu , block io for query 2; -- 显示这两组
+
 -----------performance_schema  ,MySQL workbench 有一个 PERFORMANCE 的分组有很多功能
 performance_schema.global_variables
 performance_schema.session_variables
@@ -1284,17 +1315,92 @@ desc  select ........
 explain  select ........   //索引效率,执行计划
  如有 Range checked for each record (index map: 0x2)  就要在相应的表上加 where 条件，差别很大
  
+ 解析sql过程(复合索引按这个顺序) from...join...on...where...group by...having...select distinct ... order by ...limit
+ 
+	explain 会自动优化 小表放前面 再关联 大表
+			表关联 where/on  小表字段=大表字段 (手工优化写法)
+
+	一般是左连接，在左表加索引
+	
+	id列 相同按顺序执行，id大的优先查询，先执行嵌套子查询 
+	select_type列 值有PRIMARY和SUBQUERY,Simple,Derived(用到了临时表), from子查询中如是多表连接,那么第一个表是Derived,第二个表是union
+			还有一种union result 
+	table 列如有<derived2> 其中2表示id为2的那个表,如有<union2,3>表表示id为2和3的表做union结果
+	type列 system>const>eq_ref>ref>range>index>all  要有索引才行
+		   system 表示只有一条数据的系统表 或 Derived表只有一条数据的主查询
+		   const 只能查出一条数据，并且 条件是用于primary key或unique 索引 的列
+		   eq_ref 作用于unique 索引列,并且和关联表的第行只有一条匹配数据,不能没有关联到,也不能多于一条,如一对一的外键
+		   ref 非唯一的索引 (比较常用的)
+		   range 如使用 between and  ,>,< ,in(有时可以,有时不行????用or代替,放在最后)
+		   index 查询全部索引中的数据
+		   all 查询全部表中的数据
+	possibale_keys列
+	keys列
+	key_len 列 是索引所在字段char长度 如是utf8字符集要*3(gbk是*2) 如列是可为空+1 ,如varchar类型+2,int 为4个字节
+		如为复合索引就是 多个字段 相加，用于做复合索引是否使用/失效了	   
+	ref列 如为const表示常数，如key列为PRIMARY或索引名时 ,值为指向主键列的 数据库.表.字段 (外键要加索引,因要关联查询)
+	rows列	
+	Extra列 如为 using filesort 排序会比较慢(表示要单独再查询一次数据，基于这个数据再排序,如 where 字段1='' order by 字段2，解决方法使用复合索引 )
+		create index inx_emp_3 on employee(username,password,age)
+		explain select * from employee where username='lisi' order by password --  order by也按复合索引顺序用,没有using filesort 
+		explain select * from employee where username='lisi' and age=2 order by password,age
+		explain select * from employee where username='lisi' and password!='' order by age --   != 不会使用索引
+		explain select * from employee where username='lisi' or age =22 -- 跳着不能使用复合索引 
+		explain select * from employee where  password ='xx' and username='lisi' --写顺序没关系 会自动优化
+		explain select * from employee where  username ='lisi' and age=23 -- Using index condition
+		explain select * from employee where   password='123' and username ='lisi'  -- 顺序会自动优化
+	  如为 using temporary 会比较慢，用到了临时表，一般出现在group by中 ,解决方法 分组的字段出现在where 中
+		 create index inx_emp_deptid on employee(department_id)
+		 explain select department_id ,max(age) from  employee where id in (101,102) group by department_id
+	  还有using index ,using where ,impossiable where 如 where id=1 and id=2
+		 using join buffer,mysql给做了优化
+	
+索引字段加函数或计算会失效,!= , not null,not in ,or组合字段有未索引字段和索引字段,那么索引字段失效
+ 有时(其实是优化级变低)in,>,between失效
+
+like以通配符开头会索引失效
+select username from employee where username like '%li%'; -- select中使用了 like字段会使用索引
+select 不要使用*
+
+唯一索引 比普通索引性能 高  show session status like 'Handler_read_next'; 唯一索引当找到一条数据就必须再找后面的数据了
+如没有索引  show session status like 'Handler_read_rnd_next'; (rnd=read next datafile)的值会大量增加,表示读硬盘中的下一行
+--没有找到规律的 >
+alter table employee add index inx_emp_username  (username )
+explain select * from employee where username='s' and department_id=232 --如where 后两个字段都加了独立索引，但只会使用一个
+
+explain select * from employee where  username > 'lisi'  and password='s'  -- 如开始字段有> 看key_len为null,复合索引全失效
+explain select * from employee where  username = 'lisi' and password > '123'  and age=22  -- 中间字段有>，复合索引后面字段失效
+explain select * from employee where  username = 'lisi'  and password>'s' -- 复合索引全用了 
+explain select * from employee where  username < 'lisi'  and password='s' -- 看key_len只用了复合索引一个字段
+
+--
+执行计划也分析字段值和建立索引对比的
+
+如子查询数据量大使用 exists 代替 in
+如主查询数据量大使用 in
+
+外键 字段 和 order by 字段 最好加索引
+max_length_for_sort_data 排序区的大小
+
+innodb 引擎如update/delete 的 where 字段全没有使用索引会锁全表(太傻了，为何不使用主键/rowid呢)
+update employee set age=20 where username=11; 
+-- username有索引，这种类型转换，会使用索引失效，变为表锁，如另一个会话其它行在事务中，这会阻塞，另一个结束这里报错，影响不大
+update employee set age=20 where id>103 and id<200; 未提交事务,如中间id没有108，insert into id为108也是阻塞 (太傻了，为何不使用主键/rowid呢)
+
 explain extended    <sql> 后,再使用      SHOW WARNINGS 可以给出优化建议的SQL
+
 
  show variables like '%optimizer_trace%';
  set optimizer_trace="enabled=on";
  explain select .....;
+
+
+ 
  select * from information_schema.OPTIMIZER_TRACE;
  
-SET profiling = 1;  --  或者ON
-show profiles;   显示最近SQL 的过程 及执行时间	有  SET SQL_SELECT_LIMIT=25000
 
-show profile for query 54;  -- 显示这个 SQL 的各个阶段所有时间
+
+
 
 optimize table tbl_name; -- 支持分区表 ,如果有删列,大量删数据,可以整理空间,改善IO效率,比较耗时不适合正在使用
 

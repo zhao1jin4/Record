@@ -8,7 +8,7 @@ Log-Structured Merge-Trees (LSM)
 联合使用 Hive (像SQL)，但必须用MapReduce，行级事物支持 ，百万查询/每秒 （比数据库的数千查询/每秒 要快很多）
 
 phphbaseadmin github上已经有6年没有更新，有中文
-SQuirrel SQL Client (Swing)可以添加Hive的驱动，可以添加 apache Phoenix(凤凰) 驱动(像使用jdbc访问关系型数据库一些，访问NoSql数据库HBase)
+SQuirrel SQL Client (Swing)可以添加Hive的驱动,可以添加 apache Phoenix(凤凰) 驱动(像使用jdbc访问关系型数据库一样,访问NoSql数据库HBase)
 
 ----squirrelsql-3.9.1-standard.zip 这个版本不支持JDK12
 ./squirrel-sql.sh来启动

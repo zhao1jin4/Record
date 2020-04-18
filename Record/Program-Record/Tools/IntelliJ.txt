@@ -1,4 +1,6 @@
 ﻿
+https://www.jetbrains.com/idea/download/other.html  有历史版本
+
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
 IDEA 2018.2.6 版本可以支持 JDK11
 
@@ -73,6 +75,14 @@ File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
 像word 同时只能打开一个项目
 File->project stucture ->选择Modules标签 可以Import或者Add 多个,默认目录是在本项目的子目录 (有 Search for projects recursively)，可以修改为同级,多个web项目可独立运行
 或者File ->new ->new Module...
+
+如是eclipse的web项目，在Project Strure对话框中，选中模块 —> 点 + 按钮 -> 选择 Web -> 设置web.xml位置，设置WebContent目录位置 
+	->Create Artifact 按钮后跳到Artifact标签，可以设置生成的项目目录,就可以在tomcat中选Artifact...项目
+选中模块 —>Dependences->点 + 按钮 -> Library...-> 增加tomcat包依赖
+
+导出war包 
+在Project Strure对话框中 -> Artifacts标签->点+ -> 选择Web Applicant:Archive -> for xxx explod->Name中的xxx就是输出war名,设置输出位置
+build菜单->build Artifacts...->选择 xxx ->Build
 
 右击.iml文件-> subversion->ignore->*.iml
 File->Settings->Editor->File Types  在ignore files and folders 中加*.iml;dubboregistry
@@ -252,6 +262,10 @@ minSdkVersion 25 (Build Tools 27.0.3,Android 7.1.1) 真机测试OK,模拟器api-
 
 ---IDEA 2018.2.6 插件scala 2018.2.6 
 	建立项目时选择IDEA (选择SBT要下载的) 测试OK
+---intellj plugin MyBatisX 
+https://gitee.com/baomidou/mybatis-plus 国产的
+https://plugins.jetbrains.com/plugin/10119-mybatisx
+	可以Mapper接口类 点击图标 进入XML
 	
 ---findbug
 
@@ -281,6 +295,9 @@ https://plugins.jetbrains.com/plugin/9442-vue-js/versions
 
 ---阿里的代码规范查检工具
 settings->plugins-> 搜索 Alibaba Java Code Guidelines (有离线版)
+tools->阿里编码规约->编码扫描 (如当前打开文件，只对这个文件，否则整个项目),
+结果在inspect result视图中(view->tool windows->inspect result)
+
 
 ---intellj_plugin_mongo
 0.12.0 版本要求 idea-2016.1+ (没有SHA256不支持mongo-4.0)
@@ -305,6 +322,16 @@ intellij idea 2018.2 插件 kubernetes
 	在写键的时候有下拉提示,也可按ctrl+shift+space(Code->completion->Smart Type)来提示，会把不对键标红做提示
 	没有提示的文档
 
+
+---actiBPM 插件 
+不是Activiti 官方提供的,eclipse 的是官方提供的
+
+2014年的 3.E-8 版本 
+
+安装后可以新建 BPMN 文件
+画完图后 修改/复制 文件名为.xml文件,右击->Diagrams->show bpmn 2.0 desiner... 也会显示出图
+	如有中文可能部分是乱码的,可以直接修改xml,###也可以修改 idea64.exe.vmoptions 文件尾行增加 -Dfile.encoding=UTF-8
+点上方的export to file按钮,可选择图片格式，但如果idea主题是黑色，导出的图背景也是黑色
 
 
 ---------DataGrip 2018  可以不要 IntellijIDEA 也有这此功能,也有 WebStorm ,Android 功能

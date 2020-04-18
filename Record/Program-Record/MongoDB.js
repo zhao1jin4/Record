@@ -361,7 +361,7 @@ db.inventory.insert(
  db.inventory.update({item:"ABC1"},{$pull:{"stock":{qty: 30}}});  //删除数组中间 $pull
 
 	 
-db.bios.createIndex( { "birth": 1 }, { unique: true } )//1,表示升序,-1表示降序,唯一索引
+db.bios.createIndex( { "birth": 1 }, { name: "birthday", unique: true } )//1,表示升序,-1表示降序,唯一索引
 db.bios.createIndex( { _id: "hashed" } )  //hash索引
 db.bios.createIndex(
    { birth: 1, name: 1 },//复合索引
@@ -376,6 +376,11 @@ db.contacts.createIndex(
 )
 db.locations.createIndex({w:"2d"})
 
+ 
+db.bios.dropIndex("birth" )
+db.bios.dropIndexes() 从MongoDB 4.2 开始 可以删所有非 _id 索引
+ 
+ 
 
 db.setProfilingLevel(1);//0是关闭,2是全部,1是慢操作  ,也可以在启动mongod 时加 --profile 1
 db.setProfilingLevel(1,1000);//超过1秒认为是慢操作  , 也可以在启动mongod 时加 --slowms  1000
@@ -392,8 +397,6 @@ db.locations.find({w:{$geoWithin:{$box:[[0,0],[3,3]]}}})
 db.locations.find({w:{$geoWithin:{$center:[[0,0],3]}}})
 db.locations.find({w:{$geoWithin:{$polygon:[[0,0],[1,2],[8,8],[6,5]]}}})
 
-db.bios.getIndexes()
-db.bios.dropIndex({ "birth": 1 })
 db.bios.count( { a: 1 } )
 db.bios.distinct ( { a: 1 } )
 db.runCommand(

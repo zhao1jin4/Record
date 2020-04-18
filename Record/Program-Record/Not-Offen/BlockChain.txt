@@ -1,5 +1,6 @@
-﻿
-区块链 以太坊(Ethereum blockchain )　https://www.ethereum.org/　　　　
+﻿区块链 2.0 智能合约(可用高级语言写的交易步骤)
+区块链 3.0
+区块链  以太坊(Ethereum blockchain )　https://www.ethereum.org/　　　　
 
 通过web3j进行以太坊区
 bootnode 私有链(共三种方式建私有链  接近真实环境)
@@ -28,10 +29,37 @@ https://bitnodes.earn.com/  统计网
 
 https://www.uber.com/ 美国打车软件 
 
-P2P
+P2P 去中心化(不是完全去中心，多中心)
 
 GlusterFS 
-智能合约
-以太坊（第二代）
+智能合约 分布式帐本
+以太坊(第二代)
+
+区块链 存储数据的地方，保证不可伪造和纂改
+
+公有链
+私有链
+联盟链
+
+老技术的集合  ,必须要有的 加密技术 
+共识(可能慢)  表示 一个用户发出交易，要全网所有的用户认可
+1.0 比特币
+2.0 智能合约
+3.0 分布式人工智能和组织
+
+可编程合约     可编辑资产     激励机制    成员管理
+
+共识机制   工作量证明(Pow=Proof Of Work)  权益证明(PoS=Proof of Stake)   
+			股份授权证明 (Dpos=Delegate Proof of Stake )  基于消息传递的一致性算法(Paxos)
+			拜占庭容错(PBFT=Practical Byzantine Fault Tolerance)
+
+
+
+
+
+
+
+
+
 
 	

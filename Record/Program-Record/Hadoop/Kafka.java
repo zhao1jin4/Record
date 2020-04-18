@@ -301,12 +301,12 @@ https://docs.kafka-eagle.org/2.env-and-install/2.installing
 <dependency>
     <groupId>org.apache.kafka</groupId>
     <artifactId>kafka-clients</artifactId>
-    <version>2.3.1</version>
+    <version>2.4.1</version>
 </dependency>
 <dependency>
     <groupId>org.apache.kafka</groupId>
     <artifactId>kafka-streams</artifactId>
-    <version>2.3.1</version>
+    <version>2.4.1</version>
 </dependency>
 
 

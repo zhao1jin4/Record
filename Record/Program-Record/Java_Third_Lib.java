@@ -735,7 +735,17 @@ mvn clean package -Dmaven.test.skip=true    跳过编译测试类,生成.war包�
 mvn install -DskipTests     跳过test的执行，但要编译  
  --update-snapshots  更新snapshots的依赖包
 
-mvn dependency:list  显示所有依赖
+mvn clean compile -e -U  其中 -e 显示错误，-U强制更新snapshots和缺少的release
+
+mvn dependency:list  显示所有依赖 
+mvn dependency:tree 打印整个依赖树   
+mvn dependency:resolve 打印出已解决依赖的列表
+mvn dependency:sources 下载依赖的源代码
+mvn dependency:copy-dependencies  会把所有依赖复制到 .\target\dependency 目录中
+
+
+
+
 
 mvn archetype:generate  会提示输入groupId,groupId
 
@@ -900,9 +910,9 @@ rootProject.name = 'myGradleGroovy'
 新建环境变量 GRADLE_USER_HOME=D:/GRADLE_REPO (不能和MAVEN仓库共用位置) gradle目录格式为 org.springframework 是一个目录名
 IDEA 对已经有的Maven仓库会优先使用 Maven setting中配置的目录，再使用Gradle目录
 IDEA 配置 Service directory path:　会在目录创建caches\modules-2\files-2.1  
-IDEA,AndroiStudio 要配置系统级别环境变量 GRADLE_USER_HOME 
+IDEA,AndroiStudio 会读系统级别环境变量 GRADLE_USER_HOME 
   
-eclipse 配置gradle user home:　会在目录创建caches\modules-2\files-2.1
+eclipse (不读环境变量)要手工配置gradle user home:　会在目录创建caches\modules-2\files-2.1
 
 IDEA 的gradle视图(同maven)->展开tasks->build->双击jar/war
 eclipse 的gradle tasks 视图->展开build->双击jar,在build/libs目录生成
@@ -1790,11 +1800,12 @@ TestCase 中有
 这两个方法在抛出异常时也会被调用,测试失败也会的
 
 <dependency>
-    <groupId>org.junit.jupiter</groupId>
-    <artifactId>junit-jupiter-api</artifactId>
-    <version>5.5.2</version>
-    <scope>test</scope>
+	<groupId>org.junit.jupiter</groupId>
+	<artifactId>junit-jupiter</artifactId>
+	<version>5.5.2</version>
+	<scope>test</scope>
 </dependency>
+ 
 import org.junit.jupiter.api.Test; //Junit 5    jupiter 木星；
 import static org.junit.jupiter.api.Assertions.*;//Junit 5 
 assertThrows(NumberFormatException.class,  ()->{
@@ -1803,7 +1814,7 @@ assertThrows(NumberFormatException.class,  ()->{
 	
 JUnit 4.0 有 只执行一次初始方法,销毁方法 
 import static org.junit.Assert.assertEquals; 
- 类不必继承自TestCase
+ 类不必继承自 TestCase
 
 @BeforeClass
 public static void init()//必须是static
@@ -1828,6 +1839,11 @@ public void myTest()//不必以test开头
 {
 }
 
+//Junit5 API
+@BeforeAll 用在static方法上
+@BeforeEach 
+@AfterEach
+@AfterAll
 
 textui包  TestRunner类  run(Class testClass)   几个点,表示几个测试方法  
 junit.textui.TestRunner.run(HelloTest.class);
@@ -2071,14 +2087,15 @@ when(myServiceBean.insertData(ArgumentMatchers.anyList())).thenThrow(RuntimeExce
 myServiceBean.insertData(Arrays.asList(new Product()));
 
 
----Spring 集成 mockito
+---Spring 集成 mockito ,在 SpringMVC.java 中也有
+
 import org.mockito.Mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)  
 //@ActiveProfiles({"test"})
 //@Transactional
-@WebAppConfiguration //可以注入 WebApplicationContext
+@WebAppConfiguration("file:WebContent/") //可以注入 WebApplicationContext
 @ContextConfiguration(locations={"classpath:test_mockmvc/spring-mockmvc.xml"})
 public class MockITO_MockMvcTest  
 {
@@ -2122,7 +2139,12 @@ NG=Next Generation  (Not Good)
   <scope>test</scope>
 </dependency>
 会依赖于 jcommander-1.48.jar 
-
+<dependency>
+    <groupId>org.hamcrest</groupId>
+    <artifactId>hamcrest-core</artifactId>
+    <version>2.2</version>
+    <scope>test</scope>
+</dependency>
 
 
 Eclipse Market Place 安装TestNG (或者下载离线版本(6.14.0) https://github.com/cbeust/testng-eclipse)
@@ -3475,27 +3497,27 @@ manager.release(isearcher);//finally中做
  <dependency>
     <groupId>org.mongodb</groupId>
     <artifactId>mongodb-driver</artifactId>
-    <version>3.8.2</version>
+    <version>3.12.2</version>
 </dependency>
 <dependency>
 	<groupId>org.mongodb</groupId>
 	<artifactId>mongodb-driver-core</artifactId>
-	<version>3.8.2</version>
+	<version>3.12.2</version>
 </dependency>
 <dependency>
 	<groupId>org.mongodb</groupId>
 	<artifactId>mongodb-driver-async</artifactId>
-	<version>3.8.2</version>
+	<version>3.12.2</version>
 </dependency>
 <dependency>
     <groupId>org.mongodb</groupId>
     <artifactId>bson</artifactId>
-    <version>3.8.2</version>
+    <version>3.12.2</version>
 </dependency>
 
 
 3.8 支持MongoDB 4.0 的事务
-3.11.0支持MongoDB 4.2
+3.11.0 支持MongoDB 4.2
 
 Multi-document transactions are available for replica sets only. 
 Transactions for sharded clusters are scheduled for MongoDB 4.2
@@ -3780,17 +3802,17 @@ collection.bulkWrite(
 );
 ---------Querydsl MongoDB
 http://www.querydsl.com/static/querydsl/latest/reference/html/
-有Querying SQL,Querying Lucene, Querying Hibernate Search,Querying in Scala
+有Querying SQL(有maven插件生成代码),Querying Lucene, JPA,Querying Hibernate Search,Querying in Scala
 
 <dependency>
     <groupId>com.querydsl</groupId>
     <artifactId>querydsl-mongodb</artifactId>
-    <version>4.2.1</version>
+    <version>4.3.1</version>
 </dependency>
 <dependency>
     <groupId>com.querydsl</groupId>
      <artifactId>querydsl-core</artifactId>
-    <version>4.2.1</version>
+    <version>4.3.1</version>
 </dependency> 
 <dependency>
   <groupId>com.mysema.commons</groupId>
@@ -5280,11 +5302,11 @@ Logger logger = LogManager.getLogger(TestLog4j2.class);
  
 ---------------------------------SLF4J
 替代 Spring 使用的 commons-logging 加 jcl-over-slf4j-1.7.6.jar
-
+ 
 <dependency>
-  <groupId>org.slf4j</groupId>
-  <artifactId>slf4j-api</artifactId>
-  <version>1.7.25</version>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-api</artifactId>
+    <version>1.7.30</version>
 </dependency>
 
 使用SLF4J(Simple Logging Facade for Java)做日志,为多种日志框架,默认是log4j
@@ -5309,6 +5331,8 @@ logger.error("文件找不到",new FileNotFoundException("/test.txt"));//传入T
     <artifactId>logback-classic</artifactId>
     <version>1.2.3</version> 
 </dependency>
+
+logback-classic 会自动依赖  logback-core 和 slf4j-api
 
 
 依赖 slf4j-api-1.7.6.jar , logback-core-1.1.2.jar  ,logback-classic-1.1.2.jar  直接实现了SLF4J API
@@ -5706,9 +5730,18 @@ BeanUtils.copyProperties(dest, orig); // commons.beanutils 和 spring都有，�
 //也可用 java.beans.Introspector 做  Map --> Bean , Bean -> Map
 BeanUtils.populate(obj, map); // Map --> Bean 
 
+-------------------------------commons-io
+<dependency>
+    <groupId>commons-io</groupId>
+    <artifactId>commons-io</artifactId>
+    <version>2.6</version>
+</dependency>
+
+FileUtils.copyInputStreamToFile(in, new File("E:/file.txt"));
  
- 
-------------------------------Bcrypt Java实现 jBCrypt
+------------------------------Bcrypt Java 实现 jBCrypt
+Spring Security 使用bcrypt
+
 http://www.mindrot.org/projects/jBCrypt/
 <dependency>
     <groupId>org.mindrot</groupId>
@@ -9525,12 +9558,211 @@ public class Reactor3Example {
 }
 
 -------------Reactor  上
+-------------MySQL XDevApi Table 表 
+JavaScript 版本见 MySQL_Developer.sql
+//X DevAPI  异步API 基于 X Protocol,依赖于com.google.protobuf
+
+import com.mysql.cj.xdevapi.*;
+
+	public static void main(String[] args)throws Exception
+	{
+		String baseUrl="mysqlx://localhost:33060/mydb?user=zh&password=123";
+		//Session mySession = new SessionFactory().getSession(baseUrl);
+		//连接池
+		ClientFactory cf = new ClientFactory(); 
+		Client cli = cf.getClient(baseUrl, "{\"pooling\":{\"enabled\":true, \"maxSize\":8,\"maxIdleTime\":30000, \"queueTimeout\":10000} }");
+		Session mySession = cli.getSession();
+		
+		mysqlProcedure(mySession);
+		showDatabases(mySession);
+		mysqlTable(mySession);
+		
+		mySession.close();
+		cli.close();
+		
+	}
+	public static void mysqlProcedure(Session mySession) {
+		mySession.sql("USE mydb").execute();
+		mySession.sql("CREATE PROCEDURE my_add_one_procedure " + " (INOUT incr_param INT) " + "BEGIN " + "  SET incr_param = incr_param + 1;" + "END")
+		        .execute();
+		mySession.sql("SET @my_var = ?").bind(10).execute();
+		mySession.sql("CALL my_add_one_procedure(@my_var)").execute();
+		mySession.sql("DROP PROCEDURE my_add_one_procedure").execute();
+		SqlResult myResult = mySession.sql("SELECT @my_var").execute();
+		Row row = myResult.fetchOne();
+		System.out.println(row.getInt(0));
+	}
+	public static void showDatabases(Session mySession)
+	{
+		List<Schema> schemaList = mySession.getSchemas();
+		System.out.println("Available schemas in this session:");
+		for (Schema schema : schemaList) {
+		System.out.println(schema.getName());
+		}
+	}
+ 
+	public static void mysqlTable(Session session) throws Exception
+	{
+		Schema  db= session.getSchema("mydb");
+		
+		// New method chaining used for executing an SQL SELECT statement
+		// Recommended way for executing queries
+		Table employees = db.getTable("employee");
+
+		RowResult res = employees.select("username, age")
+		  .where("username like :param")
+		  .orderBy("username")
+		  .bind("param", "李").execute(); //可以使用%通配符
+		
+		while(res.hasNext())//类似JDBC
+		{
+			Row row=res.next();
+			System.out.println(row.getString(0) + row.getInt(1));//从0开始,和JDBC不同
+			System.out.println(row.getString("username") + row.getInt("age"));
+			//中文乱码
+		}
+		SqlResult result = session.sql("SELECT username, age " +
+		  "FROM employee " +
+		  "WHERE username like ? " +
+		  "ORDER BY username").bind("王").execute(); //sql方法参数要用?
+		 
+		List<Row> rows1=result.fetchAll();//另一种方式
+		for(Row row:rows1)
+		{
+			System.out.println(row.getString(0) + row.getInt(1)); 
+			System.out.println(row.getString("username") + row.getInt("age"));
+		}
+		
+	}
+	public static void transaction(Session mySession) {
+		Schema  db= mySession.getSchema("mydb");
+		Table employeeTable = db.getTable("employee");
+		
+		mySession.startTransaction(); 
+		employeeTable.insert("id", "username","age")
+		  .values(2002, "张2",32)
+		  .values(2003, "张3",33)
+		  .execute();
+		  
+		//setSavepoint嵌套事务
+		mySession.setSavepoint("level1");
+		
+		//mySession.sql("update   employee set  age=? where id=? ").bind(25).bind(2003).execute();
+		
+		//set用:变量不行？？？
+		//OK
+		employeeTable.update().set("age", 25).set("username", "张3").where("id= :id")
+			.bind("id",2003).execute();
+		 
+		mySession.setSavepoint("level2");
+		
+		employeeTable.delete().where("id= :id").bind("id",2003);
+		
+		mySession.rollbackTo("level2");
+		
+		mySession.rollbackTo("level1");
+		mySession.commit();
+	}
+-------------MySQL XDevApi NoSQL Collection
+//其实NoSQL集合 就是 表 只有两个字段  ,一个_id类型为varbinary(32) ,一个doc 类型为JSON
+{
+	Schema db=mySession.getSchema("mydb");
+	Table my_collection = db.getCollectionAsTable("my_collection");
+	//my_collection.insert("doc").values("{\"username\": \"Ana\"}").execute();//不行??
+}
+
+Schema  db= mySession.getSchema("mydb");
+Collection myColl = db.getCollection("my_collection");
+//Collection myColl = db.getCollection("my_collection",true);//第二个参数requireExists，如不存在报异常
+if(DatabaseObject.DbObjectStatus.NOT_EXISTS == myColl.existsInDatabase())
+{
+	myColl = db.createCollection("my_collection");
+	DbDocImpl doc=new DbDocImpl()  ;
+	doc.add("age",  new JsonNumber().setValue("18"));
+	doc.add("name",  new JsonString().setValue("王"));
+	myColl.add(doc).execute();
+
+	myColl.add("{\"name\":\"Laurie\", \"age\":19}").execute();	
+	myColl.add("{\"name\":\"Nadya\", \"age\":54}" ,"{\"name\":\"Lukas\", \"age\":32}").execute();
+		
+	
+}
+DocResult docs = myColl.find("name like :name or age < :age")
+		.bind("name", "L%").bind("age", 20).execute();//通配符%和MySQL一样
+while(docs.hasNext())//同JDBC
+{
+	DbDoc doc=docs.next();
+	JsonValue val=new JsonString().setValue("2020");//无JsonDate
+	System.out.println(doc.get("name") + doc.getOrDefault("birdthday",val ).toString());
+}
+
+myColl.modify("true").set("age", 19).execute(); //expr( "age + 1") 如何写表达式？？
+
+Map<String, Object> params = new HashMap<>();
+params.put("name", "Nadya");
+myColl.modify("name = :name").set(".age", 25).bind(params).execute();//.age
+		
+		
+DbDoc  ds=	docs.fetchOne();//docs.fetchAll()
+String id=ds.get("_id").toFormattedString().replace("\"", "");//首尾带"
+
+DbDoc doc2 = myColl.getOne(id); //等同于  myColl.find("_id = :id").bind("id", id).execute().fetchOne()
+System.out.println(doc2);//中文乱码??
+myColl.replaceOne(id, "{\"name\":\"中1\", \"age\":11}");
+//myColl.addOrReplaceOne("101", "{\"name\":\"国\", \"age\":33}");//增加时可以手工指定id
+myColl.removeOne(id);//相当于 myColl.remove("_id = :id").bind("id", id).execute()
+
+
+//创建索引 
+myColl.createIndex("age", "{\"fields\":[{\"field\": \"$.age\", \"type\":\"INT\", \"required\":true}]}");
+// {fields: [{field: '$.age', type: 'INT'},{field: '$.username', type: 'TEXT(10)'}]}
+SqlResult myResult =mySession.sql("SHOW INDEX FROM mydb.my_collection").execute();
+for(Row row : myResult.fetchAll() )
+{
+	System.out.println(row.getString("Key_name")+","+row.getString(2));
+	
+}
+//数组索引，要求8.0.17版本以后
+//		collection.createIndex("emails_idx",  
+//			    {fields: [{"field": "$.emails", "type":"CHAR(128)", "array": true}]});
+myColl.dropIndex("age");
+
+
+		
+db.dropCollection("my_collection");
+
+//两种数据NoSQL和关联型表 在一个事务中
+public static void transaction(Session mySession) {
+	Schema  db= mySession.getSchema("mydb");
+	Table employeeTable = db.getTable("employee");
+	Collection myColl = db.getCollection("my_collection");
+	
+	mySession.startTransaction(); 
+	
+	employeeTable.insert("id", "username","age")
+	  .values(2004, "陈2",22)
+	  .execute();
+	
+	mySession.setSavepoint("level1");
+
+	DbDocImpl doc=new DbDocImpl()  ;
+	doc.add("age",  new JsonNumber().setValue("28"));
+	doc.add("name",  new JsonString().setValue("赵"));
+	myColl.add(doc).execute();
+	
+	mySession.setSavepoint("level2");
+	
+	myColl.add("{\"name\":\"lisi\", \"age\":29}").execute();
+	
+	mySession.rollbackTo("level1");
+	mySession.commit();
+}
 
 -------------akka
 
 
 
--------------OAuth 2.0  
+-------------OAuth 2.0   见Spring Security
 Open Authorization
 
 resource owner  最终用户

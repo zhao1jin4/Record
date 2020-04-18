@@ -249,7 +249,8 @@ MySQL 性能优化
  ,in , not in使用索引
   BTree和hash索引 is not null ,is null 是使用索引的               对b-tree来说，where xx is null条件是不会利用索引的
 
-  
+聚簇索引,  数据和索引放在一起,innodb引擎,ibd文件就是聚簇索引文件,
+非聚簇索引,数据和索引不放在一起,myisam引擎
   
   
   
@@ -393,6 +394,7 @@ Partition tolerance(分区容错性) 可靠性
 自定义   序列化   Externalizable
  
  
+ B+Tree数据只存放在叶子节点上
  
  索引怎么实现的  Btree  B 通常认为是Balance的简称怎么存储的  
 http://www.aikaiyuan.com/1809.html
@@ -692,7 +694,7 @@ eureka是 AP(一致性弱) ，Consul，zooKeeper，etcd 都是 CP(牺牲可用�
 notify ,notifyAll
 
 
-Resetful字段命名（多个微服务统一，都叫user_id，可能哪天读所有系统的user_id）
+Restful字段命名（多个微服务统一，都叫user_id，可能哪天读所有系统的user_id）
 防盗链refer,timestamp(token)...还有。。。
 基于角色的访问控制（RBAC）是
 

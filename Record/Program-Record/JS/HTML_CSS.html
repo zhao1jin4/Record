@@ -82,6 +82,9 @@ document.oncontextmenu=new Function("return false;");//禁止网页右键
 <img src="" onmouseover="this.style.cursor='pointer'"/>  手形是pointer
 
 ------
+<textarea rows="3" cols="20">
+ 文本区内容
+</textarea>
 
 <input type="image">自动是提交
 
@@ -148,11 +151,12 @@ function onlyFileName(inputFile )
 }
 </script>
 
-dl 描述列表
+描述列表
 <dl>
-  <dt>描述标题1</dt>
+    <dt>描述标题1</dt>
     <dd>描述内容1</dd>
-  <dt>描述标题2</dt>
+    
+	<dt>描述标题2</dt>
     <dd>描述内容2</dd>
 </dl>
 
@@ -328,7 +332,7 @@ var script = document.createElement('script');
 script.setAttribute('src', url); 
 document.getElementsByTagName('head')[0].appendChild(script); 
 
-//方式三 jQuery jsonp
+//方式三 jQuery jsonp 也是基于<script>的src属性来实现，看firefox的请求网的case列为script,不是xhr
 </script>
   
 <!-- 浏览器如是localhost,用127.0.0.1就是跨域
@@ -337,9 +341,10 @@ document.getElementsByTagName('head')[0].appendChild(script);
 <script type="text/javascript" src="http://127.0.0.1:8080/S_HTML5CSS3/js/remote.js"></script>
  <script type="text/javascript" src="http://localhost:8080/S_HTML5CSS3/js/remote.js"></script>
   -->
----remote.js
+//---remote.js
 localHandler({"result":"我是远程js带来的数据"});
 
+CORS 见Ajax_JS.js
 
 
 

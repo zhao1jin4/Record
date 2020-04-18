@@ -2,6 +2,8 @@
 ﻿Eclipse 2019-06  inst (4.12.0) 支持JDK 12版本  
 ﻿Eclipse 2019-09 R (4.13.0)  compiler还只是到12 
 ﻿Eclipse 2019-12  
+﻿Eclipse 2020-03 (4.15.0)   compiler 到jdk 13
+
 =======================================eclipse==========================
 快捷键
 alt +/
@@ -274,6 +276,7 @@ preferences->Java->Editor-Save Action->复选perform the selected actions on sav
 =======================================up eclipse==========================
 
 Eclipse Marketplace  搜索 Kotlin , MyBatis generator(可生成kotlin代码)
+mybatipse 插件(mybatis的eclipse插件) http://dl.bintray.com/harawata/eclipse/
 
 ------Rational Software Architect Designer V9.6 是 eclipse-4.6.1
 可下载for websphere的包
@@ -516,10 +519,19 @@ SpringToolSuite-3.6.3
 		依赖于 eclipse.org 提供的 org.json 0.0.0 ,从springToolSuite中复制 org.json_1.0.0.jar , org.jsoup_1.7.2.jar放dropins目录
 		依赖于 com.google.gson  ,从springToolSuite中复制 com.google.gson_2.1.0.jar 放dropins目录
 
-SpringToolSuite-3.9.7(eclipse 4.10.0)
+SpringToolSuite-3.9.12 (eclipse 4.15.0) 最后一个STS 3版本 github上有 springsource下载链接
+	可以在 spring的xml中(spring config editor编辑器) 输入按快捷键(content Assist)提示属性名，方法名，
+		但类名不行??? 以前可以的啊??? 3.9.10版本也不行, 但可以提示类不存在错误
+		
+	也带spring的 yaml 或 properties编辑器
+	可以新建spring starter项目,如刚建立好可以右击pom.xml->spring->edit spring starters
+	
+---SpringToolSuite-4.1(eclipse 4.10.0) 
+有Visual Studio Code 版本
+不能建立 web项目,到4.6.0(eclipse-4.15.0)版本又能建立web项目了,
+	没有spring的xml编辑器了??? xml文件中写类或属性方法做提示了 ???, 原始xml编辑器只可按ctrl+类名有链接表示类存在.
+	有spring的 yaml 或 properties编辑器 
 
-
----SpringToolSuite-4.1(eclipse 4.10.0) 不能建立 web项目 !!! 
 	有 Spring Boot->Spring Starter
 	只能用Maven,
 	有Server标签能建立Tomcat
@@ -722,6 +734,17 @@ Eclipse Market Place 安装 TestNG
 	 版本6.14.0可正常help->install安装的eclipse-2018-21(4.10)上
 	
 安装后new file->有testng组
+
+--------eclipse  插件 Activiti-5.18 离线安装
+现在在线下载很慢,可能失败
+http://activiti.org/designer/update/
+
+
+org.eclipse.emf.transaction_1.4.0.v20100331-1738.jar
+org.eclipse.emf.validation_1.7.0.201306111341.jar
+org.eclipse.emf.workspace_1.5.1.v20120328-0001.jar
+把带的3个jar包有现成的，复制到eclipse的plugins目录中,重启
+eclipse-4.15(sts3最后版本)help->install ->选择zip包(取消复选 concat all xxx 和 show only lastest) 测试OK
 
 
 ------ JRebel 热部署插件（收费）

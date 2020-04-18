@@ -133,7 +133,7 @@
 	<dependency>
 	  <groupId>org.springframework.data</groupId>
 	  <artifactId>spring-data-mongodb</artifactId>
-	  <version>2.1.1.RELEASE</version>
+	  <version>2.2.6.RELEASE</version>
 	</dependency>
 	
 	<dependency>
@@ -164,16 +164,18 @@
 	</dependency> 
 	
 	 <!-- other -->
+	 <dependency>
+        <groupId>org.springframework.kafka</groupId>
+        <artifactId>spring-kafka</artifactId>
+        <version>2.4.5.RELEASE</version>
+    </dependency>
+	
 	<dependency>
         <groupId>org.springframework.hateoas</groupId>
         <artifactId>spring-hateoas</artifactId>
         <version>0.19.0.RELEASE</version>
     </dependency>
-	<dependency>
-        <groupId>org.springframework.kafka</groupId>
-        <artifactId>spring-kafka</artifactId>
-        <version>2.1.5.RELEASE</version>
-    </dependency>
+
 	
 </dependencies>
  
@@ -370,7 +372,10 @@ ClassPathResource ("xml文件");
 	<prop key="max">200</prop>
 </util:properties>
 <util:properties id="jdbcProperties" location="classpath:jdbc.properties"/>
- 
+
+@PropertySource("classpath:/jdbc.properties")
+@Configuration
+
 <!--list 和数组都使用-->
 <list>
 	<value>list one</value>
@@ -1193,7 +1198,7 @@ import org.springframework.core.Ordered;
 
 @Configuration  //代替部分spring配置中XML,<bean id=""
 @Import({ServiceConfig.class})//中的类也有@Configuration  
-@PropertySource("classpath:jdbc.properties")// 写到Environment中, /WEB-INF
+@PropertySource("classpath:jdbc.properties")// 写到Environment中, /WEB-INF,可使用@Value("${jdbc.url}")取值
 public class AppConfig 
 {
 	@Inject 
@@ -1665,8 +1670,8 @@ org.springframework.util.Assert.notNull(obj,"error,obj is null");
 =========================spring TestNG
 //@WebAppConfiguration("file:WebContent/")  //可以注入 WebApplicationContext 要和  @ContextConfiguration 一起使用
 @ContextConfiguration(locations = { "classpath:/spring_testng/springTestNG.xml" })
+//@ContextConfiguration (classes = {MvcConfig.class,MyBatisConfig.class}) //对于 MyWebApplicationInitializer配置web.xml
 public class TestNGSpring extends AbstractTestNGSpringContextTests {
-	
 	
 	@Autowired
 	private GenericApplicationContext ctx; //是GenericApplicationContext
@@ -1901,6 +1906,11 @@ public void asyncReturnSomething()
 	<task:scheduled ref="mySomeBus" method="doBusCrond" cron="*/5 * * * * MON-FRI" />
 </task:scheduled-tasks>
  -->
+ 
+@EnableAsync 
+@EnableScheduling
+
+
 =========================Spring Cache
 java map
 
@@ -2456,23 +2466,45 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection="mo_customer")
+@CompoundIndexes({
+    @CompoundIndex(name = "inx_com_time", def = "{'createTime': 1, 'sqlTime': -1}")
+})
 public class Customer {
     @Id
     private String id;
 	
 	@Field(value="first_name")
+    @Indexed//(unique = true)
+	/*老版本如这里加会在第二次启时报索引已经存在的Warning
+    db.mo_customer.createIndex( { "first_name": 1 }, {name: "first_name", unique: true } )
+    db.mo_customer.getIndexes()
+	db.mo_customer.dropIndex("inx_com_time" )
+ 	db.mo_customer.dropIndex("first_name")
+ 	db.mo_customer.dropIndexes() 从MongoDB 4.2 开始 可以删所有非 _id 索引
+    */
     private String firstName;
 	
 	private String lastName;
+	
+	private Date createTime;
+	private Timestamp sqlTime;
+	@Transient
+    private Long dbUserId;
+	
 	//getter/setter
+	
+	
 }
 
 repository.dropCollection();
 repository.createCollection();
 
 Customer lisi = new Customer("lisi", "李四");
+lisi.setDbUserId(10001L);
 lisi.setId("2");
-repository.saveObject(lisi);
+repository.saveObject(lisi);//mongoTemplate.insert() 如集合不存会自动创建,并建立索引,即使用集合已经存在并无索引,也会自动建立索引
+//如使用mongoTemplate.createCollection(XX.class)不会建立索引???
+
 System.out.println("with id 2 " + repository.getObject("2"));
 
 repository.updateObject("2", "五");
@@ -2494,6 +2526,7 @@ List<Customer>  cus=customerRepository.findCustomersByTwoParam("lisi0" , "李四
 
 List <Customer> deleted=customerRepository.deleteByLastName("李四0");
 Long rows=customerRepository.deletePersonByLastName("李四1");
+rows=customerRepository.removeDataByLastName("李四2");
 customerRepository.deleteAll();
 
 	
@@ -2511,8 +2544,10 @@ public interface  MyCustomerRepository extends MongoRepository<Customer,String>/
 	public List<Customer> findCustomersByTwoParam(String first,String last);
 	
 	 //delete返回
-	 List <Customer> deleteByLastName(String lastname);
-	 Long deletePersonByLastName(String lastname);
+	 List <Customer> deleteByLastName(String lastname); 
+	 
+	 Long deletePersonByLastName(String lastname);//delete…By or remove…By
+	 Long removeDataByLastName(String lastname);//delete…By or remove…By
 	
 }
 
@@ -2527,7 +2562,12 @@ c.orOperator(new Criteria[] {Criteria.where("first_name").regex("lisi")});
 Query  query =new   Query(c); 
 query.skip(2);
 query.limit(10);//分页
-Sort sort=new Sort(Sort.Direction.ASC,"createTime");
+
+//Sort sort=new Sort(Sort.Direction.ASC,"createTime");//老版本
+List<Order> orders=new ArrayList<>();
+orders.add(new Order(Sort.Direction.ASC,"createTime"));
+Sort sort=Sort.by(orders);
+		
 query.with(sort);
 
 List<Customer> list=mongoTemplate.find(query, Customer.class);

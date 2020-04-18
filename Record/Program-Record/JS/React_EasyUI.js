@@ -10,7 +10,8 @@ npm start 开发级,看报错要ping通`hostname`(start定义在package.json的 
 
 package.json 中有"main": "index.js"
 
-package.json 下增加如下设置代理，npm start就可debug,但必须是使用index.html中用ajax请求才行，如在浏览器无论输入什么地址还是进入index.html页？？
+package.json 下增加如下设置代理，npm start就可debug,但必须是使用index.html中用ajax请求才行
+如在浏览器无论输入什么地址还是进入index.html页??? (GET请求) ,ajax 用POST请求是可以代理的
 "proxy":"http://localhost:8080/S_ReactEasyUI",
 
 生成的index.js代码就有 
@@ -33,7 +34,9 @@ import $ from  'jquery'
 
 2018-12-28   版本  1.0.1  
 2019-03-14   版本  1.0.18
+2020-03-16   版本  1.0.53
 
+npm install -g rc-easyui
 npm install rc-easyui --save 
 
 index.css  中增加
@@ -48,7 +51,7 @@ App.js   中增加
 	
   
 
--------------
+----------DataGrid 简单示例
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -90,139 +93,317 @@ export default App;
 
 
 
----------fetch调用
-import React from 'react';
-import logo from './logo.svg';
+---------DataGrid 从服务取数据fetch , jQuery ,行内编辑
+import React from 'react'; 
 import './App.css';
 
 import { DataGrid, GridColumn, ComboBox, Label } from 'rc-easyui';
+import { NumberBox,SwitchButton,CheckBox,TextBox } from 'rc-easyui';
 import $ from  'jquery'
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      total: 0,
-      pageNumber: 1,
-      pageSize: 20,
-      data: [],
-      loading: false,
-      pagePosition: "bottom",
-      options: [
-        { value: "bottom", text: "Bottom" },
-        { value: "top", text: "Top" },
-        { value: "both", text: "Both" }
-      ]
-    }
-  }
-  componentDidMount() {
-    this.loadPage(this.state.pageNumber, this.state.pageSize)
-  }
-  loadPage(pageNumber, pageSize) {
-    this.setState({ loading: true })
-		
+class App extends React.Component 
+{
+	constructor(props) 
+	{
+		super(props);
+		this.state = 
+	    {
+			total: 0,
+			pageNumber: 1,
+			pageSize: 20,
+			data: [],
+			loading: false,
+			//以下自已使用的
+			pagePosition: "bottom",
+			options: [
+				{ value: "bottom", text: "Bottom" },
+				{ value: "top", text: "Top" },
+				{ value: "both", text: "Both" }
+			]
+	    }
+	} 
+	componentDidMount() 
+	{
+		this.loadPage(this.state.pageNumber, this.state.pageSize)
+	}
+	loadPage(pageNumber, pageSize)
+	{
+		this.setState({ loading: true })
 		var that=this;
-			 
-    //var data = "answer=42&name=lisi";  //POST,"Content-Type": "application/x-www-form-urlencoded",服务端request可以的 
-    var data = new URLSearchParams();//也可以
-    data.set("my_custome_param",123);
-    data.set("page",pageNumber);
-    data.set("rows",pageSize); 
-    fetch('/easyUI/queryJsonData', 
-    { method: "POST",
-      body:data
-    }
-    ).then(response => 
-      response.json()//如debug报body stream is locked
-    ).then(function(result) { 
-      console.log(result);
-      console.log(result.rows); 
-      //这里不能调用 this.setState      
-      that.setState(Object.assign({}, result, {
-        data: result.rows,
-        loading: false
-      }));
-       
-    }); 
+		//这时 Content-Type默认为 text/plain;charset=UTF-8 要修改为  application/x-www-form-urlencoded 
+		var data = "page="+pageNumber+"&rows=20&my_custome_param=123"; 
+		//方式二 		 
+		// var data = new URLSearchParams();  // Content-Type默认为 application/x-www-form-urlencoded
+		// data.set("my_custome_param",123);
+		// data.set("page",pageNumber);
+		// data.set("rows",pageSize); 
+		 
+		fetch('/easyUI/queryJsonData', 
+			{ 
+				method: "POST",
 
+				headers: {
+					//"Content-Type": "application/json;charset=UTF-8",  
+					"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" 
+				},
+				body:data
+			}
+		).then(response => 
+			response.json()//如debug报body stream is locked
+		).then(function(result) 
+		{ 
+			console.log(result);
+			console.log(result.rows); 
+			//这里不能调用 this.setState 
+			that.setState(Object.assign({}, result,
+				{
+					data: result.rows,
+					loading: false
+				})
+			);
+		
+		});
+		/* 
+		setTimeout(() => {
+		let result = this.getData(pageNumber, pageSize);
+		this.setState(Object.assign({}, result, {
+			data: result.rows,
+			loading: false
+		}))
+		}, 1000);
+		*/
+	}
+	getData(pageNumber, pageSize) 
+	{  
+		var res=null;
+		var data={
+			my_custome_param:"123",
+			page: pageNumber,
+			rows:pageSize
+		};
 
- /*  
-    setTimeout(() => {
-      let result = this.getData(pageNumber, pageSize);
-      this.setState(Object.assign({}, result, {
-        data: result.rows,
-        loading: false
-      }))
-    }, 1000);
-   */
-  }
-  getData(pageNumber, pageSize) {  
-    
-   var res=null;
-   var data={
-        my_custome_param:"123",
-        page: pageNumber,
-        rows:pageSize
-    };
-
-
-	  $.ajax
+		$.ajax
 		({
 			url:'/easyUI/queryJsonData',
 			type:"POST",
-		  dataType:"json",
-		  async:false,
+			dataType:"json",
+			async:false,
 			data:data, 
 			success:function(response)
 			{
 				res=response;				
 			},error:function( jqXHR,   textStatus,   errorThrown ) 
-      { 
-        alert('error,'+errorThrown);
-      } 
-    });  
-    return res; 
+			{ 
+				alert('error,'+errorThrown);
+			}
+		});
+		return res; 
+	}
+  
+	handlePageChange(event) {//onPageChange 参应的事件 event做函数参数，有属性pageNumber,pageSize
+		this.loadPage(event.pageNumber, event.pageSize)
+	}
+	render() {
+		return (
+		<div>
+		<h2>Pagination - Lazy Load</h2>
+		<div style={{ marginBottom: 10 }}>
+			<Label htmlFor="c1">Pager on: </Label>  {/* htmlFor ,inputId */}
+			<ComboBox inputId="c1" style={{ width: 120 }}
+			data={this.state.options}
+			editable={false}
+			panelStyle={{ height: 'auto' }}
+			value={this.state.pagePosition}
+			onChange={(value) => this.setState({ pagePosition: value })}
+			/>
+		</div>
+		<DataGrid
+			style={{ height: 250 }}
+			pagination //出现属性即可,prop的键可无值,默认为true?
+			lazy
+			{...this.state}
+			onPageChange={this.handlePageChange.bind(this)}
+
+			//行内编辑
+			//clickToEdit //单击
+			dblclickToEdit
+
+			//selectionMode="cell"
+			//editMode="cell"
+			selectionMode="row"//默认是row
+			editMode="row"
+		>
+				<GridColumn field="id" title="id"></GridColumn>
+				<GridColumn field="username" title="Name"
+					editable
+					//下面可不加，有时报警告
+					editor={({ row }) => (
+							<TextBox value={row.username} ></TextBox>
+						)}
+				></GridColumn>
+				<GridColumn field="hobby" title="hobby" align="right"
+					editable
+					editor={({ row }) => (
+						<ComboBox value={row.hobby} 
+							data={[{ value: "F", text: "Football" },
+								{ value: "B", text: "Basketball" }]} >
+						</ComboBox>
+					)}
+				></GridColumn>
+				<GridColumn field="salary" title="salary" align="right"
+					editable
+					editor={({ row }) => (
+					<NumberBox value={row.salary} precision={1}></NumberBox>
+					)}
+				 ></GridColumn>
+				<GridColumn field="isMan" title="isMan" align="center"
+					header={() => <span>[isMan是强转String]</span>}
+					render={({ row }) => (
+					<div style={{ padding: '4px 0' }}>
+						<div style={{ fontSize: 20,color:'red' }}>isMan={String(row.isMan)}</div> 
+					</div>
+					)}
+					editable
+					editor={({ row }) => (
+					//<SwitchButton value={row.man}></SwitchButton>
+					<CheckBox checked={row.man}></CheckBox>
+					)} 
+				 ></GridColumn>
+				<GridColumn field="birthday" title="birthday"></GridColumn>
+		</DataGrid>
+		</div>
+    	);
+	}
+}
+ 
+export default App;
+
+---------TreeGrid 
+import './App.css';
+
+import React from 'react';
+import { TreeGrid, GridColumn } from 'rc-easyui';
+ 
+class App extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      data: this.getData()
+    }
   }
-  handlePageChange(event) {
-    this.loadPage(event.pageNumber, event.pageSize)
+  getData() {
+    return [
+      {
+        id: 1,
+        name: "C",
+        size: "",
+        date: "02/19/2010",
+        children: [
+          {
+            id: 2,
+            name: "Program Files",
+            size: "120 MB",
+            date: "03/20/2010",
+            children: [
+              {
+                id: 21,
+                name: "Java",
+                size: "",
+                date: "01/13/2010",
+                state: "closed",
+                children: [
+                  {
+                    id: 211,
+                    name: "java.exe",
+                    size: "142 KB",
+                    date: "01/13/2010"
+                  },
+                  {
+                    id: 212,
+                    name: "jawt.dll",
+                    size: "5 KB",
+                    date: "01/13/2010"
+                  }
+                ]
+              },
+              {
+                id: 22,
+                name: "MySQL",
+                size: "",
+                date: "01/13/2010",
+                state: "closed",
+                children: [
+                  {
+                    id: 221,
+                    name: "my.ini",
+                    size: "10 KB",
+                    date: "02/26/2009"
+                  },
+                  {
+                    id: 222,
+                    name: "my-huge.ini",
+                    size: "5 KB",
+                    date: "02/26/2009"
+                  },
+                  {
+                    id: 223,
+                    name: "my-large.ini",
+                    size: "5 KB",
+                    date: "02/26/2009"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            id: 3,
+            name: "eclipse",
+            size: "",
+            date: "01/20/2010",
+            children: [
+              {
+                id: 31,
+                name: "eclipse.exe",
+                size: "56 KB",
+                date: "05/19/2009"
+              },
+              {
+                id: 32,
+                name: "eclipse.ini",
+                size: "1 KB",
+                date: "04/20/2010"
+              },
+              {
+                id: 33,
+                name: "notice.html",
+                size: "7 KB",
+                date: "03/17/2005"
+              }
+            ]
+          }
+        ]
+      }
+    ];
   }
   render() {
     return (
       <div>
-        <h2>Pagination - Lazy Load</h2>
-        <div style={{ marginBottom: 10 }}>
-          <Label htmlFor="c1">Pager on: </Label>
-          <ComboBox inputId="c1" style={{ width: 120 }}
-            data={this.state.options}
-            editable={false}
-            panelStyle={{ height: 'auto' }}
-            value={this.state.pagePosition}
-            onChange={(value) => this.setState({ pagePosition: value })}
-          />
-        </div>
-        <DataGrid
+        <h2>Basic TreeGrid</h2>
+        <TreeGrid 
           style={{ height: 250 }}
-          pagination
-          lazy
-          {...this.state}
-          onPageChange={this.handlePageChange.bind(this)}
+          data={this.state.data}
+          idField="id"
+          treeField="name"
         >
-      
-						<GridColumn field="id" title="id"></GridColumn>
-						<GridColumn field="username" title="Name"></GridColumn>
-						<GridColumn field="hobby" title="hobby" align="right"></GridColumn>
-						<GridColumn field="salary" title="salary" align="right"></GridColumn>
-						<GridColumn field="isMan" title="isMan" align="right"></GridColumn>
-						<GridColumn field="birthday" title="birthday"></GridColumn>
-             
-        </DataGrid>
+          <GridColumn field="name" title="Name"></GridColumn>
+          <GridColumn field="size" title="Size"></GridColumn>
+          <GridColumn field="date" title="Date"></GridColumn>
+        </TreeGrid>
       </div>
     );
   }
 }
  
-export default App;
-
-
+export default App
 
 
 

@@ -17,7 +17,7 @@ Archaius 1							Spring Boot external config + Spring Cloud Config
 
 
 
-open-service-broker
+open-service-broker 为 Kubernetes
 Consul
 Euraka
 Zookeeper 也可配置
@@ -133,6 +133,7 @@ Intellij Idea 建立 spring initialir 项目->Cloud Discory -> eureka server  �
 		</plugin>
 	</plugins>
 </build>
+--- 
 
 ---Eureka server 
 

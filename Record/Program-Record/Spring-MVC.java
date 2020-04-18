@@ -925,6 +925,12 @@ jackson-annotations-2.2.3.jar
 jackson-core-2.2.3.jar
 jackson-databind-2.2.3.jar
 
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.10.3</version>
+</dependency>
+
 <!--ContentNegotiatingViewResolver 可选 的 -->
 <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
 	<property name="order" value="1" />
@@ -1165,6 +1171,22 @@ function jQueryJSONListRequest()
 
 spring-web-4.0.6.RELEASE.jar/META-INF/services/javax.servlet.ServletContainerInitializer 中是 SpringServletContainerInitializer (实现了标准的servlet类 ServletContainerInitializer ),
  内部读取了 实现 WebApplicationInitializer  类(spring自己 为不使用web.xml设计)
+public class MyWebApplicationInitializer implements  WebApplicationInitializer
+{
+	@Override
+	public void onStartup(ServletContext servletContext) throws ServletException
+	{
+		String configClazz=String.join(",", MvcConfig.class.getName(),MyBatisConfig.class.getName());
+		Dynamic dync=servletContext.addServlet("spring_mvc", DispatcherServlet.class);
+		dync.setLoadOnStartup(1);
+		dync.setInitParameter(ContextLoader.CONFIG_LOCATION_PARAM, configClazz);
+		dync.setInitParameter(ContextLoader.CONTEXT_CLASS_PARAM, AnnotationConfigWebApplicationContext.class.getName());
+		dync.addMapping("*.mvc");
+		//servletContext.setInitParameter(ContextLoader.CONTEXT_CLASS_PARAM, AnnotationConfigWebApplicationContext.class.getName());
+		//servletContext.setInitParameter(ContextLoader.CONFIG_LOCATION_PARAM, configClazz);
+		//servletContext.addListener(ContextLoaderListener.class);
+	}
+}
 
 //相当于web.xml
 public class SpringMVCInitializer extends AbstractAnnotationConfigDispatcherServletInitializer 
@@ -1365,29 +1387,26 @@ import org.mockito.MockitoAnnotations;
 @RunWith(SpringJUnit4ClassRunner.class)  
 //@ActiveProfiles({"test"})
 //@Transactional
-@WebAppConfiguration //可以注入 WebApplicationContext
 @ContextConfiguration(locations={
-		"classpath:test_mockmvc/spring-mockmvc.xml",
+		"classpath:test_mockito/spring-mockmvc.xml",
 		})
-public class MockITO_MockMvcTest  {
-
-	@Mock //方式一  可以不是 Spring的Bean 
-	private MyServiceBean myServiceBean;
-
-	@Autowired
-	private WebApplicationContext wac;
-
-	public MockMvc mockMvc;//org.springframework.test.web.servlet.MockMvc
+public class MockITO_MockTest  {
+//	@InjectMocks //会进入方法体中
+//	@Autowired
+	//MockitoJUnitRunner x; Mockito的类
 	
+	@Mock //  可以不是 Spring的Bean 
+	private MyServiceBean myServiceBean;  
+
+
+	ThreadLocalRandom random = ThreadLocalRandom.current();
 	@Before
 	public void setup() {
-		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-		MockitoAnnotations.initMocks(this); 
-		
-		myServiceBean = mock(MyServiceBean.class);//方式二  可以不是 Spring的Bean 
+		myServiceBean = mock(MyServiceBean.class);//可以不是 Spring的Bean 
 	}
+ 
 	@Test
- //@Sql("init.sql")
+	//@Sql("init.sql")
 	public void testService() throws Exception  //测试 OK 
 	{ 
 		//spring-mockmvc.xml 只有	<context:component-scan base-package="test_mockmvc"></context:component-scan>
@@ -1406,23 +1425,63 @@ public class MockITO_MockMvcTest  {
 		
 		reset(myServiceBean);//重置指定的bean的所有录制  
 		
+		res=myServiceBean.queryData(new Product());
+		System.out.println(res);
+		//模拟抛异常
+		try {
+			when(myServiceBean.insertData(ArgumentMatchers.anyList())).thenThrow(RuntimeException.class);
+			myServiceBean.insertData(Arrays.asList(new Product()));
+		}catch(Exception e)
+		{
+			System.err.println("error have :"+e );
+		}
 	}
+	 
 	@Test
-	public void testMVC()throws Exception   
+	public void testRestTemplate() 
+	{ 
+		RestTemplate restTemplate = new RestTemplate();
+		MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
+		mockServer.expect(requestTo("/greeting")).andRespond(withSuccess()); 
+		
+		String res=restTemplate.getForObject("/greeting", String.class);//没有真的请求
+		System.out.println(res);//没有返回值 ，但没有报错
+		
+		mockServer.verify();
+	}
+}
+@RunWith(SpringJUnit4ClassRunner.class)  
+//@ActiveProfiles({"test"})
+//@Transactional
+@WebAppConfiguration //可以注入 WebApplicationContext
+@ContextConfiguration(locations={
+		"classpath:test_mockito/spring-mockmvc.xml",
+		})
+public class MockMVCTest  {
+
+//	@InjectMocks //会进入方法体中
+//	@Autowired
+	//MockitoJUnitRunner x; Mockito的类
+	@Autowired
+	private WebApplicationContext wac;
+
+	public MockMvc mockMvc; //org.springframework.test.web.servlet.MockMvc 
+	@Before
+	public void setup() {
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+		MockitoAnnotations.initMocks(this);
+	} 
+	@Test
+	//@Sql("init.sql")
+	public void testRealRequest()throws Exception  
 	{
-		/*
-		 spring-mockmvc.xml 有
-			<context:component-scan base-package="test_mockmvc"></context:component-scan>
-			<context:component-scan base-package="spring_jsp.annotation" /> 
-			<mvc:annotation-driven  validator="validator" />
-		*/
-  //不用http服务器
+		//请求自身的服务
 		ResultActions resultActions = mockMvc.perform(
 					post("/json/queryEmployeeVO.mvc")
 					.characterEncoding("UTF-8")
 					.contentType(MediaType.APPLICATION_JSON)
 					.content("{\"employee_id\":123,\"first_name\":\"李四1\"}")
-				)//这里就开始调用了
+				)//perform是真实的调用了
 				.andExpect(status().isOk())
 				.andExpect(content().contentTypeCompatibleWith("application/json"))
 				//.andExpect(content().contentType("application/json")) //如用这个报 expected:<application/json> but was:<application/json;charset=UTF-8>
@@ -1430,22 +1489,15 @@ public class MockITO_MockMvcTest  {
 				.andExpect(jsonPath("$.underEmp[0].first_name").value("li"))
 				//依赖 com.jayway.jsonpath.Predicate ,   json-smart-2.3.jar , asm-1.0.2.jar(conflict-lib)
 				.andExpect(jsonPath("$.underEmp[?(@.first_name == 'li')]").exists())  
-				.andDo(print()); 
+				.andDo(print());
 		MvcResult mvcResult = resultActions.andReturn();
 		String result = mvcResult.getResponse().getContentAsString();
 		System.out.println(result);
 	}
- @Test
-	public void testResetClient() //reset 的测试
-	{ 
-		RestTemplate restTemplate = new RestTemplate();
-		MockRestServiceServer mockServer = MockRestServiceServer.bindTo(restTemplate).build();
-		mockServer.expect(requestTo("/greeting")).andRespond(withSuccess());
-  mockServer.verify();
-	}
+	 
 }
- ----mock request
- import org.springframework.mock.web.MockHttpServletRequest;
+----造 request 对象
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"file:src/test_mockRequest/spring-test.xml"})
@@ -1472,30 +1524,32 @@ public class ControllerMockRequestTest
         request.setCharacterEncoding("UTF-8");
         
         String rootPath=request.getServletContext().getRealPath("/");
-        System.out.println(rootPath);
+        System.out.println("fs rootPath="+rootPath);
         
         String reqContextPath=request.getServletContext().getContextPath();
-        System.out.println(reqContextPath);
+        System.out.println("ContextPath="+reqContextPath);
         
         request.setRequestURI("http://127.0.0.1:/J_SpingMVC/page.mvc");
-        System.out.println(request.getRequestURI());//如不set就返回空串
+        System.out.println("RequestURI="+request.getRequestURI());//如不set就返回空串
        
         request.setContextPath(contextPath); 
         response = new MockHttpServletResponse();
-		
-		 //web.xml中有filter,listener怎么办？
+		 
     }
     @Test
-    public void test() {
+    public void testWithSpringRequestObject() {
         HttpSession session = request.getSession(true);
         session.setAttribute("currentDate", new Date());
         Employee emp=new Employee ();
         
-        System.out.println(  request.getLocale() );
+        System.out.println("local="+request.getLocale() );
+		//真实的请求了，但使用了spring的mock的Request
         EmployeeResult res= jsonController.queryEmployeeVO(request, emp);
         System.out.println(res);
     }
 } 
+
+testNG 和 Spring 见Spring.java
 
 =========================上 Spring MVC
  
@@ -1867,7 +1921,50 @@ public class MyFilterWithSpring implements Filter
 		   <bean class="org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer"/>   
 		</property>  <!-- 配置成JSON spring session redis中值也是二进制 -->
 	 </bean>
-
+	 
+@Bean
+public MethodInvokingFactoryBean objectMapper()
+{
+	ObjectMapper mapper=new ObjectMapper();
+	mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+	mapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));//对Timestamp类型
+	mapper.setSerializationInclusion( JsonInclude.Include.NON_NULL);//不显示null
+	/*
+	//自定义null值如何显示
+	DefaultSerializerProvider.Impl iml=new DefaultSerializerProvider.Impl();
+	iml.setNullValueSerializer(new JsonSerializer<Object>() {
+		@Override
+		public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException
+		{
+			gen.writeString("");  
+		}});
+	mapper.setSerializerProvider(iml);
+	*/ 
+	//代理
+	MethodInvokingFactoryBean proxy=new MethodInvokingFactoryBean();
+	proxy.setTargetObject(mapper);
+	proxy.setTargetMethod("configure");
+	proxy.setArguments(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false);//false=反序列化遇到未知属性不报异常
+	return  proxy;
+}
+@Bean
+public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter(@Autowired ObjectMapper objectMapper)
+{
+	MappingJackson2HttpMessageConverter converter=new MappingJackson2HttpMessageConverter();
+	converter.setObjectMapper(objectMapper);
+	return converter;
+}
+@Bean
+public RequestMappingHandlerAdapter requestMappingHandlerAdapter(@Autowired MappingJackson2HttpMessageConverter jsonConverter)
+{
+	RequestMappingHandlerAdapter handler=new RequestMappingHandlerAdapter();
+	handler.setMessageConverters(Arrays.asList(jsonConverter,
+			new Jaxb2RootElementHttpMessageConverter(),//xml
+			new StringHttpMessageConverter()));
+	handler.setCacheSeconds(0);
+	//handler.setWebBindingInitializer(webBindingInitializer);
+	return handler;
+}
 ------------spring websocket
 --sockJS　
 　WebSocket emulation　浏览器不支持websocket用socketjs 模拟

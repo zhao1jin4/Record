@@ -80,7 +80,6 @@ Review-> Tracking组中 打开 Track Chnages  如删,加文字可以记录,可�
 
 -----excel 2010
 在线预览excel
-
 https://view.officeapps.live.com/op/view.aspx?src=www.xxx.com/xx.xlsx
 
 
@@ -156,6 +155,9 @@ trim()函数去空格，复制列 -> 选择性粘贴选 数值
 
 Excel 的ABC列显示为123原因为
 文件 -> 选项 -> Excel选项 -> 公式 -> 使用公式 把 R1C1引用样式 取消
+
+可加入 复选框组件 
+File->options->General->右侧树中 复选 Developer,出现Developer菜单->Insert->Form Control中有Check box
 
 
 --------PowerPoint
@@ -239,11 +241,12 @@ Settings -> Automatic Replies
 
 https://www.mozilla.org/en-US/firefox/new/
 
+
 firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下载
 	显示加载的插件	about:plugins
 	可修改配置	about:config 
 	help->TroubleShooting Information 即		about:support
-	firefox　主页被修改　　about:support  显示有user.js　在　C:\Users\zh\AppData\Roaming\Mozilla目录下
+	firefox　主页被修改　　about:support  显示有user.js　在　%USERPROFILE%\AppData\Roaming\Mozilla目录下
 
 	不能显示Cookie内容
 	会记住网站密码，在 Cookies and Site Data 和History区清除没用的
@@ -253,10 +256,12 @@ firefox 中显示缓存信息 about:cache  点Disk 可以查看，不可以下�
 
 firefox63  插件 只能在线安装了(可以右击复制链接在edge里下载)
 	React Developer Tools
+	Vue.js devtools
 	RESTClient  发 POST 请求  可带JSON 
 		header 中不能增加Host安全原因
 	selenium_ide
-	
+	Xdebug Helper(PHP)
+	Axure RP
 	修改HTTP头插件   手机开发 ,如 User-Agent , Referer 
 		simple-modify-headers
 		Modify Header Value (HTTP Headers)也有chrome,opera插件,
@@ -270,19 +275,41 @@ firefox63  插件 只能在线安装了(可以右击复制链接在edge里下载
 	Base64 Encoder and Decoder
 	EPUBReader 安装后在工具栏上 用于读epub文件 mongodb doc  
 	CHM
-	
+	SSHGate 
+	DownThemAll-4.2.6 (但还是使用firefox本身的下载) 可firefox74
 	--- 新firefox 没了？？ 
-	DownThemAll-2.0.16,ColorZilla-2.8  新firefox57 不兼容了？？？？
+	ColorZilla-2.8  新firefox57 不兼容了？？？？
 	cacheviewer-0.7.6(Tools->Web Developer->CacheViewer)
 	FireFTP-2.0.18(Connection标签选择SFTP)
 	FireSSH-0.94.4(在Tools->Web Developer下,ls --color 才变色,ls 中文是根据系统字符集自动匹配view->character encoding来查看,手工设置LANG无效)
 
 	
+修改书签保存位置
+https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options
+firefox.exe  -profilemanager  或者用 -p  会打开［选择用户配置文件］对话框->［创建配置文件］ 按钮
+	->起名myProfile, Choose Folder按钮可以修改保存位置,如D:\Program\firefox_data\Profiles,
+	默认为%USERPROFILE%\AppData\Roaming\Mozilla\Firefox\Profiles
+	保存文件名为xxxx.myProfile
+	取消选择 [启动时不询问](use the selected profile without asking at startup),默认是选中的
 	
-要当前没有打开Firefox,
-firefox.exe" -profilemanager  或者用 -p  会打开［选择用户配置文件］对话框，来［创建配置文件］
-	取消选择 [启动时不询问]
+	但%APPDATA%\Mozilla\Firefox 下还有 profiles.ini 记得了名字和位置
+	如C盘被重置还是不行???
+	
+	https://support.mozilla.org/zh-CN/kb/用户配置文件
+	https://support.mozilla.org/en-US/kb/profiles-where-firefox-stores-user-data
+	places.sqlite  保存了所有的书签、下载文件的记录和浏览网页的记录
+	
+firefox.exe 其它选项
+  -P <profile>       Start with <profile>.
+  -profile <path>   Start with profile at <path>
+  -start-debugger-server  port
+  -jsdebugger
+如
+firefox.exe -P myProfile
+firefox.exe  --profile D:\Program\firefox_data\Profiles
 
+  
+  
 ctrl+shift+k 打开高度控制台(替代firebug)
 
 Developer toolbar (shift+f2)的命令,提示功能很好,子命令可按回车提示
@@ -315,8 +342,11 @@ about:support 查看有 browser.newtab.url 有值 ,在about:config 中删除其�
 ctrl+shift+P 以隐身(Private)模式上网,不会保留浏览历史和Cookie
 Tools->options->Privacy  -> remove individual cookies ->可以看到Cookie
 
+Firefox不能访问6000,6666端口
 
 -------------Chrome
+
+
 Chrome 下载URL  https://www.google.cn/chrome/  在线版本
 
 https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg  mac最新离线版本
@@ -324,18 +354,51 @@ https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm  linu
 
 win64 最新离线版本
 https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26iid%3D%7B8CBF8931-A5A5-3DF2-204C-0834AED5FC82%7D%26lang%3Den%26browser%3D3%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26ap%3Dx64-stable-statsdef_1%26installdataindex%3Ddefaultbrowser/update2/installers/ChromeStandaloneSetup64.exe
- 
 
-C:\Users\Administrator\AppData\Local\Google
- win7下的Google目录
 
+https://www.crx4chrome.com 下有很多chrome的.crx插件下载
+虽然67版本后不支持拖动安装,但可使用7zip解压crx文件,
+chrome中打开Extensions的Developer mode,点Load unpacked选择解压目录即可安装
+react和vue插件(不能删除解压目录) 显示是在地址栏右侧
+右击书签栏->show app shortcut (默认打开)点Apps图标显示所有已经安装的(如Postman,不能删除解压目录)
+
+---crhome插件
+Postman (App)  没有.exe版本新
+Vue-Devtools
+ReactDeveloperTools
+Axure RP
+Xdebug Helper(PHP)
+Selenium IDE
+Secure Shell (App)带ssh,sftp
+Web Cache Viewer
+Modify Headers
+Self-Destructing Cookies
+Base64 EncoderDecoder
+EPUBReader
+CHM File Reader
+---
+插件Postman   https://www.getpostman.com/  安装后是一个单独的程序
+chrome 自身带cookie查看功能
 插件 Proxy Switchy 代理设置 ,不会记住密码
 
+
+自带flash player最新版本 ,firefox portble 版本就不带
+地址栏输入 chrome://components/  显示 Flash Player  版本 ,check for update 按钮可更新
+如不能播放flash视频,点击http旁边的按钮->Site Settings->Flash下拉选择allow 
+
+flash 下载地址
+https://get.adobe.com/cn/flashplayer/otherversions/
+https://get.adobe.com/flashplayer/otherversions/ 
+
+
+
+
+Google目录默认用户数据目录 %USERPROFILE%\AppData\Local\Google\Chrome\User Data 
+快捷方式来修改 "xx\chrome.exe" --user-data-dir="D:\Program\chrome_data"
  
+
 修改界面语言在tools->options->Under the Hood(高级选项)->Web Content中有一个铵钮 Langages and spell-checker settings...->选中语言后
 (如修改Local可以拖动修改顺序)->再点击Display Google Chrome in this language,重启Chrome生效
-
-
 
 ctrl+shift+J 是调试窗口 (工具->开发人员工具   JavaScript控制台)
 
@@ -351,19 +414,11 @@ Settins-> Download 可以打开 Ask where to save each file before downloading
 clear browser data 在要advance标签中选中password
 在Pepole组 passwords-> 可以查看哪些网站做了保存密码,只要输入系统管理员密码,就可查看密码!!!!
 
-插件   应用组的 Postman   https://www.getpostman.com/  安装后是一个单独的程序
 
 chrome://about/  列出所有的连接工具
 Chrome工具 自带的工具 chrome://net-internals/  
 
-自带flash player最新版本 ,firefox portble 版本就不带
-地址栏输入 chrome://components/  显示 Flash Player  版本 ,check for update 按钮可更新
-如不能播放flash视频,点击http旁边的按钮->Site Settings->Flash下拉选择allow 
-
-flash 下载地址
-https://get.adobe.com/cn/flashplayer/otherversions/
-https://get.adobe.com/flashplayer/otherversions/ 
-
+Chrome都不能访问6000,6666端口,报ERR_UNSAFE_PORT, 要加启动参数 -explicitly-allowed-ports=6000,6666 才可
 
 -------------Edge --------
 自带flash player ...->设置->查看高级设置-> 打开  Adobe Flash Player  

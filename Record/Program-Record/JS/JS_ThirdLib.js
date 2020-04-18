@@ -889,6 +889,8 @@ ClassicEditor.create( document.querySelector( '#editor' ) )
 
 
 =============axios 类似于 fetch
+是一个基于 Promise 的 HTTP 客户端
+
 npm install axios -g
 
 <!-- 

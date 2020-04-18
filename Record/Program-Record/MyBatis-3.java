@@ -1,4 +1,22 @@
 ﻿https://github.com/mybatis/
+<dependency>
+    <groupId>org.mybatis</groupId>
+    <artifactId>mybatis</artifactId>
+    <version>3.5.4</version>
+</dependency>
+
+<dependency>
+    <groupId>org.mybatis</groupId>
+    <artifactId>mybatis-spring</artifactId>
+    <version>2.0.4</version>
+</dependency>
+
+
+<dependency>
+    <groupId>org.mybatis.dynamic-sql</groupId>
+    <artifactId>mybatis-dynamic-sql</artifactId>
+    <version>1.1.4</version>
+</dependency>
 
 
 
@@ -14,6 +32,60 @@ username  like #{pattern}
 MySQL 有bit类型做boolean  
 MyBatis有JdbcType.BIT   存取到java的 boolean类型测试OK
  
+ 
+ 
+@Configuration
+@PropertySource( value = "classpath:/mybatis-jdbc.properties")
+@MapperScan(basePackages = "org.project.mapper")
+public class MyBatisConfig
+{
+	@Autowired 
+	Environment env;
+	
+	@Value("${jdbc.url}")
+	private String jdbcUrl;
+	
+	@Value("${jdbc.driver}")
+	private String driver;
+	
+	@Value("${jdbc.username}")
+	//@Value("${username}")取值为系统用户名,属性文件中不能为username
+	private String username;
+	
+	@Value("${jdbc.password}")
+	private String password;
+	
+	@Bean
+	public DataSource dataSource()
+	{
+//		String username=env.getProperty("username");//取值为系统用户名??
+		HikariConfig config = new HikariConfig();
+		config.setDriverClassName(driver);
+		config.setJdbcUrl(jdbcUrl);
+		config.setUsername(username);
+		config.setPassword(password);
+		config.addDataSourceProperty("cachePrepStmts", "true");
+		config.addDataSourceProperty("prepStmtCacheSize", "250");
+		config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+	
+		HikariDataSource ds = new HikariDataSource(config);
+		return ds;
+	}
+	@Bean  //@MapperScan中doc提示的JDBC事务
+	public DataSourceTransactionManager transactionManager()
+	{
+		return new DataSourceTransactionManager(dataSource());
+	}
+	@Bean
+	public SqlSessionFactory sqlSessionFactory() throws Exception
+	{
+		SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
+		sessionFactory.setDataSource(dataSource());
+		return sessionFactory.getObject();
+	}
+}
+
+
 mybatis-3-config.dtd 和 mybatis-3-mapper.dtd 在 org.apache.ibatis.builder.xml
 
 <?xml version="1.0" encoding="UTF-8"?>
@@ -85,7 +157,7 @@ log4j.logger.java.sql.Connection=debug,stdout
 #log4j.logger.java.sql.PreparedStatement=debug,stdout
 #批量insert时PreparedStatement会很多
 
-@Intercepts({ @Signature(type = StatementHandler.class, method = "prepare", args = { Connection.class }) })
+@Intercepts({ @Signature(type = StatementHandler.class, method = "prepare", args = { Connection.class,Integer.class  }) })
 public class SQLLogInterceptor implements Interceptor 
 {
     public Object intercept(Invocation invocation) throws Exception
@@ -474,7 +546,7 @@ public interface UserDao {
     @Results(value = {
 		@Result(property="userName", column="user_Name")//对使用select *的方式,只配置不相同
    })
-    @Options(useCache = false,flushCache = true)//默认是有cache的(只配置 useCache = false无用的),与配置cacheEnabled无关
+    @Options(useCache = false,flushCache = FlushCachePolicy.FALSE)//默认是有cache的(只配置 useCache = false无用的),与配置cacheEnabled无关
     public List<User> selectAll();
     
     @Select("select count(*) c from user;")
@@ -488,11 +560,11 @@ public interface UserDao {
     
 //-------provider
     @SelectProvider(type = SqlProvider.class, method = "getCount")
-    @Options(useCache = true, flushCache = false, timeout = 10000)//flushCache = false表示下次查询时不刷新缓存
+    @Options(useCache = true, flushCache = FlushCachePolicy.FALSE, timeout = 10000)//flushCache = false表示下次查询时不刷新缓存
     public int providerGetCount();
    
     @SelectProvider(type = SqlProvider.class, method = "getByUserName")  
-    @Options(useCache = true, flushCache = false, timeout = 10000)
+    @Options(useCache = true, flushCache = FlushCachePolicy.FALSE, timeout = 10000)
     @Results(value = {
   		@Result(property="userName", column="user_Name")
     })
@@ -615,7 +687,31 @@ public long getRecordCountByMap(Map<String,String> params);
 		@Result(property="userName", column="user_Name")
    })
 public  List<User>  queryByPage(Map<String,String> params);
-	
+
+
+@Select("select u.user_name ,count(*) as works from  user u left join job_history j on u.userId=j.user_id group by u.user_name  having u.user_name=#{_username}")
+@ResultMap(value = "joinData") //引用其它方法上  @Results(id="joinData"
+public  JoinData getWorksResultMap(@Param("_username") String username); 
+
+//示例@Many
+@Select("select userId,user_Name,password,comment from user where user_Name='lisi'")
+@Results({
+		 @Result(property="userId",     column="userId"),
+		 @Result(property="userName",     column="user_Name"),
+		 @Result(property="jobs", column="userId",  javaType=List.class, //@Many时column 为(父表的)主键,javaType=List.class
+					many=@Many(select = "mybatis_annotation.JobDao.getJobsByUserId"))
+		 })
+public User getUserCollectionJobs();
+
+
+@Select("select * from user where userId=#{value}")
+@Results(value = {
+	@Result(property="userName", column="user_Name") 
+})
+public  User getUserById(int user_Id);
+
+
+
 @UpdateProvider
 @DeleteProvider
 
@@ -631,14 +727,27 @@ userDao.insert(user);//user中有值
 
 //---typeHandler
 
+//---JobDao
 //有时要 Job implements Serializable
-@Select("select * from job_history where user_Id=#{_id}")
+@Select("select * from job_history where user_Id=#{value}")//如参数是int要使用#{value}
 @Results(value = {
+		@Result(property="id", column="job_id" ),
 		@Result(property="requirement", column="job_requirement",
 				javaType=java.util.List.class,jdbcType=JdbcType.VARCHAR,typeHandler=MyXMLTypeHandler.class),
 		@Result(property="jobTitle", column="job_title" )
    })
-public List<Job> getJobsByUserId(@Param("_id") int userid);
+public List<Job> getJobsByUserId( int userid); 
+	
+//示例@One
+@Select("select job_id,job_title,user_Id from job_history where job_title like 'java%'")
+@Results({
+	 @Result(property="id",     column="job_id"),
+	 @Result(property="jobTitle",     column="job_title"),
+	 @Result(property="user", column="user_Id",  javaType=User.class, //@One 时column 是子表的外键
+				one=@One(select="mybatis_annotation.UserDao.getUserById"))
+	 })
+public Job getJobAssociationUser();
+
 
 
 @Select("select * from job_history where start_date = #{startDate}")  
@@ -762,6 +871,7 @@ SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(confi
 
 //不需要driver,rowSetFactory也不需要Driver
 HikariConfig config = new HikariConfig();
+config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 config.setJdbcUrl("jdbc:mysql://localhost:3306/mydb");
 config.setUsername("user1");
 config.setPassword("user1");
@@ -771,13 +881,24 @@ config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
 //或者不需要Config
 HikariDataSource ds = new HikariDataSource();
+ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
 ds.setJdbcUrl("jdbc:mysql://localhost:3306/mydb");
 ds.setUsername("user1");
 ds.setPassword("user1");
 
+	
+	
 //或者从配置文件读
 HikariConfig config = new HikariConfig("/dbpool_hikari/hikari.properties");
 HikariDataSource ds = new HikariDataSource(config);
+
+<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+	<constructor-arg>
+		<bean class="com.zaxxer.hikari.HikariConfig">
+			<constructor-arg index="0" value="/dbpool_hikari/hikari.properties"></constructor-arg>
+		</bean>
+	</constructor-arg> 
+</bean>
 
 dataSourceClassName=com.mysql.cj.jdbc.MysqlXADataSource
 #jdbcUrl=jdbc:mysql://localhost:3306/mydb
@@ -1142,6 +1263,7 @@ public interface AnnoEmployeeInterface {
   <property name="basePackage" value="mybatis_spring.factorybean.dao" />  <!-- 逗号分隔多个 -->
 </bean>
 @MapperScan(basePackages ="mybatis_spring.factorybean.dao")
+@Mapper  //这个没有时,@MapperScan也会生效
 
 Class  targetClass=proxy.getClass().getInterfaces()[0]; // BaseDao 的子类
 
@@ -1192,7 +1314,7 @@ mybatis默认是启用cache的,如不使用cache  <select        useCache="false
  <dependency>
     <groupId>org.mybatis.generator</groupId>
     <artifactId>mybatis-generator-core</artifactId>
-    <version>1.3.7</version>
+    <version>1.4.0</version>
 </dependency>
 
 --generatorConfig.xml
@@ -1200,9 +1322,22 @@ mybatis默认是启用cache的,如不使用cache  <select        useCache="false
 <!DOCTYPE generatorConfiguration   PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
                                       "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 <generatorConfiguration>
-      <classPathEntry location="D:/eclipse_java_workspace/WEB_LIB/WebContent/WEB-INF/lib/mysql-connector-java-8.0.11.jar" />
-		<context id="MySQLTables" targetRuntime="MyBatis3">
-		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+	<!--maven插件就不用这个了-->
+    <classPathEntry location="H:/MVN_REPO/mysql/mysql-connector-java/8.0.15/mysql-connector-java-8.0.15.jar" />
+		
+	<context id="MySQLTables" targetRuntime="MyBatis3"> 
+		<!--targetRuntime可选值为 
+			MyBatis3,
+			MyBatis3Simple 没有生成XxxxSelective, 
+			MyBatis3DynamicSql(默认,要mybatis-dynamic-sql包,即使是XMLMAPPER也没有XML文件)
+			MyBatis3Kotlin  (要mybatis-dynamic-sql包,即使是XMLMAPPER也没有XML文件)-->
+		<commentGenerator>
+	        <property name="suppressDate" value="true"/>
+	        <property name="suppressAllComments" value="false" />
+	        <property name="addRemarkComments" value="true" /> <!-- 使用数据库的comment -->
+	        
+	    </commentGenerator> 
+		<jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
 			connectionURL="jdbc:mysql://localhost:3306/mydb?useUnicode=true&amp;characterEncoding=UTF-8&amp;serverTimezone=UTC"
 			userId="user1"
 			password="user1">
@@ -1212,66 +1347,347 @@ mybatis默认是启用cache的,如不使用cache  <select        useCache="false
 		  <property name="forceBigDecimals" value="false" />
 		</javaTypeResolver>
 
-		<javaModelGenerator targetPackage="org.project.model" targetProject="project/src/main">
+		<javaModelGenerator targetPackage="org.project.model" targetProject="src/main/java">
 		  <property name="enableSubPackages" value="true" />
 		  <property name="trimStrings" value="true" />
 		</javaModelGenerator>
 
-		<sqlMapGenerator targetPackage="mybatis"  targetProject="project/src/resources">
+		<sqlMapGenerator targetPackage="mybatis"  targetProject="src/main/resources">
 		  <property name="enableSubPackages" value="true" />
 		</sqlMapGenerator>
 
-		<javaClientGenerator type="XMLMAPPER" targetPackage="org.project.mapper"  targetProject="project/src/main">
+		<javaClientGenerator type="XMLMAPPER" targetPackage="org.project.mapper"  targetProject="src/main/java">
 		  <property name="enableSubPackages" value="true" />
 		</javaClientGenerator>
 
 	<!-- 二选一 , 1.3.7 版本 生成的使用类是  @org.apache.ibatis.annotations.Delete  
-		也有type="MIXEDMAPPER" 混合式,复杂的SQL用XML
-        <javaClientGenerator type="ANNOTATEDMAPPER" targetPackage="org.project.annotate"  targetProject="project/src/main">
-          <property name="enableSubPackages" value="true" />
-        </javaClientGenerator>
-   -->   
+		 type="ANNOTATEDMAPPER" 也有type="MIXEDMAPPER" 混合式,复杂的SQL用XML(为targetRuntime="MyBatis3",当"MyBatis3Simple"时不行)
+		<javaClientGenerator type="ANNOTATEDMAPPER" targetPackage="org.project.annotate"  targetProject="src/main/java">
+		  <property name="enableSubPackages" value="true" />
+		</javaClientGenerator>
+	-->   
 
 		<table  tableName="EMPLOYEE"  >
 		  <property name="useActualColumnNames" value="true"/>
-		  <generatedKey column="ID" sqlStatement="MySQL" identity="true" />
+		<!-- 
+		    <generatedKey column="ID" sqlStatement="MySQL" identity="true" />
+		  生成  @SelectKey(statement="SELECT LAST_INSERT_ID()", keyProperty="record.id", before=false, resultType=Long.class)
+		 -->
 		  <columnOverride column="USERNAME" property="userName" />
 		  <columnOverride column="BIRTHDAY" property="brithDay" jdbcType="datetime" />
 		  <ignoreColumn column="PASSWORD" />
 		</table>
-		<table tableName="department" domainObjectName="DepartmentEntity" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false">
-            <property name="useActualColumnNames" value="false"/>
-        </table>
+		<table tableName="department" domainObjectName="DepartmentEntity"
+			enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" 
+			enableSelectByExample="false" selectByExampleQueryId="false">
+			<property name="useActualColumnNames" value="false"/>
+		</table>
 		
-  </context>
+	</context>
 </generatorConfiguration>
 
-要先建立 project/src/main 和 project/src/resources  目录
-md project\src\main
-md project\src\resources
-java -jar mybatis-generator-core-1.3.7.jar  -configfile generatorConfig.xml -overwrite
+要先建立  src/main/java 和  src/main/resources  目录
+md  src\main\java
+md  src\main\resources
+java -jar mybatis-generator-core-1.4.0.jar  -configfile generatorConfig.xml -overwrite
+ 
+当为MyBatis3时 如 enableXxxByExample都打开，用法如下
+//@Autowired
+DepartmentEntityMapper  departmentEntityMapper=null;
 
-<javaClientGenerator type="ANNOTATEDMAPPER" 
-
+DepartmentEntityExample param=new DepartmentEntityExample();
+param.createCriteria().andDepNameLike("%xx%");
+departmentEntityMapper.selectByExample(param);
+xml中有使用特殊<if test ="_parameter!=null">  
+		
 Maven插件方式
 <plugin>
 		<groupId>org.mybatis.generator</groupId>
 		<artifactId>mybatis-generator-maven-plugin</artifactId>
-		<version>1.3.6</version>
+		<version>1.4.0</version>
 		<dependencies>
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.45</version>
+				<version>8.0.15</version>
 			</dependency>
 		</dependencies>
 		<configuration> 
-			 <configurationFile>${basedir}/src/main/resources/generatorConfig.xml</configurationFile> 
+			<configurationFile>${basedir}/generatorConfig.xml</configurationFile> 
 			<overwrite>true</overwrite>
 		</configuration>
 </plugin>
 mvn mybatis-generator:generate
-=====
 
+=====mybatis-dynamic-sql
+https://github.com/mybatis/mybatis-dynamic-sql 源码的test 有示例
 
+/*
+create table SimpleTable (
+   id int not null,
+   first_name varchar(30) not null,
+   last_name varchar(30) not null,
+   birth_date date not null, 
+   employed varchar(3) not null,
+   occupation varchar(30) null,
+   primary key(id)
+);
+*/
+public class SimpleTableRecord {
+    private Integer id;
+    private String firstName;
+    private String lastName;
+    private Date birthDate;
+    private String employed;
+    private String occupation;
+//getter/setter
+}
+public final class SimpleTableDynamicSqlSupport {
+    public static final SimpleTable simpleTable = new SimpleTable();
+    public static final SqlColumn<Integer> id = simpleTable.id;
+    public static final SqlColumn<String> firstName = simpleTable.firstName;
+    public static final SqlColumn<String> lastName = simpleTable.lastName;
+    public static final SqlColumn<Date> birthDate = simpleTable.birthDate;
+    public static final SqlColumn<Boolean> employed = simpleTable.employed;
+    public static final SqlColumn<String> occupation = simpleTable.occupation;
+    public static final class SimpleTable extends SqlTable {
+        public final SqlColumn<Integer> id = column("id", JDBCType.INTEGER);
+        public final SqlColumn<String> firstName = column("first_name", JDBCType.VARCHAR);
+        public final SqlColumn<String> lastName = column("last_name", JDBCType.VARCHAR);
+        public final SqlColumn<Date> birthDate = column("birth_date", JDBCType.DATE);
+        public final SqlColumn<Boolean> employed = column("employed", JDBCType.VARCHAR, "examples.simple.YesNoTypeHandler");
+        public final SqlColumn<String> occupation = column("occupation", JDBCType.VARCHAR);
+        public SimpleTable() {
+            super("SimpleTable");
+        }
+    }
+}
+//@Mapper //作用？？？
+public interface SimpleTableAnnotatedMapper {
+    @InsertProvider(type=SqlProviderAdapter.class, method="insert")
+    int insert(InsertStatementProvider<SimpleTableRecord> insertStatement);
 
+    @UpdateProvider(type=SqlProviderAdapter.class, method="update")
+    int update(UpdateStatementProvider updateStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    @Results(id="SimpleTableResult", value= {
+            @Result(column="A_ID", property="id", jdbcType=JdbcType.INTEGER, id=true),
+            @Result(column="first_name", property="firstName", jdbcType=JdbcType.VARCHAR),
+            @Result(column="last_name", property="lastName", jdbcType=JdbcType.VARCHAR),
+            @Result(column="birth_date", property="birthDate", jdbcType=JdbcType.DATE),
+            @Result(column="employed", property="employed", jdbcType=JdbcType.VARCHAR), //, typeHandler=YesNoTypeHandler.class
+            @Result(column="occupation", property="occupation", jdbcType=JdbcType.VARCHAR)
+    })
+    List<SimpleTableRecord> selectMany(SelectStatementProvider selectStatement);
+
+    @DeleteProvider(type=SqlProviderAdapter.class, method="delete")
+    int delete(DeleteStatementProvider deleteStatement);
+
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    long count(SelectStatementProvider selectStatement);
+}
+public static void selectSimpleDao( ) throws Exception
+{
+	String resource = "dynamic_sql/Configuration.xml";
+	Reader reader = Resources.getResourceAsReader(resource);
+	SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);//Properties,Enviroment
+	sqlSessionFactory.getConfiguration().addMapper(SimpleTableAnnotatedMapper.class);//加带Annotation的类
+	//---
+	try (SqlSession session = sqlSessionFactory.openSession()) {
+		SimpleTableAnnotatedMapper mapper = session.getMapper(SimpleTableAnnotatedMapper.class);
+		//SimpleTableDynamicSqlSupport.*;
+		//org.mybatis.dynamic.sql.SqlBuilder.*;
+		SelectStatementProvider selectStatement = select(id.as("A_ID"), firstName, lastName, birthDate, employed, occupation)
+				.from(simpleTable)
+				.where(id, isEqualTo(1))
+				.or(occupation, isNull())
+				.build()
+				.render(RenderingStrategies.MYBATIS3);
+
+		List<SimpleTableRecord> rows = mapper.selectMany(selectStatement);
+	 /*
+	   List<SimpleTableRecord> rows = mapper.selectMany(new  SelectStatementProvider() {
+			@Override
+			public Map<String, Object> getParameters()
+			{
+				Map<String, Object> param=new HashMap< >(); 
+				param.put("id", 1);
+				return param;
+			}
+			@Override
+			public String getSelectStatement()
+			{
+				//所有参数要以parameters.开头
+				return "select * from SimpleTable where id=#{parameters.id}";
+			}
+		});
+		*/
+		assertEquals(rows.size(), 3);
+	}
+}
+
+public static void selectJoinDao( ) throws Exception
+{
+
+	UnpooledDataSource dsUnPool = new UnpooledDataSource("com.mysql.cj.jdbc.Driver", "jdbc:mysql://localhost:3306/mydb", "zh", "123");
+	PooledDataSource dsPool = new PooledDataSource("com.mysql.cj.jdbc.Driver", "jdbc:mysql://localhost:3306/mydb", "zh", "123");
+
+	DataSource ds=genHikariDataSource();
+
+	//不使用Config.xml
+	Environment environment = new Environment("test", new JdbcTransactionFactory(), ds);
+	Configuration config = new Configuration(environment);
+	config.addMapper(JoinMapper.class);//加Mapper  ,不能读XML的
+	SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(config);
+	sqlSessionFactory.getConfiguration().addMapper(EmployeeMapper.class); ;//加Mapper
+	   try (SqlSession session = sqlSessionFactory.openSession()) {
+        	JoinMapper mapper = session.getMapper(JoinMapper.class);
+        	  
+			SelectStatementProvider selectStatement = select(departmentEntity.id, departmentEntity.depName)
+                    .from(departmentEntity, "d")
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+        	List<DepartmentEntity> depts= mapper.fetchMany(selectStatement);
+        	System.out.println(depts);
+        	   
+        	 
+        	 selectStatement = select(employee.id, employee.userName,employee.brithDay,employee.department_id)
+                       .from(employee, "e")
+                       .where(employee.id, isEqualTo(101))
+                       .build()
+                       .render(RenderingStrategies.MYBATIS3);
+        	   
+        	 Employee emp= mapper.fetchOne(selectStatement);
+        	 System.out.println(emp);  
+			 
+			  Employee emp1=new Employee();
+            emp1.setAge(20);
+            emp1.setBrithDay(new Date());
+            emp1.setId(8008);
+            emp1.setUserName("kotlin");
+            emp1.setEmployee_type(2);
+            //int effectRow=employeeMapper.insert(emp1);//代码生成的
+            //employeeMapper.updateByPrimaryKey(record); 
+            //employeeMapper.deleteByPrimaryKey(id);
+            
+            InsertStatementProvider<Employee> insertStatement = insert(emp1)//值
+                    .into(employee)
+                    .map(employee.id).toProperty("id")
+                    .map(employee.userName).toProperty("userName")//只有写的字段才要
+                    .map(employee.employee_type).toProperty("employee_type")
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+            System.out.println(insertStatement.getInsertStatement()); 
+            //insert into employee (id, username, employee_type) values (#{record.id,jdbcType=INTEGER}, #{record.userName,jdbcType=VARCHAR}, #{record.employee_type,jdbcType=INTEGER})
+            int effectRow=employeeMapper.insert(insertStatement);
+            session.commit();//默认不是自动提交的
+            
+            UpdateStatementProvider updateStatement = update(employee)
+                    .set(employee.userName).equalTo("kotlin2") 
+                    .set(employee.brithDay).equalToNull()
+                    .where(employee.id, isEqualTo(8008))
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+            System.out.println(updateStatement.getUpdateStatement()); 
+            effectRow=employeeMapper.update(updateStatement);
+			employeeMapper.updateByPrimaryKey(emp1);//里面用到了 UpdateDSLCompleter
+			//低版本的mybatis不会生成XxxByPrimaryKey,也用不了
+            //employeeMapper.updateByPrimaryKeySelective(record)
+            session.commit();
+			
+			//动态条件
+			 String fName="kotlinX";
+            //String fName=null;
+            UpdateDSL<UpdateModel>.UpdateWhereBuilder builder = update(employee)
+                    .set(employee.userName).equalTo("kotlin3")
+                    .where(employee.id, isEqualTo(8008));
+            builder.and(employee.userName, isEqualTo(fName).when(Objects::nonNull));
+            updateStatement = builder.build().render(RenderingStrategies.MYBATIS3);
+            effectRow=employeeMapper.update(updateStatement);
+            session.commit();
+						
+            
+            DeleteStatementProvider deleteStatement = deleteFrom(employee)
+                    .where(employee.id, isEqualTo(8008), and(employee.employee_type, isEqualTo(2)))
+                    .or(employee.userName, isLikeCaseInsensitive("kot%"))
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+            System.out.println(deleteStatement.getDeleteStatement());  
+            //delete from employee where (id = #{parameters.p1,jdbcType=INTEGER} and employee_type = #{parameters.p2,jdbcType=INTEGER}) or upper(username) like #{parameters.p3,jdbcType=VARCHAR}
+            effectRow=employeeMapper.delete(deleteStatement);
+            session.commit();
+			 
+			 
+			 
+		   //isIn子查询 ，isLessThan
+           selectStatement = select(employee.userName,employee.age)
+                    .from(employee, "a")
+                    .where(employee.age, isIn(select(employee.age).from(employee).where(employee.department_id, isEqualTo(20))))
+                    .and(employee.age, isLessThan(100))
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+           System.out.println(selectStatement.getSelectStatement());
+           List<Employee> res=  employeeMapper.selectMany(selectStatement);
+           List<Employee> records = employeeMapper.select(SelectDSLCompleter.allRows());
+			 
+			 // group by, count(*) as count 没有having??
+        	 selectStatement = select( departmentEntity.depName, count().as("count"),
+        			 	SqlBuilder.max(employee.age).as("max_age"),
+        			 	SqlBuilder.avg(employee.age).as("avg_age"),
+        			 	SqlBuilder.min(employee.age).as("min_age")
+        			 	)
+                     .from(departmentEntity, "p").join(employee, "e").on(employee.department_id, equalTo(departmentEntity.id))
+                     .groupBy(departmentEntity.depName)
+                     .build()
+                     .render(RenderingStrategies.MYBATIS3);
+            System.out.println(selectStatement.getSelectStatement()); 
+			
+		 //如何做到 ？？？  <collection>多行记录映射成一条记录
+          selectStatement = select(departmentEntity.id, departmentEntity.depName,employee.userName, employee.age, employee.brithDay)
+                    .from(departmentEntity, "d")
+                    .join(employee, "e").on(employee.department_id, equalTo(departmentEntity.id))
+                    .build()
+                    .render(RenderingStrategies.MYBATIS3);
+           System.out.println(selectStatement.getSelectStatement()); 
+       	   depts= mapper.selectMany(selectStatement);  
+           System.out.println(depts)
+		}
+}
+public interface JoinMapper {
+  //@Many时column 为(父表的)主键,javaType=List.class
+    @Results (value={
+        @Result(column="id", property="id"),
+        @Result(column="dep_name", property="depName"),
+        @Result( many = @Many(select = "queryEmployeeByDeptId"),javaType = List.class,column = "id", property="employees")
+    })   
+    @SelectProvider(type=SqlProviderAdapter.class, method="select")
+    List<DepartmentEntity> fetchMany(SelectStatementProvider selectStatement);
+    
+    
+   @Select("select * from employee where department_id=#{value}")
+   @Results(value = {
+    		@Result(property="userName", column="username"),
+    		@Result(property="age", column="age")
+       })
+   public List<Employee> queryEmployeeByDeptId(@Param("value")String deptId);
+    
+   
+  //@One 时column 是子表的外键
+   @Results(value = {
+    		@Result(property="userName", column="username"),
+    		@Result(property="age", column="age"),
+    		@Result( one = @One(select = "queryDepartmentById"),javaType = DepartmentEntity.class,column = "department_id", property="department")
+       })
+   @SelectProvider(type=SqlProviderAdapter.class, method="select")
+   public Employee  fetchOne( SelectStatementProvider selectStatement); 
+   
+   
+   @Select("select * from department where id=#{value}")
+   @Results (id="MyDepartment",value={
+	        @Result(column="id", property="id"),
+	        @Result(column="dep_name", property="depName"),
+	    })  
+   public DepartmentEntity  queryDepartmentById(int id);
+   
+ }

@@ -512,6 +512,7 @@ token中存有用户信息，不必大量调用远程制授权服务验证token�
 JSON Web Signature (JWS)
 JSON Web Encryption (JWE)
 
+三部分
 Header 会以Base64编码 
      {"typ":"JWT",
       "alg":"HS256"}

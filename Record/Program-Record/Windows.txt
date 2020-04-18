@@ -165,7 +165,7 @@ C:\Windows\Fonts\simhei.ttf
 
 
 任务管理器->查看->显示列.. ->PID,虚拟内存,I/O 读取,I/O 写入
-
+		在process标签中 可以加 command line
  
 桌面属性->设置->[显示]栏有两个可选择 是对双显示器用的吧
 
@@ -501,7 +501,7 @@ Program Files 写时可用 PROGRA~1 来替代
  单击[开始]-[运行]，在对话框中输入gpedit.msc->单击[确定]打开组策略，定位到[用户配置]-[管理模板]-[系统]，双击“禁用注册表编辑工具”一行，选择[未配置]，单击[确定]。
 
 
-  开机自动运行
+开机自动运行
 操作注册表   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
 
 
@@ -515,13 +515,43 @@ shell:startup 进入(当前用户) %HOMEPATH%\AppData\Roaming\Microsoft\Windows\
 C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
 
 
+--流氓开机自启
+WPS2019流氓启动的删除,任务管理器process标签show command line显示 wps.exe,注册表搜索wps.exe 
+HKEY_CLASSES_ROOT  下面好多WPS真他妈的流氓,感觉要写程序来清空了
+
+HKEY_CLASSES_ROOT   注册的文件扩展名
+
+QQ的开机启动服务QPCoreService(腾讯安全服务) 不能修改为手动 ,流氓 (sc delete QPCoreService)
+chrome 的 software_reporter_tool.exe(chrome数据目录/SwReporter) 
+		右键点击 software_reporter_tool.exe 或 目录SwReporter 选择 属性 —> 转到“安全”选项卡 —> 点击“高级” —> 点击“更改权限”
+		—> 将“包括可以从该对象的父项的权限”前的勾选去除 —> 点击“删除” —> 之后一路点击“确定”
+
+		GoogleCrash  可能是要删除定时任务 (google update 有2个服务)
+搜狗 服务
+Adobe 服务
+Apple Mobile  服务
+windows update 服务
+office  服务
+--
+
+
 ----网上其它的
-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run  有时没有Run
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run  有时没有Run
-HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows\Run		有时没有Run
 
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce   这个有一个OneDrive的删目录
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunOnce  空的
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce 空的
+
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad] 有一个webCheck的名,删它
+
+HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows\Run		有时没有Run
+HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows  (Load键 开机运行并最小化) 这里有,不知是什么
+
+HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon 这里有,不知是什么
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
+
+HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run  有时没有Run
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run  有时没有Run
 
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunServices	没有RunServices
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices 没有RunServices
@@ -529,21 +559,13 @@ HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunServices 没有R
 HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce  没有RunServicesOnce
 HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\RunServicesOnce 没有RunServicesOnce
 
-HKEY_CURRENT_USER\Software\Microsoft\Windows NT\CurrentVersion\Windows  (Load键 开机运行并最小化) 这里有,不知是什么
-
-[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon 这里有,不知是什么
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon
 
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\System\Shell]  没有System
-[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellServiceObjectDelayLoad] 有一个webCheck的名,删它
+
 [HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\SystemScripts]  没有SystemScripts
 [HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\SystemScripts] 没有SystemScripts
-
-[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Run]  	没有Wow6432Node
-[HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\RunOnce 	没有Wow6432Node
+	 
 --
-
-
 
  
 远程桌面　默认端口　3389
@@ -659,7 +681,8 @@ gpedit.msc 用户设置->管理模板->Windows 组件->Internet Explorer-> 找�
 %USERPROFILE%\AppData\Local\XXX应用和 Temp
 %USERPROFILE%\AppData\Roaming\XXX应用
 %APPDATA%=C:\Users\%USERNAME%\AppData\Roaming
-%HOMEPATH%=C:\Users\%USERNAME%
+%HOMEPATH%=\Users\%USERNAME%  (没有盘符)
+%USERPROFILE%=C:\Users\%USERNAME% 
 
 ---------------windows 批处理 bat
 
@@ -758,8 +781,14 @@ rd /s /q abc  删目录及文件  /s 所有 /q quite
 del /s /q dir  只删所有目录中的文件,目录还存在
 
 copy  /y /b  file1.txt file1.txt  #只复制文件/b binary /y 不提示overite
-xcopy /y /q /e /r /h dirx  diry  #把dirx目录下的所有文件复制到diry目录中(要已经存在) /e 子目及子目录(包括空目录) /h hidden /r overite readonly
+xcopy /y /q /e /r /h dirx  diry  #把dirx目录下的所有文件复制到diry目录中(要已经存在)
+	/e 子目及子目录(包括空目录) /h hidden /r overite readonly  /q 复制不显示文件名
 
+cd d:
+rem xcopy /y /q /e /r /h  "Navicat Premium 15"  %HOMEPATH%/Documents  用%HOMEPATH%没盘符不行,要用%USERPROFILE%
+xcopy /y /q /e /r /h  "Navicat Premium 15"  %USERPROFILE%/Documents  
+ 
+				
 zip -r package.zip dirx  #把dirx目录也放入包中
 unzip package.zip -d dir #dir可以不存在
 du -sh .  当前目录下的所有目录占用空间
@@ -799,6 +828,7 @@ route delete  <destinationIP>
 
 arp  协议 发广播 ,发IP地址,要Mac地址,把IP地址解析为 Mac地址,广播不能跨网段,代理arp(A网段有一台机器要B网段的Mac,路由器先返回自己的Mac,帮忙把消息转到B网段)
 arp -a  查看所有
+arp -d <ip> 删除 
 
 示例 
 route add -p 130.1.0.0  MASK 255.255.0.0  170.219.2.1 if 23   -- 这个是有线网卡的专用网
@@ -829,6 +859,8 @@ sc create MySQL56 binpath= "\"C:\Program Files\MySQL\MySQL Server 5.5\bin\mysqld
 
 sc delete MySQL56 删服务
 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\MySQL55 中也很多键
+
+sc config MySQL56 start= demand  相当于界面的manual,demand前一定要有空格
 
 start命令是开一个新的CMD窗口,如 start startWeblogic.cmd 在CMD新窗口中运行
 把文件报入cmd,或者 运行... 对话框中,显示完整路径

@@ -321,6 +321,77 @@ xhr.open("POST", "./uploadServlet3");
  
 xhr.send(formData);
 
+=========== CORS
+------ 简单请求
+XMLHttpRequest 不加请求头成功
+<div id="out"></div>
+ 
+var xhr = new XMLHttpRequest();  
+xhr.onreadystatechange = function() {
+	if (xhr.readyState === 4 ) 
+	{
+		if( xhr.status === 200)
+			document.querySelector("#out").innerText=xhr.responseText;
+		else
+		{
+			alert("error status code="+xhr.status+",statusText="+xhr.statusText);
+		}
+	}
+};
+var remoteUrl="http://127.0.0.1:8080/S_HTML5CSS3/cors";//这里假设127.0.0.1是远程,浏览器用localhost打开
+xhr.open("POST",remoteUrl , false);//是否异步,true 异步,false同步
+
+//以下几个头设置，firefox/chrome被禁止, 浏览器自动设置 
+//xhr.setRequestHeader("Access-Control-Request-Method","POST"); 
+//xhr.setRequestHeader("Access-Control-Request-Headers","content-type,mycors");
+//xhr.setRequestHeader("Origin","http://xxx:8080/");
+//xhr.setRequestHeader("Referer","http://xxx:8080/S_HTML5CSS3/pureAjax/crossDomain1.html"); 
+
+//如xhr不设置任何Header是可以请求到服务端的
+//服务返回加头response.addHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+//服务端 response.setContentType("application/json;charset=UTF-8");没有影响
+xhr.send(JSON.stringify({"name":"李四"}));
+
+--服务端
+//response.addHeader("Access-Control-Allow-Origin", "*");//“*”号表示允许任何域向我们的服务端提交请求：
+//这里假127.0.0.1是远程,浏览器用localhost打开
+response.addHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+
+//Cookie可以包含在请求中，一起发给服务器,默认情况下，Cookie不包括在CORS请求之中
+//必须在AJAX请求中打开withCredentials属性。var xhr = new XMLHttpRequest(); xhr.withCredentials = true;
+//如果要发送Cookie，Access-Control-Allow-Origin就不能设为星号
+//response.addHeader("Access-Control-Allow-Credentials", "true");
+
+
+//XMLHttpRequest对象的getResponseHeader()方法只能拿到6个基本字段：Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma
+//如果想拿到其他字段，就必须在Access-Control-Expose-Headers里面指定
+//response.addHeader("Access-Control-Expose-Headers", "FooBar");
+
+
+
+------非简单请求
+
+如 XMLHttpRequest  加请求头 Content-Type : application/json
+xhr.setRequestHeader("Content-Type","application/json;charset=UTF-8");//open方法后 调用   
+
+//---对 非简单请求的CORS请求，会在正式通信之前，增加一次HTTP查询请求，称为"预检"请求（preflight）。
+//"预检"请求用的请求方法是OPTIONS,服务端取Origin，Access-Control-Request-Method，Access-Control-Request-Headers做验证成功加http头
+
+--服务端代码
+@Override
+protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	String origin=req.getHeader("Origin");//http://localhost:8080
+	String method=req.getHeader("Access-Control-Request-Method");//POST
+	String headers=req.getHeader("Access-Control-Request-Headers");//content-type
+	if(origin.contains("localhost") && "POST".equals(method) && headers.contains("content-type") )
+	{
+		resp.addHeader("Access-Control-Allow-Methods", "POST");
+		resp.addHeader("Access-Control-Allow-Headers", "Content-Type");
+		resp.addHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+	}
+}
+
+
 
 
 
@@ -821,6 +892,10 @@ function dynamicAddEvent()
 }
 
 //addEventListener 第3个参数 useCapture 默认值为false， 如true使用Capture方式，如false是Bubbling
+第3个参数也可以是一个对象选项
+	capture:  Boolean
+	once:  Boolean 在添加之后最多只调用一次
+	passive: Boolean 设置为true时，表示 listener 永远不会调用 preventDefault()
 
 //js阻止事件冒泡二选一 ( 捕获阶段: 外-》里 , 冒泡阶段: 里-》外)
 //evt.cancelBubble = true;
@@ -856,36 +931,95 @@ function batchFunction()
 	}
 }
 function parseXML()
-{
-	var xmlDoc;
-	if (window.ActiveXObject)//IE
-	{
-	  xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
-	}
-	else if (document.implementation.createDocument)//Firefox
-	{
-	  xmlDoc=document.implementation.createDocument("","",null);
-	//document.implementation.createDocument (namespaceURI, qualifiedNameStr, DocumentType);
-	}
-	else
-	{
-	  alert('Your browser cannot handle this script');
-	}
-	xmlDoc.async=false;
-	xmlDoc.load("../assets/cd_catalog.xml");
-
-	/*
+{ 
 	var txt=document.getElementById("xmlData").value;//<textarea>
-	var parser=new DOMParser();//只对Firefox
+	var parser=new DOMParser();//Firefox/chrome可以
 	var xmlDoc=parser.parseFromString(txt,"text/xml");//返回一个Document 对象
-	*/
+	 
 	
 	var allCD=xmlDoc.getElementsByTagName("cd");
 	for(var i=0;i<allCD.length;i++)
 	{
 		alert(allCD[i].firstChild.nodeValue+",attribute price="+allCD[i].getAttribute("price"));
 	}
+	var s = new XMLSerializer(); 
+	var str = s.serializeToString(xmlDoc);
+	console.log(str);
 }
+
+//--JSON stringify
+
+JSON.stringify([NaN, null, Infinity]); // '[null,null,null]'
+JSON.stringify(new Date(2006, 0, 2, 15, 4, 5)) 
+//'"2006-01-02T15:04:05.000Z"'
+
+JSON.stringify({ x: [10, undefined, function(){}, Symbol('')] }); 
+//'{"x":[10,null,null,null]}' 
+
+JSON.stringify([new Set([1]), new Map([[1, 2]]), new WeakSet([{a: 1}]), new WeakMap([[{a: 1}, 2]])]);
+//'[{},{},{},{}]'
+
+//数组下标做key
+JSON.stringify([new Int8Array([1]), new Int16Array([1]), new Int32Array([1])]);
+//'[{"0":1},{"0":1},{"0":1}]'
+JSON.stringify([new Uint8Array([1]), new Uint8ClampedArray([1]), new Uint16Array([1]), new Uint32Array([1])]);
+//'[{"0":1},{"0":1},{"0":1},{"0":1}]'
+JSON.stringify([new Float32Array([1]), new Float64Array([1])]);
+//'[{"0":1},{"0":1}]'
+
+new Uint8ClampedArray([-1]) //如果你指定一个在 [0,255] 区间外的值，它将被替换为0或255,最接近它的整数
+new Uint8Array([-1]) //变为[255]
+
+//toJSON()
+JSON.stringify({ x: 5, y: 6, toJSON(){ return this.x + this.y; } });
+//'11'
+
+var obj = {
+  data: 'data',
+  toJSON (key) {
+      if (key)
+          return `Now I am a nested object under key '${key}'`;
+      else
+          return this;
+  }
+};
+JSON.stringify(obj);
+//'{"data":"data"}'
+JSON.stringify({ obj })
+//'{"obj":"Now I am a nested object under key 'obj'"}'
+JSON.stringify([ obj ])
+//'["Now I am a nested object under key '0'"]'
+
+
+//Non-enumerable properties:
+JSON.stringify( Object.create(null, { x: { value: 'x', enumerable: false }, y: { value: 'y', enumerable: true } }) );
+//'{"y":"y"}'
+
+//JSON.stringify({x: 2n});
+//TypeError: BigInt value can't be serialized in JSON
+//整数字面量后面加 n 的方式定义一个 BigInt
+
+const hugeHex = BigInt("0x1fffffffffffff");
+//9007199254740991n
+typeof hugeHex === 'bigint'; 
+
+
+function replacer(key, value) {
+// Filtering out properties
+if (typeof value === 'string') {
+  return undefined;
+}
+return value;
+}
+var foo = {foundation: 'Mozilla', model: 'box', week: 45, transport: 'car', month: 7};
+JSON.stringify(foo, replacer);//第二个参数
+//'{"week":45,"month":7}'
+
+JSON.stringify({ uno: 1, dos: 2 }, null, '\t');//第三个参数缩进使用tab键.可修改为两个空格
+//-----
+
+
+
 
 //onerror 事件捕获网页中的错误,三个参数来调用：msg（错误消息）、url（发生错误的页面的 url）、line（发生错误的代码行）。)
 //如果返回值为 false，则在控制台 (JavaScript console) 中显示错误消息
@@ -1048,7 +1182,7 @@ nodes[1]=1;
 var  nodesStr = nodes.join(",");   
 alert(nodesStr); // 0,1
 
-escape 方法
+escape("\"") 方法 是转换为%xx 的形式
 
 
 var x={name :"lisi",age:23} //对象
@@ -2495,7 +2629,7 @@ console.log(mapped instanceof Array);
 //---- apply方法  Function​.prototype​.apply() 
 //call()方法的作用和 apply() 方法类似，区别就是call()方法接受的是 argument 列表，而apply()方法接受的是一个数组。
 var numbers = [5, 6, 2, 3, 7];
-var max = Math.max.apply(null, numbers);//第一个参数是thisArg，null表示全局对象
+var max = Math.max.apply(null, numbers);//第一个参数是thisArg，非严格模式下，则指定为 null 或 undefined 时会自动替换为指向全局对象
 console.log(max);// expected output: 7
 
 var array = ['a', 'b'];
@@ -2854,10 +2988,14 @@ async function asyncCall() {//如resolved  返回一个Promise，如rejected 抛
 } 
 
 asyncCall();
+ 
+ Promise.all([resolveAfter2Seconds(), resolveAfter1Second()])//并发
+	  .then((messages) => {
+	    console.log(messages[0]); // slow
+	    console.log(messages[1]); // fast
+	  });
 
-
-
-
+	  
 function resolveAfter2Seconds(x) {
 	  return new Promise(resolve => {
 	    setTimeout(() => {
@@ -2866,12 +3004,16 @@ function resolveAfter2Seconds(x) {
 	  });
 	}
 
- Promise.all([resolveAfter2Seconds(), resolveAfter1Second()])//并发
-	  .then((messages) => {
-	    console.log(messages[0]); // slow
-	    console.log(messages[1]); // fast
-	  });
-
+//-- await 并发执行 写法
+(async function(x) { // async function expression used as an IIFE
+  var p_a = resolveAfter2Seconds(20);//已经启动定时器， 并发执行
+  var p_b = resolveAfter2Seconds(30);
+  return x + await p_a + await p_b; // 
+})(10).then(v => {
+  console.log(v);  // prints 60 after 2 seconds.
+});
+ 
+ 
 var AsyncFunction = Object.getPrototypeOf(async function(){}).constructor //特别
 var a = new AsyncFunction('a', 
                           'b', 
@@ -2879,6 +3021,13 @@ var a = new AsyncFunction('a',
 a(10, 20).then(v => {
   console.log(v); // prints 30 after 4 seconds
 });
+
+var add = async function(x) { // async function expression assigned to a variable
+  var a = await resolveAfter2Seconds(20);//只有完全执行后才会继续向下执行,/同步执行
+  var b = await resolveAfter2Seconds(30);
+  return x + a + b;
+};
+
 
 ------strict
 "use strict"; //整个脚本文件开启严格模式，需要在所有语句之前放
@@ -3044,8 +3193,8 @@ fetch('/S_HTML5CSS3/jsonGet')
       cache: "no-cache", // *default,no-store, no-cache, reload, force-cache, only-if-cached
       credentials: "same-origin", // include, *same-origin, omit
       headers: {
-          //"Content-Type": "application/json",
-           "Content-Type": "application/x-www-form-urlencoded",
+         //"Content-Type": "application/json;charset=UTF-8",  
+           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8", 
       },
       redirect: "follow", // manual, *follow, error
       referrer: "no-referrer", // no-referrer, *client
@@ -3343,17 +3492,220 @@ var mergedObj = merge ( obj1, obj2);
  var ComponentA={a:1}
  console.log({ComponentA});
 
+----dataset
+<div id="user" data-id="1234567890" data-user="johndoe" data-date-of-birth>
+	John Doe (html中用 - 式命名)
+</div>
+
+var el = document.querySelector('#user');
+// el.id == 'user'
+// el.dataset.id === '1234567890'
+// el.dataset.user === 'johndoe'
+// el.dataset.dateOfBirth === ''
+
+el.dataset.dateOfBirth = '1960-10-03'; //JS驼峰命名
+
+// 'someDataAttr' in el.dataset === false
+
+el.dataset.someDataAttr = 'mydata';
+// 'someDataAttr' in el.dataset === true
+
 
 //----ECMAScript 2018
+//扩展语法和reset参数 
+
+var objOld={id:123,name:"lisi"};
+let objClone = { ...objOld };//对象可以直接复制
+console.log(objClone); 
+ 
+
+//[Symbol.asyncIterator]属性
+const myAsyncIterable = {
+	    async* [Symbol.asyncIterator]() {// async*  函数内yield
+	        yield "hello";
+	        yield "async";
+	        yield "iteration!";
+	    }
+	};
+	(async () => {
+	//全写为async function  (){
+	    for await (const x of myAsyncIterable) {
+	        console.log(x);
+	        // expected output:
+	        //    "hello"
+	        //    "async"
+	        //    "iteration!"
+	    }
+	})();
+
+// for await...of
+	const asyncIterable = {
+		  [Symbol.asyncIterator]() { //[Symbol.asyncIterator]函数内返回对象
+		    return {
+		      i: 0,
+		      next() { //每次迭代调用next()方法,返回Promise对象格式有属性value,done
+		        if (this.i < 3) {
+		          return Promise.resolve({ value: this.i++, done: false });
+		        }
+
+		        return Promise.resolve({ done: true });
+		      }
+		    };
+		  }
+		};
+		(async function() {
+		   for await (let num of asyncIterable) {
+		     console.log(num);
+		   }
+		})();
+		// 0
+		// 1
+		// 2
+		
+		async function* asyncGenerator() {
+		  let i = 0;
+		  while (i < 3) {
+		    yield i++;
+		  }
+		}
+		(async function() {
+		  for await (let num of asyncGenerator()) {
+		    console.log(num);
+		  }
+		})();
+		// 0
+		// 1
+		// 2
+
+async function* streamAsyncIterator(stream) //stream 参数
 {
-	var objOld={id:123,name:"lisi"};
-	let objClone = { ...objOld };//对象可以直接复制
-	console.log(objClone); 
+  const reader = stream.getReader();//Streams API 还是实验阶段
+  try {
+    while (true) {
+      const { done, value } = await reader.read();//带done属性
+      if (done) {
+        return;
+      }
+      yield value;
+    }
+  } finally {
+    reader.releaseLock();
+  }
 }
+// Fetches data from url and calculates response size using the async generator.
+async function getResponseSize(url) {
+  const response = await fetch(url);
+  // Will hold the size of the response, in bytes.
+  let responseSize = 0;
+  // The for-await-of loop. Async iterates over each portion of the response.
+  for await (const chunk of streamAsyncIterator(response.body)) {
+    // Incrementing the total response length.
+    responseSize += chunk.length;
+  }
+  console.log(`Response Size: ${responseSize} bytes`);
+  // expected output: "Response Size: 1071472"
+  return responseSize;
+}
+getResponseSize('https://jsonplaceholder.typicode.com/photos');
+// 共享内存
+//var sab = new SharedArrayBuffer(1024);//chrome不认
+//worker.postMessage(sab);
+
+//Promise.prototype.finally()
+let isLoading = true;
+fetch("/S_HTML5CSS3/jsonGet").then(function(response) {
+    var contentType = response.headers.get("content-type");
+    //typeof(contentType) =='string'
+    if(contentType && contentType.includes("application/json")) {//includes方法string也有
+      return response.json();
+    }
+    throw new TypeError("Oops, we haven't got JSON!");
+  })
+  .then(function(json) { console.log('response json is '+json) })
+  .catch(function(error) { console.error(error); /* this line can also throw, e.g. when console = {} */ })
+  .finally(function() { isLoading = false; });
+
+//RegExp/dotAll 还未实现
+//const regex1 = new RegExp('foo', 's');//s表示Allows . to match newlines
+//onsole.log(regex1.dotAll);//表示是否加了s标志
+// expected output: true
+ 
+
+ 
+//----ECMAScript 2019 
+https://developer.mozilla.org/en-US/docs/Archive/Web/JavaScript/ECMAScript_Next_support_in_Mozilla#ECMAScript_2019
+
+//Array的flat
+const arr2 = [1, 2, [3, 4, [5, 6]]];
+arr2.flat();
+// [1, 2, 3, 4, [5, 6]]
+const arr3 = [1, 2, [3, 4, [5, 6]]];
+arr3.flat(2);
+// [1, 2, 3, 4, 5, 6]
+const arr4 = [1, 2, [3, 4, [5, 6, [7, 8, [9, 10]]]]];
+arr4.flat(Infinity);
+// [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+//Array的flatMap
+{
+	let arr1 = [1, 2, 3, 4];
+	arr1.map(x => [x * 2]); 
+	// [[2], [4], [6], [8]]
+	arr1.flatMap(x => [x * 2]);
+	// [2, 4, 6, 8]
+	// only one level is flattened
+	arr1.flatMap(x => [[x * 2]]);
+	// [[2], [4], [6], [8]]
+}
+{
+	let arr1 = ["it's Sunny in", "", "California"];
+	arr1.map(x => x.split(" "));
+	// [["it's","Sunny","in"],[""],["California"]]
+	arr1.flatMap(x => x.split(" "));
+	// ["it's","Sunny","in", "", "California"]
+	
+	var arr = [1, 2, 3, 4];
+	arr.flatMap(x => [x, x * 2]);
+	// is equivalent to
+	arr.reduce((acc, x) => acc.concat([x, x * 2]), []);
+	// [1, 2, 2, 4, 3, 6, 4, 8]
+}
+//Object.fromEntries()
+{
+
+	const entries = new Map([
+	  ['foo', 'bar'],
+	  ['baz', 42]
+	]);
+	const obj = Object.fromEntries(entries);
+	console.log(obj);
+	// expected output: Object { foo: "bar", baz: 42 } 
+}
+const greeting = '   Hello world!   ';
+console.log(greeting.trimStart());
+// expected output: "Hello world!   ";
+console.log(greeting.trimEnd());
+// expected output: "   Hello world!";
+
+
+function sum(a, b) {
+	  return a + b;
+}
+console.log(sum.toString()); //输出为 Function code hidden
+
+
+console.log(Symbol('desc').description);
+//expected output: "desc"
+console.log(Symbol.iterator.description);
+//expected output: "Symbol.iterator"
+console.log(Symbol.for('foo').description);
+//expected output: "foo"
+
+
 
 --------ECMASCript   
-https://www.ecma-international.org/publications/standards/Ecma-262.htm 是2018第9版（目前最新发布版本）
-https://tc39.github.io/ecma262/ 是最新草稿版本
+https://www.ecma-international.org/
+
 
 
 

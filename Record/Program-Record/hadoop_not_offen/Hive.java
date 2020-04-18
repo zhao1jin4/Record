@@ -4,6 +4,8 @@
 SQuirrel 界面工具可以仿问Hive
 http://lxw1234.com/archives/2015/09/519.htm
 
+将sql语句转换为MapReduce任务
+
 
 export HADOOP_HOME=~/hadoop-2.4.0
 启动 $HADOOP_HOME/sbin/start-dfs.sh

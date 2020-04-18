@@ -359,7 +359,7 @@ $("input[name=status]" ).each(function(i){ //type radio
 	});
 
 
-// 跨域 jsonp 
+// 跨域 jsonp  也是基于<script>的src属性来实现，看firefox的请求网的case列为script,不是xhr
 	$(document).ready(function()
 	{ 
 		$.ajax({
@@ -389,7 +389,7 @@ Servlet端
 		 "',  price: 1780,"+
 		"    tickets: 5"+
 		"});";
-		response.getWriter().write(strFunc);
+		response.getWriter().write(strFunc);	//要服务端为jquery定制的返回是不行的
 		
  
  

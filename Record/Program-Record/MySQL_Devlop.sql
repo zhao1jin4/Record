@@ -685,7 +685,7 @@ SET [SESSION | GLOBAL] group_concat_max_len = 3600000;	// 30万条短信
 set GLOBAL max_allowed_packet= 7200000;		
 SET GLOBAL group_concat_max_len = 7200000;
 
-show variables like 'storage_engine'  
+show variables like '%storage_engine'  
  
  
 show variables like 'character_set_%';
@@ -858,9 +858,44 @@ max_allowed_packet=1M
 fulltext 索引只用于 MyISAM
 unique 索引
 普通索引
-SPATIAL 索引(5.7新功能 MyISAM 和 InnoDB都支持, 空间数据类型如point和geometry等,列必须非NULL ) 在where 中  MBRContains() 或者 MBRWithin() , 会建立一个  R-tree 索引
+SPATIAL 索引(5.7新功能 MyISAM 和 InnoDB都支持, 空间数据类型如point和geometry等,列必须非NULL ) 会建立一个  R-tree 索引
 CREATE [UNIQUE|FULLTEXT|SPATIAL] INDEX  ,或者 alter table t1 add index ind (col)
 USING {BTREE | HASH}  //InnoDB 和 MyISAM 都是BTree
+
+
+---- 空间(Spatial) 数据类型
+GEOMETRY
+POINT
+LINESTRING
+POLYGON
+
+Point,LineString,Polygon都是 Geometry 的子类
+
+集合类型
+MULTIPOINT
+MULTILINESTRING
+MULTIPOLYGON
+GEOMETRYCOLLECTION
+
+
+在where 中  MBRContains() 或者 MBRWithin() , 
+
+-- 空间(Spatial) 索引
+空间引用标识符 (SRID)，如加索引必须有  NOT NULL 和 SRID 
+
+CREATE TABLE geom (g GEOMETRY NOT NULL SRID 4326, SPATIAL INDEX(g));
+
+CREATE TABLE geom (g GEOMETRY NOT NULL SRID 4326);
+ALTER TABLE geom ADD SPATIAL INDEX(g);
+
+CREATE TABLE geom (g GEOMETRY NOT NULL SRID 4326);
+CREATE SPATIAL INDEX g ON geom (g);
+
+ALTER TABLE geom DROP INDEX g; 
+DROP INDEX g ON geom;
+
+---- 
+
 
 MyISAM 引擎中 ft_min_word_len和ft_max_word_len 表示indicate  minimum and maximum word length for FULLTEXT indexes
 InnoDB 引擎中  innodb_ft_min_token_size 和 innodb_ft_max_token_size  
@@ -1252,6 +1287,8 @@ alter table myTable drop primary key  ; -- 如是auto_increment的不能删主�
 drop index INX_depId on myTable;
 alter table myTable drop index INX_depId;
 
+alter table employee add index inx_name  (username )
+
 CREATE INDEX part_of_name ON customer (name(10)); 可以只对前几个字符做索引
 create UNIQUE index INX_PK  on myTable(dep_id,emp_id)  using BTREE
 mysql 不支持函数索引,如 subString(l.listId,1,3) 
@@ -1433,3 +1470,78 @@ SELECT JSON_SET(@j, '$.a', 10, '$.c', '[true, false]');  //不存在要增加   
 SET @j = '["a", ["b", "c"], "d"]';
 SELECT JSON_REMOVE(@j, '$[1]'); // ["a", "d"]     
 
+
+-----XdevApi   Node.js JavaScript 
+util.importJson("/tmp/products.json", {schema: "mydb", collection: "products"})
+
+var mySession = mysqlx.getSession('user1:user1@localhost');
+ 
+
+---x-devapi
+var mysqlx = require('mysqlx');
+
+// Connect to server
+var mySession = mysqlx.getSession( {
+host: 'localhost', port: 33060,
+user: 'user1', password: 'user1'} );
+
+var myDb = mySession.getSchema('mydb');
+
+// Create a new collection 'my_collection'
+var myColl = myDb.createCollection('my_collection');
+
+// Insert documents
+myColl.add({_id: '1', name: 'Sakila', age: 15}).execute();
+myColl.add({_id: '2', name: 'Susanne', age: 24}).execute();
+myColl.add({_id: '3', name: 'User', age: 39}).execute();
+
+// Find a document
+var docs = myColl.find('name like :param1 AND age < :param2').limit(1).
+        bind('param1','S%').bind('param2',20).execute();
+
+// Print document
+print(docs.fetchOne());
+
+// Drop the collection
+myDb.dropCollection('my_collection'); 
+ 
+-----安装MySQL Shell 使用mysqlsh 的NoSQL
+bin/mysqlsh  user1@127.0.0.1:33060/mydb
+MySQL  JS > \connect user1@127.0.0.1?connect-timeout=2000
+
+MySQL  JS > db.my_collection.find()
+MySQL  JS > db.my_collection.find({"name":"User"})
+MySQL  JS > db.my_collection.find("name='User'");
+MySQL  JS > db.my_collection.find("age>30");
+MySQL  JS > db.my_collection.find("age>30 and name='User'");
+MySQL  JS > db.my_collection.find("name = :v_user").bind("v_user","User")
+
+var myFind = db.my_collection.find("name =: v_user")
+myFind.bind('v_user', 'User')
+
+db.my_collection.find("age>30").fields(["name", "age"])
+
+db.my_collection.find().fields(mysqlx.expr('{"Name": upper(name), "Age": age*10}')).limit(2).skip(1)
+db.my_collection.find().fields(mysqlx.expr('{"Name": upper(name), "Age": age*10}')).sort(["Age desc"]).limit(2)
+
+
+db.my_collection.modify("_id = '1'").set("demographics", {"LifeExpectancy": 78, "Population": 28})
+db.my_collection.modify("_id = '1'").unset("demographics")
+
+db.my_collection.modify("_id = '1'").set("Airports", [])
+
+db.my_collection.remove("_id = '1'")   //可加sort,limit
+ 
+---报错!!!
+db.my_collection.modify("_id = '1'").array_append("$.Airports", "ORY");
+db.my_collection.modify("_id = '1'").array_insert("$.Airports[0]", "CDG")
+db.my_collection.modify("_id = '1'").array_delete("$.Airports[1]")
+
+ 
+ //OK
+ db.my_collection.createIndex("age", {fields:[{"field": "$.age", "type":"INT", "required":true}]});
+ db.my_collection.dropIndex("age");
+ //OK
+ db.my_collection.createIndex('myComIndex', {fields: [{field: '$.age', type: 'INT'},{field: '$.username', type: 'TEXT(10)'}]}) 
+ db.my_collection.dropIndex('myComIndex');
+ 	

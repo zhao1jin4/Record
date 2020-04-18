@@ -106,8 +106,29 @@ var myPart=new MyPartition
 partitionBy(myPart)
 
 //自定义分区
+class MyPartition  extends Partitioner
+{
+	private int nums;
+	public MyPartition(int nums)
+	{
+	 	super();
+		this.nums = nums;
+	}
+	@Override //决定在哪个分区
+	public int getPartition(Object obj)
+	{
+		Integer val=Integer.parseInt(obj.toString());
+		return val.intValue()%nums; 
+	}
+	@Override //返回分区总数
+	public int numPartitions()
+	{
+		return this.nums;
+	}
+}
 class MyPartition extends Partitioner //spark
 {
+	
 	override def numPartitions:Int=
 	override def 
 }
@@ -159,11 +180,7 @@ saveAsTextFile("hdfs://ip:port/dir")
 
 如果多台executor使用的路径都是/而不是hdfs那么文件写在每个executor自己的机器目录上，不方便查看，建议用hdfs
 
-
-
-----Kubernetes   
-
-
+  
 Resilient Distributed Dataset (RDD)
 
 import org.apache.spark.SparkConf;
@@ -271,8 +288,7 @@ df.where("age > 21")
 	  
 } 
 ------------------------- Spark streaming 
-使用 DStreams API  老的API 
-Spark Streaming 事务
+使用 DStreams API  老的API
  
 SparkConf sparkConf = new SparkConf().setAppName("JavaKafkaWordCount").setMaster("local[4]"); 
 JavaStreamingContext jsc = new JavaStreamingContext(sparkConf, new Duration(2000));

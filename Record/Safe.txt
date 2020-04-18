@@ -30,8 +30,19 @@ Cross-Site Scripting (XSS)   指令当数据 将 document.cookie 信息传到指
 //凡是拥有"src"这个属性的标签都拥有跨域的能力，比如<script>、<img>, <a>、<iframe>，Websocket跨域
 
 Universal  XSS(UXSS)
-CSRF  	危险网站<img src="http//请求安全网站?xxx,已经登录未登出并产生cookie"/>或<form action="http://"/>
+CSRF（Cross-site request forgery） 危险网站<img src="http//请求安全网站?xxx,已经登录未登出并产生cookie"/>或<form action="http://"/>
 		解决用token
+
+解决ajax跨域	
+	CORS  跨域资源共享
+	JSONP是要服务端配置的
+	代理
+
+防盗链方法（自己总结的）
+	HTTP头的Referer字段 (可以很容易伪造)
+	使用登录 ，缺点是访客无法匿名
+	或要求cookie里有什么值(可以伪造) ,  或session里有什么值(如果不登录，还是可盗)
+	视频网站，客户端当播放到哪的时候，分批次请求（可以伪造，除非客户端使用flash这种看不到源码的插件）部分资源
 	
 http://labs.securitycompass.com/exploit-me/  有工具 用来检测XSS，SQL Inject和Access缺陷
 

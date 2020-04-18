@@ -11,6 +11,13 @@ Ratpack 构建简单高效的 HTTP 微服务 ,基于Netty 来开发
 
 ========================Spring Boot
 
+src/main/resources/banner.txt  即修改默认的Banner,可在线生成 http://patorjk.com/software/taag/
+
+SpringApplication newRun= new SpringApplication(Application.class); 
+newRun.setBannerMode(Banner.Mode.OFF);
+newRun.run(args);
+
+
 spring-boot-devtools 可以实现页面和代码的热部署
 <dependency>
 		<groupId>org.springframework.boot</groupId>
@@ -21,6 +28,9 @@ spring-boot-devtools 可以实现页面和代码的热部署
 http://start.spring.io/
 
 spring-boot-autoconfigure.jar 中有 META－INF/spring.factories,定义格式为  全接口(@)名=全类名  有Initializers,Listeners 的Auto Configure区定义了很多@ 和对应的配置类
+
+也可以自定义
+
 mybatis-spring-boot-autoconfigure.jar(看源码) 有有用 @EnableConfigurationProperties
 @EnableAutoConfiguration 中有 @Import({AutoConfigurationImportSelector.class}) ，这个类是实现了ImportSelector接口 有selectImports方法 返回的字串数组中的类名会被初始化，里面有META-INF/spring.factories
 												SpringFactoriesLoader.loadFactoryNames()扩展spring用的类	
@@ -31,18 +41,22 @@ spring-boot-start-freemarker , spring-boot-start-activemq,spring-boot-start-web,
 mybatis-spring-boot-starter
 spring-boot-start-xx.jar 没有源码,只有配置 META－INF/spring.providers 只用来管理依赖
 
-SpringApplication 加载 application.properties 或applicaion.yml 的顺序
-		A /config subdirectory of the current directory
-		The current directory
-		A classpath /config package
-		The classpath root
+SpringApplication 加载 application.properties 或applicaion.yml  优先级依次为
+1. 当前目录下的 config目录
+2. 当前目录   (也就是说application.properties配置文件可.jar外的同级目录)
+3. classpath /config 包
+4. classpath 根
+
 
 在application.yml再建一个配置文件 , 语法是三个横线
  
 也可不叫application.properties  
-$ java -jar myproject.jar --spring.config.name=myproject  
+$ java -jar myproject.jar --spring.config.name=myproject   
 也可同时指定位置和名字
 $ java -jar myproject.jar --spring.config.location=classpath:/default.properties,classpath:/override.properties	
+
+System.setProperty("spring.config.name", "sec-application");//这种也可以
+SpringApplication.run(MainSpringBootSecurity.class, args);//jar 启动 可以登录 ，war启动不行
 
 #logging.file=my.log  日志输入到当前目录下的文件名
 logging.file=/tmp/springBoot.log
@@ -133,6 +147,8 @@ public class DemoApplication {
 //测试 OK
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes=MybatisSpringBoot.class) //本类的所在包名无所谓
+//如不指定class=,包名要和src/main/java里的包名一样，为了找到 @SpringBootApplication
+
 //@SpringBootConfiguration
 @ContextConfiguration
 public class SpringBootJunitTest {
@@ -201,7 +217,20 @@ public class SpringBootJunitTest {
 <plugin>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-maven-plugin</artifactId>
-</plugin>
+	<configuration>
+		<mainClass>config.MainApplication</mainClass>
+	</configuration>
+</plugin> 
+<!-- 当有多个@SpringBootApplication的类时才需要加mainClass配置
+	 mvn spring-boot:run 来启动,打包直接mvn package就是可执行jar包
+	 (会生成 x.jar.original,在MANIFEST.MF中没有指定Main-Class,里面没有jar包)
+	自己的东西在BOOT-INF目录中,有lib目录和classes目录
+	新版本2.1 是可以带resources下所有的东西，老版 1.4.2 本就不会带所有的
+	//File file=org.springframework.util.ResourceUtils.getFile("classpath:config/my.ini");//打成jar包就不行了
+	ClassPathResource classPathResource = new org.springframework.core.io.ClassPathResource("config/my.ini");
+	InputStream inputStream = classPathResource.getInputStream(); 
+-->
+
 <!-- 可打包成.jar -->
 <plugin> <!-- 可打包成.war包没有web.xml要加 -->
 	<groupId>org.apache.maven.plugins</groupId>
@@ -268,6 +297,9 @@ spring.mvc.view.prefix=/WEB-INF/jsp/
 spring.messages.basename=jsp.error_messages,jsp.form_messages
 spring.messages.cache-duration=36000
  
+#spring.resources.static-locations=
+#默认值为classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
+
 
 <packaging>war</packaging>    要用tomcat启动才行
 
@@ -309,6 +341,13 @@ application.properties中加
 #spring.redis.host=127.0.0.1
 spring.redis.host=172.16.37.42
 spring.redis.port=6379
+#cluster ??
+#spring.redis.cluster.nodes=127.0.0.1:6379,127.0.0.1:6380
+
+#sentinel OK
+#spring.redis.sentinel.master=mymaster
+#spring.redis.sentinel.nodes=127.0.0.1:26379,127.0.0.1:26380
+
 spring.redis.password=  
 
 @SpringBootApplication 下加
@@ -527,7 +566,7 @@ public class MybatisSpringBoot {
 
 	/*
 	加
-	spring.datasource.url=jdbc:mysql://localhost:3306/mydb?useSSL=true&useUnicode=true&amp;characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+	spring.datasource.url=jdbc:mysql://localhost:3306/mydb?useSSL=true&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
 	spring.datasource.username=root
 	spring.datasource.password=root
 	spring.datasource.driver-class-name=com.mysql.jdbc.Driver
@@ -1201,7 +1240,7 @@ public class SchedulerTask {
     }
 }
 
-
+@EnableAsync 是为  @Async
 ---spring boot security
 
 spring-boot-starter-security
@@ -1222,7 +1261,24 @@ public class SecurityWebApplicationInitializer
 		super(WebSecurityConfig.class);
 	}
 }
---- spring boot oauth
+
+---
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId> spring-boot-starter-security</artifactId>
+</dependency> 
+ <dependency>
+	<groupId>org.springframework.security</groupId>
+	<artifactId>spring-security-web</artifactId> 
+</dependency>
+
+
+spring.security.user.name=user
+spring.security.user.password=pass
+
+就有登录页面
+
+--- spring boot oauth2
  <dependency>
     <groupId>org.springframework.security.oauth.boot</groupId>
     <artifactId>spring-security-oauth2-autoconfigure</artifactId>
@@ -1231,7 +1287,8 @@ public class SecurityWebApplicationInitializer
 
 
 --- OAuth2 server
---- OAuth2 client
+--- OAuth2 client 
+	在start.spring.io中有OAuth2 client,OAuth2 resource server 
 
 ---
 		 <dependency>
@@ -1252,4 +1309,195 @@ server:
     min-spare-threads: 10
     accept-count: 100
 
+---Spring Boot Admin
+用来做监控用的
+在start.spring.io 中有 spring boot admin client/server
 
+https://codecentric.github.io/spring-boot-admin/current/
+
+
+
+<dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>de.codecentric</groupId>
+			<artifactId>spring-boot-admin-dependencies</artifactId>
+			<version>2.2.1</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+
+----Spring Boot Admin 服务端
+ <!-- 测试下来j可选的
+ <dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+  -->
+<dependency>
+	<groupId>de.codecentric</groupId>
+	<artifactId>spring-boot-admin-starter-server</artifactId>
+</dependency>
+
+@EnableAdminServer //增加
+@SpringBootApplication //也可使用@Configuration 和 @EnableAutoConfiguration
+public class MyAdminServerApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(MyAdminServerApplication.class, args);
+	}
+} 
+
+--application.yml
+spring:
+  application:
+    name: admin-server
+server:
+  port: 8769
+
+http://localhost:8769 自动进入 http://localhost:8769/applications
+当户端连接上来，就可以看到客户端的很多信息,内存,线程,环境变量,日志级别调整,JMX,所有/actuator开头地址 的说明
+Metrics标签中可选择很多项 ，增加做监控
+
+
+
+--服务端发邮件
+ 
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-mail</artifactId>
+</dependency>
+--properties
+spring.mail.host=		 #SMTP server host
+spring.mail.port=  		 #SMTP server port
+spring.mail.username=
+spring.mail.password=
+spring.mail.properties.mail.smtp.auth=true	#properties后的是JavaMail的属性,设置SMTP服务器需要权限认证
+
+#ssl
+spring.mail.properties.mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+spring.mail.properties.mail.smtp.socketFactory.port=465
+spring.mail.properties.mail.smtp.ssl.enable=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+spring.boot.admin.notify.mail.enabled=true  #默认值true
+spring.boot.admin.notify.mail.to=admin@example.com
+spring.boot.admin.notify.mail.from=
+spring.boot.admin.notify.mail.template= #默认值"classpath:/META-INF/spring-boot-admin-server/mail/status-changed.html"
+spring.boot.admin.notify.mail.ignore-changes= #格式为<from-status>:<to-status> 默认值"UNKNOWN:UP"
+
+--yml
+#spring boot admin mail ,testOK
+spring:
+  boot:
+    admin:
+      notify:
+        mail:
+          to: xx@163.com
+          from: xx@sina.com  
+          enabled:  true  #默认值true
+#        template:
+#        ignore-changes: 
+  mail:
+    host: smtp.sina.com    #SMTP server host
+#    port:      #SMTP server port
+    username: xx
+    password: 123
+    properties: #properties后的是JavaMail的属性,设置SMTP服务器需要权限认证
+      smtp:
+        auth:true  
+#ssl
+#      smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+#      smtp.socketFactory.port=465
+#      smtp.ssl.enable=true
+#      smtp.starttls.enable=true
+
+
+
+--Spring Boot Admin客户端
+如果有 Spring Cloud Discovery (如Eureka) 就不需要Spring Boot Admin客户端了
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+ <dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+	<groupId>de.codecentric</groupId>
+	<artifactId>spring-boot-admin-starter-client</artifactId>
+</dependency>
+
+spring.boot.admin.client.url=http://localhost:8769    #是指向 pring Boot Admin Server 
+management.endpoints.web.exposure.include=*   
+#暴露微服务的所有监控端口,生产环境应该只暴露部分
+
+@SpringBootApplication
+public class MyAdminClientApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(MyAdminClientApplication.class, args);
+	}
+}
+@Configuration
+public   class SecurityPermitAllConfig extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+		//保证actuator路径可以被访问
+        http.authorizeRequests().anyRequest().permitAll()  
+            .and().csrf().disable();
+    }
+}
+=== 有Eureka 
+不使用Spring Boot Admin客户端 ,自己的应用
+<dependency>
+	<groupId>org.springframework.cloud</groupId>
+	<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency> 
+<!--  spring boot admin 要可以访问 , /actuator ,  /actuator/health -->
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+@EnableDiscoveryClient
+
+
+eureka:
+  client:
+    registryFetchIntervalSeconds: 5 #spring boot admin 
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    #spring boot admin 
+    leaseRenewalIntervalInSeconds: 10
+    health-check-url-path: /actuator/health
+    metadata-map:
+      startup: ${random.int} 
+   
+#spring boot admin 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"  
+  endpoint:
+    health:
+      show-details: ALWAYS
+--- 不使用Spring Boot Admin客户端,Spring Boot Admin服务端也要注册到 Eureka 上
+@EnableDiscoveryClient
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+	  
+=====
+
+
+
+
+ 

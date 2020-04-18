@@ -1,4 +1,21 @@
-﻿函数式编程 FP
+﻿<dependency>
+    <groupId>org.scala-lang</groupId>
+    <artifactId>scala-library</artifactId>
+    <version>2.13.1</version>
+</dependency>
+Java中就可以用
+import scala.Tuple2;
+Tuple2<String, String> pair=new Tuple2<>("one","two");
+System.out.println(pair._1+"==="+pair._2);
+System.out.println(pair instanceof Serializable);//true
+System.out.println(pair instanceof Comparable);//false
+//有重写equals,hashCode
+Tuple2<String, String> pair2=new Tuple2<>("one","two");
+System.out.println(pair.equals(pair2));
+System.out.println(pair.hashCode()==pair2.hashCode());
+
+
+函数式编程 FP
 Scala-2.13.1 只支持JDK8, 不支持 JDK9 和 以上版本
 
 eclipse_4.6.3_plugin_Scala IDE-4.5   dropsin安装无效  about->Installation details...按钮 ->Configuration标签->View Error Log 按钮 

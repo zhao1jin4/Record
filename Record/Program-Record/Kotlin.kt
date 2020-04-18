@@ -1,4 +1,5 @@
- 
+MyBatis Generator 支持这个语言 
+Spring 支持的
 
 https://kotlinlang.org/docs/tutorials/command-line.html
 https://github.com/JetBrains/kotlin/releases/tag/v1.3.61  离线版本 github　上下载很慢，后面总是失败 (有kotlin-native)

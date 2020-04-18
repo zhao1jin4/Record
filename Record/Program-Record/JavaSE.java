@@ -424,6 +424,7 @@ jps -v 输出虚似机进程启动时JVM参数
 jps -l 输出主类名
 jps -m 传给主类的参数
 
+
 jinfo  -sysprops VMID
 jinfo  -flags VMID  显示这个VM的所有非默认的-XX选项,及启动的-X选项
 jinfo -flag MaxNewSize VMID	 	单位是byte
@@ -562,7 +563,7 @@ for(Map.Entry<Thread, StackTraceElement[]> entry: set)
 	for(StackTraceElement ele: entry.getValue())
 		System.out.println("\t"+ele);
 }
-		
+
 jinfo -flag MaxNewSize 进程ID //可修改,查看进程的JVM参数
 显示-XX:MaxNewSize= 
  
@@ -636,14 +637,14 @@ jdbc:oracle:thin:@127.0.0.1:1521:orcl    对  SID
 jdbc:oracle:thin:@//127.0.0.1:1521/orcl   对  service Name
 
 
-jdbc:mariadb://localhost:3306/DB?user=root&password=myPassword
-Class.forName("org.mariadb.jdbc.Driver") 
-
-
-
 //  jdbc:postgresql://host:port/database
 jdbc:postgresql://localhost:5432/test?user=fred&password=secret&ssl=true&currentSchema=public
 Class.forName("org.postgresql.Driver");
+
+
+jdbc:mariadb://localhost:3306/DB?user=root&password=myPassword
+Class.forName("org.mariadb.jdbc.Driver") 
+
 
 
 <dependency>
@@ -668,8 +669,22 @@ useSSL=true
 
 connectTimeout  milliseconds
 
+"jdbc:mysql:loadbalance://" +
+        "localhost:3306,localhost:3310/test?" +
+        "loadBalanceConnectionGroup=first&ha.enableJMX=true"
 
 
+Properties props = new Properties(); 
+// We want this for failover on the slaves
+props.put("autoReconnect", "true"); 
+// We want to load balance between the slaves
+props.put("roundRobinLoadBalance", "true"); 
+props.put("user", "foo");
+props.put("password", "password");
+Connection conn = DriverManager.getConnection("jdbc:mysql:replication://master,slave1,slave2,slave3/test",props);
+//jdbc:mysql:replication://address=(type=master)(host=master1host),address=(type=master)(host=master2host),address=(type=slave)(host=slave1host)/database
+
+	
 
 //MySQL JDBC Driver可不指定DB
 Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306?useUnicode=true&amp;characterEncoding=UTF-8","root","root");
@@ -690,36 +705,9 @@ con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);//MySQL 默�
 con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 //Oracle 只支持  READ COMMITTED  和 SERIALIZABLE; 
 
-
-
-----MySQL XdevApI
-//X DevAPI  异步API 基于 X Protocol,依赖于com.google.protobuf
-//---SQL
-Session mySession = new SessionFactory().getSession("mysqlx://localhost:33060/mydb?user=user1&password=user1"); 
-mySession.sql("USE mydb").execute();
-SqlResult myResult = mySession.sql("SELECT 1+1").execute(); 
-Row row = myResult.fetchOne();
-System.out.println(row.getInt(0)); 
-mySession.close();
-
-
-//---NoSQL
-//mysqlx:协议,端口是33060
-Session mySession = new SessionFactory().getSession("mysqlx://localhost:33060/mydb?user=user1&password=user1");
-Schema myDb = mySession.getSchema("mydb");
-Collection myColl = myDb.createCollection("my_collection");
-myColl.add("{\"name\":\"Sakila\", \"age\":15}").execute();
-myColl.add("{\"name\":\"Susanne\", \"age\":24}").execute();
-myColl.add("{\"name\":\"User\", \"age\":39}").execute();
-// Find a document
-DocResult docs = myColl.find("name like :name AND age < :age")
-		.bind("name", "S%").bind("age", 20).execute();
-DbDoc doc = docs.fetchOne();
-System.out.println(doc);
-myDb.dropCollection("my_collection");
-
-
-----
+MySQL XdevApI 见Java_Third_Lib
+ 
+ 
 
 META-INF/MANIFEST.MF 文件中的Main函数不会找classpath环境变量要用Class-Path：
 :后一定要有一个空格,:前不能有空格, 多个jar包用空格分隔,可以把jar包放在目录下也可以放在根下
@@ -879,7 +867,7 @@ resXml.replaceFirst(startTag+"(.)*"+endTag ,  startTag+singStr+endTag);//修改�
  }
 ----------------
 
-InputStream is=this.getClass().getResourceAsStream("mysqlJDBC.properties"); //JDK8中不能以/开头
+InputStream is=this.getClass().getResourceAsStream("mysqlJDBC.properties"); //以/开头表示从根找,否则当前包下找
 Properties props=new Properties();
 props.load(is);  //会过虑以#开头的注释 .properties文件
 
@@ -987,7 +975,16 @@ Main-Class: instrument.InstrumentMain
 Instrumentation类的
 appendToBootstrapClassLoaderSearch(JarFile jarfile)  
 appendToSystemClassLoaderSearch(JarFile jarfile) 
- 
+
+--------------------------JDK14 新特性
+java.lang.Record 是Preview阶段 javac --enable-preview
+ZGC 在 Windows/macOS 上是 experimental 阶段, 打开使用 -XX:+UnlockExperimentalVMOptions -XX:+UseZGC. 
+G1的 NUMA(non-uniform memory access) 内存分配  -XX:+UseNUMA
+switch增加不是Preview了
+
+--删除的
+CMS garbage collector has been removed.
+pack200 and unpack200 tools  removed.  
 --------------------------JDK13 新特性
 
 ZGC  可把未使用的heap内存返回给操作系统,但不能小于-Xms的值，默认启用 可-XX:-ZUncommit
@@ -1004,10 +1001,16 @@ ZGC由最大堆内存由4TB 到16TB
 动态 CDS Archiving
 
 
-switch 功能还是Preview阶段 ，增强
-case ... :
-case ... ->
-
+switch 增强功能还是Preview阶段 javac --enable-preview
+enum Week
+{
+	MONDAY, SATURDAY,SUNDAY ,
+}
+Week day=Week.MONDAY;
+switch (day) {    
+	case MONDAY  -> System.out.println(1);    
+	case SATURDAY,SUNDAY -> System.out.println(0);    
+}
 
 
 --------------------------JDK12 新特性
@@ -1051,7 +1054,7 @@ G1
 	改进 G1 垃圾回收器，以便在空闲时自动将 Java 堆内存返回给操作系统
 	
  ZGC 不使用的类可被卸载 默认启用，可 -XX:-ClassUnloading
---------------------------JDK11 新特性
+--------------------------JDK11 新特性 LTS
 Oracle JDK 11 是LTS（长期支持）版本
 
 //javax.jws.WebService web;//JDK 11没有这个类 
@@ -1095,14 +1098,11 @@ ZGC 只用在 Linux/x64 实际阶段 XX:+UnlockExperimentalVMOptions  , 不兼�
 Epsilon GC 实际阶段
 
 Class Data Sharing (CDS) 支持在module path,即 --module-path选项
- 
- 
- 
- 
+
 
 --------------------------JDK10 新特性
 JDK版本规则开始变化 ，半年一个特性(大)版本
-
+从JDK9之后，每6个月发布一个版本，每3年发布一个LTS版本
 
 var str=new String("abc123");//var 类型推断
 		
@@ -1361,16 +1361,7 @@ java.time.ZonedDateTime.parse("2017-01-20T17:42:47.789+08:00[Asia/Shanghai]");
 //接口中定义的变量默认是public static final 型，且必须给其初值，所以实现类中不能重新定义，也不能改变其值;抽象类中的变量默认是 friendly 型，其值可以在子类中重新定义，也可以重新赋值
 	
 
-
-List<Integer> l = Arrays.asList(numbers);
-List<Integer> r = l.stream() //Stream<Integer>
-		.map(e -> new Integer(e))
-		 //.parallel()//并行  内部使用ForkJoinPool,默认线程数是处理器数
-		.filter(e -> e > 2)//参数为Predicate类型
-		 //.sequential()//串行
-		.distinct()
-		.collect(Collectors.toList());
-	
+		 
 命令 jdeps  <class,jar,目录>  显示所有依赖中的缺失(不使用eclipse也可以了)
 
 javac 的-profile 选项
@@ -1413,6 +1404,41 @@ names.add("3");
 System.out.println(String.join("-", names));
 
 ---Stream API
+//--reduce
+List<Integer> integers = Arrays.asList(1, 2, 3, 4, 5);
+Integer sumReduce = integers.stream().reduce(100, Integer::sum);//起始种子值
+System.out.println(sumReduce);
+
+List<String> strs = Arrays.asList("H", "E", "L", "L", "O");
+String concatReduce = strs.stream().reduce("START_", String::concat);
+System.out.println(concatReduce); 
+
+String join= strs.stream().collect(Collectors.joining(", "));
+System.out.println(join); 
+
+Optional accResult = Stream.of(1, 2, 3, 4)
+		.reduce((acc, item) -> { 
+			acc += item;   
+			return acc;
+		});
+System.out.println("accResult: " + accResult.get()); 
+
+
+List<Integer> l = Arrays.asList(numbers);
+List<Integer> r = l.stream() //Stream<Integer>
+		.map(e -> new Integer(e))
+		 //.parallel()//并行  内部使用ForkJoinPool,默认线程数是处理器数
+		.filter(e -> e > 2)//参数为Predicate类型
+		 //.sequential()//串行
+		.distinct()
+		.collect(Collectors.toList());
+	
+	
+List<Integer> list1=Arrays.stream(numbers).mapToInt( Integer::parseInt).mapToObj(Integer::new).collect(Collectors.toList());
+List<Integer> list2=Arrays.stream(numbers).map(e -> Integer.parseInt(e)).collect(Collectors.toList());
+	     
+boolean isEmpty=Arrays.stream(emps).anyMatch(item -> item.getSalary()>3500);//.allMatch 
+
 Map<String,List<Employee>> titleEmp=Arrays.stream(emps).collect(Collectors.groupingBy(Employee::getTitle));
 		
 // Accumulate names into a List
@@ -3159,7 +3185,7 @@ http://www.xmd5.org MD5解密,可数字和字母,但如特殊字符
 
 -----安全散列算法1 (SHA1),测试OK,API使用和MD5一样的
 
-//SHA-1,SHA-256,MD5
+//SHA-1,SHA-256(比SHA-1和MD5要安全),MD5
 MessageDigest.getInstance("SHA-1");
 MessageDigest.getInstance("sha-1");
 MessageDigest.getInstance("Sha-1"); 是一样的。
@@ -3421,12 +3447,15 @@ System.getProperties().get("os.name").toString()
 
 URL url=new URL("http://127.0.0.1");
 HttpURLConnection http=(HttpURLConnection)url.openConnection();
+//http.setReadTimeout(10000);//设置读取超时时间          
+//http.setConnectTimeout(10000);//设置连接超时时间    
 http.setRequestMethod("POST");
 http.setRequestProperty("Content-type","application/json;charset=UTF-8");
 http.setDoOutput(true);//如要先写要调用这个
 OutputStream out = http.getOutputStream();
 out.write(xmlStr.getBytes("UTF-8"));
 out.flush();
+http.connect();//这个可有，可无
 code = http.getResponseCode();//这里才真正的发起请求
 http.getInputStream();
 
@@ -4478,7 +4507,12 @@ try (InputStream fis = new FileInputStream(source);
 {//try() 必须实现 AutoCloseable 接口 就不用在 finally中close()了
 
 ------------------
-StringTokenizer x=new StringTokenizer(",~");
+StringTokenizer tokenizer=new StringTokenizer("hello,world~abc","~,");
+while(tokenizer.hasMoreElements())
+{
+	//System.out.println(tokenizer.nextToken());
+	System.out.println(tokenizer.nextElement());//nextElement()和nextToken()效果相同
+}
 
 ResourceBundle bundle=ResourceBundle.getBundle("message",new Locale("zh","CN"));
 

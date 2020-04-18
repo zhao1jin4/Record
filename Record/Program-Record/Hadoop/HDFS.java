@@ -1,5 +1,6 @@
-
+Apache Beam是大数据的编程模型，定义了数据处理的编程范式和接口,   Flink 和  Spark 
 =======================hadoop-3.2
+HDFS 大量的小文件还是会影响名字节点的性能
 
 hadoop-3.2.0\share\doc\hadoop\index.html  很大一个doc
 

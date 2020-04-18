@@ -1270,6 +1270,8 @@ Javax.mail.internet.MimeMessage
 		Session sendsession = Session.getInstance(props, null);
 		props.put("mail.smtp.host", smtpHost);
 		props.put("mail.smtp.auth", "true");// 设置SMTP服务器需要权限认证
+		//mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
+		//mail.smtp.socketFactory.port=
 		sendsession.setDebug(true);
 		Message message = new MimeMessage(sendsession);
 		message.addHeader("Content-type", "text/html");//对HTML格式的邮件
@@ -2294,9 +2296,17 @@ ulimit -n  默认值1024
 
 
 跨域 cross-origin (CORS)
-META-INF目录下加context.xml文件 
+
+META-INF目录下加context.xml文件 (为Tomcat使用 新版本测试没用)
 <Context crossContext="true" /> 
-<!--为Tomcat使用,eclipse生成的conf/server.xml  <Context 中会加上crossContext="true"  -->
+
+conf/server.xml  <Context  crossContext="true"  /> 这个是为一个tomcat有两个应用的跨域
+
+https://tomcat.apache.org/tomcat-9.0-doc/config/filter.html#CORS_Filter
+当使用tomcat  web.xml 中加 <filter-class>org.apache.catalina.filters.CorsFilter</filter-class> 
+源码中这个类上没有@,最好自己写，就不会绑定tomcat了
+ 
+
 
 部署方法 
 $CATALINA_BASE/conf/[enginename]/[hostname]/context.xml		named [webappname].xml 

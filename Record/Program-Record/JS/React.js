@@ -6,7 +6,7 @@ react 官方中文翻译网  https://doc.react-china.org/
  
 http://www.runoob.com/react/react-tutorial.html
 https://reactjs.org/
-https://github.com/facebook/react/releases   目前版本是 16.2.0
+https://github.com/facebook/react/releases   目前版本是 16.13.1
 
 Flow 由 Facebook 开发,用于替代PropTypes  
 
@@ -20,8 +20,6 @@ redux 是作者受  Flux 的影响
 EasyUI for React 
 ExtReact 收费(EXTJS)
 https://reacteasyui.github.io/ 国产的 组件样式依赖 Bootstrap 
-
-官方免费UI框架有 https://reactjs.org/community/ui-components.html
 
 Material UI  适用移动端,实现google android 的Material风格(Storybook生成Material UI主题 ) 
 
@@ -43,8 +41,6 @@ Elemental UI  饿了么的
 Amaze UI React  国产 
 Ant Design 蚂蚁金服的
 
-====后来官方页面上没有的项目 
- 
 react-toolbox 
 https://react.rocks/example/react-toolbox 有示例
 
@@ -87,31 +83,49 @@ https://facebook.github.io/create-react-app/docs/proxying-api-requests-in-develo
 package.json 下增加如下设置代理，npm start就可debug,但必须是使用index.html中用ajax请求才行，如在浏览器无论输入什么地址还是进入index.html页？？
 "proxy":"http://localhost:8080/S_ReactEasyUI",
 
-vs code 调试node (react 的npm start )
+vscode 调试node (react 的npm start )
   my-app/node_modules/react-scripts/bin/react-scripts.js 看脚本找下面文件
   my-app/node_modules/react-scripts/scripts/start.js  vscode工具打开文件  -> 打断点 -> debug视图中点debug按钮
   vscode工具 生成.vscode/launch.json（没有这个.vscode目录及文件也可debug）
    文件内容有
    "type": "node",
    "program": "${workspaceFolder}/start"
-   
+
+vscode 调试 react (create-react-app方式)
+	安装 Extenstion为Debugger for Chrome
+	Debug视图->上方的设置按钮(或下拉add configuration,chrome lanuch)会多一个Chrome的选择,生成launch.json
+	修改"url": "http://localhost:3000" 和 npm start的地址一致,再npm start ,就可vscode打断点,chrome中操作
+	launch.json
+	{
+		"type": "chrome",
+		"request": "launch",
+		"name": "Launch Chrome against localhost",
+		"url": "http://localhost:3000",
+		"webRoot": "${workspaceFolder}"
+	}
+	
+	
 React Developer Tools (firefox ,chrome 插件)
 如独立安装  npm install -g react-devtools  再 react-devtools 显示界面，监听8097
  
 
 ---create-react-app  可以debug,firefox比chrome在调试jsx效果更好
-//D:\Program\node-v10.13.0-win-x64\node_modules\create-react-app
+//<node解压目录>\node_modules\create-react-app
 npm install -g create-react-app
+npm update -g create-react-app
+
 create-react-app my-app  //也会下载react, react-dom(这两个8M多), and react-scripts(这个很大,3个共200M多)...很多东西 
-实际上是执行 node.exe D:\Program\node-v10.13.0-win-x64\node_modules\create-react-app\index.js .
+
+//也可用 npx create-react-app react-node (不能使用大写字母),会安装cra-template
+
+实际上是执行 node.exe <node解压目录>\node_modules\create-react-app\index.js .
 
 cd my-app    //生成的node_modules目录非常大,100多M，2万多个文件 不适用 , 基于 Webpack + ES6
 
 npm run build ( package.json有定义 "build": "react-scripts build", ) 生成 build 目录，生产级
-提示
-  npm install -g serve
-  serve -s build
-			 http://localhost:5000
+	提示npm install -g serve
+	    serve -s build
+			http://localhost:5000
 npm start  //开发级,看报错要ping通`hostname` 打开 http://localhost:3000  
 
 生成的
@@ -134,7 +148,7 @@ src/下建立文件 index.js  //index.html中没有引用index.js
 	import './index.css';
 	
 Visual Studio Code 使用create-react-app my-app  找到文件位置
- %HOMEPATH%\AppData\Local\Microsoft\TypeScript\3.1\node_modules\@types\react-dom
+ %HOMEPATH%\AppData\Local\Microsoft\TypeScript\3.6\node_modules\@types\react-dom
 										   项目目录\node_modules\@types\react
 Webstorm(IntellijIDEA不能有此功能)也是使用create-react-app my-app  但是用yarn做的
 									   
@@ -153,31 +167,36 @@ npm install --save jquery
 import $ from  'jquery'
 
 ------ 手工引用js    chrome,firefox不能debug
-不能从node_modules复制.jsp 因有reuire语法
+不能从node_modules复制.js  因有require语法
 node_modules\react\cjs下有 react.production.min.js , react.development.js
 node_modules\react-dom\cjs下有 react-dom.production.min.js , react-dom.development.js
  
-有最新script引入的js
+script引入的js 最新为 16.13.0
 https://www.bootcdn.cn/react/ 
-https://www.bootcdn.cn/react-dom/
-官方 CDN Links页 的地址是unpkg.com
+https://cdn.bootcss.com/react/16.13.0/umd/react.development.js
+https://cdn.bootcss.com/react/16.13.0/umd/react.production.min.js
 
+https://www.bootcdn.cn/react-dom/
+https://cdn.bootcss.com/react-dom/16.13.0/umd/react-dom.development.js
+https://cdn.bootcss.com/react-dom/16.13.0/umd/react-dom.production.min.js
+
+unpkg.com 官方使用的 
+https://unpkg.com/react@16.13.1/umd/react.development.js
+https://unpkg.com/react-dom@16.13.1/umd/react-dom.development.js
+
+https://unpkg.com/react@16.13.1/umd/react.production.min.js
+https://unpkg.com/react-dom@16.13.1/umd/react-dom.production.min.js
 
 react-16.6.3 是官方最后提供的js下载可 <script src=""></script>方式使用
 源码包中的内容是npm方式，即有require
 <script src="react-16.6.3/react.production.min.js"></script>
 <script src="react-16.6.3/react-dom.production.min.js"></script>
-  
-react-16.8.4 下载地址  https://unpkg.com/react/ 使用时报警告
-<script src="https://unpkg.com/react@16.8.4/umd/react.development.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@16.8.4/umd/react-dom.development.js" crossorigin></script>
-
-react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min.js 大小108KB (比Vue93.7K大一点)
-<script src="https://unpkg.com/react@16/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js" crossorigin></script>
 
 <!-- offical  
- <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+ <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script> 
+ 会跳转为下面版本
+ <script src="https://unpkg.com/@babel/standalone@7.9.1/babel.min.js"></script> 
+ <script src="https://unpkg.com/@babel/standalone@7.9.1/babel.js"></script>  
 -->  
 <!--
 	babel.min.js可以将  ECMAScript 2016 代码转为 ES5 代码 
@@ -200,15 +219,15 @@ react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min
 	};
 	 const  i=0; //const 不可变的
 	 var arr = [
-	  <h1>数组元素1</h1>,
-	  <h2>数组元素2</h2>,
+	  <h1 key="1">数组元素1</h1>,
+	  <h2 key="2">数组元素2</h2>,
 	];
 	//JSX 中不能使用 if else 语句，但可以使用 conditional (三元运算) 表达式来替代
 	ReactDOM.render( //style 引用 数字后自动添加 px,也可不用中间变量就要用{{
-		<h1 style = {myStyle}>  Hello, world!
+		<span style = {myStyle}>  Hello, world!
 			{i == 1 ? 'True!' : 'False'}
 			{arr}
-		</h1>,
+		</span>,
 		document.getElementById('hello')
 	);
    //---------
@@ -223,10 +242,7 @@ react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min
         <Greeting></Greeting>,
         document.getElementById('hello2')
       );  
-	 //---------
-	   
-
-	  
+	 //--------- 	  
 	 class Count extends React.Component 
 	 { 
 		constructor(myprops)//构造器,可选的,可以加 props,把会标签的所有属性传进来
@@ -245,8 +261,8 @@ react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min
 		}
 		render() 
 		{
-			return( //根级只可一个无素用()   
-				<div  class={this.clsName}>
+			return( //根级只可一个元素,用(),这也用 className ,不然报警告
+				<div  className={this.clsName}>
 					<h1>Hi {this.props.content}</h1>
 					<h2>{this.state.count}</h2>
 				</div>
@@ -261,13 +277,12 @@ react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min
 	
 	//浏览中调用  count.update()只更新h2这块,因为更新的是state下面的变量
 	//默认 state 或者 props  变量修改才会re-render,如果render()依赖其它数据，可以调用forceUpdate()
-	//class就关键字，要用className, for属性 如 <label for=""> 要用htmlFor
+	//class是关键字，要用className, 对于for属性 如 <label for=""> 要用htmlFor
 	let count=ReactDOM.render(
         <Count id="one" className="myCSS"></Count>,
         document.getElementById('example')
       );   
-	//---------
-	 
+	//--------- 
  
 	class Comment extends React.Component {
 		constructor()
@@ -296,7 +311,7 @@ react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min
 		 // style用 {{ 双大括号  , props.children 是全部属性
 		<div  style={{opacity: this.state.opacity }}>  
 			<h4>{this.props.children}</h4>  
-			<h8>{this.props.author}</h8> 
+			<h6>{this.props.author}</h6> 
 		</div>
 		);//{this.props.author} 得到标签属性 {}中的内容是JS
 	  }
@@ -305,7 +320,7 @@ react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min
 	class CommentForm extends React.Component 
 	{
 		handleClick(event) { 
-			this.refs.myInput.focus();  // refs 属性引用 表单的ref属性
+			this.refs.myInput.focus();  // refs 属性引用 表单的ref属性 ,过时API
 	    }
 		render() {  
 			return (
@@ -335,19 +350,20 @@ react-16.8.6版本  react.production.min.js 大小12.7K,react-dom.production.min
 		//	return <Comment author={comment.author}> {comment.content}</Comment> // 属性={} 不能有""
 		//});
 		
-		let mappedComment=this.props.nodes.map( comment => { //Lamba 是 ECMAScript 6 功能
-			return <Comment author={comment.author}> {comment.content}</Comment> // 属性={} 不能有""
+		let mappedComment=this.props.nodes.map( (comment,index) => { //Lamba 是 ECMAScript 6 功能
+			return <Comment key={20+index} author={comment.author}> {comment.content}</Comment> // 属性={} 不能有""
 		});
 		var arrayComment=[];
 		for(var i=0;i<3;i++)
 		{
-		   var names="lisi"+i;
-			arrayComment.push(<Comment author={names}> this is lisi {i} comment</Comment>)
+			var names="lisi"+i;
+			//一个父组件里有多个相同的子组件时,每个子组件要有key属性,每个值不能相同
+			arrayComment.push(<Comment key={10+i} author={names}> this is lisi {i} comment</Comment>)
 		}
 		return ( //可嵌套自定义标签
 		<div>
 			{arrayComment}
-			<Comment author="wang"> this is wang comment</Comment> 
+			<Comment key="90"  author="wang"> this is wang comment</Comment> 
 			{mappedComment}
 			<CommentForm></CommentForm>
 		</div>
@@ -424,7 +440,7 @@ ReactDOM.render(
 
 		 /*
 		this.timerID = setInterval(
-			  () => this.tick(),
+			  () => this.tick(), //箭头函数有 this(和Vue相反)
 			  1000
 		 );
 		*/
@@ -466,7 +482,7 @@ ReactDOM.render(
 //每当 Clock 组件第一次加载到 DOM 中的时候，我们都想生成定时器，这在 React 中被称为挂载。
 //同样，每当 Clock 生成的这个 DOM 被移除的时候，我们也会想要清除定时器，这在 React 中被称为卸载。
 
-//order , ReactDOM.render 未完成->Clock构构器-> render->componentDidMount
+//执行顺序 , ReactDOM.render 未完成->Clock构构器-> render->componentDidMount
 
 
 
@@ -555,7 +571,7 @@ class LoggingButton extends React.Component {
   render() {
     return (
       <button onClick={this.handleClick}>
-        Click me
+        Click me 1
       </button>
     );
   }
@@ -576,7 +592,7 @@ class LoggingButton2 extends React.Component {
 	//每次渲染的时候都会创建一个不同的回调函数
     return (
       <button onClick={(e) => this.handleClick(e)}>
-        Click me
+        Click me 2
       </button>
     );
   }
@@ -604,11 +620,11 @@ class Popper extends React.Component{
     render(){
         return (
             <div>
-                <p>hello</p>
-                {/* 通过 bind() 方法传递参数。 */}
+                <p>通过 bind() 方法传递参数</p>
+                {/* 通过 bind() 方法传递参数 */}
                 <a href="https://reactjs.org" onClick={this.preventPop.bind(this,this.state.name)}>Click</a>
 				<br/>				
-				<button onClick={(e) => this.deleteRow(2, e)}>Delete Row</button>   //事件对象e要放在最后
+				<button onClick={(e) => this.deleteRow(2, e)}>Delete Row</button>     {/* 事件对象e要放在最后 */}
           
 			</div>
         );
@@ -623,6 +639,7 @@ ReactDOM.render(
 //以下两相可以同时用
 evt.stopPropagation();//原始JS方法可以阻止父级DIV,但不能阻止document
 evt.nativeEvent.stopImmediatePropagation();//react 可以阻止document事件,不能阻止父级DIV
+
 //-------form
 
 class Reservation extends React.Component {
@@ -644,7 +661,7 @@ class Reservation extends React.Component {
     const name = target.name;
  
     this.setState({
-      [name]: value
+      [name]: value  //使用[] ,变量的值做字段名,类似eval
     });
   }
  
@@ -671,14 +688,14 @@ class Reservation extends React.Component {
         </label><br />
 
 	是否男
-		{ /* 用 checked={this.state.male} 就不可修改，要用 defaultChecked */ }
+		{ /*  要用 defaultChecked,否则报警告 */ }
  		<input
             name="male"
             type="checkbox"
             defaultChecked={this.state.male} />
 		<br />
 	年龄：
-		{ /* 用 value={this.state.age}  就不可修改，要用 defaultValue */ }
+		{ /*  要用 defaultValue ,否则报警告*/ }
 		<input
             name="age"
             type="text"
@@ -717,7 +734,7 @@ function NumberList(props)
       {
         numbers = props.numbers,   //注意这里要加逗号
         numbers.map((number,index) =>
-        <li >
+        <li key={index} >
       		index:{index},value: {number}
     	</li>
       )}
@@ -736,7 +753,8 @@ ReactDOM.render(
 //setState()总是会触发一次组件重绘，除非在shouldComponentUpdate()返回false
  
 
-//forceUpdate()  方法调用后，会引发render()调用，跳过shouldComponentUpdate(),只有在在render()该用中读this.props 和 this.state时调用这 个方法 
+//forceUpdate()  方法调用后，会引发render()调用，跳过shouldComponentUpdate()
+//当state 发生变化时会调用组件内部的render()方法 
  
 /* 生命周期
 
@@ -746,7 +764,7 @@ UNSAFE_componentWillReceiveProps(nextProps)
 shouldComponentUpdate(nextProps, nextState)
 UNSAFE_componentWillUpdate(nextProps, nextState)
 componentDidUpdate(prevProps, prevState, snapshot)
-componentWillUnmount()
+componentWillUnmount()//其它的will都是UNSAFE
 */
 
 class MyComponent extends React.Component {
@@ -813,24 +831,23 @@ ReactDOM.render(
 class AutoFocusTextInput extends React.Component {
   constructor(props) {
     super(props);
-    this.textInput = React.createRef();
+    this.textInput1 = React.createRef();
   }
-
+  //页面加载后立即得到光标
   componentDidMount() {
-    this.textInput.current.focusTextInput();
+	//这里的current为<CustomTextInput>,调用它的focusTextInput()方法
+    this.textInput1.current.focusTextInput();
   }
 
   render() {
+    //仅在 CustomTextInput 声明为 class 时加ref属性才有效
     return (
-      <CustomTextInput ref={this.textInput} />
+      <CustomTextInput ref={this.textInput1} />
     );
   }
-}
-//请注意，这仅在 CustomTextInput 声明为 class 时才有效：
-//你不能在函数组件上使用 ref 属性，因为它们没有实例
-//可以在函数组件内部使用 ref 属性
+} 
 ReactDOM.render(
-  <CustomTextInput />,
+  <AutoFocusTextInput />,
   document.getElementById('refClass')
 );
 
@@ -877,6 +894,91 @@ class CustomTextInput extends React.Component {
 }
 //在组件挂载时，会调用 ref 回调函数并传入 DOM 元素，当卸载时调用它并传入 null
 //在 componentDidMount 或 componentDidUpdate 触发前
+----- 高级指引中的 Refs 转发
+//React.forwardRef函数,转发外部引用指向内部,给外部引用赋值为<button>
+//只在使用 React.forwardRef 定义组件时存在第二个参数 ref
+const FancyButton = React.forwardRef((props, outRef) => (
+  <button ref={outRef} className="FancyButton">
+    {props.children}
+  </button>
+));
+//Ref 转发不仅限于 DOM 组件，你也可以转发 refs 到 class 组件实例中
+//你的库可能会有明显不同的行为（例如 refs 被分配给了谁，以及导出了什么类型）,可认为是破坏性更改
+
+class MyComponent extends React.Component 
+{
+   constructor(props) 
+	{
+ 	   super(props);
+	   this.innerRef = React.createRef();
+     this.myHandle=this.handleClick.bind(this);
+	} 
+  handleClick() {
+    //innerRef.current 将指向 <button> DOM 节点。
+     this.innerRef.current.innerHTML="新的文本";
+  } 
+ render() { 
+    return (
+    <div> 
+      {/* 可以直接获取 DOM button(内部)  的 ref(外部组件 操作 子组件)  */}
+      <FancyButton ref={this.innerRef}>
+        这里的onClick无效 
+      </FancyButton> <br/>
+      <button onClick={this.myHandle} > 修改前面的文本 </button>
+      <button onClick={this.handleClick.bind(this)} > 修改前面的文本 </button> 
+    </div>  
+    );
+  }
+}
+ReactDOM.render(
+  <MyComponent />,
+  document.getElementById('example')
+);
+
+
+<div id="example"></div>  
+--高阶组件 HOC 看转发
+//特殊属性 ref 和 key是不会被props传递的 
+
+//高阶组件 返回是一个forwardRef
+function logProps(Component) {
+  class LogProps extends React.Component {
+    componentDidUpdate(prevProps) {
+      console.log('old props:', prevProps);
+      console.log('new props:', this.props);
+    }
+
+    render() {
+      const {forwardedRef, ...rest} = this.props;
+
+      // 将自定义的 prop 属性 “forwardedRef” 定义为 ref
+      return <Component ref={forwardedRef} {...rest} />;
+    }
+  }
+
+  // 注意 React.forwardRef 回调的第二个参数 “ref”。
+  // 我们可以将其作为常规 prop 属性传递给 LogProps，例如 “forwardedRef”
+  // 然后它就可以被挂载到被 LogProps 包裹的子组件上。 
+  /*
+  return React.forwardRef((props, ref) => {
+    return <LogProps {...props} forwardedRef={ref} />;
+  });
+*/
+/*
+  //react developer tools  会显示myFunction名代替上面的anonymous
+  return React.forwardRef(function myFunction(props, ref)  {
+    return <LogProps {...props} forwardedRef={ref} />;
+  });
+*/
+ function forwardRef(props, ref) {
+    return <LogProps {...props} forwardedRef={ref} />;
+  }
+  const name = Component.displayName || Component.name;//Component.name的值是类名
+  forwardRef.displayName = `logProps(${name})`;//displayName属性设置reactDeveloperTools显示名字
+  return React.forwardRef(forwardRef);
+  
+}
+
 
 ----- 高级指引中的 Context
 一种在组件之间共享此类值的方式，而不必显式地通过组件树的逐层传递 props。
@@ -914,10 +1016,11 @@ class ThemedButton extends React.Component {
   // 在这个例子中，当前的 theme 值为 “dark”。
   static contextType = ThemeContext; //必须是  static contextType 
   render() {
+    //取值用 this.context
     return <button theme={this.context} >主题{this.context}按钮</button>;
   }
 }
------组合composition  vs 继承
+-----组合composition 非继承
 推荐使用组合而非继承来实现组件间的代码重用
 
 
@@ -1027,11 +1130,84 @@ class MouseTracker extends React.Component {
 
 ------高级指引中的  高阶组件
 Higher-Order Components(HOC)
-高阶组件 ,参数为组件，返回值为新组件的函数
+高阶组件   参数为组件，返回值为新组件的函数
+		 一个函数  参数为组件，返回值为新组件   
+ return class extends React.Component {  //匿名类
+	...
+ }
+
+不要使用prototype的方式修改输入组件
+
+// 过滤掉非此 HOC 额外的 props，且不要进行透传
+const { extraProp, ...passThroughProps } = this.props;
+
+如 参数为多个 即 多个组件，返回值是函数 的情况下，可改进
 
 
+<div id="hocDiv"></div> 
+ // 此函数接收一个组件，返回组件 
+const toUpperCaseHoc = function(WrappedComponent) {
+  return class  extends React.Component { //匿名类
+    render() {
+      const { text } = this.props;
+      const text2Upper = text.toUpperCase();
+      return <WrappedComponent text={text2Upper} />;
+    }
+  };
+};
+ 
+class HelloWorld extends React.Component {
+  render() {
+    return this.props.text;
+  }
+}  
+const HelloWorld2Upper = toUpperCaseHoc(HelloWorld); 
+ReactDOM.render(<HelloWorld2Upper text="hello,world!" />, document.querySelector('#hocDiv'));
 
+------Fragment
+<div id="tableDiv"></div> 
 
+class Table extends React.Component {
+  render() {
+    return (
+	  <table>
+		<tbody>
+        <tr>
+          <Columns />
+		</tr>
+		</tbody>
+      </table>
+    );
+  }
+}
+//使用<React.Fragment> 或  <> </> 不支持 key 属性
+/*
+class Columns extends React.Component {
+  render() {
+    return (
+      <React.Fragment>
+        <td>Hello</td>
+        <td>World</td>
+      </React.Fragment>
+    );
+  }
+}
+*/
+class Columns extends React.Component {
+  render() {
+    return (
+      <>
+        <td>Hello</td>
+        <td>World</td>
+      </>
+    );
+  }
+}
+ 
+ReactDOM.render(
+  <Table />,
+  document.getElementById('tableDiv')
+);
 ------Hooks 是 React 16.8的新功能
 <script src="unpkg_react-16.8.4/react.development.js"></script>
 <script src="unpkg_react-16.8.4/react-dom.development.js"></script>
@@ -1041,11 +1217,10 @@ Higher-Order Components(HOC)
  
 ---AppHook.js
 import React, {useState,useEffect} from 'react'; 
-function App()  //Hook在类中不能工作， （不推荐修改现有的代码，修改为不使用类，但可以新代码使用hook不使用类），可以保存值的函数，函数组件
+function App()  //Hook在类中不能工作(不推荐修改现有的代码，修改为不使用类，但可以新代码使用hook不使用类)，可以保存值的函数，函数组件
 { 
  const [count, setCount] = useState(0); //useState 返回两参数(pair)，当前状态值和一个函数用于更新值,参数是是初始状态 
-   //可以再增加useState要保存多个值
-
+  //可以多次调用 useState 来保存多个值
   
   
   // 等同于 componentDidMount, componentDidUpdate,  componentWillUnmount
@@ -1075,16 +1250,18 @@ eslint   ECMAScript语法规则和代码风格的检查工具 ,intellij idea 带
 
 npm install eslint-plugin-react-hooks --save-dev   来强制执行这Hook规则
 
-自定义hook要求函数名字以use开头,可带一个参数，函数内部可以调用useState,useEffect .可以实现代码共享
+自定义hook要求函数名字必须以use开头,可带一个参数，函数内部可以调用useState,useEffect .可以实现代码共享
 
 两个组件中使用相同的 自定义Hook 会共享 state 吗?不会
 
 Hook API 还有很多其它的use方法
 基础 Hook
  useContext
- 接收一个 context 对象（React.createContext 的返回值）并返回该 context 的当前值，
+ 接收一个 context 对象(React.createContext 的返回值)并返回该 context 的当前值，
  调用了 useContext 的组件总会在 context 值变化时重新渲染
-
+ 
+  const locale = useContext(LocaleContext);
+  const theme = useContext(ThemeContext);
   
 额外的 Hook
  useReducer
@@ -1095,6 +1272,8 @@ Hook API 还有很多其它的use方法
  useDebugValue
  useLayoutEffect
  
+
+
 -----------redux 是作者受  Flux 的影响
 官方
 https://redux.js.org/
@@ -1105,17 +1284,23 @@ http://cn.redux.js.org/
 
 npm install -g redux
 npm install --save redux
-redux@4.0.1
+redux@4.0.5
 
 
 npm install -g  redux-devtools
 npm install --save-dev redux-devtools
 redux-devtools@3.5.0
- 
-<!--
-<script src="https://unpkg.com/redux@4.0.1/dist/redux.js"></script>
--->
-//不行 import 时报  require is not defined
+
+https://unpkg.com/browse/redux@4.0.5/dist/ 可下拉选择版本
+
+https://unpkg.com/browse/redux@4.0.5/dist/redux.js  显示是html要手工复制
+https://unpkg.com/redux@4.0.5/dist/redux.js
+https://unpkg.com/redux@4.0.5/dist/redux.min.js
+
+
+
+<script src="https://unpkg.com/redux@4.0.5/dist/redux.js"></script>
+//加了<script>应不用import了,但还是找不到,import 时报  require is not defined
 //import { createStore } from './unpkg_redux-4.0.1/redux.js' 
 
 
@@ -1145,12 +1330,12 @@ import { createStore } from 'redux'
 import Counter from './components/Counter'
 import counter from './reducers'//如目录下有index.js就可不用加默认导入
 
-const store = createStore(counter)
+const store = createStore(counter)//store里面存储state
 const rootEl = document.getElementById('root')
 
 const render = () => ReactDOM.render(
   <Counter
-    value={store.getState()}
+    value={store.getState()}//必须是getState(),相当于react的state,如数据变化,使用的地方会动刷新
     onIncrement={() => store.dispatch({ type: 'INCREMENT' })}//必须命名为type
     onDecrement={() => store.dispatch({ type: 'DECREMENT' })}
   />,
@@ -1161,7 +1346,7 @@ render()
 store.subscribe(render)
 
 //--reducer/index.js
-export default (state = 0, action) => {
+export default (state = 0, action) => { //state名可变
   switch (action.type) { //必须命名为type
     case 'INCREMENT':
       return state + 1
@@ -1226,7 +1411,7 @@ export default Counter
 
 npm install -g  react-redux
 npm install --save react-redux
-react-redux@7.0.3
+react-redux@7.2.0
 
 //示例
 //--index.jsx
@@ -1261,14 +1446,14 @@ export default(state,action)=>{
     console.log("state[counterCaption]="+state[counterCaption]);//能取到值
     switch (action.type){
         case Increment:
-         //return {...state,[counterCaption]:state[counterCaption]+1}//逻辑同下方
-        var clonedObj={...state};//复制对象
-        clonedObj[counterCaption]= state[counterCaption]+1;
-        return clonedObj;
+			 //return {...state,[counterCaption]:state[counterCaption]+1}//逻辑同下方
+			var clonedObj={...state};//复制对象
+			clonedObj[counterCaption]= state[counterCaption]+1;
+			return clonedObj;
         case Decrement:
-        return {...state,[counterCaption]:state[counterCaption]-1}
-        default:
-        return state
+			return {...state,[counterCaption]:state[counterCaption]-1}
+		default:
+			return state
     }
 }
 
@@ -1320,7 +1505,8 @@ const buttonStyle = {
     margin: "20px"
 }
 
-function Counter({caption, Increment, Decrement, value}){//Increment, Decrement, value 是下面产生的props的值？？
+function Counter({caption, Increment, Decrement, value}){
+ //caption是props属性,其它3个为下再两函数返回放入props中
     return (
             <div>
                 <button style={buttonStyle} onClick={Increment}>+</button>
@@ -1329,16 +1515,16 @@ function Counter({caption, Increment, Decrement, value}){//Increment, Decrement,
             </div>
         )
 }
-function mapStateToProps(state,ownProps){//输入逻辑  负责将通过state获得的数据映射到展示组件的this.props
-     //如果省略的话，store更新就不会触发展示组件重绘了
+function mapStateToProps(state,ownProps){//负责输入逻辑，即将state映射到 UI 组件的参数（props）
     return{
         value:state[ownProps.caption]
     }
 }
 
-function mapDispatchToProps(dispatch,ownProps){//输出逻辑  负责将用户操作转化为Action的功能函数映射到展示组件的this.props
+function mapDispatchToProps(dispatch,ownProps){//输出逻辑  负责将用户操作转化为Action,功能函数映射到展示组件的this.props
     return {
         Increment:()=>{
+			//dispatch是store的方法
             dispatch(increment(ownProps.caption)) //增加和减少的动作派发给Store
         },
         Decrement:()=>{
@@ -1347,6 +1533,7 @@ function mapDispatchToProps(dispatch,ownProps){//输出逻辑  负责将用户�
 
     }
 }
+//可以省略mapStateToProps参数,store更新就不会触发展示组件重绘了
 //第二个参数mapDispatchToProps也可是个对象
 export default connect(mapStateToProps,mapDispatchToProps)(Counter)//返回一个新的容器组件，带逻辑的，里面是负责显示的组件
 
@@ -1386,17 +1573,26 @@ cd redux/examples/todos-with-undo
  
 
 -----------react-router ,可结合 Redux一起使用
+<script src="https://unpkg.com/react-router@5.1.2/umd/react-router.js"></script>
+<script src="https://unpkg.com/react-router@5.1.2/umd/react-router.min.js"></script>
+
+//import { BrowserRouter  , Route, Link } from "react-router-dom";
+//import { BrowserRouter  , Route, Link } from "../unpkg_react-router-5.1.2/react-router.js";
+
+加import 报 require is not defined 
+不加import 报 BrowserRouter is not defined
+	
 
 https://github.com/ReactTraining/react-router
 有web和native指南
 
-npm install react-router -g         react-router@5.0.0
-npm install react-router-dom  -g    react-router-dom@5.0.0
+npm install react-router -g         react-router@5.1.2
+npm install react-router-dom  -g    react-router-dom@5.1.2
 
 //--官方web 基本示例 
 import React from "react";
 import { BrowserRouter , Route, Link } from "react-router-dom";
-
+//BrowserRouter影响浏览器的返回
 function Index() {
   return <h2>Home</h2>;
 }
@@ -1464,7 +1660,8 @@ function About() {
 }
 
 function Topic({ match }) {
-  return <h3>Requested Param: {match.params.myid}</h3>; {/*match.params.xxx 得到变量名 */}
+  return <h3>Requested Param: {match.params.myid}  path= {match.path} ,url= {match.url}</h3>; 
+   {/*match.params.xxx 得到变量名,match.path为 /topics/:myid  match.url 为 /topics/2323 */}
 }
 
 function Topics({ match }) {  /* match参数 */
@@ -1507,6 +1704,9 @@ function Header() {
       <li>
         <Link to="/topics">Topics</Link>
       </li>
+	  <li>
+        <Link to="/topics/123">Topics param</Link>
+      </li>
     </ul>
   );
 }
@@ -1516,14 +1716,14 @@ export default App;
 
 BrowserRouter 使用HTML5的 window.history.pushState() ,   window.history.replaceState() ,history.state
           浏览器地址栏上会显示对应的地址
-
+		影响浏览器的返回
 HashRouter  使用HTML5的 window.location.hash  即#的锚点
-
+		影响浏览器的返回
 <HashRouter   basename="/calendar"> {/* basename可以不加  , 显示为  #/calendar/users/  */}
 </HashRouter>
  
  
-MemoryRouter 可用于React Native
+MemoryRouter 可用于React Native(不会影响浏览器的返回)
    <MemoryRouter   initialEntries={[ '/', '/about', { pathname: '/users' } ]}
     initialIndex={0}>
   </MemoryRouter>

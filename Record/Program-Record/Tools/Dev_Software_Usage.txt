@@ -482,6 +482,8 @@ Tools Properties->Key Binding->默认选中Default->Make Copy->Action中选Edit�
 
 
 如果查询结果为   0.0000000  显示科数法 ??????  
+可对表格增加行操作
+
 --oracle
 有单独的 comment 标签可以看列，但表没有？？？,要点DDL标签看SQL时看表的comment  
 select * from user_tab_comments; 
@@ -503,9 +505,12 @@ where c.table_name=t.table_name;
 =============  Navicat Premium (linux,mac)
 不支持DB2,SyBase,H2
 除支持流行的Oracle,SQLServer,MySQL 还支持Maria,PostgreSQL, SQLite
-特别的支持MongoDB 要 12.1 的版本才有
 
-
+特别的支持MongoDB 要 12.1 的版本才有,最新版本15
+	如每一行collection有一个列是数组，查询只显示有(Array) 2 elments ,要单独点击单元格可看详细(也可点右下角的JsonView),比DBeaverEE要强
+	也可写mongo脚本,,比DBeaverEE要强
+	
+	
 	 右下角有一个form view按钮
 	 输入SQL时会有相关提示,如表名,字段名(有时无效)
 	 mysqldump导出的脚本有时会有中文错误,在导入中会中断,使用 Navicat for MySQL导入,有错误也可继续,但速度慢 ,不如mysql 中使用source快
@@ -518,9 +523,13 @@ where c.table_name=t.table_name;
 	Oracle 是自动提交事务 ，不同与PL/SQL Developer
 	Oracle 使用SQL时 \\ 才代表一个\ 
 	substr(asciistr(op_user),0,1)!='\\'
-	
+
+表格 可修改现有数据 ,对表格增加行操作要按下箭头,按ctrl+s保存,F5刷新
+ 
+
+
 -----MariaDB windows 安装版本 自带 HeidiSQL客户端工具 会显示界面的输出命令，学习很好
-	
+
 =============  SqlDbx Personal-4.17 免费  Professional 收费 使用ODBC all DB 
 
 因为sqldbx是32位的(任务管理器中可看进程名)要使用32位的 ODBC  
@@ -683,14 +692,6 @@ view->Object Palette 可以看所有的表
 mac是在 ~/Library/Application Support/Workbench
 没有找到哪里可以修改
 
-
-----???问题
-	安装时选customer->要过滤downloaded
- 没有事务提示
- load data local infile 如路径中有中文不支持
- 不支持调试
- select  * from xx procedure analyse() 表格中显示blob其实是字符
----- 
 要 Visual C++ Redistributable Packages for Visual Studio 2015
 这里有 vs2015.ent_enu.iso\packages\vcRedistD14\VC_redist.x64.exe			
 
@@ -715,8 +716,18 @@ Server -> Data Export->只能选整个库。
 右击表->export 导出csv不能以，分隔字段。
 
 
+表格 可修改现有数据 
+不可对表格增加行操作???
+----???问题
+	安装时选customer->要过滤downloaded
+ 没有事务提示
+ load data local infile 如路径中有中文不支持
+ 不支持调试
+ select  * from xx procedure analyse() 表格中显示blob其实是字符
+---- 
 -------------MyFront 5.3 免费
--------------SQLyog Monyog  
+
+-------------SQLyog(MySQL工具收费,只windows)    
 
 -------------dbForge Studio for MySQL 8 Enterprise Edition
 -- SET GLOBAL log_bin_trust_function_creators = 1;  -- root run
@@ -772,19 +783,6 @@ select @cnt
 	同样的用户zh 不能 看到reporting库的集合 ??
 	
 
--------------DBeaverEE 可 mongoDB , Redis
-有eclipse插件和各系统的独立包,见eclipse中
-windows版本要打开防火墙,Inbound rule
-
-https://dbeaver.com/docs/wiki/Workspace-Location/
-配置连接所在目录  %USERPROFILE%\AppData\Roaming\DBeaverData
- help->installation information->Configuration有配置 
-	APPDATA=%USERPROFILE%\AppData\Roaming
-	LOCALAPPDATA=%USERPROFILE%\AppData\Local
-如要修改命令行增加 -data <path>
-如快捷方式为  dbeaver.exe -data D:\Program\dbeaver-ee-7_data 不影响license
-
-
 ------------Mongo Compass 
 官方的(收费的,有windows,mac,ubuntu,redhat) 
 	连接处点Fill in connection fields individually链接
@@ -812,7 +810,138 @@ PHP5.6 最新版本为 php-5.6.39-Win32-VC11-x64.zip
 可以进入页面,没有选择SHA-256,不支持Mongo4 ??? 除非修改源码，也应该可以支持PHP7 
 extension=mongodb
 
-	
+ 
+-------------DBeaverEE 可 mongoDB , Redis
+有eclipse插件和各系统的独立包,见eclipse中
+windows版本要打开防火墙,Inbound rule
+
+https://dbeaver.com/docs/wiki/Workspace-Location/
+配置连接所在目录  %USERPROFILE%\AppData\Roaming\DBeaverData
+ help->installation information->Configuration有配置 
+	APPDATA=%USERPROFILE%\AppData\Roaming
+	LOCALAPPDATA=%USERPROFILE%\AppData\Local
+如要修改命令行增加 -data <path>
+如快捷方式为  dbeaver.exe -data D:\Program\dbeaver-ee-7_data 不影响license
+
+SQL编辑器 菜单 ->SQL编辑器(F3)
+
+可以方便导入csv，但不能导出成文件
+
+如Mongo 每一行，部分列是数组(可双击显示)或者对象(标题按二级显示)也可以正常显示,
+	但如果二级是数组,只能显示第一条??? 也不能删除一整行数据???
+查Mongo可以写像SQL一样(右击mongo集合->在SQL控制台读数据),显示select xxx , 不支持写delete 
+写Mongo脚本,SQL编辑器 菜单 ->SQL编辑器 db.bios.find({})可以,
+	但db.bios.insert({})报错clientSession can not be null???  Navicat可以
+
+
+表格 可修改现有数据 , 表格增加行在下方有个小按钮
+
+表数据较多时 显示取数据前少行, 排序表格列是调用order by来排 
+
+刚启动MySQL服务，如果没有其它工具连接，DBeaver也连接不上，报Public Key Retrieval is not allowed，修改DBeaver连接allowPublicKeyRetrieva=true
+
+----------- phphbaseadmin github上已经有6年没有更新，有中文
+-----------SQuirrel SQL Client 
+squirrelsql-3.9.1-standard.zip 这个版本不支持JDK12
+Swing界面  可以添加Hive的驱动
+
+默认目录  %USERPROFILE%\.squirrel-sql
+help->about->Command line arguments 提示 userdir 或 user-settings-dir
+快捷方式增加参数 squirrel-sql.bat -userdir  D:\Program\squirrel-sql_data
+
+右击表 script->create data script 生成insert语句
+表格 没有修改现有数据功能??? 
+不可对表格增加行操作??
+表数据较多时没显示取数据前少行?? 排序表格列,只是内存中排 
+
+---Phoenix+HBase
+可以添加 apache Phoenix(凤凰) 驱动(像使用jdbc访问关系型数据库一样,访问NoSql数据库HBase)
+
+./squirrel-sql.sh来启动
+
+  下载 apache-phoenix-5.0.0-HBase-2.0-bin.zip (注意要和指定hbase版本一起用)
+   
+   把  phoenix-5.0.0-HBase-2.0-client.jar 放在squirrelsql/lib下
+   
+	点左则的Driver视图，Drvier 菜单-> Add Driver -> Name取名为 Phoenix, 在Example URL中输入 jdbc:phoenix:localhost ( 也可是jdbc:phoenix:localhost:2181:/hbase  )
+		 格式为 jdbc:phoenix [ :<zookeeper quorum> [ :<port number> [ :<root node> [ :<principal> [ :<keytab file> ] ] ] ] ] 
+		 即hbase-site.xml 中的配置 hbase.zookeeper.quorum, hbase.zookeeper.property.clientPort, and zookeeper.znode.parent  
+		 Class Name的值写入 org.apache.phoenix.jdbc.PhoenixDriver
+	点左则的Aliase视图,Aliases 菜单 ->new Aliases -> Name取个名字myHbase，Driver中选择刚建立的 Phoenix,User Name: anything, Password: anything
+
+squirrelsql和hbase都用JDK8测试成功， 如hbase用jdk8,squirrelsql(使用JAVA_HOME环境变量)用jdk11是不行的
+--squirrelsql 的hbase配置的 hbase-site.xml
+<property>
+		<name>hbase.rootdir</name>
+		<value>file:///opt/hbase-2.0.5-bin/hbase-2.0.5/</value>
+	</property>
+ <!-- 有hbase.zookeeper.quorum 和 hbase.cluster.distributed为true ,则hbase.zookeeper.property.dataDir不需要了
+	<property>
+		<name>hbase.zookeeper.property.dataDir</name>
+		<value>/tmp/zookeeper</value>
+	</property>
+	-->
+ <property>
+    <name>hbase.cluster.distributed</name>
+    <value>true</value> 
+ </property>
+  
+<property>
+    <name>hbase.zookeeper.quorum</name>
+    <value>localhost</value>
+    <description> </description>
+</property> 
+
+
+----- phoenix
+下载 apache-phoenix-5.0.0-HBase-2.0-bin.zip (注意要和指定hbase版本一起用)
+把包中的lib/phoenix-5.0.0-HBase-2.0-server.jar 放在所有  HBase region server 和 master 的lib下
+把phoenix-5.0.0-HBase-2.0-client.jar  放在 Phoenix client中像SQuirrel SQL Client
+
+ 
+bin 目录中看到文件 hbase-site.xml  
+
+bin/sqlline.py localhost (用对应的HBase-2.0.x版本,第一次要慢一点)
+或 bin/sqlline.py localhost:2181:/hbase
+
+>!table 提示连接
+>help 查看所有命令
+>!quit
+>!dbinfo
+
+
+看示例有 INTEGER,BIGINT,DATE类型
+
+如已经在hbase中建立了表student
+phoenix>  create view "student" (username VARCHAR PRIMARY KEY, "info"."fullname" VARCHAR, "info"."age" INTEGER,"score"."english" INTEGER,"score"."math" INTEGER);
+phoenix>  drop view "student";  
+phoenix>  create view "student" (username VARCHAR PRIMARY KEY, "info"."fullname" VARCHAR, "info"."age" BIGINT,"score"."english" BIGINT,"score"."math" BIGINT);
+
+ SQuirrel SQL 对数值显示不对
+
+phoenix> create table tbl(id integer primary key ,name varchar);
+
+phoenix> upsert into tbl(id,name) values(11,'lisi');
+phoenix> upsert into tbl(id,name) values(2222,'王五');
+-----SQuirrel 自带 MySQL Driver
+
+点左则的Driver视图，Drvier 菜单-> 选择MySQL Driver ->右击 modify driver-> Extra Class Path中选择mysql-connector-java-8.0.15.jar,ClassName修改为 com.mysql.cj.jdbc.Driver
+点左则的Aliase视图,Aliases 菜单 ->new Aliases -> Name取个名字mysql，Driver中选择刚刚的MySQL Driver,User Name: anything, Password: anything
+
+表名对了显示绿色，但不对自动提示
+右击 未输入完的表名-> complete code (ctrl+space )
+file->global preferences->keyboard shortcuts->找到 complete code,在valid shortcut列中删除,
+	再增加自定义(如为alt+/会在编辑器中出现/字符,可为ctrl+alt+/)要重新启动才生效
+(有时按ActionName排序还找不到complete code?? 要按valid shortcut排序后才有)
+
+右击表名-> add to graph
+
+-----SQuirrel 自带 MongoDB driver 
+点左则的Driver视图，Drvier 菜单-> 选择 MongoDB driver  ->右击 modify driver-> 
+提示到 http://www.unityjdbc.com  只可试用
+Extra Class Path中选择xxx ??? ,ClassName 默认为 mongodb.jdbc.MongoDriver
+ 
+
 ------------Tortoise SVN工具
 
 建立Tag
@@ -1014,6 +1143,8 @@ source port 中写本地端口如8888 ,Destination写远程如192.168.190.134:80
  
 Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到文本中不会换行如mysql一行数据较长
 当然缺点是不能用sz ,rz 不能建立常用命令快捷方式
+------------ FileZilla
+help->about 查看 默认 文件目录为 %APPDATA%\FileZilla
 
 ---Secure Shell
 
@@ -1029,11 +1160,16 @@ Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到�
 ----Firefox 的 Web Developer (Web开发者)
 	network 标签 disable cache 禁用缓存
 	字体变大 ????
-	
+	控制台中默认不能粘贴(安全原因) 提示写入 allow pasting 才可
 ---- ChromeDeveloper 
 	设置字体大小 ctrl+滚轮
 	network 标签 disable cache 禁用缓存
-	 
+---- Postman
+有Chrome插件版本,没有.exe版本新
+.exe默认安装在 %HOMEPATH%/AppData/Local/Postman
+
+file->setting->general 有显示保存文件默认在是%HOMEPATH%/Postman/files  但里面没有文件???
+.exe版本的PostMan 中建立的文件夹的  ...->export 但没有导入??
 
 ---------Jenkins   2.183 基于hudson  
 持续集成和持续交付( CI/CD )
@@ -1096,6 +1232,9 @@ bin\code --list-extensions 还是使用默认的目录
 bin\code --list-extensions  --extensions-dir D:\Program\vscode_data\extensions
 
 
+默认文件编码为UTF-8,
+Setting->Text Editor->Files-> Encoding 组默认为UTF-8
+如果想某个文件以GBK编码打开，在下方的栏上点UTF-8->弹出提示菜单 Open With Encoding->选择GB2312
 
 File->Open Folder...
 
@@ -1105,6 +1244,9 @@ File->Open Folder...
 File->preferences->windows 标签->Restore Windows 选择none
 
 会自动提示已经写过的内容
+
+按tab默认缩进两个空格,修改 File->preferences->Settigns->Common Used 找Editor: Tab Size 默认为4
+	有链接 Editor:Detect Indentation 可以关闭它, 有链接Editor:Insert space 可半闭
 
 左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
 		搜索parameter有Trigger parameter Hints 默认快捷键是ctrl+shift+space
@@ -1187,7 +1329,7 @@ xdebug.remote_port = 9000
 
 -----扩展 Java Extension Pack 
 包括如下扩展
-Language Support for Java by Red Hat
+Language Support for Java by Red Hat 有gradle(不支持jdk13)支持
 Debugger for Java   要有JAVA_HOME环境变量,java在PATH中
 Maven for Java 		要mvn命令在PATH中
 Java Dependency Viewer
@@ -1261,6 +1403,9 @@ maven插件Jetty不能识别@WebServlet
 	vs2015.ent_enu.iso\packages\dotNetFramework\dotNetFx-x86-x64-AllOS-ENU.exe 版本 4.6
 win10可能也要安装,自带.NetFramework3.5的不行
  
+左侧文件管理区,展开node_modules目录很不方便,没有顶部菜单,全黑色不能区滚动条,不太好用
+不支持.vue文件高亮,装插件,网络又被墙
+
  ---plugin
  
  ---家用网不行,国内网的问题  
@@ -1276,3 +1421,12 @@ apm install nuclide 提示会安装到 %HOMEPATH%\.atom\packages 目录    网�
  open-in-browser  0.5.2 
  右击代码区 ->open in browser
  
+
+---showdoc 在线文档工具  v1.8.6 
+PHP项目
+https://github.com/star7th/showdoc/releases
+让这几个目录有写的权限  /install, /Application/Runtime ,/Public/Uploads,/Sqlite,/Sqlite/showdoc.db.php
+
+---pinpoint 可监控，出了问题时在哪个系统在哪里有问题
+pinpoint 1.7.1 要求 HBase 1.2.x	 
+https://github.com/naver/pinpoint
