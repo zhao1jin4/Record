@@ -51,11 +51,12 @@ SpringApplication 加载 application.properties 或applicaion.yml  优先级依�
 在application.yml再建一个配置文件 , 语法是三个横线
  
 也可不叫application.properties  
-$ java -jar myproject.jar --spring.config.name=myproject   
+$ java -jar myproject.jar --spring.config.name=myproject 
 也可同时指定位置和名字
 $ java -jar myproject.jar --spring.config.location=classpath:/default.properties,classpath:/override.properties	
 
-System.setProperty("spring.config.name", "sec-application");//这种也可以
+System.setProperty("spring.config.name", "sec-application");//会覆盖默认的application,除非,分隔加上默认的
+//System.setProperty("spring.config.location", "classpath:/jsp/jsp-application.properties");
 SpringApplication.run(MainSpringBootSecurity.class, args);//jar 启动 可以登录 ，war启动不行
 
 #logging.file=my.log  日志输入到当前目录下的文件名
@@ -267,6 +268,13 @@ spring.freemarker.suffix=.ftl
 
 templates 目录下放ftl文件即可，如有图片,js,css放static目录 使用@Controller 返回ModelAndView 即可
 
+可以国际化
+spring.messages.cache-duration=36000
+#for freemarker
+spring.messages.basename=freemarker.error_messages,freemarker.form_messages
+
+*.mvc 不能加载.js,.jpg,.html ???
+
 ---spring boot 	thymeleaf
 thymeleaf和freemarker只同时打开一个maven
 
@@ -283,13 +291,45 @@ spring.thymeleaf.servlet.content-type=text/html
 spring.thymeleaf.encoding=UTF-8
 spring.thymeleaf.mode=HTML
 
-spring.thymeleaf.prefix=classpath:/templates/ 
-#spring.thymeleaf.suffix=.html
+spring.thymeleaf.prefix=classpath:/templates/
 spring.thymeleaf.suffix=.xhtml
 
-总是报视图找不到？？？？？？？
+*.mvc 不能加载.js,.jpg,.html ???
+国际化不行？？？
+
 
 ---spring boot jsp
+<packaging>war</packaging>     //要打成我war包 , 或右击项目run as -> tomcat
+
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-web</artifactId>
+	<exclusions>
+	  <exclusion>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-tomcat</artifactId>
+	  </exclusion>
+	</exclusions>
+</dependency>
+
+
+ <dependency> <!-- 为了使用JSTL库才要 -->
+  <groupId>javax.servlet</groupId>
+  <artifactId>jstl</artifactId>
+</dependency> 
+
+<dependency>
+	<groupId>javax.servlet</groupId>
+	<artifactId>javax.servlet-api</artifactId>
+	<scope>provided</scope>  
+</dependency> 
+<dependency>
+	<groupId>javax.servlet.jsp</groupId>
+	<artifactId>javax.servlet.jsp-api</artifactId>
+	<version>2.3.3</version>
+	<scope>provided</scope>
+</dependency>
 
 spring.mvc.view.suffix=.jsp
 spring.mvc.view.prefix=/WEB-INF/jsp/
@@ -300,13 +340,6 @@ spring.messages.cache-duration=36000
 #spring.resources.static-locations=
 #默认值为classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
 
-
-<packaging>war</packaging>    要用tomcat启动才行
-
- <dependency> <!-- 为了使用JSTL库才要 -->
-  <groupId>javax.servlet</groupId>
-  <artifactId>jstl</artifactId>
-</dependency> 
 
 // SpringBootServletInitializer 实现 Spring自己的  WebApplicationInitializer  类
 public class ServletInitalizer extends SpringBootServletInitializer {
@@ -327,9 +360,27 @@ src/webapp/WEB-INF/js/index.jsp
 @Autowired
 private MessageSource messageSource;
 
-  Locale locale = RequestContextUtils.getLocale(request);
- this.messageSource.getMessage("try", null, Locale.CHINESE); //war 启动OK，jar就不行
-	
+Locale locale = RequestContextUtils.getLocale(request);
+this.messageSource.getMessage("try", null, Locale.CHINESE); //war 启动OK，jar就不行
+
+
+
+#--config for *.mvc
+spring:
+  mvc:
+    pathmatch:
+      use-suffix-pattern: false
+      use-registered-suffix-pattern: true
+    contentnegotiation:
+      favor-path-extension: false 
+//--配置*.mvc
+	@Bean
+	public ServletRegistrationBean servletRegistrationBean(DispatcherServlet dispatcherServlet) {
+		ServletRegistrationBean bean = new ServletRegistrationBean(dispatcherServlet);
+		bean.addUrlMappings("*.mvc");
+		return bean;
+	} 
+以上两个一起配置*.mvc不会有打不开.js的问题
 
 --spring boot  redis
 <dependency>
@@ -759,6 +810,15 @@ public class Application {
     }
 }
 
+@Component
+public class MyApplicationRunner implements ApplicationRunner  {
+	//ApplicationRunner 和 CommandLineRunner 都是在SpringApplication.run( )完成之前 调用
+	@Override
+	public void run(ApplicationArguments args) throws Exception {
+		 System.out.println("===SpringBoot初始化完成，开始做自己的逻辑====");
+	}
+}
+
 //-- web 
 
 import org.springframework.boot.SpringApplication;
@@ -1005,8 +1065,10 @@ public class SampleController {
 spring-boot-starter-websocket
 
 --　https://spring.io/guides/gs/messaging-stomp-websocket/　有示例代码
-
+https://github.com/callicoder/spring-boot-websocket-chat-demo  有示例代码
 使用
+
+SockJS  首先用webSocket,如果失败再偿试用其它协议
 <dependency>
     <groupId>org.webjars</groupId>
     <artifactId>sockjs-client</artifactId>
@@ -1033,14 +1095,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("gs-guide-websocket")
 								.addInterceptors(new HttpSessionHandshakeInterceptor())
 								 //.setHandshakeHandler(handshakeHandler())
-								.withSockJS() /浏览器不支持websocket用socketjs 模拟
+								.withSockJS() 
 								;
     } 
 }
 @Controller
 public class GreetingController { 
     @MessageMapping("hello")
-    @SendTo("topic/greetings")
+    @SendTo("topic/greetings")//返回的对象广播到所有订阅的
     public Greeting greeting(HelloMessage message) throws Exception {
         Thread.sleep(1000); // simulated delay
         return new Greeting("Hello, " + HtmlUtils.htmlEscape(message.getName()) + "!");
@@ -1056,11 +1118,11 @@ public class GreetingController {
 <dependency>
    <groupId>org.webjars</groupId>
    <artifactId>jquery</artifactId>
-   <version>3.3.0</version>
+   <version>3.5.0</version>
 </dependency>
 
 <link href="webjars/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
- <script src="webjars/jquery/3.3.0/jquery.min.js"></script>
+ <script src="webjars/jquery/3.5.0/jquery.min.js"></script>
  <script src="webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
  <script src="webjars/stomp-websocket/2.3.3/stomp.min.js"></script>
 var stompClient = null;
@@ -1215,6 +1277,65 @@ public class GreetingIntegrationTests {
         }
     }
 }
+//另一个示例 https://github.com/callicoder/spring-boot-websocket-chat-demo 
+//可向session中存信息 ,@EventListener, messagingTemplate
+
+@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws").withSockJS();
+    }
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.setApplicationDestinationPrefixes("/app");
+        registry.enableSimpleBroker("/topic");   // Enables a simple in-memory broker
+
+	}
+}
+@Component
+public class WebSocketEventListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
+
+    @Autowired
+    private SimpMessageSendingOperations messagingTemplate;
+
+    @EventListener
+    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+        logger.info("Received a new web socket connection");
+    }
+
+    @EventListener
+    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+
+        String username = (String) headerAccessor.getSessionAttributes().get("username");
+        if(username != null) {
+            logger.info("User Disconnected : " + username);
+
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setType(ChatMessage.MessageType.LEAVE);
+            chatMessage.setSender(username);
+
+            messagingTemplate.convertAndSend("/topic/public", chatMessage);
+        }
+    }
+}
+
+
+@MessageMapping("/chat.addUser")
+@SendTo("/topic/public")
+public ChatMessage addUser(@Payload ChatMessage chatMessage,
+						   SimpMessageHeaderAccessor headerAccessor) {
+	// Add username in web socket session
+	headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
+	return chatMessage;
+}
+
 ---spring boot schedular
 
 @SpringBootApplication
@@ -1308,6 +1429,91 @@ server:
     max-connections: 10000
     min-spare-threads: 10
     accept-count: 100
+
+	
+---Spring Boot Shiro
+https://shiro.apache.org/spring-boot.html
+ 
+<dependency>
+  <groupId>org.apache.shiro</groupId>
+  <artifactId>shiro-spring-boot-web-starter</artifactId>
+  <version>1.5.2</version>
+</dependency>
+
+未测试成功
+
+
+--shiro.ini
+[users] 
+lisi=123,adminRole
+wang=456,queryRole
+
+[roles]
+adminRole=employee:*
+queryRole=employee:query
+
+[main]
+authc.usernameParam=j_username
+authc.passwordParam=j_password
+authc.rememberMeParam=j_rememberMe
+
+--application.properties
+shiro.enabled=true
+shiro.web.enabled=true
+shiro.annotations.enabled=true
+shiro.loginUrl=/initLoginNoFilter
+#shiro.successUrl=/ 
+shiro.successUrl=/main
+
+ #no effect ??
+shiro.unauthorizedUrl=/noPerm.html
+#no permisson find /error,can not define /error myself
+
+
+
+//日志显示  要么有Realm 的@Bean 要么放 shiro.ini文件(不能两个一起使用)
+//要求 在classpath下(src/main/resources/shiro.ini)或META-INF下(src/main/resources/META-INF/shiro.ini) 一定要有帐户数据
+@Bean
+public Realm realm(HashedCredentialsMatcher credentialsMatcher)  
+{ 
+	MySpringRealm realm=new MySpringRealm();
+	realm.setCredentialsMatcher(credentialsMatcher);
+	return realm;
+}
+@Bean
+public HashedCredentialsMatcher credentialsMatcher()
+{
+	HashedCredentialsMatcher credentialsMatcher=new HashedCredentialsMatcher();
+	credentialsMatcher.setHashAlgorithmName("md5");
+	credentialsMatcher.setHashIterations(3);
+	return credentialsMatcher;
+}
+
+
+@Bean  //这个权限缓存有效果
+protected CacheManager cacheManager() {
+	return new MemoryConstrainedCacheManager();
+}
+@Bean
+public ShiroFilterChainDefinition shiroFilterChainDefinition() {
+	DefaultShiroFilterChainDefinition chainDefinition = new DefaultShiroFilterChainDefinition();
+	chainDefinition.addPathDefinition("/**/*.html", "anon");
+	chainDefinition.addPathDefinition("/**/*.js", "anon");
+	chainDefinition.addPathDefinition("/**/*.jpg", "anon");
+	chainDefinition.addPathDefinition("/main", "anon");
+	chainDefinition.addPathDefinition("/test", "anon");
+	//chainDefinition.addPathDefinition("/initLoginNoFilter", "anon");
+	chainDefinition.addPathDefinition("/submitLoginNoFilter", "anon"); 
+	chainDefinition.addPathDefinition("/logout", "logout");
+	chainDefinition.addPathDefinition("/login", "authc"); //不会验证用户名密码？？可能不认j_username？
+	chainDefinition.addPathDefinition("/**", "authc"); 
+	return chainDefinition;
+}
+
+
+
+
+
 
 ---Spring Boot Admin
 用来做监控用的
@@ -1495,9 +1701,131 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 	  
-=====
+=====Spring Boot Dubbo
+
+https://github.com/seata/seata-samples/tree/master/seata-spring-boot-starter-samples   
+示例中使用 dubbo-spring-boot-starter 
+
+ <dependency>
+	<groupId>org.apache.dubbo</groupId>
+	<artifactId>dubbo</artifactId>
+	<version>2.7.5</version>
+	<exclusions>
+		<exclusion>
+			<artifactId>spring</artifactId>
+			<groupId>org.springframework</groupId>
+		</exclusion>
+	</exclusions>
+</dependency>
+<dependency>
+	<groupId>org.apache.dubbo</groupId>
+	<artifactId>dubbo-spring-boot-starter</artifactId>
+	<version>2.7.5</version>
+</dependency>
 
 
+<dependency>
+	<groupId>com.alibaba.nacos</groupId>
+	<artifactId>nacos-client</artifactId>
+	<version>1.2.1</version>
+</dependency>
 
+或者zookeeper的curator
+
+<dependency>
+	<groupId>org.apache.curator</groupId>
+	<artifactId>curator-framework</artifactId>
+	<version>4.3.0</version>
+</dependency>
+<dependency>
+	<groupId>org.apache.curator</groupId>
+	<artifactId>curator-recipes</artifactId>
+	<version>4.3.0</version>
+</dependency>
+<dependency>
+	<groupId>org.apache.curator</groupId>
+	<artifactId>curator-x-discovery</artifactId>
+	<version>4.3.0</version>
+</dependency>
+		
+--dubbo服务提供者要加 @EnableDubbo ,服务使用者可以不加 ,可以使用zookeeper或Nacos
+
+@SpringBootApplication(scanBasePackages = {"springboot_dubbo.server_anno"})
+@EnableDubbo(scanBasePackages = "springboot_dubbo.server_anno")
+public class SpringBootDubboProviderMain {
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(SpringBootDubboProviderMain.class, args);
+	}
+}
+
+@Service //Dubbo的
+public class DemoServiceImpl implements DemoService {
+    private static final Logger logger = LoggerFactory.getLogger(DemoServiceImpl.class);
+    @Override
+    public String sayHello(String name) {
+        logger.info("Hello " + name + ", request from consumer: " + RpcContext.getContext().getRemoteAddress());
+        return "Hello " + name + ", response from provider: " + RpcContext.getContext().getLocalAddress();
+    }
+}
+dubbo:
+  application:
+    name: my-dubbo-provider
+  protocol: 
+    name: dubbo
+    port: 20881
+  registry:
+    id: my-dubbo-provider
+    #address: nacos://127.0.0.1:8848
+    address: zookeeper://127.0.0.1:2181
+#  config-center:
+#    address: nacos://127.0.0.1:8848
+#  metadata-report:
+#    address: nacos://127.0.0.1:8848
+
+----服务使用端
+@SpringBootApplication(scanBasePackages = {"springboot_dubbo.client_anno"})
+public class SpringBootDubboConsumerMain {
+	public static void main(String[] args) throws Exception {
+		//http://127.0.0.1:8082/J_SpringBoot_DubboConsumer/client
+		SpringApplication.run(SpringBootDubboConsumerMain.class, args);
+	}
+}
+
+@Component("demoServiceComponent") //这是一个包装类
+public class DemoServiceComponent implements DemoService {
+    @Reference( ) //Dubbo的 check=false,lazy=true
+    private DemoService demoService; 
+    @Override
+    public String sayHello(String name) {
+        return demoService.sayHello(name);
+    }
+
+}
+@Controller
+public class  DubboClientController {
+	@Autowired
+	private DemoServiceComponent service;
+	@RequestMapping(path="/client",produces = "text/plain;charset=UTF-8")
+    public  String  client( ) {
+        String hello = service.sayHello("world");
+        System.out.println("result :" + hello);
+        return hello;
+    }
+}
+
+dubbo:
+  application:
+    name: my-dubbo-consumer
+  protocol:
+    name: dubbo
+  registry:
+    #address: nacos://127.0.0.1:8848
+    address: zookeeper://127.0.0.1:2181
+#  config-center:
+#    address: nacos://127.0.0.1:8848
+#  metadata-report:
+#    address: nacos://127.0.0.1:8848
+
+		
 
  

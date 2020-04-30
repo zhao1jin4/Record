@@ -139,6 +139,11 @@ zookeeper不会删老的快照和日志文件
 最少count配置3
 3.4.0 以后配置可以通过配置 autopurge.snapRetainCount 和  autopurge.purgeInterval 来自动清除transaction logs和snapshots 
 
+<dependency>
+    <groupId>org.apache.zookeeper</groupId>
+    <artifactId>zookeeper</artifactId>
+    <version>3.6.0</version>
+</dependency>
 
 ZooKeeper zk = new ZooKeeper("localhost:2181",2000, new Watcher() { 
 	public void process(WatchedEvent event) { 

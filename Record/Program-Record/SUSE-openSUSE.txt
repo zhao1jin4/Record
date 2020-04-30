@@ -1377,6 +1377,7 @@ $ sudo snap install snapcraft --classic
 
 docker或才lxd来构建 
 
+----------sdkman
 
 ------------Xen 
 官方目前最新版本 4.11.1 and 4.8.5 are available

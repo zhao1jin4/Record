@@ -3,7 +3,36 @@
 kafka_2.12-2.3.1
 
 使用scala语言写的
-界面管理工具 https://github.com/yahoo/kafka-manager
+
+---界面管理工具
+https://github.com/yahoo/kafka-manager 老的
+https://github.com/yahoo/CMAK (Cluster Manager for Apache Kafka, previously known as Kafka Manager) 
+要求使用JDK11及以上
+
+conf/application.conf
+	cmak.zkhosts="kafka-manager-zookeeper:2181"  多个用逗号分隔 ，也可设置环境变量ZK_HOSTS 
+	application.features= 可选修改
+
+可以开启使用LDAP认证
+
+./sbt clean dist 会生成zip文件
+或sbt -java-home /opt/jdk11 clean dist
+sbt rpm:packageBin 可以创建rpm包
+
+ bin/cmak 默认监听9000端口
+ 或者修改默认
+ bin/cmak -Dconfig.file=/path/to/application.conf -Dhttp.port=8080
+ bin/cmak -java-home /usr/lib/jvm/zulu-11-amd64
+ 
+----监控 kafka offset monitor(功能简单) 
+
+----Kafka 监控工具  Kafka Eagle
+https://github.com/smartloli/kafka-eagle
+https://docs.kafka-eagle.org/2.env-and-install/2.installing
+也可创建topic
+
+
+----
 
 broker -> topic (逻辑) -> partion(物理)->segment
 
@@ -279,16 +308,6 @@ $kafka-topics  --describe --zookeeper localhost:2181 --topic t1
 $ kafka-reassign-partitions  --zookeeper localhost:2181 --reassignment-json-file  expand-cluster-reassignment.json --verify
 
 如要只迁移分区，只要修改expand-cluster-reassignment.json 文件即可，里面有分区，再次--execute就可
-
-
-
-
---监控 kafka offset monitor(功能简单) 和 kafka manager (可监控多个集群,可创建topic)
-
-----Kafka 监控工具  Kafka Eagle
-https://github.com/smartloli/kafka-eagle
-https://docs.kafka-eagle.org/2.env-and-install/2.installing
-也可创建topic
 
 
 

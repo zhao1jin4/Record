@@ -204,7 +204,8 @@ AnnotatedBeanDefinitionReader 的构造器中有 registerAnnotationConfigProcess
 AutoConfigurationImportSelector.class
 	selectImports(xx)中有
 		getAutoConfigurationEntry(xx)中有
-			getCandidateConfigurations(xxx);						//里就是找META-INF/spring.factories/文件夹中 为EnableAutoConfiguration  		及实现类(spring-boot-autoconfigure-xx.jar)
+			getCandidateConfigurations(xxx);	 
+			//使用ClassLoader的getResources或getSystemResources方法 来找META-INF/spring.factories/文件夹中 为EnableAutoConfiguration  		及实现类(spring-boot-autoconfigure-xx.jar)
 			//	里有很多实现类,加入依赖.jar包实现类存在就自动配置
 			
 			removeDuplicates()
@@ -236,12 +237,46 @@ SpringApplication.run(DemoApplication.class, args);里面是调用 new SpringApp
 
 
 
-
+开发工具的提示properties
+是读所有jar包下的/META-INF/spring-configuration-metadata.json 和 additional-spring-configuration-metadata.json 
+如 spring-boot-2.2.1.RELEASE.jar,shiro-spring-boot-web-starter-1.5.2.jar
+对标记@ConfigurationProperties 	自动生成文件
 
 
 
 
  
 ------ spring cloud
+=======	Seata   使用com.alibaba包 (spring cloud)
+------ Seata 客户端
+spring-cloud-starter-alibaba-seata 依赖于 spring-cloud-alibaba-seata-2.1.0.jar/spring.factries 文件中自动配置 GlobalTransactionAutoConfiguration
+(如spring.cloud.alibaba.seata.txServiceGroup 没有配置默认为applicationName + "-fescar-service-group")
+GlobalTransactionScanner extends AbstractAutoProxyCreator
+		重写了 wrapIfNecessary 方法  里面有实例化 GlobalTransactionalInterceptor 类
+	implements InitializingBean
+		在initClient方法中 初始化TM，初始化RM 用来和TC通讯使用(使用Netty)
+		
+		
+GlobalTransactionalInterceptor 类	 
+	如为@GlobalTransactional 会到 io.seata.tm.api.TransactionalTemplate 的 execute
+		里有try{
+			开始事务 transactionManager.begin 会使用 前面初始化的 TMRcpClient 来和TC通讯，向global_table表中插入数据
+		}
+		catch{
+		}
+ 
+DataSourceProxy	 根代码到 AbstractDMLBaseExecutor类 executeAutoCommitFalse (外层是有重试的)的方法 有 beforeImage(),afterImage();就是把更新操作的前后(开始事务即关闭自动提交,使用select ... for update)的值都记录在undo_log表中，如回滚依据这个
+
+ConnectionProxy 的 processGlobalTransactionCommit方法中的register()是把分支事务 保存在branch_table,lock_table表中
+
+ 
+
+---Seata 服务端
+	开启事务时会调用DefaultCordinator的doGlobalBegin方法
+		
+=======	Seata 使用io.seata 包 (spring boot)
+
+seata-spring-boot-starter-1.2.0.jar/spring.factries 文件中自动配置  SeataAutoConfiguration
+
 
 

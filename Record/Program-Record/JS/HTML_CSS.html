@@ -162,7 +162,7 @@ function onlyFileName(inputFile )
 
 ===================HTML5
 
-<html manifest="demo.appcache">
+<html manifest="demo.appcache"> 容量限制是5M
 <!-- demo.appcache文件内容的格式,第一字符是#,表示注释
 #CACHE MANIFEST第一行,是必须出现的,表示下面列出第一次请求后就缓存
 CACHE MANIFEST       
@@ -176,7 +176,7 @@ NETWORK:
 login.asp
 
 
-#如果网面不能仿问,把offline.html存放到/html5库(目录)下,分两列
+#页面无法访问时的回退页面,分两列
 FALLBACK:		
 /html5/ /offline.html
 -->
@@ -214,14 +214,6 @@ loop="loop"
 <audio src="song.ogg" controls="controls">
 </audio>
 
-
-
-localStorage 方法存储的数据没有时间限制
-localStorage.lastname="Smith";
-document.write(localStorage.lastname);
-
-sessionStorage 方法针对一个 session 进行数据存储。当用户关闭浏览器窗口后，数据会被删除。
-
  <input type="number" min="1" max="10" />
 step 	number 	规定合法的数字间隔（如果 step="3"，则合法的数是 -3,0,3,6 等）
 value 	number 	规定默认值
@@ -229,11 +221,11 @@ value 	number 	规定默认值
 <input type="email"
 <input type="url"
 		//"date"
-<input type="month" 
-<input type="week" 
+<input type="month" 			(只chrome支持)
+<input type="week" 				(只chrome支持)
 <input type="time" 
-<input type="datetime" 
-<input type="datetime-local" 
+<input type="datetime" 			(firefox和chrome都不支持)
+<input type="datetime-local"	(只chrome支持)
 
 <input type="range"
 <input type="search"
@@ -249,14 +241,12 @@ value 	number 	规定默认值
 </datalist>
 
 <fieldset>
-    <legend>Personalia:</legend>
+    <legend>Personalia:</legend><!-- 带边框 -->
     Name: <input type="text" /><br />
      Date of birth: <input type="text" />
  </fieldset>
 
-私钥（private key）存储于客户端，公钥（public key）则被发送到服务器
-
-<keygen name="security" />
+<keygen name="security" /> 已经Obsolete  私钥（private key）存储于客户端，公钥（public key）则被发送到服务器
 
 <output onforminput="resCalc()">
 
@@ -266,7 +256,7 @@ value 	number 	规定默认值
 </form>
 <input type="text" name="lname" form="user_form" /> 用一个以上的表单，请使用空格分隔的列表。 
 
-
+是基于之前输入的值
 autocomplete="on"
 autocomplete="off"
 
@@ -281,15 +271,80 @@ formtarget - 重写表单的 target 属性
 
 
 <input type="file" name="img" multiple="multiple" /> 可以多选文件
-<input type="text" name="country_code" pattern="[A-z]{3}" title="验证失败时的信息" />
+
 
 <input type="search" name="user_search"  placeholder="Search W3School" />
 输入域为空时显示出现，会在输入域获得焦点时消失
 
-<input type="text" name="usr_name" required="required" /> 必写的
+<form>
+	<input type="text" name="country_code" pattern="[A-z]{3}" title="验证失败时的信息" />
+	<input type="text" name="usr_name" required  /> 必写的
+	<label for="FS">Select a file smaller than 75 kB : </label>
+	<input type="file" id="FS"> 
+	 <input type="submit" value="submit"/>chrom只有在提交时才提示
+</form>
+<script type="text/javascript">
+// window.onload在<body onload后面，就覆盖前面的 
+window.onload = function () {
+	  document.getElementById("FS").onchange = checkFileSize;
+	}
+function checkFileSize() {
+	  var FS = document.getElementById("FS");
+	  var files = FS.files;
+	  // If there is (at least) one file selected
+	  if (files.length > 0) {
+	     if (files[0].size > 75 * 1024) { // Check the constraint
+	       FS.setCustomValidity("The selected file must not be larger than 75 kB");//自定义提示文本
+	       return;
+	     }
+	  }
+	  // No custom constraint violation
+	  FS.setCustomValidity("");
+	}
+</script>
 
-<article>
-<aside>
+<article>和<aside> 功能 和 <div>一样
+双击下面可以编辑<br>
+<p contenteditable="true" >contenteditable="true"  是编辑的文件</p>
+下面隐藏的p<br>
+<p hidden="hidden" >   hidden="hidden" </p>
+<table>
+  <colgroup> <!--  也可加span="1" style="background:red" -->
+   	<col span="2" style="background-color:blue" />
+  </colgroup>
+  <col span="1" style="background:red" />
+  <tr>
+    <th>ISBN</th>
+    <th>Title</th>
+    <th>Price</th>
+  </tr>
+  <tr>
+    <td>3476896</td>
+    <td>My first HTML</td>
+    <td>$53</td>
+  </tr>
+</table>
+
+<figure>
+  <figcaption>figure  figcaption </figcaption>
+  <img src="assets/the_scream.jpg" width="304" height="228" />
+</figure>
+
+<footer>footer</footer>
+<header>header</header>
+
+<hgroup>
+	<h1>hgroup h1</h1>
+	<h2>hgroup h2</h2>
+</hgroup>
+ <p>在p中的   <mark>mark</mark> 显示为黄色</p>
+
+
+
+
+
+
+
 
 
 
@@ -452,8 +507,8 @@ p > i:first-child {
   font-weight:bold;
   } 
 <p>some <i>textＢ</i>. some <i>text</i>.</p>　　文字不是标签
-<p>some <i>textＢ</i>. some <i>text</i>.</p> 
-  
+<p>some <i>这里是斜体</i>. some <b>这里是粗体</b>.</p> 
+
  q:lang(no)
    {
    quotes: "~" "~"
@@ -586,7 +641,9 @@ justify-content: center 水平居中对齐
 </style> 
 <a class="disabled"></a>
 
-a标签download属性 要去base标签
+a标签download属性 要去head中的base标签
+<a href="/S_HTML5CSS3/assets/img_logo.gif"   download="HTML文件名.txt">  链接图片   </a> <br/>  
+<a href="/S_HTML5CSS3/download?fileId=1"   download="HTML文件名.txt"> 服务端存在， 文件名以服务端为Content-Disposition", "attachment;filename=准，要去base标签</a> <br/>  
 <a href="/S_HTML5CSS3/download?fileId=101" download="HTML文件名.txt"> 服务端返回不存在  以download值为文件名 ,如不加则跳转到页面中显示</a>  <br/>
 
 
@@ -609,6 +666,10 @@ let para = document.querySelector('p');
 let compStyles = window.getComputedStyle(para);
 compStyles.getPropertyValue('font-size');
 compStyles.getPropertyValue('line-height');
+
+
+
+text-transform: uppercase   把字母转大写
 
 
 

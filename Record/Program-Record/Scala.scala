@@ -16,7 +16,7 @@ System.out.println(pair.hashCode()==pair2.hashCode());
 
 
 函数式编程 FP
-Scala-2.13.1 只支持JDK8, 不支持 JDK9 和 以上版本
+Scala-2.13.1 只支持JDK1.8和JDK11两个版本
 
 eclipse_4.6.3_plugin_Scala IDE-4.5   dropsin安装无效  about->Installation details...按钮 ->Configuration标签->View Error Log 按钮 
 (不能help安装,只能MarketPlace在线安装版本老点,或者输入网址在线安装 支持play  )
@@ -1115,8 +1115,15 @@ _toList().sortBy(_._2).reverse
 ========Play Framework 2.6.13
 
 
-----SBT-1.1.5
-依赖于SBT 一个构建工具
+----SBT-1.1.5 (最新1.3.10)
+一个构建工具
+
+可以下载所有平台.zip/tgz包，也可下载windows的msi，windows可用scoop install sbt
+linux/mac 可以用 sdkman 的sdk命令安装
+sdk list java
+sdk install sbt
+
+
 最简单的项目目录中建立空 build.sbt 文件 ,sbt命令会从maven上下载很多东西
 示例项目运行 sbt run 
 

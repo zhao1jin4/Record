@@ -1161,6 +1161,8 @@ help->about 查看 默认 文件目录为 %APPDATA%\FileZilla
 	network 标签 disable cache 禁用缓存
 	字体变大 ????
 	控制台中默认不能粘贴(安全原因) 提示写入 allow pasting 才可
+	firefox ->Debugger中 ,在一个文件中, 选中一个区域 如 encodeURI("test.jsp?username=张三") ,右击->add Watch
+
 ---- ChromeDeveloper 
 	设置字体大小 ctrl+滚轮
 	network 标签 disable cache 禁用缓存

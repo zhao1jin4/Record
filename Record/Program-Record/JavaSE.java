@@ -238,8 +238,8 @@ G1收集器  JDK9的server默认
 
 -Xss1m 表示栈最大空间 (thread stack size)	StackOverflowError  递归的层次太深, 同-XX:ThreadStackSize
 -Xmx参数设置堆内存的最大值,字节, 要是1024的倍数,可用k,K,m,M,g,G  -XX:MaxHeapSize //Runtime.getRuntime().maxMemory(); 可取到
--Xms参数设置堆内存的最初始,字节,要是1024的倍数
--Xmn参数设置堆内存的 新生代大小 等同 -XX:NewSize 
+-Xms参数设置堆内存的最初始,字节,要是1024的倍数   -XX:InitialHeapSize  -XX:MinHeapSize
+-Xmn参数设置堆内存的 新生代大小 等同 -XX:NewSize  
 
 
 ===运行时选项 -XX 控制HotSpot VM
@@ -310,7 +310,7 @@ G1收集器  JDK9的server默认
 -XX:OnError="<cmd args>;<cmd args>"
 -XX:OnOutOfMemoryError="<cmd args>;<cmd args>"
 -XX:-PrintClassHistogram		同jmap -histo <pid> 工具,或者 jcmd <pid> GC.class_histogram 
--XX:-PrintConcurrentLocks		同Jstack –l <pid>
+-XX:-PrintConcurrentLocks		同 jstack –l <pid>
 -XX:-PrintCommandLineFlags		显示这个JVM所有配置的-XX:+ 选项
 -XX:-PrintCompilation			当方法被编译就打印消息到控制台
 -XX:-PrintGC				跟踪参数 
@@ -420,15 +420,20 @@ jps 返回vmid 为了获得更好的效果，采用 -Dcom.sun.management.jmxremo
 
 
 jps  有VMID号
-jps -v 输出虚似机进程启动时JVM参数
+jps -v 输出虚似机进程启动时JVM参数 如有加-Xmx是看到的
 jps -l 输出主类名
 jps -m 传给主类的参数
 
 
 jinfo  -sysprops VMID
 jinfo  -flags VMID  显示这个VM的所有非默认的-XX选项,及启动的-X选项
+
+jinfo -flag MaxHeapSize VMID
+jinfo -flag InitialHeapSize  VMID
+jinfo -flag MinHeapSize VMID (JDK8没有)
 jinfo -flag MaxNewSize VMID	 	单位是byte
 jinfo -flag NewSize VMID
+
 
 jinfo -flag MaxDirectMemorySize   [进程ID]     (HotSpot VM参数,对nio分配置内存缓冲区)
 
@@ -438,17 +443,7 @@ jinfo -flag NewRatio VMID
 	-XX:NewRatio=2
  
  
- 
-jstat –gccapacity VMID 	单位是KB
-NGCMN    NGCMX		 OGCMN      OGCMX	 
-5440.0  87360.0	 10944.0   174784.0		 
 
-NGCMN Minimum new generation capacity (KB). 
-NGCMX Maximum new generation capacity (KB). 
-
-OGCMN Minimum old generation capacity (KB). 
-OGCMX Maximum old generation capacity (KB). 
-  
 
 jstat -options 显示所有可用选项 (可查API)
 	S=survivor
@@ -496,10 +491,20 @@ jstat -gcutil [进程号]  间隔毫秒  总数
 jstat -class  [进程号]  间隔毫秒  总数   //看这个Java进程产生的类数
 jstat -compiler pid:显示VM实时编译的数量等信息。
 jstat -gccapacity   对象的使用和占用大小，
+
+jstat –gccapacity VMID 	单位是KB   
+	NGCMN Minimum new generation capacity (KB). 
+	NGCMX Maximum new generation capacity (KB). 
+	NGC: Current new generation capacity (KB).
+
+	OGCMN Minimum old generation capacity (KB). 
+	OGCMX Maximum old generation capacity (KB). 
+	OC: Current old space capacity (KB).
+
 	MCMN: Minimum metaspace capacity (KB).
 	MCMX: Maximum metaspace capacity (KB).
 	MC: Metaspace capacity (KB).
-	OC 是old内纯的占用量。
+ 
 
 jstat -gcnew pid: new对象的信息
 jstat -gcnewcapacity pid: new对象的信息及其占用量
@@ -573,7 +578,7 @@ jinfo -flag MaxNewSize 进程ID //可修改,查看进程的JVM参数
 jinfo 修改有错误
 
 
-jmap -histo 进程ID  //(histo=histogram柱状图)以文本的形式显示现在所有的类,的实例数,占用空间
+jmap -histo 进程ID  //(histo=histogram柱状图)以文本的形式显示现在所有的类,的实例数和占用空间
 jmap -dump:format=b,file=java_pid.hprof <进程ID> //(b是binary的缩写)进程的内存heap输出到heap.bin文件中,二进制文件  
 
 
@@ -3445,6 +3450,15 @@ File.separator
 System.getProperties().get("line.separator").toString()
 System.getProperties().get("os.name").toString()
 
+
+
+//方式二
+//每次在使用HttpURLConnection时,工具类来解析http响应头中的Set-Cookie，把cookie存在一个全局的地方，以后就直接从这里取				
+CookieManager manager = new CookieManager();
+manager.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);//设置cookie策略，只接受与你对话服务器的cookie，而不接收Internet上其它服务器发送的cookie
+CookieHandler.setDefault(manager);//这几句，要在URL .openConnection之前
+ 
+
 URL url=new URL("http://127.0.0.1");
 HttpURLConnection http=(HttpURLConnection)url.openConnection();
 //http.setReadTimeout(10000);//设置读取超时时间          
@@ -3458,6 +3472,23 @@ out.flush();
 http.connect();//这个可有，可无
 code = http.getResponseCode();//这里才真正的发起请求
 http.getInputStream();
+
+//读cookie在响应头中
+Map<String, List<String>> maps = http.getHeaderFields();
+String cookieskey = "Set-Cookie";//响应头Set-Cookie
+List<String> coolist = maps.get(cookieskey);
+Iterator<String> it = coolist.iterator();
+while(it.hasNext()){
+	String val=it.next();//loginId=lisi; Max-Age=1800; Expires=Mon, 20-Apr-2020 14:04:55 GMT 
+} 
+
+//方式二,比自己解析字串强多了
+CookieStore cookieJar = manager.getCookieStore();
+List<HttpCookie> storeCookies = cookieJar.getCookies();
+for(HttpCookie c:storeCookies){
+	System.out.println("store cookie: "+c);
+} 
+
 
 -------------URL的FTP-------type=b,传图片OK
 URL url = new 　URL(ftp://user01:pass1234@ftp.foo.com/README.txt;type=i); //i=ascii,b=binary
@@ -4984,6 +5015,15 @@ public static Map<String, Object> transBean2Map(Object obj) throws Exception // 
 		map.put(key, value);
 	}
 	return map;
+}
+----SPI
+SPI的全名为Service Provider Interface
+import java.util.ServiceLoader;
+//找所有classpath路径下 /META-INF/services/<接口全类名>   文件，内容为全类名的实现类
+ServiceLoader<Developer> serviceloader = ServiceLoader.load(Developer.class);
+//implements Iterable
+for (Developer dev : serviceloader) {
+	System.out.println("find ." + dev.getPrograme());
 }
 
 

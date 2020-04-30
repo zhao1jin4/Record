@@ -217,6 +217,7 @@ sort->more...->Date created 创建日期(也是复制过来的日期)
 基于文件大小 size:
 可以在搜索栏中输入   type:"doc" content:"linq"  这里的content如果英文要是以空格分格的单词,中文不必用空格分隔
 
+控制面板中 搜索 index，打开 Indexing Options对话框 (也可搜索目录后，点上方的黄色提示条)，可以设置索引目录，就可直接搜索文件内容
 
 
 win7 有一个 snippingtool 截图工具,StikyNot 便利贴,关闭后再次打开,会记住,但还要记住去打开
@@ -1078,6 +1079,12 @@ systeminfo 命令 可以看系统信息,有 系统类型 可知是32位还64位
 
 ,win10 Explorer中键 功能目录向上, 浏览器返回
 
+-----win10  Windows Subsystem for Linux(WSL)
+https://docs.microsoft.com/en-us/windows/wsl/install-win10
+是微软和Canonical(snapd)一起开发
+在PowerShell中开启
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+从商店安装要求 Windows 10 的 16215  版本以后
 
 --- win mac
 如ipad提示是否可以访问照片和视频,这个只是在我的电脑中出多的新存储是否可以读写

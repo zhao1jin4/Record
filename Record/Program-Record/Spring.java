@@ -2723,25 +2723,7 @@ System.out.println("发送了XXX");
 ctx.close();//如果不关，就不退出 
 
 
-
-=========================Spring Reactor
-
-
- <dependency>
-    <groupId>io.projectreactor.spring</groupId>
-    <artifactId>reactor-spring-context</artifactId>
-    <version>2.0.7.RELEASE</version>
-</dependency>
-<dependency>
-    <groupId>io.projectreactor.spring</groupId>
-    <artifactId>reactor-spring-core</artifactId>
-    <version>2.0.7.RELEASE</version>
-</dependency> 
-
-
-
-
-
+ 
 ======================Spring LADP
 <dependency>
     <groupId>org.springframework.ldap</groupId>

@@ -367,12 +367,15 @@ response.addHeader("Access-Control-Allow-Origin", "http://localhost:8080");
 //如果想拿到其他字段，就必须在Access-Control-Expose-Headers里面指定
 //response.addHeader("Access-Control-Expose-Headers", "FooBar");
 
-
+response.setContentType("application/json;charset=UTF-8");//setContentType要在写数据前做才有效
+response.getWriter().write(json);
 
 ------非简单请求
-
-如 XMLHttpRequest  加请求头 Content-Type : application/json
+var xhr = new XMLHttpRequest();  
+xhr.withCredentials=true;//带cookie
+//如 XMLHttpRequest  加请求头 Content-Type : application/json
 xhr.setRequestHeader("Content-Type","application/json;charset=UTF-8");//open方法后 调用   
+xhr.setRequestHeader("mycors","frontend"); 
 
 //---对 非简单请求的CORS请求，会在正式通信之前，增加一次HTTP查询请求，称为"预检"请求（preflight）。
 //"预检"请求用的请求方法是OPTIONS,服务端取Origin，Access-Control-Request-Method，Access-Control-Request-Headers做验证成功加http头
@@ -380,17 +383,53 @@ xhr.setRequestHeader("Content-Type","application/json;charset=UTF-8");//open方�
 --服务端代码
 @Override
 protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	//可放filter中做
 	String origin=req.getHeader("Origin");//http://localhost:8080
 	String method=req.getHeader("Access-Control-Request-Method");//POST
 	String headers=req.getHeader("Access-Control-Request-Headers");//content-type
 	if(origin.contains("localhost") && "POST".equals(method) && headers.contains("content-type") )
 	{
 		resp.addHeader("Access-Control-Allow-Methods", "POST");
-		resp.addHeader("Access-Control-Allow-Headers", "Content-Type");
+		resp.addHeader("Access-Control-Allow-Headers", "Content-Type,mycors");
 		resp.addHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+		resp.addHeader("Access-Control-Allow-Credentials", "true");//可带cookie
 	}
 }
-
+@Override
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+		throws ServletException, IOException
+{
+	//可放filter中做
+	response.addHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+	response.addHeader("Access-Control-Allow-Credentials", "true");//可带cookie
+	
+	
+	
+	//...
+	Cookie[]  cookies=request.getCookies();
+	if(cookies!=null)
+	{
+		for(Cookie reqCookie:cookies)
+		{
+			if("times".equals(reqCookie.getName()))
+			{
+				Integer seconds=Integer.parseInt(reqCookie.getValue());
+				Cookie cookie2=new Cookie("times",seconds.intValue()+1+"");
+				cookie2.setMaxAge(60*30); 
+				response.addCookie(cookie2);
+			}
+		}
+	}else
+	{
+		Cookie cookie=new Cookie("loginId","lisi");
+		cookie.setMaxAge(60*30);//单位秒，0删除，-1不存储
+		response.addCookie(cookie);
+		
+		Cookie cookie2=new Cookie("times","1");
+		cookie2.setMaxAge(60*30); 
+		response.addCookie(cookie2);
+	}
+}
 
 
 
@@ -1687,23 +1726,88 @@ console.log(array1.reduce(reducer, 5)); //  15
 
 
 =========HTML5 JS
- 
+localStorage 方法存储的数据没有时间限制,存储上限桌面为50MB,移动为5MB
+localStorage.lastname="Smith";
+document.write(localStorage.lastname);
+
 window.localStorage.setItem('value', area.value);
 window.localStorage.getItem('value');
---
-var db = window.openDatabase("DBName", "1.0", "description", 5*1024*1024); //5MB
-db.transaction(function(tx) {
-  tx.executeSql("SELECT * FROM test", [], successCallback, errorCallback);
-});
+
+
+sessionStorage 方法针对一个 session 进行数据存储。当用户关闭浏览器窗口后，数据会被删除。
 
 --
-var idbRequest = window.indexedDB.open('Database Name');
-idbRequest.onsuccess = function(event) {
-  var db = event.srcElement.result;
-  var transaction = db.transaction([], IDBTransaction.READ_ONLY);
-  var curRequest = transaction.objectStore('ObjectStore Name').openCursor();
-  curRequest.onsuccess = ...;
+//只对chrome有用,F12中Application标签中的WebSQL,标准不在更新
+var db = window.openDatabase("DBName", "1.0", "description", 5*1024*1024); //5MB
+db.transaction(function(tx) {
+  //tx.executeSql("sql", [param], successCallback, errorCallback);
+   
+   //tx.executeSql("create table if not exists student(id unique ,name)", [], function(){alert("ok")}, function(){alert("error")});
+   //tx.executeSql("insert into student(id   ,name) values(?,?)", [1,'李四'], function(){alert("ok")}, function(){alert("error")});
+   tx.executeSql("SELECT * FROM student", [], function(tx,res){
+		alert("ok");
+		let rows=res.rows;
+		let len =rows.length;
+		for(var i=0;i<len;i++)
+		{
+			console.log(rows.item(i))
+		}
+	   }, function(){alert("error")});
+  });
+  
+});
+
+--indexedDB存储上限远大于localstoreage
+ 
+const dbName = "mydb";
+var idbRequest = window.indexedDB.open(dbName,2);//自己的版本号，如上一次数字大，会触发onupgradeneeded 事件
+idbRequest.onsuccess = function(event)
+{
+	 var db = event.target.result;
+	 //var db = event.srcElement.result;
+		
+	 // IDBTransaction.READ_WRITE 的值是readwrite
+	 //var transaction = db.transaction(["persion"], "readwrite")  .objectStore('persion').add({id:1,name:"lisi",age:23});
+	// var transaction = db.transaction(["persion"], "readwrite")  .objectStore('persion').add({id:2,name:"王",age:22});
+	//var transaction = db.transaction(["persion"], "readwrite")  .objectStore('persion').put({id:1,name:"lisi_22",age:33});
+	//var transaction = db.transaction(["persion"], "readwrite")  .objectStore('persion').delete(1);
+/*
+	var oneReq=db.transaction(["persion"], IDBTransaction.READ_ONLY).objectStore('persion').get(1);
+	oneReq.onsuccess=function(e){ 
+		console.log(oneReq.result);
+	}
+	 */		
+	
+  var transaction = db.transaction(["persion"], IDBTransaction.READ_ONLY);
+  var curRequest = transaction.objectStore('persion').openCursor();
+  curRequest.onsuccess =function(event) {
+      //在chrom下OK
+	  var cursor = event.target.result;
+	  if (cursor) {
+		console.log("key " + cursor.key + " ,value age " + cursor.value.age);
+		cursor.continue();
+	  }
+	  else {
+		  console.log("No more entries!");
+	  }
+	};
+}
+idbRequest.onerror = function(event) {
+	 alert("Database error: " + event.target.errorCode);
 };
+idbRequest.onupgradeneeded = function(event) { //用来定义表(ObjectStore)结构
+	  // 保存 IDBDataBase 接口
+	  var db = event.target.result; 
+	  var objectStore = db.createObjectStore("persion", { keyPath: "id" });//显示有id和value两列,即NOSQL
+	  objectStore.createIndex("inx_age", "age", { unique: false });
+	   
+	};
+}
+//objectStore.clear();//删所有记录
+//objectStore.count();
+//objectStore.deleteIndex("inx_age")
+
+//如何删库，表 ？？
 
 --
 // <html manifest="cache.appcache">
@@ -1768,6 +1872,10 @@ onmessage = function(e) {
 </script>
 
 
+
+ window.onpopstate = function(event) {//在history.back()时调用
+		  console.log("location: " + document.location);
+		};
 let stateObj = {
 	foo: "bar",
 };

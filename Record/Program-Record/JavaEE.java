@@ -1,5 +1,6 @@
 https://javaee.github.io/glassfish/documentation Java EE 8 many
-https://javaee.github.io/javaee-spec/javadocs/  JavaEE 8 API
+	https://javaee.github.io/tutorial/toc.html  不能下载 对应 代码在 https://github.com/javaee/tutorial-examples
+	https://javaee.github.io/javaee-spec/javadocs/  JavaEE 8 API
 
 <dependency>
     <groupId>javax.annotation</groupId>
@@ -1890,6 +1891,19 @@ session.getBasicRemote().sendText("obj_type123:data_123客户端发送的Test消
 Thread.sleep(3*1000);
 session.close();
 	
+
+	
+	
+WebSocket 基于 HTTP协议 
+请求头有 
+Upgrade: websocket
+Sec-WebSocket-Extensions:
+Sec-WebSocket-Key:
+Sec-WebSocket-Version: 13
+
+响应码101 表示 服务器将会切换到在Upgrade 消息头中定义的那些协议
+
+	
 =============================Concurrent
 @Resource
 ManagedExecutorService executor;
@@ -2225,6 +2239,8 @@ class xx extends HttpServlet {
 				JavaMailConnectionFactoryImpl implements  Referenceable 
 					
 =============================Tomcat
+tomcat 9 版本不支持JDK11
+
 catalina.bat jpda start/run 启动8000 可远程调试
 
 catalina.bat run 或 catalina.bat start
@@ -2473,7 +2489,7 @@ catalian.sh 脚本中　对 CATALINA_OUT 的说明,
 手工设置　CATALINA_OUT="$CATALINA_BASE"/logs/catalina.`date +"%Y-%m-%d"`.out　在判断后加,为了CATALINA_BASE存在值 ,这样只能在重启时是新文件
 
 set CATALINA_OPTS=-Xms512M -Xmx512M -Xss1024k -XX:MaxPermSize=256M
-
+export CATALINA_OPTS="-Xms128M -Xmx512M -Xss1024k -XX:+UseG1GC"
 --优化
 
 

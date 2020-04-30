@@ -1,7 +1,6 @@
 
-========================Spring Cloud
-service mesh 是Microservices的下一代  Istio（https://github.com/istio/istio） 由 Google、IBM 和 Lyft 联合开发，只支持 Kubernetes 平台
 
+========================Spring Cloud
 版本名是伦敦地铁站的名字，字母表的顺序 
  
  
@@ -53,10 +52,9 @@ Intellij Idea 建立 spring initialir 项目->Cloud Discory -> eureka server  �
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
             <version>Hoxton.RELEASE</version>  
-			<!-- 
-				Finchley.SR3  要和spring-boot 2.0.x. 对应 目前 2.0.9 
-				Greenwich.SR4   要和spring-boot 2.1.x  对应 目前 2.1.11
-				Hoxton.RELEASE 要和spring-boot 2.2.1.RELEASE
+			<!--
+				Greenwich.SR5   要和spring-boot 2.1.x  对应 目前 2.1.11
+				Hoxton.SR4  要和spring-boot 2.2.1.RELEASE
 			-->
             <type>pom</type>
             <scope>import</scope>
@@ -102,7 +100,7 @@ Intellij Idea 建立 spring initialir 项目->Cloud Discory -> eureka server  �
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
 	</dependency>
-	<!-- hystrix 和 zull都要 -->
+	<!-- hystrix 和 zuul都要 -->
 	<dependency>
 		<groupId>com.netflix.hystrix</groupId>
 		<artifactId>hystrix-javanica</artifactId>
@@ -263,7 +261,9 @@ eureka:
 	  #defaultZone: http://user:password@localhost:8761/eureka #如eureka要密码这样不行？？
    instance:	
 		prefer-ip-address: true #显示在列表中的链接地址以IP显示，而不是主机名
+		#Greewich版本变为 preferIpAddress 
 		instance-id: ${spring.application.name}:${server.port} #显示在列表中以的格式
+		#Greewich版本变为 instanceId
 		#appname:service-hi-x  #默认是 spring.application.name		
 server:
   port: 8762
@@ -685,7 +685,7 @@ http://localhost:8769/service-ribbon/hi?name=lisi  默认这个可以仿问 如�
 class MyFallbackProvider implements FallbackProvider {
     @Override
     public String getRoute() {
-        return "service-hi"; //当zull路由这个服务不可以仿问时，显示fallback getBody()的返回值 
+        return "service-hi"; //当zuul路由这个服务不可以仿问时，显示fallback getBody()的返回值 
     }
     @Override
     public ClientHttpResponse fallbackResponse(String route, final Throwable cause) {
@@ -1038,6 +1038,8 @@ spring.application.name=service-hi
 
 #Finchley version
 spring.zipkin.baseUrl=http://localhost:9411	
+#对于zipkin服务加了spring.security.basic.enabled=true和spring.security.user=user
+#spring.zipkin.baseUrl=http://user:pass@localhost:9411	
 
 #1.0 链路数据100%收集到zipkin-server,default value 0.1 
 spring.sleuth.sampler.probability=1.0 
@@ -1913,36 +1915,6 @@ public class CustomCuratorFrameworkConfig {
 POST 请求 /refresh  路径 来刷新，自动刷新（Zookeeper）还未实现。 测试没有这个路径？？？
   
 
---------------Spring Cloud Kubernetes
-
-DiscoveryClient for Kubernetes
-<dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-kubernetes</artifactId>
-</dependency> 
-<dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
-</dependency> 
-<dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-kubernetes-ribbon</artifactId>
-</dependency> 
-<dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-kubernetes-all</artifactId>
-</dependency>
-
-----------Spring cloud alibaba 
-有一个分布式事务的 ，使用 Seata
-
-----------
-<dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-oauth2</artifactId>
-    <version>2.1.5.RELEASE</version>
-</dependency>
-
 ---------Spring Cloud Circuit Breaker  
  Hoxton版本 开始用 Resilience4J  替代老的 hystrix 
 
@@ -1986,6 +1958,36 @@ RestTemplate restTemplate() {
 	return new RestTemplate();
 }
 ----------------
+
+
+
+--------------Spring Cloud Kubernetes
+
+DiscoveryClient for Kubernetes
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-kubernetes</artifactId>
+</dependency> 
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
+</dependency> 
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-kubernetes-ribbon</artifactId>
+</dependency> 
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-kubernetes-all</artifactId>
+</dependency>
+
+ 
+----------oauth2
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-oauth2</artifactId>
+    <version>2.1.5.RELEASE</version>
+</dependency>
 
 
 

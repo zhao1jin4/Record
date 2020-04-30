@@ -3494,7 +3494,97 @@ topicConnection.close();
 如果有webloigc 中有	Durable的Topic,那么只有Durable的Subscriber可以收到，
 
 
+===============Reactor  1或2版本
+
+//---1 或 2 版本的老代码 ??????????????
+Environment env = new Environment();
+Reactor reactor = Reactors.reactor()
+		  .env(env)  
+		  .dispatcher(Environment.EVENT_LOOP) // BlockingQueueDispatchers ,事件到达时先存储在一个Blockingqueue中，再由统一的后台线程一一顺序执行 
+		  .get(); 
+//$("parse") 同 Selectors.object("parse"),Tuple可以传多个参数
+Registration reg=reactor.on($("parse"), new Consumer<Event<String>>() 
+		{
+		  @Override
+		  public void accept(Event<String> ev) {
+		    System.out.println("Received event with data: " + ev.getData());
+		  }
+		});
+reg.pause(); //暂停后,再notify无用的
+reactor.notify("parse", Event.wrap("data"));
+Thread.sleep(1000);
+
+reg.resume();
+reactor.notify("parse", Event.wrap("data"));
+Thread.sleep(500);
+
+reactor-core-1.1.3.BUILD-SNAPSHOT.jar\META-INF\reactor\default.properties
+	reactor.dispatchers.default = ringBuffer  ## eventLoop
+	
+java -Dreactor.profiles.default=production  会使用 META-INF/reactor/production.properties文件
+
+
+Deferred<String, Stream<String>> deferred = Streams.<String>defer()
+		  .env(env)
+		  .dispatcher(Environment.RING_BUFFER)
+		  .get();
+Stream<String> stream = deferred.compose();
+//---	
+Stream<String> filtered = stream   
+		.map(new Function<String, String>() 
+		{
+			public String apply(String s) {
+			  return s.toLowerCase();
+			}
+		  })
+		  .filter(new Predicate<String>()
+		{
+			public boolean test(String s) {
+			  // test String
+			  return s.startsWith("nsprefix:");
+			}
+		  });
+//---			
+		
+// consume values
+stream.consume(new Consumer<String>() {//如用 filtered.consume() 会使用过滤规则
+  public void accept(String s) {
+	  System.out.println("accepted :"+s);
+  }
+});
+
+// producer calls accept
+deferred.accept("Hello World!");
+
+//------Promise
+Deferred<String, Promise<String>> deferred1 = Promises.<String>defer()
+		  //.env(env).dispatcher(Environment.RING_BUFFER) //加这行 deferred1.accept 不会等待执行完成,不加会等待
+		  .get();
+//Promise<String> p1 = Promises.success("12333").get();//作用不大
+Promise<String> p1=deferred1.compose(); 
+
+// Transform the String into a Float using map()
+Promise<Float> p2 = p1.map(new Function<String, Float>() {
+		public Float apply(String s) {
+		return Float.parseFloat(s);
+		}
+		}).filter(new Predicate<Float>() {
+		public boolean test(Float f) {
+			return f > 100f;
+		  }
+		});
+
+//p2.then(onSuccess, onError)
+p2.onSuccess(new Consumer<Float>() { //p1.onSuccess
+	public void accept(Float f) {
+		Thread.sleep(3000);
+		System.out.println("---promise Float:"+f);
+	}
+});
+deferred1.accept("182.2");
 ===============
+
+
 
 
 

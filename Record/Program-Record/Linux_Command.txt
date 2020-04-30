@@ -289,7 +289,13 @@ talk  135.251.27.76  pts/1  #可能要安装talk-server
 talk  user@135.251.27.76  pts/1
 
 gnome-calculator
-bc   计算器   5^3=125
+bc   计算器   5^3=125 
+
+a=12
+b=7
+expr $a / $b  计算出结果为个1 ，只支持整除
+echo "scale=2;$a/$b" | bc  #设置显示2小位小数
+
 cal  日历
 
 zip -r filename.zip filesdir 创建zip
@@ -961,12 +967,26 @@ nice -20~19   默认0，值越小越快 ， 进程优先级
 　
 telinit q  重新加载initab  文件
 tload 系统负载
+
+ps 显示进程占用内存
+ps -e -o 'pid,comm,args,pcpu,rsz,vsz,stime,user,uid'  
+	 rss,两个别名rsz,rssize占用物理内存KB 
+	 vsz,两个别名vsize,%z占用虚拟内存KB 
+	 comm只显示启命令无参数
+	 cmd,两个别名args,command 即带命令又带参数(但不显示全部)
+	 %cpu 别名pcup 
+	 stime  启动时间，如小于24小时显示"HH:MM" 否则显示 (三个字母的月份两位天)
+	 
 top 工具
+	显示标题
+		VIRT：进程占用的虚拟内存
+	　　RES：进程占用的物理内存
+	　　SHR：进程使用的共享内存
 	o 列的位置
 	f 加减列
 	F  或 O -> 再选择 要排序列
 	
-	M,P按内存和cpu排序
+	M,P按内存和cpu排序 
 	R反向排序
 	
 	< 排序字段移动为向左一个   > 排序字段移动为向右一个  
@@ -3510,14 +3530,16 @@ sudo yum install docker-distribution
 
 使用 （python-setuptools） easy_install pip 也是 python2
 
-
+----------snapd
 CentOS 7.6+ 当安装epel-release 就可 
 yum install snapd
 systemctl enable --now snapd.socket
 	会创建link 从/etc/systemd/system/sockets.target.wants/snapd.socket 
 	到 /usr/lib/systemd/system/snapd.socket
 ln -s /var/lib/snapd/snap /snap
+----------sdkman
 
+-------
 
 python3可以源码安装 
 sudo yum install python36 安装
@@ -3826,9 +3848,20 @@ sdptool search  xxx  不知道干什么的
 echo TXlQQHNzMTIz | base64 -d 显示base64解码后的原值
 
 
-uuidgen 命令 生成UUID f3d3e394-d5a5-4859-a8f5-c690e44741b7
+uuidgen 命令 生成UUID  
 
+---nmap 网络连接端扫描软件
+nmap 命令行 ,Zenmap 和 npcap(windows下) 是图形工具
+nmap-7.80-win32.zip
+npcap-0.9990.exe 安装在 C:\Program Files\Npcap  ，没有命令？怎么用？
 
+nmap xxx.com 最后给出所有可用端口
+nmap xxx.com -p 80 指定端口 
+	状态 
+	  Open 端口开启
+	  Closed 端口关闭
+	  Filtered 数据未能到达主机
+---
 
 
  

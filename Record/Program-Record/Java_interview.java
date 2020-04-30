@@ -436,7 +436,7 @@ System.out.println("理想".getBytes("GBK").length); //4
 大数据做报表慢 ，主从的读写分离，分区，分表，
 限流 AtomicInteger 记录当前节点正在执行线程数（可能每个请求处理时间不一样），如分布式
 session/redis写mysql
-分布式事务 JTA ,千万不要说锁，事务是可以回滚的 , 用 Spring Nested 和 JTA 实现是依赖于数据库 
+分布式事务 JTA ,事务是可以回滚的 , 用 Spring Nested 和 JTA 实现是依赖于数据库 （JDBC 驱XADataSource）
 分布式日志  
 多模块的权限控制在一个系统  Spring Security
 工作流 Activiti

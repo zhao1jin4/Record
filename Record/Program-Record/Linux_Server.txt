@@ -473,7 +473,12 @@ gitconfig 文件中  #或者;  是注释
 	email = userId@sina.com
 	
 配置的是你个人的用户名称和电子邮件地址,提交时用
-git config --global core.autocrlf true
+
+
+git config --global core.autocrlf true # AutoCRLF 提交时转换为LF，检出时转换为CRLF 
+git config --global core.autocrlf false #提交检出均不转换 ，也可设置为input
+
+git config --global core.safecrlf warn #提交包含混合换行符的文件时给出警告
 
 $ git config --global user.name "User"  (windows下是保存在用户主目录.gitconfig 文件)
 $ git config --global user.email userId@example.com

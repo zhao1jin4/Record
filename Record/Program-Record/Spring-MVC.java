@@ -1965,19 +1965,82 @@ public RequestMappingHandlerAdapter requestMappingHandlerAdapter(@Autowired Mapp
 	//handler.setWebBindingInitializer(webBindingInitializer);
 	return handler;
 }
-------------spring websocket
---sockJS　
-　WebSocket emulation　浏览器不支持websocket用socketjs 模拟
- https://github.com/sockjs/sockjs-client/
-      的 dist目录有　sockjs.js　sockjs.map 文件 版本1.3.0 
-  spring 也有实现客户端和服务端
+------------spring websocket 
 
+//@方式
+@Configuration 
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(myHandler(), "/myHandler/{ID}")
+        .addInterceptors(new HttpSessionHandshakeInterceptor())
+        //.setAllowedOrigins("*")
+        ;
+    }
+    @Bean
+    public WebSocketHandler myHandler() {
+        return new MyHandler();
+    }
+}
+
+<!-- XML 配置方式   
+	测试方法 http://localhost:8080/J_SpringMVC/myHandler/ID=1.mvc 
+	 返回 Can "Upgrade" only to "WebSocket".
+-->
+<websocket:handlers>
+	<websocket:mapping path="/myHandler/{ID}" handler="myHandler"/>
+	<websocket:handshake-interceptors>
+		<bean class="org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor"/>
+	</websocket:handshake-interceptors>
+</websocket:handlers>
+<bean id="myHandler" class="springweb_websocket.MyHandler"/>
+
+public class MyHandler extends TextWebSocketHandler {
+    @Override
+    public void handleTextMessage(WebSocketSession session, TextMessage message) {
+    	
+		System.out.println("收到的消息"+message.getPayload());
+    	try {
+    		session.sendMessage( new TextMessage("Spring websocket 的消息")); 
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+}
+
+var ws = new WebSocket("ws://localhost:8080/J_SpringMVC/myHandler/ID=1.mvc");
+ws.onopen = function()
+{
+  ws.send("JS 端 消息");
+  alert("Message is sent...");
+};
+ws.onmessage = function (evt) 
+{ 
+  var received_msg = evt.data;
+  alert("Message is received:"+received_msg);
+};
+ws.onclose = function()
+{ 
+  alert("Connection is closed..."); 
+};
+
+--sockJS　
+SockJS  首先用webSocket,如果失败再偿试用其它协议
+ https://github.com/sockjs/sockjs-client/
+      的 dist目录有　sockjs.js　sockjs.map 文件 版本1.4.0  
+ <dependency>
+    <groupId>org.webjars</groupId>
+    <artifactId>sockjs-client</artifactId>
+    <version>1.1.2</version>
+</dependency>
 
 --STOMP (Simple Text Oriented Messaging Protocol) 　
+ 实现的有 Spring 有实现服务端 和 客户端 
  http://stomp.github.io/implementations.html
- 服务端的实现有　RabbitMQ　  规范 1.0 ,1.1, 1.2 版本　
-  Apache的Apollo　(是ＡctiveMQ 的下一版本)   　规范 1.0 ,1.1, 1.2 版本　
- 客户端Java实现(也有服务端实现)  Stampy     规范 1.2 版本
+ 服务端的实现有　RabbitMQ　  					规范 1.0 ,1.1, 1.2 版本　
+ Apache的Apollo　(是ActiveMQ 的下一版本)   　	规范 1.0 ,1.1, 1.2 版本　
+ 客户端Java实现(也有服务端实现)  Stampy    		规范 1.2 版本
   http://mrstampy.github.io/Stampy/
   <dependency>
    <groupId>asia.stampy</groupId>
@@ -1985,14 +2048,11 @@ public RequestMappingHandlerAdapter requestMappingHandlerAdapter(@Autowired Mapp
    <version>1.0-RELEASE</version>
   </dependency>
  客户端JS实现   stomp.js    规范 1.0 , 1.1 版本 
-  http://jmesnil.net/stomp-websocket/doc/  有下载　 stomp.js　和 stomp.min.js
+ 
+  主播的实现技术
+  http://jmesnil.net/stomp-websocket/doc/  实现了STOMP 1.0 和 1.1  有下载　 stomp.js　和 stomp.min.js 
   
-　也可使用
- <dependency>
-    <groupId>org.webjars</groupId>
-    <artifactId>sockjs-client</artifactId>
-    <version>1.1.2</version>
-</dependency>
+
 <dependency>
     <groupId>org.webjars</groupId>
     <artifactId>stomp-websocket</artifactId>
@@ -2001,5 +2061,62 @@ public RequestMappingHandlerAdapter requestMappingHandlerAdapter(@Autowired Mapp
 
 见SpringBoot 
 
+------------spring mvc cors
 
+ <!-- 可配置多个mvc:mapping ,也可使用CorsRegistry在代码级配置
+<mvc:cors>
+	 <mvc:mapping path="/cors/**"  
+		allowed-origins="http://localhost:8080, http://127.0.0.1:8080"  
+		allowed-methods="GET, POST"  
+		allowed-headers="content-type"
+		allow-credentials="false"  
+		max-age="123" />  
+</mvc:cors>
+-->
 
+//@Configuration //注释就关闭
+//@EnableWebMvc
+public class CorseWebConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+    	/*也可以使用xml配置
+		<mvc:cors>
+			 <mvc:mapping path="/cors/**"  
+		        allowed-origins="http://localhost:8080, http://127.0.0.1:8080"  
+		        allowed-methods="GET, POST"  
+		        allowed-headers="content-type"
+		        allow-credentials="false"  
+		        max-age="123" />  
+		   <!-- 可配置多个mvc:mapping -->
+		</mvc:cors>
+        */
+        registry.addMapping("/cors/**")
+            .allowedOrigins("http://127.0.0.1:8080","http://localhost:8080")
+            .allowedMethods("GET", "POST")
+            .allowedHeaders("content-type")
+            //.exposedHeaders("header1", "header2")
+            .allowCredentials(true).maxAge(3600);
+    }
+	 //方式二 使用spring的 Filter 
+     @Bean
+     public CorsFilter corseFilter()
+     {
+    	UrlBasedCorsConfigurationSource source=new UrlBasedCorsConfigurationSource();
+    	CorsConfiguration config=new CorsConfiguration();
+    	config.setAllowCredentials(true);
+    	config.setAllowedHeaders(Arrays.asList("content-type"));
+    	config.setAllowedMethods(Arrays.asList("OPTIONS","GET","POST"));
+    	config.setAllowedOrigins(Arrays.asList("http://127.0.0.1:8080","http://localhost:8080"));
+    	//config.setMaxAge(maxAge);//
+    	source.registerCorsConfiguration("/cors/**", config);
+    	return new CorsFilter(source);//spring 4.2的新功能
+		//因为已经有*.mvc的配置了，不用url-mapping
+    	//spring security有 Cors 的支持
+     }
+	 
+}
+----
+HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
+        .getRequestAttributes()).getRequest();
+		
+		

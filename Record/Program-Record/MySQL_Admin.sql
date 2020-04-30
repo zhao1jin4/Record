@@ -713,7 +713,7 @@ SHOW BINLOG EVENTS;
 systemctl stop firewalld
 
 ========= MySQL Shell 8
-XDevApi见MySQL_Deve
+XDevApi见MySQL_Dev
 
 bin/mysqlsh
 MySQL  JS > \connect user1@127.0.0.1?connect-timeout=2000

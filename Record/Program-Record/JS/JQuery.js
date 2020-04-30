@@ -96,60 +96,10 @@ https://github.com/zTree/zTree_v3
 			myTree.expandAll(true);//展开
 		});
 <ul id="treeDemo" class="ztree"></ul>
+------- 上 ztree
 
+firefox ->Debugger中 ,在一个文件中, 选中一个区域 如 encodeURI("test.jsp?username=张三") ,右击->add Watch
 
-
-
-
-
-
--------
-var jsForm=document.getElementById("newForm");
-$(jsForm);//来把JS变量转换为jQuery变量
-
-document.getElementById("newForm").reset();
-$('#newForm')[0].reset() ; //[0]来把jQuery变量转换为JS变量
-  
----------
-$('li').filter(':even').css('background-color', 'red');
-$("div:has(p)")
-
-$("form input") 找到表单中所有的 input 元素,子级的子级
-$("form > input") 找到表单中第一层子级 input 元素
-$("label + input") 匹配所有跟在 label 后面的 input 元素
-$("form ~ input") 找到所有与表单同辈的 input 元素
-$("tr:visible") 
-$(element).is(":visible")
- [attribute!=value]  等价于 :not([attr=value])
-$("input[name^='news']")  查找所有 name 以 'news' 开始的 input 元素
-$("input[name$='letter']") 查找所有 name 以 'letter' 结尾的 input 元素
-$("input[name*='man']")  查找所有 name 包含 'man' 的 input 元素
- $("[href!='#']")		所有 href 属性的值不等于 "#" 的元素
-	
-$(":text"); 同 $("input[type='text']") 
-类似的有 
-:input  包括 <select>,<textarea>,<button>
-:text
-:password
-:radio
-:checkbox
-:submit
-:image
-:reset
-:button
-:file
-:enabled
-:disabled
-:checked
-:selected
-
-:hidden
-:visible
-:empty
-
-
-firefox ->firebug中以选中一个区域 (如是encodeURI("test.jsp?username=张三")) ,右击->add Watch
-		HTML->Lagout 选择后界面会出现标尺
 
 <script type="text/javascript" src="js/jquery-1.9.1.js"></script><!--不能使用<script src=""/>的简单形式-->
 <script type="text/javascript">
@@ -390,10 +340,7 @@ Servlet端
 		"    tickets: 5"+
 		"});";
 		response.getWriter().write(strFunc);	//要服务端为jquery定制的返回是不行的
-		
- 
- 
- 
+	
  jQuery.getScript( url [, success ] )//效果同下面
  $.ajax({
   url: url,
@@ -401,17 +348,72 @@ Servlet端
   success: success
 });
  
+ 
+ 	
+ ---cors
+ $.ajax({
+ 
+    xhrFields: {
+      withCredentials: true
+   }
+
+});
+
+ ---
+ 
+ 
 //-->
 </script>
 
-<html>
-	<input type ="text" id="myid"/> <div id="mydiv" ></div>
-<html>
+-----------上ajax
 
+<input type ="text" id="myid"/> <div id="mydiv" ></div>
 
 <SCRIPT LANGUAGE="JavaScript">
-<!--
-var obj={name:"lisi",age:22}//定义一个对象
+
+var jsForm=document.getElementById("newForm");
+$(jsForm);//来把JS变量转换为jQuery变量
+
+document.getElementById("newForm").reset();
+$('#newForm')[0].reset() ; //[0]来把jQuery变量转换为JS变量
+  
+---------
+
+
+
+$("form input") 找到表单中所有的 input 元素,子级的子级
+$("form > input") 找到表单中第一层子级 input 元素
+$("label + input") 匹配所有跟在 label 后面的 input 元素
+$("form ~ input") 找到所有与表单同辈的 input 元素
+$("tr:visible") 
+$(element).is(":visible")
+ [attribute!=value]  等价于 :not([attr=value])
+$("input[name^='news']")  查找所有 name 以 'news' 开始的 input 元素
+$("input[name$='letter']") 查找所有 name 以 'letter' 结尾的 input 元素
+$("input[name*='man']")  查找所有 name 包含 'man' 的 input 元素
+ $("[href!='#']")		所有 href 属性的值不等于 "#" 的元素
+	
+$(":text"); 同 $("input[type='text']") 
+类似的有 
+:input  包括 <select>,<textarea>,<button>
+:text
+:password
+:radio
+:checkbox
+:submit
+:image
+:reset
+:button
+:file
+:enabled
+:disabled
+:checked
+:selected
+
+:hidden
+:visible
+:empty
+
 
 XMLHttpRequest跨域问题(firefox),把有的以http://开头的url 改为一个代理
 function convertURL(url)
@@ -426,7 +428,49 @@ function convertURL(url)
 
 删除表格行 $("td").parent().remove();
 
----
+---- 3.4版本过时 
+:eq()  使用 .eq()
+:even  
+:first 使用 .first()
+:gt()  使用 .slice( start [, end ] )
+:last  使用 .last()
+:lt()  使用 .slice( start [, end ] )
+:odd
+
+ 
+//$("#newVersionDiv li" ).first().css( "background-color", "gray" );
+//$("#newVersionDiv li").eq( 2 ).css( "background-color", "red" );
+//$("#newVersionDiv li" ).eq( -2 ).css( "background-color", "yellow" );
+
+//$( "#newVersionDiv li" ).slice( 2 ).css( "background-color", "red" );
+//$( "#newVersionDiv li" ).slice( 2, 4 ).css( "background-color", "red" ); 
+//$( "#newVersionDiv li" ).slice( -2, -1 ).css( "background-color", "red" );
+
+//$( "#newVersionDiv li" ).last().css( "background-color", "red" );
+
+$( "#newVersionDiv  li" ).filter(function( index ) {
+									return index % 2 === 0;
+								  }).css( "background-color", "red" );
+								  
+								  
+								  
+
+$("p:lt(2)").addClass("mycssClass")//表示对前2个<p>加css ,0开头 , :lt在3.4版本过时
+$("em:eq(1)").attr("title");//<em>元素的第2个的title属性,  :eq在3.4版本过时
+$("button:gt(0)").attr("disabled","disabled");//设置大于第一个<button>元素的属性disabled的值是disabled
+//:gt在3.4版本过时
+$("p:last").html("<a>x<a>")//:last在3.4版本过时
+$("texarea:first").val("");   //:first在3.4版本过时
+$("p:first").text();//第一个<p>,只要文本,不要标签 //:first在3.4版本过时
+$('li').filter(':even').css('background-color', 'red'); //:even在3.4版本过时
+---- 
+
+$("div:has(p)")
+$("ul li:has(a)").addClass("mycssClass")//表示只对有<ul><li><a>加css
+$("#selectGender").find("option:selected").text()
+$("p:first-child")
+
+
 $("h2 a"); //可以选把所有的<h2><a>x</a></h2>或者<h2>xx<a>x</a></h2>
 $.trim("  123 ");//函数
 
@@ -436,14 +480,8 @@ $(function(){...})
 
 $("<p>sdf</p>") //创建DOM 无素
 
-$("ul li:has(a)").addClass("mycssClass")//表示只对有<ul><li><a>加css
-
-$("p:lt(2)").addClass("mycssClass")//表示对前2个<p>加css ,0开头
-
-$("em:eq(1)").attr("title");//<em>元素的第2个的title属性
 $("span").text("xx")//<span>标签中设值
 
-$("button:gt(0)").attr("disabled","disabled");//设置大于第一个<button>元素的属性disabled的值是disabled
 
 $("div").addClass("myclass1 myclass2");//加多个CSS
 
@@ -452,11 +490,6 @@ $("p").click(function()  //可以是一个数组，对所有都加click,中的th
 	$(this).toggleClass("mycssClass");//这里this 表示<p>,开关
 })  //<p>xx</p> 的单击事件
 
-$("#selectGender").find("option:selected").text()
-$("p:first").text();//第一个<p>,只要文本,不要标签
-$("p:first-child")
-$("p:last").html("<a>x<a>")
-$("texarea:first").val(""); 
 $("img.eq(0)").clone().appendTo($("p"))//复制,是前(子)加到后(父)中
 
 var array=[{id:123,name:'wang'}];
