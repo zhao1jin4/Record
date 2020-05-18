@@ -1657,7 +1657,7 @@ struct A
 };  
 
 ========== C++14
-https://gcc.gnu.org/projects/cxx1y.html
+https://gcc.gnu.org/projects/cxx-status.html#cxx14
 -std=c++14
 Visual Studio 2015 支持多半
 gcc 6.1 以上  -std=c++14 或者 -std=gnu++14
@@ -1665,16 +1665,22 @@ gcc 6.1 以上  -std=c++14 或者 -std=gnu++14
 
 
 ========== C++17
-
-https://msdn.microsoft.com/zh-cn/library/hh567368.aspx
+https://docs.microsoft.com/en-us/previous-versions/hh567368(v=vs.140)
 https://blogs.msdn.microsoft.com/vcblog/2017/12/19/c17-progress-in-vs-2017-15-5-and-15-6/
 Visual Studio 2017.15.8 支持多半
 
-gcc -std=gnu++17 还是实验阶段
+g++ -std=c++17
+    -std=gnu++17  启用GNU扩展特性
 
 
 ========== C++2a 
-gcc 8 以后 -std=gnu++2a 还是实验阶段
+gcc 8 以后 还是 experimental 还是实验阶段
+
+-std=c++2a 
+-std=gnu++2a  启用GNU扩展特性
+
+
+
 
 ========== boost   C++ 标准库,MySQL有使用这个库
 
@@ -1772,5 +1778,8 @@ n个节点无向图 的连接线数最多 (n(n-1))/2
 	输出最小节点,删除最小节点与二叉树的连接,再重复到根节点为第二个最小节点...
 
 
-B+Tree (Oracle使用,Oracle的行锁??)
+BTree  
+R-tree
 Log-Structured Merge-Trees (HBase使用)
+
+

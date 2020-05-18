@@ -9,7 +9,13 @@ A/B 测试,手机端的流量(高级的按地区年龄)切换到 V2 版本
 https://kubernetes.io/zh/
 
 Paas
+
 redhat 的 PaaS平台 OpenShift (收费) 基于 Kubernetes
+
+OKD 是社区版本的 OpenShift,在OKD-4(目前beata版)版本有界面,Kiali(Istio)有提到
+	(Origin Community Distribution of Kubernetes) https://github.com/openshift/okd https://www.okd.io/
+	如不在云服务器上，只能Bare Metal裸机安装在FedoraCoreOS(容器系统)31版本约650M 上才行
+	
 mongodb 官方支持k8s (收费)
 filebeat官方支持k8s
 
@@ -81,7 +87,7 @@ yum install  kubelet kubeadm kubectl
 安装版本为
 kubeadm-1.15.3-0.x86_64
 kubectl-1.15.3-0.x86_64
-kubelet-1.15.3-0.x86_64
+kubelet-1.15.3-0.x86_64 依赖于socat DVD中有(可以和docker-19.03.1 版本一起使用)
 kubernetes-cni-0.7.5-0.x86_64
 
 
@@ -91,12 +97,12 @@ pod 一组相同网络名称空间的容器，要求一个pod必须在一个节�
 	pod上层还有service,防止pod重建ip地址变化造成通讯问题
 
 master(现在叫control-plane)节点的(做HA) 运行 
-	apiserver(resetful)
+	apiserver(restful)
 	schedular(一个pod失效选哪个节点新建pod)	
 	controller-manager(对controller的调度，即一个controller失效再启新的controller,controller是用来对pod做健康检查 )
-etcd 节点为control-plane服务(做HA) 存数据像zookeeper(resetful)
+etcd 节点为control-plane服务(做HA) 存数据像zookeeper(restful)
 
-node节点运行 kublet , docker , kube-proxy 当节点service变化时通知 apiserver,所有其它节点的kube-proxy得到知道做更新iptables或ipvs  
+node节点运行 kubelet , docker , kube-proxy 当节点service变化时通知 apiserver,所有其它节点的kube-proxy得到知道做更新iptables或ipvs  
 CNI (container network interface)  的实现产品为 Flannel 和 Calico 的综合产品为 Canal
 kubeadm 方式安装 ，每个节点要有docker 和 kublet ,control-plane节点也运行在docker上
 pause  为pod有一个基础容器不用启动，用来复制网络和卷的配置
@@ -105,8 +111,8 @@ pause  为pod有一个基础容器不用启动，用来复制网络和卷的配�
 
 
 开机启动 kubelet
-systemctl start kubelet (从节点第一次会失败忽略)
-systemctl enable kubelet
+systemctl start kubelet (从节点第一次会失败忽略) swapoff -a 
+systemctl enable kubelet 
 
 ---openSUSE 复制 CentOS7的  /usr/lib/systemd/system/kubelet.service
 [Unit]
@@ -147,6 +153,8 @@ CentOS上可成功 kubeadm init/join 的 kubelet进程参数
 开机启动 docker
 systemctl enable docker.service
 
+CPU至少两个(两核),主机名不能有下划线,可以减号
+
 禁用swap, 使用 swapoff -a 命令(-a,-all)  
 echo "vm.swappiness = 0">> /etc/sysctl.conf     （尽量不使用交换分区，注意不是禁用）
 sysctl -p 
@@ -185,7 +193,7 @@ cat /proc/sys/net/ipv4/ip_forward 要为1
 确保内核netfilter被加载
 lsmod | grep br_netfilter  如没有 modprobe br_netfilter 来加载
 
-kubeadm config images pull 来验证连接 gcr.io  registries ,报连接不上 https://dl.k8s.io (被墙)
+kubeadm config images pull 来验证连接 gcr.io  registries ,报连接不上 https://dl.k8s.io (被墙,可用registry.aliyucs.com/google_containers未测试)
 kubeadm init   报连接不上 https://dl.k8s.io (被墙)
 	--apiserver-advertise-address  IP地址被监听 ，default network interface will be used.
    --apiserver-bind-port  default 6443       
@@ -277,10 +285,24 @@ docker image save -o docker_heapster-influxdb-amd64-v1.5.2.tar heleicool/heapste
 docker image save -o docker_heapster-amd64-v1.5.4.tar netonline/heapster-amd64:v1.5.4
 docker image save -o docker_heapster-grafana-amd64-v5.0.4.tar heleicool/heapster-grafana-amd64:v5.0.4 
 
+--vi load-rename.sh
 for f in `ls docker*` ; do docker load -i $f; done
-
-
+images=(kube-apiserver:v1.15.3 kube-controller-manager:v1.15.3 kube-scheduler:v1.15.3 kube-proxy:v1.15.3 pause:3.1 etcd:3.3.10 )
+for imageName in ${images[@]} ; do 
+  docker tag kontenapharos/$imageName k8s.gcr.io/$imageName  
+  docker rmi kontenapharos/$imageName 	
+done
  
+docker tag  coredns/coredns:1.3.1 k8s.gcr.io/coredns:1.3.1
+docker rmi coredns/coredns:1.3.1
+
+docker tag  siriuszg/kubernetes-dashboard-amd64:v1.10.1 k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1
+docker rmi siriuszg/kubernetes-dashboard-amd64:v1.10.1
+
+docker tag 	mirrorgooglecontainers/metrics-server-amd64:v0.3.6   k8s.gcr.io/metrics-server-amd64:v0.3.6
+docker rmi mirrorgooglecontainers/metrics-server-amd64:v0.3.6
+---
+
 
 coreDNS是扩展了DNS
 Dashboard 一个web界面为 k8s
@@ -308,8 +330,10 @@ sudo kubeadm token list
 
 cat  /var/lib/kubelet/kubeadm-flags.env
 	KUBELET_KUBEADM_ARGS="--cgroup-driver=cgroupfs"
+	KUBELET_KUBEADM_ARGS="--cgroup-driver=cgroupfs --network-plugin=cni --pod-infra-container-image=k8s.gcr.io/pause:3.1"
+
 cat /etc/sysconfig/kubelet 
-	KUBELET_EXTRA_ARGS=""
+	KUBELET_EXTRA_ARGS=
 	可配置值 --fail-swap-on=false
 
 kubeadm join 成功后提示 control-plane 节点运行 kubectl get nodes 有列ROLES显示master
@@ -983,7 +1007,7 @@ master节点 dig -t A myapp-svc-none.default.svc.cluster.local. @10.96.0.10  测
 dig 出来的多个IP 可以和  kubectl get pods  -o wide -l app=myapp  做比较
 
 
---启用ipvs 未试
+--启用ipvs 未试 
 vi /etc/sysconfig/kubelet 
 	KUBELET_EXTRA_ARGS="" 
 	KUBE_PROXY_MODE=ipvs  也可是EXTRA_ARGS中的选项
@@ -997,7 +1021,7 @@ Service根据标签选择器查找pod，是一直watch的api-server的(etcd)数�
 一个Pod(DaemonSet只一个容器)以共享主机网络名称空间在节点上运行，就不用Service,这个Daemon节点运负载均衡器，如nginx,使用路径反向代理 
 	如节点很多，不必每个节点都有一个DaemonSet，挑出和几个(如3个)节点打上污点，只运行负载均衡器，如nginx,做https代理，这3个节点是ingress controller
 	envoy(如做微服务的比较喜欢这个)，Traefik(微服务) 和nginx(后改造的)类似，haProxy最不受用
-有一个Service(可无头)，用标识哪些pod,只起分类作用,不走service ，配置给nginx（请求路径或虚拟主机名),如pod改变IP，Ingress（不是 Ingress Controller）可以读到Service的改IP,并写入Ingress Controller(即nginx)写入nginx配置并reload(如envoy自动检查配置文件IP变化自动加载)
+有一个Service(可无头)，用标识哪些pod,只起分类作用,不走service ，配置给nginx（请求路径或虚拟主机名),如pod改变IP，Ingress（不是 Ingress Controller）可以读到Service的改IP,并写入Ingress Controller(即nginx)写入nginx配置并reload(如envoy自动检查配置文件变化自动加载)
 
 kubectl explain ingress.spec
 	可配置tls (即https ,相当给后端时把https给去了变成http)
@@ -1008,7 +1032,7 @@ kubectl explain ingress.spec.rules
 
 kubectl explain ingress.spec.backend 后端
 	有serviceName,servicePort只是找到pod资源
-	pod变->serivce变->engress变 注入ingress controller
+	pod变->serivce变->ingress变 注入ingress controller
 
 https://github.com/kubernetes/ingress-nginx/
 https://github.com/kubernetes/ingress-nginx/blob/master/docs/deploy/index.md
@@ -1406,6 +1430,24 @@ spec:
 
 kubectl edit  cm  nginx-config  打开vi编辑环境变量后，进入pod中查 env命令 后容器不会立即生效，是pod创建时取的值
 		如是编辑挂载方式的configMap可以生效的，要等一会才行
+
+--vi my-cloud-config-dev.yml
+apiVersion: v1
+kind: ConfigMap 
+metadata:
+  name: my-cloud-config
+  namespace: my-ns
+data:
+  application.yaml: |-
+    spring:
+      profiles: dev
+    myprop:
+      greeting: Say Hello to the Developers
+      name: prop_val_dev
+--
+kubectl apply -f my-cloud-config-dev.yml 
+		
+
 kubelet create secret --help 有三种类型,子命令为
 	docker-registry
 	generic
@@ -1420,6 +1462,8 @@ kubectl describe secret mysql-root-pass 看不到值
 kubectl describe secret mysql-root-pass -o yaml 有显示加密后的值，是base64编码
 
 echo TXlQQHNzMTIz | base64 -d 显示base64解码后的原值
+
+
 
 ---StatefulSet
 有状态的，如redis,mysql 比较麻烦的
@@ -1733,6 +1777,7 @@ kubectl describe secret  def-ns-admin-token-xxx (也可用里面的token登录�
 登录的token 使用做config命令的set-credentials
 kubectl get secret -n default -o json 返回数组,找有 def-ns-admin-token-xxx 组中的 token(结尾有==是base64加密的，解密可登录 )
 
+#jsonpath 文档 https://goessner.net/articles/JsonPath/ 
 #DEF_NS_AMDIN_TOKEN=(kubectl get secret -n default -o jsonpath={.data.json} | base64 -d)     ###  不行，找不到??? 
 kubectl get secret -n default -o jsonpath={.items[0].data.token}  #返回数组，第一个元素有def-ns-admin-token-xxx
 还是复制到DEF_NS_AMDIN_TOKEN变量中吧
@@ -1756,7 +1801,7 @@ kubectl config use-context def-ns-admin@kubernetes --kubeconfig=/root/def-ns-adm
 
 kubectl get configmap -n kube-system
 
-kubectl get configmap -n kube-system kube-proxy -o yaml  把mode修改为ipvs,(pod与 service通信)，ipvs没有取代iptables
+kubectl get configmap -n kube-system kube-proxy -o yaml  把mode修改为ipvs,(pod与 service通信)，ipvs(ipvsadm包)没有取代iptables
 
 
 1.容器间通讯 同个pods的多个容器，使用lo

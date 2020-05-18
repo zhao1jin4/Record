@@ -1,4 +1,4 @@
-
+https://microservices.io/
 
 ========================Spring Cloud
 版本名是伦敦地铁站的名字，字母表的顺序 
@@ -134,7 +134,19 @@ Intellij Idea 建立 spring initialir 项目->Cloud Discory -> eureka server  �
 --- 
 
 ---Eureka server 
+CAP  任何分布式系统只可同时满足二点，没法三者兼顾。
+一致性(Consistency)  所有节点在同一时间具有相同的数据，强一致
+可用性(Availability)  保证每个请求不管成功或者失败都有响应 
+分隔容忍(Partition tolerance)  系统中任意信息的丢失或失败不会影响系统的继续运作 
 
+Eureka 是 AP(一致性弱) Consul，zooKeeper，etcd 都是 CP(牺牲可用性)
+ 
+BASE 
+Basically Available基本可用。	可以部分服务不可用，但核心服务要可用。
+Soft state软状态。 				状态可以有一段时间不同步，异步，如状态为支付中。
+Eventually consistent最终一致。 可以一断时间内不一致，如写主，从不能及时看到最新，但等一会即好，而不是强一致。
+
+ 
 消费者和eureka每30秒一次心跳，消费者缓存 
 是一种客户端发现，像zookeeper也是
 
@@ -770,7 +782,7 @@ server.listen(8000,function(){
 	console.log("server started");
 });
 ---
-//就可以用ribbon (resetTemplate)项目  仿问sidecar服务，就会转发到其它语言上( node.js  8000 )
+//就可以用ribbon (restTemplate)项目  仿问sidecar服务，就会转发到其它语言上( node.js  8000 )
 //要求node.js要和sidecar服务要在同一台机器上  Run the resulting application on the same host as the non-JVM application.
 //如要不是一台机器配置eureka.instance.hostname未试
 public String sidecar( ) { 
@@ -779,7 +791,7 @@ public String sidecar( ) {
 }
 
 ----config 分布式配置中心 
-Git 好处可看历史版本(读无密码),也可从zookeeper,consul,,svn,vault,filesystems,jdbc上读
+Git 好处可看历史版本(读无密码),也可从zookeeper,consul,svn,vault,filesystems,jdbc上读
 
 --server 端
 <dependency>
@@ -1155,7 +1167,7 @@ EXPOSE 8761 											//容器设置对外的端口号
 		<configuration>
 			<imageName>forezp/${project.artifactId}</imageName>
 			<dockerDirectory>src/main/docker</dockerDirectory>
-			 <!-- 
+			 <!-- github官方推荐使用dockerfile-maven
 				CentOS 7 
 				打开/usr/lib/systemd/system/docker.service文件，修改ExecStart这行 
 				ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
@@ -1308,6 +1320,9 @@ https://www.consul.io/downloads.html
  https://github.com/hashicorp/consul/ 使用go语言开发
 consul agent -dev 启动
 http://localhost:8500
+
+---
+
 
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
@@ -1943,7 +1958,8 @@ public  class DemoControllerService {
     }
 }
 
-----------------loadbalancer
+----------------loadbalancer 
+Client-Side Load-Balancing 
 Hoxton版本开始 Ribbon变维护模式 使用 loadbalancer 
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
@@ -1962,26 +1978,87 @@ RestTemplate restTemplate() {
 
 
 --------------Spring Cloud Kubernetes
+为方便spring-boot,或spring-cloud 运行在kubernetes中
+文档中有提到Istio
 
-DiscoveryClient for Kubernetes
+使用io.fabric8组下的kubernetes-client 库连接kubernetes 这不是官方的
+
+
+
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-kubernetes</artifactId>
-</dependency> 
+</dependency>  @EnableDiscoveryClient 的实现
+
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-kubernetes-config</artifactId>
-</dependency> 
-<dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-kubernetes-ribbon</artifactId>
-</dependency> 
+</dependency>  为ConfigMaps 和 Secrets及热加载
+
 <dependency>
     <groupId>org.springframework.cloud</groupId>
     <artifactId>spring-cloud-starter-kubernetes-all</artifactId>
 </dependency>
+使用okhttp3
 
- 
+
+---Dockerfile
+#FROM tomcat:9.0.34-jdk11  #源码是从 FROM openjdk:11-jdk (/usr/local/openjdk-11版本是11.0.7,/usr/local/tomcat)
+FROM openjdk:11-jdk
+RUN mkdir -p /app  /tmp/logs/
+WORKDIR /app
+COPY target/cloud-k8s.jar /app/
+#ADD target/${JAR_FILE} /app/myservice.jar
+
+VOLUME ["/tmp/logs/"]
+EXPOSE 8081
+CMD ["--spring.profiles.active=dev"]
+ENTRYPOINT ["java","-jar","cloud-k8s.jar"]
+---
+docker build -t cloud-k8s:0.1 .
+
+运行
+docker container ls -a  显示用过的名字
+
+docker run  -p 8080:8081 -v ~/logs:/tmp/logs -d --name my-cloud-k8s  cloud-k8s:0.1 
+  -p 8080:8081  			#-p 本机端口:docker端口
+  -v ~/logs:/tmp/logs 	#-v 本机目录:docker目录
+  -d 后台运行
+  
+docker run --name my-cloud-k8s cloud-k8s:0.1
+docker exec -it my-cloud-k8s bash
+docker logs -f my-cloud-k8s
+docker container start my-cloud-k8s
+#docker container rm  my-cloud-k8s
+
+
+--- vi cloud-config-deploy.yml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-config
+  labels:
+    app: cloud-config 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-config 
+  template:
+    metadata: 
+      name: cloud-config
+      labels:
+        app: cloud-config 
+    spec:
+      containers:
+      - name: cloud-config
+        image: cloud-k8s:0.1
+        imagePullPolicy: IfNotPresent
+        #command: [""]
+---
+kubectl apply -f cloud-config-deploy.yml 
+
+
 ----------oauth2
 <dependency>
     <groupId>org.springframework.cloud</groupId>

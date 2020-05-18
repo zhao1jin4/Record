@@ -3213,11 +3213,6 @@ docker run --name some-zabbix-server-mysql -e DB_SERVER_HOST="some-mysql-server"
  
 
 
-
-
-
-
-
 ========================== SonarQube
 支持插件安装
 

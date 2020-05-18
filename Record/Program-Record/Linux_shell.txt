@@ -468,7 +468,12 @@ sed -n '/log/p'  /var/log/messages     匹配log
 
 sed -n '/^2011-01-06 11:[0-9]/p'  console.log   | more
 
+ 如果不使用/,只需要在s后跟替换的除号即可,如修改为#
+export  res=`echo "1.4.5" | sed 's#.4.##g'`  
+echo $res
 
+export  PATH=`echo "$PATH" | sed 's#/opt/apache-maven-3.5.0-bin/apache-maven-3.5.0/bin##g'`  
+echo $PATH
 
 
 

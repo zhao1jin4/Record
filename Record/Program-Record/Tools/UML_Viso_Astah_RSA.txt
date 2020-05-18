@@ -109,13 +109,13 @@ coupling( 耦合)	连接；连接器; (尤指列车等的)车钩, 挂钩
 
 Viso和StarUML是相同的 
 
-一般化(Generalization)(实线空心三角形)		指继承,即Java中的extends和implements关键字,
+一般化(Generalization)(实线空心三角形)		指继承,即Java中的extends 
 关联关系(Association)(实线单/双向箭头) 		如Teacher可以有多个Student,(0..*,0..1,1,1..*),,两个类在同一层次
 聚合关系(Aggregation)(实线,整体端用空心棱形)是关联关系的一种,两个类不在同一层次,一个代表整体,另一个代表部分,如Car有Engine
 合成关系(Composition)(实线,整体端用实心棱形)是关联关系的一种,比聚合关系强的关系,部分对象的生命周期由整体对象来负责,部分对象只能与一个对象发生合成关系
 依赖关系(Dependency)(虚线箭头)				总是单向的,方法的参数中用到了另一个类,或者局域变量,或另一个类的静态方法,不是类的属性
 Directed Associtaion (实线箭头)
-Interface Realiztion (虚线空心三角形)
+Interface Realiztion (虚线空心三角形)  即Java中 implements功能 
 
 箭头是人字
 

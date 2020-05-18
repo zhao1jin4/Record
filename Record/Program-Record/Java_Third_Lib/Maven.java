@@ -529,10 +529,72 @@ artifactId 是自己的项目名
 	-->
 	  
    <plugin> <!--  对 <type>bundle</type>要加这个才行 -->
-			<groupId>org.apache.felix</groupId>  
-		    <artifactId>maven-bundle-plugin</artifactId>  
-		    <extensions>true</extensions>  
-		</plugin>
+		<groupId>org.apache.felix</groupId>  
+	    <artifactId>maven-bundle-plugin</artifactId>  
+	    <extensions>true</extensions>  
+	</plugin>
+  
+  <plugin>
+		<groupId>com.spotify</groupId>
+		<artifactId>docker-maven-plugin</artifactId>
+		<version>1.2.2</version> <!-- 0.4.3 最新版本为1.2.2-->
+		<configuration>
+			<imageName>my/${project.artifactId}</imageName>
+			<dockerDirectory>src/main/docker</dockerDirectory>
+			 <!-- github官方推荐使用dockerfile-maven
+				CentOS 7 
+				打开/usr/lib/systemd/system/docker.service文件，修改ExecStart这行 
+				ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
+				(原来没-H参数，启动后就监听2375端口) 也可修改/etc/sysconfig/docker的DOCKER_OPTS的值
+				
+				mvn package docker:build  构建docker镜像,会仿问2375端, 要等一会才行
+			  -->
+			<dockerHost>http://127.0.0.1:2375</dockerHost>
+			<resources>
+				<resource>
+					<targetPath>/</targetPath>
+					<directory>${project.build.directory}</directory>
+					<include>${project.build.finalName}.jar</include>
+				</resource>
+			</resources>
+		</configuration>
+	</plugin>
+	
+	<!--发布仓库上 https://github.com/spotify/dockerfile-maven 
+	mvn package
+	mvn dockerfile:build 本机的docker image 中就有了,Dockerfile和pom.xml文件同级
+	mvn dockerfile:push  失败??? 是因为 docker push 失败 
+	-->
+	<plugin>
+	  <groupId>com.spotify</groupId>
+	  <artifactId>dockerfile-maven-plugin</artifactId>
+	  <version>1.4.13</version>
+	  <!-- 如果package时不想用docker打包
+	  <executions>
+	    <execution>
+	      <id>default</id>
+	      <goals>
+	        <goal>build</goal>
+	        <goal>push</goal>
+	      </goals>
+	    </execution>
+	  </executions>
+	  -->
+	  <configuration> 
+	     <username>admin</username>
+        <password>Harbor12345</password> 
+	    <repository>127.0.0.1/harbor/library/cloud-k8s</repository>
+	    <tag>${project.version}</tag>
+	    <buildArgs>
+	    	<!--可以传给Dockerfile中的ARG JAR_FILE -->
+	      <JAR_FILE>${project.build.finalName}.jar</JAR_FILE>
+	    </buildArgs>
+	  </configuration>
+	</plugin>
+  
+  
+  
+  
   
 	</plugins>
   </build>

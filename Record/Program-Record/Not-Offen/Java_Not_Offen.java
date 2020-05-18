@@ -1,4 +1,56 @@
 
+----------------------------------ANT
+ant build.xml
+ant -buildfile myBuilde.xml  或者  -f 或 -file
+	-d 是debug输出
+	
+<taskdef name="simpletask" classname="ant_xml_.MyTask" classpath="${build.dir}" />
+	用于自定义一些任务，为了可以在同一个构建过程中使用编译过的任务，<taskdef>必须出现在编译之后。
+
+可以重写execute方法，和init方法，也可加setSize，setDir(File dir)
+log("进入自定义任务的excecute---" , Project.MSG_INFO);
+Project proj=getProject();
+File base=proj.getBaseDir();
+
+<tstamp>
+	<format property="myDate" pattern="yyyy-MM-dd HH:mm:ss"/>
+</tstamp>	就可以用 "${DSTAMP}${TSTAMP}.war"
+<property enviroment="env"/>  就可以使用  "${env.JAVA_HOME}"
+<property file="aa.properties" prefix="props"/> 
+内置的一些 ${os.name},${ant.java.version},${ant.file}构建文件的绝对路径
+ *.* 表示当前目录下的所有文件
+ **表示当前目录及所有子目录的所有文件
+
+<simpletask size="30"   dir="${build.dir}">;
+
+
+<project name="platform" default="all" basedir=".">
+	<target name="all" description="build">
+	 <javac  destdir="classes" srcdir="src"   ></javac>   <!--对没有修改的java文件不会再次编译-->
+ 	 <copy  todir="classes"  overwrite="no" > <!--对没有修改xml文件不会再次复制-->
+	 	<fileset dir="src">
+	 		<include name="*.xml"></include>
+	 	</fileset>
+	 </copy>
+	</target>
+</project>
+
+可以弹出对话框,以下拉形式选择
+<input validargs="${default.templates}" defaultvalue="${extgen.template.default}" addproperty="input.template">
+Please choose a template for generation.
+Press [Enter] to use the default value
+</input>
+
+可以弹出对话框,让用户输入
+<input defaultvalue="${extgen.extension.name}" addproperty="input.name">
+Please choose the name of your extension. It has to start with a letter followed by letters and/or numbers.
+Press [Enter] to use the default value</input>
+
+ANT JUINT
+
+<macrodef  是定义任务的
+		<sequential>  it can contain other Ant tasks.
+		
 =============================EJB
 javax.ejb.Local;
 javax.ejb.Remote;

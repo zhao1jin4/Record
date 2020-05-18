@@ -275,22 +275,6 @@ preferences->Java->Editor-Save Action->复选perform the selected actions on sav
 
 =======================================up eclipse==========================
 
-Eclipse Marketplace  搜索 Kotlin , MyBatis generator(可生成kotlin代码)
-mybatipse 插件(mybatis的eclipse插件) http://dl.bintray.com/harawata/eclipse/
-
-------Rational Software Architect Designer V9.6 是 eclipse-4.6.1
-可下载for websphere的包
-
-带  CDT,BPMN2,UML2.2,Data Design(像power designer),Data Tools Platorm
-无  SVN,SpringToolSuite,Mylyn,Maven,PropEdit(links,dropins安装要用jp.gr.java_conf.ussiy.app.propedit_6.0.3.zip如6.0.5就总提示日文 )
-
-安装目录在 C:\Program Files\IBM\SDP  (Software Delivery Platform)
-修改界面语言 eclipse.ini 文件中尾添加参数： -Duser.language=en
- 
-开始->IBM Installation Manager
-单独安装完 WebSphere后,再启动RSA会自动安装插件,要先建立web项目,才会激活web工作区 (但在 %HOMEPATH%\IBM\SDP 下 , 这个目录再破解)
-
-------
 插件安装方式1
 	复制对应目录到eclipse解压目录下的plugins,features目录
 插件安装方式2(会所文件复制到eclipse自身的plugins,features目录)
@@ -308,40 +292,18 @@ mybatipse 插件(mybatis的eclipse插件) http://dl.bintray.com/harawata/eclipse
 	2 测试OK)也可以放 link 的文本文件
 	3 未测试????)也可以放eclipse目录(要求有plugins,features目录)
 	4 未测试????)中可以直接放.jar包
- 
- 
-eclipse自带CXF插件
 
----问题
-修改一保存，总是提示JPA java change event handler，卸载JPA Support 
+-----dropins 目录安装 ,好处是不会复制插件到eclipse自己的plugins和features目录中
+也可以放自己的插件名目录(要求有eclipse/plugins,eclipse/features目录)
+也可以放 link 的文本文件
+----
 
-=======================================eclipse-4.4.2(Luna) 插件  CDT-8.6 
-依赖于 RSE-runtime-3.5-GA  要links 或 dropins  安装才行
-TM=Target Management 
-http://www.eclipse.org/tm/
-http://download.eclipse.org/tm/downloads/index.php
- 
-CDT 插件 help->install安装选择zip  ,  取消选择optional下的  C/C++ Autotools support 和 Remote CDT Services
-		 都依赖于 org.eclipse.remote.core 1.0.0
-		 
-======================================= Eclipse Mars 4.5.2 插件 CDT 8.8.1 
- 
-CDT 插件 help->install安装选择zip
-		取消选择optional下的  C/C++ Autotools support 和 Remote CDT Services  都依赖于 org.eclipse.remote.core 1.0.0
-		取消选择 Preview 下的 Arduino C++ Tools  
-		取消选择 optional 下  C/C++ Docker Container Launch Support  依赖于 linuxtools  http://www.eclipse.org/linuxtools/downloads.php
-					可使用Jboss Tools中的Docker Tooling  但是依赖于org.glassfish.hk2.locator 2.3.0 
+===================================== Eclipse-4.15(2020-03)  插件 CDT 9.11.0
+STS-3.9.12-e4.15.0 安装 CDT 插件 help->install安装选择zip
+	只选中CD Main Feature组
+	   CDT Option Feature组 下有 Visual C++ Support, C/C++ Docker Container
+	   Uncategorize组下有 freemarker  
 	
- 
-====================================== eclipse-4.10(2018-12) 插件　CDT-9.6.0
-CDT 插件 help->install安装选择zip
-	取消Qt Development Tools
-	
-报少 osgi.bundle  org.eclipse.remote.core
-===================================== Eclipse-4.12(2019-06)  插件 CDT 9.8.0  
-
-
-
 -------------CDT与MinGW集成----------------------------
 PATH=  D:\program\MinGW\bin
 
@@ -371,18 +333,16 @@ CDT与CygWin集成	  PATH=C:/cygwin64/bin
 
 
 ------------cygwin 使用
+下载的 Cygwin_x64 ,双击进入安装界面时 Category 下拉选择 full
+2020-05-15 时 cygcheck -c cygwin  显示为 3.1.4-1
 
-下载的 Cygwin_x64 , 2019-01-03 时cygcheck -c cygwin  显示为  2.11.2-1
-	64位的 gcc-7.4.0-1 (mingw64-x86_64-gcc-core-7.4.0-1),gcc-g++ (mingw64-x86_64-gcc-g++)  , gcc-objc  (mingw64-x86_64-gcc-objc)
-		gdb-8.0.1-1
-		make-4.2.1-2
-	下面可选 
-		curl-7.59.0 (可单独下载win版本)
-		vim (可单独下载win版本gvim)
-		openssh 记得连接oracle时会用到 
-		automake
-		autoconf
-		nasm (编译汇编语言)
+64位的	gcc-9.3.0-2  ,mingw64-x86_64-gcc-core--9.2.0-2
+		gcc-g++-9.3.0-2 ,mingw64-x86_64-gcc-g++-9.2.0-2
+		gdb-8.2.1-1
+		make-4.3-1
+下面可选 
+		curl-7.66.0 (可单独下载win版本)
+		vim-8.2 (可单独下载win版本gvim)
 	
 PATH=D:\Program\cygwin\bin
 
@@ -411,9 +371,7 @@ Cygwin和MinGW可以共存使用,但有些Cygwin在windows不能编译,MinGW还�
 但报C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\crtdefs.h(10): fatal error C1083: Cannot open include file: 'corecrt.h': No such file or directory 
 
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.10150.0\ucrt\corecrt.h
-
-
------------------
+------
 Debug时显示源码
 Window -> Preferences -> C/C++ -> Debug-> Common Source Lookup Path -> Add. 
 cygdrive/c	对应 c:\
@@ -423,7 +381,10 @@ eclipse代码 显示变宽  windows-preferences->C++->Code Style-> 新建自己�
 linux eclipse不变色解决方案  window ->preference->c/C++->indexer->选中index all files
 如果有使用宏定处,鼠标指向它,待出现提示,再指向大标题,就出现宏展开的
 
----------Zend Studio 基于eclipse的,有PDT插件
+
+
+=========== Zend Studio 基于eclipse的,有PDT插件
+
 Zend Studio 要破解，最新是13.6.1 基于 eclipse-4.6.3 ,可以debug,php cli,中文要UTF-8
 	只可安装在 C:\Program Files\Zend\Zend Studio 13.6.1
 	
@@ -443,36 +404,71 @@ Zend Studio 要破解，最新是13.6.1 基于 eclipse-4.6.3 ,可以debug,php cl
 	xdebug.remote_host = 192.168.1.102
 	;对应Zend Studio配置中xdebug的端口(默认9000)
 	xdebug.remote_port = 9000
+
+=========== eclipse Scala 插件 Scala IDE-4.7.0 
+Eclipse 4.7 (Oxygen) 可下载 离线包 不能help菜单方式安装，但可以dropsin安装
+	 http://download.scala-ide.org/sdk/lithium/e47/scala212/stable/update-site.zip 
+可下载单独scalaIDE版本，可在线安装（eclipse marketplace是dev版本）
+   
+=========== eclipse Python 插件 PyDev
+marketplace安装   Python 插件 PyDev-5.4 ,安装时不会提示版本兼容,当使用时提示要eclipse-4.6 才行
+
+官方看版本对应关系(Eclipse 4.5, Java 8: PyDev 5.2.0)
+下载PyDev离线安装包
+https://sourceforge.net/projects/pydev/files/pydev/    可以dropins安装
+dropins安装目录结构eclipse/dropins/PyDev/eclipse/plugins和features 
+PyDev-7.5 在eclipse-4.15.0上 dropins安装后，没有 preferences->PyDev???
+
+可以debug
+preferences->PyDev->Interpreters->Python Interpreter->选择python.exe所在路径-> 提示找到 DLLs ,lib目录,lib/site-packages
+代码提示很好
+shift+enter 自动换行缩进 ,ctrl+1有很多功能
+
+光标放在代码行上  ctrl+2 (有提示菜单 Quick Assist- assign to local variable可点) 松手 再按L 会自动增加函数调用的接收类和变量名
+
+shift+enter 自动换行缩进
+
+
+=========== Eclipse 4.6 以上插件 goClipse 依赖于 CDT 9.0以上  只安装 Main Feature组即可
+http://goclipse.github.io/
+https://github.com/GoClipse/goclipse/blob/latest/documentation/Installation.md   下载
+
+
+https://github.com/GoClipse/goclipse.github.io/archive/master.zip   
+ 解压后eclipse中help->install-> Add->Local 指向release目录　
+	2019-02下载的是0.16.1v201607版本
+    2020-05下载的是0.16.1v201607版本 太老了
 	
-=======================================eclipse-4.4.2(Luna) 插件  WTP-3.6.3
-下载界面选择  Other Platforms   http://download.eclipse.org/eclipse/downloads/  下载文件中有SDK
+help->install-> 写入	http://goclipse.github.io/releases/ 也是  0.16.1v201607版本
 
-eclipse-4.4.2(Luna) Maven(m2e),Mylyn,使用WTP-3.6.3的 XML Eitors,  
-但SDK文件名的版本中都没有,只有CVS,Plugin,Java
+eclipse Marketplace
 
-Eclipse SDK v4.4.2 
-EMF and XSD SDK Combined EMF and EMF-XSD SDK					emf-xsd-SDK-2.10.2.zip 			可 links和dropins 安装,(这个名字最好和官方名一样,因与下面transaction,validation一起用)
-GEF SDK 3.9.101 (GEF Code and Source)							GEF-ALL-3.9.101.zip				可 links和dropins 安装,(用的是ALL, 因spring 要 zest)
-DTP SDK v1.12.0 (Code and Source)								dtp-sdk_1.12.0.zip				可 links和dropins 安装 (依赖于 EMF + XSD 和  GEF)
+preferences->go->Installation 设置目录(同GOROOT) C:\Go
+用goClipse,如有包源文件要放相应目录下,会在bin目录下生成.exe来执行
 
-也可安装wtp4x-repo时 不选择 (Dali Java Persistence Tools - JPA Diagram Editor)下面的就不用安装了
-EMF Transaction v1.8.0 (Required for JPA Diagram Editor)		emf-transaction-runtime-1.8.0.zip 可 links和dropins 安装
-EMF Validation v1.8.0 (Required for JPA Diagram Editor)			emf-validation-runtime-1.8.0.zip  可 links和dropins 安装
-Graphiti v0.11.0 (Required for JPA Diagram Editor)				org.eclipse.graphiti.site_0.11.1.201409031228.zip 要 help->install 安装 ->  只选择Graphiti 一项
+项目编码要为UTF-8，文件也是
 
-help->install   选择 wtp4x-repo-R-3.6.3-20150216091848.zip   ->  可不选择(Dali Java Persistence Tools - JPA Diagram Editor)
+但在goClipse中 右击文件 run as -> go applcation  如是在src目录下不能运行,必须在src目录中子目录才行
 
-
-=======================================eclipse-4.5.2(MARS) 插件  WTP-3.7.2
-不能dropins安装  emf-xsd-SDK-2.11.2RC3 , dtp-sdk_1.12
-
-=======================================eclipse-4.6.3(Neon) 插件  WTP-3.8.2
-
-
+debug时依赖gdb命令 ,安装Cygwin的gdb后,调试有时中文乱码??? 控制台显示有缓存，显示顺序有问题 ???
+	
 =======================================eclipse 其它插件
------dropins 目录安装 ,好处是不会复制插件到eclipse自己的plugins和features目录中
-也可以放自己的插件名目录(要求有eclipse/plugins,eclipse/features目录)
-也可以放 link 的文本文件
+Eclipse Marketplace  搜索 Kotlin , MyBatis generator(可生成kotlin代码)
+mybatipse 插件(mybatis的eclipse插件) http://dl.bintray.com/harawata/eclipse/
+
+------Rational Software Architect Designer V9.6 是 eclipse-4.6.1
+可下载for websphere的包
+
+带  CDT,BPMN2,UML2.2,Data Design(像power designer),Data Tools Platorm
+无  SVN,SpringToolSuite,Mylyn,Maven,PropEdit(links,dropins安装要用jp.gr.java_conf.ussiy.app.propedit_6.0.3.zip如6.0.5就总提示日文 )
+
+安装目录在 C:\Program Files\IBM\SDP  (Software Delivery Platform)
+修改界面语言 eclipse.ini 文件中尾添加参数： -Duser.language=en
+ 
+开始->IBM Installation Manager
+单独安装完 WebSphere后,再启动RSA会自动安装插件,要先建立web项目,才会激活web工作区 (但在 %HOMEPATH%\IBM\SDP 下 , 这个目录再破解)
+
+------
 
 Android 的 ADT-23.0.4 取消选择Native Development Tools (依赖CDT)
 
@@ -510,16 +506,8 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 			
 安装 Drools-6.4 插件 
 		取消 JBoss Runtime Drools Detector Developer  依赖于 org.jboss.tools.common.core      在JBOSS Tools-4.3.1中没有????
-		
-			
-SpringToolSuite-3.6.3 
 
-	取消 Fabric tc Server , Integeration , Extensions
-	只选Spring IDE Core 
-		依赖于 eclipse.org 提供的 org.json 0.0.0 ,从springToolSuite中复制 org.json_1.0.0.jar , org.jsoup_1.7.2.jar放dropins目录
-		依赖于 com.google.gson  ,从springToolSuite中复制 com.google.gson_2.1.0.jar 放dropins目录
-
-SpringToolSuite-3.9.12 (eclipse 4.15.0) 最后一个STS 3版本 github上有 springsource下载链接
+---SpringToolSuite-3.9.12 (eclipse 4.15.0) 最后一个STS 3版本 github上有 springsource下载链接
 	可以在 spring的xml中(spring config editor编辑器) 输入按快捷键(content Assist)提示属性名，方法名，
 		但类名不行??? 以前可以的啊??? 3.9.10版本也不行, 但可以提示类不存在错误
 		
@@ -572,20 +560,7 @@ eclipse自带Git 插件
 TortoiseGit->Git Sync ...也找不出哪些要push???
 git status 也找不出哪些要push???
 
-
-
-
-----eclipse-4.4.2  Mylyn-3.14 插件
-	help->install 安装时 (  取消 SDK and frameworks 组 )
-			Integeration组选 加 Mylyn Context Connector:Team Support(Git依赖) , Connector: Java (Spring依赖)
-
-
 ----eclipse Grale插件  buildship 使用marketplace 下载
-
-
----- eclipse_4.4 插件 MarketPlace Client (MPC)-1.3.1
-	依赖于  org.eclipse.equinox.p2.discovery.feature.feature.group [1.0.0. 
-	 equinox-SDK-LunaSR2  dropins安装无效,help->install没有可选择的, 手工复制也不行(feature标签中没有????,只能在线安装了)
 
 ----Maven插件  
 	只右击maven项目->update project ...
@@ -647,25 +622,10 @@ SonarQube (要建立服务器端,可以看web页式的单元测试覆盖率,也�
 	右击项目->configure-> associate SonarQube->在SonarQube Project 中输入对自动弹出下拉提示,对应sonar-project.properties的sonar.projectName项
 	右击项目->configure-> analyze 也可找出代码bug问题,也可找代码规范问题
 		
-	sonarqube-5.2 服务器 bin/windows-x86-64/StartSonar.bat启动监听9000端口	,  http://localhost:9000  -> login -> admin/admin 多了Administration 菜单
-		默认使用嵌入式DB ,H2, 
-		也可以配置 MySQL ,在conf/sonar.properties 一条配置
-		#sonar.jdbc.url=jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance
-		#sonar.jdbc.username=sonar
-		#sonar.jdbc.password=sonar
-		#sonar.web.port=9000
-	可选操作 加配置 sonar.jdbc.driver=com.mysql.jdbc.Driver 在extensions\jdbc-driver\目录中建立mysql目录放mysql-connector.jar
-		#sonar.web.context=
-		
-		CREATE DATABASE sonar  CHARACTER SET utf8 COLLATE utf8_general_ci; 
-		CREATE USER 'sonar 'IDENTIFIED BY 'sonar' ; 
-		GRANT ALL ON sonar.* TO 'sonar'@'%' IDENTIFIED BY 'sonar'; 
-		GRANT ALL ON sonar.* TO 'sonar'@'localhost' IDENTIFIED BY 'sonar';
-		FLUSH PRIVILEGES;
-
+	SonarQube安装和使用 见Linux_Server和Dev_software
+ 
 	
-	
-	SonarQube Runner分析源码 
+	SonarQube Runner 分析源码 
 		可多种编程语言 插件放在sonarqube-5.2 服务器 \extensions\plugins目录
 		sonar-runner.properties 打开配置
 	
@@ -708,26 +668,6 @@ Jira , Mantis BT
 
 TODO  FIXME   XXX 注释的代码会被task 视图收集
 
--- eclipse Scala 插件 Scala IDE-4.7.0 
-Eclipse 4.7 (Oxygen) 可下载 离线包 不能help菜单方式安装，但可以dropsin安装
-	 http://download.scala-ide.org/sdk/lithium/e47/scala212/stable/update-site.zip 
-可下载单独scalaIDE版本，可在线安装（eclipse marketplace是dev版本）
-   
--- eclipse Python 插件 PyDev
-marketplace安装  Python 插件 PyDev-5.4 ,安装时不会提示版本兼容,当使用时提示要eclipse-4.6 才行
-
-官方看版本对应关系(Eclipse 4.5, Java 8: PyDev 5.2.0)
-下载PyDev离线安装包
-https://sourceforge.net/projects/pydev/files/pydev/    可以dropins安装
-
-可以debug
-preferences->PyDev->Interpreters->Python Interpreter->选择python.exe所在路径-> 提示找到 DLLs ,lib目录,lib/site-packages
-代码提示很好
-shift+enter 自动换行缩进 ,ctrl+1有很多功能
-
-光标放在代码行上  ctrl+2 (有提示菜单 Quick Assist- assign to local variable可点) 松手 再按L 会自动增加函数调用的接收类和变量名
-
-shift+enter 自动换行缩进
 ------TestNG
 Eclipse Market Place 安装 TestNG 
 	 离线版本安装https://github.com/cbeust/testng-eclipse 
@@ -766,10 +706,6 @@ eclipse要marketplace安装
 -----Node.js IDE
 
 
-----redis 插件 无???
-
-----hbase 插件 无???
-
 ----Toad Extension for Eclipse Community  2.4.4 有MongoDB
 最新官方无些产品????,marketplace上没了????
 可用 eclipse marketplace在线安装 
@@ -777,6 +713,7 @@ eclipse要marketplace安装
  带语法提示的,JS文件GBK,UTF8编码,有中文注释都有错???
 Toad for Eclipse-2.4.4 可以支持mongo-3.2版本, 到3.4版本打开js文件连接不成功 ???
 
+ 
 ----redis插件 DBeaver EE
 ----mongo插件 DBeaver EE
 也支持Redis,ElasticSearch,Neo4j,Spark,phoenix
@@ -788,10 +725,7 @@ https://marketplace.eclipse.org/content/dbeaver-ee
 
 试用也要连接官网,邮件姓名随便写,试用两周
 dbeaver.ini 末加 -javaagent:/absolute/path/to/dbeaver-agent.jar  7.0破解成功
-
-
-
-
+ 
 ----mongo插件 MonjaDB
 可用 eclipse marketplace在线安装
 
@@ -805,7 +739,7 @@ https://marketplace.eclipse.org/content/enide-mongodb-gui-monjiadb-windows#group
 ----mongo插件 WolfDBManager2 还不可用
 https://marketplace.eclipse.org/content/wolfdbmanager2-rcp
 
-
+----hbase 插件 无???
 
 
 

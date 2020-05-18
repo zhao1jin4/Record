@@ -36,6 +36,9 @@ Mongo (humongous  巨大无比的)
 用C++写的,支持分布式 (JSON,JS语言)  目前4.0 支持多文档事务
 目前  MongoDB 4.0 add support for multi-document transactions
 
+MongoDB 4.2  支持分布式事务(即多文档事务　 on sharded clusters and replica sets)
+https://docs.mongodb.com/manual/release-notes/4.2/#distributed-transactions
+
 Driver有 Scala C++  GO 版本
 
 Win10 家庭版/win7旗靓版  安装 MongoDB 4.0.1 安取消选择install mongodb compass(一个图表界面工具,后面可以单独安装),否则安装一直卡着
@@ -837,7 +840,7 @@ mongotop
 ----
 ======= wiredTiger 3.0新版本的存储引擎
 md  c:\mongodb\data\wiredTigerdb
-mongod --storageEngine wiredTiger --dbpath c:\mongodb\data\wiredTigerdb   //默认引擎是 MMAPv1
+mongod --storageEngine wiredTiger --dbpath c:\mongodb\data\wiredTigerdb   //默认引擎是 MMAPv1,在mongodb-4.2中被删除了，用 WiredTiger Storage Engine 
 3.2 版本开始 wiredTiger 是默认引擎
 --wiredTigerCacheSizeGB
  

@@ -375,17 +375,6 @@ RandomListNode *copyRandomList(RandomListNode *head) {  
 
 多线程的实现方式，也包括ForkJoinPool，Callable
 
-BASE 
-Basically Available基本可用。支持分区失败(e.g. sharding碎片划分数据库)
-Soft state软状态 状态可以有一段时间不同步，异步。
-Eventually consistent最终一致，最终数据是一致的就可以了，而不是时时高一致。
-
-
-CAP  任何分布式系统只可同时满足二点，没法三者兼顾。
-Consistency(一致性), 数据一致更新，所有数据变动都是同步的
-Availability(可用性), 好的响应性能
-Partition tolerance(分区容错性) 可靠性
-
 
 
 
@@ -646,10 +635,8 @@ mysql 索引的定位方法 BTree
 缓存雪崩 （大批量缓存一起期，同时查数据库压力大，解决方案，过期时间随机范围，热点数据永不过期,config set maxmemory-policy  allkeys-lru）
 雪崩 ，一个服务不可用导致一连串的服务不可用
 
-
-出错的定位方法
-
-
+ 
+ 
 
 领域驱动设计(DDD:Domain-Driven Design)   统一了分析和设计编程
 
@@ -686,7 +673,22 @@ n为  1,2,3,4....n
 求所有相加等于m的情况
 
 
+BASE 
+Basically Available基本可用。	可以部分服务不可用，但核心服务要可用。
+Soft state软状态。 				状态可以有一段时间不同步，异步，如状态为支付中。
+Eventually consistent最终一致。 可以一断时间内不一致，如写主，从不能及时看到最新，但等一会即好，而不是强一致。
+
+
+CAP  任何分布式系统只可同时满足二点，没法三者兼顾。
+Consistency(一致性), 数据一致更新，所有数据变动都是同步的
+Availability(可用性), 好的响应性能
+Partition tolerance(分区容错性) 可靠性
+
+
 CAP原则，指的是在一个分布式系统中，一致性（Consistency）、可用性（Availability）、分区容错性（Partition tolerance）
+一致性(Consistency) (所有节点在同一时间具有相同的数据)
+可用性(Availability) (保证每个请求不管成功或者失败都有响应)
+分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)
 
 eureka是 AP(一致性弱) ，Consul，zooKeeper，etcd 都是 CP(牺牲可用性)
 
@@ -699,3 +701,34 @@ Restful字段命名（多个微服务统一，都叫user_id，可能哪天读所
 基于角色的访问控制（RBAC）是
 
 mysql slow_query 或者 show processlist
+
+
+
+如果用公开密钥对数据进行加密，只有用对应的私有密钥才能解密；
+如果用私有密钥对数据进行加密，那么只有用对应的公开密钥才能解密。
+因为加密和解密使用的是两个不同的密钥，所以这种算法叫作非对称加密算法。
+
+私钥加签   用Hash函数，生成信件的摘要（digest），使用私钥，对这个摘要加密，生成"数字签名"（signature）。
+		   签名，附在信件下面，一起发给客户端 
+公钥验签   取下数字签名，用公钥解密，得到信件的摘要。再对信件本身使用Hash函数，将得到的结果，与上一步得到的摘要进行对比
+	
+数字证书其实就是CA私钥加密过的网站公钥，CA公钥内置在浏览器中			
+https浏览器生成随机的对称秘钥 ，如果网站生成会话秘钥，用他的私钥加密，那所有人都有公钥，所有人都能解开了。
+
+
+
+微服务 熔断、降级
+	熔断   如请求超时、后台服务无响应、后台服务异常等， 通过容断机制直接返回统一处理结果,并对下次请求进行同样处理，直到后台服务功能正常
+	降级    弃卒保帅 ,保证核心服务可用
+雪崩 A的链路上某个或几个被调用的子服务不可用或延迟较高，则会导致调用A服务的请求被堵住
+
+
+
+
+
+
+
+
+
+
+

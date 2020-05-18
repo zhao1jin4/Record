@@ -1,0 +1,34 @@
+
+---------Codis
+Codis 3.2.2  (go 1.9.2) 基于 Redis 3.2.8
+支持 Docker 部署
+
+
+ 豌豆荚公司开发的一个分布式 Redis 解决方案，用Go语言开发的,使用zookeeper来作为辅助，
+不支持scan,keys命令
+分布式上层应用可以像使用单机的 Redis 一样使用
+
+https://github.com/CodisLabs/codis/
+https://github.com/CodisLabs/codis/tree/release3.2/doc
+
+ 
+Codis Dashboard：集群管理工具  
+Codis Admin：集群管理的命令行工具。
+Codis FE：集群管理界面。
+
+./codis-dashboard   启动codis-dashboard   http://127.0.0.1:18080
+./codis-proxy  		启动codis-proxy
+./codis-server 		启动codis-server
+
+
+codis-fe  集群管理界面
+codis-admin
+
+同一个业务集群而言，可以同时部署多个 codis-proxy 实例；
+不同 codis-proxy 之间由 codis-dashboard 保证状态同步
+
+
+同一个业务集群而言，同一个时刻 codis-dashboard 只能有 0个或者1个 
+对集群的修改都必须通过 codis-dashboard 完成
+
+

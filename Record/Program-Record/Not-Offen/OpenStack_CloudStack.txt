@@ -28,9 +28,9 @@ cloudStack(上层) , openStack(底层,HP基于它后来又退出,可能Kubernete
 使用 RabbitMQ
 
 官方说　Python 2.7 使用截止 2020年,后面用python-3.5(从Ｈ版本就开始做python3)
-目前最新版本Stein, the 19th version
- 
- 官方文档基于的操作系统有
+目前最新版本Train  20th version
+
+官方文档基于的操作系统有
  
   SUSE-12 SP4,openSUSE Leap 15  
   RedhatEL7 , CentOS 7

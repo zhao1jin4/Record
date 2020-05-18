@@ -28,6 +28,18 @@ http://download.opensuse.org/tumbleweed/repo/oss/x86_64/
 	redis-  现在是 5.0.5
 	
 
+	
+Redis 单线程 将每个客户端都关联一个指令队列
+	指令队列中的指令是顺序执行的，但是多个指令队列中的指令是无法保证顺序
+	一个响应队列中的消息可以顺序的回复给客户端，多个响应队列之间是无法保证顺序的
+
+单线程避免了线程切换和竞态产生的消耗
+	纯内存访问
+	非阻塞式IO
+	IO多路复用
+	
+Redis6.0 IO多线程其实指客户端交互部分的网络IO交互处理模块多线程，而非执行命令多线程
+
 ----redis 4.x
 
 如报error: jemalloc/jemalloc.h: No such file or directory  
@@ -89,6 +101,20 @@ net.core.somaxconn= 1024
 
 ulimit -Sn  1024
 ulimit -Hn 10032
+
+-------------redis 6.0.1
+在 openSUSE-15 下源码编译
+ 
+cd src   #也可以不切换src
+make MALLOC=libc   #要 jemalloc/jemalloc.h 是MacOS用的
+#make BUILD_TLS=yes 
+
+
+成功后src目录下有二进制
+sudo make install 安装在 /usr/local/bin/
+
+redis-server  --version
+
 
 
 -----------
@@ -429,7 +455,8 @@ bgrewriteaof  手工执行重写aof 文件
 如果开启aof,刚执行flushall,可以 shutdown save 防止aof文件被重写,手工修改aof文件的最后三行
 
 redis-benchmark -n 1000   -a pass # 性能测试工具  -n <requests>
-
+	新版本	--cluster
+	
 ---- 手动 failover
 配置主master
 pidfile /var/run/redis.pid
@@ -649,6 +676,21 @@ SLOWLOG RESET 清空
 rename-command FLUSHALL ""  
 rename-command FLUSHDB ""  
 rename-command KEYS ""
+--------client 命令
+CLIENT LIST
+CLIENT GETNAME 
+CLIENT SETNAME  my
+
+
+--------geo开头命令
+类似MySQL 的 point和geometry数据类型
+
+geospatial
+
+longitude 经度
+latitude 纬度
+
+
 
 --------redis-4.0新功能
 UNLINK key 用法和 del 完全一样 ，但内存释放动作放到后台线程中异步执行，立即返回。
@@ -805,38 +847,98 @@ XDEL mystream 1573358525880-0  #删除上面返回的ID
  replicaof <masterip> <masterport>
 
  
+----------------redis-6.0 新功能 
+./src/redis-benchmark  有--cluster选项
+
+--- RESP 3
+RESP3 (REdis Serialization Protocol) Redis 服务端与客户端之间通信的协议
  
- 
----------Codis
-Codis 3.2.2  (go 1.9.2) 基于 Redis 3.2.8
-支持 Docker 部署
+HELLO 3 表示客户端使用RESP3协议 
+--- 客户端缓存 
+
+--- ACL 为登录用户设置权限
+https://redis.io/topics/acl
+
+AUTH <username> <password> 变为两个参数
+CONFIG GET requirepass  返回加密的SHA-256密码
+
+ACL WHOAMI  默认显示用户名为 default
+ACL LIST 显示"user default on nopass ~* +@all"   #激活的 (on),无密码 (nopass),可以仿问全部key(~*),可以仿问全部命令(+@all)
+
+所有规则如下
+	on 启用用户
+	off 禁用用户
+	命令 
+		+<command>
+		-<command>
+		+@<category> ,如+@admin 有哪些使用  ACL CAT 显示所有类别命令组
+	   +<command>|subcommand
+		allcommands: Alias for +@all.
+		nocommands: Alias for -@all
+	键
+		~<pattern> 是key匹配 ,如所有key就是~*
+	密码	
+		><password> 增加密码,一个用户可以有多个密码, 是以SHA-256存储的
+		<<password> 去除密码
+		#<hash> 增加密码 是SHA-256的加密的 
+		!<hash> 删除这个密码,当不知道原密码,可以这样直接删
+		nopass 清所有密码,可无密码登录
+		resetpass 清所有密码,不能无密码登录
+	reset 等同于 resetpass, resetkeys, off, -@all
+	
+ACL SETUSER alice  如不存在,就建立用户,后可选加很多规则,从左到右的顺序来读
+ACL LIST 显示 "user alice off -@all"
+ACL SETUSER alice on >p1pp0 ~cached:* +get  #可以访问cached:开头的键
+AUTH alice p1pp0
+测试权限
+
+退出重进
+ACL GETUSER alice
+ACL SETUSER alice ~objects:* ~items:* ~public:*  #如用户存在,是在原因的权限基础上附加,即~cached:*还存在
 
 
- 豌豆荚公司开发的一个分布式 Redis 解决方案，用Go语言开发的,使用zookeeper来作为辅助，
-不支持scan,keys命令
-分布式上层应用可以像使用单机的 Redis 一样使用
-
-https://github.com/CodisLabs/codis/
-https://github.com/CodisLabs/codis/tree/release3.2/doc
-
- 
-Codis Dashboard：集群管理工具  
-Codis Admin：集群管理的命令行工具。
-Codis FE：集群管理界面。
-
-./codis-dashboard   启动codis-dashboard   http://127.0.0.1:18080
-./codis-proxy  		启动codis-proxy
-./codis-server 		启动codis-server
+ACL CAT dangerous 会列出这个类别里面有什么命令
+ACL SETUSER myuser -client +client|setname +client|getname
 
 
-codis-fe  集群管理界面
-codis-admin
+ACL SETUSER virginia on allkeys +set  #建立用户 virginia 可以读全部键(allkeys 规则),可以调用set命令(+set规则)
+ACL SETUSER virginia +get  #用户可以Get命令
 
-同一个业务集群而言，可以同时部署多个 codis-proxy 实例；
-不同 codis-proxy 之间由 codis-dashboard 保证状态同步
+---redis.conf 配置文件中
+user <username> ... acl rules ...
+aclfile /etc/redis/users.acl
+----
+ACL LOAD
+ACL SAVE
 
 
-同一个业务集群而言，同一个时刻 codis-dashboard 只能有 0个或者1个 
-对集群的修改都必须通过 codis-dashboard 完成
+--------TLS
+https://redis.io/topics/encryption
+
+编译时指定 make BUILD_TLS=yes 需要openssl
+
+./utils/gen-test-certs.sh  生成根CA和服务器证书
+
+./src/redis-server --tls-port 6379 --port 0 \
+    --tls-cert-file ./tests/tls/redis.crt \
+    --tls-key-file ./tests/tls/redis.key \
+    --tls-ca-cert-file ./tests/tls/ca.crt
 
 
+./src/redis-cli --tls \
+    --cert ./tests/tls/redis.crt \
+    --key ./tests/tls/redis.key \
+    --cacert ./tests/tls/ca.crt
+    
+    
+cluster 环境中使用 tls-cluster yes
+
+Sentinel 环境中 会使用tls-replication 指令
+
+Replication 环境中,master服务端 tls-port 和 tls-auth-clients  指令 ,replica服务端指定 tls-replication yes
+    
+--------
+
+
+
+  

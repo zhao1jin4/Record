@@ -347,7 +347,10 @@ ip link set dev p4p2 up
 
 
 --netns
-ip 可操作的对像，如 netns 网络名称空间
+
+ip 可操作的对像，如 netns 网络名称空间(network namespace)
+ip netns help
+
 ip netns list
 ip netns add r1
 ip netns add r2
@@ -1527,7 +1530,7 @@ openSUSE-leap-15 DVD 中　
 UEFI support is provided by OVMF (Open Virtual Machine Firmware).即上面安装的 qemu-ovmf-x86_64
 
 qemu-img -h 
-支持格式最后有 qcow2 格式,
+支持格式最后有openStack的 qcow2 格式,
 		有vmware的vmdk格式,
 		Virtualbox的vdi格式
 qemu-img  create -f qcow2   myfile.img 2G

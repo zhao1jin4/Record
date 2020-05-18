@@ -1,0 +1,343 @@
+consul,zipkin,envoy,etcd
+
+=============consul
+Go语言开发
+
+分布式系统的服务注册和发现、配置等
+服务健康监测
+key/value 存储
+
+Istio的组件prometheus使用这个
+
+https://www.consul.io/downloads.html 
+下载 win zip包,就一个consul命令 ,新版本1.7.3 windows版本翻墙下载很快
+ https://github.com/hashicorp/consul/ 使用go语言开发
+consul agent -dev 启动
+http://localhost:8500
+
+一致性(Consistency)  所有节点在同一时间具有相同的数据，强一致
+可用性(Availability)  保证每个请求不管成功或者失败都有响应 
+分隔容忍(Partition tolerance)  系统中任意信息的丢失或失败不会影响系统的继续运作 
+consul 是 CP(牺牲可用性)
+
+使用Raft(同etcd)
+
+consul members 显示数据中心dc1的主机，其实是调用 http://localhost:8500/v1/catalog/nodes 
+
+---consul cluster
+consul agent -server -bootstrap-expect=2 -data-dir=/tmp/consul1 -node=consul1 -bind=127.0.0.1 -client=0.0.0.0 -datacenter=discover_dc -ui
+	-node=<value>
+     Name of this node. Must be unique in the cluster. 默认是主机名
+	-bind=<value>
+     Sets the bind address for cluster communication.
+	-datacenter 默认值为dc1,数据中心名称
+	-client 配置为 0.0.0.0  内部，外部都可以访问http,https
+	-advertise  默认为 -client 的值
+	
+    -server-port=<value>   默认 8300 server RPC port
+	-http-port=<value> 	   默认 8500
+	-https-port  默认 -1 禁用
+	-dns-port=<value> 	   默认 8600
+	-serf-lan-port=<value> 默认 8301
+	-serf-wan-port=<value> 默认 8302
+	-serf-lan-bind 默认值同 -bind
+	-serf-wan-bind 默认值同 -bind 
+    -ui-content-path=<value> 默认是 /ui
+    -config-file=<value> 	文件可以是json格式的
+
+consul agent -server -bootstrap-expect=2 -data-dir=/tmp/consul2 -node=consul2 -bind=127.0.0.1 -client=0.0.0.0 -datacenter=discover_dc -ui  -server-port=9300 -http-port=9500 -dns-port=9600 -serf-lan-port=9301 -serf-wan-port=9302
+consul join 127.0.0.1:9301 127.0.0.1  会选leader 这个成功，http://localhost:8500 可以看到页面
+
+同台机器的多节点
+--- node1.json
+{
+  "datacenter": "dc1",
+  "data_dir": "/tmp/consul1",
+  "log_level": "INFO",
+  "server": true,
+  "node_name": "node1",   # node_name 同命令行 -node
+  "ui": true,
+  "bind_addr": "127.0.0.1",  # bind_addr 同命令行 -bind
+  "client_addr": "0.0.0.0",  # client_addr 同命令行 -client
+  "advertise_addr": "127.0.0.1", # advertise_addr 同命令行 -advertise
+  "bootstrap_expect": 2,
+  "ports":{
+    "http": 8500,
+    "dns": 8600,
+    "server": 8300,
+    "serf_lan": 8301,
+    "serf_wan": 8302
+   }
+}
+consul agent -config-file=node1.json 
+ 
+--- node2.json 这个没有ui,只一个节点有ui就可以了
+{
+  "datacenter": "dc1",
+  "data_dir": "/tmp/consul2",
+  "log_level": "INFO",
+  "server": true,
+  "node_name": "node2",
+  "bind_addr": "127.0.0.1", 
+  "client_addr": "0.0.0.0", 
+  "advertise_addr": "127.0.0.1",
+  "bootstrap_expect": 2,
+  "ports":{
+    "http": 9500,
+    "dns": 9600,
+    "server": 9300,
+    "serf_lan": 9301,
+    "serf_wan": 9302
+   }
+}
+consul agent -config-file=node2.json 
+consul join 127.0.0.1:9301 127.0.0.1  这个成功，http://localhost:8500 可以看到页面
+
+consul members -http-addr=localhost:8500
+consul info -http-addr=localhost:8500
+
+---key/value 值是持久存储的，像zookeeper
+
+consul kv put redis/config/connections 5  在界面中显示为多级目录式
+consul kv get redis/config/connections
+consul kv get -detailed redis/config/connections
+consul kv delete redis/config/connections
+
+consul kv get -recurse   查全部
+consul kv delete -recurse redis 删除这个前缀的key
+
+
+consul kv put foo bar
+consul kv get -detailed foo  信息中有 ModifyIndex      99
+
+consul kv put -cas -modify-index=99 foo bar1  这样才可修改成功，类似乐观锁的版本
+
+也有http接口
+
+
+
+
+
+=============zipkin
+
+还有PINPOINT  (也是 Dapper)监控调用哪个链路出现了问题，如响应时间
+https://github.com/naver/pinpoint
+ 
+
+https://github.com/openzipkin/zipkin/
+
+java -jar zipkin-server-2.19.2-exec.jar  后就可 http://127.0.0.1:9411/zipkin/  或
+docker run -d -p 9411:9411 openzipkin/zipkin
+
+耗时分析
+可视化错误
+一次完整链路请求所收集的数据被称为Span
+Zipkin 提供了可插拔数据存储方式：In-Memory、MySql、Cassandra 以及 Elasticsearch。生产推荐 Elasticsearch
+Zipkin的 收集器组件，从外部系统发送过来的跟踪信息,并转换为 Zipkin 内部处理的 Span 格式
+ 存储组件，API 组件，UI 组件
+
+=================== etcd
+https://github.com/etcd-io/etcd/
+https://etcd.io/docs/v3.4.0/
+
+一致性(Consistency)  所有节点在同一时间具有相同的数据，强一致
+可用性(Availability)  保证每个请求不管成功或者失败都有响应 
+分隔容忍(Partition tolerance)  系统中任意信息的丢失或失败不会影响系统的继续运作 
+
+etcd 是 CP(牺牲可用性)
+使用gRPC
+使用Raft 协议, 一致性算法(consensus)  ,选举，日志复制
+	有3种状态,leader,follower,Condiate 
+	选举
+		一开始所有节点是 follower状态,一定时间内(选举超时随机150ms-300ms,防止全部一起进入Condiate有一样的票数,如是这样再一次随机)没有收到leader的消息(leader挂了)变Condiate,
+		Condiate的节点,term产生新值(表示第几任),投自己一票，再请求其它节点给我投票,
+		如其它节点(不是condiate节点)在这个term没有票，那么就投这个Condiate ,每个都记录自己投了谁
+		如有多于半数节点回应投票同意，我就变成为leader，leader不停发送心跳检查follower是否健康 
+		如leader挂了,相同流程选出新的leader,老的leader如又恢复了term是老的值，
+	日志复制
+		1.客户端的请求经过leader,数据先放日志中,状态是未提交
+		2.leader把未提交更新日志复制(是通过心跳信息做的)其它follower节点，leader等多于半数follower回应已经记录日志
+		3.先leader做提交,响应客户端,再发消息给其它follower做提交
+	
+	网络分区下的一致性
+	 当网络被分成两个区，每个区有一个leader，就有两个leader，没有收到半数以上的回应不会提交，两个leader间会比较谁的follower多(奇数)
+	
+存储使用 bbolt (源码vender/bbolt目录 或者 https://github.com/etcd-io/bbolt)
+
+
+
+使用GO语言开发 ，用来替代 zookeeper (openstack使用这个)
+ 
+
+下载地址
+https://github.com/etcd-io/etcd/releases
+v3.4.7
+
+也是超过半数服务可用,集群就可用
+
+
+./etcd 监听 2379 用来和客户端通讯
+       监听	2380 用来服务端和服务端通讯
+       
+   --name 'default'
+		human-readable name for this member.
+	--data-dir '${name}.etcd'
+		path to the data directory.
+
+
+./etcdctl set mykey "this is awesome"  #官方文档的put是错的
+./etcdctl get mykey
+
+--etcd集群
+https://github.com/etcd-io/etcd/blob/master/Documentation/demo.md
+
+TOKEN=token-01
+CLUSTER_STATE=new
+NAME_1=machine-1
+NAME_2=machine-2
+NAME_3=machine-3
+HOST_1=10.240.0.17
+HOST_2=10.240.0.18
+HOST_3=10.240.0.19
+CLUSTER=${NAME_1}=http://${HOST_1}:2380,${NAME_2}=http://${HOST_2}:2380,${NAME_3}=http://${HOST_3}:2380
+
+
+# For machine 1
+THIS_NAME=${NAME_1}
+THIS_IP=${HOST_1}
+etcd --data-dir=data.etcd --name ${THIS_NAME} \
+	--initial-advertise-peer-urls http://${THIS_IP}:2380 --listen-peer-urls http://${THIS_IP}:2380 \
+	--advertise-client-urls http://${THIS_IP}:2379 --listen-client-urls http://${THIS_IP}:2379 \
+	--initial-cluster ${CLUSTER} \
+	--initial-cluster-state ${CLUSTER_STATE} --initial-cluster-token ${TOKEN}
+
+类似再加两节点，建立集群
+
+
+客户端
+export ETCDCTL_API=3
+HOST_1=10.240.0.17
+HOST_2=10.240.0.18
+HOST_3=10.240.0.19
+ENDPOINTS=$HOST_1:2379,$HOST_2:2379,$HOST_3:2379
+
+etcdctl --endpoints=$ENDPOINTS member list
+# 不加 --endpoints 默认就连接本机的 2379端口
+
+etcdctl --endpoints=$ENDPOINTS put foo "Hello World!"  
+etcdctl --endpoints=$ENDPOINTS get foo
+etcdctl --endpoints=$ENDPOINTS --write-out="json" get foo
+
+etcdctl --endpoints=127.0.0.1:2379 get foo -w json | json_pp
+{
+   "kvs" : [            #表示key/values,显示的是base64编码的,二进制存的
+      {
+         "value" : "SGVsbG8gV29ybGQh",
+         "mod_revision" : 3,		#最近修改时的版本(header中的revision)
+         "create_revision" : 3,  #创建时的版本
+         "version" : 1,			   #针对这个key的版本,修改一次+1
+         "key" : "Zm9v"
+      }
+   ],
+   "header" : {
+      "member_id" : 10276657743932975437,
+      "revision" : 3,			  #全局唯一的版本,任何一个key变动时(增加/修改/删除)+1
+      "raft_term" : 2,          #重启时,或才 leader 变化时+1
+      "cluster_id" : 14841639068965178418
+   },
+   "count" : 1
+}
+
+echo Zm9v | base64 -d 
+echo SGVsbG8gV29ybGQh | base64 -d 
+
+etcdctl --endpoints=$ENDPOINTS put web1 value1
+etcdctl --endpoints=$ENDPOINTS put web2 value2
+etcdctl --endpoints=$ENDPOINTS put web3 value3 
+etcdctl --endpoints=$ENDPOINTS get web --prefix
+etcdctl --endpoints=$ENDPOINTS get web1  web3 是区间的,包括web1,不包括web3
+
+
+etcdctl --endpoints=$ENDPOINTS put key myvalue
+etcdctl --endpoints=$ENDPOINTS del key
+
+etcdctl --endpoints=$ENDPOINTS put k1 value1
+etcdctl --endpoints=$ENDPOINTS put k2 value2
+etcdctl --endpoints=$ENDPOINTS del k --prefix
+
+
+#txn 事务
+etcdctl --endpoints=$ENDPOINTS put user1 bad
+etcdctl --endpoints=$ENDPOINTS txn --interactive  
+# -i, --interactive
+	进入交互模式,提示compares: 输入比较操作,如 value("web1") = "aa"  再多打一次回车结束 
+	再提示 success requests (get, put, del): 输入 ,如 get web 再多打一次回车结束 
+	再提示 failure requests (get, put, del): 输入 ,如 put web1 value11 回车结束 put web2 value22 回车结束 get web1
+如显示FAILURE则执行了失败
+
+#监控值变化
+etcdctl --endpoints=$ENDPOINTS watch stock1
+etcdctl --endpoints=$ENDPOINTS put stock1 1000
+
+etcdctl --endpoints=$ENDPOINTS watch stock --prefix
+etcdctl --endpoints=$ENDPOINTS put stock1 10
+etcdctl --endpoints=$ENDPOINTS put stock2 20
+
+
+#租用时间
+etcdctl --endpoints=$ENDPOINTS lease grant 300
+# lease 2be7547fbc6a5afa granted with TTL(300s)
+
+etcdctl --endpoints=$ENDPOINTS put sample value --lease=2be7547fbc6a5afa
+etcdctl --endpoints=$ENDPOINTS get sample
+
+etcdctl --endpoints=$ENDPOINTS lease keep-alive 2be7547fbc6a5afa
+etcdctl --endpoints=$ENDPOINTS lease revoke 2be7547fbc6a5afa
+# or after 300 seconds
+etcdctl --endpoints=$ENDPOINTS get sample
+
+
+#分布式锁
+etcdctl --endpoints=$ENDPOINTS lock mutex1
+
+# another client with the same name blocks
+etcdctl --endpoints=$ENDPOINTS lock mutex1
+
+
+#选举
+etcdctl --endpoints=$ENDPOINTS elect one p1
+
+# another client with the same name blocks
+etcdctl --endpoints=$ENDPOINTS elect one p2
+
+#状态
+etcdctl --write-out=table --endpoints=$ENDPOINTS endpoint status
+etcdctl --endpoints=$ENDPOINTS endpoint health
+
+
+#要求认证才能用
+export ETCDCTL_API=3
+ENDPOINTS=localhost:2379
+
+etcdctl --endpoints=${ENDPOINTS} role add root
+etcdctl --endpoints=${ENDPOINTS} role grant-permission root readwrite foo
+etcdctl --endpoints=${ENDPOINTS} role get root
+
+etcdctl --endpoints=${ENDPOINTS} user add root
+etcdctl --endpoints=${ENDPOINTS} user grant-role root root
+etcdctl --endpoints=${ENDPOINTS} user get root
+
+etcdctl --endpoints=${ENDPOINTS} auth enable
+# now all client requests go through auth
+
+etcdctl --endpoints=${ENDPOINTS} --user=root:123 put foo bar
+etcdctl --endpoints=${ENDPOINTS} get foo
+etcdctl --endpoints=${ENDPOINTS} --user=root:123 get foo
+etcdctl --endpoints=${ENDPOINTS} --user=root:123 get foo1
+
+
+
+=============Envoy 用C++开发
+二进制包都是docker版本的
+
+ 

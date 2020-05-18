@@ -1,4 +1,5 @@
-https://msdn.microsoft.com/en-us/library/ms123401.aspx  首页
+https://docs.microsoft.com/en-us/
+https://docs.microsoft.com/en-us/cpp/
 
 MFC=Mirosoft Foundation Class
 http://msdn.microsoft.com/en-us/library/ff468925%28v=VS.85%29.aspx   windows SDK
@@ -14,7 +15,7 @@ Windows Remote Debugging (Windows RD)
 
 vs2015.ent_enu.iso\packages\vcRedistD14\VC_redist.x64.exe				Visual C++ Redistributable Packages for Visual Studio 2015
 vs2015.ent_enu.iso\packages\dotNetFramework\dotNetFx-x86-x64-AllOS-ENU.exe  版本 4.6
- 
+
 Tools->Error lookup 可以输入错误号,查看错误文本描述 C:\Program Files\Microsoft Visual Studio 10.0\Common7\Tools\errlook.exe 
 
 
@@ -24,7 +25,7 @@ VC2010 设置环境变量
 	include=C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include
 
 
-VS2015  update 3 最后一版ISO文件
+VS2015  update 3 最后一版ISO文件(可能是最后一个运行在win7上)
 	http://download.microsoft.com/download/6/4/7/647EC5B1-68BE-445E-B137-916A0AE51304/vs2015.ent_enu.iso
 	http://download.microsoft.com/download/B/8/F/B8F1470D-2396-4E7A-83F5-AC09154EB925/vs2015.ent_chs.iso
 	断网 激活密钥：HM6NR-QXX7C-DFW2Y-8B82K-WTYJV
@@ -45,8 +46,9 @@ VS2015  update 3 最后一版ISO文件
 		把VisualStudio14重命名,把下载的离线MSDN解压在这,有中文的
 	help->set help preference->lanch in help view (文档内容中英文和HelpView的界面语言相同)
 		
+	
 
-VS 2017.15.8 下载离线版本 
+VS 2017.15.8 (可win10上)下载离线版本 
 	 C++ desktop development  	安装时多选  MFC (在Visual Studio扩展开发组选中,再选中MFC 会安装C#.Net)
 		
 	也可双击出现界面选择要安装组件，选择下载保存目录，在安装的时候有选择语言包，不选择中文就行
@@ -62,10 +64,14 @@ VS 2017.15.8 下载离线版本
 	安装后就不能多增加组件了，再安装总是提示安装目录不为空???
 	不能建立MFC项目，BUG????????????????
 	
-	https://docs.microsoft.com/en-us/
-	https://docs.microsoft.com/en-us/cpp/
-	
+Visual Studio 2019  Version 16.5
+
+
+
+
+------------	
 项目删无用目录<Solution_Name>.VC.db 和所有的Debug目录
+
 
 #pragma comment (lib, "glew32.lib") //cl编译器读.lib
 
@@ -83,11 +89,6 @@ dumpbin xxx.dll文件
 
 VC 2010  编译openGL时报LINK : fatal error LNK1123: failure during conversion to COFF: file invalid or corrupt
 项目-->工程属性->配置属性-> 清单工具->输入和输出->嵌入清单，选择[否] 
-
-en_visual_studio_2010_professional_x86_dvd_509727.iso\WCU\dotNetFramework\dotNetFx40_Full_x86_x64.exe  可以在xp 32位上运行 
-没有找到VC++2010 Redistributable
-
-vs2015.ent_enu.iso\packages\dotNetFramework\dotNetFx-x86-x64-AllOS-ENU.exe  是 4.6版本 
 
 ----------------------VS2010 - 2015 工具使用
 Tools->options->Enviroment->General -> color theme :Dark

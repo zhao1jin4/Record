@@ -104,13 +104,18 @@ public class NacosConsumerApp {
 --------Nacos 配置
 
 --------Seata 分布式事务
-国产另一个分布式事物框架Easy-Transaction
+Hmily 高性能异步分布式事务TCC框架 (Try,Confirm,Cancel)
+tcc-transaction 分布式事务TCC框架
+JTA事务管理器 Atomikos   Bitronix  
+#Easy-Transaction 国产分布式事物框架 
+
+2PC 两阶段提交(Prepare准备阶段， Commit提交阶段),依赖数据库XA实现 ，锁的时间较长
 
 http://seata.io/
 强一致性  AT   模式 ，使用锁，不是高性能的，牺牲了可用性,有使用undo_log表做补偿回退
 弱一致性  Saga 模式 ,一个参与者失败则补偿前面已经成功的参与者
 
-（内部用Dubbo,外部用Restful）
+(内部用Dubbo,外部用Restful)
 
 TC 事务协调者，即Seata Server  
 TM 事务管理者，即示例的bussiness,有 @GlobalTransaction

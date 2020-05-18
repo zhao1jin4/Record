@@ -239,6 +239,8 @@ windows 下启动idea提示Cannot lock system folder(可能不是管理员导致
 管理员运行 netsh winsock reset
 
 ====================IntelliJ IDEA plugin 
+https://plugins.jetbrains.com/
+https://plugins.jetbrains.com/idea
 
 ---自带插件android
 IDEA 2018.2.6 也可以建立Android 项目
@@ -333,6 +335,18 @@ intellij idea 2018.2 插件 kubernetes
 	如有中文可能部分是乱码的,可以直接修改xml,###也可以修改 idea64.exe.vmoptions 文件尾行增加 -Dfile.encoding=UTF-8
 点上方的export to file按钮,可选择图片格式，但如果idea主题是黑色，导出的图背景也是黑色
 
+----Protobuf Support 插件 
+ v0.13.0 (2019-03-13)  兼容idea版本2018.3+
+ 0.12.0    兼容idea版本 2018.2+
+
+可语法高亮
+
+----GenProtobuf 插件 
+2020 年的1.4版本，兼容idea版本2017.3+
+不能语法高亮
+
+Tool->configure Gen Protobuf -> 选择语言Java,要 PATH环境变量中有protoc命令,也可设置输入目录,默认当目录
+右击.proto文件-> quick gen protobuf here
 
 ---------DataGrip 2018  可以不要 IntellijIDEA 也有这此功能,也有 WebStorm ,Android 功能
 
@@ -378,12 +392,17 @@ Settings->Build,Execution,Deployment->ToolChains->选择Cygwin 右则点...配�
 	
 	Run 菜单 -> Break at first line in PHP scripts
 
---------Goland
+-------GoLand 2018.2.4 (IntellijIdea)
+Settings-> Go -> GoPATH 下有 global GOPATH (默认是~/go) 配置 
+	
+	右击 xx_test.go -> create TestXX (方法名) in xx.go(文件名) ,
+	如运行报找不到方法, Settings-> Go -> GoPATH 下project GOPATH ,增加要把项目目录(代码要在src目录下)
+
 
 --------Pycharm
 Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 
----------Rider 跨平台的C#开发工具(也有开源的ＭonoDevelop )
+---------Rider 跨平台的C#开发工具(也有开源的MonoDevelop )
 
 
 

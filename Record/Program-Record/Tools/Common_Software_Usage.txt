@@ -551,8 +551,11 @@ ctrl+w关闭全部标签窗口,不是当前打开标签???
 		Editor:Close Current Buffer   把这个clear 可能要重启komo 才生效,这个有BUG，效果其实和Close All Buffer 一样
 		Editor:Close All Buffer (显示默认是ctrl+alt+w)  
 
+alt+拖动 可以选择中部分列
+ 
+------Bluefish  
+windows版本会在线下载GTK+等包,有的还失败
 
-------bluefish  
 不能按列选择，不方便 
 
 不能使用shift + tab 缩进选中的行，不方便 ,使用工具栏的indent,unindent按钮

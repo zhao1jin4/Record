@@ -89,7 +89,7 @@ cgi.force_redirect = 1
 cgi.fix_pathinfo = 1 
 cgi.rfc2616_headers = 1
 
-启动PHP用 php-cgi.exe -b 127.0.0.1:9000 -c php.ini  (linux 使用php-fpm)
+启动PHP用 php-cgi.exe -b 127.0.0.1:9000 -c php.ini  (linux 使用php-fpm,高并发比较差)
 
 
 ---nginx.conf配置文件中也有示例,打开#后做修改

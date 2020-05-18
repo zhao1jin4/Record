@@ -2239,7 +2239,7 @@ class xx extends HttpServlet {
 				JavaMailConnectionFactoryImpl implements  Referenceable 
 					
 =============================Tomcat
-tomcat 9 版本不支持JDK11
+tomcat 9 版本不支持JDK11 (docker上有 tomcat:9.0.34-jdk11)
 
 catalina.bat jpda start/run 启动8000 可远程调试
 

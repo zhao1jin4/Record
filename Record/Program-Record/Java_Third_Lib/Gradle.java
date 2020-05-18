@@ -114,7 +114,7 @@ IDEA 的Gradle视图 <项目> -> Task -> help -> dependencies 执行后控制台
 
  
 //wrapper
-空项目目录下 gradle wrapper --gradle-version 5.4 会生成 gradlew 可执行文件和gradle/wrapper目录,下有gradle-wrapper.properties文件，包含下载gradle对应版本bin包的URL
+空项目目录下 gradle wrapper --gradle-version 5.4 会生成 gradlew(gradle Wrapper) 可执行文件和gradle/wrapper目录,下有gradle-wrapper.properties文件，包含下载gradle对应版本bin包的URL
 就可以执行 ./gradlew build 来构建项目
 
 //kotlin
@@ -604,3 +604,13 @@ idea Gradle视图 publishMavenPublicationToMavenLocal 到远程maven仓库nexus 
 
 ---gradle 依赖统一版本，不是使用变量		
 ---gradle 各种环境配置文件
+
+
+----
+gradle installDist 生成 build/install/<projectName>
+gradle distZip 生成build/distributions/<projectName>.zip包
+gradle distTar 生成build/distributions/<projectName>.tar包
+gradle assemble 生成build/distributions/<projectName>.tar包 和 .zip包
+
+
+

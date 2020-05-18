@@ -1,4 +1,3 @@
-http://doc.javanb.com 中文JDK6API
 https://docs.oracle.com/en/java/javase/11/
 
 C:\ProgramData\Oracle\Java\javapath  目录中有java,javaw

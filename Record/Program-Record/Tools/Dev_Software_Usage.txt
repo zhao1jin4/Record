@@ -994,10 +994,10 @@ make all
 
 Proxy->SSL proxy setting
 
-Firefox 中　工具－＞选项－＞高级－＞网络标签－＞单击　设置．．－＞选择 [手动设置代理]
+Firefox 中　工具 -> 选项 -> 高级 -> 网络标签 -> 单击　设置．． -> 选择 [手动设置代理]
 HTTP代理   127.0.0.1   8888　
 
-IE ->　工具－＞选项－＞连接->局域网设置->高级->设置 ->看HTTP的设置 
+IE  -> 工具 -> 选项 -> 连接 -> 局域网设置->高级->设置 ->看HTTP的设置 
 
 
 -------------Fiddler 代理工具
@@ -1258,6 +1258,9 @@ File->preferences->windows 标签->Restore Windows 选择none
 右击文件-> format document(alt+shift+f) 可json
 
 File->preferences-> extensions  可以在线安装 各种语言的 如 C/C++(MinGW C++),Scala,Kotlin
+
+对于像springboot项目,可不使用mvn spring-boot:run ,main方法上方就有Run或Debug链接
+
  
 ----- Node JS
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
@@ -1310,12 +1313,38 @@ xdebug.remote_autostart = 1
 xdebug.remote_host = 192.168.1.102
 ;对应phpStorm配置中xdebug的端口
 xdebug.remote_port = 9000
------ Go  扩展
-	安装后,Debug视图->上方的设置按钮生成launch.json
-	调试启动按钮，提示 "dlv" 找不到.使用 "go get -v github.com/go-delve/delve/cmd/dlv"安装,但长时间下载不了???
 
-    https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
-	go install ...
+----- Go  扩展
+	打开.go文件时  提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装(就一个main.go文件)
+		又提示 不认导入路径  golang.org/x/tools/go/buildutil , get连接失败，被墙了
+	https://github.com/golang/tools/tree/master/go/buildutil 中有
+	项目下载下来,cd tools-master\go\buildutil 执行 go install
+	再go get 就可以了, ~\go\bin下就有go-outline.ex
+
+		
+	go help get ,显示 -v verbose,-u update
+		
+	安装后,Debug视图->上方的设置按钮生成.vscode/launch.json
+	{ 
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Launch",
+				"type": "go",
+				"request": "launch",
+				"mode": "auto",
+				"program": "${fileDirname}",
+				"env": {},
+				"args": []
+			}
+		]
+	}
+	如没有生成launch.json,不能运行xx_test.go文件,如有则可以(文件在任何目录，没有设置GOPATH,代码没有放在src目录下)
+		
+	打开.go文件 ->调试启动按钮，提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,要花点时间下载的
+	https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
+	也可  go install ...
+
 -----  Python  扩展
 提示安装 pylint,也可不安装
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言, 选Python file ->会自动生成launch.json
@@ -1325,7 +1354,7 @@ xdebug.remote_port = 9000
 ----Kubernetes 扩展
 默认支持yaml语法高亮,按tab缩进的是两个空格
 
-(1.30.1版本测试无效，要新的1.39.2)是Microsoft发布的 说是支持Develop, deploy and debug ,支持Minikube 环境,需要kubectl 命令
+(vscode-1.30.1版本测试无效，要新的vscode-1.39.2)是Microsoft发布的 说是支持Develop, deploy and debug ,支持Minikube 环境,需要kubectl 命令
 	可以鼠标滑到有效的键上有文档提示 
 	但如果键写错不会提示 
 
@@ -1342,6 +1371,8 @@ Visual Studio IntelliCode
 
 ctrl+. 即 quick fix 可导入类，重命名文件
 写代码像eclipse一样智能，ctrl+点类名会跳到源码，鼠标滑类上有说明 ，写类会提示所在包，自动加import
+粘贴的类没有导入,光标在类上,提示点quick fix->import xxxx
+
 右击文件->Source Action...->Override/Implement Method 和 Generate Getter and Setter
 
 
@@ -1363,6 +1394,9 @@ ctrl+shift+p,空项目时有提示，输入命令git:clone但会提示未尾有�
 
 -----扩展XML
 根据DTD,Schema 可写时有提示
+-----扩展 .proto  
+vscode-proto3 (作者，无名气) 语法高亮 ，括号，语法验证，代码完成
+Protobuf support(作者，无名气) 只语法高亮，括号,功能差一点。
 
 -----扩展 Freemarker
 

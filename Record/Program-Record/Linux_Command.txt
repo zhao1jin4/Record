@@ -36,7 +36,7 @@ cat /etc/SUSE-brand
 ========================Gnome-3 界面
 Terminal 按ctrl+shift+t 新建一个标签页
 
-"三"按钮->show hide files
+"三"按钮->show hide files  显示隐藏文件  ctrl+h 
 
 要多个图形用户同时登录  锁机 -> login another user
 
@@ -95,6 +95,9 @@ gedit -3 在打开文件时有选择编码
 字体  在	/usr/share/fonts/truetype/   ,ecipse chrome等默认字体为mono space
  
 dconf-editor 图表配置工具　为配置 dconf
+
+~/.config/autostart 目录放自动启动的配置
+
 ----themes 
 
 https://www.gnome-look.org/browse/cat/135/ord/latest/
@@ -274,7 +277,8 @@ finger -l
 
 fuser -k /dev/tty1   杀用户连接  (可能图形界面的多个 终端)
 fuser -k /dev/pts/1
-
+	-m mount
+	-v verbose
 fuser   /usr/java/jdk1.6.0_43/bin/java  查哪个进程使用这个文件
 
 查这个进程使用命令所在路径
@@ -513,6 +517,8 @@ sed 's/^86//;s/,$//' user.txt     #去掉开头的86 及尾部的,号
 
 windows 下打linux文件用,写字板来打开
 
+/dev/cdrom -> sr0
+
 eject cdrom  
 Nero 记录光盘 ，ISO 标签栏，文件名长度ISO (1，最多8＋32，最多31)
 
@@ -526,7 +532,11 @@ cdrecord dev=b,t,l -v -dao schillix-0.1.iso
 alias ls='ls --color=always -ahl'
 unalias 
 
+dhclient eth0 重新获得IP
 ip link 可查mac地址
+ip link set ethX address NEW_MAC_ADDR
+ip link set ens33 address 00:0c:29:82:0a:cd
+
 ip link set dev eth0 down
 #ifconfig eth0 down
 更换物理地址
@@ -534,6 +544,8 @@ ip link set dev eth0 down
 # ifconfig eth0 up
  ifconfig eth0 192.168.0.118 netmask 255.255.255.0
  ifconfig eth0 192.168.0.118/24
+ 
+ vi /etc/sysconfig/network-scripts/ifcfg-ens33 中有UUID
  
 last登录用户历史
 rout
@@ -562,6 +574,10 @@ nslookup输入域名或者IP
 tcpdump -e host 主机名
  -i interface
  -n 不转换地址到名字，即数字
+
+tcpdump port 80 -i ens33 抓本机的的
+
+ 
  
 /etc/host.conf文件 order host,bind  #先按hosts文件再按ＤＮＳ
 		multi on	#是否/etc/hosts中允许一个主机有多个ＩＰ地址
@@ -611,6 +627,7 @@ wget http://  来下载
 -q  --quiet  Turn off Wget's output.
 -O file 如file是 - 会输出到标准标出上
 -P,  --directory-prefix=PREFIX  保存位置 
+--header  'header:value'
 
 curl 来请求
 
@@ -625,7 +642,7 @@ Procs
 
 Memory
    swpd: the amount of virtual memory used.
-   free: the amount of idle memory.
+   free: the amount of idle memory.     
    buff: the amount of memory used as buffers.
    cache: the amount of memory used as cache.
    inact: the amount of inactive memory. (-a option)
@@ -872,7 +889,6 @@ sudo -i 可以进入全root模式
 	可以放开 # %wheel ALL=(ALL) ALL 所有这个组的用户都可sudo
 
 openSUSE 在 sudo 时要的是root密码,不是当前登录用户密码
-
 
 无密码使用 sudo命令
 echo "user01 ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/user01
@@ -1742,7 +1758,7 @@ grub-md5-crypt<psd>>/etc/grub.conf ##为了好复制，psd文件中有原密码
 
 
 
-=================iptables 被nftables替代
+=================iptables 被 nftables 替代
 
 一个数据据包有 源地址,目标地址,协议
 
@@ -1768,6 +1784,7 @@ iptables -F (flush)    清空规则
 --sport 源 
 -d --destination 
 --line-numbers 显示链的编号
+-v --verbose	
 
 
 链，INPUT，OUTPUT，FORWARD(对其它机器服务,的来源和目录都不是自己)
@@ -1829,7 +1846,13 @@ iptables -P INPUT DROP
 iptables -P OUTPUT DROP
 iptables -P FORWARD DROP 
 
+-----ipvs
+ipvsadm软件包
+ip 可操作的对像，如 netns 网络名称空间
+
+
 -----
+
 
 systemctl list-unit-files | grep firewall 有 firewalld.service 
 systemctl stop firewalld
@@ -2076,8 +2099,16 @@ setfacl --restore bak.txt  备份与恢复要在同一个目录下
 
 
 read (4), write (2), and execute (1)
-set user ID (4) and set group ID (2) and restricted deletion or sticky (1) attributes.//1显示t  4或2 显示s
+set user ID (4) and set group ID (2) and restricted deletion or sticky (1) attributes.//1显示t, 4或2 在执行权限列显示s
+
 chmod u+s g+s //uid ,gid
+chmod o+t 表示其它用户不能删除,有写权限也不行,执行权限列  显示t
+如本来在该位上有x, 显示为小写字母 (s, s, t). 否则显示为大写字母 (S, S, T)
+
+chmod 4777是设uid
+chmod 2777是设置gid
+chmod 1777是设sticky
+
 =====================quota 磁盘限额 
 /etc/fstab文件中的类型中加入,usrquota,grpquota
 
@@ -2720,9 +2751,11 @@ $ sudo ln -s '/usr/lib/systemd/system/clamd@scan.service' '/etc/systemd/system/m
 # 列出所有配置文件
 $ systemctl list-unit-files
 
-# 列出指定类型的配置文件
+# 列出指定类型的配置文件 
 $ systemctl list-unit-files --type=service
-
+ 			--state=enabled
+systemctl disable sshd cron
+		
 状态 同 is-enabled
 enabled：已建立启动链接
 disabled：没建立启动链接
@@ -3399,6 +3432,8 @@ curl http://127.0.0.1:80 外网IP也要测试 ,如出错重新mount(还是原来
 
 ---nftables( netfilter项目)
 https://wiki.nftables.org/wiki-nftables/index.php/Main_Page
+
+nftables 软件包
 
 ipv4 和 ipv6 协议可以被合并为一个称为 inet 的单一地址族
 如果未指定地址族，它将默认为 ip 协议，即 ipv4

@@ -1,9 +1,8 @@
 
 DevOps 
-CI
-CD Delivery
-CD Delploy
+CI/CD  即 Continue Integeration/ Continue Delivery
 
+OCI(Open Container Initiative)
 CNCF(Cloud Native Computing Foundation)
 
 教程  （Spring cloud也有）
@@ -64,7 +63,7 @@ docker load --input java1.8.tar
 容器（Container）
 仓库（Repository）  存放镜像文件的场所
  
- 
+https://hub.docker.com/
 ----- 配置镜像仓库
 vim /usr/lib/systemd/system/docker.service 
 有 LimitNOFILE=1048576
@@ -77,18 +76,20 @@ ExecStart=/usr/bin/dockerd --registry-mirror=http://hub-mirror.c.163.com
 systemctl daemon-reload
 docker info 的HTTPS Proxy,No Proxy可看到配置Environment的值
 
+docker version
+docker --version 
+ 
 --安装 docker engine   CentOS 下
 yum-config-manager   --add-repo    https://download.docker.com/linux/centos/docker-ce.repo
 	保存到 /etc/yum.repos.d/docker-ce.repo
 	
-yum install docker-ce   目前安装的是 17.12.0.ce-1.el7.centos 还依赖一个 container-selinux-2.36-1
- 
-
 或者 下载下来安装
 https://download.docker.com/linux/centos/7/x86_64/stable/Packages/
 https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm 
-
-yum install docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm 
+	现在有 docker-ce-19.03.x版本了
+		依赖于container-selinux, policycoreutils-python,libcgroup ,DVD中就有
+	
+yum install docker-ce  依赖一个 container-selinux-2.36-1
 
 
 http://mirrors.huaweicloud.com/centos/7/extras/x86_64/Packages/  
@@ -96,10 +97,10 @@ extra下有docker
 
 ---openSUSE
 http://download.opensuse.org/distribution/leap/15.1/repo/oss/ 下的 x86_64/
- 		docker-18.09.1
-			docker-compose-1.17.0
-			docker-machine-driver-kvm2-1.0.0
-	
+ 		docker-18.09.1 (依赖 docker-runc)
+		docker-compose-1.17.0
+		docker-distribution-registry
+		
 ---linux  binary
 
 https://download.docker.com/linux/static/stable/x86_64/
@@ -115,22 +116,17 @@ https://download.docker.com/mac/static/stable/x86_64/    mac docker client
 
 --uninstall
 	yum remove docker-ce
-	sudo rm -rf /var/lib/docker
+	sudo rm -rf /var/lib/docker 是docker的数据目录 版本升级这个目录要移动/删除
 --
 
-/var/lib/docker   是docker的数据目录 版本升级这个目录要移动/删除
-
-
-
+docker --version
 systemctl start docker  
 docker run hello-world  运行镜像,本地没有，会从网上下载
 
 docker images 显示本地已有的镜像 (结果同docker image ls)
 
 systemctl enable docker.service   配置开机启动
-systemctl disable docker.service 
-
-docker --version
+systemctl disable docker.service  
 
 看日志
 journalctl -u docker.service
@@ -139,16 +135,21 @@ journalctl -u docker.service
 也可增加一个docker组（权限同root)
 sudo groupadd docker
 sudo usermod -aG docker dell   //-G是supplemental（追加的）组，-a是append用户 对supplemental
-注销重新登录
+
+注销重新登录使用新的组
 newgrp docker 
+
 docker run hello-world 就可以不用root了
  
 
 --windows 10 版本使用  Hyper-V ,只用于开发(要求windows 10 pro or enterprise,windows server 2016)
+启用Hyper-V,开始-> windows Accessories->Administrative Tools->Hyper-V Manager
+自动建立了名为 MobyLinuxVM ,目录在 C:\Users\Public\Documents\Hyper-V\
+
 最新版 windows 提示 You must be in the "docker-users" group. 
 net user docker  /add /active:yes /expires:never /passwordchg:yes /fullname:"the-docker" /comment:"docker used"
 net localgroup "docker-users" docker /add
-
+--
 
 
 docker pull ubuntu:12.04   // pull 命令来从仓库获取所需要的镜像。 最新的是 17.10
@@ -186,12 +187,13 @@ docker run -d -p 4000:5000 training/webapp python app.py   小p指定端口
 
 docker port <CONTAINER ID>或<NAMES> 查看端口
 docker top <CONTAINER ID>或<NAMES>  容器内部运行的进程
+docker restart <NAMES/CONTAINER ID列的值>
 docker stats <CONTAINER ID>或<NAMES>   对CPU的占用
 docker inspect <CONTAINER ID>或<NAMES>   会返回一个 JSON 文件记录着 Docker 容器的配置和状态信息
 
 
-docker ps -l 查询最后一次创建的容器：
-docker rm  <CONTAINER ID>或<NAMES>  删除，必须先stop
+docker ps -l 查询最后一次创建的容器(停止的也可看到)
+docker rm  <CONTAINER ID>或<NAMES>  删除，必须先stop，可以加-f 停止加删除
 
 docker search httpd 搜索镜像  有 OFFICIAL:是否docker官方发布
 
@@ -248,13 +250,9 @@ docker login
 docker push  (要事先在docker hub上建立repository如 busybox)
 
 
-
-
-
-
-
-
-Dockerfile 指定是不区分大小写，通常大写，第一个非注释行必须是FROM
+ 
+ 
+---Dockerfile 指定是不区分大小写，通常大写，第一个非注释行必须是FROM
 .dockerignore 类似.gitignore
 所有shell命令是镜像的环境，${NAME:-default} 语法同linux shell
  
@@ -289,6 +287,8 @@ Dockerfile 指定是不区分大小写，通常大写，第一个非注释行必
 	CMD ["python", "app.py"]	
 	
 ---
+FROM tomcat:9.0.34-jdk11  #源码是从 FROM openjdk:11-jdk (/usr/local/openjdk-11版本是11.0.7,/usr/local/tomcat)
+
 #当前目录下的src目录，src目录本身不会被复制，只能是Dockerfile 所在目录的下级，dest如是目录要以/结尾，dest目录不存在会自动创建 
 可以多个源，目标必须是目录
 COPY src /dest/ 	
@@ -331,11 +331,12 @@ STOPSIGNAL  修改stop时的发信号
 ARG  只在build中使用 ，docker build --build-arg 的参数不能传到 第一个指令 FROM 中的值 
 ONBUILD ADD . /app/src   是在生成镜像后，别人在from这个镜像时执行，是一个trigger
 
-
-
+ 
 ---
-docker run -it --rm busybox httpd -f 可在最后传参数，替代默认启动命令
 
+
+docker run -it --rm busybox httpd -f 可在最后传参数，替代默认启动命令
+docker exec -it --privileged <容器ID> bash
 	
 docker build -t friendlyhello .
   -t, --tag list                   Name and optionally a tag in the 'name:tag' format
@@ -353,8 +354,9 @@ docker push username/repository:tag      上传到远程服务
 docker run -p 4000:80 username/repository:tag 从服务器上下载运行
 
 
-docker tag  <image id> <新repository名>  #新名必须全小写， 为镜像添加一个新的标签  
- 
+docker tag  <image_id> <新repository名:新的标签名(tag)>  #新名必须全小写， 为镜像添加一个新的标签  
+//为image_id加一个新的标签,一个image_id可以有多个标签,image_id是 docker images中的
+   
 -- imort  和 export  配对用(导入要指定新的标签)
 docker export   xx
 
@@ -613,6 +615,7 @@ $ docker run -d \
   --mount type=bind,source="$(pwd)"/target,target=/app \
   nginx:latest
 
+#--mount Attach a filesystem mount to the container ,target的值是容器目录
 效果同
 
   docker run -d \
@@ -659,11 +662,6 @@ docker run -d \
   nginx:latest
 
 建立/app/foo/目录  /app2/foo/ 也存在
-
-
-
-
-
 
 
 
@@ -838,17 +836,20 @@ $ docker run -d -p 5000:5000 --restart=always --name registry \
              -v `pwd`/config.yml:/etc/docker/registry/config.yml \
              registry:2
 
--------私有仓库Harbor 基于Registry 支持HA
+-------私有仓库 Harbor 基于Registry 支持HA
 看文档，下载离线版本 harbor-offline-installer-v1.8.2 ，解压 修改 harbor.yml配置文件 ，有些选项必须修改
 	如hostname:
 	默认用户 admin/Harbor12345
-	默认数据用户 root/root123
+	默认数据用户 root/root123 #Harbor DB
 	默认log
-	要docker-compose  版本>= 1.18.0  用 sudo pip install -U docker-compose
-sudo ./install.sh
-registry和redis 镜像/容器不能存在
+	要docker-compose  版本>= 1.18.0 (复制二进制到/usr/local/bin不行)
+	#sudo pip3 install -i https://pypi.doubanio.com/simple/  -U docker-compose  (安装在 /usr/bin/下,最新1.25.5)
+sudo ./install.sh    提示设置了base dir为解压目录
+registry/redis/nginx 容器名不能存在  
 
-停止服务 docker-compose stop 
+成功后 http://127.0.0.1 跳转到 http://<hostname>/harbor  有界面 登录 默认有一个名为library的project,仿问级别只有Public
+
+停止服务  源码目录 下 sudo docker-compose stop  共9个容器
 
 -------私有仓库 nexus
 https://help.sonatype.com/repomanager3
@@ -869,284 +870,11 @@ ExecStart=/usr/bin/dockerd --registry-mirror=http://127.0.0.1:8081/repository/do
 不行？？？
 /etc/docker/daemon.json  (openSUSE-leap-15.1 是 /etc/daemon.js)
 
-=============== Docker Swarm
-https://docs.docker.com/engine/swarm/
-Swarm mode
-Docker Swarm 是集成在docker引擎中,  管理docker引擎集群
 
-manager节点
-worker节点
----
-如要使用swarm，则必须让Docker开放其HTTP的API。默认情况下这个API没有开启
-openSUSE/Redhat一样的systemctl 都改 /usr/lib/systemd/system/docker.service 中的 ExecStart 参数
-ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
-(原来没-H参数，启动后就监听2375端口) 
-docker -H --host 去连接服务端
- 
-docker info 报 WARNING  不安全
- 　　 
-修改完成之后别忘了运行一下systemctl daemon-reload刷新配置   
-ss -atn | grep 2735
-   -n, --numeric
-
-docker pull swarm   下载swarm的镜像
-
-docker run --rm swarm create  提示这种方式过时了
- 
- ---
-
-TCP 端口2377 for cluster management communications
---为routing mesh
-TCP/UDP 端口 7946 for communication among nodes
-UDP 端口 4789 for overlay network traffic
-
-如果使用docker-machine创建的主机
- docker-machine ssh manager1
- 
- docker swarm init --advertise-addr <MANAGER-IP>
- 会提示当前节点是manager，增加work要运行  docker swarm join  --token xxx  <manager-ip>:2377,增加manager运行 docker swarm join-token manager
- 会创建名为 ingress 的overlay网络,名为docker_gwbridge 的bridge网络
-
- 在docker swarm join时，报 Root CA Certificate: x509: certificate has expired  
- docker swarm leave --force 删除后，同步worker，manager时间，再docker swarm init即可
-
- docker info 
- 	看Swarm组值为active 
- 		 Is Manager: true
- 		 Managers: 1
- 		 Nodes: 2
-
- docker node ls 看MANAGER列值为Leader
- 
- 
-如--token丢失，在manager上执行 下面命令，会再次提示增加work命令
-docker swarm join-token worker
-
-在manager节点上创建service（不是必需的）
-docker service create --replicas 1 --name helloworld alpine ping docker.com
-
-Service 包含两种模式：
-	replicated：可指定服务驻留节点数量（默认）
-	global：服务驻留在全部节点
-
-docker service ls
-docker service inspect --pretty helloworld  （如不加--pretty 返回json)
-docker service ps helloworld  看哪个节点在运行
-
-docker service scale helloworld=5
-docker service ps helloworld 显示哪个节点有运行
-在运行的节点上查看 docker ps 
-
-docker service rm helloworld  刚运行的节点docker ps 就没了
-
- -----滚动更新
- 在manager节点上
- docker service create \
-  --replicas 3 \
-  --name redis \
-  --update-delay 10s \
-  redis:3.0.6
-
-  --update-delay  s秒 ,m分, h小时.  10m30s  10分30秒
-默认1个任务 ，可以配置 --update-parallelism
-默认更新失败就暂停,可以在 docker service create 或 docker service update 命令中增加 --update-failure-action
- 
-
-
-docker service inspect --pretty redis
-可以看到
-Service Mode:   Replicated
- Replicas:      3
-UpdateConfig:
- Parallelism:	1
- Delay:		10s
- On failure:	pause
-ContainerSpec:
- Image:		redis:3.0.6@sha256:xxx
- 
-开始更新
- docker service update --image redis:3.0.7 redis
-
-docker service inspect --pretty redis
-看 Image:		版本有升级
-
-更新暂停的情况 （如edis:3.0.8）
-UpdateConfig:  
- On failure:	pause
-
-对更新暂停的，要再次更新使用命令
-docker service update redis
-
-docker service ps redis 会看到有各版本的运行状态
-
-DRAIN （	排空; (使) 喝干; 下水道; ） 能力，不从swarm manager接受新任务，把任务复制到其它 活动 能力 节点上，并不删除 
-docker node ls 可以看到 AVAILABILITY 列
-
-docker node update --availability drain <NODE-ID>  (docker node ls的ID或HOSTNAME)
-docker node update --availability drain rhel7
-
-docker node inspect --pretty rhel7
-有信息
-Status:
- State:			Ready
- Availability:         	Drain
-
-再激活
-docker node update --availability active rhel7
-
-
----routing mesh
-TCP/UDP 端口 7946 for communication among nodes
-UDP 端口 4789 for overlay network traffic
-
-docker service create \
-  --name my-web \
-  --publish published=8080,target=80 \
-  --replicas 2 \
-  nginx
-  
-published  如不写,就会随机高数字端口，target 表示 <CONTAINER-PORT>
-#类似 -p 格式 本机端口:docker端口
-
-
-ingress netwok  图显示有 load balance功能, 在任何节点访问8080端口时，Docker路由将把请求分发到一个active的容器中
-docker network ls 显示有ingress记录
-
-如果是已经存的服务使用命令
-
-docker service update \
-  --publish-add published=<PUBLISHED-PORT>,target=<CONTAINER-PORT> \
-  <SERVICE>
-
-docker service inspect --format="{{json .Endpoint.Spec.Ports}}" my-web  使用json查找只要部分数据
-使用Go template
-
-docker service inspect --pretty  my-web
-Ports:
- PublishedPort = 8080
-  Protocol = tcp
-  TargetPort = 80
-  PublishMode = ingress 
-
-
-默认是tcp协议 
-
-$ docker service create --name dns-cache \
-  --publish published=53,target=53 \
-  dns-cache 
-
- 缩写方式
-  
-$ docker service create --name dns-cache \
-  -p 53:53 \
-  dns-cache
-
-
-
-指定协议UDP 
-
-$ docker service create --name dns-cache \ 
-  --publish published=53,target=53,protocol=udp \
-  dns-cache
-
- 缩写方式
-
-$ docker service create --name dns-cache \ 
-  -p 53:53/udp \
-  dns-cache
-
-
-绕过路由网络，必须使用长格式的  --publish参数
- docker service create --name dns-cache \
-  --publish published=53,target=53,protocol=udp,mode=host \
-  --mode global \
-  dns-cache
-
-对于 mode=host     默认值为  ingress
-对于 --mode global 默认值为 replicated
-
-
-
-可以最前方增加 Haproxy 代理 (网上说单独性能超nginx)
-https://docs.docker.com/engine/swarm/ingress/#bypass-the-routing-mesh
-
-
-如不使用路由网络
---endpoint-mode=dnsrr   
-
-DNS Round Robin (DNSRR) 
-默认值是vip (virtual IP)
-
-docker service inspect --pretty  my-web
-显示有 Endpoint Mode:	vip
-
------
-如使用私有 registry 要密码，建立serivce 使用参数 --with-registry-auth
-
-$ docker login registry.example.com
-
-$ docker service  create \
-  --with-registry-auth \
-  --name my_service \
-  registry.example.com/acme/my_image:latest
-  
---env MYVAR=myvalue  
---workdir /tmp  	 是容器内的工作目录
---user my_user  
-
-如使用overlay网络
-$ docker network create --driver overlay my-network
-
-docker service create \
-  --replicas 3 \
-  --network my-network \
-  --name my-web \
-  nginx
-
-对已经存的service 的网络修改
-  
-docker service update --network-add my-network my-web
-docker service update --network-rm my-network my-web
-
-
---config  
-
-docker ps --filter name=my-web -q
-查看docker容器的目录
-docker container exec $(docker ps --filter name=my-web -q) ls -l /   
- 
-技巧 利用sh 可以执行命令
-docker run -d --name app1 registry
-docker exec -it app1 sh 
-可以看ip,ping
-
-
-
-echo "This is a config" | docker config create my-config  -
-- 从标准输入传读，
-docker service create --name redis --config my-config redis:alpine 
-默认仿问/my-config，可以使用target自定义文件名
-docker service update --config-add my-config redis
-#docker service update --config-rm my-config redis
-
-docker ps --filter name=redis -q
-docker container exec $(docker ps --filter name=redis -q) ls -l /my-config
-docker container exec $(docker ps --filter name=redis -q) cat /my-config                                               
-docker config ls
-
-docker service rm redis
-docker config rm my-config
-
-
-禁用 docker swarm
-docker swarm leave 如有其它主机加入会提示
-(master)使用 docker swarm leave --force 
-后再docker info 看 Swarm: inactive
 
 
 =============== Docker compose
 用于单机的容器编排工具，可以先做镜像，容器可以按顺序启动，自动配置容器，(如多物理机用docker-swarm，加入docker-swarm要求用docker-machine)
-更强的kubernetes
 
 使用python开发
 
@@ -1154,7 +882,6 @@ https://docs.docker.com/compose/overview/
 一个工具 用于 定义和运行 多个docker应用
 
 docker-compose-1.17.0-lp151.3.2.noarch.rpm
-
 openSUSE-leap-15.1 DVD带的依赖
 rpm -ivh ../noarch/python2-appdirs-1.4.3-lp151.2.1.noarch.rpm ../noarch/python2-setuptools-40.5.0-lp151.1.1.noarch.rpm ../noarch/python2-packaging-16.8-lp151.2.1.noarch.rpm ../noarch/python2-pyparsing-2.2.0-lp151.2.1.noarch.rpm ../noarch/python2-six-1.11.0-lp151.3.1.noarch.rpm ../noarch/python2-chardet-3.0.4-lp151.3.2.noarch.rpm
 
@@ -1170,6 +897,7 @@ https://dl.bintray.com/docker-compose/master/
 Docker compose pip 安装
 yum install python-pip python-dev
 pip install -U docker-compose
+#sudo pip3 install -i https://pypi.doubanio.com/simple/  -U docker-compose   安装在 /usr/bin/下,最新1.25.5
 卸载
 pip uninstall docker-compose
 rm /usr/local/bin/docker-compose
@@ -1211,7 +939,7 @@ volumes:
  --
  https://docs.docker.com/compose/gettingstarted/
  
-services下的两自定义名为web的使用dockerFile构建，名为redis要拉镜像
+services下的两自定义名为web的使用Dockerfile构建，名为redis要拉镜像
 volumes :前是主机目录，:后是容器目录
 environment 环境变量 
 depends_on 依赖服务名 
@@ -1221,6 +949,21 @@ command 覆盖默认 command(应该是dockerFile的CMD??)
 
 
 docker-compose scala/logs
+
+
+如使用 docker-compose up -d 即detached，可以用 docker-compose ps 查看
+
+docker-compose run web env 看名为web的service 环境变量 
+
+
+docker-compose stop  #用docker-compose ps可看service记录，状态为Exit ,而docker-compose down 根本看不到记录
+docker-compose down --volumes 也删除容器中的卷,声明在docker-compose.yml文件中的
+
+docker-compose help
+
+docker-compose -f docker-compose.yml -f docker-compose.admin.yml  pull db
+  两配置文件合并，如相同后面覆盖前面的，把名为db的serivice下载镜像即image:的值
+
 
 ----docker stack 
 (要求docker-compose.yaml版本为3,API版本至少 1.25 )
@@ -1247,75 +990,6 @@ docker stack deploy --help
 
 ----
 
-如使用 docker-compose up -d 即detached，可以用 docker-compose ps 查看
-
-docker-compose run web env 看名为web的service 环境变量 
-
-
-docker-compose stop  #用docker-compose ps可看service记录，状态为Exit ,而docker-compose down 根本看不到记录
-docker-compose down --volumes 也删除容器中的卷,声明在docker-compose.yml文件中的
-
-docker-compose help
-
-docker-compose -f docker-compose.yml -f docker-compose.admin.yml  pull db
-  两配置文件合并，如相同后面覆盖前面的，把名为db的serivice下载镜像即image:的值
-
-  
-===============  docker machine
-https://docs.docker.com/machine/
-
-download url
-https://github.com/docker/machine/releases/
-
-curl -L https://github.com/docker/machine/releases/download/v0.16.1/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine 
-chmod +x /tmp/docker-machine 
-sudo cp /tmp/docker-machine /usr/local/bin/docker-machine
-
-使用docker-machine 可以在windows和mac上安装和运行docker,把docker安装在虚拟机中
-可以高效的provision 和管理 多个远程的docker主机
-
-docker run等命令其实通过 REST API 完成的
-
-Docker Desktop for Mac 使用  --driver virtualbox 
-Docker Desktop for Windows 使用 -driver hyperv 
-
-建立名为default,安装virtualBox后/usr/bin/VBoxManage
-docker-machine create --driver virtualbox default   也要下载boot2docker.iso 即从 https://github.com/boot2docker/boot2docker/releases
-
-docker-machine ls
-docker-machine ip <MACHINE-NAME>
-docker-machine env default
-docker-machine stop default
-docker-machine start default
-
-
-
---- docker-machine 采用generic驱动
-https://www.cnblogs.com/jsonhc/p/7784466.html
- 
-官网 https://docs.docker.com/machine/drivers/generic/
-root用户执行
-#ssh-keygen
-#ssh-copy-id root@192.168.1.102  是本机IP ，表示 use locally available keys to authorise logins on a remote machine  
-
-#docker-machine create -d generic --generic-ip-address=192.168.1.102 --generic-ssh-key ~/.ssh/id_rsa --generic-ssh-user=root vm
-提示多次输入密码，后报 执行sudo hostname vm && echo "vm" | sudo tee /etc/hostname  失败,只能以root用户执行 又报  sudo -E zypper -n in docker 错误要事先安装好
-
- --generic-ip-address 是本机IP  也可是远程IP
- 
-#docker-machine ls  显示 
-NAME   ACTIVE   DRIVER    STATE     URL                        SWARM   DOCKER     ERRORS
-vm     -        generic   Running   tcp://192.168.1.102:2376           v18.09.1   
-
-#docker-machine env vm
-加载到环境变量 ，后面操作会使用这些变量
-#eval $(docker-machine env vm)
-
-docker run -d --name=nginx nginx  修改也 同步 指定IP的操作
-docker ps -a 查本地有
-docker-machine ssh vm 登录查远程docker ps -a 也有，并且容器ID相同
-
-#docker-machine rm  vm
  
 ---------Docker集中化web界面管理平台 shipyard
 curl -sSL https://shipyard-project.com/deploy | bash -s
@@ -1411,128 +1085,7 @@ portainer使用证书连接不行？？？,可能版本问题
 
 ----
 docker run -d -p 8400:8400 -p 8500:8500 -p 8600:53/udp -h consul 
- 
-  
-=================== etcd
-
-https://github.com/etcd-io/etcd/
-使用GO语言开发 ，用来替代 zookeeper (openstack使用这个)
- 
-
-下载地址
-https://github.com/etcd-io/etcd/releases
-v3.3.13
- 
-./etcd 监听 2379 用来和客户端通讯
-							监听	2380 用来服务端和服务端通讯
-
-./etcdctl set mykey "this is awesome"  #官方文档的put是错的
-./etcdctl get mykey
-
---etcd集群
-https://github.com/etcd-io/etcd/blob/master/Documentation/demo.md
-
-TOKEN=token-01
-CLUSTER_STATE=new
-NAME_1=machine-1
-NAME_2=machine-2
-NAME_3=machine-3
-HOST_1=10.240.0.17
-HOST_2=10.240.0.18
-HOST_3=10.240.0.19
-CLUSTER=${NAME_1}=http://${HOST_1}:2380,${NAME_2}=http://${HOST_2}:2380,${NAME_3}=http://${HOST_3}:2380
-
-
-# For machine 1
-THIS_NAME=${NAME_1}
-THIS_IP=${HOST_1}
-etcd --data-dir=data.etcd --name ${THIS_NAME} \
-	--initial-advertise-peer-urls http://${THIS_IP}:2380 --listen-peer-urls http://${THIS_IP}:2380 \
-	--advertise-client-urls http://${THIS_IP}:2379 --listen-client-urls http://${THIS_IP}:2379 \
-	--initial-cluster ${CLUSTER} \
-	--initial-cluster-state ${CLUSTER_STATE} --initial-cluster-token ${TOKEN}
-
-类似再加两节点，建立集群
-
-
-客户端
-export ETCDCTL_API=3
-HOST_1=10.240.0.17
-HOST_2=10.240.0.18
-HOST_3=10.240.0.19
-ENDPOINTS=$HOST_1:2379,$HOST_2:2379,$HOST_3:2379
-
-etcdctl --endpoints=$ENDPOINTS member list
-
-
-etcdctl --endpoints=$ENDPOINTS put foo "Hello World!"  
-etcdctl --endpoints=$ENDPOINTS get foo
-etcdctl --endpoints=$ENDPOINTS --write-out="json" get foo
-
-etcdctl --endpoints=$ENDPOINTS put web1 value1
-etcdctl --endpoints=$ENDPOINTS put web2 value2
-etcdctl --endpoints=$ENDPOINTS put web3 value3 
-etcdctl --endpoints=$ENDPOINTS get web --prefix
-
-
-etcdctl --endpoints=$ENDPOINTS put key myvalue
-etcdctl --endpoints=$ENDPOINTS del key
-
-etcdctl --endpoints=$ENDPOINTS put k1 value1
-etcdctl --endpoints=$ENDPOINTS put k2 value2
-etcdctl --endpoints=$ENDPOINTS del k --prefix
-
-
-#txn 带事务的要试
-etcdctl --endpoints=$ENDPOINTS put user1 bad
-etcdctl --endpoints=$ENDPOINTS txn --interactive 
-
-
-#watch
-etcdctl --endpoints=$ENDPOINTS watch stock1
-etcdctl --endpoints=$ENDPOINTS put stock1 1000
-
-etcdctl --endpoints=$ENDPOINTS watch stock --prefix
-etcdctl --endpoints=$ENDPOINTS put stock1 10
-etcdctl --endpoints=$ENDPOINTS put stock2 20
-
-
-
-
-
-#租用时间
-etcdctl --endpoints=$ENDPOINTS lease grant 300
-# lease 2be7547fbc6a5afa granted with TTL(300s)
-
-etcdctl --endpoints=$ENDPOINTS put sample value --lease=2be7547fbc6a5afa
-etcdctl --endpoints=$ENDPOINTS get sample
-
-etcdctl --endpoints=$ENDPOINTS lease keep-alive 2be7547fbc6a5afa
-etcdctl --endpoints=$ENDPOINTS lease revoke 2be7547fbc6a5afa
-# or after 300 seconds
-etcdctl --endpoints=$ENDPOINTS get sample
-
-
-#分布式锁
-
-etcdctl --endpoints=$ENDPOINTS lock mutex1
-
-# another client with the same name blocks
-etcdctl --endpoints=$ENDPOINTS lock mutex1
-
-
-#选举
-etcdctl --endpoints=$ENDPOINTS elect one p1
-
-# another client with the same name blocks
-etcdctl --endpoints=$ENDPOINTS elect one p2
-
-#状态
-etcdctl --write-out=table --endpoints=$ENDPOINTS endpoint status
-etcdctl --endpoints=$ENDPOINTS endpoint health
-
-
-
+docker run --help 显示  	  -h, --hostname string                Container host name
 
 
  

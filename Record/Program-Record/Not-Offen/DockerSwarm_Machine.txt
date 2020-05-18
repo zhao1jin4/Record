@@ -1,0 +1,332 @@
+
+=============== Docker Swarm (被Kubernetes替代)
+https://docs.docker.com/engine/swarm/
+Swarm mode
+Docker Swarm 是集成在docker引擎中,  管理docker引擎集群 
+
+manager节点
+worker节点
+---
+如要使用swarm，则必须让Docker开放其HTTP的API。默认情况下这个API没有开启
+openSUSE/Redhat一样的systemctl 都改 /usr/lib/systemd/system/docker.service 中的 ExecStart 参数
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
+(原来没-H参数，启动后就监听2375端口) 
+docker -H --host 去连接服务端
+ 
+docker info 报 WARNING  不安全
+ 　　 
+修改完成之后别忘了运行一下systemctl daemon-reload刷新配置   
+ss -atn | grep 2735
+   -n, --numeric
+
+docker pull swarm   下载swarm的镜像
+
+docker run --rm swarm create  提示这种方式过时了
+ 
+ ---
+
+TCP 端口2377 for cluster management communications
+--为routing mesh
+TCP/UDP 端口 7946 for communication among nodes
+UDP 端口 4789 for overlay network traffic
+
+如果使用docker-machine创建的主机
+ docker-machine ssh manager1
+ 
+ docker swarm init --advertise-addr <MANAGER-IP>
+ 会提示当前节点是manager，增加work要运行  docker swarm join  --token xxx  <manager-ip>:2377,增加manager运行 docker swarm join-token manager
+ 会创建名为 ingress 的overlay网络,名为docker_gwbridge 的bridge网络
+
+ 在docker swarm join时，报 Root CA Certificate: x509: certificate has expired  
+ docker swarm leave --force 删除后，同步worker，manager时间，再docker swarm init即可
+
+ docker info 
+ 	看Swarm组值为active 
+ 		 Is Manager: true
+ 		 Managers: 1
+ 		 Nodes: 2
+
+ docker node ls 看MANAGER列值为Leader
+ 
+ 
+如--token丢失，在manager上执行 下面命令，会再次提示增加work命令
+docker swarm join-token worker
+
+在manager节点上创建service（不是必需的）
+docker service create --replicas 1 --name helloworld alpine ping docker.com
+
+Service 包含两种模式：
+	replicated：可指定服务驻留节点数量（默认）
+	global：服务驻留在全部节点
+
+docker service ls
+docker service inspect --pretty helloworld  （如不加--pretty 返回json)
+docker service ps helloworld  看哪个节点在运行
+
+docker service scale helloworld=5
+docker service ps helloworld 显示哪个节点有运行
+在运行的节点上查看 docker ps 
+
+docker service rm helloworld  刚运行的节点docker ps 就没了
+
+ -----滚动更新
+ 在manager节点上
+ docker service create \
+  --replicas 3 \
+  --name redis \
+  --update-delay 10s \
+  redis:3.0.6
+
+  --update-delay  s秒 ,m分, h小时.  10m30s  10分30秒
+默认1个任务 ，可以配置 --update-parallelism
+默认更新失败就暂停,可以在 docker service create 或 docker service update 命令中增加 --update-failure-action
+ 
+
+
+docker service inspect --pretty redis
+可以看到
+Service Mode:   Replicated
+ Replicas:      3
+UpdateConfig:
+ Parallelism:	1
+ Delay:		10s
+ On failure:	pause
+ContainerSpec:
+ Image:		redis:3.0.6@sha256:xxx
+ 
+开始更新
+ docker service update --image redis:3.0.7 redis
+
+docker service inspect --pretty redis
+看 Image:		版本有升级
+
+更新暂停的情况 （如edis:3.0.8）
+UpdateConfig:  
+ On failure:	pause
+
+对更新暂停的，要再次更新使用命令
+docker service update redis
+
+docker service ps redis 会看到有各版本的运行状态
+
+DRAIN （	排空; (使) 喝干; 下水道; ） 能力，不从swarm manager接受新任务，把任务复制到其它 活动 能力 节点上，并不删除 
+docker node ls 可以看到 AVAILABILITY 列
+
+docker node update --availability drain <NODE-ID>  (docker node ls的ID或HOSTNAME)
+docker node update --availability drain rhel7
+
+docker node inspect --pretty rhel7
+有信息
+Status:
+ State:			Ready
+ Availability:         	Drain
+
+再激活
+docker node update --availability active rhel7
+
+
+---routing mesh
+TCP/UDP 端口 7946 for communication among nodes
+UDP 端口 4789 for overlay network traffic
+
+docker service create \
+  --name my-web \
+  --publish published=8080,target=80 \
+  --replicas 2 \
+  nginx
+  
+published  如不写,就会随机高数字端口，target 表示 <CONTAINER-PORT>
+#类似 -p 格式 本机端口:docker端口
+
+
+ingress netwok  图显示有 load balance功能, 在任何节点访问8080端口时，Docker路由将把请求分发到一个active的容器中
+docker network ls 显示有ingress记录
+
+如果是已经存的服务使用命令
+
+docker service update \
+  --publish-add published=<PUBLISHED-PORT>,target=<CONTAINER-PORT> \
+  <SERVICE>
+
+docker service inspect --format="{{json .Endpoint.Spec.Ports}}" my-web  使用json查找只要部分数据
+使用Go template
+
+docker service inspect --pretty  my-web
+Ports:
+ PublishedPort = 8080
+  Protocol = tcp
+  TargetPort = 80
+  PublishMode = ingress 
+
+
+默认是tcp协议 
+
+$ docker service create --name dns-cache \
+  --publish published=53,target=53 \
+  dns-cache 
+
+ 缩写方式
+  
+$ docker service create --name dns-cache \
+  -p 53:53 \
+  dns-cache
+
+
+
+指定协议UDP 
+
+$ docker service create --name dns-cache \ 
+  --publish published=53,target=53,protocol=udp \
+  dns-cache
+
+ 缩写方式
+
+$ docker service create --name dns-cache \ 
+  -p 53:53/udp \
+  dns-cache
+
+
+绕过路由网络，必须使用长格式的  --publish参数
+ docker service create --name dns-cache \
+  --publish published=53,target=53,protocol=udp,mode=host \
+  --mode global \
+  dns-cache
+
+对于 mode=host     默认值为  ingress
+对于 --mode global 默认值为 replicated
+
+
+
+可以最前方增加 Haproxy 代理 (网上说单独性能超nginx)
+https://docs.docker.com/engine/swarm/ingress/#bypass-the-routing-mesh
+
+
+如不使用路由网络
+--endpoint-mode=dnsrr   
+
+DNS Round Robin (DNSRR) 
+默认值是vip (virtual IP)
+
+docker service inspect --pretty  my-web
+显示有 Endpoint Mode:	vip
+
+-----
+如使用私有 registry 要密码，建立serivce 使用参数 --with-registry-auth
+
+$ docker login registry.example.com
+
+$ docker service  create \
+  --with-registry-auth \
+  --name my_service \
+  registry.example.com/acme/my_image:latest
+  
+--env MYVAR=myvalue  
+--workdir /tmp  	 是容器内的工作目录
+--user my_user  
+
+如使用overlay网络
+$ docker network create --driver overlay my-network
+
+docker service create \
+  --replicas 3 \
+  --network my-network \
+  --name my-web \
+  nginx
+
+对已经存的service 的网络修改
+  
+docker service update --network-add my-network my-web
+docker service update --network-rm my-network my-web
+
+
+--config  
+
+docker ps --filter name=my-web -q
+查看docker容器的目录
+docker container exec $(docker ps --filter name=my-web -q) ls -l /   
+ 
+技巧 利用sh 可以执行命令
+docker run -d --name app1 registry
+docker exec -it app1 sh 
+可以看ip,ping
+
+
+
+echo "This is a config" | docker config create my-config  -
+- 从标准输入传读，
+docker service create --name redis --config my-config redis:alpine 
+默认仿问/my-config，可以使用target自定义文件名
+docker service update --config-add my-config redis
+#docker service update --config-rm my-config redis
+
+docker ps --filter name=redis -q
+docker container exec $(docker ps --filter name=redis -q) ls -l /my-config
+docker container exec $(docker ps --filter name=redis -q) cat /my-config                                               
+docker config ls
+
+docker service rm redis
+docker config rm my-config
+
+
+禁用 docker swarm
+docker swarm leave 如有其它主机加入会提示
+(master)使用 docker swarm leave --force 
+后再docker info 看 Swarm: inactive
+ 
+===============  docker machine
+https://docs.docker.com/machine/
+
+download url
+https://github.com/docker/machine/releases/
+
+curl -L https://github.com/docker/machine/releases/download/v0.16.1/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine 
+chmod +x /tmp/docker-machine 
+sudo cp /tmp/docker-machine /usr/local/bin/docker-machine
+
+使用docker-machine 可以在windows和mac上安装和运行docker,把docker安装在虚拟机中
+可以高效的provision 和管理 多个远程的docker主机
+
+docker run等命令其实通过 REST API 完成的
+
+Docker Desktop for Mac 使用  --driver virtualbox 
+Docker Desktop for Windows 使用 -driver hyperv 
+
+建立名为default,安装virtualBox后/usr/bin/VBoxManage
+docker-machine create --driver virtualbox default   也要下载boot2docker.iso 即从 https://github.com/boot2docker/boot2docker/releases
+
+docker-machine ls
+docker-machine ip <MACHINE-NAME>
+docker-machine env default
+docker-machine stop default
+docker-machine start default
+
+
+
+--- docker-machine 采用generic驱动
+https://www.cnblogs.com/jsonhc/p/7784466.html
+ 
+官网 https://docs.docker.com/machine/drivers/generic/
+root用户执行
+#ssh-keygen
+#ssh-copy-id root@192.168.1.102  是本机IP ，表示 use locally available keys to authorise logins on a remote machine  
+
+#docker-machine create -d generic --generic-ip-address=192.168.1.102 --generic-ssh-key ~/.ssh/id_rsa --generic-ssh-user=root vm
+提示多次输入密码，后报 执行sudo hostname vm && echo "vm" | sudo tee /etc/hostname  失败,只能以root用户执行 又报  sudo -E zypper -n in docker 错误要事先安装好
+
+ --generic-ip-address 是本机IP  也可是远程IP
+ 
+#docker-machine ls  显示 
+NAME   ACTIVE   DRIVER    STATE     URL                        SWARM   DOCKER     ERRORS
+vm     -        generic   Running   tcp://192.168.1.102:2376           v18.09.1   
+
+#docker-machine env vm
+加载到环境变量 ，后面操作会使用这些变量
+#eval $(docker-machine env vm)
+
+docker run -d --name=nginx nginx  修改也 同步 指定IP的操作
+docker ps -a 查本地有
+docker-machine ssh vm 登录查远程docker ps -a 也有，并且容器ID相同
+
+#docker-machine rm  vm
+
+
