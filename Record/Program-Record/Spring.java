@@ -689,9 +689,9 @@ ApplicationListener.getResource();得到的是实现ApplicationEvent类的构造
  2.setXXX
  3.BeanNameAware 的 setBeanName(String name)会把配置中的bean 的id 传给name
  4.BeanFactoryAware 的 setBeanFactory()  ==ApplicationContextAware
- 5.BeanPostProcess 的 postProcessBeforeInitialization();
+ 5.BeanPostProcessor 的 postProcessBeforeInitialization();
  6.InitializingBean 的 afterProperitesSet();
- 7.自定义初始化 init-method
+ 7.自定义初始化 init-method (如是@PostConstruct 会在 InitializingBean之前执行)
  8.BeanPostProcessor 的 postProcessAfterInitializaion();
  9.DisposableBean 的 destroy()
  10.自定义的销毁化方法 destroy-method
@@ -2836,12 +2836,12 @@ public aspect World
 
 ======================上 AspectJ
 
+
 org.springframework.beans.BeanUtils.copyProperties(model, entity);// commons.beanutils 和 spring都有
 //sonar检查的不要用commons.beanutils
 
 //spring把@Controller中的所有的@RequestMapping的方法
 Map<RequestMappingInfo, HandlerMethod> methods = requestMappingHandlerMapping.getHandlerMethods();
 
-----------------Kotlin
-
+ 
 

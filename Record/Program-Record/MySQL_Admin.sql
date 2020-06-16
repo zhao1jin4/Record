@@ -18,11 +18,12 @@ my.ini
 [mysql]
 #default-character-set=utf8
 [mysqld]
-character_set_server=utf8   #新版本是 UTF8MB3
+character_set_server=utf8   #新版本是 UTF8MB4
 default-storage-engine=INNODB
 basedir=D:\\Program\\mysql-8.0.11-winx64\\
 datadir=D:\\Program\\mysql-8.0.11-winx64\\data
-
+#log-error=D:\\Program\\mysql-8.0.11-winx64\\log\\mysql-error.log  #windows下没有输出控制台
+root密码默认在datadir目录下<hostname>.err文件中
 
 #mysqld  --defaults-file=D:/Program/mysql-8.0.11-winx64/my.ini --initialize  # root 密码在.err日志里 
 #sc create MySQL8  binpath= "\"D:/Program/mysql-8.0.11-winx64/bin/mysqld\" --defaults-file=\"D:/Program/mysql-8.0.11-winx64/my.ini\" MySQL8" type= share  start= auto displayname= "MySQL8"
@@ -54,7 +55,7 @@ sc delete MySQL57 删服务
 [mysql]
 #default-character-set=utf8
 [mysqld]
-character_set_server=utf8   #新版本是 UTF8MB3
+character_set_server=utf8   #新版本是 UTF8MB4
 default-storage-engine=INNODB
 basedir=E:\\Program\\mysql-5.7.18-winx64\\mysql-5.7.18-winx64
 datadir=E:\\Program\\mysql-5.7.18-winx64\\data
@@ -237,7 +238,7 @@ bin/mysqld --verbose --help
 default-character-set=utf8 
 [mysqld]
 default-storage-engine=INNODB
-character_set_server=UTF8MB3
+character_set_server=UTF8MB4
 basedir =/opt/mysql-8.0.15-linux-glibc2.12-x86_64  --默认值是/usr/local/mysql/
 datadir =/zh/mysql-files/data
 port =3306
@@ -250,9 +251,8 @@ socket =/zh/mysql-files/mysql.sock  #默认/tmp/mysql.sock
 #lc-messages-dir=/zh/mysql-files/share    
 	-- 不加正常默认值为<basedir>/share/(但目录中有很多文件,但没有errmsg.sys)
 	-- 加了报ERROR没有/zh/mysql-files/share/errmsg.sys文件,但能使用
-#log-error=/zh/mysql-files/mysql-error.log  #正常也写这,默认输出控制台
-#log-warnings=/zh/mysql-files/mysql-warnings.log
-#log-syslog=/zh/mysql-files/mysql-sys.log
+log-error=/zh/mysql-files/mysql-error.log  #windows下没有输出控制台，加这个才知道root密码
+
 
 #skip-grant-tables=ON
 #explicit_defaults_for_timestamp=ON
@@ -1121,6 +1121,13 @@ select * from information_schema.ENGINES  所有支持的引擎
 select * from information_schema.SCHEMA_PRIVILEGES   -- 所有的权限
 select * from information_schema.SCHEMA_PRIVILEGES where SCHEMA_PRIVILEGES.GRANTEE like "'myuser1%"
 
+查表外键约束
+select
+TABLE_NAME,COLUMN_NAME,CONSTRAINT_NAME, REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME
+from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+where CONSTRAINT_SCHEMA ='mydb' AND
+REFERENCED_TABLE_NAME = 'jpa_student';
+ 
 --------- sys schema
 SELECT * FROM sys.version;
 
@@ -1383,6 +1390,18 @@ explain select * from employee where  username < 'lisi'  and password='s' -- 看
 max_length_for_sort_data 排序区的大小
 
 innodb 引擎如update/delete 的 where 字段全没有使用索引会锁全表(太傻了，为何不使用主键/rowid呢)
+
+如果update 的 where 字段 用到了主键索引，mysql会锁定主键索引
+如果用到了非主键索引，msyql会先锁定非主键索引，再锁定主键索引,两步就容易造成死锁(太傻了)
+如果用到了主键索引，会先在主键索引上加锁，然后在其他索引上加锁,两步就容易造成死锁(太傻了)
+
+
+(第一个update where是非主键索引锁住后，在锁定主键索引前，已经被这条记录的第二个 update where非主键索引锁住，还没有开始 set， 刚好set字段是第一个update已经锁的非主键索引,set的字段也要求不能被锁 )
+
+乐观锁 最好条件不是范围 ,会比较慢 ，容易被锁
+可能和REPETABLE READ 
+ 
+
 update employee set age=20 where username=11; 
 -- username有索引，这种类型转换，会使用索引失效，变为表锁，如另一个会话其它行在事务中，这会阻塞，另一个结束这里报错，影响不大
 update employee set age=20 where id>103 and id<200; 未提交事务,如中间id没有108，insert into id为108也是阻塞 (太傻了，为何不使用主键/rowid呢)

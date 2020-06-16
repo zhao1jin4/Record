@@ -1965,6 +1965,11 @@ public RequestMappingHandlerAdapter requestMappingHandlerAdapter(@Autowired Mapp
 	//handler.setWebBindingInitializer(webBindingInitializer);
 	return handler;
 }
+------------spring session hazelcast
+@EnableHazelcastHttpSession 
+
+
+
 ------------spring websocket 
 
 //@方式

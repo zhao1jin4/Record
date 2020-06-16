@@ -331,6 +331,26 @@ Cygwin可以和Mingw同时在PATH中,而MinGW不能和Cygwin同时在PATH中(在
 Cygwin 必须安装，如恢复系统后必须重新安装，否则CDT不能识别到有Cygwin
 CDT与CygWin集成	  PATH=C:/cygwin64/bin
 
+preferences -> C/C++ -> Core Build Toolchains 里面就有显示GCC使用的文件，默认配置上
+项目属性-> C/C++  Build -> Tool Chain Editor -> current toolchain 看选中的是Cygwin GCC (新建项目时选的),新建项目的Includes展开是C:/开头
+  对应的在 C/C++  Build -> Settings 树标签显示为 Cygwin C++ Compiler
+  
+#如windows下新建项目选择为Cross GCC,提示指定Cross Compiler Prefix可为空,意思是g++前的字符,如g++所在路径,Cross Compiler Path可为空, 构建后,不能使用eclipse运行,要手工执行生成的.exe,新建项目的Includes展开是/usr开头(子项不能展开,代码红线)
+
+
+使用Cygwin 在Debug默认是不能显示源码的,报/cygdrive/d/找不到
+要设置 Window -> Preferences -> C/C++ -> Debug->Source Lookup Path -> Add->Path Mapping->Add->
+输入 \cygdrive\d	选择对应 d:\,就OK了  (toolchain为Cygwin GCC的代码红线也没了)
+
+
+eclipse打开已有项目就OK,这些文件放在eclipse工作区的项目中,要使用工作区相对路径
+eclipse新建立项目,如引用其它的头文件,库文件,使用工作区的项目也不行????,编译就报错,找不到头文件???
+ 
+Debug时记得要把.dll 文件放入PATH中
+
+可以把lib_include放在其它盘下,注意配置gcc,g++的include 
+
+Cygwin和MinGW可以共存使用,但有些Cygwin在windows不能编译,MinGW还是要的
 
 ------------cygwin 使用
 下载的 Cygwin_x64 ,双击进入安装界面时 Category 下拉选择 full
@@ -338,6 +358,7 @@ CDT与CygWin集成	  PATH=C:/cygwin64/bin
 
 64位的	gcc-9.3.0-2  ,mingw64-x86_64-gcc-core--9.2.0-2
 		gcc-g++-9.3.0-2 ,mingw64-x86_64-gcc-g++-9.2.0-2
+		#gcc-objc 可选
 		gdb-8.2.1-1
 		make-4.3-1
 下面可选 
@@ -346,23 +367,10 @@ CDT与CygWin集成	  PATH=C:/cygwin64/bin
 	
 PATH=D:\Program\cygwin\bin
 
-cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make
-cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make
-cygcheck -c cygwin  显示当前Cygwin 安装的版本	
+cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make       -u, --unix
+cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make  -m, --mixed
+cygcheck -c cygwin  显示当前Cygwin 安装的版本	 -c, --check-setup
 
-使用Cygwin  测试时,Debug默认是不能显示源码的,报错,/cygdrive/d/Program/
-要设置 Window -> Preferences -> C/C++ -> Debug->Source Lookup Path -> Add->Path Mapping->Add->
-输入 \cygdrive\d	对应 d:\,就OK了
-
-eclipse打开已有项目就OK,这些文件放在eclipse工作区的项目中,要使用工作区相对路径
-
-eclipse新建立项目,如引用其它的头文件,库文件,使用工作区的项目也不行????,编译就报错,找不到头文件???
- 
-Debug时记得要把.dll 文件放入PATH中
-
-32位机安装时不用选择64位的东西
-可以把lib_include放在其它盘下,注意配置gcc,g++的include 
-Cygwin和MinGW可以共存使用,但有些Cygwin在windows不能编译,MinGW还是要的
 
 ------------------
 ----------------- CDT 与 VC 集成
@@ -376,9 +384,9 @@ Debug时显示源码
 Window -> Preferences -> C/C++ -> Debug-> Common Source Lookup Path -> Add. 
 cygdrive/c	对应 c:\
 
-eclipse代码 显示变宽  windows-preferences->C++->Code Style-> 新建自己的->edit->line wraping标签中 修改上方的Maximun line width
+eclipse代码 显示变宽  windows-preferences-> C++- >Code Style-> 新建自己的->edit->line wraping标签中 修改上方的Maximun line width
 
-linux eclipse不变色解决方案  window ->preference->c/C++->indexer->选中index all files
+linux eclipse不变色解决方案  window ->preference-> C/C++ ->indexer->选中index all files
 如果有使用宏定处,鼠标指向它,待出现提示,再指向大标题,就出现宏展开的
 
 
@@ -479,18 +487,7 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 	--Oracle Maven Tools
 	--Oracle Database Tools(依赖DTP)
 	--Oracle JavaEE Tools,JavaEE 7 doc
-	
-
-安装JBOSS Tools-4.2.2 的eclipse-4.4  luna 插件
-	jBoss Web and Java EE Developement -> JBossAS Tools  就有启动停止的JBOSS AS-7.1的工具了
-			依赖于 Plug-in Development Environment (PDE),要下载带SDK的eclipse,如eclipse-SDK-4.4.2-win32-x86_64.zip
-	jBoss Application Development 
-			freemarker IDE 
-			Hibernate Tools 依赖于 eclipse.com 提供的 SLF4J API ,org.slf4j.api-1.7.2 
-				从springToolSuite中复制org.slf4j.api_1.7.2.jar,org.slf4j.impl.log4j12_1.7.2.jar 放dropins目录
-	--jBoss Maven support  依赖于Maven的
-	--jBoss Mobile Development(要jetty) -> Cordova Simulator , Mobile Browser Simulator
-	
+	 
 
 安装JBOSS Tools-4.3.1 的eclipse-4.5  Mars   插件 
 	jBoss Web and Java EE Developement -> JBoss AS,WildFly&EAP Server Tool (可以搜索wildfly) ,就可以启动WildFly 8 ,10 了
@@ -513,7 +510,8 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 		
 	也带spring的 yaml 或 properties编辑器
 	可以新建spring starter项目,如刚建立好可以右击pom.xml->spring->edit spring starters
-	
+	配置生成在 ~/.cache/Spring  Tool  Suite 3 目录
+
 ---SpringToolSuite-4.1(eclipse 4.10.0) 
 有Visual Studio Code 版本
 不能建立 web项目,到4.6.0(eclipse-4.15.0)版本又能建立web项目了,
@@ -559,6 +557,10 @@ eclipse自带Git 插件
 右击项目->team->Advanced->sychronized->正确的branch(每个文件名后有提示当前在哪个branch)->不能再 commit and push ???(找不出哪些要push)
 TortoiseGit->Git Sync ...也找不出哪些要push???
 git status 也找不出哪些要push???
+----JPA
+eclipse要eclipse jee才有data source explorer视图(sts3,sts4没有),可以建立JPA项目,
+右击项目-> JPA Tools->generate entries from tales 选择表(可以增加级联表)可以生成带@Entity的类
+ 
 
 ----eclipse Grale插件  buildship 使用marketplace 下载
 

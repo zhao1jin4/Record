@@ -1,4 +1,96 @@
 
+---------------------------------Log4j 1 
+1版本 2015年已经终止了
+ 
+
+－X号: X信息输出时左对齐；
+   %p: 输出日志信息优先级，即DEBUG，INFO，WARN，ERROR，FATAL,
+   %d: 输出日志时间点的日期或时间，默认格式为ISO8601，也可以在其后指定格式，比如：%d{yyy MMM dd HH:mm:ss,SSS}，输出类似：2002年10月18日 22：10：28，921
+   %r: 输出自应用启动到输出该log信息耗费的毫秒数
+   %c: 输出日志信息所属的类目，通常就是所在类的全名
+   %t: 输出产生该日志事件的线程名
+   %l: 输出日志事件的发生位置，相当于%C.%M(%F:%L)的组合,包括类目名、发生的线程，以及在代码中的行数。举例：Testlog4.main(TestLog4.java:10)
+   %x: 输出和当前线程相关联的NDC(嵌套诊断环境),尤其用到像java servlets这样的多客户多线程的应用中。
+   %%: 输出一个"%"字符
+   %F: 输出日志消息产生时所在的文件名称
+   %L: 输出代码中的行号
+   %m: 输出代码中指定的消息,产生的日志具体信息
+   %n: 输出一个回车换行符，Windows平台为"\r\n"，Unix平台为"\n"输出日志信息换行
+可以在%与模式字符之间加上修饰符来控制其最小宽度、最大宽度、和文本的对齐方式。如：
+	 1)%20c：指定输出category的名称，最小的宽度是20，如果category的名称小于20的话，默认的情况下右对齐。
+	 2)%-20c:指定输出category的名称，最小的宽度是20，如果category的名称小于20的话，"-"号指定左对齐。
+	 3)%.30c:指定输出category的名称，最大的宽度是30，如果category的名称大于30的话，就会将左边多出的字符截掉，但小于30的话也不会有空格。
+	 4)%20.30c:如果category的名称小于20就补空格，并且右对齐，如果其名称长于30字符，就从左边交远销出的字符截掉。
+
+log4j.rootLogger=warn,console
+log4j.logger.apache_log4j=debug,console
+log4j.additivity.apache_log4j=false
+
+
+log4j.appender.console=org.apache.log4j.ConsoleAppender
+log4j.appender.console.layout=org.apache.log4j.PatternLayout
+#log4j.appender.console.Threshold=info
+log4j.appender.console.layout.ConversionPattern=[OD]%-d{yyyy-MM-dd HH:mm:ss} [%c:%L] %m%n
+# %-15c{1}  15宽度左对齐,只要类名 %M 方法名
+log4j.appender.console.Encoding=UTF-8
+log4j.appender.dailyRollingFile=org.apache.log4j.DailyRollingFileAppender
+log4j.appender.dailyRollingFile.file=${log_home}/dailyRollingFile.log
+log4j.appender.dailyRollingFile.DatePattern='.'yyyy-MM-dd
+
+log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
+log4j.appender.rollingFile.File=${log_home}/rollingFile.log
+log4j.appender.rollingFile.Append=true
+log4j.appender.rollingFile.MaxFileSize=20MB
+log4j.appender.rollingFile.MaxBackupIndex=10
+
+zookeeper,kafka 是用log4j1版本
+
+log4j.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">   
+    <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' >   
+        
+        <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">   
+            <layout class="org.apache.log4j.PatternLayout">   
+                <param name="ConversionPattern"  value="[%d{MM-dd HH:mm:ss,SSS\} %-5p] [%t] %c{2\} - %m%n" />   
+            </layout>   
+        </appender>   
+        <appender name="my_appender" class="org.apache.log4j.DailyRollingFileAppender">   
+            <param name="File" value="${log_home}/log_xml.txt" />   
+            <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />   
+            <layout class="org.apache.log4j.PatternLayout">   
+                <param name="ConversionPattern" value="[%d{MM-dd HH:mm:ss SSS\} %-5p] [%t] %c{3\} - %m%n" />   
+            </layout>   
+        </appender>   
+        <logger name="apache_log4j" additivity="false">   <!--name的值是包名-->  
+            <level value="debug" />   
+            <appender-ref ref="my_appender" />   
+        </logger>   
+        <root>   
+            <priority value="DEBUG"/>
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="my_appender"/>
+        </root>   
+    </log4j:configuration>   
+
+文件位置使用变量${log_home}/log_xml.txt  //OK
+log4j.appender.file.file=${log_home}/log_properties.txt   //OK
+
+System.setProperty("log_home",servletContext.getRealPath("/"));//在lisener,或者自动启动的Servlet
+//${user.dir}
+java -Dlog_home=c:/temp
+
+PropertyConfigurator.configure(properties);//对properites配置文件
+
+//DOMConfigurator.configure(xmlFile);//对XML配置文件
+URL url=this.getClass().getResource("/log4j.xml");
+DOMConfigurator.configure(url);
+
+Logger log = Logger.getLogger(My.class);
+log.setLevel(Level.DEBUG);//动态修改日志级别,只是对某一个类
+Logger rootLog=Logger.getRootLogger();//根
+
 ----------------------------------ANT
 ant build.xml
 ant -buildfile myBuilde.xml  或者  -f 或 -file
@@ -2541,9 +2633,44 @@ activemq.xml
 	</simpleAuthenticationPlugin>
 </plugins>
 
-
-======================
  
+======================ActiveMQ  新版 Artemis 使用NIO
+ apache-artemis-2.13.0-bin.zip
+ cd bin
+ 
+artemis.cmd help create
+
+artemis.cmd create d:/tmp/artemis_broker 会提示输入用户名，密码,是否匿名登录
+
+artemis.cmd create d:/tmp/artemis_broker --user input --password input #默认用户名，密码为input
+	--allow-anonymous | --require-login
+
+日志提示 
+You can now start the broker by executing:
+   "D:\tmp\artemis_broker\bin\artemis" run
+
+Or you can setup the broker as Windows service and run it in the background:
+
+   "D:\tmp\artemis_broker\bin\artemis-service.exe" install
+   "D:\tmp\artemis_broker\bin\artemis-service.exe" start
+
+   To stop the windows service:
+      "D:\tmp\artemis_broker\bin\artemis-service.exe" stop
+
+   To uninstall the windows service
+      "D:\tmp\artemis_broker\bin\artemis-service.exe" uninstall
+	  
+	  
+启动 artemis  run 和老版本类似，也是有日志提示   at 0.0.0.0:61616 for protocols [CORE,
+ 0.0.0.0:5672 for protocols [AMQP]
+ 0.0.0.0:61613 for protocols [STOMP]
+ HTTP Server started at http://localhost:8161
+ 
+ 
+ 
+ 
+ 
+
 --------------------------------------------Liferay-6.2 CE
 下载 bundled with tomcat
 下载 Liferay IDE-2.1.1 是elipse插件

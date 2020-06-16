@@ -278,6 +278,8 @@ curl -X GET "localhost:9200/bank/_search?pretty" -H 'Content-Type: application/j
 "terms" 下增加 "execution_hint": "map" 默认值为 global_ordinals
 https://www.elastic.co/guide/en/elasticsearch/reference/7.5/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-execution-hint
 
+可能是基于Lucene的groupgin实现的
+
 curl -X GET "localhost:9200/bank/_search?pretty" -H 'Content-Type: application/json' -d'
 {
   "size": 0,
@@ -822,6 +824,7 @@ elasticsearch-rest-client-7.4.2.jar
 	httpasyncclient-4.1.4.jar 是httpclient
 	httpcore-nio-4.4.11.jar
 
+ElaticSearch 8将移除 Transport Client，使用新的 Java High Level REST Client
 
 public static void main(String[] args) throws Exception {
 		RestClientBuilder builder =RestClient.builder(

@@ -696,6 +696,10 @@ df   可显示挂载状态 (磁盘的可用空间)
 df -T 显示文件系统类型
 lsblk -f 带文件系统类型  -f,--fs
 
+linux 下看是否SSD硬盘,未试
+cat /sys/block/sdb/queue/rotational   #1是机械的旋转硬盘，0是SSD，
+lsblk -d -o name,rota
+
 
 ls -R 递归
 ls -t 按修改时间排序  -r 反向排序
@@ -973,9 +977,9 @@ umask 0133  设初建立文件的权限为 644
 fstab文件 自动每次开机时自动挂载光驱
 
 
-/proc/cpuinfo  CPU的信息
+/proc/cpuinfo  CPU的信息  lscpu命令
 top d 2 ,H显示线程，h帮助 ，k kill  15 要比 9 更有强度
-/proc/meminfo 
+/proc/meminfo   lsmem命令
 free ,vmstat 5可每5秒自动更新
 iostat
 nice -20~19   默认0，值越小越快 ， 进程优先级
@@ -1094,8 +1098,8 @@ openSUSE-13.2不用了,只是DynOff
 lsusb   等同于 lspci | grep USB
 lsblk
 ethtool eth0
-lsblk
 lscpu
+lsmem
 
 
 (一个硬盘 主分区（包括扩展分区）的最大个数是四个)
@@ -3896,7 +3900,24 @@ nmap xxx.com -p 80 指定端口
 	  Open 端口开启
 	  Closed 端口关闭
 	  Filtered 数据未能到达主机
----
+	  
+---netcat
+type -a nc 显示所有可以执行nc的位置 
+type -a java
+ 
+nc -lp 1234 #-l listen  -p source_port
+nc 127.0.0.1 1234  两个窗口可以聊天 
+
+nc www.baidu.com 80
+输入 get /
+
+做端口扫描
+	nc -v -w 1 www.baidu.com -z 78-100
+	-v verbose
+	-w 超时时间 
+	-z 端口范围
+
+
 
 
  

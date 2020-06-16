@@ -383,7 +383,7 @@ RandomListNode *copyRandomList(RandomListNode *head) {  
 自定义   序列化   Externalizable
  
  
- B+Tree数据只存放在叶子节点上
+ B+Tree数据只存放在叶子节点上,  叶子节点之间使用链表连接
  
  索引怎么实现的  Btree  B 通常认为是Balance的简称怎么存储的  
 http://www.aikaiyuan.com/1809.html
@@ -553,13 +553,21 @@ LockSupport.unpark 唤醒
 
 
 好多地方用到了 CAS(应该是 AbstractQueuedSynchronized) ,尤其是java.util.concurrent包下，比如 CountDownLatch、Semaphore、ReentrantLock 中
-AbstractQueuedSynchronized（AQS） 有公平锁，和不公平锁 
+AbstractQueuedSynchronized（AQS） 
+先进先出的阻塞队列, 锁状态(int state)源子性即CAS , getState,setState,compareAndSetState
+isHeldExclusively()：该线程是否正在独占资源
+tryAcquire(int)：独占方式。尝试获取资源，成功则返回true，失败则返回false。
+tryRelease(int)：独占方式。尝试释放资源，成功则返回true，失败则返回false。
+tryAcquireShared(int)：共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。
+tryReleaseShared(int)：共享方式。尝试释放资源，如果释放后允许唤醒后续等待结点返回true，否则返回false。
 
 
-公平锁时，线程在尝试获取锁之前进行一次CAS运算
-非公平锁时，线程在尝试获取锁之前进行两次CAS运算
-线程进入队列即进入waiting状态，相当于挂起，频繁挂起与唤醒是消耗资源的行为，因此非公平锁中线程更少的挂起唤醒可以提高性能，这也是lock()默认为非公平锁的原因。
-非公平锁可能会导致有些线程始终得不到执行
+
+ReentrantLock 
+	公平锁时，线程在尝试获取锁之前进行一次CAS运算
+	非公平锁时，线程在尝试获取锁之前进行两次CAS运算
+	线程进入队列即进入waiting状态，相当于挂起，频繁挂起与唤醒是消耗资源的行为，因此非公平锁中线程更少的挂起唤醒可以提高性能，这也是ReentrantLock.lock()默认为非公平锁的原因。
+	非公平锁可能会导致有些线程始终得不到执行
 
 
 
@@ -570,7 +578,26 @@ SETNX lock.foo <current Unix time + lock timeout + 1>如返回0表示失败,看�
 如0查是否>当时前,如过期(这也是一步操作,不能保证 这个和GETSET是原子的 )
 GETSET lock.foo <current Unix timestamp + lock timeout + 1> 就算这个返回值是早于当前时间,取锁失败(被快的抢了),这时要等(但也已经设置了新值)
 用完DEL lock.foo ,有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁...
+
+--官方 分布式锁文档的方案(单实例),但set命令没说是单实例
+设置key时指定超时时间(PX单位毫秒,EX单位是秒)，NX如不存在则设置，XX如存在则设置，成功返回OK,失败返回nil
+SET resource_name my_random_value NX PX 30000
+也存在相同问题，有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁???
+
+随机值是为了安全释放锁
+如要释放锁使用 lua
+if redis.call("get",KEYS[1]) == ARGV[1] then
+    return redis.call("del",KEYS[1])
+else
+    return 0
+end
+
+--java 实现分布式锁 可用 redisson，还是连接断，锁释放比较好
+--etcd分布式锁
+--数据库
+
 ------
+
 对于复合索引:Mysql从左到右的使用索引中的字段，一个查询可以只使用索引中的一部份，但只能是最左侧部分。例如索引是key index (a,b,c). 可以支持a | a,b| a,b,c 3种组合进行查找，但不支持 b,c进行查找
 create table test(
 a int,
@@ -651,7 +678,7 @@ ThreadLocal 里存在线程里的（Thread.currentThread()得到）中的一个�
 	(内部是一个初始16长度的Entry数组,如不够用会扩容的,如一个线程使用多ThreadLocal对象个使用this区分)
 	值Entry类型是WeakReference， Entry构造器是把key(即threadLocal this)引用调用父类WeakReference(threadLocal是弱引用，如threadLocal=null就会被回收),value不是,没有被回收内存溢出
 		线程一直在,threadLocal，一直在，如threadLocal只一个一存在的强引用， 下次再set冲前面的，即使用不调用remove()没问题 
-如每次调用new ThreadLoca()，用完一定最要用remove（）
+如每次调用new ThreadLoca()，用完一定最要用remove()
 
 
 公私钥加签，验签 
@@ -667,7 +694,7 @@ InnoDB也使用B+Tree作为索引结构，InnoDB的数据文件本身就是索�
 InnoDB要求表必须有主键,如果没有显式指定，则MySQL系统会自动选择一个可以唯一标识数据记录的列作为主键，如果不存在这种列，则MySQL自动为InnoDB表生成一个隐含字段作为主键
 
 System.out.println((double)782/4); //如不加(double)会丢失小数点的值
-	
+
 n为  1,2,3,4....n
 给个m ,
 求所有相加等于m的情况
@@ -724,9 +751,9 @@ https浏览器生成随机的对称秘钥 ，如果网站生成会话秘钥，�
 
 
 
+分布式事务 二阶段 提交 
 
-
-
+spring的循环依赖 三个缓存，先找singletonObjects，再找 earlySingletonObjects，再从singletonFactories如有getObject创建Bean实例，放在earlySingletonObjects中（还没有属性注入和init初始化）
 
 
 

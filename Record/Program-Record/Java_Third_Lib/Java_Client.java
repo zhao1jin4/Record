@@ -998,6 +998,7 @@ jedis.shutdown();//会把redis服务器关了
    <version>3.9.1</version>
 </dependency>  
 
+https://redis.io/topics/distlock 提到使用 redisson
 https://github.com/redisson/redisson/wiki/ 有中文的文档
 
 //redisson  依赖于netty,fasterxml的jackson
@@ -1333,6 +1334,142 @@ selector.start();
 
 System.in.read();
 client.close();
+
+-------------Hazelcast 缓存 替代  redis
+https://hazelcast.org/  
+Hazelcast IMDG 开源的 in-memory data grid
+
+是多线程的，使用Java开发
+有一个集群的领导，默认是最老的成员，管理数据是如何在系统间分布，但是，如果该节点当机，那么是下面一个旧节点接管
+默认是271个分区，启动两次自动加入，显示有两个成员 
+
+<dependency>
+    <groupId>com.hazelcast</groupId>
+    <artifactId>hazelcast</artifactId>
+    <version>4.0.1</version>
+</dependency>  
+服务端/客户端一样的 jar包,大小10MB
+hazelcast-4.0.1\bin\start.bat 启动服务
+
+hazelcast-4.0.1\management-center\start.bat 启动管理界面 
+http://127.0.0.1:8080 第一次启动要求注册 用户名/密码 (至少8个字符,数字,字母,特殊符号)如 hazelcast/HazelFree$,
+	Add Cluster Config按钮 cluster Name默认为dev,选中建立的,可以看到很多信息,可以用程序连接
+	console标签，可以输入命令,help帮助
+
+package cache_hazelcast;
+
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.topic.ITopic;
+import com.hazelcast.topic.Message;
+import com.hazelcast.topic.MessageListener;
+
+public class DistributedTopic implements MessageListener<String> {
+
+	static HazelcastInstance h;
+
+	public static void main(String[] args) {
+
+		Config config = new Config();
+
+		h = Hazelcast.newHazelcastInstance(config);
+
+		ITopic<String> topic = h.getTopic("my-distributed-topic");
+
+		topic.addMessageListener(new DistributedTopic());
+
+		topic.publish("Hello to distributed world");
+
+	}
+
+	@Override
+	public void onMessage(Message<String> message) {
+		System.out.println("Got message " + message.getMessageObject());
+
+		h.shutdown();
+
+	}
+
+}
+
+package cache_hazelcast;
+
+import java.util.concurrent.ConcurrentMap;
+
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+
+public class DistributedMap {
+
+	public static void main(String[] args) {
+
+		Config config = new Config();
+
+		HazelcastInstance h = Hazelcast.newHazelcastInstance(config);
+
+		ConcurrentMap<String, String> map = h.getMap("my-distributed-map");
+
+		map.put("key", "value");
+
+		// Concurrent Map methods
+
+		map.putIfAbsent("somekey", "somevalue");
+
+		map.replace("key", "value", "newvalue");
+
+		map.forEach((k, v) -> System.out.println(k + " => " + v));
+
+		h.shutdown();
+
+	}
+
+}
+
+--spring session hazelcast 见 SpringMVC
+
+-------------DynamoDB 亚马逊云的NoSQL
+https://docs.aws.amazon.com/zh_cn/dynamodb/index.html 
+
+
+下载本机运行版本
+https://docs.aws.amazon.com/zh_cn/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html 
+
+java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb
+
+
+默认情况下，DynamoDB 使用端口 8000
+看帮助有 -port
+java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -help
+
+
+
+下载commond line interface = cli
+https://amazonaws-china.com/cli/ 
+	默认安装在 C:\Program Files\Amazon\AWSCLIV2\aws.exe
+	
+https://docs.aws.amazon.com/zh_cn/amazondynamodb/latest/developerguide/workbench.settingup.html 下载 NoSQL Workbench
+
+
+ 
+<dependencies>
+    <dependency>
+       <groupId>com.amazonaws</groupId>
+       <artifactId>DynamoDBLocal</artifactId>
+       <version>1.12.0</version>
+    </dependency>
+</dependencies>
+
+<!--Custom repository:-->
+<repositories>
+    <repository>
+       <id>dynamodb-local-oregon</id>
+       <name>DynamoDB Local Release Repository</name>
+       <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/release</url>
+    </repository>
+</repositories>
+这个可能快些 https://s3.ap-northeast-1.amazonaws.com/dynamodb-local-tokyo/release
 
 
 -------------MySQL XDevApi Table 表 

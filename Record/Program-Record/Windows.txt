@@ -82,6 +82,7 @@ XII - 12
 红字 负数  表示冲销掉错误的
 蓝字 正数  表示更正为正确的
 ---会计
+127.开头的网段的都是loopback
 
 局域网段
 172.16.0.1~172.31.255.254
@@ -887,7 +888,8 @@ win 7/10 默认支持 exFat 分区,不安装什么
 运行 mstsc 远程桌面
  (service.msc中有Remote Desktop Services) 使用RDP协议  右击我的电脑 -> 属性 -> 远程设置 ->选中 允许远程协助连接这台计算机
 	官方说win10家庭版没有远程桌面	
-运行 dxdiag 就可以看到显卡信息
+运行 dxdiag 就可以看到显卡信息,看到的有可能有共享内存，win10下设置-> “显示”选项-> 高级 -> 显示适配器属性-> 有显示专用显存和共享显存
+
 运行 wmic命令
 
 win7 关闭UAC (用户帐户控制,总是提示对计算机进行更改 要输入密码)
@@ -1078,6 +1080,9 @@ systeminfo 命令 可以看系统信息,有 系统类型 可知是32位还64位
 
 
 ,win10 Explorer中键 功能目录向上, 浏览器返回
+
+powershell  运行 Get-PhysicalDisk 可以看硬盘是否SSD(碎片整理和优化驱动器  中也可以看)
+
 
 -----win10  Windows Subsystem for Linux(WSL)
 https://docs.microsoft.com/en-us/windows/wsl/install-win10

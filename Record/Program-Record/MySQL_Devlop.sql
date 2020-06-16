@@ -1341,7 +1341,6 @@ Session-2 查询修改了,已经提交，Session-1 再查还是看到数据不�
 SERIALIZABLE 同一条记录 Session-1 查询了也加锁， Session-2做不可以改(REPEATABLE-READ可以)，
 
 
-
 -- 
 
 强制索引

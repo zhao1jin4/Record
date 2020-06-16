@@ -437,7 +437,7 @@ netbeans解压目录下会产生  nbscala\modules 目录 (离线安装)
 DbVisualizer 10.0.16 支持MySQL-8 , 要求 JDK 8-11 openSUSE-leap-15下默认的OpenJDK10是可行的
 Mac DbVisualizer 右击->show package Content->Contents->Resources->app->lib
 
-tool properties...->general 有提示
+tool properties...->general 有提示 -prefsdir
 help->about->command line 有提示 命令行加参数 -prefsdir 参数修改目录 ,默认%USERPROFILE%/.dbvs目录
 	即在快捷方式为 dbvis-multi.exe -prefsdir D:\Program\dbvis_data 修改目录还是保留license的
 
@@ -453,7 +453,7 @@ Tools->Driver Manager, 子窗口Drvier菜单->JDB Driver Finder (点start 再次
 如同时显示多个表的查询,右击标签->pin tab(也可单击标签的图标来开关),也可右击表->open in new tab
 
 界面中文显示方块(乱码)的解决方式 ,脚本重启会变？
-在Tools->tool Properties->General->Appearance->Fonts-> Text Editor 选择 宋体, 同时把Grid 也修改
+在Tools->tool Properties->General->Appearance->Fonts-> Text Editor 选择 宋体(simhei黑体), 同时把Grid 也修改
 File-> Save as 选择UTF-8, Tools->General->File Encoding->改为UTF-8 但未保存的脚本重启也正常了
 
 
@@ -648,6 +648,8 @@ sqldeveloper-4.0.0.13.80-no-jre\sqldeveloper\bin\sqldeveloper.conf  有 SetJavaH
 
 日期默认不显示时间
 工具->首选项->数据库->NLS->日期格式: DD-MON-RR 修改为: YYYY-MM-DD HH24:MI:SS
+
+ssh视图中 建立ssh连接做跳板机，设置监听端口，就可以再建立数据库时，指定本机localhost和前面的建立端口
 
 
 =============  TOAD for Oracle =============  最新的 2017 R2 版本安装还要license,安装中还失败

@@ -27,6 +27,10 @@ TreeSoft 国产的 http://www.treesoft.cn/
 https://docs.mongodb.com/
 https://docs.mongodb.com/manual/   最下方可下载离线版本 , The manual is also available as HTML tar.gz and EPUB
 
+---也支持spatial
+https://docs.mongodb.com/manual/reference/geojson/
+https://docs.mongodb.com/manual/geospatial-queries/
+
 4.0 文档 epub 格式 ,Edge能打开,用Adobe Digital Editor-4.5.9(有Mac版本) 打开后,但不能复制代码,使用Calibre 就可以复制,还可前进后退,点右上角可以切换翻页和滚页模式
 3.3 的html文档 有仿问google的js打不开
 

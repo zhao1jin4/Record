@@ -109,6 +109,7 @@ java org.springframework.boot.loader.JarLauncher  --spring.profiles.active=test 
 spring.profiles.active=dev
 server.servlet.context-path=/J_SpringBoot
  /*
+ 都是使用了@Conditional
 @ConditionalOnBean，仅在当前上下文中存在某个bean时，才会实例化这个Bean。
 @ConditionalOnClass，某个class位于类路径上，才会实例化这个Bean。
 @ConditionalOnExpression，当表达式为true的时候，才会实例化这个Bean。

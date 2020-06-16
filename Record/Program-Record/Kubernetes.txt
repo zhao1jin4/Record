@@ -5,6 +5,14 @@
 A/B 测试,手机端的流量(高级的按地区年龄)切换到 V2 版本
 影子测试 , 生产数据库复制
 
+CNCF毕业的项目
+kubernetes,prometheus(istio),Enovy(istio),CoreDNS(k8s),Containerd(容器,从docker分离出来)
+		TUF(The Update Framework  https://theupdateframework.io/ )
+		Jaeger(istio),
+		Fluentd(Build Your Unified Logging Layer https://www.fluentd.org/)
+		Vitness(A database clustering system for horizontal scaling of MySQL  https://vitess.io/)
+		Helm(k8s)
+		
 ------------------------------------Kubernetes  (K8s)
 https://kubernetes.io/zh/
 

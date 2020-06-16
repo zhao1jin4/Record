@@ -1,8 +1,14 @@
-﻿
-https://www.jetbrains.com/idea/download/other.html  有历史版本
+﻿有历史版本 下载界面中点 other version
+https://www.jetbrains.com/idea/download/other.html  
+https://www.jetbrains.com/clion/download/other.html
+https://www.jetbrains.com/go/download/other.html
 
+2020.1 版本位置变为 %USERPROFILE%\AppData\Local\JetBrains\IntelliJIdea2020.1
+			linux变为	~/.cache/JetBrains/IntelliJIdea2020.1
+			
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
 IDEA 2018.2.6 版本可以支持 JDK11
+IDEA 2020.1 版本可以支持 JDK14
 
 --idea.properties 有提示 idea.home.path ,windows路径使用/ 分隔,事先建立好D:/Program/idea_data即可
 #idea.config.path=${user.home}/.IntelliJIdea/config
@@ -301,15 +307,19 @@ tools->阿里编码规约->编码扫描 (如当前打开文件，只对这个文
 结果在inspect result视图中(view->tool windows->inspect result)
 
 
----intellj_plugin_mongo
+---idea_plugin_mongo
 0.12.0 版本要求 idea-2016.1+ (没有SHA256不支持mongo-4.0)
 0.12.2 版本要求 idea-2019.1+ 
 
 离线下载mongo4idea.zip包，安装后有mongo explorer 视图
 
----intellj_idea-2017.3+_plugin_redis
-就一个版本
-离线下载Redis_Plugin-1.0.zip包，安装后有redis explorer 视图
+---idea-2017.3+_plugin_redis  Redis_Plugin-1.0.zip 
+ 安装后有redis explorer 视图
+---idea-2018.3+_plugin_redis RedisNew-2020.5.20.zip 安装后要激活才行???
+---idea-2020.1_plugin_Iedis2 Iedis_2-2020.1.1.zip 安装后要激活才行???
+
+
+
 
 ----hbase 插件 无???
 
@@ -347,6 +357,9 @@ intellij idea 2018.2 插件 kubernetes
 
 Tool->configure Gen Protobuf -> 选择语言Java,要 PATH环境变量中有protoc命令,也可设置输入目录,默认当目录
 右击.proto文件-> quick gen protobuf here
+-----JPA
+view -> tool windows -> persistence 选中一个项目 右击->Generate persistence mapping -> by database schema 选择表可以生成带@Entity的类
+
 
 ---------DataGrip 2018  可以不要 IntellijIDEA 也有这此功能,也有 WebStorm ,Android 功能
 
@@ -356,11 +369,16 @@ serverTimezone	 要设置为 UTC
 
 右击连接 -> database tools ...->manage show schemas->current schema
 
----------CLion 2018 
+---------CLion
+2018.2.6 可以选择C++17 支持 Cygwin版本为2.8.0
+2020.1  支持 Cygwin 3.1.4-1 版本 
+2020.1.1 在openSUSE-leap-15.1 下支持 C++20,没有安装gdb也可调试,使用Bundled GDB 8.3 
+
+
 windows 下可 Cygwin/MinGW/Visual Studio
 
 下载的 Cygwin_x64 , 2018-11-22时cygcheck -c cygwin  显示为  2.11.2-1
-	64位的 gcc-7.3.0-3 (mingw64-x86_64-gcc-core-6.4.0-2),gcc-g++ (mingw64-x86_64-gcc-g++)  , gcc-objc  (mingw64-x86_64-gcc-objc)
+	64位的 gcc-7.3.0-3 (mingw64-x86_64-gcc-core-6.4.0-2),gcc-g++ (mingw64-x86_64-gcc-g++)  , gcc-objc 可选
 		gdb-8.0.1-1
 		make-4.2.1-2
 Settings->Build,Execution,Deployment->ToolChains->选择Cygwin 右则点...配置Cyginw home 可自动检测,测试OK
@@ -393,6 +411,8 @@ Settings->Build,Execution,Deployment->ToolChains->选择Cygwin 右则点...配�
 	Run 菜单 -> Break at first line in PHP scripts
 
 -------GoLand 2018.2.4 (IntellijIdea)
+2020.1 版本 光标放在方法上有doc提示
+
 Settings-> Go -> GoPATH 下有 global GOPATH (默认是~/go) 配置 
 	
 	右击 xx_test.go -> create TestXX (方法名) in xx.go(文件名) ,
@@ -405,6 +425,23 @@ Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 ---------Rider 跨平台的C#开发工具(也有开源的MonoDevelop )
 
 
+-----teamCity CI/CD工具 
+安装后
+会生成 C:\TeamCity\buildAgent\conf\buildAgent.properties  文件 
+有使用C:\TeamCity\buildAgent\system ,work,temp 目录, ownPort=9090 
+
+安装后会建立 TeamCity Build Agent , TeamCity Server 服务
+http://127.0.0.1:80 默认数据目录配置为 C:\ProgramData\JetBrains\TeamCity,选择数据库如MySQL
+
+页面提示 C:\ProgramData\JetBrains\TeamCity\lib\jdbc 放 mysql-connector-java-8.0.15.jar
+输入连接数据库信息
+
+create user teamcity@'%' identified by 'teamcity';
+create database teamcity; 
+GRANT ALL   ON teamcity.* TO 'teamcity'@'%';
+建立了140张表
+
+提示建立管理员帐户，如 admin/teamcity
 
 
 

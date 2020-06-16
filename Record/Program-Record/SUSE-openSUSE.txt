@@ -352,33 +352,91 @@ ip 可操作的对像，如 netns 网络名称空间(network namespace)
 ip netns help
 
 ip netns list
+ip netns ls
+
 ip netns add r1
+
 ip netns add r2
-ip netns exec r1 ip a s  默认只有一个lo网
+#ip netns delete r2
+
+ip netns exec r1 ip a s  #exec进入网络空间,默认只有一个 lo 网卡,是DOWN的状态
+#也可 ip netns exec r1 bash 提示符没变化 再 ip link 再 exit
+#设置提示符
+ip netns exec r1 bash --rcfile <(echo "PS1=\"rc1>\"") 
+    --rcfile 表示初始化命令,来代替	~/.bashrc  文件
+	进入后可以通过PS1="rc11>"来修改提示符
+ip netns exec r1 ip link set lo up
+
 ip link  add name veth1.1 type veth peer name veth1.2  建两个网卡做连接
-ip link show/list
+#ip link add      veth2.1 type veth peer name veth2.2  #可以没有第一个name
+#ip link  delete veth2.1
+ 
+ip link show/list  显示的名为 veth1.2@veth1.1 ,veth1.1@veth1.2 (表示从哪个网卡到哪个网卡)
+#ip link 
 
 把一个网络设置称动名称空间中
-ip link set dev veth1.2 netns r1
+ip link set dev veth1.2 netns r1 (原来本机上的就消失了)
 ip netns exec r1 ip a s 就有了新的网卡
 ip netns exec r1 ip link set dev veth1.2 name eth0 对设备改名
-ip netns exec r1 ip a s 显示修改后为  eth0@if42
+ip netns exec r1 ip a s 显示修改后为  eth0@ifX  (X为数字)
 
 设置IP
 ip netns exec r1  ip addr change 10.0.0.1/24 dev eth0
 
 激活
-ip netns exec r1  ip link set dev eth0 up   好像不行？？？
+ip netns exec r1  ip link set dev eth0 up  看显示 < 中有 UP > ,state为 LOWERLAYERDOWN 必须另一个网卡也要up
 
-ping 10.0.0.1 
-
+ 
 再另一个名称空间做相同事，两个空间可以ping通
 ip link set dev veth1.1 netns r2
+ip netns exec r2 ip link set dev veth1.1 name eth0  
+ip netns exec r2  ip addr add dev  eth0  10.0.0.2/24  #修改地址方式2
+ip netns exec r2  ip link set dev eth0 up
+
+两个网就通了
+ip netns exec r2  ping -c 3 10.0.0.1  
+ip netns exec r1  ping -c 3 10.0.0.2 
+
+#ip netns delete r1
+#ip netns delete r2
+-- 使用 网桥 通信 (可多个网络名称空间)
+ip link add mybrg type bridge
+ip link set mybrg up
+
+ip link  add   vnet1.1 type veth peer name vnet1.2
+
+ip netns add myns1
+
+
+ip link set dev vnet1.1 netns myns1 
+ip link set dev vnet1.2 master mybrg
+ip a s 显示 vnet1.2 网卡有 master mybrg 
+bridge link 来查看
+
+ip netns exec myns1  ip addr add dev  vnet1.1  10.0.0.1/24   
+ip netns exec myns1 ip link set vnet1.1   up 
+ip link set vnet1.2  up 
+ 
+ 
+另一方 相同方式 接入网桥
+ip netns add myns2
+ip link  add   vnet2.1 type veth peer name vnet2.2
+ip link set dev vnet2.1 netns myns2
+ip link set dev vnet2.2 master mybrg
+
+ip netns exec myns2  ip addr add dev  vnet2.1  10.0.0.2/24   
+ip netns exec myns2 ip link set vnet2.1   up 
+ip link set vnet2.2  up 
+
+两个网就可以通(使用桥)
+ip netns exec myns2 ping -c 3 10.0.0.1  
+ip netns exec myns1 ping -c 3 10.0.0.2 
+
+#ip link delete mybrg
+#ip netns delete  myns1
+#ip netns delete  myns2
+
 --
-
-
-
-
 
  (无 netstat,net-tools 不再维护)
 ss 命令（Socket Statistics）
@@ -391,6 +449,10 @@ bridge
 
 iwlist、iwconfig
 这两个命令需要你有无线网卡才能够进行使用
+
+ifstat 只可显示一次 网络使用
+iftop 要单独安装   iftop -i  wlan0
+
 
 
 nmcli 是 network manager 工具

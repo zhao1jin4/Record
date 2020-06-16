@@ -483,7 +483,7 @@ Document->Auto Wrap自动换行
 
 ---------Notepad++
 Notepad++  ->setting->Gerneral->Tab Bar 中->选中 show close button on each tab
-Notepad++  ->setting->MISC. ->取消 Remeber current session for next lanuch
+Notepad++  ->setting->backup ->取消 Remeber current session for next lanuch
 Notepad++  ->setting-> Tab Setting ->可修改tab size 默认为4，如为yaml可修改为2，复选replace by space
 	打开yaml文件不会自动高亮 language->YAML,只打开yml文件会自动高亮
 	但开头有空格回车换行时以tab替代

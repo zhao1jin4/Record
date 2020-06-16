@@ -556,7 +556,15 @@ document.save( "d:/temp/Hello World.pdf");
 document.close();
 =================================Lucene-6.4================================
   
- 最新的 luke-src-4.0.0 最近更新是2012年7月
+ https://lucene.apache.org/core/8_5_1/index.html 
+ https://lucene.apache.org/core/8_5_1/grouping/index.html (分组功能，有lucene-grouping-8.3.1.jar) 
+ https://lucene.apache.org/core/8_5_1/join/org/apache/lucene/search/join/package-summary.html
+ join  功能
+ spatial3d: 3D 的 geometry APIs 
+ 
+ 
+ 最新的 luke-src-4.0.0 最近更新是2012年7月 
+是一个swing界面工具,可以查看索引目录内容(luke发音同look),目前在lucene(8.3)下载包中有luke目录 
  
  倒排索引， 从词出发，记载了这个词在哪些文档中出现过
  由两部分组成——词典和倒排表。
@@ -890,6 +898,7 @@ System.out.println(highTxt);//变为        <B>中国</B>
  
 
 ---- tika  用于打开各种不同格式文档 DOCX,XLS, PDF,HTML
+最新版本为1.24
 
 java -jar tika-app-1.14.jar  有界面 -g
 java -jar tika-app-1.14.jar  --help
@@ -1206,100 +1215,6 @@ Graphics2D g=buffImg.createGraphics();
 g.drawImage(...);
 g.dispose();
 //CODEC的全称=Coder and Decoder ,apache
-
-
-
-
----------------------------------Log4j 1
- 
-
-－X号: X信息输出时左对齐；
-   %p: 输出日志信息优先级，即DEBUG，INFO，WARN，ERROR，FATAL,
-   %d: 输出日志时间点的日期或时间，默认格式为ISO8601，也可以在其后指定格式，比如：%d{yyy MMM dd HH:mm:ss,SSS}，输出类似：2002年10月18日 22：10：28，921
-   %r: 输出自应用启动到输出该log信息耗费的毫秒数
-   %c: 输出日志信息所属的类目，通常就是所在类的全名
-   %t: 输出产生该日志事件的线程名
-   %l: 输出日志事件的发生位置，相当于%C.%M(%F:%L)的组合,包括类目名、发生的线程，以及在代码中的行数。举例：Testlog4.main(TestLog4.java:10)
-   %x: 输出和当前线程相关联的NDC(嵌套诊断环境),尤其用到像java servlets这样的多客户多线程的应用中。
-   %%: 输出一个"%"字符
-   %F: 输出日志消息产生时所在的文件名称
-   %L: 输出代码中的行号
-   %m: 输出代码中指定的消息,产生的日志具体信息
-   %n: 输出一个回车换行符，Windows平台为"\r\n"，Unix平台为"\n"输出日志信息换行
-可以在%与模式字符之间加上修饰符来控制其最小宽度、最大宽度、和文本的对齐方式。如：
-	 1)%20c：指定输出category的名称，最小的宽度是20，如果category的名称小于20的话，默认的情况下右对齐。
-	 2)%-20c:指定输出category的名称，最小的宽度是20，如果category的名称小于20的话，"-"号指定左对齐。
-	 3)%.30c:指定输出category的名称，最大的宽度是30，如果category的名称大于30的话，就会将左边多出的字符截掉，但小于30的话也不会有空格。
-	 4)%20.30c:如果category的名称小于20就补空格，并且右对齐，如果其名称长于30字符，就从左边交远销出的字符截掉。
-
-log4j.rootLogger=warn,console
-log4j.logger.apache_log4j=debug,console
-log4j.additivity.apache_log4j=false
-
-
-log4j.appender.console=org.apache.log4j.ConsoleAppender
-log4j.appender.console.layout=org.apache.log4j.PatternLayout
-#log4j.appender.console.Threshold=info
-log4j.appender.console.layout.ConversionPattern=[OD]%-d{yyyy-MM-dd HH:mm:ss} [%c:%L] %m%n
-# %-15c{1}  15宽度左对齐,只要类名 %M 方法名
-log4j.appender.console.Encoding=UTF-8
-log4j.appender.dailyRollingFile=org.apache.log4j.DailyRollingFileAppender
-log4j.appender.dailyRollingFile.file=${log_home}/dailyRollingFile.log
-log4j.appender.dailyRollingFile.DatePattern='.'yyyy-MM-dd
-
-log4j.appender.rollingFile=org.apache.log4j.RollingFileAppender
-log4j.appender.rollingFile.File=${log_home}/rollingFile.log
-log4j.appender.rollingFile.Append=true
-log4j.appender.rollingFile.MaxFileSize=20MB
-log4j.appender.rollingFile.MaxBackupIndex=10
-
-zookeeper,kafka 是用log4j1版本
-
-log4j.xml
-
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">   
-    <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/' >   
-        
-        <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">   
-            <layout class="org.apache.log4j.PatternLayout">   
-                <param name="ConversionPattern"  value="[%d{MM-dd HH:mm:ss,SSS\} %-5p] [%t] %c{2\} - %m%n" />   
-            </layout>   
-        </appender>   
-        <appender name="my_appender" class="org.apache.log4j.DailyRollingFileAppender">   
-            <param name="File" value="${log_home}/log_xml.txt" />   
-            <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />   
-            <layout class="org.apache.log4j.PatternLayout">   
-                <param name="ConversionPattern" value="[%d{MM-dd HH:mm:ss SSS\} %-5p] [%t] %c{3\} - %m%n" />   
-            </layout>   
-        </appender>   
-        <logger name="apache_log4j" additivity="false">   <!--name的值是包名-->  
-            <level value="debug" />   
-            <appender-ref ref="my_appender" />   
-        </logger>   
-        <root>   
-            <priority value="DEBUG"/>
-            <appender-ref ref="STDOUT"/>
-            <appender-ref ref="my_appender"/>
-        </root>   
-    </log4j:configuration>   
-
-文件位置使用变量${log_home}/log_xml.txt  //OK
-log4j.appender.file.file=${log_home}/log_properties.txt   //OK
-
-System.setProperty("log_home",servletContext.getRealPath("/"));//在lisener,或者自动启动的Servlet
-//${user.dir}
-java -Dlog_home=c:/temp
-
-PropertyConfigurator.configure(properties);//对properites配置文件
-
-//DOMConfigurator.configure(xmlFile);//对XML配置文件
-URL url=this.getClass().getResource("/log4j.xml");
-DOMConfigurator.configure(url);
-
-Logger log = Logger.getLogger(My.class);
-log.setLevel(Level.DEBUG);//动态修改日志级别,只是对某一个类
-Logger rootLog=Logger.getRootLogger();//根
 
 ---------------------------------Log4j 2
  
@@ -2111,6 +2026,25 @@ pool.returnObject(buf);
 PooledObject<Connection> obj=new DefaultPooledObject<Connection>(conn);
 Connection conn= obj.getObject();
 obj.getObject().close();
+-------------------------------commons cli
+//commons-cli-1.4.jar
+
+//java CommonsCli -c=CN -t
+
+Options options = new Options();
+options.addOption("t", false, "display current time"); //false表示没有参数值
+options.addOption("c", true, "country code");
+
+CommandLineParser parser = new DefaultParser();
+CommandLine cmd = parser.parse( options, args);
+
+if(cmd.hasOption("t")) {
+	System.out.println("have t");
+} 
+String countryCode = cmd.getOptionValue("c");
+if(countryCode != null)  {
+	System.out.println("countryCode="+countryCode);
+}
 
 -----------------------------httpclient 新的是httpcomponents项目下的
 httpcore -> httpclient
@@ -3913,6 +3847,91 @@ public class Reactor3Example {
 }
 
 -------------Reactor  上
+
+--------------camel
+
+  <dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.camel.springboot</groupId>
+            <artifactId>camel-spring-boot-dependencies</artifactId>
+            <version>3.3.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+
+<dependency>
+	<groupId>org.apache.camel.springboot</groupId>
+	<artifactId>camel-spring-boot-starter</artifactId>
+</dependency> 
+
+自动依赖了 
+ <dependency>
+	<groupId>org.apache.camel</groupId>
+	<artifactId>camel-core</artifactId>
+	<version>3.3.0</version>
+</dependency>
+	  
+可能 要手工增加
+<dependency>
+    <groupId>org.apache.camel</groupId>
+    <artifactId>camel-componentdsl</artifactId>  
+</dependency>
+	  
+  
+支持DSL （domain-specific languages），如Java DSL， Spring DSL。
+
+https://github.com/apache/camel-examples/tree/master/examples/camel-example-kafka
+https://camel.apache.org/manual/latest/walk-through-an-example.html  上github上 下载示例代码
+
+public class TestMain {
+
+	private static final long DURATION_MILIS = 10000;
+	private static final String SOURCE_FOLDER = "src/test/source-folder";
+	private static final String DESTINATION_FOLDER = "src/test/destination-folder";
+
+	public static void main(String[] args) throws Exception {
+		CamelContext camelContext = new DefaultCamelContext();
+//		ProducerTemplate template = camelContext.createProducerTemplate();
+//		template.sendBody("endpoint","body");
+
+		
+		camelContext.addRoutes(new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				from("file://" + SOURCE_FOLDER + "?delete=true") //参数参考 https://camel.apache.org/components/latest/file-component.html
+				.process(new FileProcessor())
+						.to("file://" + DESTINATION_FOLDER);
+			}
+		});
+		camelContext.start();
+		Thread.sleep(DURATION_MILIS);
+		camelContext.stop();
+	}
+
+}
+public class FileProcessor implements Processor {
+	public void process(Exchange exchange) throws Exception {
+		String originalFileName = (String) exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
+		Date date = new Date();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+		String changedFileName = dateFormat.format(date) + originalFileName;
+		exchange.getIn().setHeader(Exchange.FILE_NAME, changedFileName);
+	}
+}
+	
+	
+camel-api-3.3.0.jar
+camel-base-3.3.0.jar
+camel-core-3.3.0.jar
+camel-core-engine-3.3.0.jar
+camel-util-3.3.0.jar
+camel-support-3.3.0.jar
+camel-core-languages-3.3.0.jar
+camel-file-3.3.0.jar 用来处理file://协议
 
 
 -------------akka

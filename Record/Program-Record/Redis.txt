@@ -147,7 +147,7 @@ bind 默认127.0.0.1  是不能外网连接的，要修改为本机IP 或者注�
 
 
 
-数据类型有 字串(integer,float)，bit arrays(bitmap),list,set,zset,hash,HyperLogLogs,Stream(5版本新的数据类型)
+数据类型有 字串(integer,float)，bit arrays(bitmap),list,set,zset,hash,HyperLogLogs,Stream(5版本新的数据类型),geo开头的spatial
 
 >set <var> <val>
 >get <var>
@@ -180,7 +180,10 @@ incrbyfloat counter 0.5
  区别就是第3位0或者1的区别
  
 set char 'A'
+(bitmap类型)
 setbit char 2 1  #(左边高位)第3位设置为1,变小写,格式setbit key offset value
+getbit char 2
+
 get char 是a
 bitcount char 显示3
  
@@ -396,11 +399,28 @@ redis.status_reply(status_string)
 lua脚本实现分布式锁，可以保存证setnx,expire两个操作的原子性
 如lua脚本没有执行完成时，不能执行其它脚本
   
-官方SETNX文档的锁方案
+--官方SETNX文档的锁方案
 SETNX lock.foo <current Unix time + lock timeout + 1>如返回0表示失败,看时间是否超时(对前一个加锁的进程死了)
 如0查是否>当时前,如过期(这也是一步操作,不能保证 这个和GETSET是原子的 )
 GETSET lock.foo <current Unix timestamp + lock timeout + 1> 就算这个返回值是早于当前时间,取锁失败(被快的抢了),这时要等(但也已经设置了新值)
-用完DEL lock.foo ,有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁...
+用完DEL lock.foo ,有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁???
+
+如果值是写死的形式，如果setnx成功得锁，但在del之前客户端节点挂了，就一直锁了
+
+--官方 分布式锁文档的方案(单实例),但set命令没说是单实例
+设置key时指定超时时间(PX单位毫秒,EX单位是秒)，NX如不存在则设置，XX如存在则设置，成功返回OK,失败返回nil
+SET resource_name my_random_value NX PX 30000
+也存在相同问题，有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁???
+
+随机值是为了安全释放锁
+如要释放锁使用 lua
+if redis.call("get",KEYS[1]) == ARGV[1] then
+    return redis.call("del",KEYS[1])
+else
+    return 0
+end
+
+--java 实现分布式锁 可用 redisson，还是连接断，锁释放比较好
 
 --redis.conf
 include /x/y.conf
@@ -649,9 +669,15 @@ redis-cli -p 7002 debug segfault 表示 让7002端口的应用掉电
 查询redis允许的最大连接数  默认 4064
 CONFIG GET maxclients
 
-config get maxmemory-policy  默认为noeviction （不驱逐）
+config get maxmemory-policy  默认为noeviction （不驱逐）,allkeys-lru,volatile-lru (对有过期时间的),allkeys-random,volatile-random,volatile-ttl,
 config get maxmemory 默认为0
 
+Redis 4.0 新的 LFU (Least Frequently Used) 
+近似LRU( Least Recently Used) 清最老的数据
+ volatile-lfu
+ allkeys-lfu 
+ 
+ 
 config set maxmemory 100000
 config set maxmemory-policy  allkeys-lru
 
@@ -745,7 +771,7 @@ PFCOUNT str1and2   ##5 去重的
 #格式为 xadd key ID field string [field string ...]
 XADD mystream * sensor-id 1234 temperature 19.8  ###  使用 * 为值则表示让 Redis 自行为该元素设置 ID ，命令返回的 就是新添加元素的 ID
 如反回 "1573309956334-0"
-# - 之前的数字为添加元素时的毫秒精度的时间戳， 而-之后的数字则是一个从 0 开始自增的数字,用于却别同一毫秒内出现的多个不同元素
+# - 之前的数字为添加元素时的毫秒精度的时间戳， 而-之后的数字则是一个从 0 开始自增的数字,用于区别同一毫秒内出现的多个不同元素
 
 XRANGE mystream 1573309711047-0 +
  # - 或者 + 来表示负无穷和正无穷
@@ -777,7 +803,7 @@ XREAD COUNT 2 STREAMS mystream 0   #最后参数表示最小ID
 
 XREAD BLOCK 5000 STREAMS mystream $ #如使用BLOCK必须使用特殊的ID $ 
 读最新的
-在一个时间最长为 5000 毫秒的阻塞操作中， 等待 user-timeline 流最新添加的一个元素
+在一个时间最长为 5000 毫秒的阻塞操作中， 等待 mystream 流最新添加的一个元素
 如在指定时间内都没有出现新添加的元素， 那么 XREAD 命令将返回一个空值； 否则， XREAD 命令将返回流新添加的元素
 
 

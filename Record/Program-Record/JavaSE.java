@@ -399,7 +399,7 @@ jdk 10 对docker容器运行java 的改善, -XX:-UseContainerSupport
  jdk 10 的 并行 Full GC (G1) 
  
  
-得到锁的顺序,偏向锁->轻量级锁->自旋锁->OS 互斥锁
+java1.6 以后对synchronized做了大量的锁优化, 得到锁的顺序,偏向锁->轻量级锁->自旋锁->OS 互斥锁
 
 -XX:+DoEscapeAnalysis  默认开启 only hotspot JVM
 
@@ -664,14 +664,19 @@ com.mysql.jdbc.Driver  //MySQL 5.x
 com.mysql.cj.jdbc.Driver //MySQL 8
 
 jdbc:mysql://localhost:3306/databasename
-jdbc:mysql:///mydb?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC    xml文件中用&amp;
-jdbc:mysql://address=(protocol=tcp)(host=localhost)(port=3306)/mydb?useUnicode=true&characterEncoding=UTF-8
+jdbc:mysql:///mydb?characterEncoding=UTF-8&serverTimezone=UTC    xml文件中用&amp;
+jdbc:mysql://address=(protocol=tcp)(host=localhost)(port=3306)/mydb?characterEncoding=UTF-8
+
+clobCharacterEncoding
+connectionCollation 会覆盖  characterEncoding
+
 &zeroDateTimeBehavior=convertToNull 对于日期类型,如果从文件导入没有值会被认为0000-00-00,
 &zeroDateTimeBehavior=CONVERT_TO_NULL (MySQL8 CONVERT_TO_NULL)
-emptyStringsConvertToZero 默认是true
-useSSL=true
 
-connectTimeout  milliseconds
+emptyStringsConvertToZero 默认是true
+useSSL 默认是true
+
+connectTimeout  单位是milliseconds
 
 "jdbc:mysql:loadbalance://" +
         "localhost:3306,localhost:3310/test?" +
@@ -1605,7 +1610,10 @@ public void printf(String format, Object ...args) //args在方法体中是一个
  
 
 ArrayBlockingQueue(2);//有容量限制
-PriorityBlockingQueue //按自然排序或者传Comparator
+PriorityBlockingQueue //按自然排序或者传Comparator,不允许放入null元素,默认是小根堆,每次取最小元素，树顶(下标为0),
+	//数组来实现，因二叉树，可用公试计算父子元素的下标，parentNo = (nodeNo-1)/2，leftNo = parentNo*2+1，rightNo = parentNo*2+2
+	//时间复杂度都是log(N)，如在尾增加一个元素，和父比较，如比父小就调换
+	//如删除顶无素,拿最后一个（最大的）放在顶，和两子无素中小的那个做比较，谁小谁做父
 
 //DelayQueue 队列中的元素必须实现新的 Delayed 接口
 //添加可以立即返回，但是在延迟时间过去之前，不能从队列中取出元素。如果多个元素完成了延迟，那么最早失效(失效时间最长)的元素将第一个取出,不可放null, size返回所有(过期和未过期的)
@@ -4201,7 +4209,7 @@ strictfp 即 strict float point (精确浮点) ,可应用于类、接口或方�
 strictfp不能放在接口方法前,也不能放在构造函数前
 
 AtomicInteger   c.incrementAndGet(); 相当于  ++c; 可以保证 ++ 和 取 两个操作是安全的,
-			看源码是使用compareAndSet实现的
+			 新版本(JDK1.8)源码是C实现的, Linux的X86下主要是通过cmpxchgl这个指令在CPU级完成CAS操作的
 			上次看到这个变量之后其他线程修改了它的值，那么更新就失败,再一次循环做,就不会被阻塞,
 AtomicIntegerArray 对数组
 AtomicIntegerFieldUpdater是对对象里的属性修改 newUpdater(方法
