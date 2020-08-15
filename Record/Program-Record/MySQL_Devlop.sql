@@ -343,7 +343,9 @@ values				(1, UNHEX(HEX('616263')), 0xFF000000,UNHEX(HEX(255)),'black','a,b,c');
 text 类型对应的就有tinytext,mediumtext,longtext
 	
 date 类型没有时间,而datetime 和 timestamp  (如果修改了时区值也会自动变)类型是带日期和时间的
-(建表,加列时,列的类型为 timestamp 如不指定default,自动加  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP )
+
+mysql 8 已经修正了这个问题 (建表,加列时,列的类型为 timestamp 如不指定default,自动加  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ) 
+
  
  DATETIME 范围是 '1000-01-01 00:00:00' to '9999-12-31 23:59:59'.
  TIMESTAMP 范围是 '1970-01-01 00:00:01' UTC to '2038-01-19 03:14:07' UTC.
@@ -696,13 +698,18 @@ set global  autocommit=off      有些是 readonly的
 set session  autocommit=off    
 
 
-START TRANSACTION;  或者用  BEGIN  END
+START TRANSACTION;  或者用  BEGIN  END ,不支持嵌套事务的begin前会自动commit,但可以使用 savepoint
 --
 COMMIT; -- rollback
 
- BEGIN WORK; -- 是  START TRANSACTION;   别名
+BEGIN WORK; -- 是  START TRANSACTION;   别名
  
 rollback WORK;  -- COMMIT WORK;
+
+SAVEPOINT identifier
+ROLLBACK [WORK] TO [SAVEPOINT] identifier
+RELEASE SAVEPOINT identifier
+
 
 set names gb2312 或是gbk  就可以插入中文了（只对当前session有效)
 set names gbk ;设置 mysql客户端终端字符集为gbk,如cmd中

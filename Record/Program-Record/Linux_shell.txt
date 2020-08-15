@@ -137,6 +137,7 @@ dirname /tmp/file  返回/tmp
 dirname $0  当前执行的脚本所在目录
 echo $PWD 当前目录
 
+basename /tmp/aa.txt 返回文件名 aa.txt
 
 declare  -r 只读变量  -i 整数  可用+改变含义(除-r)  export 来看
 

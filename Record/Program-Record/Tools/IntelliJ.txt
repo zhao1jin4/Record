@@ -185,6 +185,8 @@ Settings->Appearance & Behavior->Appearance-> Theme 选择Darcula是黑色
 View -> tools->Structure  显示大纲(就在左侧边栏)   
 View -> Quick Documentation (ctrl+Q)   
 Navigator->File Structure (  ctrl+F12 ) 显示弹出式的大纲
+Navigator->bookmark -> show bookmark (  shift+F11 ) 显示书签窗口
+
 Navigator->class ... (  ctrl+N )
 
 
@@ -244,6 +246,11 @@ Setting->Tools->Externel tools ->增加配置后（如压缩JS) 右击文件就�
 windows 下启动idea提示Cannot lock system folder(可能不是管理员导致), Unable to create Channel from class class  io.netty.channel.socket.oio.OioServerSocketChannel
 管理员运行 netsh winsock reset
 
+shell视图修改使用git bash(支持linux命令)
+settings->tools->terminal -> shell path 中选择 Git安装目录/bin/bash.exe
+
+ctrl+e 最近打开文件
+
 ====================IntelliJ IDEA plugin 
 https://plugins.jetbrains.com/
 https://plugins.jetbrains.com/idea
@@ -275,7 +282,8 @@ https://gitee.com/baomidou/mybatis-plus 国产的
 https://plugins.jetbrains.com/plugin/10119-mybatisx
 	可以Mapper接口类 点击图标 进入XML
 	
----findbug
+---QAplugin findbug 替代老的findbugs
+	右击项目  analyze 有图标-> analyze code  ,可以单选whole project
 
 ---jd-gui
 
@@ -360,6 +368,9 @@ Tool->configure Gen Protobuf -> 选择语言Java,要 PATH环境变量中有proto
 -----JPA
 view -> tool windows -> persistence 选中一个项目 右击->Generate persistence mapping -> by database schema 选择表可以生成带@Entity的类
 
+-----idea 插件  Builder Generator
+https://plugins.jetbrains.com/plugin/6585-builder-generator
+Code -> Generate -> 多了一个builder
 
 ---------DataGrip 2018  可以不要 IntellijIDEA 也有这此功能,也有 WebStorm ,Android 功能
 
@@ -425,7 +436,15 @@ Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 ---------Rider 跨平台的C#开发工具(也有开源的MonoDevelop )
 
 
------teamCity CI/CD工具 
+-----teamCity CI/CD工具 免费的
+有docker版本
+docker run -it --name teamcity-server-instance \
+-v <path to data directory>:/data/teamcity_server/datadir \
+-v <path to logs directory>:/opt/teamcity/logs \
+-p <port on host>:8111 \
+jetbrains/teamcity-server
+
+ 
 安装后
 会生成 C:\TeamCity\buildAgent\conf\buildAgent.properties  文件 
 有使用C:\TeamCity\buildAgent\system ,work,temp 目录, ownPort=9090 

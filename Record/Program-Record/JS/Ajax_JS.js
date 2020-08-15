@@ -14,6 +14,13 @@ firefox ->firebug中以选中一个区域 (如是encodeURI("test.jsp?username=�
 ---------Chrome  使用
 about:memory
 调试JS 按Ctrl+Shift+J 快捷键弹出开发工具
+
+chrome://flags  SameSite by default cookies 设置为禁用
+
+
+SameSite Lax模式 Get请求 (非ajax/iframe) 和  <link  rel="prerender" href=""/> 会发送cookie
+
+
 -----IE使用
 工具-->Internet选项-->高级 ,将（显示每个脚本错误的通知）一项的勾去掉   
 工具-->internet选项->高级->总是以 UTF-8 发送URL ,打勾
@@ -1402,7 +1409,8 @@ function showLoader()
 	body.appendChild(imgDiv);
 
 	var handler=window.setTimeout(hideLoader, 3000);//也可以用 window.setInterval 
-	//clearTimeout(handler); //window.clearInterval 
+	//setInterval为自动重复，setTimeout不会重复
+	//clearTimeout(handler); //window.clearInterval() 
 }
 	 
 function hideLoader()
@@ -1452,6 +1460,7 @@ $(function(){
 
 
 ---cookie
+
 //只可访问本域的cookie
 //增加
 document.cookie = "name=oeschger";
@@ -1460,6 +1469,8 @@ document.cookie = "favorite_food=tripe";
 var exdate=new Date();
 exdate.setDate(exdate.getDate()+2);
 document.cookie="loginId=lisi;expires="+exdate.toGMTString()  ;
+document.cookie="loginId=lisi;expires="+exdate.toGMTString()+";path=/";  //如果ajax请求带的cookie路径当前请求最深路径，服务端读不到，除非加path=/
+//请求头有Cookie,响应头有Set-Cookie但没有过期时间数据
 
 //清除
 var exdate=new Date();
@@ -3813,6 +3824,8 @@ console.log(Symbol.for('foo').description);
 
 --------ECMASCript   
 https://www.ecma-international.org/
+
+
 
 
 

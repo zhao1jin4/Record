@@ -1,3 +1,8 @@
+win10 免费下载地址
+linux下仿问 
+https://自动 .microsoft.com/zh-cn/software-download/windows10ISO   Win10_2004_English_x64.iso 大小为4.9GB
+
+
 
 域名可以去https://changeip.com免费弄个
  
@@ -81,7 +86,13 @@ XII - 12
 
 红字 负数  表示冲销掉错误的
 蓝字 正数  表示更正为正确的
----会计
+---期货
+期货空头：本来手里没有期货合约，未来看好价格会下跌，从交易所“借”来合约，等价格下跌后，再买来低价的合约还给交易所，以此来赚取差价，这个行为就叫做空头
+
+买入=多头
+卖出=空头
+头寸
+
 127.开头的网段的都是loopback
 
 局域网段
@@ -225,7 +236,7 @@ win7 有一个 snippingtool 截图工具,StikyNot 便利贴,关闭后再次打�
 
 windows 7 禁用自动播放
 地址栏上 粘贴 控制面板\硬件和声音\自动播放  取消复选[为所有媒体和设备使用自动播放],列表中全部选择[不执行操作]
-
+取消 复选框 Use AutoPlay for all media and devieces
 
 windows 7 对于休眠总是自动重启的情况
 控制面板\硬件和声音\电源选项，对于希望更改的计划单击"更改计划设置"->"更改高级电源设置"。
@@ -331,6 +342,10 @@ mklink  /D C:\Users\user1 D:\user1
          symbolic link.
 
 要先登录一次产生C:\Users\user1文件夹再移动文件，再mklink,如第一次登录已经C:\Users\user1目录，会自动建立使用C:\Users\user1.<hostname>文件夹
+
+
+net localgoup administrators 显示本机的管理员组有哪些用户
+
 
 ====快捷键
 
@@ -874,6 +889,8 @@ net user
 net user docker  /add /active:yes /expires:never /passwordchg:yes /fullname:"the-docker" /comment:"docker used"
 net localgroup "docker-users" docker /add
 
+net localgroup administrators 显示 本机管理员组的所有用户
+
 
 shutdown /a 取消 定时关机
 shutdown /t 120 /s  ,两分钟后关机
@@ -1081,15 +1098,17 @@ systeminfo 命令 可以看系统信息,有 系统类型 可知是32位还64位
 
 ,win10 Explorer中键 功能目录向上, 浏览器返回
 
-powershell  运行 Get-PhysicalDisk 可以看硬盘是否SSD(碎片整理和优化驱动器  中也可以看)
-
+------powershell 
+PowerShell Integerated Scripting Enviroment (ISE) ,文件名powershell_ise.exe 
+运行 Get-PhysicalDisk 可以看硬盘是否SSD(碎片整理和优化驱动器  中也可以看)
+资源管理器空白处，shift + 右键->open powershell window here
 
 -----win10  Windows Subsystem for Linux(WSL)
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 是微软和Canonical(snapd)一起开发
-在PowerShell中开启
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
-从商店安装要求 Windows 10 的 16215  版本以后
+在 PowerShell 中开启,也可以在控制面板中添加新特性来安装
+WSL 2 要求win10 build 19041 版本
+
 
 --- win mac
 如ipad提示是否可以访问照片和视频,这个只是在我的电脑中出多的新存储是否可以读写

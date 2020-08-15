@@ -6,16 +6,8 @@ http://www.gnome-cn.org/  中文的gnome
 http://www.51cto.com/os/linux2008/map.html 在线图书
 
 
-putty工具连接linux/unix 可把屏幕输出保存到日志文件中
-右击标题栏->change settinges...->log->session下的logging->选择all session output,选择保存文件位置
-putty.exe -cleanup　可以删除所有的记录,密钥
-删 HKEY_CURRENT_USER\Software\SimonTatham\ 下的所有东西也可重置
-windows->Transation中修改编码显示中文
 
-
-SecureCRT 中 会话选项->外观中修改为UTF-8
 export LANG=zh_CN.UTF-8
-
 
 
 GPL (General Public License)
@@ -80,7 +72,8 @@ Super+` 快捷键在实例之间切换
 Super+A：显示应用程序菜单
 
  
-gnome3 桌面上不能放文件 ，gnome-tweak-tool (Activies -> Utilities->Tweaks) -> Desktop ->把 把所有的都打开,就可以在桌面上放文件了 
+gnome3 桌面上不能放文件 ，gnome-tweak-tool (Activies -> Utilities->Tweaks) -> Extensions -> Desktop Icon   桌面上显示两个图标，一个回收站，一个主目录
+		# Desktop ->把 把所有的都打开,就可以在桌面上放文件了 
 左侧的工具栏图标   /usr/share/applications/bcompare.desktop
 
 gedit  显示行号->preference->View -> display line numbers
@@ -117,9 +110,10 @@ https://wiki.gnome.org/Personalization 下有extensions  但没有themes
 Gnome3的扩展存放在/usr/share/gnome-shell/extensions/目录  与 ~/.local/share/gnome-shell/extensions/ 目录下
 
 gnome-shell-extension-prefs  的开Shell Extenstions窗口 (Tweaks 应用也可有这些配置),有很多开关
-  Alternate Tab          按alt+tab相同的应用是在显示在一组
+  #Alternate Tab          按alt+tab相同的应用是在显示在一组
   Applications Menu      是否在窗口左上角显示gnome2风格的菜单
   Places Status Indicator在左上角是否显示到某个目录的快捷菜单
+  Desktop Icon     	   桌面上显示两个图标，一个回收站，一个主目录
   Window List            显示像windows的任务栏 ,在任务栏中也不能拖动应用
         可以设置按钮,设置always group windows 后看不出一个应用打开了多个窗口，Group windows when space is limited,默认是Never group windows
   Workspace Indicator    在右上角显示当前在哪个虚拟桌面
@@ -321,8 +315,10 @@ sar 1(间隔) 10 (总次数)  (system activity report)
 用vmstat是对的
 
 
-iostat 
+iostat  （ yum install sysstat ） 只能看到某个硬盘
 	Blk_read/s  Block=Sector=512 bytes
+iotop 可以看到进程级的
+iotop -oP  其中 -o 表示只显示有IO操作的 －P 列表进程或线程
 
 mpstat 查看多处理器状况 (smp 是支持多处理器,up是不支持多处理器)
 
@@ -382,7 +378,8 @@ $ groff -Tascii -man hello.1
 
 man --path ,manpath  和man -w 一样的效果,所有 man 的查找目录,配置在/etc/man.conf中的MANPATH
 man xxx.file 要加./的路径
- 
+
+MANWIDTH环境变量 ,可以控制显示的宽度
 
 touch * 把当前目录下的文件的时间修改为当前时间
   
@@ -547,7 +544,7 @@ ip link set dev eth0 down
  
  vi /etc/sysconfig/network-scripts/ifcfg-ens33 中有UUID
  
-last登录用户历史
+last登录用户历史,last reboot 最新重启历史记录
 rout
 tcpdump
 windows 下php+mysql+apache的安装集成
@@ -738,6 +735,8 @@ find /usr/ -name '*.so'
 find ./ -name  *.h -type f | xargs grep "xxx"
 find /usr/include/ -name *.h   -exec grep -H -n  LOCAL_ {} \;
 //可以打出哪个文件多少行
+find -cmin 10最近10分钟修改过的文件
+
 
 find /var/cache/zypp -name *.rpm -exec mv {} /mnt/ext4/Ext4_NEW/mysql-workbench8_deps/gtk3_gtkmm3 \;
 
@@ -816,7 +815,14 @@ chmod 700 ~/.ssh/  (必须700)
 chmod 700 ~/.ssh/authorized_keys(可700,600)
 chmod 600 ~/.ssh/authorized_keys
 
-
+--/etc/ssh/ssh_config 	~/.ssh/config 是客户端配置 文件格式
+Host  host*.my.com
+  User user01
+  IdentityFile ~/.ssh/xxx_rsa
+Host dev01
+  hostname 192.168.1.10
+  User user01
+就可以使用 ssh dev01 的别名来连接了  
 
 
 #PermitRootLogin yes
@@ -828,11 +834,12 @@ ClientAliveCountMax 6
 SSH Server 每 60秒就会自动发送一个信号给 Client，而等待 Client 回应，如果客户端没有回应，会记录下来直到记录数超过 ClientAliveCountMax(这里设置为6次) 的值时，才会断开连接。
 
  
-Bitvise Tunnelier  界面工具可以做端口转发
+Bitvise SSH Client  界面工具可以做端口转发
 ssh -2C -p 22 dell@rhel7  -L 5000:localhost:80 -g   
 提示输入密码连接，如连接断，5000端口的监听就没有了 #做隧道 -2C 表示SSH 协议使用2版本 ，C表示压缩传输数据，-p远程端口
 (在本机启动一个新端口如5000 如请求到本机的5000端口会自动转发到另一台rhel7机器上的80端口) 
-
+	-g Allows remote hosts to connect to local forward ports.
+	-i ~/.ssh/id_rsa
 
 
 groupadd
@@ -1059,6 +1066,8 @@ fat32 要加iocharset=utf8 ,文件名是按linux正常显示中文的，ntfs就�
 iocharset=utf8,uid=dell 可对vfat和exfat但不能对ext4
 
 netstat -tnl  显示端口
+
+exfat 安装后有  mkfs.exfat, 如  mkfs.exfat -n U_driver /dev/sdc4 如已经挂载，要重新挂一下
 
 
 --------
@@ -1575,6 +1584,13 @@ set noswapfile
 :bufdo e 或者 :bufdo :e!
 
 :bufdo命令表示把后面的命令应用到所有buffer中的文件
+
+
+
+:1,$!sort -r 对文件内容按行做反向排序,是按每行首字母，数字在前，字母在后
+
+
+
 
 ---vim自动识别中文编码
 :help encoding-values 列出Vim支持的所有编码。
@@ -3192,7 +3208,7 @@ https://mirrors.ustc.edu.cn/epel/7/x86_64/Packages/f/fcitx-4.2.9.6-1.el7.x86_64.
 nmcli radio wifi off
 nmcli radio wifi on
 
-nmtui  	(NetworkManagerTextUserInterface)终端界面配置网络 设置主机名,centos7.6/openSUSE-leap-15.1有的 ,配置后要 systemctl restart network
+nmtui   命令行式的界面工具 (NetworkManagerTextUserInterface)终端界面配置网络，设置主机名,centos7.6/openSUSE-leap-15.1有的 ,配置后要 systemctl restart network
 gnome桌面 settings->network->点齿轮图标
 setup     终端界面 centOS-7.6配置开机启动服务 和 认证
 ntsysv    终端界面 centOS-7.6配置开机启动服务 类似chkconfig  
@@ -3207,7 +3223,7 @@ timeconfig 时区界面
 BOOTPROTO=dhcp
 
 #下面的必须要有
-ONBOOT=yes
+ONBOOT=yes  ＃ifup ens33 初始安装CentOS7后要执行这个
 HWADDR=
 TYPE=Ethernet
 #TYPE=Bridge 可为桥接
@@ -3274,6 +3290,11 @@ hostname myhost
 rpm -ivh xx.rpm --nodeps
 rpm -ivh xx.rpm -force   强制安装,不管是否已经安装，都重新安装
 
+rpm 解包 rpm2cpio FileName.rpm | cpio -div
+	-d --make-directories
+	-i --extract
+	-v --verbose
+	
 -------------redhat rpm-build
 可以安装rpm-build 来安装 *.src.rpm 等同于解压->./configure ->make 不过会提示少 openssl-devel
  /usr/src/redhat/SOURCE目录下
@@ -3324,7 +3345,7 @@ yum update
 yum list 列所有的包
 yum search xxx
 yum remove xxx  把依赖也自动删像ruby
-yum deplist libcurl  查看软件包的依赖信息
+yum deplist libcurl  查看软件包的依赖信息，依赖哪些软件包
 
 -------RHEL8 新功能 
 去KDE,使用Wayland做显示服务,替代X Window,nftables( netfilter项目)替代iptables
@@ -3365,6 +3386,7 @@ stratis pool add-data mypool1 /dev/vdc
 		 -P  same as --partial --progress
  		 -r, --recursive  
  		  -u, --update 
+		  -a 文档模式archive ，多个选项组合，有-r
 快照
 stratis fs snapshot mypool1  fs1 fs1_snap01
 stratis fs destroy mypool1  fs1 #模拟有问题,如设备忙,先umount
@@ -3503,6 +3525,8 @@ rpm -qpi 软件包名.rpm 显示未安装软件包信息
 
 rpm -e 卸载软件包
 
+rpm -qpR /var/cache/yum/x86_64/7/docker-ce-stable/packages/docker-ce-19.03.12-3.el7.x86_64.rpm  查看软件包所依赖的文件
+
 install 命令相当于 cp
 sudo install minikube /usr/local/bin
 
@@ -3516,13 +3540,16 @@ mount -t iso9660 -o ro,loop /dev/cdrom /mnt/cdrom
 cd /etc/yum.repos.d/
 mkdir bak
 mv *.repo bak
-vi RedhatENT7DVD.repo (CentOS7DVD.repo) 文件名任意,要以.repo结尾 
+vi RedhatEL7DVD.repo (CentOS7DVD.repo) 文件名任意,要以.repo结尾 
 写入
 [DVD]
 name=cdrom
 baseurl=file:///mnt/cdrom
 gpgcheck=0
 #enabled=1
+#priority=1
+
+
 
 yum install gnome-desktop3  就可以了,会自动查找依赖包
 yum install gnome-session
@@ -3567,6 +3594,9 @@ sudo yum install epel-release
 sudo yum install python-pip  是python2的 
 sudo yum install docker-distribution
 
+yum install  kubelet-1.18.0 kubeadm-1.18.0 kubectl-1.18.0 安装指定版本
+yum downgrade kubelet-1.18.0 kubeadm-1.18.0 kubectl-1.18.0 降级版本
+ 
 使用 （python-setuptools） easy_install pip 也是 python2
 
 ----------snapd

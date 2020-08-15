@@ -123,7 +123,7 @@
 		<artifactId>spring-session-data-redis</artifactId>
 		<version>2.0.4.RELEASE</version>
 	</dependency>
-
+	
 	<!-- data -->
 	<dependency>
         <groupId>org.springframework.data</groupId>
@@ -410,6 +410,12 @@ javax.annotation.Resource;
 @PostConstruct //放在方法前,相当于init-method,是javax.annotation.PostConstruct,可以加多个
 @PreDestroy //放在方法前,相当于destory-method,是javax.annotation.PreDestroy ,要单例,调用AbstractApplicationContext 的close();
 @Inject  javax.inject.Inject(如要想要标识加@Named(""),可放在setter方法参数前) 相当于 @AutoWire 按 byType自动注入
+<dependency>
+    <groupId>javax.inject</groupId>
+    <artifactId>javax.inject</artifactId>
+    <version>1</version>
+</dependency>
+
 @Resource 默认按 byName 自动注入
 @Named("myBean") javax.inject.Named 相当于 @Component 和 @Qualifier
 @Singleton javax.inject.Singleton 相当于 @Scope("singleton")
@@ -1148,7 +1154,7 @@ execution(* x.y.service.ddl.DefaultDdlManager.*(..))
 	 <tx:method name="*"/> propagation="NEVER"
   </tx:attributes>
 </tx:advice>
- TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+ TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); 可为@Transactional方法中回滚事务
  
  ----事务 Annotation方式
 
@@ -2063,7 +2069,7 @@ String tmpDir=System.getProperty("java.io.tmpdir");// %HOMEPATH%\AppData\Local\T
 //		 Map<Object, Element> localMap = ehCache.getAll(allKeys);
 
  
---- 还有 caffeine 和 jcache(ehcache 3.x) (JSR 107 )
+--- 还有 caffeine 和 jcache(ehcache 3.x) (JSR 107 ),hazelcast @Cachable如何过期时间
 
 
  
@@ -2721,6 +2727,140 @@ AmqpTemplate amqpTemplate =(AmqpTemplate)ctx.getBean("myAmqpTemplate");
 amqpTemplate.convertAndSend("hello", "xxx");//hello是Routing key ,对应xml配置key="hello"
 System.out.println("发送了XXX");
 ctx.close();//如果不关，就不退出 
+
+========================Spring Statemachine
+<dependency>
+  <groupId>org.springframework.statemachine</groupId>
+  <artifactId>spring-statemachine-core</artifactId>
+  <version>2.2.0.RELEASE</version>
+</dependency>
+
+spring-statemachine-core-2.2.0.RELEASE.jar
+
+public enum Events {
+    ONLINE,
+    PUBLISH,
+    ROLLBACK
+}
+public enum States {
+    DRAFT,
+    PUBLISH_TODO,
+    PUBLISH_DONE,
+}
+@Configuration
+@ComponentScan //为main spring ,applicationContext
+@EnableStateMachine
+public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States, Events> {
+    @Override
+    public void configure(StateMachineStateConfigurer<States, Events> states) throws Exception {
+        states.withStates().initial(States.DRAFT).states(EnumSet.allOf(States.class));
+        //start时是draft状态,是在下面方法执行后，才知道初始状态后的下一个合法状态
+    }
+    @Override
+    public void configure(StateMachineTransitionConfigurer<States, Events> transitions) throws Exception {
+        transitions.withExternal()
+            .source(States.DRAFT).target(States.PUBLISH_TODO)
+            .event(Events.ONLINE)
+            .and()
+            .withExternal()
+            .source(States.PUBLISH_TODO).target(States.PUBLISH_DONE)
+            .event(Events.PUBLISH)
+            .and()
+            .withExternal()
+            .source(States.PUBLISH_DONE).target(States.DRAFT)
+            .event(Events.ROLLBACK);
+    }
+	
+	/*
+	
+    @Override //加这个就不用@WithStateMachine 配置类了
+    public void configure(StateMachineConfigurationConfigurer<States, Events> config)
+            throws Exception {
+        config
+            .withConfiguration()
+                .listener(listener());
+    }
+    @Bean
+    public StateMachineListener<States, Events> listener() {
+        return new StateMachineListenerAdapter<States, Events>() {
+
+            @Override
+            public void transition(Transition<States, Events> transition) {
+                if(transition.getTarget().getId() == States.UNPAID) {
+                    logger.info("订单创建，待支付");
+                    return;
+                }
+
+                if(transition.getSource().getId() == States.UNPAID
+                        && transition.getTarget().getId() == States.WAITING_FOR_RECEIVE) {
+                    logger.info("用户完成支付，待收货");
+                    return;
+                }
+
+                if(transition.getSource().getId() == States.WAITING_FOR_RECEIVE
+                        && transition.getTarget().getId() == States.DONE) {
+                    logger.info("用户已收货，订单完成");
+                    return;
+                }
+            }
+
+        };
+    }
+	*/
+	
+}
+
+@WithStateMachine 
+public class BizBean {
+	Logger log =LoggerFactory.getLogger(BizBean.class);
+	@OnTransition(target = "PUBLISH_TODO")
+    public void online() {
+        log.info("操作上线，待发布. target status:{}", States.PUBLISH_TODO.name()); 
+    }
+
+    @OnTransition(target = "PUBLISH_DONE")
+    public void publish() {
+        log.info("操作发布,发布完成. target status:{}", States.PUBLISH_DONE.name()); 
+    }
+
+    @OnTransition(target = "DRAFT")//初始启动时的状态,会执行这里,即当目标状态为这个时执行
+    public void rollback() {
+        log.info("操作回滚,回到草稿状态. target status:{}", States.DRAFT.name()); 
+    }
+}
+public static void main(String[] args) {
+	ApplicationContext context = new AnnotationConfigApplicationContext(StateMachineConfig.class);
+	StateMachine<States, Events> stateMachine=context.getBean(StateMachine.class);
+	stateMachine.start();//初始draft状态
+	boolean isOK= stateMachine.sendEvent(Events.ONLINE);//发送事件,会产生状态变化configure方法中,会触发@OnTransition(target =XX) 所在函数
+	stateMachine.sendEvent(Events.PUBLISH);//如注释这行，状态切换违法,返回false
+	isOK=stateMachine.sendEvent(Events.ROLLBACK);
+	System.out.println(isOK);
+}
+/*
+import javax.annotation.Resource;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.statemachine.StateMachine;
+
+@SpringBootApplication
+public class SpringBootMain implements CommandLineRunner {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootMain.class, args);
+    }
+  	@Resource
+    StateMachine<States, Events> stateMachine;
+    @Override
+    public void run(String... args) throws Exception {
+        stateMachine.start();//初始draft状态
+        boolean isOK= stateMachine.sendEvent(Events.ONLINE);//发送事件,会产生状态变化configure方法中,会触发@OnTransition(target =XX) 所在函数
+        stateMachine.sendEvent(Events.PUBLISH);//如注释这行，状态切换违法,返回false
+        isOK=stateMachine.sendEvent(Events.ROLLBACK);
+        System.out.println(isOK);
+    }
+}
+*/
 
 
  

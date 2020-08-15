@@ -291,7 +291,14 @@ hincrby kid age 3
 hincrbyfloat kid age 0.5
 
 
+---map数据导出
+---hgetall.lua
+return redis.call("HGETALL",KEYS[1]);
 ---
+redis-cli  -h 127.0.0.1 -p 6379 --csv --eval hgetall.lua >/tmp/redis_map.csv
+这个输出没有行号,加--csv 全部数据放一行，会把" 置换为 \", 查找替换 加命令
+cat cmd.csv | redis-cli -h 127.0.0.1 -p 6379 --pipe   (powershell可以用cat)
+
 
 一个终端 客户端订阅 会阻塞
 > subscribe mychannel_1  mychannel_2 	
@@ -477,6 +484,31 @@ bgrewriteaof  手工执行重写aof 文件
 redis-benchmark -n 1000   -a pass # 性能测试工具  -n <requests>
 	新版本	--cluster
 	
+-----过期,删除的通知
+基于channel的publish 和subscribe
+https://redis.io/topics/notifications
+
+
+ 0 号数据库的键 mykey 执行 DEL key [key …] 命令时，  相当于 
+PUBLISH __keyspace@0__:mykey del
+PUBLISH __keyevent@0__:del mykey
+
+--redis.conf
+notify-keyspace-events xeKE
+
+#K     Keyspace events, published with __keyspace@<db>__ prefix.
+#E     Keyevent events, published with __keyevent@<db>__ prefix.
+#x     Expired events (events generated every time a key expires)
+#g     Generic commands (non-type specific) like DEL, EXPIRE, RENAME, ...
+
+确认配置
+config get notify-keyspace-events
+
+redis-cli --csv psubscribe '__key*__:*'  
+	设置为xKE测试只有expire会收到两个消息,del收不到, gxKE 才行
+
+
+
 ---- 手动 failover
 配置主master
 pidfile /var/run/redis.pid

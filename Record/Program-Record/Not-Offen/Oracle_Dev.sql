@@ -37,7 +37,8 @@ YYYY-Q //季度
 grant resource to hr 开发权限
 
 
-with别名 as（select ..）当视图，??????????????????????????
+with别名 as（select ..）当视图
+with myview as (select ..) select * from  myview
  
 drop user myuser cascade
  
@@ -550,10 +551,11 @@ order
 nocycle;
 xx.nextval
 xx.currval
+sequence的最大值和number类型最大值是 超过Java的Long类型的
 
 
 ALTER TABLE tab_large add col_new Number(9) Default 1; 
-(11g)对大表会很慢,相当于update 操作,可以将该语句改为
+(11g)对大表会很慢,相当于update 操作,可以将该语句改为,12c已经变的很快了
 ALTER TABLE tab_large add col_new Number(9);
 ALTER TABLE tab_large modify col_new number(9) default 1;
 
@@ -1234,7 +1236,7 @@ create unique index MPMTDATA.IX_BTPAY_MC_BUSI_S on MPMTDATA.T_MPMT_PAY_TRANS_DET
 	 
 	 
 事务
- savepoint my_a;
+ savepoint my_a;  只可部分支持嵌套事务
  
  rollback to my_a;
 

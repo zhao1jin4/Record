@@ -165,6 +165,24 @@ public class SpringBootJunitTest {
 	}
 
 }
+---spring boot junit 5
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+public class ApplicationTests {
+    @Test
+    public void contextLoads(){
+    }
+}
+
+
+
+
+
+
 
 生成pom.xml 中有
 <parent>
@@ -381,6 +399,8 @@ spring:
 		bean.addUrlMappings("*.mvc");
 		return bean;
 	} 
+	//还有 FilterRegistrationBean ,ServletListenerRegistrationBean 对应于servlet api
+	
 以上两个一起配置*.mvc不会有打不开.js的问题
 
 --spring boot  redis
@@ -474,7 +494,15 @@ public class SessionConfig {
 	}
 }
  
- 
+---spring boot hazelcast
+spring.hazelcast.config=classpath:config/my-hazelcast.xml
+如不配置 在classpath中或者当前工作目录  找 hazelcast.xml,hazelcast.yaml,hazelcast.config
+
+有 com.hazelcast.client.config.ClientConfig 的Bean
+
+
+
+
 ---spring boot mongodb
 <dependency>
 	<groupId>org.springframework.boot</groupId>
@@ -580,7 +608,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
-	 
+	//findBy开头 官方文档 搜索Supported keywords   参考 https://docs.spring.io/spring-data/jpa/docs/2.3.1.RELEASE/reference/html/#reference 
 }	
 @RestController
 public class UserController {
@@ -594,6 +622,232 @@ public class UserController {
 		   userRepo.save(new User(username));
 		   return "ok";
 	 }
+}
+
+日志提示 persistence unit 'default'，
+日志提示 spring.jpa.open-in-view 默认开启
+spring.datasource.separator=/;  默认是;如有存储过程可以自定义
+
+
+
+--存储过程 官方示例，在mysql上只部分成功，User就没什么用
+# this for mysql
+delimiter /
+
+DROP procedure IF EXISTS plus1inout
+/
+CREATE procedure plus1inout (IN arg int, OUT res int)  
+BEGIN  
+	set res = arg + 1; 
+END
+/
+ 
+@Entity 
+public class User {
+	@Id @GeneratedValue
+	private Long id;
+}
+public interface UserRepository extends CrudRepository<User, Long> {
+  
+	@Procedure
+	Integer plus1inout(Integer arg);
+}
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+public class UserRepositoryIntegrationTests {
+
+	@Autowired UserRepository repository;
+	@Test
+	public void invokeDerivedStoredProcedure() {//OK
+		Integer res1=repository.plus1inout(1);
+		System.out.println(res1);
+		Assertions.assertEquals(res1,2);
+	}
+
+	 
+	@Autowired EntityManager em;
+	@Test
+	public void plainJpa21() { //OK
+
+		StoredProcedureQuery proc = em.createStoredProcedureQuery("plus1inout");
+		proc.registerStoredProcedureParameter(1, Integer.class, ParameterMode.IN);
+		proc.registerStoredProcedureParameter(2, Integer.class, ParameterMode.OUT);
+
+		proc.setParameter(1, 1);
+		proc.execute();
+		
+		Object obj=proc.getOutputParameterValue(2);
+		System.out.println(obj);
+		Assertions.assertEquals(obj, (Object) 2);
+	}
+}
+
+--JAP Example 官方示例
+import org.springframework.data.repository.query.QueryByExampleExecutor;
+
+public interface UserRepository extends CrudRepository<User, Long>, QueryByExampleExecutor<User> {}
+
+@Test
+public void countBySimpleExample() {
+	Example<User> example = Example.of(new User(null, "White", null));
+	assertThat(repository.count(example)).isEqualTo(3L);
+}
+@Test
+public void ignorePropertiesAndMatchByAge() { 
+	Example<User> example = Example.of(flynn, matching().  
+			withIgnorePaths("firstname", "lastname")); 
+	assertThat(repository.findOne(example)).contains(flynn);
+}
+@Test
+public void substringMatching() {
+
+	Example<User> example = Example.of(new User("er", null, null), matching(). //
+			withStringMatcher(StringMatcher.ENDING));
+
+	assertThat(repository.findAll(example)).containsExactly(skyler, walter);//在数据库中过虑
+}
+@Test
+public void matchStartingStringsIgnoreCase() {
+
+	Example<User> example = Example.of(new User("Walter", "WHITE", null), matching(). //
+			withIgnorePaths("age"). //
+			withMatcher("firstname", startsWith()). //
+			withMatcher("lastname", ignoreCase()));//SQL是lower(user0_.lastname)这种性能差
+	assertThat(repository.findAll(example)).containsExactlyInAnyOrder(flynn, walter);
+}
+@Test
+public void valueTransformer() {
+	Example<User> example = Example.of(new User(null, "White", 99), matching(). //
+			withMatcher("age", matcher -> matcher.transform(value -> Optional.of(Integer.valueOf(50)))));//常量 user0_.age=50 覆盖了99
+	assertThat(repository.findAll(example)).containsExactly(walter);
+}
+----mapping class官方示例
+
+public interface SubscriptionRepository extends CrudRepository<Subscription, Long> {
+	@Query(nativeQuery = true)
+	List<SubscriptionSummary> findAllSubscriptionSummaries();
+ 
+	@Query(nativeQuery = true)
+	List<SubscriptionProjection> findAllSubscriptionProjections(int lessId);//匹配:lessId参数
+}
+
+@NamedNativeQueries({
+		@NamedNativeQuery(name = "Subscription.findAllSubscriptionSummaries", //模板类名.方法名
+				query = "select product_name as productName, count(user_id) as subscriptions from subscription group by product_name order by productName",  
+				resultSetMapping = "subscriptionSummary"),
+
+		@NamedNativeQuery(name = "Subscription.findAllSubscriptionProjections", 
+				query = "select product_name as product, count(user_id) as usageCount from subscription where user_id < :lessId "//:lessId传参数 
+						+ " group by product_name order by product") })
+@SqlResultSetMapping( 
+		name = "subscriptionSummary", 
+		classes = @ConstructorResult(targetClass = SubscriptionSummary.class, 
+				columns = { 
+						@ColumnResult(name = "productName", type = String.class),
+						@ColumnResult(name = "subscriptions", type = long.class) 
+				}))
+@Entity 
+public class Subscription {
+
+	private   @Id @GeneratedValue Long id = null;
+	private String productName;
+	private long userId;
+	
+}
+interface SubscriptionProjection {
+	String getProduct(); //只get方法
+	long getUsageCount();
+}
+
+public class SubscriptionSummary { 
+	String product;
+	Long usageCount;
+	public SubscriptionSummary(String product, Long usageCount) {
+		this.product = product;
+		this.usageCount = usageCount;
+	}
+}
+---jpa 自定义 repo 官方示例
+@Entity
+@NamedQuery(name = "User.findByTheUsersName", query = "from User u where u.username = ?1")
+public class User extends AbstractPersistable<Long> {
+	@Column(unique = true)
+	private String username;
+	private String firstname;
+	private String lastname;
+	public User(Long id) {
+		this.setId(id);//父类方法
+	}
+	public User() {
+		this(null);
+	}
+}
+interface UserRepositoryCustom {
+	List<User> myCustomBatchOperation();
+}
+public interface UserRepository extends CrudRepository<User, Long>, UserRepositoryCustom { 
+	//非标准方法名，定义在@NamedQuery
+	User findByTheUsersName(String username); 
+	//指定JPSQL
+	@Query("select u from User u where u.firstname = :firstname")
+	List<User> findByFirstname11(String firstname);//变量名传参数
+}
+class UserRepositoryImpl implements UserRepositoryCustom {
+	@PersistenceContext //JPA包可注入
+	private EntityManager em;
+ 
+	public List<User> myCustomBatchOperation() {
+		CriteriaQuery<User> criteriaQuery = em.getCriteriaBuilder().createQuery(User.class);
+		criteriaQuery.select(criteriaQuery.from(User.class));
+		return em.createQuery(criteriaQuery).getResultList();
+	}
+}
+@Profile("jdbc") //对于复杂的查询，用JPA不好做的情况，直接用JDBC，还可以mapping
+@Component("userRepositoryImpl")
+class UserRepositoryImplJdbc extends JdbcDaoSupport implements UserRepositoryCustom {
+	private static final String COMPLICATED_SQL = "SELECT * FROM User";
+	@Autowired
+	public UserRepositoryImplJdbc(DataSource dataSource) {
+		setDataSource(dataSource);
+	}
+	public List<User> myCustomBatchOperation() {
+		return getJdbcTemplate().query(COMPLICATED_SQL, new UserRowMapper());
+	}
+	private static class UserRowMapper implements RowMapper<User> {
+		public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+			User user = new User(rs.getLong("id"));
+			user.setUsername(rs.getString("username"));
+			user.setLastname(rs.getString("lastname"));
+			user.setFirstname(rs.getString("firstname"));
+			return user;
+		}
+	}
+}
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@ActiveProfiles("jdbc") // 打开这个就是JDBC的实现
+public class RepositoryCustomTests {
+	@Autowired UserRepository repository;
+	@Test
+	public void saveAndFindByLastNameAndFindByUserName() {
+		User user = new User();
+		user.setUsername("foobar");
+		user.setLastname("lastname");
+		user.setFirstname("li");
+		user = repository.save(user);
+		List<User> users2 = repository.findByFirstname11("li");
+		assertThat(users2).contains(user);
+		assertThat(user).isEqualTo(repository.findByTheUsersName("foobar"));
+	}
+	@Test
+	public void testCustomMethod() {
+		User user = new User();
+		user.setUsername("username");
+		user = repository.save(user);
+		List<User> users = repository.myCustomBatchOperation();
+		assertThat(users).contains(user);
+	}
 }
 --spring boot  mybatis 
 
@@ -1827,6 +2081,98 @@ dubbo:
 #  metadata-report:
 #    address: nacos://127.0.0.1:8848
 
+=========Camel spring boot
+ <dependencyManagement>
+	 <dependencies>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-spring-boot-dependencies</artifactId>
+			<version>3.4.0</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+<dependency>
+	<groupId>org.apache.camel.springboot</groupId>
+	<artifactId>camel-spring-boot-starter</artifactId>
+</dependency>
+
+ <!-- Camel -->
+<dependency>
+	<groupId>org.apache.camel.springboot</groupId>
+	<artifactId>camel-servlet-starter</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.apache.camel.springboot</groupId>
+	<artifactId>camel-jackson-starter</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.apache.camel.springboot</groupId>
+	<artifactId>camel-swagger-java-starter</artifactId>
+	<exclusions>
+		<exclusion>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+		</exclusion>
+	</exclusions>
+</dependency>
+
+
+@Component
+class RestApi extends RouteBuilder {
+
+	@Override
+	public void configure() {
+		restConfiguration()
+			.contextPath("/camel-rest-jpa").apiContextPath("/api-doc")
+				.apiProperty("api.title", "Camel REST API")
+				.apiProperty("api.version", "1.0")
+				.apiProperty("cors", "true")
+				.apiContextRouteId("doc-api")
+				.port(env.getProperty("server.port", "8080"))
+			.bindingMode(RestBindingMode.json);
+
+		rest("/books").description("Books REST service")
+			.get("/").description("The list of all the books")
+				.route().routeId("books-api")
+				.bean(Database.class, "findBooks")
+				.endRest()
+			.get("order/{id}").description("Details of an order by id")
+				.route().routeId("order-api")
+				.bean(Database.class, "findOrder(${header.id})");
+	}
+}
+
+---单元测试
+camel:
+  springboot:
+    name: CamelRestJpa
+  component:
+    servlet:
+      mapping:
+        contextPath: /camel-rest-jpa/*
 		
+@Autowired
+private TestRestTemplate restTemplate;
+	
+@Test
+public void newOrderTest() { 
+	ResponseEntity<Order> response = restTemplate.getForEntity("/camel-rest-jpa/books/order/1", Order.class);
+	assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+}
+@Test
+public void booksTest() {
+	ResponseEntity<List<Book>> response = restTemplate.exchange("/camel-rest-jpa/books",
+		HttpMethod.GET, null, new ParameterizedTypeReference<List<Book>>() {
+		});
+	assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+}		
 
  

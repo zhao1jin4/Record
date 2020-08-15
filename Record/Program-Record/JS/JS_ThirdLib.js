@@ -750,6 +750,24 @@ npm install axios -g
 	    console.log(response.statusText);//测试下来是空串，不是OK 
 	});
  
+ 
+ 
+
+============bignumber
+0.1+0.2 返回精度不准的解决方案
+
+https://github.com/MikeMcl/bignumber.js
+
+<script type="text/javascript" src="bignumber.min.js"></script>
+<script type="text/javascript">
+	//0.3 - 0.1                           // 0.19999999999999998
+	x = new BigNumber(0.3)
+	x.minus(0.1)                        // "0.2"
+	console.log("x="+x);                                   // "0.3"
+	console.log("0.1+0.2="+ new BigNumber(0.1).plus(0.2));      
+</script>
+
+
 
 ------------YUI Compressor 压缩JS
 ============video.js

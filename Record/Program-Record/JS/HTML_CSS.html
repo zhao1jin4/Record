@@ -673,6 +673,41 @@ text-transform: uppercase   把字母转大写
 
 
 
+<style type="text/css">
+body{
+	width:100%;
+    overflow-x:hidden; /*	为右边栏不出滚动条*/
+}
+#aside{
+	width: 200px;
+	height:250%;
+	position: absolute;
+	right:0px;
+	top:0px;
+	background: black;
+	color:white;
+	transform: translate(100%,0); /*移动变形 ,向右称动自身宽度,出现滚动条，styles.css中body级加 width:100%;overflow-x:hidden*/
+	transition: all 1s; /* 动画过渡 1秒完成*/
+}
+</style>
+<script type="text/javascript">
+rigthOpen=false;
+function toggleRight()
+{
+	  var right=document.getElementById("aside");
+	  if(rigthOpen) 
+		  right.style.transform="translate(100%,0)";
+	   else 
+		  right.style.transform="translate(0,0)";
+
+	  rigthOpen=!rigthOpen;
+}
+</script>
+<button onclick="toggleRight()">展开收起右边栏</button>
+<aside id="aside">
+	<p>右边栏!</p>
+</aside>
+
 //======Canvas
  
 <canvas id="myCanvas" width="200" height="100" style="border:1px solid #FF0000;">  overflow:scroll(一直显示滚动条) 或 auto(只有需要时才显示滚动条)

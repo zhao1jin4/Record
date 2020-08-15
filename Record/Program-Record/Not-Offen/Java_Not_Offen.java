@@ -1,4 +1,587 @@
+-------------DynamoDB AWS 亚马逊云的 NoSQL
+https://docs.aws.amazon.com/zh_cn/dynamodb/index.html 
 
+
+下载本机运行版本
+https://docs.aws.amazon.com/zh_cn/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html 
+
+java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb
+会把数据保存在当前目录下的 shared-local-instance.db 文件中
+
+
+默认情况下，DynamoDB 使用端口 8000
+看帮助有 -port
+java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -help
+
+
+
+下载commond line interface = cli
+https://amazonaws-china.com/cli/ 
+	默认安装在 C:\Program Files\Amazon\AWSCLIV2\aws.exe
+
+使用 aws configure 命令配置,除了最一个要为json，其它的对本地版本的 DynamoDB 没什么用,只为aws cli工具使用
+	AWS Access Key ID [None]: xx
+	AWS Secret Access Key [None]: yy
+	Default region name [None]: zz
+	Default output format [None]: json
+就可以执行 aws dynamodb list-tables --endpoint-url http://127.0.0.1:8000 可选的加参数  --region xx
+	aws dynamodb describe-table  --table-name xxx --endpoint-url http://127.0.0.1:8000 
+	aws dynamodb create-table xxx
+	aws dynamodb help
+	aws configure list
+	aws configure get region
+	
+	aws dynamodb list-backups 显示有BackupArn:xxx 恢复只能用这个
+	aws dynamodb describe-backup -backup-arn arn:xxx
+	~/.aws/config
+	~/.aws/credentials
+	
+	
+下载 NoSQL Workbench
+https://docs.aws.amazon.com/zh_cn/amazondynamodb/latest/developerguide/workbench.settingup.html 
+
+默认安装在 C:\Program Files\NoSQL Workbench for Amazon DynamoDB 
+默认用户数据目录 %APPDATA%\NoSQL Workbench for Amazon DynamoDB ，但删除了，还有以前的
+ 
+<dependencies>
+    <dependency>
+       <groupId>com.amazonaws</groupId>
+       <artifactId>DynamoDBLocal</artifactId>
+       <version>1.12.0</version>
+    </dependency>
+</dependencies> 
+<!-- maven方式 下载服务端，也有客户端-->
+<repositories>
+    <repository>
+       <id>dynamodb-local-oregon</id>
+       <name>DynamoDB Local Release Repository</name>
+       <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/release</url>
+    </repository>
+</repositories>
+这个可能快些 https://s3.ap-northeast-1.amazonaws.com/dynamodb-local-tokyo/release
+
+建立连接类型是本地连接
+建立Model，下挂Table,建立 分区键(Partition key,类型有String,Number,Binary) 和
+						属性(Attribute  类型有boolean,String,Number,Binary,Map,List,Xxx Set,Null,没有日期)
+Visualizer -> Commit to DynamoDB 选择建立的连接 
+(记得有文档，不是直接成功/失败，只一次使用才有？？不同客户端Node/Java语言，有使用文档，maven依赖，示例程序)
+
+
+<dependency>
+    <groupId>com.amazonaws</groupId>
+    <artifactId>aws-java-sdk-dynamodb</artifactId>
+    <version>1.11.817</version>
+</dependency>
+---建表
+ AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
+		.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "us-west-2"))
+		.build();
+	DynamoDB dynamoDB = new DynamoDB(client);
+	String tableName = "Movies";
+	Table table = dynamoDB.createTable(tableName,
+		Arrays.asList(new KeySchemaElement("year", KeyType.HASH), // Partition
+			new KeySchemaElement("title", KeyType.RANGE)), // Sort key
+		Arrays.asList(new AttributeDefinition("year", ScalarAttributeType.N),
+			new AttributeDefinition("title", ScalarAttributeType.S)),
+		new ProvisionedThroughput(10L, 10L));
+	table.waitForActive();
+//table.delete();
+//table.waitForDelete();
+--CRUD
+ int   year = 2015;
+String  title = "The Big New Movie";
+final Map<String, Object> infoMap = new HashMap<String, Object>();
+infoMap.put("plot", "Nothing happens at all.");
+infoMap.put("rating", 0);
+
+System.out.println("Adding a new item...");
+PutItemOutcome outcome = table
+	.putItem(new Item().withPrimaryKey("year", year, "title", title).withMap("info", infoMap));
+
+
+GetItemSpec spec = new GetItemSpec().withPrimaryKey("year", year, "title", title);
+Item outcome1 = table.getItem(spec);
+
+
+HashMap<String, String> nameMap = new HashMap<String, String>();
+nameMap.put("#yr", "year");
+
+HashMap<String, Object> valueMap = new HashMap<String, Object>();
+valueMap.put(":yyyy", 1985);
+
+QuerySpec querySpec = new QuerySpec().withKeyConditionExpression("#yr = :yyyy").withNameMap(nameMap)
+	.withValueMap(valueMap);
+
+ItemCollection<QueryOutcome>   items = table.query(querySpec);
+Iterator<Item>  iterator = items.iterator();
+while (iterator.hasNext()) {
+	Item   item = iterator.next();
+	System.out.println(item.getNumber("year") + ": " + item.getString("title"));
+}
+
+---动态
+ @DynamoDBTable(tableName = "ProductCatalog")
+    public static class CatalogItem {
+		@DynamoDBHashKey(attributeName = "Id")
+        private Integer id;
+		
+        @DynamoDBAttribute(attributeName = "Title") 
+        private String title;
+        private String ISBN;
+        private Set<String> bookAuthors;
+
+	}
+AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
+		.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration("http://localhost:8000", "us-west-2"))
+		.build();
+
+DynamoDB dynamoDB = new DynamoDB(client);
+DynamoDBMapper mapper = new DynamoDBMapper(client);
+CreateTableRequest request=mapper.generateCreateTableRequest(CatalogItem.class);
+request.setProvisionedThroughput(new ProvisionedThroughput(10L, 10L));
+dynamoDB.createTable(request);
+
+
+CatalogItem item = new CatalogItem();
+item.setId(601);
+item.setTitle("Book 601");
+item.setISBN("611-1111111111");
+item.setBookAuthors(new HashSet<String>(Arrays.asList("Author1", "Author2")));
+
+mapper.save(item); //表必须事先存在
+
+CatalogItem itemRetrieved = mapper.load(CatalogItem.class, 601);
+  
+ // Update the item.
+itemRetrieved.setISBN("622-2222222222");
+itemRetrieved.setBookAuthors(new HashSet<String>(Arrays.asList("Author1", "Author3")));
+mapper.save(itemRetrieved);
+
+// Delete the item.
+mapper.delete(updatedItem);
+
+
+        
+//        CreateTableRequest request=mapper.generateCreateTableRequest(Reply.class);
+//        request.setProvisionedThroughput(new ProvisionedThroughput(10L, 10L));
+//        DynamoDB dynamoDB = new DynamoDB(client);
+//        dynamoDB.createTable(request);
+
+Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
+eav.put(":val1", new AttributeValue().withS("123"));
+eav.put(":val2", new AttributeValue().withS("2019"));
+DynamoDBQueryExpression<Reply> queryExpression = new DynamoDBQueryExpression<Reply>()
+	//所有条件必须有@DynamoDBHashKey,表达式中字段是@中的值
+	.withKeyConditionExpression("Id = :val1 and ReplyDateTime > :val2").withExpressionAttributeValues(eav);
+List<Reply> latestReplies = mapper.query(Reply.class, queryExpression);
+
+
+
+
+
+
+
+
+-------------S3 bucket  AWS 亚马逊云的 存储
+
+
+
+======================ActiveMQ   JMS
+<dependency>
+	 <groupId>org.apache.activemq</groupId>
+	 <artifactId>activemq-core</artifactId>
+	 <version>5.7.0</version>
+ </dependency>
+
+ActiveMQ是一个JMS Provider的实现,tomcat 使用JMS 
+
+JMeter做性能测试的文档
+http://activemq.apache.org/jmeter-performance-tests.html
+
+启动ActiveMQ服务器 bin\activemq.bat start  stop
+
+http://localhost:8161/admin    admin/admin (配置在/conf/jetty-realm.properties)  可以看有,创建Queue ,Topic,Durable Topic Subscribers
+
+端口配置在jetty.xml中
+
+启动日志中有　tcp://myHost:61616　    端口配置在activemq.xml中
+	WebConsole available at http://0.0.0.0:8161/
+	Jolokia REST API available at http://0.0.0.0:8161/api/jolokia/
+    at: stomp://my-PC:61613
+
+
+看log4j.properties日志在data目录中
+
+方法2（在JVM中嵌套启动）：
+cd example
+
+ant embedBroker
+
+ant consumer
+ant producer
+
+ant topic-listener
+ant topic-publisher
+
+
+
+----集成web项目------启动OK
+activemq-all-5.4.2.jar
+activemq-web-5.4.2.jar
+
+web.xml中
+ <context-param>  
+	<param-name>brokerURI</param-name>  
+	<param-value>/WEB-INF/activemq.xml</param-value>  
+ </context-param>  
+ <listener>  
+	<listener-class>org.apache.activemq.web.SpringBrokerContextListener</listener-class>  
+ </listener>  
+
+
+activemq.xml
+ <beans  
+   xmlns="http://www.springframework.org/schema/beans"  
+   xmlns:amq="http://activemq.apache.org/schema/core"  
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+   xsi:schemaLocation="
+   http://www.springframework.org/schema/beans 
+   http://www.springframework.org/schema/beans/spring-beans-2.0.xsd  
+   http://activemq.apache.org/schema/core 
+   http://activemq.apache.org/schema/core/activemq-core-5.2.0.xsd     
+   http://activemq.apache.org/camel/schema/spring 
+   http://activemq.apache.org/camel/schema/spring/camel-spring.xsd">  
+   
+    <bean id="oracle-ds" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">  
+       <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>  
+       <property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/>  
+       <property name="username" value="hr"/>  
+       <property name="password" value="hr"/>  
+       <property name="maxActive" value="20"/>  
+       <property name="poolPreparedStatements" value="true"/>  
+     </bean>  
+   
+     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost">  
+         
+      
+     </broker>  
+   
+ </beans>  
+
+---集成Tomcat------------
+
+
+<Resource
+    name="jms/FailoverConnectionFactory"
+    auth="Container"
+    type="org.apache.activemq.ActiveMQConnectionFactory"
+    description="JMS Connection Factory"
+    factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+    brokerURL="failover:(tcp://localhost:61616)?initialReconnectDelay=100&amp;maxReconnectAttempts=5"
+   brokerName="localhost"
+    useEmbeddedBroker="false"/>
+
+<Resource name="jms/topic/MyTopic"
+    auth="Container"
+    type="org.apache.activemq.command.ActiveMQTopic"
+    factory="org.apache.activemq.jndi.JNDIReferenceFactory"
+    physicalName="MY.TEST.FOO"/>
+   
+failover transport是一种重新连接机制，用于建立可靠的传输。
+此处配置的是一旦ActiveMQ broker中断，Listener端将每隔100ms自动尝试连接，直至成功连接或重试5次连接失败为止。
+ 
+
+---集成 Spring Tomcat------------OK
+只 activemq-all-5.3.2.jar 放/WEB-INF/lib
+
+Tomcat目录下的conf/context.xml
+
+<Resource name="jms/ConnectionFactory"   
+  auth="Container"     
+  type="org.apache.activemq.ActiveMQConnectionFactory"   
+  description="JMS Connection Factory"  
+  factory="org.apache.activemq.jndi.JNDIReferenceFactory"   
+  brokerURL="vm://localhost"   
+  brokerName="LocalActiveMQBroker"/>  
+   
+<Resource name="jms/Queue"   
+auth="Container"   
+type="org.apache.activemq.command.ActiveMQQueue"  
+description="my Queue"  
+factory="org.apache.activemq.jndi.JNDIReferenceFactory"   
+physicalName="FOO.BAR"/>  
+
+
+spring.xml
+ <bean id="jmsConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">  
+         <property name="jndiName" value="java:comp/env/jms/ConnectionFactory"></property>  
+ </bean>  
+ <bean id="jmsQueue" class="org.springframework.jndi.JndiObjectFactoryBean">  
+	 <property name="jndiName" value="java:comp/env/jms/Queue"></property>  
+ </bean>  
+ <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">  
+	 <property name="connectionFactory" ref="jmsConnectionFactory"></property>  
+	 <property name="defaultDestination" ref="jmsQueue"></property>  
+ </bean>  
+
+ <bean id="sender" class="activemq_web.Sender">  
+	 <property name="jmsTemplate" ref="jmsTemplate"></property>  
+ </bean>  
+
+ <bean id="receive" class="activemq_web.Receiver"></bean>  
+ <bean id="listenerContainer"  class="org.springframework.jms.listener.DefaultMessageListenerContainer">  
+	 <property name="connectionFactory" ref="jmsConnectionFactory"></property>  
+	 <property name="destination" ref="jmsQueue"></property>  
+	 <property name="messageListener" ref="receive"></property>  
+ </bean>  
+-----使用Spring标签
+<jee:jndi-lookup id="jmsConnectionFactory" jndi-name="java:comp/env/jms/ConnectionFactory" />
+<jee:jndi-lookup id="jmsQueue" jndi-name="java:comp/env/jms/Queue" />
+
+<bean id="receive" class="activemq_web.ReceiverListener"></bean>
+<jms:listener-container connection-factory="jmsConnectionFactory">
+	<jms:listener destination="jmsQueue" ref="receive"/>
+</jms:listener-container>
+	
+如使用ActiveMQ 
+<bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+    <property name="connectionFactory">
+      <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL">
+          <value>tcp://localhost:61616</value>
+        </property>
+      </bean>
+	 
+    </property>
+  </bean>
+  
+<!--    也可以用  
+    <bean id="jmsConnectionFactory2" class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory" >
+		    <bean  class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL" value="tcp://localhost:61616" />
+				<property name="userName" value="#{jms['mq.username']}" />
+				<property name="password" value="#{jms['mq.password']}" />
+				<property name="sendTimeout" value="10000" />  <!-- 如果不设置,会一直卡住好多个小时 -->
+		    </bean>
+        </property>
+		
+    </bean>
+  -->  
+
+
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
+
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
+
+public class Sender
+{
+	private JmsTemplate jmsTemplate;
+	public void setJmsTemplate(JmsTemplate jmsTemplate)
+	{
+		this.jmsTemplate = jmsTemplate;
+	}
+	public void send(final String text)
+	{
+		
+		 
+		System.out.println("---Send:" + text);
+		jmsTemplate.send(new MessageCreator()
+		{
+			public Message createMessage(Session session) throws JMSException
+			{
+				return session.createTextMessage(text);
+			}
+		});
+		
+		 Map<String,Object> msg=new HashMap<String,Object> ();
+		 msg.put("isSuccess", "true");
+		 jmsTemplate.convertAndSend(msg);
+		 
+	}
+}
+//--
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.TextMessage;
+import javax.jms.MapMessage;
+
+public class Receiver implements MessageListener
+{
+	public void onMessage(Message message)
+	{
+		try
+		{
+			if (message instanceof TextMessage)
+			{
+				TextMessage text = (TextMessage) message;
+				System.out.println("Receive:" + text.getText());
+				
+			}else if (message instanceof MapMessage)
+			{
+				MapMessage mapMsg=(MapMessage)message;
+				System.out.println(" Receive Map Names is:"+ mapMsg.getMapNames()); 
+			}
+		} catch (JMSException e)
+		{
+			e.printStackTrace();
+		}
+	}
+}
+ApplicationContext ctx = new ClassPathXmlApplicationContext("spring_jms_beans.xml");
+JSP中
+<%
+ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletConfig().getServletContext());
+Sender send=(Sender)ctx.getBean("sender");
+send.send("hello");
+%>
+//------------------------------ OK
+import javax.jms.Connection;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQTopic;
+public class MainApp 
+{
+	public static void main(String[] args) throws Exception
+	{
+		// apache-activemq-5.11.1\bin\activemq.bat start 来启动
+		//ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
+		String url = ActiveMQConnection.DEFAULT_BROKER_URL;  //failover://tcp://localhost:61616
+		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		Connection connection = factory.createConnection();
+		connection.start();
+		//在容器中,一个connection只能创建一个活的session,否则异常
+		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);//boolean transacted, int acknowledgeMode　
+		//对不在JTA事务中(如在JTA事务中,参数失效,commit,rollback,也失败,依赖于JTA事务),如transacted为true使用session.rollback();或 session.commit();   acknowledgeMode参数被忽略
+		Topic topic= new ActiveMQTopic("testTopic");//动态建立 , 也可使用new ActiveMQQueue("testQueue")
+		//Topic topic= session.createTopic("testTopic");
+		// queue=session.createQueue("testQueue");
+		MessageConsumer comsumer1 = session.createConsumer(topic);
+		comsumer1.setMessageListener(new MessageListener()
+		{
+			public void onMessage(Message m) {
+				try {
+					System.out.println("Consumer1 get " + ((TextMessage)m).getText());
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		//创建一个生产者，然后发送多个消息。
+		MessageProducer producer = session.createProducer(topic);
+		producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+		for(int i=0; i<10; i++)
+		{
+			producer.send(session.createTextMessage("Message:" + i));
+		}
+		producer.close();
+	}
+}
+============ActiveMQ 的集群
+
+	  
+activemq5.9.0 开始 , activemq的集群实现方式取消了传统的Master-Slave方式 , 增加了基于 zookeeper + leveldb 的实现方式
+http://activemq.apache.org/replicated-leveldb-store.html
+
+activemq.xml
+brokerName属性设置为统一的
+<broker brokerName="broker" ... >
+  ...
+ <persistenceAdapter>
+    <replicatedLevelDB
+      directory="${activemq.data}/leveldb"
+      replicas="3"
+      bind="tcp://0.0.0.0:0"
+      zkAddress="my-pc:2181,192.168.2.145:2181,192.168.2.146:2181"
+      hostname="my-pc"
+      sync="local_disk"
+      zkPath="/activemq/leveldb-stores"
+      />
+</persistenceAdapter>
+  ...
+</broker>
+hostname属性值配置本机的值
+ 
+ 
+ 
+客户端使用
+<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+	<property name="brokerURL">
+	  <value>failover:(tcp://localhost:61616,tcp://otherIP:61616)</value>
+	  <property name="userName" value="hrbb" />
+	 <property name="password" value="hrbb" />
+	</property>
+</bean>
+
+activemq.xml
+如要设置用户名,密码,在 <systemUsage> 标签后加
+<plugins> 
+	<simpleAuthenticationPlugin>
+		<users>
+			<authenticationUser username="hrbb"  password="hrbb"  groups="users"/>
+		</users>
+	</simpleAuthenticationPlugin>
+</plugins>
+
+ 
+======================ActiveMQ  新版 Artemis 使用NIO
+比多老版本增加了JMS 2.0 支持(java client可以使用Apache的qpid),有共享topic的功能(类似kafka的分组)
+支持STOMP
+
+
+ apache-artemis-2.13.0-bin.zip
+ cd bin
+ 
+artemis.cmd help create
+
+artemis.cmd create d:/tmp/artemis_broker 会提示输入用户名，密码,是否匿名登录
+
+artemis.cmd create d:/tmp/artemis_broker --user input --password input #默认用户名，密码为input
+	--allow-anonymous | --require-login
+
+日志提示 
+You can now start the broker by executing:
+   "D:\tmp\artemis_broker\bin\artemis" run
+
+Or you can setup the broker as Windows service and run it in the background:
+
+   "D:\tmp\artemis_broker\bin\artemis-service.exe" install
+   "D:\tmp\artemis_broker\bin\artemis-service.exe" start
+
+   To stop the windows service:
+      "D:\tmp\artemis_broker\bin\artemis-service.exe" stop
+
+   To uninstall the windows service
+      "D:\tmp\artemis_broker\bin\artemis-service.exe" uninstall
+	  
+	  
+启动 artemis  run
+是有日志提示   at 0.0.0.0:61616 for protocols [CORE,
+ 0.0.0.0:5672 for protocols [AMQP]
+ 0.0.0.0:61613 for protocols [STOMP]
+ HTTP Server started at http://localhost:8161
+Artemis Jolokia REST API available at http://localhost:8161/console/jolokia
+Artemis Console available at http://localhost:8161/console  是JMX的
+ 
+ 
+ 
+---JMS 2.0 共享topic
+session.createSharedConsumer(topic);
+
+---
+ 
 ---------------------------------Log4j 1 
 1版本 2015年已经终止了
  
@@ -2284,392 +2867,6 @@ JOB-4.3.4\ob\demo\echo 和hello  示例
 
 
 
-======================ActiveMQ   JMS
-<dependency>
-	 <groupId>org.apache.activemq</groupId>
-	 <artifactId>activemq-core</artifactId>
-	 <version>5.7.0</version>
- </dependency>
-
-ActiveMQ是一个JMS Provider的实现,tomcat 使用JMS 
-
-JMeter做性能测试的文档
-http://activemq.apache.org/jmeter-performance-tests.html
-
-启动ActiveMQ服务器 bin\activemq.bat start  stop
-
-http://localhost:8161/admin    admin/admin (配置在/conf/jetty-realm.properties)  可以看有,创建Queue ,Topic,Durable Topic Subscribers
-http://localhost:8161/camel
-http://localhost:8161/demo
-端口配置在jetty.xml中
-
-启动日志中有　tcp://myHost:61616　    端口配置在activemq.xml中
-
-日志中提示 JMX URL: service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi
-
-
-看log4j.properties日志在data目录中
-
-方法2（在JVM中嵌套启动）：
-cd example
-
-ant embedBroker
-
-ant consumer
-ant producer
-
-ant topic-listener
-ant topic-publisher
-
-
-
-----集成web项目------启动OK
-activemq-all-5.4.2.jar
-activemq-web-5.4.2.jar
-
-web.xml中
- <context-param>  
-	<param-name>brokerURI</param-name>  
-	<param-value>/WEB-INF/activemq.xml</param-value>  
- </context-param>  
- <listener>  
-	<listener-class>org.apache.activemq.web.SpringBrokerContextListener</listener-class>  
- </listener>  
-
-
-activemq.xml
- <beans  
-   xmlns="http://www.springframework.org/schema/beans"  
-   xmlns:amq="http://activemq.apache.org/schema/core"  
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
-   xsi:schemaLocation="
-   http://www.springframework.org/schema/beans 
-   http://www.springframework.org/schema/beans/spring-beans-2.0.xsd  
-   http://activemq.apache.org/schema/core 
-   http://activemq.apache.org/schema/core/activemq-core-5.2.0.xsd     
-   http://activemq.apache.org/camel/schema/spring 
-   http://activemq.apache.org/camel/schema/spring/camel-spring.xsd">  
-   
-    <bean id="oracle-ds" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">  
-       <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>  
-       <property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/>  
-       <property name="username" value="hr"/>  
-       <property name="password" value="hr"/>  
-       <property name="maxActive" value="20"/>  
-       <property name="poolPreparedStatements" value="true"/>  
-     </bean>  
-   
-     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost">  
-         
-      
-     </broker>  
-   
- </beans>  
-
----集成Tomcat------------
-
-
-<Resource
-    name="jms/FailoverConnectionFactory"
-    auth="Container"
-    type="org.apache.activemq.ActiveMQConnectionFactory"
-    description="JMS Connection Factory"
-    factory="org.apache.activemq.jndi.JNDIReferenceFactory"
-    brokerURL="failover:(tcp://localhost:61616)?initialReconnectDelay=100&amp;maxReconnectAttempts=5"
-   brokerName="localhost"
-    useEmbeddedBroker="false"/>
-
-<Resource name="jms/topic/MyTopic"
-    auth="Container"
-    type="org.apache.activemq.command.ActiveMQTopic"
-    factory="org.apache.activemq.jndi.JNDIReferenceFactory"
-    physicalName="MY.TEST.FOO"/>
-   
-failover transport是一种重新连接机制，用于建立可靠的传输。
-此处配置的是一旦ActiveMQ broker中断，Listener端将每隔100ms自动尝试连接，直至成功连接或重试5次连接失败为止。
- 
-
----集成 Spring Tomcat------------OK
-只 activemq-all-5.3.2.jar 放/WEB-INF/lib
-
-Tomcat目录下的conf/context.xml
-
-<Resource name="jms/ConnectionFactory"   
-  auth="Container"     
-  type="org.apache.activemq.ActiveMQConnectionFactory"   
-  description="JMS Connection Factory"  
-  factory="org.apache.activemq.jndi.JNDIReferenceFactory"   
-  brokerURL="vm://localhost"   
-  brokerName="LocalActiveMQBroker"/>  
-   
-<Resource name="jms/Queue"   
-auth="Container"   
-type="org.apache.activemq.command.ActiveMQQueue"  
-description="my Queue"  
-factory="org.apache.activemq.jndi.JNDIReferenceFactory"   
-physicalName="FOO.BAR"/>  
-
-
-spring.xml
- <bean id="jmsConnectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">  
-         <property name="jndiName" value="java:comp/env/jms/ConnectionFactory"></property>  
- </bean>  
- <bean id="jmsQueue" class="org.springframework.jndi.JndiObjectFactoryBean">  
-	 <property name="jndiName" value="java:comp/env/jms/Queue"></property>  
- </bean>  
- <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">  
-	 <property name="connectionFactory" ref="jmsConnectionFactory"></property>  
-	 <property name="defaultDestination" ref="jmsQueue"></property>  
- </bean>  
-
- <bean id="sender" class="activemq_web.Sender">  
-	 <property name="jmsTemplate" ref="jmsTemplate"></property>  
- </bean>  
-
- <bean id="receive" class="activemq_web.Receiver"></bean>  
- <bean id="listenerContainer"  class="org.springframework.jms.listener.DefaultMessageListenerContainer">  
-	 <property name="connectionFactory" ref="jmsConnectionFactory"></property>  
-	 <property name="destination" ref="jmsQueue"></property>  
-	 <property name="messageListener" ref="receive"></property>  
- </bean>  
------使用Spring标签
-<jee:jndi-lookup id="jmsConnectionFactory" jndi-name="java:comp/env/jms/ConnectionFactory" />
-<jee:jndi-lookup id="jmsQueue" jndi-name="java:comp/env/jms/Queue" />
-
-<bean id="receive" class="activemq_web.ReceiverListener"></bean>
-<jms:listener-container connection-factory="jmsConnectionFactory">
-	<jms:listener destination="jmsQueue" ref="receive"/>
-</jms:listener-container>
-	
-如使用ActiveMQ 
-<bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
-    <property name="connectionFactory">
-      <bean class="org.apache.activemq.ActiveMQConnectionFactory">
-        <property name="brokerURL">
-          <value>tcp://localhost:61616</value>
-        </property>
-      </bean>
-	 
-    </property>
-  </bean>
-  
-<!--    也可以用  
-    <bean id="jmsConnectionFactory2" class="org.springframework.jms.connection.SingleConnectionFactory">
-        <property name="targetConnectionFactory" >
-		    <bean  class="org.apache.activemq.ActiveMQConnectionFactory">
-				<property name="brokerURL" value="tcp://localhost:61616" />
-				<property name="userName" value="#{jms['mq.username']}" />
-				<property name="password" value="#{jms['mq.password']}" />
-				<property name="sendTimeout" value="10000" />  <!-- 如果不设置,会一直卡住好多个小时 -->
-		    </bean>
-        </property>
-		
-    </bean>
-  -->  
-
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.Session;
-
-import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
-
-public class Sender
-{
-	private JmsTemplate jmsTemplate;
-	public void setJmsTemplate(JmsTemplate jmsTemplate)
-	{
-		this.jmsTemplate = jmsTemplate;
-	}
-	public void send(final String text)
-	{
-		
-		 
-		System.out.println("---Send:" + text);
-		jmsTemplate.send(new MessageCreator()
-		{
-			public Message createMessage(Session session) throws JMSException
-			{
-				return session.createTextMessage(text);
-			}
-		});
-		
-		 Map<String,Object> msg=new HashMap<String,Object> ();
-		 msg.put("isSuccess", "true");
-		 jmsTemplate.convertAndSend(msg);
-		 
-	}
-}
-//--
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.TextMessage;
-import javax.jms.MapMessage;
-
-public class Receiver implements MessageListener
-{
-	public void onMessage(Message message)
-	{
-		try
-		{
-			if (message instanceof TextMessage)
-			{
-				TextMessage text = (TextMessage) message;
-				System.out.println("Receive:" + text.getText());
-				
-			}else if (message instanceof MapMessage)
-			{
-				MapMessage mapMsg=(MapMessage)message;
-				System.out.println(" Receive Map Names is:"+ mapMsg.getMapNames()); 
-			}
-		} catch (JMSException e)
-		{
-			e.printStackTrace();
-		}
-	}
-}
-ApplicationContext ctx = new ClassPathXmlApplicationContext("spring_jms_beans.xml");
-JSP中
-<%
-ApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(this.getServletConfig().getServletContext());
-Sender send=(Sender)ctx.getBean("sender");
-send.send("hello");
-%>
-//------------------------------ OK
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQTopic;
-public class MainApp 
-{
-	public static void main(String[] args) throws Exception
-	{
-		// apache-activemq-5.11.1\bin\activemq.bat start 来启动
-		//ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
-		String url = ActiveMQConnection.DEFAULT_BROKER_URL;  //failover://tcp://localhost:61616
-		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
-		Connection connection = factory.createConnection();
-		connection.start();
-		//在容器中,一个connection只能创建一个活的session,否则异常
-		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);//boolean transacted, int acknowledgeMode　
-		//对不在JTA事务中(如在JTA事务中,参数失效,commit,rollback,也失败,依赖于JTA事务),如transacted为true使用session.rollback();或 session.commit();   acknowledgeMode参数被忽略
-		Topic topic= new ActiveMQTopic("testTopic");//动态建立 , 也可使用new ActiveMQQueue("testQueue")
-		//Topic topic= session.createTopic("testTopic");
-		// queue=session.createQueue("testQueue");
-		MessageConsumer comsumer1 = session.createConsumer(topic);
-		comsumer1.setMessageListener(new MessageListener()
-		{
-			public void onMessage(Message m) {
-				try {
-					System.out.println("Consumer1 get " + ((TextMessage)m).getText());
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		//创建一个生产者，然后发送多个消息。
-		MessageProducer producer = session.createProducer(topic);
-		producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-		for(int i=0; i<10; i++)
-		{
-			producer.send(session.createTextMessage("Message:" + i));
-		}
-		producer.close();
-	}
-}
-============ActiveMQ 的集群
-
-	  
-activemq5.9.0 开始 , activemq的集群实现方式取消了传统的Master-Slave方式 , 增加了基于 zookeeper + leveldb 的实现方式
-http://activemq.apache.org/replicated-leveldb-store.html
-
-activemq.xml
-brokerName属性设置为统一的
-<broker brokerName="broker" ... >
-  ...
- <persistenceAdapter>
-    <replicatedLevelDB
-      directory="${activemq.data}/leveldb"
-      replicas="3"
-      bind="tcp://0.0.0.0:0"
-      zkAddress="my-pc:2181,192.168.2.145:2181,192.168.2.146:2181"
-      hostname="my-pc"
-      sync="local_disk"
-      zkPath="/activemq/leveldb-stores"
-      />
-</persistenceAdapter>
-  ...
-</broker>
-hostname属性值配置本机的值
- 
- 
- 
-客户端使用
-<bean class="org.apache.activemq.ActiveMQConnectionFactory">
-	<property name="brokerURL">
-	  <value>failover:(tcp://localhost:61616,tcp://otherIP:61616)</value>
-	  <property name="userName" value="hrbb" />
-	 <property name="password" value="hrbb" />
-	</property>
-</bean>
-
-activemq.xml
-如要设置用户名,密码,在 <systemUsage> 标签后加
-<plugins> 
-	<simpleAuthenticationPlugin>
-		<users>
-			<authenticationUser username="hrbb"  password="hrbb"  groups="users"/>
-		</users>
-	</simpleAuthenticationPlugin>
-</plugins>
-
- 
-======================ActiveMQ  新版 Artemis 使用NIO
- apache-artemis-2.13.0-bin.zip
- cd bin
- 
-artemis.cmd help create
-
-artemis.cmd create d:/tmp/artemis_broker 会提示输入用户名，密码,是否匿名登录
-
-artemis.cmd create d:/tmp/artemis_broker --user input --password input #默认用户名，密码为input
-	--allow-anonymous | --require-login
-
-日志提示 
-You can now start the broker by executing:
-   "D:\tmp\artemis_broker\bin\artemis" run
-
-Or you can setup the broker as Windows service and run it in the background:
-
-   "D:\tmp\artemis_broker\bin\artemis-service.exe" install
-   "D:\tmp\artemis_broker\bin\artemis-service.exe" start
-
-   To stop the windows service:
-      "D:\tmp\artemis_broker\bin\artemis-service.exe" stop
-
-   To uninstall the windows service
-      "D:\tmp\artemis_broker\bin\artemis-service.exe" uninstall
-	  
-	  
-启动 artemis  run 和老版本类似，也是有日志提示   at 0.0.0.0:61616 for protocols [CORE,
- 0.0.0.0:5672 for protocols [AMQP]
- 0.0.0.0:61613 for protocols [STOMP]
- HTTP Server started at http://localhost:8161
- 
- 
- 
- 
- 
 
 --------------------------------------------Liferay-6.2 CE
 下载 bundled with tomcat
@@ -3762,13 +3959,3 @@ p2.onSuccess(new Consumer<Float>() { //p1.onSuccess
 });
 deferred1.accept("182.2");
 ===============
-
-
-
-
-
- 
- 
-
-
-

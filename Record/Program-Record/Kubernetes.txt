@@ -51,12 +51,9 @@ Visual Code-1.39.2 extension Kubernetes 是Microsoft发布的 说是支持Develo
 
 
 Kubernetes (开源) 基于 Docker 构建一个容器的调度服务
-最新是 v1.15
+
+
 https://kubernetes.io/docs/setup/release/notes/  下载二进制
-共有3种下载包 目前下载不了,国内防火墙挡了
-server
-client
-node
 
 2019-08-22
 https://storage.googleapis.com/kubernetes-release/release/v1.15.3/kubernetes-server-linux-amd64.tar.gz
@@ -64,13 +61,19 @@ https://storage.googleapis.com/kubernetes-release/release/v1.15.3/kubernetes-cli
 https://storage.googleapis.com/kubernetes-release/release/v1.15.3/kubernetes-node-linux-amd64.tar.gz
 有了这些地址就可不翻墙下载了
 
+2020-07-25 稳定版本为  v1.18  https://dl.k8s.io/v1.18.0/kubernetes-server-linux-amd64.tar.gz 可以下载
+
+
+server 只有linux版本
+client 有linux/windows版本,没有Mac版本
+node   有linux/windows版本,没有Mac版本
+
 kubernetes-client-linux-amd64.tar.gz 包中只有 kubectl 									在 kubernetes-server-linux-amd64.tar.gz也有
 kubernetes-node-linux-amd64.tar.gz 包中只有	 kubeadm,kubectl,kubelet,kube-proxy 在 kubernetes-server-linux-amd64.tar.gz也有
-
+kubernetes-server-linux-amd64.tar.gz 多的有kube-apiserver,kube-scheduler，kube-controller-manager
 
 github上下载release分支的源码 
-https://github.com/kubernetes/kubernetes/releases
-v1.15.3
+https://github.com/kubernetes/kubernetes/releases 
 如果有docker,则make quick-release (会pull一些东西， 下不了，国内防火墙挡了)  提示 unset ${!DOCKER_*} 清除所有开头的环境变量 
 如果有go ,则make ,会让系统卡死，(在gnome下运行和界面下都是)
 
@@ -78,8 +81,110 @@ v1.15.3
 sudo snap install kubectl --classic
 kubectl version
 
-CentOS 国内kubernetes镜像
 
+------openSUSE-leap-15.2 安装 kubernetes v1.18 使用rpm和docker成功
+
+kubeadm config images pull --cri-socket /var/run/dockershim.sock (当有 docker 和 cri-o 一起运行时)
+防火墙最好关闭吧，systemctl stop/disable firewalld ， 6443 10250 
+
+(启动docker,swapoff -a )
+
+ 
+kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.18.0  --cri-socket /var/run/dockershim.sock 
+--skip-phases=preflight
+
+rpm包安装，执行 kubeadm init  还一直卡在preflight ???，像是检查docker镜像中已经事先下好
+	[preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+运行 kubeadm config images pull  --kubernetes-version=v1.18.0 提示下载位置为 registry.opensuse.org/kubic/ 报找不到失败
+
+
+kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.18.0  --cri-socket /var/run/dockershim.sock
+
+kubeadm  reset  --cri-socket /var/run/dockershim.sock
+ 
+journalctl  -xeu kubelet 看日志还是会下载registry.opensuse.org/kubic/下载的镜像 ,关闭防火墙
+rpm 版本要打新tag 
+https://registry.opensuse.org/cgi-bin/cooverview －>official按钮，点开链接选择版本，有显示docker pull 命令
+--tag.sh
+#!/bin/bash
+images=(kube-apiserver:v1.18.0 kube-controller-manager:v1.18.0 kube-scheduler:v1.18.0 kube-proxy:v1.18.0 pause:3.2 etcd:3.4.3-0 coredns:1.6.7)
+for imageName in ${images[@]} ; do
+	echo "doing ${imageName} "  
+  docker tag k8s.gcr.io/$imageName  registry.opensuse.org/kubic/$imageName  
+done
+-- 
+还要加 --skip-phases=preflight ???
+  
+有提示(required cgroups disabled),docker是systemd, 看/var/lib/kubelet/kubeadm-flags.env 显示是systemd
+
+--
+其实还是kubelet 没有成功监听6443端口,docker的api-server没有启动???
+ps -ef | grep kubelet 发现使用的是 --container-runtime-endpoint=unix:///var/run/crio/crio.sock ???
+vi /var/lib/kubelet/kubeadm-flags.env(reset文件就没了),有定义KUBELET_KUBEADM_ARGS 为下面文件使用
+vi /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf  在KUBELET_KUBECONFIG_ARGS后增加 ,在后还有是crio参数,所以还原
+分析说明crio是动态放在KUBELET_EXTRA_ARGS变量中 
+在 vi /etc/sysconfig/kubelet(不会被reset) 修改配置 --container-runtime=docker --container-runtime-endpoint=unix:///var/run/dockershim.sock (显示是systemd)
+--修改成功
+
+#另一节点 只需安装 kubernetes-proxy,kubernetes-kubeadm
+在preflight阶段报不能是btrfs（ext4可以的）加 --skip-phases=preflight 可以成功
+但也要kubelet修改为docker,要和主使用一样的cgroups
+
+ 
+kubeadm join 192.168.1.102:6443 --token c5syyq.3hqpi1i4zqsotmb5 \
+    --discovery-token-ca-cert-hash sha256:a05e6937f3e3e438fd7ff51ff0c2d17aad9bb9ca52f5beb904a8f487d89842ea  --skip-phases=preflight --cri-socket /var/run/dockershim.sock 
+    
+安装了 flannel ,kubectl get nodes 也全是NotReady 
+
+安装 flannel (依赖 net-tools-deprecated)，flannel-k8s-yaml-0.11.0 软件包 (记得有依赖flanneld命令，应该只能是rpm)
+kubectl  apply -f /usr/share/k8s-yaml/flannel/kube-flannel.yaml 会下载 registry.opensuse.org/kubic/flannel:0.11.0 镜像
+docker tag  quay.io/coreos/flannel:v0.11.0-amd64  registry.opensuse.org/kubic/flannel:0.11.0
+journalctl -xeu kubelet 报 
+	[failed to find plugin "flannel" in path [/opt/cni/bin] failed to find plugin "portmap" in path [/opt/cni/bin
+
+即项目 https://github.com/containernetworking/plugins , rpm -ql cni-plugins-0.8.4-lp152.1.4.x86_64  安装在/usr/lib/cni/portmap,/usr/lib/cni/flannel
+两节点都做 cp /usr/lib/cni/* /opt/cni/bin (原rpm默认使用crio) ，终于主节点Ready了
+
+排错方法
+kubectl get pod -n kube-system
+kubectl describe pod kube-flannel-ds-amd64-xxxx -n kube-system
+kubectl describe pod  coredns-xxx  -n kube-system 
+
+
+
+-----用linux二进制包,kubelet 放PATH环境变量中,未成功??? 
+su - root
+二进制包报 检查 http://localhost:10248/healthz 失败,即内部启动kubelet没有成功 ???  日志提示systemctl status kubelet ,journalctl -xeu kubelet，可能用二进包不行的
+---/usr/lib/systemd/system/kubelet.service (/etc/systemd/system/multi-user.target.wants/kubelet.service → )
+[Unit]
+Description=kubelet: The Kubernetes Node Agent
+Documentation=https://kubernetes.io/docs/
+After=network.target network-online.target
+Wants=docker.service crio.service
+
+[Service]
+ExecStartPre=/bin/bash -c "findmnt -t bpf --mountpoint /sys/fs/bpf || mount bpffs /sys/fs/bpf -t bpf"
+ExecStart=/usr/bin/kubelet
+Restart=always
+StartLimitInterval=0
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+---
+
+/etc/containers/registries.conf 默认是从docker.io
+#kubelet  # --cgroup-driver=systemd  (default "cgroupfs" 要和docker 一样才行)
+
+kubectl version --client
+kubectl cluster-info dump 连接到 Kubernetes cluster 
+
+docker container  ls 
+docker container logs  CONTAINERID
+
+------------------CentOS
+国内kubernetes镜像
 ---vi /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -90,13 +195,144 @@ repo_gpgcheck=0
 ---
 setenforce 0
 yum install  kubelet kubeadm kubectl
-报依赖于 conntrack  (配置 http://mirrors.huaweicloud.com/centos/7.6.1810/os/x86_64/ 仓库)
 
-安装版本为
+----1.18.0 版本  
+yum install  kubelet-1.18.0 kubeadm-1.18.0 kubectl-1.18.0 安装指定版本
+
+报依赖于  
+conntrack-tools
+#conntrack  (配置 http://mirrors.huaweicloud.com/centos/7/os/x86_64/ 仓库,7是最新的7.x)
+
+cri-tools
+kubernetes-cni
+libnetfilter_cthelper
+libnetfilter_cttimeout
+libnetfilter_queue
+socat （DVD中有的）
+
+kubeadm config images pull 测试容器下载（kubeadm init 会提示）
+
+提示从https://k8s.gcr.io/v2/下载docker镜像失败 
+k8s.gcr.io/kube-apiserver:v1.18.0
+k8s.gcr.io/kube-controller-manager:v1.18.0
+k8s.gcr.io/kube-scheduler:v1.18.0
+k8s.gcr.io/kube-proxy:v1.18.0
+k8s.gcr.io/pause:3.2
+k8s.gcr.io/etcd:3.4.3-0
+k8s.gcr.io/coredns:1.6.7
+
+
+docker pull codedingan/kube-apiserver:v1.18.0
+docker pull codedingan/kube-controller-manager:v1.18.0
+docker pull codedingan/kube-scheduler:v1.18.0
+docker pull codedingan/kube-proxy:v1.18.0
+docker pull codedingan/pause:3.2
+docker pull codedingan/coredns:1.6.7
+docker pull codedingan/etcd:3.4.3-0
+
+
+---vi kube-img-bak_restore.sh
+#!/bin/bash
+images=(kube-apiserver:v1.18.0 kube-controller-manager:v1.18.0 kube-scheduler:v1.18.0 kube-proxy:v1.18.0 pause:3.2 etcd:3.4.3-0 coredns:1.6.7)
+for imageName in ${images[@]} ; do
+	echo "doing ${imageName} " 
+  #docker pull codedingan/$imageName  
+  docker tag codedingan/$imageName k8s.gcr.io/$imageName  
+  #docker rmi codedingan/$imageName
+  docker image save -o docker_kube-1.18.0_${imageName}.tar  k8s.gcr.io/$imageName
+done
+#for f in `ls docker*` ; do docker load -i $f; done
+----
+
+第一次启动kubelet 报没有 /var/lib/kubelet/config.yaml 忽略（没有kubeadm init/join）
+kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.18.0 (测试成功)日志会自动启动kubelet,执行成功后 systemctl stop/start kubelet 就可成功,提示systemctl enable kubelet.service
+
+但另一台机器 执行 kubeadm join  双方都关闭防火墙和selinux(setenforce 0 ) 成功
+
+kubectl get nodes  状态是NotReady要安装网络
+
+-- 新的flannel 为 k8s-v1.7+ 
+https://github.com/coreos/flannel/blob/master/Documentation/kube-flannel.yml
+kubectl apply -f  kube-flannel.yml
+
+docker image save -o kube_flannel-0.12.tar  quay.io/coreos/flannel:v0.12.0-amd64 
+docker load -i kube_flannel-0.12.tar
+
+-- 新的dashboard 2.0.3 兼容 k8s-1.18
+https://github.com/kubernetes/dashboard
+mkdir $HOME/certs && cd $HOME/certs
+openssl genrsa -out tls.key 2048 私钥
+openssl req  -new -x509 -key tls.key -out tls.crt -subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=myapp.mycluster 自签证书
+
+kubectl create secret generic kubernetes-dashboard-certs --from-file=$HOME/certs -n kubernetes-dashboard
+
+
+https://github.com/kubernetes/dashboard/blob/master/aio/deploy/recommended.yaml
+里面有 dashboard-metrics-scraper 
+Deployment 中 修改  (name 前的 －去除)   
+	containers:
+      - args:
+        - --tls-cert-file=/root/tls.crt
+        - --tls-key-file=/root/tls.key
+
+kubectl create --edit -f  recommended.yaml  会把第一个区打开编辑，保存退出后执行
+
+
+docker pull kubernetesui/dashboard:v2.0.3   虽是中央仓库但还是很慢
+
+docker image save -o kube_dashboard-2.0.3.tar  kubernetesui/dashboard:v2.0.3 
+docker load -i kube_dashboard-2.0.3.tar  
+
+docker pull kubernetesui/metrics-scraper:v1.0.4  
+docker image save -o kube_metrics-scraper-1.0.4.tar kubernetesui/metrics-scraper:v1.0.4  
+docker load -i kube_metrics-scraper-1.0.4.tar
+
+
+kubectl -n kubernetes-dashboard get pod
+
+ 
+kubectl -n kubernetes-dashboard get svc  是clusterIP类型，可修改为nodePort类型
+kubectl patch svc kubernetes-dashboard -p '{"spec":{"type":"NodePort"}}'  -n kubernetes-dashboard 
+再kubectl -n kubernetes-dashboard get svc  查使用自动端口 443:31395
+htts协议来仿问  htts://外网IP:31395
+
+可token认证 ，也要先创建serviceacount,
+	kubectl create serviceaccount dashboard-admin -n kubernetes-dashboard 
+	kubectl create clusterrolebinding dashboard-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:dashboard-admin 
+	kubectl get secret -n kubernetes-dashboard   找 dashboard-admin-token-xxx 是建dashboard-admin生成的 
+	kubectl describe secret dashboard-admin-token-xxx  -n kubernetes-dashboard  里面有token信息,复制到登录页中（测试成功）
+	
+方式二
+	kubectl create serviceaccount def-ns-admin -n default   #只管理default名称空间，使用rolebinding
+	kubectl create rolebinding def-ns-admin --clusterrole=admin --serviceaccount=default:default-ns-admin 
+	kubectl get secret | awk '/^def-ns-admin/{print $1}'
+	kubectl describe secret  def-ns-admin-token-xxx (也可用里面的token登录，测试成功)
+
+	kubectl get secret -n default -o jsonpath={.items[0].data.token} | base64 -d   是base64加密的，解密可登录
+
+-- 新的 metrics-server-0.3.x  支持k8s-1.8+
+https://github.com/kubernetes-sigs/metrics-server
+
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.7/components.yaml
+
+docker pull bitnami/metrics-server:0.3.7
+docker tag  bitnami/metrics-server:0.3.7  k8s.gcr.io/metrics-server/metrics-server:v0.3.7
+
+docker image save -o kube_metrics-server-0.3.7.tar  k8s.gcr.io/metrics-server/metrics-server:v0.3.7
+docker load -i  kube_metrics-server-0.3.7.tar 
+
+
+kubectl get svc -n kube-system
+kubectl get pod -n kube-system
+
+
+------1.15.3版本
 kubeadm-1.15.3-0.x86_64
 kubectl-1.15.3-0.x86_64
 kubelet-1.15.3-0.x86_64 依赖于socat DVD中有(可以和docker-19.03.1 版本一起使用)
 kubernetes-cni-0.7.5-0.x86_64
+
+报依赖于   conntrack  (配置 http://mirrors.huaweicloud.com/centos/7/os/x86_64/ 仓库,7是最新的7.x)
 
 
 
@@ -115,51 +351,17 @@ CNI (container network interface)  的实现产品为 Flannel 和 Calico 的综�
 kubeadm 方式安装 ，每个节点要有docker 和 kublet ,control-plane节点也运行在docker上
 pause  为pod有一个基础容器不用启动，用来复制网络和卷的配置
 
+CRI（Container Runtime Interface),其中 dockershim，containerd和cri-o都是遵循CRI
 
 
-
-开机启动 kubelet
-systemctl start kubelet (从节点第一次会失败忽略) swapoff -a 
-systemctl enable kubelet 
-
----openSUSE 复制 CentOS7的  /usr/lib/systemd/system/kubelet.service
-[Unit]
-Description=kubelet: The Kubernetes Node Agent
-Documentation=https://kubernetes.io/docs/
-
-[Service]
-#ExecStart=/usr/bin/kubelet
-ExecStart=/opt/kubernetes/server/bin/kubelet --cgroup-driver=systemd
-Restart=always
-StartLimitInterval=0
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
----
-kubelet   --cgroup-driver=systemd  (default "cgroupfs")
-			--fail-swap-on=false				  提示DEPRECATED 使用--config 配置文件(beta)
-	  		--healthz-port  (default 10248)  提示DEPRECATED 使用--config 配置文件(beta)
-	http://localhost:10248/healthz
-	
----openSUSE 上  还是不行
-
-kubelet init或者kubeadm join 时一直显示下面日志(journalctl -xeu kubelet)？？？
-	kubelet_node_status.go:286] Setting node annotation to enable volume controller attach/detach
-kubectl cluster-info dump 连接到 Kubernetes cluster 
-
-
-docker container  ls 
-docker container logs 
-
-CentOS上可成功 kubeadm init/join 的 kubelet进程参数
- /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --cgroup-driver=cgroupfs --network-plugin=cni --pod-infra-container-image=k8s.gcr.io/pause:3.1
-
----
-
+------CentOS安装 kubernetes v1.15.3成功
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
  
 开机启动 docker
 systemctl enable docker.service
+
+sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes 
+sudo systemctl enable --now kubelet
 
 CPU至少两个(两核),主机名不能有下划线,可以减号
 
@@ -184,7 +386,7 @@ Worker 节点占用端口
 
 CentOS 系统
 setenforce 0 
-关防火墙（上面要开好多端口）
+关防火墙（上面要开好多端口）,虚拟机要双CPU
 
 vi /etc/sysctl.d/k8s.conf 增加（为防止报错才加）
 net.bridge.bridge-nf-call-ip6tables = 1
@@ -228,7 +430,7 @@ journalctl -xeu kubelet
 	Using certificateDir folder "/etc/kubernetes/pki"
 	
 	
-修改 cgroupfs 驱动到 systemd  (openSUSE必须修改)
+修改 cgroupfs 驱动到 systemd 
 vi /etc/docker/daemon.json 
 {
   "exec-opts": ["native.cgroupdriver=systemd"]
@@ -287,8 +489,9 @@ docker image save -o docker_flannel-v0.11.0.tar  quay.io/coreos/flannel:v0.11.0-
 
 docker image save -o metrics-server-amd64-v0.3.6.tar mirrorgooglecontainers/metrics-server-amd64:v0.3.6
 
-#--deprecate
+
 docker image save -o docker_kube-dashboard-v1.10.1.tar siriuszg/kubernetes-dashboard-amd64:v1.10.1
+#--deprecate
 docker image save -o docker_heapster-influxdb-amd64-v1.5.2.tar heleicool/heapster-influxdb-amd64:v1.5.2
 docker image save -o docker_heapster-amd64-v1.5.4.tar netonline/heapster-amd64:v1.5.4
 docker image save -o docker_heapster-grafana-amd64-v5.0.4.tar heleicool/heapster-grafana-amd64:v5.0.4 
@@ -353,6 +556,7 @@ kubectl get nodes 节点信息
 
  kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
  要等 
+ 
 docker image ls    有 quay.io/coreos/flannel:v0.11.0-amd64 镜像
 
 #docker image save -o docker_flannel-v0.11.0.tar  quay.io/coreos/flannel:v0.11.0-amd64
@@ -365,7 +569,7 @@ kubectl get ns 查所有名称空间
 
 
 在从节点 kubeadm join 后要等一会，下载flannel，kube-proxy镜像，启动容器，
-在主节点查kubectl  get pods  -n kub-system -o wide 可以看到两个proxy两个flannel，各在哪个节点上
+在主节点查kubectl  get pods  -n kube-system -o wide 可以看到两个proxy两个flannel，各在哪个节点上
 
 kubectl describe node  node0  有Label信息， 资源分配情况
 kubectl cluster-info

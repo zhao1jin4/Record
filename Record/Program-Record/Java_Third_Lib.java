@@ -1414,18 +1414,16 @@ StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
 	
 XML中配置中的变量 ${myName}形式,myName为系统属性 ,logback自带一个${HOSTNAME},
 也可在XML中定义变量 <property name="LOG_HOME" value="/MyApp/logs" />
- 
-<!-- <property file="src/logback/windows.properties" /> 相对于 应用程序运行的当前目录 ,或者绝对目录,如在windows下如果路径/开头,则是C:下 -->  
-<property file="/My/all_code_workspace/eclipse_java_workspace/J_JavaThirdLib/src/logback/windows.properties" />
+  
 <property resource="logback/app.properties" /> <!--  resource 是从classpath路径中找文件,做为变量 -->
 
 <!-- 也可用于DEV,SIT,UTA 环境的切换  ,日志报要 Janino 库 janino-2.7.5.jar 依赖 commons-compiler-2.7.5.jar -->
 <if condition='property("os.name").contains("Windows")'>  
 	<then>
-		<property file="C:/My/all_code_workspace/eclipse_java_workspace/J_JavaThirdLib/src/logback/windows.properties" />
+		<property file="./src/logback/windows.properties" /><!--相对于 应用程序运行的当前目录 ,或者绝对目录,如在windows下如果路径/开头,则是C:下 -->  
 	</then>
 	<else>
-		<property file="/eclipse_java_workspace/J_JavaThirdLib/src/logback/linux.properties" />
+		<property file="./src/logback/linux.properties" />
 	</else>  
 </if>
 
@@ -1495,6 +1493,12 @@ https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy
 <logger name="${CONTEXT_NAME}.dao" level="INFO" additivity="false" >  <!-- Dao层的日志只写文件,不写其它的地方 -->
 	<appender-ref ref="daoRolling" />
 </logger>
+
+关闭某个类的INFO日志
+<logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="WARN"  >   
+	<appender-ref ref="STDOUT" />
+</logger>
+
 
 示例 appenders/CountingConsoleAppender.java  自定义appender
 
@@ -1585,6 +1589,26 @@ input {
 }
 output默认就是本机的elasticsearch
 
+
+
+//这个类会在 启动 SpringBoot项目的 main方法前被执行
+//这个类要配置在logback.xml中才生效 <contextListener class="logback.MyListener"/>
+public class MyListener extends ContextAwareBase  implements LoggerContextListener,LifeCycle{
+	private boolean started=false;
+	@Override
+	public boolean isStarted() { 
+		return false;
+	}
+	@Override
+	public void start() {
+		if(started)
+			return;
+		Context context=getContext();
+		context.putProperty("INIT_ROOT_LEVEL", "debug");
+		//这个就可以放在logback.xml中${INIT_ROOT_LEVEL}
+		started=true;
+	}
+}
 -------------jCIFS   samba SMB
 	apache commons VFS2 库的CIFS协议 其实是用 jCIFS 
 
@@ -2461,7 +2485,7 @@ SchedulerFactory schedFact = new StdSchedulerFactory();
 		//.withSchedule(CronScheduleBuilder.dailyAtHourAndMinute(16, 0))
 		//.forJob("myJob", "group1");
 /*
-//cron表达式,空格分隔的顺序是
+//cron表达式,空格分隔的顺序是,不同于的是,linux是没有秒的
 1.Seconds					0-59
 2.Minutes					0-59
 3.Hours						0-23
@@ -3855,7 +3879,7 @@ public class Reactor3Example {
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-spring-boot-dependencies</artifactId>
-            <version>3.3.0</version>
+            <version>3.4.0</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -3872,20 +3896,16 @@ public class Reactor3Example {
  <dependency>
 	<groupId>org.apache.camel</groupId>
 	<artifactId>camel-core</artifactId>
-	<version>3.3.0</version>
+	<version>3.4.0</version>
 </dependency>
-	  
-可能 要手工增加
-<dependency>
-    <groupId>org.apache.camel</groupId>
-    <artifactId>camel-componentdsl</artifactId>  
-</dependency>
-	  
+	   
   
-支持DSL （domain-specific languages），如Java DSL， Spring DSL。
+支持DSL(domain-specific languages)，如Java DSL， Spring DSL
 
 https://github.com/apache/camel-examples/tree/master/examples/camel-example-kafka
 https://camel.apache.org/manual/latest/walk-through-an-example.html  上github上 下载示例代码
+
+2.24版本到3.0变化 SimpleRegistry类所在包变化，使用bind方法代替put方法，或者 使用DefaultRegistry类，增加camel-bean-3.3.0.jar
 
 public class TestMain {
 
@@ -3902,9 +3922,10 @@ public class TestMain {
 		camelContext.addRoutes(new RouteBuilder() {
 			@Override
 			public void configure() throws Exception {
+				//?noop=true表示不删或者移动源文件
 				from("file://" + SOURCE_FOLDER + "?delete=true") //参数参考 https://camel.apache.org/components/latest/file-component.html
 				.process(new FileProcessor())
-						.to("file://" + DESTINATION_FOLDER);
+						.to("file://" + DESTINATION_FOLDER);//复制到这个目录中
 			}
 		});
 		camelContext.start();
@@ -3932,6 +3953,312 @@ camel-util-3.3.0.jar
 camel-support-3.3.0.jar
 camel-core-languages-3.3.0.jar
 camel-file-3.3.0.jar 用来处理file://协议
+camel-bean-3.3.0.jar 用来处理bean://协议
+
+public static void main(String[] args) throws Exception {
+		CamelContext context = new DefaultCamelContext(); 
+		
+		context.addRoutes(new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				 from("direct:start")//camel-direct-3.3.0.jar
+				 .process(new Processor() {
+					@Override
+					public void process(Exchange exchange) throws Exception {
+						String inBody=exchange.getIn().getBody(String.class);
+						inBody =inBody +" add in process";
+						exchange.getIn().setBody(inBody);//getOut()过时了
+					}
+				 }) 
+				 .to("seda:end"); //camel-seda-3.3.0.jar  seda: 和redirect: 的区别是 这个是异步的，即开新的线程才执行
+				 
+			}
+		});
+		
+		context.start();
+		
+		ProducerTemplate producerTmp=context.createProducerTemplate();
+		producerTmp.sendBody("direct:start", "hello everyone");
+		
+		ConsumerTemplate consumeTmp=context.createConsumerTemplate();
+		String res=consumeTmp.receiveBody("seda:end", String.class);
+		System.out.println(res);
+		 
+	}
+	
+<!-- 依赖camel版本为 2.24      -->
+<dependency>
+    <groupId>org.apache.activemq</groupId> 
+    <artifactId>activemq-camel</artifactId>
+    <version>5.15.13</version>
+</dependency>
+public static void main(String[] args) throws Exception {
+	CamelContext context = new DefaultCamelContext(); 
+	ConnectionFactory connectionFactory=new ActiveMQConnectionFactory();
+	
+	JmsComponent com= JmsComponent.jmsComponentAutoAcknowledge(connectionFactory);
+	context.addComponent("jms",com);
+	
+	context.addRoutes(new RouteBuilder() {
+		@Override
+		public void configure() throws Exception {
+			 from("file:src/main/java/apache_camel/from?noop=true") 
+			 .to("activemq:queue:my_queue"); //ativemq会自动创建Queue
+		}
+	});
+	 context.start();
+}
+public static void main(String[] args) throws Exception {
+		CamelContext context = new DefaultCamelContext(); 
+		ActiveMQConnectionFactory connectionFactory=new ActiveMQConnectionFactory();
+		//connectionFactory.setTrustAllPackages(true);
+		
+		JmsComponent com= JmsComponent.jmsComponentAutoAcknowledge(connectionFactory);
+		context.addComponent("jms",com);
+		
+		context.addRoutes(new RouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				 from("direct:start")
+				 .to("activemq:queue:my_queue"); //ativemq会自动创建Queue
+			}
+		});
+		 context.start();
+		
+		ProducerTemplate producerTmp=context.createProducerTemplate();
+		producerTmp.sendBody("direct:start", new Date());//activemq提示不是可信的类
+		//>activemq start -Dorg.apache.activemq.SERIALIZABLE_PACKAGES=*
+	}
+
+
+public static void main(String[] args) throws Exception {
+	CamelContext context = new DefaultCamelContext();  
+	context.addRoutes(new RouteBuilder() {
+		@Override
+		public void configure() throws Exception {
+			 from("direct:start")
+			 .to("class:apache_camel.HelloService?method=sayHello");  
+		}
+	});
+	context.start();
+	ProducerTemplate producerTmp=context.createProducerTemplate();
+	producerTmp.sendBody("direct:start", "hello everyone");
+}
+public class HelloService{
+	public void sayHello(String msg)
+	{
+		System.out.println(msg);
+	}
+}
+public static void main(String[] args) throws Exception {
+	HelloService service=new HelloService();
+	
+	//2.24版本到3.0变化 SimpleRegistry类所在包变化，  使用DefaultRegistry类，增加camel-bean-3.3.0.jar
+	DefaultRegistry registry=new DefaultRegistry(); //或者 SimpleRegistry
+	registry.bind("helloService", service);//2.24版本put方法，3.0版本bind方法
+	  
+	CamelContext context = new DefaultCamelContext(registry);  
+	context.addRoutes(new RouteBuilder() {
+		@Override
+		public void configure() throws Exception {
+			 from("direct:start")
+			 .to("bean:helloService?method=sayHello");  
+		}
+	});
+	context.start();
+	ProducerTemplate producerTmp=context.createProducerTemplate();
+	producerTmp.sendBody("direct:start", "hello everyone");
+}
+
+
+/*
+ 版本应和camel版本相同
+	<dependency>
+    <groupId>org.apache.camel</groupId>
+    <artifactId>camel-jdbc</artifactId>
+    <version>2.24.3</version>
+</dependency>
+*/
+public static void main(String[] args) throws Exception {
+	MysqlDataSource ds=new MysqlDataSource();
+	ds.setUrl("jdbc:mysql://localhost:3306/mydb");
+	ds.setUser("zh");
+	ds.setPassword("123");
+	
+	SimpleRegistry registry=new SimpleRegistry();
+	registry.bind("myDataSource", ds); 
+	
+	CamelContext context = new DefaultCamelContext(registry);  
+	context.addRoutes(new RouteBuilder() {
+		@Override
+		public void configure() throws Exception {
+			 from("direct:start")
+			 .to("jdbc:myDataSource")
+			 .bean(new ResultHandler(),"processResult");  //第二个参数方法名
+		}
+	});
+	context.start();
+	ProducerTemplate producerTmp=context.createProducerTemplate();
+	producerTmp.sendBody("direct:start", "select table_name,TABLE_ROWS from information_schema.TABLES where table_schema='mydb'");
+}
+public class ResultHandler {
+	public void processResult(List  list)
+	{
+		for( Object item: list)
+			System.out.println(item);
+	}
+}
+
+REST见SpringBoot
+------------jsonwebtoken
+https://github.com/jwtk/jjwt
+ 
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-api</artifactId>
+    <version>0.11.2</version>
+</dependency>
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-impl</artifactId>
+    <version>0.11.2</version>
+    <scope>runtime</scope>
+</dependency>
+<dependency>
+    <groupId>io.jsonwebtoken</groupId>
+    <artifactId>jjwt-jackson</artifactId> <!-- or jjwt-gson if Gson is preferred -->
+    <version>0.11.2</version>
+    <scope>runtime</scope>
+</dependency>
+
+jjwt-api-0.11.2.jar
+jjwt-impl-0.11.2.jar
+jjwt-jackson-0.11.2.jar
+
+
+如果用JDK11还支持 RSASSA-PSS (PS256, PS384, PS512)  算法
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+
+// We need a signing key, so we'll create one just for this example. Usually
+// the key would be read from your application configuration instead.
+Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);//两次调用产生不同的key,可以使用私钥
+
+String jws = Jwts.builder().setSubject("Joe").signWith(key).compact();
+
+Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jws).getBody().getSubject();//Joe
+
+
+
+-------------Hawtio
+用来代理  前端 和 Jolokia端点(activeMQ有用)
+ 
+hawtio-default-2.10.0.war
+hawtio-app-2.10.0.jar
+ 
+java -jar hawtio-app-x.y.z.jar
+http://localhost:8080/hawtio
+
+界面中点add  Connection按钮，可连接到ActiveMQ ( http://0.0.0.0:8161/api/jolokia/) 密码就是activeMQ的admin/admin
+就可以看到 ActiveMQ 的JMX,可以看到Queue,Topic,可以purge某个queue 
+
+Artemis (http://localhost:8161/console/jolokia)密码就是Artemis的   可以看到queue ，但看不到数据（Artemis控制台也是JMX的）
+
+		
+
+
+-------------Jolokia 
+ActiveMQ有使用
+是一个 JMX-HTTP 桥
+
+ 
+-----------Dozer 
+https://github.com/DozerMapper/dozer/
+<dependency>
+    <groupId>com.github.dozermapper</groupId>
+    <artifactId>dozer-core</artifactId>
+    <version>6.5.0</version>
+</dependency>
+dozer-core-6.5.0.jar
+
+import com.github.dozermapper.core.DozerBeanMapperBuilder;
+import com.github.dozermapper.core.Mapper;
+
+SourceClassName sourceObject = new SourceClassName();
+sourceObject.setName("Dozer");
+sourceObject.setBirthday(new Date());
+//复制Bean属性
+Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+DestinationClassName destObject = mapper.map(sourceObject, DestinationClassName.class);
+
+System.out.println(destObject.getBirthday().equals(sourceObject.getBirthday()));
+
+-----------liquibase
+https://www.liquibase.org
+https://github.com/liquibase/liquibase
+ 
+Pro 版本是收费的
+<dependency>
+  <groupId>org.liquibase</groupId>
+  <artifactId>liquibase-core</artifactId>
+  <version>4.0.0</version>
+</dependency>
+
+ 
+<plugin>
+    <groupId>org.liquibase</groupId>
+    <artifactId>liquibase-maven-plugin</artifactId>
+    <version>4.0.0</version>
+    <configuration>
+        <propertyFileWillOverride>true</propertyFileWillOverride>
+        <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+    </configuration>
+</plugin>
+如果需要在父项目中配置子项目共享的LiquiBase配置，而各个子项目可以定义自己的配置，并覆盖父项目中的配置，
+则只需要在父项目的pom中将propertyFileWillOverride设置为true即可
+
+https://docs.liquibase.com/tools-integrations/maven/home.html
+
+
+===Release004.sql 文件内容(MySQL)
+--comment: 这是注释 ，每sql个文件必须以 liquibase formatted sql开始
+--liquibase formatted sql
+
+--comment: changeset 格式为 --changeset author:id attribute1:value1 attribute2:value2 可以设置endDelimiter(默认为;) https://docs.liquibase.com/concepts/basic/sql-format.html
+--changeset gpl:Release0004-1
+CREATE TABLE table2 (
+  id int(11) NOT NULL,
+  name varchar(255) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=MyISAM;
+--rollback drop table table2;
+--comment: rollback 为回滚
+
+--changeset gpl:Release0004-3
+ALTER TABLE  table2 CHANGE  name  firstname VARCHAR( 255 );
+--rollback ALTER TABLE  table2 CHANGE  firstname  name VARCHAR( 255 );
+ 
+--changeset gpl:Release0004-4
+INSERT INTO table2 (id, firstname) VALUES (NULL, 'name1'),(NULL, 'name2'), (NULL, 'name3');
+--rollback DELETE FROM table2 WHERE firstname IN('name1','name2','name3');
+
+
+内容可以是一个SQL文件多个changeset、一个changeset多个SQL
+
+执行使用  --classpath=D:\Program\liquibase-4.0.0\lib\mysql-connector-java-8.0.15.jar
+liquibase --changeLogFile=\tmp\Release004.sql --driver=com.mysql.cj.jdbc.Driver  --url="jdbc:mysql://localhost/mydb?useUnicode=true&characterEncoding=UTF-8"  --username=zh --password=123  update
+
+
+撤销到指定日期之后,使用--rollback
+liquibase --changeLogFile=D:\tmp\Release004.sql  --driver=com.mysql.cj.jdbc.Driver --classpath=D:\Program\liquibase-4.0.0\lib\mysql-connector-java-8.0.15.jar --url="jdbc:mysql://localhost/mydb?useUnicode=true&characterEncoding=UTF-8"--username=zh--password=123 rollbackToDate 2013-07-16T16:55:37
+
+
+
+默认记录在  DATABASECHANGELOG 和  DATABASECHANGELOCK  表中
+
 
 
 -------------akka

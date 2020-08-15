@@ -1818,6 +1818,12 @@ java -jar swagger-codegen-cli-3.0.4.jar generate   -i http://petstore.swagger.io
 是生成客户端代码,使用okhttp 和　google的gson
 
 ------------ RestTemplate
+ RestTemplate template=new RestTemplate();
+ Map<String,String> headers=new HashMap<>();
+ headers.put("Content-Type", "application/json");
+ HttpEntity<?> entity=new HttpEntity<>(headers);
+ ResponseEntity< Greeting> res= template.exchange("http://127.0.0.1:8080/J_SpringMVC/reset?name=lisi",HttpMethod.GET, entity,Greeting.class);
+
 
 ------------ Spring整合Servlet
 
@@ -1966,6 +1972,29 @@ public RequestMappingHandlerAdapter requestMappingHandlerAdapter(@Autowired Mapp
 	return handler;
 }
 ------------spring session hazelcast
+spring session项目中
+
+https://github.com/spring-projects/spring-session-bom/#spring-session-bom
+<dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-bom</artifactId>
+			<version>Dragonfruit-RELEASE</version>
+			<type>pom</type>
+			<scope>import</scope>
+		</dependency>
+	</dependencies>
+</dependencyManagement>
+
+
+<dependency>
+	<groupId>org.springframework.session</groupId>
+	<artifactId>spring-session-data-redis</artifactId>
+</dependency>
+
+
+https://docs.spring.io/spring-session/docs/2.3.0.RELEASE/reference/html5/guides/java-hazelcast.html
 @EnableHazelcastHttpSession 
 
 
@@ -2044,7 +2073,7 @@ SockJS  首先用webSocket,如果失败再偿试用其它协议
  实现的有 Spring 有实现服务端 和 客户端 
  http://stomp.github.io/implementations.html
  服务端的实现有　RabbitMQ　  					规范 1.0 ,1.1, 1.2 版本　
- Apache的Apollo　(是ActiveMQ 的下一版本)   　	规范 1.0 ,1.1, 1.2 版本　
+ ActiveMQ 的NIO版本  Artemis 　	规范 1.0 ,1.1, 1.2 版本　
  客户端Java实现(也有服务端实现)  Stampy    		规范 1.2 版本
   http://mrstampy.github.io/Stampy/
   <dependency>

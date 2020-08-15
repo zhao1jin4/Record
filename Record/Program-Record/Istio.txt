@@ -4,14 +4,16 @@ Istio   由 Google、IBM 和 Lyft 联合开发，只支持 Kubernetes 平台,使
 Istio来自希腊语，英文意思是「sail」, 意为「启航」
 https://github.com/istio/istio/releases
 
+https://gcsweb.istio.io/gcs/istio-release/releases/1.6.5/ 有windows/mac版本 作用不大
+
 Rancher 收费的 界面工具(非国产 https://rancher.com/)
 
 
 2020-04-23 稳定版本为 1.5.1
 Istio 1.5 已经在 Kubernetes 版本 1.14, 1.15, 1.16 中测试过
-Istio 1.6 has been tested with these Kubernetes releases: 1.15, 1.16, 1.17, 1.18.
 
-2020-05-26 稳定版本为 1.6.0
+Istio 1.6 has been tested with these Kubernetes releases: 1.15, 1.16, 1.17, 1.18.
+2020-07-25 稳定版本为 1.6.5
 
 
 调用链追踪

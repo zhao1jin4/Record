@@ -95,7 +95,7 @@ META-INF/persitence.xml 文件
             <property name="hibernate.connection.autocommit" value="false" />  
 			
 			<property name="hibernate.show_sql" value="true"/>
-			<property name="hibernate.hbm2ddl.auto" value="update"/> <!-- update, create, create-drop ,validate-->
+			<property name="hibernate.hbm2ddl.auto" value="update"/> <!-- update, create, create-drop ,validate,none-->
 			<property name="hibernate.format_sql" value="true"/>
 			<property name="hibernate.max_fetch_depth" value="3" />	
 			<property name="hibernate.use_sql_comments" value="true"/>
@@ -142,6 +142,9 @@ System.out.println("使用JAP getReference的学生:"+wang.getName());
 //Query query=em.createQuery("from Student s where s.name=?",Student.class);//JPSqL
 //query.setParameter(1, "lisi");//JPA都是setParameter,JPA和JDBC一样是1开始的,而Hibernate是0开始的,也可在?后加1,?1表示这个位置就是1
 
+Query query=em.createQuery("from Student s where s.name=?2",Student.class);//JPQL,
+query.setParameter(2, "lisi")
+
 Query query=em.createQuery("from Student s where s.name=:myname",Student.class);
 query.setParameter("myname", "lisi");
 query.setFirstResult(0);
@@ -154,6 +157,23 @@ Object count=sqlQuery.getSingleResult();//JAP是getSingleResult
 sqlQuery.setFirstResult(2);
 sqlQuery.setMaxResults(20);
 System.out.println("JPQL Query查询teacher1老师的学生数:"+count);
+
+//---Criteria
+CriteriaBuilder builder=em.getCriteriaBuilder();
+CriteriaQuery<Student> query=builder.createQuery(Student.class);
+
+Root<Student> root=query.from(Student.class);
+
+Path<Set<String>> names =root.get("name");//get方法的doc有示例代码 
+Expression<Boolean> restriction=builder.and(builder.equal(names,"lisi") , builder.upper(root.get("gender")).in(Gender.MALE,Gender.FEMALE));
+
+query.select(root)
+.where(restriction)  
+.orderBy(builder.desc(root.get("birthday")));
+
+ 
+List<Student> res=em.createQuery(query).getResultList();
+//---上 Criteria
 
 sqlQuery=em.createNativeQuery("select  * from JPA_TEACHER ",Teacher.class);
 list=sqlQuery.getResultList();
@@ -228,7 +248,7 @@ public class IdCard
 	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH },
 			  optional = false, fetch = FetchType.EAGER)//从方来加 optional = false
  	@JoinColumn(name = "PERSON_ID",nullable=false,foreignKey =@ForeignKey(name="FK_IDCARD_PERSON"))
-	//生产的索引名是随机的，和外键名不同？？学生表不是的
+	//产生的索引名是随机的???(唯一约束)
 	public Person getPerson()
 	{
 		return person;
@@ -255,8 +275,20 @@ public class IdCard
 public class Student implements Serializable 
 {
 
+	/*
+	生成下面的样子
+	create table all_table_id_gen
+	( 
+		table_name varchar(255),
+		seq_val bigint 
+	);
+	insert into  all_table_id_gen (table_name,seq_val)values('jpa_student',101);
+	第一批次是102,103,第二次就是203，204，不是按顺序来的
+	*/
 	@Id
-	@GeneratedValue
+	@TableGenerator(name="myGen" , table="all_table_id_gen",pkColumnName = "table_name",valueColumnName = "seql_val",pkColumnValue = "jpa_student",initialValue = 101 )
+	@GeneratedValue(strategy=GenerationType.TABLE,generator = "myGen")
+	//@GeneratedValue(strategy=GenerationType.AUTO)
     private int id;
 	  
 	private String name;
@@ -491,13 +523,63 @@ public class M_Person {
 	private String name;
 }
 
----主键增长方式，oracle sequence,mysql表记录
+List<Object[]> tuples = entityManager.createNamedQuery(
+		"find_person_card" )
+	.setParameter("name", "h%")
+	.getResultList();
+
+for(Object[] tuple : tuples) {
+	M_Person person = (M_Person) tuple[0];
+	M_IdCard idcard = (M_IdCard) tuple[1];
+	System.out.println(person.getName()+"--"+idcard.getCardno());
+}
+ 
+---ElementCollection 简单类型
+@Entity
+@Table(name = "t_employee")
+public class Employee {
+  @Id
+//  @GeneratedValue
+  private Long id;
+  
+  private String name;
+  
+  @ElementCollection
+  // 一对多集合,如果是JPA1.0必须再写一个Pojo类
+  @CollectionTable(name = "t_colors", joinColumns = @JoinColumn(name = "employee_id",foreignKey =@ForeignKey(name="FK_colors_employee")))
+  @Column(name = "color")
+  private List<String> colors = new ArrayList<String>();
+  @Test
+  public void persist() throws Exception {
+    Employee employee = new Employee();
+    employee.setId(12L);
+    employee.setName("lisi");
+
+    employee.getColors().add("red");
+    employee.getColors().add("green");
+    entityManager.getTransaction().begin();
+    entityManager.persist(employee);
+    entityManager.getTransaction().commit();
+  }
+
+  @Test
+  public void find() throws Exception {
+    persist();
+    entityManager.clear();
+
+    Employee employee = entityManager.find(Employee.class, 12L);
+    System.out.println(employee.getName());
+    System.out.println(employee.getColors());
+
+  }
+ ---ElementCollection 对象类型
 
 
+ 
 ===============上 JPA=========================
    
 
----spring 集成
+---spring data jpa (spring boot jpa有很多示例)
   <dependency>
 	<groupId>org.springframework.data</groupId>
 	<artifactId>spring-data-jpa</artifactId>
@@ -515,6 +597,87 @@ public class M_Person {
     </dependency>
   </dependencies>
 </dependencyManagement>
+
+
+@Configuration
+@EnableJpaRepositories // (basePackages = "springdata_jpa.repo")
+@EnableTransactionManagement
+class ApplicationConfig {
+	@Bean
+	public DataSource dataSource() {
+		HikariConfig config = new HikariConfig();
+		config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+		config.setJdbcUrl("jdbc:mysql://localhost:3306/mydb?characterEncoding=UTF-8&serverTimezone=UTC");
+		config.setUsername("zh");
+		config.setPassword("123");
+		config.addDataSourceProperty("cachePrepStmts", "true");
+		config.addDataSourceProperty("prepStmtCacheSize", "250");
+		config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+		HikariDataSource ds = new HikariDataSource(config);
+		return ds;
+	}
+
+	@Bean
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+
+		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		vendorAdapter.setGenerateDdl(true);
+		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+		factory.setJpaVendorAdapter(vendorAdapter);
+		factory.setPackagesToScan("springdata_jpa.entity");// 实体包
+		Properties jpaProperties = new Properties();
+		jpaProperties.put("hibernate.show_sql", "true");
+		jpaProperties.put("hibernate.format_sql", "true");
+		jpaProperties.put("hibernate.use_sql_comments", "true");
+		jpaProperties.put("hibernate.hbm2ddl.auto", "create");
+		factory.setJpaProperties(jpaProperties);
+		factory.setDataSource(dataSource());
+		return factory;
+	}
+
+	@Bean
+	public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
+		JpaTransactionManager txManager = new JpaTransactionManager();
+		txManager.setEntityManagerFactory(entityManagerFactory);
+		return txManager;
+	}
+}
+package springdata_jpa.repo;
+@Repository
+public interface UserRepository extends JpaRepository<User,Long> {
+	public Optional<User> findByUsername(String username);
+	//findBy开头 官方文档 搜索Supported keywords   参考 https://docs.spring.io/spring-data/jpa/docs/2.3.1.RELEASE/reference/html/#reference 
+
+	@Query(value="SELECT u.* FROM User u WHERE u.username like %:username%", nativeQuery = true)
+	//@Query(value="SELECT u.* FROM User u WHERE u.username =:username", nativeQuery = true)
+	public User myQuery(@Param("username")String u); 
+}
+
+package springdata_jpa.entity;
+//@Component
+@Entity
+public class User {
+	@Id @GeneratedValue(strategy=GenerationType.AUTO)
+	private long userid;
+	@Column
+	private String username;
+	public User( ) { //一定要有默认构造器
+		
+	}
+}
+public static void main(String[] args) {
+	ApplicationContext context = new AnnotationConfigApplicationContext(ApplicationConfig.class);
+	UserRepository userRepo= context.getBean(UserRepository.class);
+	 userRepo.save(new User("lisi"));
+	 User res=userRepo.findByUsername(("lisi")).orElse(null);
+	 System.out.println(res);
+}
+
+
+
+
+
+
 
 ---queryDSL  JPA
 
@@ -550,7 +713,51 @@ public class M_Person {
 	  </dependency>
 	</dependencies>
   </plugin>
+mvn clean install 将 在指定的目录下 生成 所有@Entity对应的 代码
+如果生成代码默认放在target目录下，如使用eclipse工具，要mvn eclipse:elipse -Dmaven.test.skip=true 来配置eclipse的classpath
 
+//这个示例是对应于 jpa.single包下的UserBean生成的QUserBean
+QUserBean userBean = QUserBean.userBean;
+JPAQuery<?> query = new JPAQuery<Void>(entityManager);
+UserBean user = query.select(userBean)
+  .from(userBean)
+		.where(userBean.name.startsWith("叶"))
+  .fetchOne();
+
+	
+//JPAQueryFactory
+JPAQueryFactory factory=new JPAQueryFactory(entityManager);
+factory.select(QUserBean.userBean).from(userBean)
+.where(userBean.id.eq(
+		//子查询
+		JPAExpressions.select(QUserBean.userBean.id).from(QUserBean.userBean).where(userBean.name.startsWith("叶"))
+	))
+  .fetchOne();
+System.out.println(user);
+
+
+@Column(length = 1,nullable = true,name="IS_LEAGUE")
+@Convert(converter = YNConverter.class)
+private Boolean isLeague;
+
+
+//Database Y/N -> Java Boolean
+public class YNConverter implements AttributeConverter<Boolean,String>{ 
+@Override
+public String convertToDatabaseColumn(Boolean attribute) {
+	if(Objects.nonNull(attribute) && attribute)
+		return "Y";
+	else
+		return "N";
+} 
+@Override
+public Boolean convertToEntityAttribute(String dbData) {
+	if("Y".equalsIgnoreCase(dbData))
+		return Boolean.TRUE;
+	else
+		return Boolean.FALSE;
+} 
+}
 
 
 

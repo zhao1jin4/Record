@@ -3,33 +3,98 @@ https://doc.opensuse.org/
 
 openSUSE leap       版本是稳定的发布版本 
 openSUSE tumbleweed 版本是为希望有最新的包
-
-openSUSE-leap-15.1-DVD有  
-	 rpm -ivh  chromium-74.0.3729.108-lp151.1.1.x86_64.rpm libavcodec58-4.0.2-lp151.1.5.x86_64.rpm  libavformat58-4.0.2-lp151.1.5.x86_64.rpm  libavutil56-4.0.2-lp151.1.5.x86_64.rpm  libminizip1-1.2.11-lp151.4.1.x86_64.rpm  libre2-0-20190301-lp151.9.1.x86_64.rpm libsnappy1-1.1.3-lp151.2.2.x86_64.rpm  libswresample3-4.0.2-lp151.1.5.x86_64.rpm  libopenmpt0-0.3.9-lp151.1.4.x86_64.rpm 
-
-	 (下载chrome-74.0.3729  2019-05-25)
-		rpm -ivh ~/Downloads/google-chrome-stable_current_x86_64.rpm  libappindicator3-1-12.10.1+bzr20170215-lp151.4.2.x86_64.rpm  libdbusmenu-glib4-16.04.0-lp151.3.2.x86_64.rpm  libdbusmenu-gtk3-4-16.04.0-lp151.3.2.x86_64.rpm  libindicator3-7-16.10.0+bzr20171205-lp151.2.3.x86_64.rpm 
- 
-		安装后提示/usr/bin/google-chrome-stable to provide /usr/bin/google-chrome
-		/usr/bin/google-chrome-stable -> /opt/google/chrome/google-chrome
- 
-		
+openSUSE  Leap 15.2还首次提供Kubernetes支持作为正式包,也可为Windows SubSystem for Linux
+	
 openSUSE-leap-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,cheese摄像,Totem播放器,pidgin(可MSN,GTalk都测试过的),brasero(DVD工具)
 	Firefox
 	GStreamer是在Linux下创建流媒体的应用程序框架
 	ibus,fcitx,cyrus,TiggerVNC
 	Mesa(openGL) 
 	
+	 
+	 
+ 
 	
-http://download.opensuse.org/distribution/leap/15.1/repo/oss/ 下的 x86_64/
+ 
+openSUSE-leap-15.2-DVD有    chromium-83 yast2 install
+ (下载chrome-83   2020-07-12)
+	rpm -ivh ~/Downloads/google-chrome-stable_current_x86_64.rpm   ./libvulkan1-1.2.133-lp152.1.3.x86_64.rpm 
+  	安装后提示/usr/bin/google-chrome-stable to provide /usr/bin/google-chrome 
 
-	java-1_8_0-openjdk-1.8.0.212
-	java-11-openjdk-11.0.3
-	go-1.10.4 
-	docker-18.09.1
- redis-4.0.11
+
+http://download.opensuse.org/update/leap/15.0/oss/
+http://download.opensuse.org/update/leap/15.0/non-oss/
+http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
+	gcc-c++-7-lp150.1.50.x86_64.rpm (要用这个)
+        gcc7-c++-7.3.1+r258812-lp150.2.10.x86_64.rpm  (这个安装的是g++-7命令) 
+		gcc7-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libasan4-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libatomic1-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libcilkrts5-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libitm1-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			liblsan0-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libmpx2-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libmpxwrappers2-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libtsan0-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			libubsan0-7.3.1+r258812-lp150.2.10.x86_64.rpm 
+		libstdc++6-devel-gcc7-7.3.1+r258812-lp150.2.10.x86_64.rpm
+			 glibc-devel-2.26-lp150.10.13.x86_64.rpm 
+				linux-glibc-devel-4.15-lp150.1.23.noarch.rpm ( 即是 linux-kernel-headers)
+				
+				
+
+bluefish-2.2.10-lp152.3.12.x86_64.rpm
+	cross-arm-binutils-2.32-lp152.3.1.x86_64.rpm
+	cross-arm-none-gcc7-bootstrap-7.5.0+r278197-lp152.2.46.x86_64.rpm
+ 
+
+mysql-workbench-8.0.15-lp152.1.10.x86_64.rpm   need download
+  官方doc 说在8.0中默认使用caching_sha2_password已经集成在 libmysqlclient中了
+		
+	mysql8 generic 服务端OK  客户端报少　libtinfo.so.5: (libncurses5-6.1-lp150.3.14.x86_64.rpm)
+	mariadb-10.4.13-lp152.1.1.x86_64.rpm  DVD中有
+
+docker-19.03.11_ce-lp152.1.1.x86_64.rpm 要下载的
+	 依赖了 git-core-2.25.0-lp152.1.6.x86_64.rpm
+python3-docker-compose-1.25.1-lp152.1.1.noarch.rpm 要下载的
+
+---kubernetes
+kubernetes-master-1.18.0-lp152.1.4.x86_64 不能安装下面三个
+	kubernetes-controller-manager-1.18.0-lp152.1.4.x86_64.rpm
+	kubernetes-apiserver-1.18.0-lp152.1.4.x86_64.rpm
+	kubernetes-scheduler-1.18.0-lp152.1.4.x86_64.rpm
 	
- 	
+kubernetes-node-1.18.0-lp152.1.4.x86_64 不能安装proxy
+	kubernetes-proxy-1.18.0-lp152.1.4.x86_64.rpm
+
+kubernetes-kubeadm-1.18.0-lp152.1.4.x86_64.rpm
+	依赖了kubernetes-kubelet1.17-1.18.0-lp152.1.4.x86_64 ,kubernetes-kubelet1.18-1.18.0-lp152.1.4.x86_64两个版本,
+	kubernetes-kubelet-common-1.18.0-lp152.1.4.x86_64
+	cri-o-1.17.3 这个和docker类似 (systemctl list-unit-files | grep crio 显示为disabled,关闭了会自动被启动)
+
+kubernetes-pause-3.2-lp152.1.3.x86_64.rpm
+kubernetes-client-1.18.0-lp152.1.4.x86_64.rpm (kubectl命令)
+	
+依赖了 qemu ,runc
+
+coredns-1.6.7
+etcd-3.4.3  或者 etcd-for-k8s-image
+nginx-ingress-controller
+#flannel (依赖 net-tools-deprecated)
+flannel-k8s-yaml-0.11.0
+#kube-prometheus-k8s-yaml-0.3.0
+也有 minikube,helm 
+没有dashboard
+ 
+--- 上  kubernetes
+
+redis-6.0.4-lp152.1.1.x86_64.rpm 
+
+
+java-11-openjdk-11.0.7 默认安装的
+java-1_8_0-openjdk-1.8.0.252
+	
+
 rabbitmq-server-3.7.14-lp151.1.9.x86_64.rpm	(可用unix用包)
 		erlang-20.3.8.15-lp151.2.33.x86_64.rpm
 			erlang-epmd-20.3.8.15-lp151.2.33.x86_64.rpm
@@ -49,109 +114,58 @@ git-2.16.4-lp151.3.4.x86_64.rpm (yast可以不选择git-svn,git-cvs)
 			perl-Error-0.17025-lp151.2.1.noarch.rpm
 			perl-Net-SMTP-SSL-1.04-lp151.2.1.noarch.rpm
  
-		
-	sysstat (iostat)
-			sharutils-lang-4.15.2-lp151.3.3.noarch.rpm
-			procmail-3.22-lp151.3.3.x86_64.rpm
-			sharutils-4.15.2-lp151.3.3.x86_64.rpm
-			metamail-2.7.19-lp151.2.3.x86_64.rpm
-			sysstat-12.0.2-lp151.2.1.x86_64.rpm
-			
+gitlab-ce  https://packages.gitlab.com/gitlab/gitlab-ce 
 
-bluefish-2.2.10-lp151.2.3.x86_64.rpm
-  libgucharmap_2_90-7-10.0.4-lp151.6.6.x86_64.rpm
 	
+sysstat (iostat)
+	sharutils-lang-4.15.2-lp151.3.3.noarch.rpm
+	procmail-3.22-lp151.3.3.x86_64.rpm
+	sharutils-4.15.2-lp151.3.3.x86_64.rpm
+	metamail-2.7.19-lp151.2.3.x86_64.rpm
+	sysstat-12.0.2-lp151.2.1.x86_64.rpm
+	
+
+ 
 bridge-utils-1.6-lp151.2.3.x86_64.rpm (brctl命令)
 tcpdump-4.9.2-lp151.3.1.x86_64.rpm
 
 wireshark 依赖的Qt的包DVD中都有的
-			rpm -ivh ./libQt5PrintSupport5-5.9.7-lp151.3.1.x86_64.rpm ./libQt5OpenGL5-5.9.7-lp151.3.1.x86_64.rpm ./libQt5Sql5-5.9.7-lp151.3.1.x86_64.rpm ./libQt5Sql5-sqlite-5.9.7-lp151.3.1.x86_64.rpm ./libQt5XmlPatterns5-5.9.7-lp151.1.3.x86_64.rpm ./libQt5Test5-5.9.7-lp151.3.1.x86_64.rpm ./libQtQuick5-5.9.7-lp151.2.2.x86_64.rpm
-			
-			liblua5_1-5-5.1.5-lp151.3.3.x86_64.rpm
-			libsmi-0.4.8-lp151.2.3.x86_64.rpm
-			libsmi2-0.4.8-lp151.2.3.x86_64.rpm
-			libwireshark9-2.4.14-lp151.1.2.x86_64.rpm
-			libwiretap7-2.4.14-lp151.1.2.x86_64.rpm
-			libwscodecs1-2.4.14-lp151.1.2.x86_64.rpm
-			libwsutil8-2.4.14-lp151.1.2.x86_64.rpm
-			wireshark-2.4.14-lp151.1.2.x86_64.rpm
-			wireshark-ui-qt-2.4.14-lp151.1.2.x86_64.rpm
-
-	
-DVD带vlc-3.0.6播放器
-		rpm -ivh ../noarch/vlc-lang-3.0.6-lp151.5.1.noarch.rpm ./libSDL_image-1_2-0-1.2.12-lp151.2.3.x86_64.rpm ./libcaca0-0.99.beta19.git20171003-lp151.3.1.x86_64.rpm ./libva-wayland2-2.3.0-lp151.1.2.x86_64.rpm ./libavc1394-0-0.5.4-lp151.2.3.x86_64.rpm ./libupnp6-1.6.25-lp151.2.2.x86_64.rpm ./libchromaprint1-1.4.3-lp151.2.4.x86_64.rpm ./libcddb2-1.3.2-lp151.2.3.x86_64.rpm ./libaom0-1.0.0-lp151.1.3.x86_64.rpm ./libopencv3_3-3.3.1-lp151.5.5.x86_64.rpm ./libaa1-1.4.0-lp151.2.3.x86_64.rpm ./libebml4-1.3.6-lp151.1.3.x86_64.rpm ./liblirc_client0-0.9.4c-lp151.3.47.x86_64.rpm ./libmodplug1-0.3.9-lp151.1.4.x86_64.rpm ./libGLEW2_1-2.1.0-lp151.2.3.x86_64.rpm ./vlc-qt-3.0.6-lp151.5.1.x86_64.rpm ./libvlc5-3.0.6-lp151.5.1.x86_64.rpm ./libdvdnav4-6.0.0-lp151.2.3.x86_64.rpm ./libshout3-2.4.1-lp151.2.3.x86_64.rpm ./libtheora0-1.1.1-lp151.2.2.x86_64.rpm ./vlc-3.0.6-lp151.5.1.x86_64.rpm ./libprojectM-qt5-2-2.1.0-lp151.2.5.x86_64.rpm ./libftgl2-2.1.3~rc5-lp151.3.4.x86_64.rpm ./libtbb2-2018_20171205-lp151.3.40.x86_64.rpm ./libvlccore9-3.0.6-lp151.5.1.x86_64.rpm ./vlc-codec-gstreamer-3.0.6-lp151.5.1.x86_64.rpm ./vlc-vdpau-3.0.6-lp151.5.1.x86_64.rpm ./libdvbpsi10-1.3.2-lp151.2.2.x86_64.rpm ./vlc-noX-3.0.6-lp151.5.1.x86_64.rpm ./gimp-plugin-aa-2.8.22-lp151.4.6.x86_64.rpm ./libprotobuf-lite15-3.5.0-lp151.4.7.x86_64.rpm ./libmatroska6-1.4.9-lp151.1.1.x86_64.rpm ./libxcb-composite0-1.13-lp151.3.2.x86_64.rpm ./libssh2-1-1.8.0-lp151.5.1.x86_64.rpm
-		
  
-smplayer-18.2.2 DVD中带的依赖
-			rpm -ivh ./libQt5Script5-5.9.7-lp151.1.37.x86_64.rpm ./libSDL2-2_0-0-2.0.8-lp151.3.1.x86_64.rpm ./libQt5Xml5-5.9.7-lp151.3.1.x86_64.rpm
-  
-		rpm -iv ./youtube-dl-2018.09.08-lp151.1.2.noarch.rpm ./smplayer-lang-18.2.2-lp151.2.5.noarch.rpm ./update-desktop-files-84.87-lp151.2.1.noarch.rpm ./mpv-bash-completion-3.3.17-lp151.6.1.noarch.rpm ./libavdevice58-4.0.2-lp151.1.5.x86_64.rpm ./libuchardet0-0.0.6-lp151.3.2.x86_64.rpm ./python3-vapoursynth-43-lp151.3.4.x86_64.rpm ./libavfilter7-4.0.2-lp151.1.5.x86_64.rpm ./libavresample4-4.0.2-lp151.1.5.x86_64.rpm ./librubberband2-1.8.1-lp151.2.4.x86_64.rpm ./libvapoursynth-script0-43-lp151.3.4.x86_64.rpm ./lua51-lua-mpris-0.0+git20170918.28b1c75-lp151.4.1.x86_64.rpm ./lua51-lua-dbus-0.0+git20170818.8fe38d0-lp151.2.1.x86_64.rpm ./mpv-0.29.1-lp151.6.1.x86_64.rpm ./lua51-5.1.5-lp151.3.3.x86_64.rpm ./libvapoursynth-43-43-lp151.3.4.x86_64.rpm ./smplayer-18.2.2-lp151.2.5.x86_64.rpm ./lua51-ldbus-0.0+git20161023.e277e22-lp151.2.2.x86_64.rpm ./libpostproc55-4.0.2-lp151.1.5.x86_64.rpm ./libswscale5-4.0.2-lp151.1.5.x86_64.rpm ./mpv-plugin-mpris-0.0+git20170918.28b1c75-lp151.4.1.x86_64.rpm ./
-
 	
-	yasm-1.3.0-lp150.2.11.x86_64.rpm  mplayer源码依赖的
-		
-http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
-	gcc-c++-7-lp150.1.50.x86_64.rpm (要用这个)
-        gcc7-c++-7.3.1+r258812-lp150.2.10.x86_64.rpm  (这个安装的是g++-7命令) 
-		gcc7-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			libasan4-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			libatomic1-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			libcilkrts5-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			libitm1-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			liblsan0-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			libmpx2-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			libmpxwrappers2-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			libtsan0-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			libubsan0-7.3.1+r258812-lp150.2.10.x86_64.rpm 
-		libstdc++6-devel-gcc7-7.3.1+r258812-lp150.2.10.x86_64.rpm
-			 glibc-devel-2.26-lp150.10.13.x86_64.rpm 
-				linux-glibc-devel-4.15-lp150.1.23.noarch.rpm ( 即是 linux-kernel-headers)
-				
-				
-				
-mysql-workbench-6.3.10-lp151.4.9.x86_64.rpm (有新的8.x)
-openSUSE-leap-15.1 DVD中带的依赖
-rpm -ivh ./x86_64/python-xml-2.7.14-lp151.9.3.x86_64.rpm ./x86_64/libhdf5_hl100-1.10.4-lp151.5.1.x86_64.rpm ./x86_64/libzip5-1.5.1-lp151.2.3.x86_64.rpm ./x86_64/libhdf5-103-1.10.4-lp151.5.1.x86_64.rpm ./x86_64/libxerces-c-3_1-3.1.4-lp151.3.1.x86_64.rpm ./noarch/python2-setuptools-40.5.0-lp151.1.1.noarch.rpm ./noarch/python2-packaging-16.8-lp151.2.1.noarch.rpm ./noarch/python2-appdirs-1.4.3-lp151.2.1.noarch.rpm ./noarch/python2-six-1.11.0-lp151.3.1.noarch.rpm ./noarch/python2-pyparsing-2.2.0-lp151.2.1.noarch.rpm
+DVD带 vlc  播放器 
+smplayer 
+	 yasm-1.3.0-lp150.2.11.x86_64.rpm  mplayer源码依赖的
+		 
 
-		mysqlworkbench 启动要 libproj.so , 连接要 /usr/lib64/mysql/plugin/caching_sha2_password.so  没有，绝对路径??? 
-		做 ln -s  /usr/lib64/libproj.so.12.0.0 /usr/lib64/libproj.so  无用??
-		官方doc 说在8.0中默认使用caching_sha2_password已经集成在 libmysqlclient中了
-		
-	mysql8 generic 服务端OK  客户端报少　libtinfo.so.5: (libncurses5-6.1-lp150.3.14.x86_64.rpm)
-	mariadb-10.2.14-lp150.1.1.x86_64.rpm openSUSE-leap-15 DVD　中有
-	
 pgadmin4-4.1-lp151.1.2.x86_64.rpm
 	openSUSE-leap-15.1DVD带的依赖
 	rpm -ivh	./noarch/python3-Werkzeug-0.14.1-lp151.1.2.noarch.rpm ./noarch/python3-cssselect-1.0.3-lp151.2.1.noarch.rpm ./noarch/python3-pathtools-0.1.2-lp151.3.3.noarch.rpm ./noarch/python3-python-dateutil-2.7.3-lp151.1.1.noarch.rpm ./noarch/python3-watchdog-0.8.3-lp151.2.3.noarch.rpm ./noarch/python3-pbr-4.3.0-lp151.1.1.noarch.rpm ./noarch/python3-termcolor-1.1.0-lp151.2.1.noarch.rpm ./noarch/python3-argh-0.26.1-lp151.2.2.noarch.rpm ./noarch/python3-olefile-0.44-lp151.2.1.noarch.rpm ./x86_64/python3-psutil-5.4.8-lp151.1.1.x86_64.rpm ./x86_64/python3-Pillow-5.0.0-lp151.2.5.x86_64.rpm ./x86_64/python3-psycopg2-2.7.4-lp151.4.6.x86_64.rpm ./x86_64/python3-pymongo-3.6.0-lp151.4.5.x86_64.rpm ./x86_64/python3-SQLAlchemy-1.2.14-lp151.1.1.x86_64.rpm ./x86_64/python3-lxml-4.0.0-lp151.3.13.x86_64.rpm ./x86_64/libpq5-10.6-lp151.1.4.x86_64.rpm ./x86_64/python3-Genshi-0.7-lp151.2.4.x86_64.rpm 
 	
  extundelete-0.2.4-lp150.1.4.x86_64.rpm
 	
-	
-	anjuta-3.28.0-lp150.1.4.x86_64.rpm
-	glade-3.20.4-lp150.1.4.x86_64.rpm
-	
-	gparted-0.31.0-lp150.1.2.x86_64.rpm
-		hfsutils-3.2.6-lp150.2.3.x86_64.rpm
-		nilfs-utils-2.2.3-lp150.1.7.x86_64.rpm
-		libgtkmm-2_4-1-2.24.5-lp150.1.8.x86_64.rpm
+
+wine-5.0-lp152.1.2.x86_64.rpm
+		wine-32bit-5.0-lp152.1.2.x86_64.rpm  依赖过多
+
+
+anjuta-3.28.0-lp150.1.4.x86_64.rpm
+glade-3.20.4-lp150.1.4.x86_64.rpm
+
+gparted-0.31.0-lp150.1.2.x86_64.rpm  (系统自带gnome-disks ,yast2的partitioner )
+	hfsutils-3.2.6-lp150.2.3.x86_64.rpm
+	nilfs-utils-2.2.3-lp150.1.7.x86_64.rpm
+	libgtkmm-2_4-1-2.24.5-lp150.1.8.x86_64.rpm
 
 
 
 	
-	xen-4.10.0_20-lp150.1.2.x86_64.rpm
-	libvirt-daemon-xen-4.0.0-lp150.6.18.x86_64.rpm
-		libvirt-daemon-driver-libxl-4.0.0-lp150.6.18.x86_64.rpm
-	xen-tools-4.10.0_20-lp150.1.2.x86_64.rpm 
-		grub2-x86_64-xen-2.02-lp150.12.8.x86_64.rpm
-	libvirt-daemon-xen-4.0.0-lp150.6.18.x86_64.rpm
-		libvirt-daemon-driver-libxl-4.0.0-lp150.6.18.x86_64.rpm
-
-wine-3.7-lp151.2.61.x86_64.rpm 
-		wine-32bit-3.7-lp151.2.61.x86_64.rpm  依赖过多
-		
-DVD中带的依赖
-rpm -ivh 		libtevent0-32bit-0.9.37-lp151.1.1.x86_64.rpm libcap2-32bit-2.25-lp151.3.70.x86_64.rpm libmagic1-32bit-5.32-lp151.7.22.x86_64.rpm apulse-0.1.10-lp151.3.3.x86_64.rpm libargon2-1-32bit-0.0+git20171227.670229c-lp151.3.3.x86_64.rpm libavahi-client3-32bit-0.7-lp151.1.1.x86_64.rpm libdevmapper1_03-32bit-1.02.149-lp151.3.1.x86_64.rpm libblkid1-32bit-2.33.1-lp151.2.23.x86_64.rpm libjson-c3-32bit-0.13-lp151.2.3.x86_64.rpm libasound2-32bit-1.1.5-lp151.7.4.x86_64.rpm libcups2-32bit-2.2.7-lp151.5.2.x86_64.rpm libsmbconf0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libtirpc3-32bit-1.0.2-lp151.4.8.x86_64.rpm gnome-keyring-32bit-3.28.2-lp151.1.2.x86_64.rpm libexpat1-32bit-2.2.5-lp151.2.4.x86_64.rpm libidn2-0-32bit-2.0.4-lp151.2.3.x86_64.rpm libelf1-32bit-0.168-lp151.3.69.x86_64.rpm samba-winbind-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm alsa-plugins-32bit-1.1.5-lp151.2.3.x86_64.rpm libsamba-credentials0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libsamba-util0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libdw1-32bit-0.168-lp151.3.69.x86_64.rpm libacl1-32bit-2.2.52-lp151.4.29.x86_64.rpm libdcerpc-binding0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm pam-32bit-1.3.0-lp151.7.38.x86_64.rpm libldap-2_4-2-32bit-2.4.46-lp151.9.4.x86_64.rpm libmount1-32bit-2.33.1-lp151.2.23.x86_64.rpm libndr0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm gnome-keyring-pam-32bit-3.28.2-lp151.1.2.x86_64.rpm libsystemd0-32bit-234-lp151.25.7.x86_64.rpm libdcerpc0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libsasl2-3-32bit-2.1.26-lp151.5.1.x86_64.rpm libtasn1-6-32bit-4.13-lp151.3.3.x86_64.rpm fontconfig-32bit-2.12.6-lp151.3.3.x86_64.rpm samba-libs-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libldb1-32bit-1.4.6-lp151.1.1.x86_64.rpm libpopt0-32bit-1.16-lp151.3.67.x86_64.rpm libsmbldap2-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libp11-kit0-32bit-0.23.2-lp151.3.3.x86_64.rpm libkeyutils1-32bit-1.5.10-lp151.4.70.x86_64.rpm libudev1-32bit-234-lp151.25.7.x86_64.rpm libseccomp2-32bit-2.3.2-lp151.2.3.x86_64.rpm libgcc_s1-32bit-8.2.1+r264010-lp151.1.33.x86_64.rpm libffi7-32bit-3.2.1.git259-lp151.5.2.x86_64.rpm rpm-32bit-4.14.1-lp151.13.10.x86_64.rpm libwbclient0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm samba-winbind-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libebl-plugins-32bit-0.168-lp151.3.69.x86_64.rpm libnettle6-32bit-3.4.1-lp151.1.1.x86_64.rpm libxml2-2-32bit-2.9.7-lp151.4.2.x86_64.rpm libglib-2_0-0-32bit-2.54.3-lp151.6.2.x86_64.rpm libpcre1-32bit-8.41-lp151.5.67.x86_64.rpm libbz2-1-32bit-1.0.6-lp151.4.67.x86_64.rpm libuuid1-32bit-2.33.1-lp151.2.23.x86_64.rpm alsa-oss-32bit-1.0.28-lp151.2.3.x86_64.rpm libz1-32bit-1.2.11-lp151.4.1.x86_64.rpm samba-client-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libstdc++6-32bit-8.2.1+r264010-lp151.1.33.x86_64.rpm libndr-nbt0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libtalloc2-32bit-2.1.14-lp151.1.1.x86_64.rpm libhogweed4-32bit-3.4.1-lp151.1.1.x86_64.rpm liblz4-1-32bit-1.8.0-lp151.2.3.x86_64.rpm libgobject-2_0-0-32bit-2.54.3-lp151.6.2.x86_64.rpm libcrack2-32bit-2.9.6-lp151.3.69.x86_64.rpm alsa-plugins-pulse-32bit-1.1.5-lp151.2.3.x86_64.rpm libgnutls30-32bit-3.6.7-lp151.1.1.x86_64.rpm krb5-32bit-1.16.3-lp151.1.1.x86_64.rpm libselinux1-32bit-2.8-lp151.1.30.x86_64.rpm libcryptsetup12-32bit-2.0.5-lp151.1.17.x86_64.rpm libfam0-gamin-32bit-0.1.10-lp151.2.4.x86_64.rpm apulse-32bit-0.1.10-lp151.3.3.x86_64.rpm libsamba-hostconfig0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libsamdb0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libdb-4_8-32bit-4.8.30-lp151.6.70.x86_64.rpm libgpg-error0-32bit-1.29-lp151.2.4.x86_64.rpm nss-mdns-32bit-0.10-lp151.2.3.x86_64.rpm libgio-2_0-0-32bit-2.54.3-lp151.6.2.x86_64.rpm libgmp10-32bit-6.1.2-lp151.3.70.x86_64.rpm glibc-32bit-2.26-lp151.18.7.x86_64.rpm libjansson4-32bit-2.9-lp151.2.3.x86_64.rpm libopenssl1_1-32bit-1.1.0i-lp151.7.7.x86_64.rpm libaudit1-32bit-2.8.1-lp151.4.66.x86_64.rpm libattr1-32bit-2.4.47-lp151.3.70.x86_64.rpm libunistring2-32bit-0.9.9-lp151.2.3.x86_64.rpm libsamba-passdb0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm systemd-32bit-234-lp151.25.7.x86_64.rpm libnsl2-32bit-1.2.0-lp151.3.67.x86_64.rpm libdbus-1-3-32bit-1.12.2-lp151.3.24.x86_64.rpm liblua5_3-5-32bit-5.3.4-lp151.3.25.x86_64.rpm libnetapi0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libsamba-errors0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm liblzma5-32bit-5.2.3-lp151.3.70.x86_64.rpm libverto1-32bit-0.2.6-lp151.4.70.x86_64.rpm libgcrypt20-32bit-1.8.2-lp151.8.1.x86_64.rpm libavahi-common3-32bit-0.7-lp151.1.1.x86_64.rpm libtevent-util0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libgmodule-2_0-0-32bit-2.54.3-lp151.6.2.x86_64.rpm libndr-standard0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libndr-krb5pac0-32bit-4.9.5+git.149.9593f64a5c3-lp151.1.3.x86_64.rpm libpng16-16-32bit-1.6.34-lp151.2.3.x86_64.rpm libnscd1-32bit-2.0.2-lp151.3.2.x86_64.rpm libtdb1-32bit-1.3.16-lp151.1.2.x86_64.rpm libfreetype6-32bit-2.9-lp151.3.3.x86_64.rpm libcom_err2-32bit-1.43.8-lp151.4.60.x86_64.rpm
-		
+xen-4.10.0_20-lp150.1.2.x86_64.rpm
+libvirt-daemon-xen-4.0.0-lp150.6.18.x86_64.rpm
+	libvirt-daemon-driver-libxl-4.0.0-lp150.6.18.x86_64.rpm
+xen-tools-4.10.0_20-lp150.1.2.x86_64.rpm 
+	grub2-x86_64-xen-2.02-lp150.12.8.x86_64.rpm
+libvirt-daemon-xen-4.0.0-lp150.6.18.x86_64.rpm
+	libvirt-daemon-driver-libxl-4.0.0-lp150.6.18.x86_64.rpm
 
 openSUSE-leap-15.1的yast 自带 phpMyAdmin包(直接安装在/srv/www/htdocs/phpMyAdmin目录下)
 
@@ -162,24 +176,8 @@ lxc-2.0.9-lp150.1.8.x86_64.rpm
 	
 http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 noarch/ 
 	iotop 
-
-
-http://download.opensuse.org/distribution/leap/15.0/repo/non-oss/  下的 x86_64/
-	unrar
-	opera
-	
-wine 仓库地址 
-http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Leap_15.1/
-http://download.opensuse.org/repositories/Emulators:/Wine/openSUSE_Leap_15.1/x86_64/wine-5.2-lp151.1128.1.x86_64.rpm
-	
-支持Mac ,Android
-     wine-32bit
-     wine-gecko ???  zypper install wine 共要194个包要装
-	 
-http://download.opensuse.org/tumbleweed/repo/oss/x86_64/
-http://download.opensuse.org/update/leap/15.0/oss/
-http://download.opensuse.org/update/leap/15.0/non-oss/
-
+ 
+ 
 	
 http://nginx.org/packages/sles/15/x86_64/RPMS/
 	rpm -ivh nginx-1.14.2-1.sles15.ngx.x86_64.rpm 
@@ -222,9 +220,6 @@ SUSE-11可以使用ISO文件,也可是解压的(FAT32分区OK，NTFS分区也可
 ------------------------
 
 安装oracle 时界面乱码,必须export LANG=en_US.UTF-8 可以显示英文(默认是zh_CN.UTF-8)
-
-scim 五笔可以删除一些其它语言，［scim 设置］－＞全局设置－＞取消不用语言－＞重启计算机生效
-
 
 ------------SSH
 /etc/ssh/sshd_config   
@@ -288,7 +283,7 @@ openSUSE-leap 15  光驱是/dev/sr0 默认挂载到 /run/media/<user> 目录下
 看 /etc/hosts.deny 中的的注释  man tcpd ,man hosts_access
 
 -----------------
-/etc/init.d/network restart 提示 systemctl restart network.service
+systemctl restart network.service
 
 SuSE Linux配置网关
 /etc/sysconfig/network/routes #  只有在route add default gw 192.168.1.1 ,可能才会自动出现这个文件
@@ -301,6 +296,9 @@ route -n 可以看,netstat -rn 相同 (前三列,和最后一列 是network/rout
 	”－“ 表示忽略
 
 /etc/sysconfig/network/ifcfg-[网络类型]/-id-[网卡mac地址] ,#如ifcfg-wlan-id-00:16:6f:25:73:1f
+
+nmtui 工具可以设置静态IP，但没有修改上面文件
+
 
 
 查看所有路由表。
@@ -724,7 +722,8 @@ grub>boot
 看磁盘使用 pidstat -d 1 100
 
 使用yast2安装软件包,会自动解决依赖关系,
-菜单configuraitons->repositories->Add->local ISO image 再选择openSUSE-12.1x64.iso或者 Local Directory->输入rpm包名,像gucharmap-devel,可设置prioriy 为1 , keep Download package
+菜单configuraitons->repositories->Add->local ISO image 再选择openSUSE-12.1x64.iso或者 Local Directory->输入rpm包名,像gucharmap-devel,
+		可设置prioriy 为1 , keep Download package(restart  yast2 effect)
 (就可知道哪些是DVD中安装的可做命令备份，哪些是从网上下的做文件备份)
 可能要取消Active其它在线repository，它会自动也把依赖的包选择上
 
@@ -804,18 +803,19 @@ http://127.0.0.1:631 有界面,可生成配置文件,如要仿问admin页面,要
 -------------fcitx 输入法 
 Free Chinese Input Tool for X  
 
-openSUSE-leap-15.1 DVD带的
+openSUSE-leap-15.2 DVD 带部分rpm
 
-rpm -ivh fcitx-4.2.9.6-lp151.2.5.x86_64.rpm fcitx-gtk3-4.2.9.6-lp151.2.5.x86_64.rpm libfcitx-4_2_9-4.2.9.6-lp151.2.5.x86_64.rpm ../noarch/fcitx-branding-openSUSE-4.2.9.6-lp151.2.5.noarch.rpm  libqt4-4.8.7-lp151.8.4.x86_64.rpm  libqt4-x11-4.8.7-lp151.8.4.x86_64.rpm libqt4-sql-4.8.7-lp151.8.4.x86_64.rpm
+start->fcitx  启动   
+	ps -ef | grep fcitx 
+		有fcitx，fcitx-dbus-watcher ，dbus-daemon --config-file /usr/share/fcitx/dbus/daemon.conf 进程	
+	
+	就可使用 start -> fcitx configuration
 
-rpm -ivh ../noarch/fcitx-table-cn-wubi-pinyin-4.2.9.6-lp151.2.5.noarch.rpm fcitx-table-4.2.9.6-lp151.2.5.x86_64.rpm 
-rpm -ivh ../noarch/fcitx-table-cn-wubi-4.2.9.6-lp151.2.5.noarch.rpm 
-rpm -ivh fcitx-config-gtk3-0.4.10-lp151.2.3.x86_64.rpm 
-就可使用 Settings->fcitx configuration  (没有输入法,进程没有)
+start ->fcitx configuration  就有输入法可以选择了,就可以用了,当前语言在中文还是英文都可用
+start ->fcitx configuration->右下角的键盘按钮 -> add Chinese (取消复选框Only show current language)
+start ->fcitx configuration-> input method ->  这里就是切换输入法是有几个
 
-Settings->fcitx  不能启动，好像也没用
-
-(/etc/sysconfig/language 设置 INPUT_METHOD="fcitx" 也没用  有文件/etc/X11/xim.d/fcitx )
+(/etc/sysconfig/language 设置 INPUT_METHOD="fcitx"  ,logoff也没用  有文件/etc/X11/xim.d/fcitx )
 
 /etc/profile 仅限于传统的X11  /etc/environmen (说明是被 pam_env 模块解析的)设置变量 
 export XMODIFIERS=@im=fcitx
@@ -823,24 +823,21 @@ export QT_IM_MODULE=fcitx
 export GTK_IM_MODULE=fcitx 
 export INPUT_METHOD="fcitx" 
 
-ps -ef | grep fcitx 
-	有fcitx，fcitx-dbus-watcher ，dbus-daemon --config-file /usr/share/fcitx/dbus/daemon.conf 进程	
-
-Settings->fcitx configuration  就有输入法可以选择了,就可以用了,当前语言在中文还是英文都可用
-Settings->fcitx configuration->右下角的键盘按钮 -> add Chinese (取消复选框Only show current language)
-Settings->fcitx configuration-> input method ->  这里就是切换输入法是有几个
+注销再登录就可以用了
 
 按住ctrl+shift 切换输入法,会有弹出的提示当前是什么输入法,ctrl+space切换中英文
 速度比ibus快很多,中文输入一半时就可按左shift打入英文 比ibus方便
 (如已经安装ibus,再安装fcitx,在komoedit中只可用ibus,textedit中只可用fcitx)
 
 ----如fcitx和ibus一起安装下面可不做
-Settings->Yast2 moudle ->language ,main language 选择 chinese 能安装一些  rpms,komodo edit也可使用fcitx了,没有不能复制问题
-（这个影响gnome显示语言,可以再修改回来,在安装删除包时可abort）
+Settings->Yast2 moudle ->System组中language ,main language 选择 Simplify chinese 会安装一些rpm
+	自动安装ibus-table-chinese-wubi及很多其它输入法,firefox,libreoffice,gnome界面全变中文（可以再修改回来,在安装删除包时可abort）
+komodo edit也可使用fcitx了,没有不能复制问题 
 Settings->Regon & Language -> Input Source ->  + add a chinese 就可以win+space切换(但这个只对ibus有用)
 
 
 ##/etc/sysconfig/language  文件(有注释提示 /etc/X11/xim.d/) 
+# export LANG=en_US.UTF-8
 
 -------------ibus输入法  支持日文anthy,韩文hangul
 拼音是用python3写的
@@ -1038,7 +1035,50 @@ PPAPI  适用于 opera 和chrome    文件名是 libpepflashplayer.so
            其实就做了 /usr/lib/adobe-flashplugin/libpepflashplayer.so ==> /usr/lib64/flash-plugin/libpepflashplayer.so
      
 	 如不能播放flash视频,点击http旁边的按钮->Site Settings->Flash下拉选择allow 
-	  
+
+---VirtualBox  安装
+openSUSE-leap-15.2 下使用All distributions包，即 VirtualBox-6.1.12-139181-Linux_amd64.run
+安装目录在 /opt/VirtualBox, 也是编译报错, 提示要root 运行/sbin/vboxconfig  来重做
+再次运行 VirtualBox-6.1.12-139181-Linux_amd64.run 会先卸载再安装
+卸载 删除安装包生成的文件 /etc/vbox/vbox.cfg  里有写安装目录在 /opt/VirtualBox,也删
+安装rpm包 
+rpm -ivh VirtualBox-6.1-6.1.12_139181_openSUSE150-1.x86_64.rpm , 也是编译报错, ‘skb_frag_t {aka struct bio_vec}’ has no member named ‘page_offset’; did you mean ‘bv_offset’?
+rpm -ql VirtualBox-6.1-6.1.12_139181_openSUSE150-1.x86_64 | xargs grep page_offset   是 /usr/share/virtualbox/src/vboxhost/vboxnetflt/linux/VBoxNetFlt-linux.c
+修改源码又报其它错误  VBoxNetFlt-linux.c:931:36: error: ‘skb_frag_t {aka struct bio_vec}’ has no member named ‘size’ 修改和上面一样的,查所有的共两处一起修改 ,再试OK
+
+
+提示要root 运行/sbin/vboxconfig  来重做
+ 
+ openSUSE-leap-15.1 上成功
+Creating group 'vboxusers'. VM users must be member of that group!
+/etc/vbox/vbox.cfg
+
+
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxdrv.service → /usr/lib/systemd/system/vboxdrv.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxballoonctrl-service.service → /usr/lib/systemd/system/vboxballoonctrl-service.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxautostart-service.service → /usr/lib/systemd/system/vboxautostart-service.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxweb-service.service → /usr/lib/systemd/system/vboxweb-service.service.
+
+systemctl list-unit-files| grep vbox
+systemctl status vboxautostart-service
+
+
+---
+
+----vmware workstation pro 15
+默认VM位置 /var/lib/vmware/Shared VMs
+使用要安装gcc-7-,不是gcc7-7.x
+	提示要kernel healders  (linux-glibc-devel不对， 也不是kernel-devel,是kernel-default-devel)  
+	
+	启动提示must be compile and loaded into the runing kernel -> install 按钮 
+(vmware pro 15.0.0   leap-15.1成功，但leap-15.2上编译内核时失败,用vmware pro 15.5上编译也失败)
+‘skb_frag_t {aka const struct bio_vec}’ has no member named ‘page_offset’; did you mean ‘bv_offset’?
+/usr/lib/vmware/modules/source/vmnet.tar 解压 make 是./vmnet-only/userif.c
+修改源码重新打包，再试OK
+
+systemctl status vmware
+
+
 -----VMware-Horizon-Client
 chmod 755 VMware-Horizon-Client-5.0.0-12557422.x64.bundle
 su root
@@ -1065,18 +1105,6 @@ rpm -ivh  python-xml-2.7.14-lp151.9.3.x86_64.rpm
 
 再回到4版本后intellij idea界面显示还是不清昕,intellij idea 重新启动就显示正常了
 
-----vmware workstation pro 15
-默认VM位置 /var/lib/vmware/Shared VMs
-使用要安装gcc-7.3.x,
-	提示要kernel healders  (linux-glibc-devel不对， 也不是kernel-devel) 
-	kernel-default-devel-4.12.14-lp151.27.3.x86_64.rpm
-		kernel-devel-4.12.14-lp151.27.3.noarch.rpm
-		zlib-devel-1.2.11-lp151.4.1.x86_64.rpm
-		libelf-devel-0.168-lp151.3.69.x86_64.rpm
-		
-	启动提示must be compile and loaded into the runing kernel -> install 按钮
-	
-	
 ----pidgin 自带skype,openfetion
   -下载 QQ plugin 基于webQQ-
 ----Sublime收费
@@ -1871,6 +1899,11 @@ openSUSE-leap-15.1 Rescue LiveCD 默认是Xfce桌面 体积最小,也有Gnome,KD
 	linux dd 写的也可在linux下浏览目录，但目录内容和windows ultraiso写的内容不一样
 
 -----------未解决的
+openSUSE-leap-15.2 每次锁机再使用时，会卡5秒左右，非常不爽
+
+
+是使用一段时间后，不能从bluefish复制到 text edit 或其它中,再关闭bluefish和textedit又好了，可能是bluefish的问题,打开SUSE.txt  在ctrl+f  vmware  选中kernel-default后。
+terminal不能复制到text edit中，和fcitx输入法有关？
 
 grub2引导iso没试成功
 

@@ -49,7 +49,7 @@ c:\program Files\Oracle 目录的有文件
 
 
 
-=================== windows Oracle11g XE 
+=================== windows Oracle 11g/18c XE 
 
 scott用户没了,hr用户还是在的
  
@@ -750,9 +750,12 @@ V$LOCKED_OBJECT  的LOCKED_MODE含义
 	4：Share 共享锁(S)：阻止其他DML操作，share
 	5：S/Row-X 共享行独占(SRX)：阻止其他事务操作，share/sub exclusive
 	6：exclusive 独占(X)：独立访问使用，exclusive
-	还有SESSION_ID (V$session的sql_address是V$SQL的address)ORACLE_USERNAME
-
+	7. SESSION_ID 是V$session的 sid
+	(V$session的sql_address是V$SQL的address) ORACLE_USERNAME
+ 
 select ADDRESS,SQL_TEXT ,ELAPSED_TIME from V$sql where module='JDBC Thin Client' and  ELAPSED_TIME>500000 ;--0.5秒
+
+ 
 
 SHARE ROW EXCLUSIVE(其它用户不可锁这个表(share))
 EXCLUSIVE(其它用户可select,如回锁,改要等 )
@@ -907,7 +910,7 @@ dbms_lock.sleep(0.5);
 dbms_application_info.SET_CLIENT_INFO('So far');//超过64字符会被截断
 select client_info from v$session where client_info like 'So far%';
  
-
+ 
 要用system用户才可以
 DBMS_SYSTEM.KSDWRT (dest IN BINARY_INTEGER,tst IN VARCHAR2); 写alert log and/or trace file
 
@@ -915,7 +918,27 @@ DBMS_SYSTEM.KSDWRT (dest IN BINARY_INTEGER,tst IN VARCHAR2); 写alert log and/or
 2 - Write to alertlog.	/bdump/
 3 - Write to both. 
 
-select sid,serial#,username from v$session where username is not null; 
+select sid,serial#,username,OSUSER,PROGRAM,MACHINE from v$session where username is not null;
+ 
+select l.session_id sid, 
+s.serial#, 
+l.locked_mode, 
+l.oracle_username, 
+s.user#, 
+l.os_user_name,  
+s.username,
+s.osuser, 
+s.machine, 
+s.terminal, 
+a.sql_text, 
+a.action 
+from v$sqlarea a, v$session s, v$locked_object l 
+where l.session_id = s.sid 
+and s.prev_sql_addr = a.address 
+order by sid, s.serial#;
+
+
+
 exec dbms_system.set_sql_trace_in_session(9,11,true); //对xx用户进行跟踪,9,11是sid,serial# ,
 那个用户做一些事后,
 exec dbms_system.set_sql_trace_in_session(9,11,false);//取消跟踪

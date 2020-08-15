@@ -34,6 +34,9 @@ npm config set registry https://registry.npm.taobao.org
 会在~/.npmrc 文件中写入
 	registry=https://registry.npm.taobao.org
 
+如npm install是报 failed, reason: selft signed certificate in certificate chain
+执行 npm config set strict-ssl false 
+
 npm config get registry  验证
 npm install -g react react-dom   就很快了
 
@@ -44,6 +47,8 @@ cnpm install [name]
 
 也可用bower工具安装  npm install -g bower
 bowner install react
+npm install --save  express@4.15.2 安装指定版本
+
 
 cnpm 可以搭建公司私有npm服务 https://cnpmjs.org/ 国产的
 Sinopia 搭建私有的npm仓库
@@ -87,11 +92,16 @@ vs code 调试node (react 的npm start )
 
 npm -l 所有命令及使用 显示install有别名i
 npm help list 显示man手册
+npm run 是 npm run-script 的别名
+npm list 显示所有依赖树
+npm list sockjs 可以直接看哪个依赖了sockjs
+
 npm list -g 显示树结构， 已经安装的包 ,list 别名有ls,ll, la
 npm help install  
 	显示install有别名i 
-	选项 -D, --save-dev 包增加在devDependencies中(没有单独的--save)
-
+	选项 -D, --save-dev 会安装devDependencies中包(没有单独的--save)
+		-P --save-prod 会安装dependencies中包
+		
 npm config set registry https://registry.npmjs.org
 npm search swagger  索引包search别名是find
 
@@ -606,8 +616,576 @@ MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db)
 	    });
 	   
 });
-//-----JSON
-//-----cluster
-//-----客户端用 webSocket
+================================ express 一个node的web框架
+http://expressjs.com/
+
+npm init
+npm install express --save
+目前版本 4.17.1
+
+
+const express = require('express')
+const app = express()
+
+ 
+// 自定义跨域中间件
+var allowCors = function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Credentials','true');
+  next();
+};
+app.use(allowCors);//使用跨域中间件
+
+app.get('/', (req, res) => res.send('Hello World!'))
+
+
+const port = 3000
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+
+//--cookie
+res.cookie(name,value,[,options])
+
+--- npm install body-parser  
+
+var express = require('express')
+//获取模块
+var bodyParser = require('body-parser')
+
+var app = express()
+
+// 创建 application/json 解析
+var jsonParser = bodyParser.json()
+
+// 创建 application/x-www-form-urlencoded 解析
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+// POST /login 获取 URL编码的请求体
+app.post('/login', urlencodedParser, function (req, res) {
+  if (!req.body) return res.sendStatus(400)
+  res.send('welcome, ' + req.body.username)
+})
+
+// POST /api/users 获取 JSON 编码的请求体
+app.post('/api/users', jsonParser, function (req, res) { 
+  console.log(req.body)
+  if (!req.body)
+	  return res.sendStatus(200)
+  return res.sendStatus(400)
+});
+
+
+app.listen(3000);
+//---express 结合body-parser 示例
+
+const express = require('express')
+const app = express()
+
+var bodyParser = require('body-parser')
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }))
+ 
+app.all('*',function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Credentials','true');
+  if(req.method=='OPTIONS') 
+	res.sendStatus(200);
+  else
+	next();
+});
+
+ 
+app.get('/', (req, res) => res.send('Hello World!'))
+
+app.post('/news', (req, res) => { 
+	console.log(req.body);//请求要加content-type : application/json
+	res.json({"msg":"from express"});
+})
+
+const port = 3000
+app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+================================falcor 基于express,有angular前端版本配套
+https://netflix.github.io/falcor/
+
+mkdir falcor-app-server
+cd falcor-app-server
+npm init
+
+npm install falcor-router --save
+npm install express --save
+npm install falcor-express --save
+
+----index.js
+var falcorExpress = require('falcor-express');
+var Router = require('falcor-router');
+
+var express = require('express');
+var app = express();
+
+//这个是虚拟的JSON资源
+app.use('/model.json', falcorExpress.dataSourceRoute(function (req, res) {
+  // create a Virtual JSON resource with single key ("greeting")
+  return new Router([
+    {
+      // match a request for the key "greeting"    
+      route: "greeting",
+      // respond with a PathValue with the value of "Hello World."
+      get: function() {
+        return {path:["greeting"], value: "Hello World"};
+      }
+    }
+  ]);
+}));
+
+// serve static files from current directory
+app.use(express.static(__dirname + '/'));
+
+var server = app.listen(3000);
+
+----index.html 
+下载解压包中的 falcor/dist/falcor.browser.min.js 放 和 index.html 同级目录
+
+<html>
+  <head>
+    <script src="falcor.browser.min.js"></script>
+    <script>
+      var model = new falcor.Model({source: new falcor.HttpDataSource('/model.json') });
+      
+      // retrieve the "greeting" key from the root of the Virtual JSON resource
+      model.get("greeting").
+        then(function(response) {
+          document.write(response.json.greeting);
+        });
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
+---
+node index.js 后访问 http://localhost:3000/index.html 显示 Hello World
+
+请求为 http://127.0.0.1:3000/model.json?paths=[["greeting"]]&method=get
+	
+响应为 {"jsonGraph":{"greeting":"Hello World"}}
+
+================================stompit
+https://www.npmjs.com/package/stompit
+
+//activeMQ 的新版本 Artemis,实现了 STOMP 
+npm i stompit
+
+//activeMQ new verion Artemis,it implements STOMP 
+
+const stompit = require('stompit');
+ 
+const connectOptions = {
+  'host': 'localhost',
+  'port': 61613,
+  'connectHeaders':{
+    'host': '/',
+    'login': 'input',
+    'passcode': 'input',
+    'heart-beat': '5000,5000'
+  }
+};
+ 
+stompit.connect(connectOptions, function(error, client) {
+  
+  if (error) {
+    console.log('connect error ' + error.message);
+    return;
+  }
+  
+  const sendHeaders = {
+    'destination': '/queue/test',
+    'content-type': 'text/plain'
+  };
+  
+  const frame = client.send(sendHeaders);
+  frame.write('hello');
+  frame.end();
+  
+  const subscribeHeaders = {
+    'destination': '/queue/test',
+    'ack': 'client-individual'
+  };
+  
+  client.subscribe(subscribeHeaders, function(error, message) {
+    
+    if (error) {
+      console.log('subscribe error ' + error.message);
+      return;
+    }
+    
+    message.readString('utf-8', function(error, body) {
+      
+      if (error) {
+        console.log('read message error ' + error.message);
+        return;
+      }
+      
+      console.log('received message: ' + body);
+      
+      client.ack(message);
+      
+      client.disconnect();
+    });
+  });
+});
+
+
+================================zeromq
+https://www.npmjs.com/package/zeromq
+
+npm i zeromq
+
+
+---producer.js
+const zmq = require("zeromq")
+ 
+async function run() {
+  const sock = new zmq.Push
+ 
+  await sock.bind("tcp://127.0.0.1:3000")
+  console.log("Producer bound to port 3000")
+ 
+  while (true) {
+    await sock.send("some work")
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+}
+ 
+run()
+
+---worker.js
+const zmq = require("zeromq")
+ 
+async function run() {
+  const sock = new zmq.Pull
+ 
+  sock.connect("tcp://127.0.0.1:3000")
+  console.log("Worker connected to port 3000")
+ 
+  for await (const [msg] of sock) {
+    console.log("work: %s", msg.toString())
+  }
+}
+ 
+run()
+ 
+ 
+---publisher.js
+const zmq = require("zeromq")
+ 
+async function run() {
+  const sock = new zmq.Publisher
+ 
+  await sock.bind("tcp://127.0.0.1:3000")
+  console.log("Publisher bound to port 3000")
+ 
+  while (true) {
+    console.log("sending a multipart message envelope")
+    await sock.send(["kitty cats", "meow!"])
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+}
+ 
+run()
+
+---subscriber.js
+const zmq = require("zeromq")
+ 
+async function run() {
+  const sock = new zmq.Subscriber
+ 
+  sock.connect("tcp://127.0.0.1:3000")
+  sock.subscribe("kitty cats")
+  console.log("Subscriber connected to port 3000")
+ 
+  for await (const [topic, msg] of sock) {
+    console.log("received a message related to:", topic, "containing message:", msg)
+  }
+}
+ 
+run()
+=================redis
+https://www.npmjs.com/package/redis
+
+npm install redis
+
+
+
+const redis = require("redis");
+//const client = redis.createClient();
+const client = redis.createClient({
+	"host": '127.0.0.1',
+	"port": 6379,
+	"password": "123",
+	"db": 1
+});  //enable TLS use  rediss://
+ 
+client.on("error", function(error) {
+  console.error(error);
+});
+ 
+client.set("key", "value", redis.print);
+client.get("key", redis.print);
+
+
+client.set("foo", "bar"); 
+client.get("foo", function(err, reply) {
+  // reply is null when the key is missing
+  console.log(reply);
+});
+
+=================socket.io
+是一个WebSocket库,包括了客户端的js和服务器端的nodejs
+数据推送到客户端
+
+https://socket.io/
+https://github.com/socketio/socket.io
+
+npm install socket.io
+
+---node 端的js 
+const io = require('socket.io')();
+io.on('connection', client => { console.log('client connected') });
+io.listen(3000);
+
+---node 端的js 使用htp
+
+const server = require('http').createServer();
+const io = require('socket.io')(server);
+io.on('connection', client => {
+  client.on('event', data => { console.log('client event') });
+  client.on('disconnect', () => { console.log('client disconnect') });
+});
+server.listen(3000);
+
+---node 端的js 使用express
+npm install express
+
+const app = require('express')();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+
+
+app.get('/', (req, res) => {
+  //res.send('<h1>Hello world</h1>');
+   res.sendFile(__dirname + '/index.html');
+});
+app.get('/client/socket.io.js', (req, res) => { 
+	 res.sendFile(__dirname + '/client/socket.io.js');
+  });
+app.get('/client/jquery-3.5.0.min.js', (req, res) => { 
+	res.sendFile(__dirname + '/client/jquery-3.5.0.min.js');
+ });
+io.on('connection', (socket) => { 
+	 console.log('a user connected');  
+	 socket.on('disconnect', () => {
+		console.log('user disconnected');
+	  });  
+	  socket.on('chat message', (msg) => {//接收客户端的事件
+		console.log('message: ' + msg); 
+		io.emit('chat message', msg);//向所有客户端发送事件
+	  });
+}); 
+server.listen(3000);
+
+----客户端 
+可以在 node_modules/socket.io-client/dist/socket.io.js 中找到
+<script src="client/socket.io.js"></script> 
+<script src="client/jquery-3.5.0.min.js"></script>
+<script>
+  
+$(function () {
+    var socket = io();
+    $('form').submit(function(e) {
+      e.preventDefault(); // prevents page reloading
+      socket.emit('chat message', $('#m').val()); //向服务端发送事件带参数
+      $('#m').val('');
+      return false;
+	});
+	socket.on('chat message', function(msg){ //接受服务端发来的事件
+      $('#messages').append($('<li>').text(msg));
+	});
+	
+  });
+</script>
+  </head>
+  <body>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+  </body>
+</html>
+会有 socket.io/?EIO=3&transport=polling  和  socket.io/?EIO=3&transport=websocket 这样的请求 
+
+//-----cluster 
+const cluster = require('cluster');
+const http = require('http');
+const numCPUs = require('os').cpus().length;
+
+if (cluster.isMaster) {
+  console.log(`主进程 ${process.pid} 正在运行`);
+
+  // 衍生工作进程。
+  for (let i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
+
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(`工作进程 ${worker.process.pid} 已退出`);
+  });
+} else {
+  // 工作进程可以共享任何 TCP 连接。
+  // 在本例子中，共享的是 HTTP 服务器。
+  http.createServer((req, res) => {
+	res.setHeader('content-type', 'text/html;charset=UTF-8');
+	res.writeHead(200); 
+    res.end('你好世界\n');
+  }).listen(8000);
+
+  console.log(`工作进程 ${process.pid} 已启动`);
+}
+---------bluebird
+http://bluebirdjs.com/docs/getting-started.html
+可用于浏览器的Promise增强， Bluebird supports cancellation 
+
+npm install bluebird
+var Promise = require("bluebird");
+import * as Promise from "bluebird";
+
+
+//development
+Promise.config({
+    longStackTraces: true,
+    warnings: true  
+})
+/*
+//production
+Promise.config({
+    longStackTraces: false,
+    warnings: false
+})
+*/
+
+----cron
+https://www.npmjs.com/package/cron
+
+npm install cron
+
+var CronJob = require('cron').CronJob;
+var job = new CronJob('* * * * * *', function() {
+  console.log('You will see this message every second');
+}, null, true, 'America/Los_Angeles');
+job.start();
+
+
+同Java的Quartz，但不同于linux是没有秒的
+Seconds: 0-59
+Minutes: 0-59
+Hours: 0-23
+Day of Month: 1-31
+Months: 0-11 (Jan-Dec)
+Day of Week: 0-6 (Sun-Sat)
+
+---- winstone 日志  
+https://www.npmjs.com/package/winston
+npm install winston
+
+const winston = require('winston');
+ 
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  defaultMeta: { service: 'user-service' },
+  transports: [
+    //
+    // - Write all logs with level `error` and below to `error.log`
+    // - Write all logs with level `info` and below to `combined.log`
+    //
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
+});
+ 
+//
+// If we're not in production then log to the `console` with the format:
+// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
+//
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple(),
+  }));
+}
+/*
+可用的日志级别
+const levels = { 
+  error: 0,
+  warn: 1,
+  info: 2,
+  http: 3,
+  verbose: 4,
+  debug: 5,
+  silly: 6
+};
+*/
+ 
+logger.log({
+  level: 'info',
+  message: 'Hello distributed log files!'
+});
+ 
+logger.info('Hello again distributed logs');
+logger.error('Hello error logs');
+
+---日志滚文件
+npm install winston-daily-rotate-file
+https://www.npmjs.com/package/winston-daily-rotate-file
+
+ var winston = require('winston');
+  require('winston-daily-rotate-file');
+ 
+  var transport = new (winston.transports.DailyRotateFile)({
+    filename: 'application-%DATE%.log',
+    datePattern: 'YYYY-MM-DD-HH',
+    zippedArchive: true,
+    maxSize: '20m',
+    maxFiles: '14d'
+  }); //最多保留14天的
+ 
+  transport.on('rotate', function(oldFilename, newFilename) {
+    // do something fun
+  });
+ 
+  var logger = winston.createLogger({
+    transports: [
+      transport
+    ]
+  });
+ 
+  logger.info('Hello World!');
+
+
+----jsonwebtoken
+https://www.npmjs.com/package/jsonwebtoken
+
+npm install jsonwebtoken
+ 
+require('jsonwebtoken')
+
+//Synchronous Sign with default (HMAC SHA256)
+
+var jwt = require('jsonwebtoken');
+var token = jwt.sign({ foo: 'bar' }, 'shhhhh');
+
+----cookie-parser
+
+
 
 

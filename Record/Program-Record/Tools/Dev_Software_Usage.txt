@@ -1,6 +1,7 @@
 ﻿
 ============================Netbeans-8.2 最后一个oracle版本===============================
 apache下11.2版本 支持JDK11
+apache 12
 netbeans-11.2-bin\netbeans\etc\netbeans.conf 中要修改 netbeans_jdkhome 的配置才可启动
 
 支持Gradle
@@ -262,57 +263,6 @@ MSYS2 是 起源于 cygwin,
 Git 使用MSYS2
 Git GUI ->option->Default file contnes Encodeing:修改为UTF-8/GBK
 
------Source Tree-2.4.8.0 是Git 客户端工具 免费
-GitLab 服务端
-
-SourceTree 安装之后需要使用账号登陆以授权，以前是可以不登陆的
-安装之后，转到用户本地文件夹下的 SourceTree 目录，没有则新建
-
-%LocalAppData%\Atlassian\SourceTree\
-
-新建 accounts.json 文件
-
-%LocalAppData%\Atlassian\SourceTree\accounts.json
-
-输入以下内容保存即可
-复制代码
-
-[
-  {
-    "$id": "1",
-    "$type": "SourceTree.Api.Host.Identity.Model.IdentityAccount, SourceTree.Api.Host.Identity",
-    "Authenticate": true,
-    "HostInstance": {
-      "$id": "2",
-      "$type": "SourceTree.Host.Atlassianaccount.AtlassianAccountInstance, SourceTree.Host.AtlassianAccount",
-      "Host": {
-        "$id": "3",
-        "$type": "SourceTree.Host.Atlassianaccount.AtlassianAccountHost, SourceTree.Host.AtlassianAccount",
-        "Id": "atlassian account"
-      },
-      "BaseUrl": "https://id.atlassian.com/"
-    },
-    "Credentials": {
-      "$id": "4",
-      "$type": "SourceTree.Model.BasicAuthCredentials, SourceTree.Api.Account",
-      "Username": "",
-      "Email": null
-    },
-    "IsDefault": false
-  }
-]
-
-会找PATH中的git，修改要重启source tree
-
-这个两种方式不行的
-C:\Program Files\TortoiseGit\bin
-%HOMEPATH%\AppData\Local\Programs\Git\mingw64\bin\  安装不能是git bash方式
-
-工具-> 选项->一般->SSH 客户端->可选 openSSH
-
-不行就用内嵌的git
-
-----
 
 直接下载.exe,安装后有一个基本的系统
  
@@ -350,8 +300,36 @@ Run 时 ，删Cygwin了也使用cygwin的bash 命令(删注册表后使用msys2�
 	右击项目->Propertis-> Run->Console Type 选择  Standard Output 或 External Terminal   就可以了
 	.exe 生成在dist\Debug\<工具链名>-Windows.exe 
 
-------- cygwin  测试 OK
 
+
+------------cygwin 使用
+下载的 Cygwin_x64 ,双击进入安装界面时 Category 下拉选择 full
+2020-05-15 时 cygcheck -c cygwin  显示为 3.1.4-1
+
+64位的	gcc-9.3.0-2  ,mingw64-x86_64-gcc-core--9.2.0-2
+		gcc-g++-9.3.0-2 ,mingw64-x86_64-gcc-g++-9.2.0-2
+		#gcc-objc 可选
+		gdb-8.2.1-1
+		make-4.3-1
+下面可选 
+		curl-7.66.0 (可单独下载win版本)
+		vim-8.2 (可单独下载win版本gvim)
+		tmux 可以分隔多个命令行窗口 
+			tmux 进入,如退出exit或ctrl+d,ctrl+b 再?显示所有快捷键
+		   tmux split-window  划分上下两个窗格  ( Ctrl+b ")
+		   tmux split-window -h 划分左右两个窗格 (Ctrl+b %)
+		   #tmux select-pane -U 光标切换到上方窗格
+			Ctrl+b <arrow key>：光标切换到其他窗格
+			Ctrl+b Ctrl+<arrow key>：按箭头方向调整窗格大小
+		openssh
+		
+PATH=D:\Program\cygwin\bin
+ 
+cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make       -u, --unix
+cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make  -m, --mixed
+cygcheck -c cygwin  显示当前Cygwin 安装的版本	 -c, --check-setup
+
+------- cygwin  测试 OK
 把 C:\cygwin64\bin放在PATH中再启netbeans也不能识别,可能是找不到g++ ,因文件名是 x86_64-w64-mingw32-g++.exe
 
 Tools -> Options -> C++ ->Build Tools -> Add... ->选择目录 C:\cygwin64 ,Tool Collection Family 选择 GNU Cygwin
@@ -372,9 +350,33 @@ C:\cygwin64\usr\x86_64-w64-mingw32\sys-root\mingw\bin 设置到PATH中 ,重启Ne
 HKEY_LOCAL_MACHINE\SOFTWARE\Cygwin
 HKEY_CURRENT_USER\Software\Cygwin
 
+-----gitbash
+ls / 是没有c盘的 ,如使用C盘  ls /c 即可,
+自带 vi,ssh 工具
+
 ----- VC 2015
 VC 2015 编译器配置在path 环境变量中,NetBeans也检查不到  ,而eclispe CDT 是有Microsoft Visual C++ 可选的
 
+
+-----Source Tree-2.4.8.0 是Git 客户端工具 免费
+GitLab 服务端
+
+SourceTreeSetup-3.3.9 要 .netframework-4.7.1,安装时可skip注册,可取消 Mercurial
+安装之后，转到用户本地文件夹下的 SourceTree 目录，没有则新建
+
+安装在 %LocalAppData%\SourceTree 目录下
+%LocalAppData%\Atlassian\SourceTree\
+
+
+会找PATH中的git，修改要重启source tree
+
+这个两种方式不行的
+C:\Program Files\TortoiseGit\bin
+%HOMEPATH%\AppData\Local\Programs\Git\mingw64\bin\  安装不能是git bash方式
+
+工具-> 选项->一般->SSH 客户端->可选 openSSH
+
+----
 ============= NetBeans 8.1 安装  NBAndroid 插件/模块  
  
 在线安装  Tools->plugins 在Settings 标签中Add 一个起名为NBAndroid,地址为 http://nbandroid.org/release81/updates/updates.xml 
@@ -441,7 +443,7 @@ tool properties...->general 有提示 -prefsdir
 help->about->command line 有提示 命令行加参数 -prefsdir 参数修改目录 ,默认%USERPROFILE%/.dbvs目录
 	即在快捷方式为 dbvis-multi.exe -prefsdir D:\Program\dbvis_data 修改目录还是保留license的
 
-Oracle是自动提交的，不同PL/SQL Developer
+Oracle是自动提交的，不同PL/SQL Developer，双击连接properties标签->左侧Transaction->可以复选 Auto Commit
 
 在软件目录的jdbc目录自带一些JDBC(所在目录,最好不要有中文,空格)
 
@@ -479,6 +481,9 @@ Tools Properties->Key Binding->默认选中Default->Make Copy->Action中选Edit�
 
 右击数据库->export database->
 右击表->export table->可选sql, 如选csv 要设置column delimiter为逗号，row delimiter为windows换行
+
+打开表后有 References 标签 ，可以看到这个相关的主外键关系 ，生成速度有点慢，布局好，ctrl+滑轮不能以光标为中心
+
 
 
 如果查询结果为   0.0000000  显示科数法 ??????  
@@ -630,6 +635,7 @@ SUSE 用cp /usr/share/fonts/truetype/FZHeiTi.ttf  /usr/local/jdk1.6/jre/lib/font
 
 windows 下
 	工具 -> 首选项 ->  环境 ->  编码 修改成 utf8
+保存文件编码可能只支持UTF8
 
 1.sqldeveloper 3 修改界面语言为英语 
 	D:\Program\sqldeveloper\sqldeveloper\bin\目录下的sqldeveloper.conf中加入
@@ -649,8 +655,23 @@ sqldeveloper-4.0.0.13.80-no-jre\sqldeveloper\bin\sqldeveloper.conf  有 SetJavaH
 日期默认不显示时间
 工具->首选项->数据库->NLS->日期格式: DD-MON-RR 修改为: YYYY-MM-DD HH24:MI:SS
 
-ssh视图中 建立ssh连接做跳板机，设置监听端口，就可以再建立数据库时，指定本机localhost和前面的建立端口
+%USERPFORILFE%/AppData/Roaming/SQL Developer/下的System<Version>目录存配置
 
+view->ssh视图中 右击ssh host->new ssh host输入主机,端口22,来建立ssh连接做跳板机,可以使用私钥导入
+	PUTTYGEN.exe 可以导出.ppk文件(Putty private key)
+
+右击建立的主机->new local port forward->输入名字,目标远程主机和端口如1521,单选use specific local port 输入如6266,
+就可以再建立数据库时，指定本机localhost和前面的建立端口6266端口
+
+Preferences -> database -> Advanced -> 可以复选 Auto commit
+
+可查看视图SQL,DBvisulizer 和DBeaver不行的
+
+=============  SQL Developer Data Modeler============= 
+可以建立逻辑模型
+看现有的物理模型 ,file->import->data dictionary->建立数据库连接->选择schema-> 选择表->全选要ctrl+a ->在点下方的Select All按钮
+生成图表可以 ctrl+滑轮 放大缩小，但不能是以光标为中心有bug,图有点乱，要重新开，才能好
+可以ctrl+f 搜索表名，type选择table relation,双击记录 弹出的框中选中foreign key 可以看到有哪些外键
 
 =============  TOAD for Oracle =============  最新的 2017 R2 版本安装还要license,安装中还失败
 64位的Toad 只能用64位的客户端,可用InstantClient
@@ -814,8 +835,10 @@ extension=mongodb
 
  
 -------------DBeaverEE 可 mongoDB , Redis
+有CE免费版本,基于 eclipse
 有eclipse插件和各系统的独立包,见eclipse中
 windows版本要打开防火墙,Inbound rule
+CE版本可以查看BLOB内容 ,可以写sql时自动提示,比DBvisulizer free版本强
 
 https://dbeaver.com/docs/wiki/Workspace-Location/
 配置连接所在目录  %USERPROFILE%\AppData\Roaming\DBeaverData
@@ -825,7 +848,9 @@ https://dbeaver.com/docs/wiki/Workspace-Location/
 如要修改命令行增加 -data <path>
 如快捷方式为  dbeaver.exe -data D:\Program\dbeaver-ee-7_data 不影响license
 
+
 SQL编辑器 菜单 ->SQL编辑器(F3)
+不支持中文，dbeaver.ini 文件中尾加新行 -Dfile.encoding=UTF-8
 
 可以方便导入csv，但不能导出成文件
 
@@ -841,6 +866,11 @@ SQL编辑器 菜单 ->SQL编辑器(F3)
 表数据较多时 显示取数据前少行, 排序表格列是调用order by来排 
 
 刚启动MySQL服务，如果没有其它工具连接，DBeaver也连接不上，报Public Key Retrieval is not allowed，修改DBeaver连接allowPublicKeyRetrieva=true
+打开表后有 ER Diagram标签 ，可以看到这个相关的主外键关系 ，生成速度快，布局好，ctrl+滑轮 不能以光标为中心
+
+设置事务自动提交  Preferences->DBeaver->Connection Type-> 复选框 auto-commit  by default
+
+
 
 ----------- phphbaseadmin github上已经有6年没有更新，有中文
 -----------SQuirrel SQL Client 
@@ -960,8 +990,22 @@ Extra Class Path中选择xxx ??? ,ClassName 默认为 mongodb.jdbc.MongoDriver
 
 合并时如有冲突可以修改代码，保存为解决冲突 -> commit & push 
 
-git 清除已保存的密码 测试OK
-TortoiseGit -》 setttings->Git->点edit systemwide gitconfig按钮
+git 清除已保存的密码 测试OK，后面每次都要密码
+TortoiseGit -> setttings->Git-> 点edit systemwide gitconfig按钮,删除文件中的[credential]区
+
+清clone历史记录 
+TortoiseGit -> setttings->Save Data-> URL history旁边的 Clear按钮
+
+配置私钥
+  Settings -> Git Remote -> add new 按钮 -> remote: 中的值一定要和 git remote -v 显示的名字一样，一般为origin ,
+	URL: 中输入 user1@host1:group1/project1 ,
+	Push URL:中可为空，不影响push操作
+	putty key: 中是使用putty gen工具 生成的文件 
+
+在commit代码时,如有不是自己的代码(和idea的不显示是不一样的),这是在pull操作拉下来其它同事的代码,默认是选中的,不要取消选择中
+
+clone... -> 可以复选 load putty ->选择私钥文件
+
 
 ------------GitExtensions 免费Git工具(windows) 
 	默认要kdiff3做为比较合并工具,可选择BeyondCompare3,4 也要sh可用git,或者cygwin
@@ -1112,7 +1156,18 @@ preferences->protocol->SSL-> (Pre)-Master-Secret log filename选文件/tmp/key.l
 
 
 
------------- Bitvise tunnelier
+------------ Bitvise SSH Client 8.43
+界面工具可以做本机端口转发远程主机和端口
+
+如要使用私钥登录 ->下方的Client Key manager链接 -> 在弹框中import 私钥，在Authentication的Inital Method选择 public key,
+	在client key下拉选择刚刚导入的-> login
+C2S(Client to Server)标签，Add按钮-> 
+	Listen interface : 127.0.0.1
+	Listen port :本地相要监听的端口
+	Destination Host: 远程主机
+	Dest.Port : 远程端口
+
+
 
 ------------Xmanager
 Xmanager 5版本中, 没有xshell  可选择xterm的终端类型
@@ -1139,18 +1194,36 @@ sz  file.txt 将选定的文件发送（send）到本地机器
 日志输出到文件  
 右击标题栏->change settings->Session组下的Logging 选择 All session output(才能输出中文) ,再选择输出文件,apply
 
+
 连接到远程机器后,右击标题栏->change settings->Connection->SSH->Tunnels 中 
 source port 中写本地端口如8888 ,Destination写远程如192.168.190.134:8080 ->add ->apply
 就可以 http://127.0.0.1:8888/testWeb/index.jsp -> http://192.168.190.134:8080/testWeb/index.jsp ,
+也可事先保存起来，和IP一起保存（类型Bitvise SSH Client
  
 Putty 比XShell 好的是 在终端一行显示不下的假换行,在复制到文本中不会换行如mysql一行数据较长
 当然缺点是不能用sz ,rz 不能建立常用命令快捷方式
+
+ 
+putty.exe -cleanup　可以删除所有的记录,密钥
+删 HKEY_CURRENT_USER\Software\SimonTatham\ 下的所有东西也可重置
+
+PUTTYGEN.exe 可以导出.ppk文件(Putty private key)，也可转换conversion->exort open ssh
+
+Connection->SSH->Auth 可以选择一个私钥
+
+ssh -i /xx/ssh_private_file xuser@xhost (这个文件是puttygen 工具 conversion -> export open ssh转ppx文件到ssh文件) 就可无密码登录了
+
+
+
+
 ------------ FileZilla
 help->about 查看 默认 文件目录为 %APPDATA%\FileZilla
 
 ---Secure Shell
 
 ---SecureCRT
+SecureCRT 中 会话选项->外观中修改为UTF-8
+export LANG=zh_CN.UTF-8
 
 ----------firebug 
 	可以动态内firefox中增加,删除,修改,DOM内容  (注意自己的网站安全)
@@ -1212,6 +1285,7 @@ Maven项目
    
   BugZilla(Perl)
   HP QC(Quality Center)
+  
 --------- starUML
 Model->Add Diagram->Sequence Diagram
  
@@ -1266,6 +1340,17 @@ File->preferences-> extensions  可以在线安装 各种语言的 如 C/C++(Min
  
 ----- Node JS
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
+
+
+-----自带比较工具
+ 右击文件->select for Compare ,再右击一个文件 -> compare with selected 
+
+
+-----自带Git功能 
+ctrl+shift+p,空项目时有提示，输入命令git:clone但会提示未尾有错误，不如TortoiseGit好用
+source control 视图-> 可以右击多个文件 -> discard change ,stage change 
+---- 扩展(git history extension)
+右击文件/目录 -> Git:view file history
 
 ---- 扩展(React)
 %HOMEPATH%\AppData\Local\Microsoft\TypeScript\3.1\node_modules\@types\react-dom
@@ -1391,9 +1476,6 @@ ctrl+shift+p,空项目时有提示，输入命令Spring Initializr:create maven 
 写application.properties或application.yml会有提示
 但properties文件不能对中文做编码???
 
------自带Git功能 
-ctrl+shift+p,空项目时有提示，输入命令git:clone但会提示未尾有错误，不如TortoiseGit好用
-
 -----扩展XML
 根据DTD,Schema 可写时有提示
 -----扩展 .proto  
@@ -1459,12 +1541,16 @@ apm install nuclide 提示会安装到 %HOMEPATH%\.atom\packages 目录    网�
  open-in-browser  0.5.2 
  右击代码区 ->open in browser
  
+---------confluence
 
----showdoc 在线文档工具  v1.8.6 
+---------showdoc 在线文档工具  v1.8.6 
 PHP项目
 https://github.com/star7th/showdoc/releases
 让这几个目录有写的权限  /install, /Application/Runtime ,/Public/Uploads,/Sqlite,/Sqlite/showdoc.db.php
 
----pinpoint 可监控，出了问题时在哪个系统在哪里有问题
+---------pinpoint 可监控，出了问题时在哪个系统在哪里有问题
 pinpoint 1.7.1 要求 HBase 1.2.x	 
 https://github.com/naver/pinpoint
+
+
+

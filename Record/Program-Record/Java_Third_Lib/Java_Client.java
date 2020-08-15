@@ -1352,9 +1352,13 @@ Hazelcast IMDG 开源的 in-memory data grid
 hazelcast-4.0.1\bin\start.bat 启动服务
 
 hazelcast-4.0.1\management-center\start.bat 启动管理界面 
-http://127.0.0.1:8080 第一次启动要求注册 用户名/密码 (至少8个字符,数字,字母,特殊符号)如 hazelcast/HazelFree$,
+http://127.0.0.1:8080 第一次启动要求注册 用户名/密码 (至少8个字符,数字,字母,特殊符号)如 hazelcast/HazelFree$
 	Add Cluster Config按钮 cluster Name默认为dev,选中建立的,可以看到很多信息,可以用程序连接
 	console标签，可以输入命令,help帮助
+
+docker run hazelcast/hazelcast:$HAZELCAST_VERSION
+docker run -e JAVA_OPTS="-Dhazelcast.local.publicAddress=<host_ip>:5701" -p 5701:5701 hazelcast/hazelcast:$HAZELCAST_VERSION
+ 
 
 package cache_hazelcast;
 
@@ -1427,50 +1431,178 @@ public class DistributedMap {
 
 }
 
---spring session hazelcast 见 SpringMVC
-
--------------DynamoDB 亚马逊云的NoSQL
-https://docs.aws.amazon.com/zh_cn/dynamodb/index.html 
-
-
-下载本机运行版本
-https://docs.aws.amazon.com/zh_cn/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html 
-
-java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb
-
-
-默认情况下，DynamoDB 使用端口 8000
-看帮助有 -port
-java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -help
-
-
-
-下载commond line interface = cli
-https://amazonaws-china.com/cli/ 
-	默认安装在 C:\Program Files\Amazon\AWSCLIV2\aws.exe
-	
-https://docs.aws.amazon.com/zh_cn/amazondynamodb/latest/developerguide/workbench.settingup.html 下载 NoSQL Workbench
-
-
+ IMap<String, String> mapLock = h.getMap("my-map-lock");
+ mapLock.putIfAbsent("record1","value1");//上一线程在锁中，这里阻塞,多个Java进程间也是一样的
+ mapLock.lock("record1");
+ System.out.println("locking");
+ mapLock.unlock("record1");
  
-<dependencies>
-    <dependency>
-       <groupId>com.amazonaws</groupId>
-       <artifactId>DynamoDBLocal</artifactId>
-       <version>1.12.0</version>
-    </dependency>
-</dependencies>
+---java client
+ClientConfig clientConfig = new ClientConfig();
+clientConfig.setClusterName("dev");
+//先start.bat启动两个hazelcast服务
+clientConfig.getNetworkConfig().addAddress("127.0.0.1:5701", "127.0.0.1:5702");
+HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
+IMap<Integer, String> mapCustomers = client.getMap("MyMap"); //creates the map proxy
 
-<!--Custom repository:-->
-<repositories>
-    <repository>
-       <id>dynamodb-local-oregon</id>
-       <name>DynamoDB Local Release Repository</name>
-       <url>https://s3-us-west-2.amazonaws.com/dynamodb-local/release</url>
-    </repository>
-</repositories>
-这个可能快些 https://s3.ap-northeast-1.amazonaws.com/dynamodb-local-tokyo/release
+mapCustomers.put(1, "one");
+//当存了数据后，management-center服务后UI http://127.0.0.1:8080 可以Storage->Maps进入 MyMap-> Map Browser 按钮->键输入为1，类型选择integer, 查看值
+IQueue<String> clusterQueue=client.getQueue("MyQueue");
 
+clusterQueue.add("element1");
+System.out.println(clusterQueue.size());
+System.out.println(clusterQueue.poll());
+System.out.println(clusterQueue.size());
+
+
+
+--- 自带hazelcast-spring.jar
+com.hazelcast.spring.cache.HazelcastCacheManager
+
+
+--- spring session hazelcast 见 SpringMVC
+--- spring boot hazelcast 见 SpringBoot
+
+==============ZeroMQ
+不是中间件,没有broker,即没一个服务器，只一个库,支持很多种语言
+zero latency
+
+和netty类似支持0拷贝，epoll实现 
+
+zero broker 
+zero cost 免费
+zero administration.
+
+Libzmq expose C-API and implemented in C++. (low-level library )
+
+--JavaAPI有三个,JeroMQ,JZMQ,JCZMQ 这里用 JeroMQ
+
+ <dependency>
+  <groupId>org.zeromq</groupId>
+  <artifactId>jeromq</artifactId>
+  <version>0.5.2</version>
+</dependency>
+
+jeromq-0.5.2.jar
+	jnacl-1.0.0.jar
+	
+public class hwserver
+{
+    public static void main(String[] args) throws Exception
+    {
+        try (ZContext context = new ZContext()) {
+            // Socket to talk to clients
+            ZMQ.Socket socket = context.createSocket(SocketType.REP);
+            socket.bind("tcp://*:5555");
+
+            while (!Thread.currentThread().isInterrupted()) {
+                // Block until a message is received
+                byte[] reply = socket.recv(0);//阻塞
+
+                // Print the message
+                System.out.println(
+                    "Received: [" + new String(reply, ZMQ.CHARSET) + "]"
+                );
+
+                // Send a response
+                String response = "Hello, world!";
+                socket.send(response.getBytes(ZMQ.CHARSET), 0);
+            }
+        }
+    }
+}
+
+
+public class hwclient
+{
+    public static void main(String[] args)
+    {
+        try (ZContext context = new ZContext()) {
+            //  Socket to talk to server
+            System.out.println("Connecting to hello world server");
+
+            ZMQ.Socket socket = context.createSocket(SocketType.REQ);
+            socket.connect("tcp://localhost:5555");
+
+            for (int requestNbr = 0; requestNbr != 10; requestNbr++) {
+                String request = "Hello";
+                System.out.println("Sending Hello " + requestNbr);
+                socket.send(request.getBytes(ZMQ.CHARSET), 0);
+
+                byte[] reply = socket.recv(0);
+                System.out.println(
+                    "Received " + new String(reply, ZMQ.CHARSET) + " " +
+                    requestNbr
+                );
+            }
+        }
+    }
+};
+public class version
+{
+    public static void main(String[] args)
+    {
+        String version = ZMQ.getVersionString();
+        int fullVersion = ZMQ.getFullVersion();
+
+        System.out.println(
+            String.format(
+                "Version string: %s, Version int: %d", version, fullVersion
+            )
+        );
+    }
+} 
+
+/**
+ * Pubsub envelope publisher
+ */
+public class psenvpub
+{
+
+    public static void main(String[] args) throws Exception
+    {
+        // Prepare our context and publisher
+        try (ZContext context = new ZContext()) {
+            Socket publisher = context.createSocket(SocketType.PUB);
+            publisher.bind("tcp://*:5563");
+
+            while (!Thread.currentThread().isInterrupted()) {//一直发
+                // Write two messages, each with an envelope and content
+                publisher.sendMore("A");//相当于标题
+                publisher.send("We don't want to see this");//相当于内容，要和标题一起发送
+                publisher.sendMore("B1");
+                publisher.send("We would like to see this");
+            }
+        }
+    }
+}
+
+
+/**
+ * Pubsub envelope subscriber
+ */
+
+public class psenvsub
+{
+
+    public static void main(String[] args)
+    {
+        // Prepare our context and subscriber
+        try (ZContext context = new ZContext()) {
+            Socket subscriber = context.createSocket(SocketType.SUB);
+            subscriber.connect("tcp://localhost:5563");
+            subscriber.subscribe("B".getBytes(ZMQ.CHARSET));//订B开头的消息
+
+            while (!Thread.currentThread().isInterrupted()) {
+                // Read envelope with address
+                String address = subscriber.recvStr();//阻塞直到有内容
+                // Read message contents
+                String contents = subscriber.recvStr();
+                System.out.println(address + " : " + contents);
+            }
+        }
+    }
+}
 
 -------------MySQL XDevApi Table 表 
 JavaScript 版本见 MySQL_Developer.sql

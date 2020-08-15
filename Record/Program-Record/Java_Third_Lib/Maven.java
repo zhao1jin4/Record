@@ -69,7 +69,7 @@ mvn -version
 mvn -e		full stack trace of the errors
 mvn clean install -e -U
 -e详细异常，-U强制更新
-
+-pl --projects
 mvn compile
 mvn test-compile
 
@@ -144,7 +144,7 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 	  <properties>
 		<!-- <url>http://repo1.maven.org/maven2/</url>  这里是配置公用的第三方包 http://search.maven.org/#browse
 					http://central.maven.org/maven2
-					http://repo.spring.io/libs-release/ 
+					https://repo.spring.io/libs-release/ 
 					http://maven.aliyun.com/nexus/content/groups/public
 			-->
 		<release_deployment_url>http://localhost:8080/my/repo</release_deployment_url>
@@ -266,10 +266,11 @@ artifactId 是自己的项目名
 	<finalName>${project.artifactId}-${project.version}</finalName>
 	<resources>
 		<resource>
-			<directory>src/main/resources</directory>
+			<directory>src/main/resources</directory> <!-- 这里可变量${env}  ,使用mvn install -Denv=dev来传递 -->
 			<excludes>
 				<exclude>dubbo.properties</exclude>
 			</excludes>
+			<!-- 如为 <filtering>true</filtering> 表示<directory>中的目录是要的-->
 		</resource>
 	</resources> <!-- 或者使用下面的war插件 -->
 	<plugins>
@@ -592,9 +593,27 @@ artifactId 是自己的项目名
 	  </configuration>
 	</plugin>
   
-  
-  
-  
+   <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId> 
+        <version>1.10.0</version> 
+		<executions>
+			<execution> 
+				<id>install node and npm</id>
+				<goals>
+					<goal>install-node-and-npm</goal>
+				</goals>
+				<phase>generate-resources</phase> <!-- 默认是 "generate-resources" 可以加 -Dskip.npm 跳过 -->
+			</execution>
+		</executions>
+		<configuration>
+			<nodeVersion>v12.16.1</nodeVersion>
+			<npmVersion>6.13.4</npmVersion> 
+			<downloadRoot>https://nodejs.org/dist/</downloadRoot>
+		    <workingDirectory>src/main/frontend</workingDirectory>
+			<installDirectory>target</installDirectory>
+		</configuration>
+    </plugin>
   
 	</plugins>
   </build>
@@ -624,7 +643,7 @@ artifactId 是自己的项目名
     <repository>  
         <id>central</id>  
         <name>Maven Repository Switchboard</name>  
-        <url>http://repo.spring.io/libs-release/</url>  
+        <url>https://repo.spring.io/libs-release/</url>  
         <layout>default</layout>  
         <snapshots>  
             <enabled>false</enabled>  
@@ -634,7 +653,7 @@ artifactId 是自己的项目名
 <pluginRepositories>
 	<pluginRepository>
 		<id>dev_nexus</id>
-		<url>http://repo.spring.io/libs-release/</url>
+		<url>https://repo.spring.io/libs-release/</url>
 		<releases>
 			<enabled>true</enabled>
 		</releases>
@@ -799,13 +818,15 @@ mvn compile  编译
 mvn test 编译test目录并运行,
 mvn package  打包,会先做 compile,对应pom.xml中的<packaging>jar</packaging> ,my-app/target  下生成.jar
 mvn deploy -Dmaven.test.skip=true  会先做 package,把新包部署到远程Maven仓库 ,pom.xml要配置 <distributionManagement> 密码配置在setting.xml
-	
+	-Dtest=HelloTest -Dtest=\!IngoreTest,\!IngoreTest2
 mvn install  也可 eclipse 中 run as ->maven install 会打新包到本地仓库
 mvn clean compile   可以几个目标一起执行
 mvn package -e 查看错误信息
 mvn clean package -Dmaven.test.skip=true    跳过编译测试类,生成.war包中的/lib/没有重复的.jar
 mvn install -DskipTests     跳过test的执行，但要编译  
- --update-snapshots  更新snapshots的依赖包
+	--update-snapshots  更新snapshots的依赖包
+	-P ,--activate-profiles <arg> 默认激活的profile
+	
 
 mvn clean compile -e -U  其中 -e 显示错误，-U强制更新snapshots和缺少的release
 

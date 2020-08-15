@@ -714,6 +714,10 @@ con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);//MySQL 默�
 con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 //Oracle 只支持  READ COMMITTED  和 SERIALIZABLE; 
 
+Savepoint savePoint1 = con.setSavepoint("savePoint1");
+con.commit();//不能 commit 某一个savepoint,不能嵌入式事务，commit后再rollback报错
+con.rollback(savePoint1);
+
 MySQL XdevApI 见Java_Third_Lib
  
  
@@ -728,6 +732,11 @@ Class-Path: . lib/swt.jar mysql.jar
 jar包里包含jar包,不行的,必须用eclipse->export->runnable jar->package required libraries
 Rsrc-Main-Class: my.Base64SwingTextArea
 Main-Class: org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader
+
+jdk9新的module功能增加的
+Import-Package:
+Export-Package:
+
 
 eclipse 也可以把第三方jar包中class解包放到自己的jar中( extract 选项)
 
@@ -774,6 +783,10 @@ Collections 的类全部方法是static sort(List ,Comparator接口)
 											Comparator reverseOrder() 返序排列
 											min(),max();
 											binarySearch(); 要已经排序后的List
+Comparator.comparing(XX::getId()) //默认是升序，可以再反序
+Comparator<Dish> comparator= Comparator.comparing(Dish::getName).reversed().thenComparing(Dish::getType);
+    
+
 Collections.rotate(rotateList, 2);//把数组 最后2位 放在 最前面
 LindedList
 队列只能在队尾增加，队头删除
@@ -799,6 +812,14 @@ Properties 是对String类型 的键值对　load(InputStream)
 
 LinkedHashSet
 JDK 7新的排序 DualPivotQuicksort (在Arrays.sort方法中有使用)
+map.computeIfAbsent("key",k->new Object());相当于
+Object obj=map.getKey("key");
+if( obj==null){
+	obj=new Object();
+	map.put("key",obj);
+}
+
+
 
 --------------------------正则
 str.replaceAll("\\p{Alpha}",""); //字母删除
@@ -1166,7 +1187,9 @@ StackWalker.getInstance( StackWalker.Option.RETAIN_CLASS_REFERENCE).forEach(Syst
 
 
 --------------------------JDK9新特性
---module-path 如放JDK,为了兼容老版本的jar放 --class-path中(eclipse)
+--module-path  缩写为-p 如放JDK,为了兼容老版本的jar放 --class-path中(eclipse)
+--add-modules
+
 
 FileInputStream resource1 = new FileInputStream("c:/tmp/input.txt"); 
 FileInputStream resource2 = new FileInputStream("c:/tmp/input2.txt"); 
@@ -1359,6 +1382,9 @@ ZonedDateTime.of(dateAndTime, ZoneId.of("Asia/Shanghai"));//
  
 TimeZone.getTimeZone("GMT+8");//方式一
 TimeZone.getTimeZone(ZoneId.of("Asia/Shanghai"));//方式二
+
+TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"))
+	
 String[] countryCities=TimeZone.getAvailableIDs();//所有 大州/市
 
 java.time.ZonedDateTime.parse("2017-01-20T17:42:47.789+08:00[Asia/Shanghai]");
@@ -1431,7 +1457,9 @@ Optional accResult = Stream.of(1, 2, 3, 4)
 			return acc;
 		});
 System.out.println("accResult: " + accResult.get()); 
-
+List<Integer> ten=Stream.iterate(0,n->n+1).limit(10).collect(Collectors.toList());
+Collections.shuffle(ten);//随机置换
+System.out.println("ten: " + ten); 
 
 List<Integer> l = Arrays.asList(numbers);
 List<Integer> r = l.stream() //Stream<Integer>
@@ -1440,7 +1468,7 @@ List<Integer> r = l.stream() //Stream<Integer>
 		.filter(e -> e > 2)//参数为Predicate类型
 		 //.sequential()//串行
 		.distinct()
-		.collect(Collectors.toList());
+		.collect(Collectors.toList()); //toList,toMap返回的对象还是原来的引用
 	
 	
 List<Integer> list1=Arrays.stream(numbers).mapToInt( Integer::parseInt).mapToObj(Integer::new).collect(Collectors.toList());
@@ -3521,7 +3549,7 @@ x<<几位，结果就是x乘2的几次方
 Math.pow(2,3)//2的3次方，或者3的2次幂
 Math.round() 结果是整数
 / 结果是整数 
-BigDecimal   b   =   new   BigDecimal(0.032); 
+BigDecimal   b   =   new   BigDecimal(0.032); //不会有计算精度问题，比较要用compareTo，而不是equals
 double   f1   =   b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue();  
 
 # >>是带符号位的右移符号,x>>1就是x的内容右移一位,如果开头是1则补1,是0责补0,(x的内容并不改变).
@@ -4964,6 +4992,9 @@ public class TheImplFutureClass implements Runnable {
 
 		final CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> calc(50));
 		System.out.println(future1.get());
+		
+		final CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> calc(30));
+		CompletableFuture.allOf(future1,future2).join();
 		
 		CompletableFuture<Void> fu = CompletableFuture .supplyAsync(() -> calc(50)) 
 				.thenApply((i) -> Integer.toString(i))

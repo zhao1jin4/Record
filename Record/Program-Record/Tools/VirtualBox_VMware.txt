@@ -103,28 +103,6 @@ VirtualBox 6.0.x 新建时最高可选择 Mac OS X 10.13 High Sierra 客户机
  可以选择支持虚拟化 Enable VT-X/AMD-V
 
 
----linux  安装
-openSUSE-leap-15.1 下使用All distributions包，即VirtualBox-xxx.run  报错 Details: code NS_ERROR_FAILURE (0x80004005)
-卸载 VirtualBox-xxx.run 安装包生成的文件 /etc/vbox/vbox.cfg  里有写安装目录在 /opt/VirtualBox
-安装rpm包就可以
-
-openSUSE-leap-15.1
-rpm -ivh /mnt/iso/x86_64/libQt5PrintSupport5-5.9.7-lp151.3.1.x86_64.rpm
-rpm -ivh /mnt/iso/x86_64/libQt5OpenGL5-5.9.7-lp151.3.1.x86_64.rpm
-
-可在openSUSE-leap-15.1
-rpm -ivh VirtualBox-6.0-6.0.10_132072_openSUSE150-1.x86_64.rpm 
- 
-Creating group 'vboxusers'. VM users must be member of that group!
-/etc/vbox/vbox.cfg
-
-
-Created symlink /etc/systemd/system/multi-user.target.wants/vboxdrv.service → /usr/lib/systemd/system/vboxdrv.service.
-Created symlink /etc/systemd/system/multi-user.target.wants/vboxballoonctrl-service.service → /usr/lib/systemd/system/vboxballoonctrl-service.service.
-Created symlink /etc/systemd/system/multi-user.target.wants/vboxautostart-service.service → /usr/lib/systemd/system/vboxautostart-service.service.
-Created symlink /etc/systemd/system/multi-user.target.wants/vboxweb-service.service → /usr/lib/systemd/system/vboxweb-service.service.
----
-
 
 --------------VMWare Workstation
 VMWare Workstation 10 默认安装后全部服务启动
@@ -148,6 +126,8 @@ VMware Workstation Server
 网卡属性->Advanced...->Incoming Traffic 可限制下载速度
 				->Outgoing Traffic 可限制上传速度
 	
+Edit->virtual network editor->选中NAT网络，取消DHCP，NAT Setting 设置网关
+
 
 CPU属性-> 可以选中 Virtualize Inter VT-x/EPT or AMD-V/RVI
 

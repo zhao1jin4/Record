@@ -123,14 +123,16 @@ truncate table mysql.general_log ;
 右击线程组 -> 添加 -> 配置元件 ->  用户定义变量 加变量 city_1 ,city_2
 右击线程组 -> 添加 -> 逻辑控制器 ->ForEach控制器 ->输入变量前缀: city(对应上面建立的变量),输入变量名称:foreach_city,复选"add _ before number"
 	右击 ForEach控制器 -> 添加 -> 逻辑控制器 ->如果(if)控制器  条件中写 "${foreach_city}"=="beijin"
-		右击 如果(if)控制器  -> 添加 -> Sampler ->BSF Sampler->Language:选择JavaScript,Parameter:${foreach_city},Script:
+		右击 如果(if)控制器  -> 添加 -> Sampler ->BSF Sampler(DEPRECATE)->Language:选择JavaScript,Parameter:${foreach_city},Script:
 			var java_city = '${foreach_city}'+' is our capital';
 			java.lang.System.out.println(java_city);//可以在JMeter控制台显示
 
 	 右击 ForEach控制器 -> 添加 -> 配置元件 ->  CSV Data Set Config->FileName:输入文件路径,Delimiter:"," ,Variable Names:输入对应于文件列的变量名
 	 右击 ForEach控制器 ->添加 -> sampler->Http请求
 		 右击 Http请求 -> 添加 -> 断言->响应断言
-		 
+		
+Add->Post Processor-> JSON Extrator在Json Path Expression写表达式(参考json-path项目)
+		
 -------JMS
 	Add > Sampler > JMS Point-to-Point 
 	

@@ -212,7 +212,7 @@ outlook 2010 自动回复Out of Office, File->Info-> Automatic Replies
 建立邮件时->Options->Use Voting Button->custome...多个选项以;分隔,收到人选择发送后,可在邮件中单击"sender repond:xx"->view voting respond,查看投票结果
 
 撤回发送的邮件
-在已发送箱中双击邮件->action->recall this message->弹出对话框,如对方未读可以撤回,也可通知撤回成功的和失败的,等收件箱
+在已发送箱中双击邮件->Move组->recall this message->弹出对话框,如对方未读可以撤回,也可通知撤回成功的和失败的,等收件箱
 
 在日历视图中->如没有选中,空白处则有share Calendar按钮,如选中已有的活动有 private 按钮,可以看别人的日程安排,在左侧中MyCalener中右击->add calendar ->from address book增加联系人,选中就可看
 
@@ -225,6 +225,8 @@ options->advance->AutoArchive Settings
 按标题分组,视图->视图设置->分组依据...->第一个选择主题,       但问题是不会把新收到的邮件放在最上方,按时间排序没用的
 
 Office 2016 的Word 在win7 上运行,打开一个文件,内存增长很快?????
+
+拉圾邮件 ,右击邮件 -> rule -> always move from xx -> 提示选择目录 
 
 
 ------------- windows 10 Mail
@@ -419,6 +421,9 @@ chrome://about/  列出所有的连接工具
 Chrome工具 自带的工具 chrome://net-internals/  
 
 Chrome都不能访问6000,6666端口,报ERR_UNSAFE_PORT, 要加启动参数 -explicitly-allowed-ports=6000,6666 才可
+
+chrome://flags  SameSite by default cookies 设置为禁用
+
 
 -------------Edge --------
 自带flash player ...->设置->查看高级设置-> 打开  Adobe Flash Player  
@@ -712,7 +717,6 @@ DivX 有时作用也不大
 可以看到每个文件编码 UTF-8 是否带BOM 
 
 工具栏 Rules按钮 -> Comparison 标签中，取消compare timestamps,即不比较文件的修改时间
-
 -----------------------UltraCompare 18 
 有windows,linux,mac版本
 windows版本没有中文问题
@@ -720,11 +724,13 @@ windows版本没有中文问题
 取消比较修改时间,右击标签->session properties-> 复选中 ignore timestamp difference
 
 ---------------------WinMerge 2.16
+免费
 只windows版本
 要用exe安装包安装 ,右键菜单中有项 
 没有中文问题
 
 ---------------------DiffMerge 4.2 对中文支持不好
+免费
 有windows,linux,mac版本
 要用msi安装包安装 ,右键菜单中有项
 

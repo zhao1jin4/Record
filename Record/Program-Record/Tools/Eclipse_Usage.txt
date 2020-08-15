@@ -3,6 +3,7 @@
 ﻿Eclipse 2019-09 R (4.13.0)  compiler还只是到12 
 ﻿Eclipse 2019-12  
 ﻿Eclipse 2020-03 (4.15.0)   compiler 到jdk 13
+﻿Eclipse 2020-06(4.16.0)   compiler 到jdk 14
 
 =======================================eclipse==========================
 快捷键
@@ -352,25 +353,6 @@ Debug时记得要把.dll 文件放入PATH中
 
 Cygwin和MinGW可以共存使用,但有些Cygwin在windows不能编译,MinGW还是要的
 
-------------cygwin 使用
-下载的 Cygwin_x64 ,双击进入安装界面时 Category 下拉选择 full
-2020-05-15 时 cygcheck -c cygwin  显示为 3.1.4-1
-
-64位的	gcc-9.3.0-2  ,mingw64-x86_64-gcc-core--9.2.0-2
-		gcc-g++-9.3.0-2 ,mingw64-x86_64-gcc-g++-9.2.0-2
-		#gcc-objc 可选
-		gdb-8.2.1-1
-		make-4.3-1
-下面可选 
-		curl-7.66.0 (可单独下载win版本)
-		vim-8.2 (可单独下载win版本gvim)
-	
-PATH=D:\Program\cygwin\bin
-
-cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make       -u, --unix
-cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make  -m, --mixed
-cygcheck -c cygwin  显示当前Cygwin 安装的版本	 -c, --check-setup
-
 
 ------------------
 ----------------- CDT 与 VC 集成
@@ -511,8 +493,8 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 	也带spring的 yaml 或 properties编辑器
 	可以新建spring starter项目,如刚建立好可以右击pom.xml->spring->edit spring starters
 	配置生成在 ~/.cache/Spring  Tool  Suite 3 目录
-
----SpringToolSuite-4.1(eclipse 4.10.0) 
+	sts3 spring data  repository会报方法不存在错，其实可以自定义的,这是有问题的,但sts4没有data source explorer视图,要单独安装DTP)
+---SpringToolSuite-4.7(eclipse 4.16.0) 
 有Visual Studio Code 版本
 不能建立 web项目,到4.6.0(eclipse-4.15.0)版本又能建立web项目了,
 	没有spring的xml编辑器了??? xml文件中写类或属性方法做提示了 ???, 原始xml编辑器只可按ctrl+类名有链接表示类存在.
@@ -521,6 +503,9 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 	有 Spring Boot->Spring Starter
 	只能用Maven,
 	有Server标签能建立Tomcat
+---- Data Tools Platform (DTP)
+eclipse jee版本自带
+dtp-repository-1.14.102.201809101906.zip 依赖很多，可能要在线安装
  
 ----SVN插件subclipse-4.4.2
  二进制版本 URL  https://github.com/subclipse/subclipse/wiki 去 SVNKit Client Adapter
@@ -686,7 +671,7 @@ org.eclipse.emf.transaction_1.4.0.v20100331-1738.jar
 org.eclipse.emf.validation_1.7.0.201306111341.jar
 org.eclipse.emf.workspace_1.5.1.v20120328-0001.jar
 把带的3个jar包有现成的，复制到eclipse的plugins目录中,重启
-eclipse-4.15(sts3最后版本)help->install ->选择zip包(取消复选 concat all xxx 和 show only lastest) 测试OK
+eclipse-4.15 help->install ->选择zip包(取消复选 concat all xxx 和 show only lastest) 测试OK
 
 
 ------ JRebel 热部署插件（收费）
@@ -742,6 +727,17 @@ https://marketplace.eclipse.org/content/enide-mongodb-gui-monjiadb-windows#group
 https://marketplace.eclipse.org/content/wolfdbmanager2-rcp
 
 ----hbase 插件 无???
+
+-----eclipse  
+https://github.com/henningjensen/bpep
+Builder Pattern  生成代码
+
+Download the jar file
+Put the jar file in the eclipse/dropins directory
+
+
+
+
 
 
 

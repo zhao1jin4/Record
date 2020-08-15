@@ -1,5 +1,5 @@
 ﻿
-----------------------------------Junit
+----------------------------------Junit  4.0 
 
 Junit 要求
 
@@ -22,19 +22,7 @@ TestCase 中有
 
 这两个方法在抛出异常时也会被调用,测试失败也会的
 
-<dependency>
-	<groupId>org.junit.jupiter</groupId>
-	<artifactId>junit-jupiter</artifactId>
-	<version>5.5.2</version>
-	<scope>test</scope>
-</dependency>
- 
-import org.junit.jupiter.api.Test; //Junit 5    jupiter 木星；
-import static org.junit.jupiter.api.Assertions.*;//Junit 5 
-assertThrows(NumberFormatException.class,  ()->{
-		Roman2IntUtil.covertRoman2Int("MIMIII");
-	});
-	
+
 JUnit 4.0 有 只执行一次初始方法,销毁方法 
 import static org.junit.Assert.assertEquals; 
  类不必继承自 TestCase
@@ -57,16 +45,11 @@ public void destroy()
 {
 	System.out.println("junit after"); 
 }
-@Test
+@Test(expected=Excpetion.class) //junit 4 
 public void myTest()//不必以test开头
 {
 }
 
-//Junit5 API
-@BeforeAll 用在static方法上
-@BeforeEach 
-@AfterEach
-@AfterAll
 
 textui包  TestRunner类  run(Class testClass)   几个点,表示几个测试方法  
 junit.textui.TestRunner.run(HelloTest.class);
@@ -146,6 +129,27 @@ public class CalculatorTestSuit
 {
 
 }
+-----junit 5 
+
+<dependency>
+	<groupId>org.junit.jupiter</groupId>
+	<artifactId>junit-jupiter</artifactId>
+	<version>5.5.2</version>
+	<scope>test</scope>
+</dependency>
+ 
+import org.junit.jupiter.api.Test; //Junit 5    jupiter 木星；
+import static org.junit.jupiter.api.Assertions.*;//Junit 5 
+assertThrows(NumberFormatException.class,  ()->{
+		Roman2IntUtil.covertRoman2Int("MIMIII");
+	});
+
+//Junit5 API
+@BeforeAll 用在static方法上
+@BeforeEach 
+@AfterEach
+@AfterAll
+
 ---------------------------JMockit 更强  
 
 ---------------------------EasyMock  

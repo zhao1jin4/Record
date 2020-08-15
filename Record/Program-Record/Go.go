@@ -33,8 +33,10 @@ protobuf
 
 支持reflect,http,json, 调用C
 MongoDB 官方带 Go Driver
-MySQL官方不提供Go的Connector
-RabbitMQ官方不提供Go的Connector
+ZeroMQ 官方介绍github上的三个项目
+
+MySQL 官方不提供Go的Connector
+RabbitMQ 官方不提供Go的Connector
 redis/kafka Go支持 都是github上的
 读写excel 或 生成pdf 使用github项目
 
