@@ -5,7 +5,7 @@ http://ftp.icm.edu.pl/packages/GNOME/sources/  gnome源码
 http://www.gnome-cn.org/  中文的gnome
 http://www.51cto.com/os/linux2008/map.html 在线图书
 
-
+yes 命令用于交互式输入y
 
 export LANG=zh_CN.UTF-8
 
@@ -318,7 +318,7 @@ sar 1(间隔) 10 (总次数)  (system activity report)
 iostat  （ yum install sysstat ） 只能看到某个硬盘
 	Blk_read/s  Block=Sector=512 bytes
 iotop 可以看到进程级的
-iotop -oP  其中 -o 表示只显示有IO操作的 －P 列表进程或线程
+iotop -oP  其中 -o 表示只显示有IO操作的 -P 列表进程或线程
 
 mpstat 查看多处理器状况 (smp 是支持多处理器,up是不支持多处理器)
 
@@ -365,7 +365,7 @@ sort命令  -t 分隔符 -u 标志告诉 sort 命令除去重复的行,-r 反向
 
 
 vi /etc/sysconfig/i18n 改系统语言和字符集  echo $LANG=更优先
-
+centos修改语言 /etc/locale.conf
 
 iconv -f GBK -t UTF-8 ./Egg.h  >Egg_1.h      把GBK编码转换成UTF-8 ,-f是from ,-t是 to
 
@@ -801,6 +801,7 @@ telnet <IP> <port>  退出 按ctrl+],出现telent>打q回车
 #RSAAuthentication yes
 #PubkeyAuthentication yes
 #AuthorizedKeysFile     .ssh/authorized_keys
+PasswordAuthentication yes
 
 ssh-keygen 会要求输入密码(可不输),有 -t rsa 和 -t dsa
 默认生成 自己用的私钥 ~/.ssh/id_rsa 和传给对方的公钥 ~/.ssh/id_rsa.pub 
@@ -822,7 +823,7 @@ Host  host*.my.com
 Host dev01
   hostname 192.168.1.10
   User user01
-就可以使用 ssh dev01 的别名来连接了  
+一定要chmod 600 ~/.ssh/config  ,就可以使用 ssh dev01 的别名来连接了  
 
 
 #PermitRootLogin yes
@@ -833,6 +834,8 @@ ClientAliveInterval 60
 ClientAliveCountMax 6
 SSH Server 每 60秒就会自动发送一个信号给 Client，而等待 Client 回应，如果客户端没有回应，会记录下来直到记录数超过 ClientAliveCountMax(这里设置为6次) 的值时，才会断开连接。
 
+设置登录后的提示信息
+/etc/ssh/sshd_config 配置 PrintMotd 参数不为no,/etc/motd 文件中的内容为登录的提示信息,su - user1的方式也有效
  
 Bitvise SSH Client  界面工具可以做端口转发
 ssh -2C -p 22 dell@rhel7  -L 5000:localhost:80 -g   
@@ -986,6 +989,10 @@ fstab文件 自动每次开机时自动挂载光驱
 
 /proc/cpuinfo  CPU的信息  lscpu命令
 top d 2 ,H显示线程，h帮助 ，k kill  15 要比 9 更有强度
+top -p <PID>
+ps -mp <PID>  -o THREAD,tid,time 看该进程的线程
+printf "%x\n" <TID> 的线程TID置换为16进制 
+
 /proc/meminfo   lsmem命令
 free ,vmstat 5可每5秒自动更新
 iostat

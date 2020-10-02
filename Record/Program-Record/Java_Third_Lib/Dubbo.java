@@ -9,7 +9,7 @@ http://start.dubbo.io  里面用的还是com.alibaba 不是最新的 (2019-11-20
 
 2.7.4.1 有使用Unsafe类，如JDK11报 because module java.base does not export jdk.internal.misc  要用JDK1.8
 2.7.6 版本依赖一个alibaba的 spring-context-support-xx.jar 先不升级
-	
+2.7.8 版本之前的hession2有远程执行代码的安全问题 	
  <dependency>
     <groupId>org.apache.dubbo</groupId>
     <artifactId>dubbo-config-spring</artifactId>

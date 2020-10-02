@@ -1,363 +1,4 @@
-﻿
-============================Netbeans-8.2 最后一个oracle版本===============================
-apache下11.2版本 支持JDK11
-apache 12
-netbeans-11.2-bin\netbeans\etc\netbeans.conf 中要修改 netbeans_jdkhome 的配置才可启动
-
-支持Gradle
-
-默认位置
-%HOMEPATH%\AppData\Roaming\NetBeans 存用户的配置
-%HOMEPATH%\AppData\Local\NetBeans\Cache  里面内容可以经常删除
-
-Mac 是在 
-~/Library/Application Support/NetBeans
-~/Library/Caches/NetBeans
-
-Linu 是在
-~/.netbeans
-~/.cache/netbeans
-
-netbeans.conf中提示 可以设置 (应该只在linux下有效,windows环境变量无效)
-	${DEFAULT_USERDIR_ROOT} 修改用户配置
-	${DEFAULT_CACHEDIR_ROOT} 修改缓存目录
-	${HOME} 代替用户主user.dir目录
-
-	netbeans_default_userdir  配置用户目录
-	netbeans_default_cachedir 配置缓存目录
-启动选项 (--userdir option) 代替用户主目录,是空格分隔
-
--J-Xmx 配置内存大小 ,如 -J-Xmx512m
-
------------- 
-在FreeBSD上运行正常，如果gnome 界面语言是english,那么 netbeans也是英语 ,	运行时有一个UnkowHostException   InetAddress.getLocalHost();不影响运行,是由hostname 的值空造成的
-	
-windows 下中文字体文件都 以sim开头,显示都有(TrueType)
-	simhei.ttf 黑体
-	simkai.ttf 楷体
-	simfang.ttf 仿宋
-	simsun.ttc 宋体 & 新宋体
-可以把windows 下的simhei.ttf 文件复制到 /usr/local/lib/X11/fonts/TTF/  ,重新开gedit有效果,注销后gnome字体也正常了,firefox...全部正常了
-
-可以netbeans ,中文界面字体不行(gonme英文正常)
- cp /usr/local/lib/X11/fonts/TTF/simhei.ttf	$JAVA_HOME/jre/lib/fonts/fallback/   (fallback目录要新建立)
-	
-linux  是	/usr/share/fonts/truetype/
-
-
-如tomcat 启动时,总是说server.xml损坏,可能是普通用户启动netbeans,无权修改文件　	
-------------
-
-netbeans-javaee 要用./bin/netbeans --jdkhome /usr/local/diablo-jdk1.6.0 来运行 如没有设置JAVA_HOME
-
-Tools -> Java Platfrom 配置JDK.即JAVA_HOME,多个JDK 以系统环境变量为默认
- 修改项目的JDK版本 右击项目->properties->Build ->compile->Java Platform
-
-Tools -> Server 配置 Tomcat(netbeans-10要安装server plugin)  ,配置后这里来改密码 ,也可配置deploy timeout
-
-如是maven 的web项目，右击项目->Run/Debug 启动时默认是运行单元测试的，
-右击项目-> Properties->Action -> 选择Run/Debug Project ,在set properties 中add->skip tests
-tools -> options-> Java -> Maven-> Execution标签中选中Skip Tests....
-
-右击项目-> Properties->Run ->Context Path中修改为正确的
-
-重新可用部署cargo maven插件，打开pom.xml,在navigator视图-> 下拉选择navigator goals 可以右击 cargo reploy -> execute goal
-修改JSP如何动态更新tomcat?????  
-
-
- 问题???? 如果是Maven web项目,生成 myProject-1.0.war包名和 <build><finalName>myProject</finalName></build>不一样 ,部署时并不会使用finalName中的值
- 其实是在 apache-tomcat-7.0.78\conf\Catalina\localhost\中加入<项目>.xml  ,
- 停tomcat时总是在处理,如Tomcat是8也部署不上去,如想随意切换tomcat 7,8的版本也不行,会短暂记住最近选择(就算选择了not rember for one-time deployment也没用,下次启动netbeans才行)
- 
- 或者(不用IDE 插件) 在pom.xml的<build>中加入
-<plugin>
-  <groupId>org.eclipse.jetty</groupId>
-  <artifactId>jetty-maven-plugin</artifactId>
-  <version>9.4.6.v20170531</version>
-   <configuration>
-	  <scanIntervalSeconds>10</scanIntervalSeconds>
-	  <webApp>
-		<contextPath>/myProject</contextPath>
-	  </webApp>
-	</configuration>
-</plugin>
-
-mvn jetty:run   
-eclipse测试能做调试,但找不到源代码??
-netbeans调试 add->debug maven build 生成了 jpda.listen=maven  ,可以找到源代码
-
-
-自己的tomcat 配置tomcat-users.xml ,要一个"管理员"(manager-gui) 角色的用户 ,我是 manager01
-  <tomcat-users>
-	  <role rolename="manager-gui"/>
-	  <user username="manager01" password="manager01" roles="manager-gui"/>
-	</tomcat-users>
-  
-部署方法是在 apache-tomcat-8.0.23\conf\Catalina\localhost\建立 [项目].xml文件 指向maven的target中的目录
-
-netbeans 帮助手册中-> Working with NetBeans IDE [IDE 启动参数]  [  找netbeans.conf]
-
-https://docs.oracle.com/netbeans/nb81/netbeans/develop/toc.htm
- 找 Working with NetBeans IDE 下的 Setting Startup Parameters
-https://docs.oracle.com/netbeans/nb81/netbeans/develop/working_nbeans.htm#NBDAG162
-
-
-可以使用 IDE-HOME/etc/netbeans.conf 文件将启动参数传递给 IDE 启动程序
-	--fontsize size
-		设置 IDE 用户界面中的字体大小，以磅为单位。如果未使用此选项，则字体大小为 11 磅。 
-
-	--locale language[:country[:variant]]
-		激活指定的语言环境。 
-
->netbeans.exe --fontsize 15 --locale en:US  英文界面（多语言版）
->netbeans.exe --fontsize 15  --locale zh:CN 中文界面
-
-
-
-Tools->Options->Java->Maven->修改Maven_Home 
-如果 java Maven 项目 打开时,不对加载依赖中再依赖的jar包,  右击项目-> 使用依赖关系构建   就可以了
-左侧Execution标签中 选中Skip Test,要保证每个子项目可以build成功 ，才能运行
-
-
-
-拉SVN ,Team 菜单 -> check out.. 
-
-建立SVN 分支,右击项目-> subversion-> copy    -> copy to ...-> Source 中 默认选中的是Local Folder 修改为Remote Folder  ,Destination中选择放置目录如branch ,tag中
- 
-右击项目-> subversion-> copy  -> switch to copy   ...
-右击项目-> subversion-> copy  -> merge change  ...
-右击项目-> subversion-> working copy -> 
-右击项目-> subversion-> diff ->  diff to repository 同eclipse的synchronize 
-
-
-
-右击项目 ->Custom-> Goal...
-或者右击pom.xml-> Run Maven->Goal...  建立maven任务后可以起名记住,会生成nbactions.xml,以后就可在右击项目 ->Custom-> 出现自己的任务名,如要修改也只能编辑XML文件
-
-
-
-点开.class自动打开UTF-8源码时的字符集windows默认为GBK,乱码  -J-Dfile.encoding=UTF-8  ,但output日志输出进会乱码
- netbeans.conf  配置文件中的 netbeans_default_options 项后加 --fontsize 15 --locale en:US  -J-Dfile.encoding=UTF-8
- 
- 
-输出中文乱码 
-打开项目下nbproject/project.properties文件 修改source.encoding=GBK   (如是导入的Maven项目,没有nbproject目录)
-
-
-
-命令行下可以编译  javac -encoding UTF-8 Hello.java  对UTF-8的文件
-
-
-Run->Set Project Configuration->Custom...->  是对主项目的配置,像是对Maven profile
-
-alt + 滑动滚轮,可调整代码区的字体大小
-
-
-括号换行 Options->Formatting->Language->java 后再Category->Braces
-alter+shift+f   source->format
-
-
-
-代码格式化 "{" 放单独一行
-tools->options->editors按钮->formation标签->language选择java->category选择braces-> 改为next line
-				Java -> Maven配置根目录,即使用配置
-				 
-
-在错误处 alt+enter 会给出解决方法
-
-netbeans支持代码折叠  ，打开调试工具栏，变量窗口
-ctrl+f5调试主项目就可以了
-
-source -> code complete (ctrl+space)
-ctrl+p 显示参数(Source->show method parameter) 同Intellij
-alter+shift+f  格式化代码(source->format)   
-ctrl+alt+点击接口方法 进和实现类 同Intellij
-
-导航 -> 转至类型 ctrl+o -> 输入类名 ,如想知道在哪目录中,右击标签->在项目中选择
-导航 -> 转至文件 alt+shit+o -> 输入文件名
-
-右击代码 insert code ... -> Getter...或者Setter...
-
- 也可以用ctrl + alt  鼠标点击方法名,可以进入接口实现类
- 
- 大小写转换没有菜单项,快捷键无效
- 
-常用窗口 
-Window->Debuging->debugging 
-Window->Debuging->breakpoints 
-window->IDE Tools->Test Result
-
- Navigate->inspect->memebers 可以看类的所有方法的大纲 (ctrl+shift+F12),打开Navigate视图就可以了
- Edit->find in project ...  (ctrl+shift+f) 可搜索文件中包含的字符
- 
-
-debug代码时 F7 进入函数,如这行代码有多个函数,会提示让选择进入哪个函数,比eclipse智能 
-	如修改了代码,保存后不能立即生效,要点工具栏上的Apply Code Change按钮,而eclipse是自动的
-
-eclipse 是1个tab占4个空格的长度,一个空格就是一个空格
-NetBeans 8.2 默认一个tab键生成8个空格代替一个tab,一个空格是4个空格
-修改 Tools->options->Formating ,Language确认为Java(最好选择为 All Language ,取消复选 Use All Languages Settings)
-		取消Expand Tabs to Space
-		Tab Size修改为4,
-		number of space per是1
-
-
-windows下的notepad和linux的vi一个tab是8个,但notpead++是4个
-
- ,Navigate菜单-> go to Line (ctrl+G )   同eclipse ctrl+L
-
- 
--- 自带功能
-swing 设计功能 
-JSF,JavaFx
-Gradle,Maven
-Groovy
-Cordova ,Node.js
-新建文件时自带Hibernate Mapping 等文件
-
- ----同 eclipse区 
- 也可以用ctrl + 鼠标点击的方式来打开头文件,#include <xx> 
- ctrl + /  单选注释 java代码
- alt + 左/右键  返回上次的位置
- 右击文件 -> history ->show history
- Source -> organize import 
- 
- 
- --- 问题区
- 如控制台出错,没办法像eclipse一样点击链接查看源码 ???? 
- 
-============= NetBeans  11 Apache版本支持jdk12
-NetBeans-11.2版本tomcat插件  Tools->plugins->installed标签 -> 选中Java Web and EE->Active 
-		还有JavaSE,Tools,HTML5,PHP 可选
-		或者使用maven的jetty-maven-plugin插件
-NetBeans-11.2版本的Maven插件 默认不可用，要依赖于 nb-javac 插件，可离线安装 	
-
-window->services->有docker
-
-
-============= NetBeans  C++
-http://netbeans.org/kb/trails/cnd.html  
-
-要安装gcc ,gcc-g++ 依赖于make,gdb,(libiconv)
-
-设环境变量PATH 可找到
-
-工具->选项->C/C++ 设置编译器 只改基目录为/usr/local/bin就可以了
-		代码帮助栏加C++  /usr/local/include/c++/3.4.6/
-
-LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib
-PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/ucb/bin  ## (ps aux命令)
-
-export PATH LD_LIBRARY_PATH
- 
-Netbeans默认使用UTF-8来打开文件,如是GBK要修改C++项目目录\nbproject\project.xml
-<!--<sourceEncoding>UTF-8</sourceEncoding>-->
-<sourceEncoding>GBK</sourceEncoding>
-修改后要重新启动Netbeans才生效
-
---------MSYS2 MinGW-w64  测试 OK
-
-官方文档是 MSYS2 & MinGW-w64 
-
-MSYS2 是 起源于 cygwin,
-Git 使用MSYS2
-Git GUI ->option->Default file contnes Encodeing:修改为UTF-8/GBK
-
-
-直接下载.exe,安装后有一个基本的系统
- 
-运行 msys2_shell.cmd 
-
-pacman -Sy pacman 更新包数据库,只运行一次
- 
-pacman -S base-devel  
-在线下载安装常用软件包组
-
-再安装MingGw的软件包组 (安装之前把C:\msys64\下的所有mingw开头的文件移走,因为建立目录mingw时报错,不能安装,安装后再移回来)
-pacman -S mingw-w64-x86_64-toolchain
-
-
-查看可用的安装包
-pacman -Sl | grep gcc 
- 
-
-设置环境变量 
-MSYS_HOME=C:\msys64\usr
-MINGW_HOME=C:\msys64\mingw64
-
-PATH=C:\msys64\usr\bin;C:\msys64\mingw64\bin
-
-as 命令可配置在 assembler 中
-
-NetBeans 配置时MSys & MinGw 
-Tools -> Options -> C++ ->Build Tools -> Add... ->选择目录C:\msys64\mingw64 ,Tool Collection Family 选择 GNU MinGW
-
-make使用  C:\msys64\usr\bin\make.exe
-
-Build时 总是使用cygwin的rm命令，去环境变量也一样，只能删Cygwin
-Run 时 ，删Cygwin了也使用cygwin的bash 命令(删注册表后使用msys2的)
-	用工具还是运行不了 
-	右击项目->Propertis-> Run->Console Type 选择  Standard Output 或 External Terminal   就可以了
-	.exe 生成在dist\Debug\<工具链名>-Windows.exe 
-
-
-
-------------cygwin 使用
-下载的 Cygwin_x64 ,双击进入安装界面时 Category 下拉选择 full
-2020-05-15 时 cygcheck -c cygwin  显示为 3.1.4-1
-
-64位的	gcc-9.3.0-2  ,mingw64-x86_64-gcc-core--9.2.0-2
-		gcc-g++-9.3.0-2 ,mingw64-x86_64-gcc-g++-9.2.0-2
-		#gcc-objc 可选
-		gdb-8.2.1-1
-		make-4.3-1
-下面可选 
-		curl-7.66.0 (可单独下载win版本)
-		vim-8.2 (可单独下载win版本gvim)
-		tmux 可以分隔多个命令行窗口 
-			tmux 进入,如退出exit或ctrl+d,ctrl+b 再?显示所有快捷键
-		   tmux split-window  划分上下两个窗格  ( Ctrl+b ")
-		   tmux split-window -h 划分左右两个窗格 (Ctrl+b %)
-		   #tmux select-pane -U 光标切换到上方窗格
-			Ctrl+b <arrow key>：光标切换到其他窗格
-			Ctrl+b Ctrl+<arrow key>：按箭头方向调整窗格大小
-		openssh
-		
-PATH=D:\Program\cygwin\bin
- 
-cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make       -u, --unix
-cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make  -m, --mixed
-cygcheck -c cygwin  显示当前Cygwin 安装的版本	 -c, --check-setup
-
-------- cygwin  测试 OK
-把 C:\cygwin64\bin放在PATH中再启netbeans也不能识别,可能是找不到g++ ,因文件名是 x86_64-w64-mingw32-g++.exe
-
-Tools -> Options -> C++ ->Build Tools -> Add... ->选择目录 C:\cygwin64 ,Tool Collection Family 选择 GNU Cygwin
-指定gcc,g++,自动指定了 make 和 gdb (是配置PATH的作用) 还要 assembler (编译汇编语言 nasm) C:\cygwin64\usr\x86_64-w64-mingw32\bin\as.exe
-在Code Assistance 标签中自动,自动配置了include目录
-
-LD_LIBRARY_PATH=C:/cygwin64/lib
-
-报错  error while loading shared libraries: libstdc++-6.dll: cannot open shared object file: No such file or directory ???  
-但cygwin是有安装的 libstdc++6 ,但文件名是 cygstdc++-6.dll ,
-使用find命令找到在 /usr/x86_64-w64-mingw32/sys-root/mingw/bin/ 下,
-C:\cygwin64\usr\x86_64-w64-mingw32\sys-root\mingw\bin 设置到PATH中 ,重启NetBeans,再试就可以了
-
---卸载Cygwin
-去PATH环境变量,
-
-删除注册表 
-HKEY_LOCAL_MACHINE\SOFTWARE\Cygwin
-HKEY_CURRENT_USER\Software\Cygwin
-
------gitbash
-ls / 是没有c盘的 ,如使用C盘  ls /c 即可,
-自带 vi,ssh 工具
-
------ VC 2015
-VC 2015 编译器配置在path 环境变量中,NetBeans也检查不到  ,而eclispe CDT 是有Microsoft Visual C++ 可选的
-
-
+﻿ 
 -----Source Tree-2.4.8.0 是Git 客户端工具 免费
 GitLab 服务端
 
@@ -377,60 +18,9 @@ C:\Program Files\TortoiseGit\bin
 工具-> 选项->一般->SSH 客户端->可选 openSSH
 
 ----
-============= NetBeans 8.1 安装  NBAndroid 插件/模块  
- 
-在线安装  Tools->plugins 在Settings 标签中Add 一个起名为NBAndroid,地址为 http://nbandroid.org/release81/updates/updates.xml 
-		并复选有效,就可在Avaliable Plugin 标签中显示这个地址可以安装的插件,选中Android(也有Gradle support) ->install按钮
-		(有一个 Plugin Install Location 默认选择 Default)
-离线安装  下载 nbandroid-15-11-01-171517.zip  Tools->plugins -> downloaded ->解压,选择所有的.nbm文件  (没有提示选择安装位置) 
-
-如果把解压的netbeans文件全删,再重新解压,再启动netbeans已经安装的 NBAndroid 还在，说明模块安装在外部,看netbeans.conf说明
-windows在  %HOMEPATH%\AppData\Roaming\NetBeans\8.1\modules  (在线安装和离线安装都在这)
-
-Tools->options -> Miscellaneous -> 多了一个 Adroid 标签
-
-main.xml 没有可视的设计功能,只能手工写XML
-
-换SDK位置，项目也要重新建立来测试，可以用JDK8
-右击项目运行 才会生成 R 类,会启动已经建立好的模拟器
-
-用 nbandroid-15-11-01-171517.zip 
-java.lang.UnsupportedClassVersionError: com/android/dx/command/Main : Unsupported major.minor version 52.0  
-因buildToolsVersion 太高了,buildTools为23.0.1是可以的(即现在的5.1.1),
-
-日志在 Window ->output->ADB Log
-buildTools为23.0.3  的 Android 6  ,测试 NBAndroid 和ADT 都有日志
-
-buildTools为23.0.3(24就不行了) 的 Android 7 NBAndroid 启动时logcat,也没有但报连不上 ????,  ADT-23.0.7 没有logcat ?????? 
 
 
-右击项目->Properties -> Run-> Target Device 选择 Manual 
 
-真机打开调试 Settings > About phone 点 Build number 七次
-手机插入USB 选择 PC Suite(HiSuite) 或者 Media device (MTP),
-不是Charge Only 就可以打开 Bebug 模式,就可以在真机上开发测试了
-
-============= NetBeans 8.1 安装 NB SpringBoot 插件/模块  
-Tools -> Plugins
-
-============= NetBeans  FindBugs
-
-============= NetBeans 8.1 安装  nbscala-1.8.1.2  插件/模块  
-http://plugins.netbeans.org/   下载文件 1465275768_nbscala-1.8.1.2.zip
-https://github.com/dcaoyuan/nbscala
-
-解压.zip -> Tools -> Plugins -> Downloaded -> Add Plugins... 选择所有解压的.nbm (netbeansModel)文件 
-netbeans解压目录下会产生  nbscala\modules 目录 (离线安装)
-建立.scala文件 ,测试成功
-
-============= NetBeans 8.1 安装  FreeMarker support for NetBeans   插件/模块  
-下载 1459926032_org-netbeans-freemarker.nbm  文件,安装后,新建文件的other组中
-
-============= NetBeans 8.2     nbmongo-8.2.3  插件/模块   
-安装 Tools -> Plugins -> Downloaded -> Add Plugins... 选择 .nbm 
-会在Services  视图中多一个 MongoDB,右击->New Connection,可以按数据库的行显示,但没有地方写脚本
-
-============= NetBeans  JRebel-2018.2.4
 
 =============  DbVisualizer(所有平台) 使用JDBC all DB  ============= 
 除支持流行的Oracle,SQLServer,DB2,MySQL 还支持SyBase,Maria,PostgreSQL, SQLite,H2
@@ -852,7 +442,7 @@ https://dbeaver.com/docs/wiki/Workspace-Location/
 SQL编辑器 菜单 ->SQL编辑器(F3)
 不支持中文，dbeaver.ini 文件中尾加新行 -Dfile.encoding=UTF-8
 
-可以方便导入csv，但不能导出成文件
+可以方便导入csv，但不能导出成文件,可以每个表导出SQL表结构，导出SQL数据
 
 如Mongo 每一行，部分列是数组(可双击显示)或者对象(标题按二级显示)也可以正常显示,
 	但如果二级是数组,只能显示第一条??? 也不能删除一整行数据???
@@ -869,8 +459,13 @@ SQL编辑器 菜单 ->SQL编辑器(F3)
 打开表后有 ER Diagram标签 ，可以看到这个相关的主外键关系 ，生成速度快，布局好，ctrl+滑轮 不能以光标为中心
 
 设置事务自动提交  Preferences->DBeaver->Connection Type-> 复选框 auto-commit  by default
+	如关闭了auto-commit，在查询时，前后也要commit或rollback才能查到最新的数据
+ 
+默认查询只显示前200条，Preferences->Editor->Data Editor -> ResultSet fetch size 默认为200
 
+不能运行oracle的desc命令，但sql developer可以,可以运行MySQL的desc
 
+可以写SQL 时可以用:param做参数时，可以弹框输入值
 
 ----------- phphbaseadmin github上已经有6年没有更新，有中文
 -----------SQuirrel SQL Client 
@@ -1006,9 +601,82 @@ TortoiseGit -> setttings->Save Data-> URL history旁边的 Clear按钮
 
 clone... -> 可以复选 load putty ->选择私钥文件
 
+右击红色文件-> edit conflict -> 修改后-> 右击红色文件->  resolve conflict xxx
+
+
+选中两个文件或文件夹 ->右击->TortoiseGit->diff 可做文件差异比较 ,免费
+
 
 ------------GitExtensions 免费Git工具(windows) 
 	默认要kdiff3做为比较合并工具,可选择BeyondCompare3,4 也要sh可用git,或者cygwin
+
+
+------------cygwin 使用
+下载的 Cygwin_x64 ,双击进入安装界面时 Category 下拉选择 full
+2020-05-15 时 cygcheck -c cygwin  显示为 3.1.4-1
+
+64位的	gcc-9.3.0-2  ,mingw64-x86_64-gcc-core--9.2.0-2
+		gcc-g++-9.3.0-2 ,mingw64-x86_64-gcc-g++-9.2.0-2
+		#gcc-objc 可选
+		gdb-8.2.1-1
+		make-4.3-1
+下面可选 
+		curl-7.66.0 (可单独下载win版本)
+		vim-8.2 (可单独下载win版本gvim)
+		tmux 可以分隔多个命令行窗口 (terminal multiplexe)
+			tmux 进入,如退出exit或ctrl+d,ctrl+b 再?显示所有快捷键
+		   tmux split-window  划分上下两个窗格  ( Ctrl+b ")
+		   tmux split-window -h 划分左右两个窗格 (Ctrl+b %)
+		   #tmux select-pane -U 光标切换到上方窗格
+			Ctrl+b <arrow key>：光标切换到其他窗格
+			Ctrl+b Ctrl+<arrow key>：按箭头方向调整窗格大小
+		openssh
+		
+PATH=D:\Program\cygwin\bin
+ 
+cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make       -u, --unix
+cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make  -m, --mixed
+cygcheck -c cygwin  显示当前Cygwin 安装的版本	 -c, --check-setup
+
+mount 显示 c:/cygwin64  挂载到 /
+
+--卸载Cygwin
+去PATH环境变量,
+
+删除注册表 
+HKEY_LOCAL_MACHINE\SOFTWARE\Cygwin
+HKEY_CURRENT_USER\Software\Cygwin
+
+
+--cygwin 启用sshd
+
+导入windows用户
+mkpasswd -l > /etc/passwd 
+ 
+#mkdir /home/root
+#CYGWIN=ntsec tty
+
+$ ssh-host-config  
+ Query: Should StrictModes be used? (yes/no) no
+#Enter the value of CYGWIN for the daemon: [] ntsec
+
+查看了services.msc建立了服务 CYGWIN cygsshd ，查看Service Name:为cygsshd
+net start cygsshd
+
+就可以用putty使用windows的帐户登录了
+
+----cygwin 安装Git,要git-upload-pack命令
+
+
+
+
+-----gitbash
+ls / 是没有c盘的 ,如使用C盘  ls /c 即可,
+自带 vi,ssh 工具
+ 
+mount 命令显示 / 挂载到  %userprofile%\AppData\Local\Programs\Git
+
+支持 <<<,如 vagrant ssh <<< sh -c "ls"
 
 ------------TortoisHg 是 Mercurial(分布式版本控制)工具
 
@@ -1209,12 +877,11 @@ putty.exe -cleanup　可以删除所有的记录,密钥
 
 PUTTYGEN.exe 可以导出.ppk文件(Putty private key)，也可转换conversion->exort open ssh
 
-Connection->SSH->Auth 可以选择一个私钥
+Connection->SSH->Auth 可以选择一个私钥，格式为.ppk文件，IP格式就为username@<ip>
 
 ssh -i /xx/ssh_private_file xuser@xhost (这个文件是puttygen 工具 conversion -> export open ssh转ppx文件到ssh文件) 就可无密码登录了
 
-
-
+ 
 
 ------------ FileZilla
 help->about 查看 默认 文件目录为 %APPDATA%\FileZilla
@@ -1248,6 +915,8 @@ export LANG=zh_CN.UTF-8
 file->setting->general 有显示保存文件默认在是%HOMEPATH%/Postman/files  但里面没有文件???
 .exe版本的PostMan 中建立的文件夹的  ...->export 但没有导入??
 
+Authentication 有 Bearer Token ,Oauth2
+
 ---------Jenkins   2.183 基于hudson  
 持续集成和持续交付( CI/CD )
 支持 Docker
@@ -1270,6 +939,8 @@ Maven项目
 	Deploy to container 插件可以部署到tomcat,  在Maven项目最后的 Post-build Actions 有deploy war/ear to container,target/xx.war测试使用没有效果
 	Capitomcat Plugin   插件可署到多台远程tomcat上
 	
+---------teamcity 放在IntelliJ中了
+
 
 ----------SonarQube 可扫描JS代码 
 还有findbug 扫描java
@@ -1333,10 +1004,13 @@ File->preferences->windows 标签->Restore Windows 选择none
 
 右击文件-> format document(alt+shift+f) 可json
 
+ctrl+t 输入文件名来查找
+
 File->preferences-> extensions  可以在线安装 各种语言的 如 C/C++(MinGW C++),Scala,Kotlin
 
 对于像springboot项目,可不使用mvn spring-boot:run ,main方法上方就有Run或Debug链接
 
+右击方法名-> Find All References
  
 ----- Node JS
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
@@ -1349,6 +1023,8 @@ File->preferences-> extensions  可以在线安装 各种语言的 如 C/C++(Min
 -----自带Git功能 
 ctrl+shift+p,空项目时有提示，输入命令git:clone但会提示未尾有错误，不如TortoiseGit好用
 source control 视图-> 可以右击多个文件 -> discard change ,stage change 
+				右上角的...按钮->pull,commit(没有提示输入comment),undo last commit,show git output
+				
 ---- 扩展(git history extension)
 右击文件/目录 -> Git:view file history
 

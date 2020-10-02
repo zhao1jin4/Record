@@ -1,3 +1,4 @@
+插件开发 Mojo
 
 ==============================Maven服务器 Nexus OSS 
 2.x版本有跨平台的 -bundle.zip解压 ，目前是3.x版本见下
@@ -742,6 +743,12 @@ artifactId 是自己的项目名
 			<artifactId>jedis</artifactId>
 			<version>${jedis}</version>
 			<optional>true</optional> <!-- 可选的 -->
+			<exclusions>
+				<exclusion>
+					<groupId>com.xxx</groupId>
+					<artifactId>*</artifactId> <!-- 支持* -->
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 	<!-- 防止报  Missing artifact jdk.tools:jdk.tools:jar:1.6      -->

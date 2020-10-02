@@ -37,7 +37,24 @@ mybatis-spring-boot-autoconfigure.jar(看源码) 有有用 @EnableConfigurationP
 			 中有 @AutoConfigurationPackage 
 			 		的 registerBeanDefinitions方法中  默认扫描启动类所在的包下的主类与子类的所有组件
 
-spring-boot-start-freemarker , spring-boot-start-activemq,spring-boot-start-web,spring-boot-start-test,spring-boot-start-logging  
+spring-boot-start-web 默认使用 logback
+<dependency>
+  <groupId>org.apache.logging.log4j</groupId>
+  <artifactId>log4j-slf4j-impl</artifactId>
+</dependency>
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-web</artifactId>
+	<exclusions>
+		<exclusion>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-logging</artifactId>
+		</exclusion>
+	</exclusions>
+</dependency>
+	
+	
+spring-boot-start-freemarker , spring-boot-start-activemq,spring-boot-start-test,spring-boot-start-logging  
 mybatis-spring-boot-starter
 spring-boot-start-xx.jar 没有源码,只有配置 META－INF/spring.providers 只用来管理依赖
 
@@ -192,11 +209,12 @@ public class ApplicationTests {
 	<relativePath/> 
 </parent>
  
-<!--<dependency>
+<!-- <dependency>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-web</artifactId>
 	</dependency>
-	 默认tomcat,如要用jetty  -->
+	 默认tomcat,如要用jetty 
+-->
 	 
 	 <dependency>
 		<groupId>org.springframework.boot</groupId>
@@ -886,6 +904,8 @@ public class MybatisSpringBoot {
 	@ConfigurationProperties(prefix = "c3p0")
 	public DataSource dataSource() {
 		 return DataSourceBuilder.create().type(com.mchange.v2.c3p0.ComboPooledDataSource.class).build();
+		 //DataSourceBuilder 优先使用hikari
+		 //return DataSourceBuilder.create().url("").username("").password("").build();
 	}
 	*/
 
@@ -1034,6 +1054,86 @@ public class Send implements RabbitTemplate.ConfirmCallback {
     }  
   
 }  
+-- spring boot jms artemis
+<dependency>  
+	<groupId>org.springframework.boot</groupId>  
+	<artifactId>spring-boot-starter-artemis</artifactId>  
+</dependency>
+<dependency>
+  <groupId>javax.jms</groupId>
+  <artifactId>javax.jms-api</artifactId>
+   <!--  2.0.1 -->
+</dependency> 
+<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-jms</artifactId>
+</dependency>
+
+
+
+spring.jms.cache.session-cache-size=5
+
+spring.artemis.mode=native
+spring.artemis.host=127.0.0.1
+spring.artemis.port=61616
+spring.artemis.user=input
+spring.artemis.password=input
+
+#spring.artemis.pool.enabled=true
+spring.artemis.pool.max-connections=50
+
+
+
+
+@SpringBootApplication
+@EnableJms
+public class Application {
+    @Bean
+    public JmsListenerContainerFactory<?> myFactory(ConnectionFactory connectionFactory,
+                                                    DefaultJmsListenerContainerFactoryConfigurer configurer) {
+        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+        configurer.configure(factory, connectionFactory);
+        factory.setMessageConverter(jacksonJmsMessageConverter());
+        return factory;
+    }
+    @Bean // Serialize message content to json using TextMessage
+    public MessageConverter jacksonJmsMessageConverter() {
+        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        converter.setTargetType(MessageType.TEXT);
+        converter.setTypeIdPropertyName("_type"); 
+        return converter;
+    }
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
+        JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
+        // Send a message with a POJO - the template reuse the message converter
+        System.out.println("Sending an email message.");
+        jmsTemplate.convertAndSend("mailbox", new Email("info@example.com", "Hello"));
+    }
+}
+@Component
+public class Receiver {
+    @JmsListener(destination = "mailbox", containerFactory = "myFactory")
+    public void receiveMessage(Email email) {
+        System.out.println("Received <" + email + ">");
+    }
+}
+public class Email  
+{ 
+	private String email; 
+	private String titile; 
+	public Email() {
+	}
+	//getter/setter
+}
+
+
+-- spring boot jms activemq
+<dependency>  
+	<groupId>org.springframework.boot</groupId>  
+	<artifactId>spring-boot-starter-activemq</artifactId>  
+</dependency>
+
 
 
 -- spring boot  非web程序
@@ -2113,6 +2213,8 @@ dubbo:
 	<groupId>org.apache.camel.springboot</groupId>
 	<artifactId>camel-jackson-starter</artifactId>
 </dependency>
+
+
 <dependency>
 	<groupId>org.apache.camel.springboot</groupId>
 	<artifactId>camel-swagger-java-starter</artifactId>
@@ -2123,6 +2225,12 @@ dubbo:
 		</exclusion>
 	</exclusions>
 </dependency>
+包含下面的
+<dependency>
+  <groupId>org.apache.camel</groupId>
+  <artifactId>camel-swagger-java</artifactId>
+  <version>3.4.0</version>
+</dependency>
 
 
 @Component
@@ -2131,10 +2239,15 @@ class RestApi extends RouteBuilder {
 	@Override
 	public void configure() {
 		restConfiguration()
-			.contextPath("/camel-rest-jpa").apiContextPath("/api-doc")
-				.apiProperty("api.title", "Camel REST API")
-				.apiProperty("api.version", "1.0")
-				.apiProperty("cors", "true")
+			.contextPath("/camel-rest-jpa")
+			
+			//swagger ,maven有camel-swagger-java，仿问  http://localhost:8888/camel-rest-jpa/api-doc 就有json返回了
+			.apiContextPath("/api-doc")
+			.apiProperty("api.title", "Camel REST API")
+			.apiProperty("api.version", "1.0")
+			.apiProperty("cors", "true")  
+				
+				
 				.apiContextRouteId("doc-api")
 				.port(env.getProperty("server.port", "8080"))
 			.bindingMode(RestBindingMode.json);
@@ -2150,6 +2263,48 @@ class RestApi extends RouteBuilder {
 	}
 }
 
+  
+//全局异常处理 ，会自动找和抛出异常继承关系最近的
+onException(Exception.class).handled(true).process(new Processor() {
+	@Override
+	public void process(Exchange exchange) throws Exception {
+		Exception ex=exchange.getProperty(Exchange.EXCEPTION_CAUGHT,Exception.class);
+		System.out.println("处理了异常");
+		ex.printStackTrace();
+	}
+ }).setBody(simple("{\"errorType\":${exception.class.name},\"errorMessaage\":${exception.message}")).end(); 
+//exception是抛出的异常类
+
+onException(RuntimeException.class).handled(true)
+.setHeader(Exchange.HTTP_RESPONSE_CODE,constant(400))
+.setBody(simple("{\"errorType\":${exception.class.name},\"errorMessaage\":${exception.message}}"))
+// \"stackTrace\":${exception.stackTrace}是不行的
+.end();
+		
+		
+		
+		
+rest("/student").id("student_id").description("student api desc") .consumes("application/json").produces("application/json")
+		.post("/save").description("save student").type(Student.class).outType(CommonResponse.class).to("bean:studentService?method=save(${body})")
+		.post("/save1").description("save student").type(Student.class).outType(CommonResponse.class)
+							.route().bean(studentService,"save").endRest()
+		.post("/getById/{stuId}").description("get student").type(Student.class).outType(CommonResponse.class).to("direct:getById")
+		.post("/asyncGen").description("asyncGen  ").
+			param().name("regenerate").type(RestParamType.query).dataType("boolean").defaultValue("true").endParam()
+			.type(Student.class).outType(CommonResponse.class).to("seda:asyncGen")
+		; //还可继续.type()
+		 //inOnly过时了 
+	
+	from("direct:getById").to("bean:studentService?method=getById(${header.stuId})");//也可用全部参数 ${headers}
+	from("seda:asyncGen").to("bean:studentService?method=asyncGen(${body},${header.regenerate})");
+	
+public CommonResponse getById(int id) {
+	
+}	
+public CommonResponse asyncGen(Student stu,boolean isRegenerate )
+{
+}
+	
 ---单元测试
 camel:
   springboot:
@@ -2175,4 +2330,15 @@ public void booksTest() {
 	assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 }		
 
- 
+----camel swagger
+<dependency>
+  <groupId>org.apache.camel</groupId>
+  <artifactId>camel-swagger-java</artifactId>
+  <version>3.5.0</version>
+</dependency>
+
+
+
+
+
+

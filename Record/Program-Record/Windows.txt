@@ -93,6 +93,9 @@ XII - 12
 卖出=空头
 头寸
 
+RCA = Root Cause Analysis
+HDMI高清接口 DP接口
+
 127.开头的网段的都是loopback
 
 局域网段
@@ -344,9 +347,10 @@ mklink  /D C:\Users\user1 D:\user1
 要先登录一次产生C:\Users\user1文件夹再移动文件，再mklink,如第一次登录已经C:\Users\user1目录，会自动建立使用C:\Users\user1.<hostname>文件夹
 
 
-net localgoup administrators 显示本机的管理员组有哪些用户
+net localgroup administrators 显示本机的管理员组有哪些用户
 
-
+Control Panel\User Accounts and Family Safety\User Accounts  -> Create a password reset disk 
+在登录屏幕中，输错误密码，有reset password 链接
 ====快捷键
 
 ctrl+tab 当前程序的多窗口切换 
@@ -382,18 +386,14 @@ Win+SHIFT+左键 将活动窗口移至左侧显示器 (当前桌面)
  
 win+space 切换输入法 不松手多次space来切换
 win + x 弹出菜单(相当右击开始图标)
-
-
-
-在文件打开,保存对话框中 使用 alt + 上方向键,向上级目录
+ 
 
 alt+space弹出菜单 ->按 M 移动 ,再按方向键 就可移动窗口(当窗口标题超出顶部)
-
-
-改变桌面图标大小  按ctrl+拖动滚轮
-
-ctrl+alter +方向键(驱动相关)   可以改变屏幕方向  ,上键是正常的,   头在上
+ 
 ---
+改变桌面图标大小  按ctrl+拖动滚轮
+ctrl+alter +方向键(驱动相关)   可以改变屏幕方向  ,上键是正常的,   头在上
+在文件打开,保存对话框中 使用 alt + 上方向键,向上级目录
 
 
 win7查看自己电脑共享了哪些东西,使用net share 命令,显示没有$结尾的
@@ -829,6 +829,8 @@ wmic process where "caption = 'java.exe' and commandline like '%server-1.propert
 	ProcessId
 	6016
 taskkill /pid 6016 /f
+taskkill /im  redis-server.exe  (im=image)
+taskkill /im  redis* 通配符只可用在最后
 
 
 netstat  -r  显示网卡号
@@ -880,7 +882,11 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\MySQL55 中也很多键
 sc config MySQL56 start= demand  相当于界面的manual,demand前一定要有空格
 
 start命令是开一个新的CMD窗口,如 start startWeblogic.cmd 在CMD新窗口中运行
-把文件报入cmd,或者 运行... 对话框中,显示完整路径
+start "myredis" ./redis-server.exe ./redis-windows.conf  以指定标题启动新窗口运行 (标题对npm命令无效)
+	/d 启动目录 /i 环境变量 /min 启动时最小化,对应的有 /max 
+
+把文件拖入cmd,或者 运行... 对话框中,显示完整路径
+
 
 net start/stop MySQL
 net user 
@@ -1027,6 +1033,9 @@ win10 桌面图标不能移动时,快按两次esc键就可以了
 C:\Windows\SystemApps 是 win10 系统应用
 修改默认字体
 
+win10 设置另一显示器方向，Setting->Display->Orientagion->可以继续选择Landscap或portrait 
+win10 字体大小，Setting->搜索Ease->选中Easy of Access brighting Setting->Make Text Bigger 中拖动滚动条
+win10护眼模式  ，Setting->Display->打开Night Light
 -----windows Defender
 
 金山毒霸可以让windows Defender 服务停止.
@@ -1051,6 +1060,8 @@ svchost.exe(LocalSystemNetworkRestricted -p)总是占用磁盘100%
 关闭windows Defender 
 Win+R ->输入 gpedit.msc (家庭版没有这个)  
 	计算机策略 -> 管理模板 -> Windows 组件 -> 关闭 Windows Defender 防病毒程序 ->双击  选择 "已启用"
+	
+关闭扫描 -> Virus & threat protection -> 展开windows Defender Antivirus options ,在perodic scanning设置为off	
 -----
 
 
@@ -1065,6 +1076,7 @@ wsappx 进程是windows 商店的(可以在windows 商店中关闭自动更新)
  
  
 TASKLIST  命令显示进程
+TASKLIST | findstr redis
 TASKLIST | find /C ".exe"   ,/C 表示计数
 TASKLIST  /FI "SESSIONNAME eq Services"
 TASKLIST  /FI "SESSIONNAME eq Console"

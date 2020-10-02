@@ -1,4 +1,7 @@
-﻿有历史版本 下载界面中点 other version
+﻿
+https://www.jetbrains.com/help
+
+有历史版本 下载界面中点 other version
 https://www.jetbrains.com/idea/download/other.html  
 https://www.jetbrains.com/clion/download/other.html
 https://www.jetbrains.com/go/download/other.html
@@ -6,6 +9,8 @@ https://www.jetbrains.com/go/download/other.html
 2020.1 版本位置变为 %USERPROFILE%\AppData\Local\JetBrains\IntelliJIdea2020.1
 			linux变为	~/.cache/JetBrains/IntelliJIdea2020.1
 			
+README.md 文件是markdown语法,idea可以识别 
+
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
 IDEA 2018.2.6 版本可以支持 JDK11
 IDEA 2020.1 版本可以支持 JDK14
@@ -186,7 +191,7 @@ View -> tools->Structure  显示大纲(就在左侧边栏)
 View -> Quick Documentation (ctrl+Q)   
 Navigator->File Structure (  ctrl+F12 ) 显示弹出式的大纲
 Navigator->bookmark -> show bookmark (  shift+F11 ) 显示书签窗口
-
+navigator-> type hierachy (ctrl+h)，可以看打开类的所有子类，更改类要重新刷新
 Navigator->class ... (  ctrl+N )
 
 
@@ -435,8 +440,17 @@ Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 
 ---------Rider 跨平台的C#开发工具(也有开源的MonoDevelop )
 
+-----UpSource  免费的
+用来做Code review
 
------teamCity CI/CD工具 免费的
+-----YouTrack 收费
+Agile  PM
+ 
+-----teamCity CI/CD工具 
+3个agent 是免费的
+
+前端使用react开发
+
 有docker版本
 docker run -it --name teamcity-server-instance \
 -v <path to data directory>:/data/teamcity_server/datadir \
@@ -444,8 +458,7 @@ docker run -it --name teamcity-server-instance \
 -p <port on host>:8111 \
 jetbrains/teamcity-server
 
- 
-安装后
+安装在 C:\TeamCity 是一个Tomcat服务,有webapps/ROOT/
 会生成 C:\TeamCity\buildAgent\conf\buildAgent.properties  文件 
 有使用C:\TeamCity\buildAgent\system ,work,temp 目录, ownPort=9090 
 
@@ -455,16 +468,72 @@ http://127.0.0.1:80 默认数据目录配置为 C:\ProgramData\JetBrains\TeamCit
 页面提示 C:\ProgramData\JetBrains\TeamCity\lib\jdbc 放 mysql-connector-java-8.0.15.jar
 输入连接数据库信息
 
+配置保存在 C:\ProgramData\JetBrains\TeamCity\config\database.properties
+
 create user teamcity@'%' identified by 'teamcity';
 create database teamcity; 
 GRANT ALL   ON teamcity.* TO 'teamcity'@'%';
 建立了140张表
-
+如数据库丢失 点链接 http://127.0.0.1/mnt  会提示 C:\TeamCity/logs/teamcity-server.log 会有 Super User toke ，提示配置信息，Procced 建立数据库表
+ 
 提示建立管理员帐户，如 admin/teamcity
 
+登录为管理员，右上角有Aminstration链接，
+Licenses 显示为professional ,最多3个agent,最多 100 build configurations
 
+Agent->Install Build Agents 下载文件即
+	C:\TeamCity\webapps\ROOT\update\ 下的 agentInstaller.exe , buildAgentFull.zip  程序包
 
+ 
+https://github.com/callicoder/spring-boot-websocket-chat-demo  项目来测试
 
+可以建立其它用户 
 
+建立项目 如起名为 project1 ,在其下建立Build Configurations,如起名为 project1_config
+project级配置 ->Settings标签
+		 Version Control Settings标签:可Git
+		 Build Step标签: 可为很多类型如 Maven->Advance Setting中有配置JDK,  可以上传setting.xml,起名为build级使用
+		 Parameters 标签: 可以建立下拉框类型的参数，如服务是启动/停止/重启,env=dev
+		 Connection标签:可以配置Docker Registry
+		
+可以建立多个build,其中每个可以临时disable
 
+build级配置 的 Run边上的...按钮-> 可以选择Agent,也可建立多个Agent,Parameter标签就可以看刚建立的参数(可下拉框式) ->Run按钮开始执行
 
+右上角的 project级 切换 Edit project Settings 		和 project home
+		 build 级 切换 Edit Configuration Settings 	和 build configuration home
+--Git
+project级配置 Maven Settings文件,可以配置SSH Keys  (teamcity使用jsch只支持 ssh-keygen -m PEM的 方式生成的 id_rsa文件)
+build级配置  GIT  可以用 private key 
+	Authentication Method:
+		可下拉选择 Upload Key，即在project级上传的
+		可下拉选择Default Private Key ,提示路径为"C:\Windows\system32\config\systemprofile\.ssh\config"
+			C:\Windows\system32\config 是已经存在的,后面的要单独建立
+		可下拉选择为Custom Private Key ,可以使用project级或build级来配置Parameter (ssh-keygen -m PEM的 方式生成的 id_rsa文件)
+	
+看界面中的日志 代码下载到 C:\TeamCity\buildAgent\system\git\git-xxx.git
+
+build级配置
+	build number format:默认值为  %build.counter%  可被其它地方使用
+	build counter:
+	
+	Runner Type 还有其它的,如Gradle,Docker,Docker Compose,Container Deployer(tomcat输入用户名密码，上传war包)
+		command line , 可以使用环境变量，如 echo %build.counter% >> c:/tmp/buildNum.log
+	 	Maven,	show advanced options有更多选项
+			Execute Step: if all previous step finished successfully
+			working directory:是相对于C:\TeamCity\buildAgent\work的目录，也可使用是绝对路径 
+			JDK:默认使用JAVA_HOME
+			Jacoco Coverage:
+			
+			Maven Settings:默认使用M2_HOME
+			Additional Maven command line paramter:可配置如-Dmaven.test.skip=true
+			Path to POM file: 可以使用相对路径如./Server/pom.xml 
+			User Settings:选择project级上传的settings.xml文件,默认只使用镜像URL,不使用仓库位置(下载到C:\TeamCity\buildAgent\system\jetbrains.maven.runner\maven.repo.local)
+				可修改Local Artifact Repository Settings默认的per agent为maven default
+			
+			
+			
+--
+环境变量%system.teamcity.build.checkoutDir% 的值是C:\TeamCity\buildAgent\work\xxx ，当前这个build级的目录，在第一次启动后生成，后面就一直用这个目录
+	work下的文件夹如没有被teamcity使用，会被自动删除，文件不会
+看有哪些环境变量可用，可在已经执行过的bulder中的parameter标签，如%teamcity.agent.work.dir%

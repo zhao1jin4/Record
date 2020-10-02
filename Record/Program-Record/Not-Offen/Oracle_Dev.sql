@@ -1,5 +1,13 @@
 
 
+https://www.oracle.com/downloads/developer-vm/community-downloads.html#dbapp
+Database App Development VM  是VirtualBox版本的 Oracle最新的是 19.3，基于Oracle Linux 7,有SQL Developer
+
+<dependency>
+    <groupId>com.oracle.database.jdbc</groupId>
+    <artifactId>ojdbc8</artifactId>
+    <version>19.7.0.0</version> 
+</dependency>
 
 #sqlplus pin/pin@192.168.1.66:1521/orcl  OK
 #sqlplus pin/pin@//192.168.1.66:1521/orcl  OK 

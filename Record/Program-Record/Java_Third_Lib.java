@@ -1364,6 +1364,19 @@ L与P之间（含P）的所有appender，但不会发送给P的任何祖先的ap
 
 pattern,%thread 线程名 ,%-5level级别,%logger{32}名称, %msg日志,%n 换行
 
+%line 行号
+%M 方法名
+控制台加颜色 %cyan(%logger{50}[%M]:%line)
+日期加时区 %d{yyyy-MM-dd HH:mm:ss.SSS'Z',Etc/UTC}
+
+
+%logger  显示全包名.类名
+%logger{0} 只显示类名
+%logger{5} 包名.类名 缩短的长度,(包名.前至少1个字符,类名全部)
+
+%.-1level  把INFO 变为  I
+
+
 
 classpath下 找 logback-test.xml 如果找不到 再找 logback.xml,也不存在使用 BasicConfigurator 
 //java -Dlogback.configurationFile=/path/to/config.xml  默认classpath下的logback.xml
@@ -1504,14 +1517,6 @@ https://logback.qos.ch/manual/appenders.html#SizeAndTimeBasedRollingPolicy
 
 全包名(最后一个.前的内容)
 类名(最后一个.后的内容)
-%logger  显示全包名.类名
-%logger{0} 只显示类名
-%logger{5} 包名.类名 缩短的长度,(包名.前至少1个字符,类名全部)
-
-%.-1level  把INFO 变为  I
-
-
-
 
 logback可以把日志推送给logstash  
 https://github.com/logstash/logstash-logback-encoder/blob/master/README.md
@@ -1613,16 +1618,21 @@ public class MyListener extends ContextAwareBase  implements LoggerContextListen
 	apache commons VFS2 库的CIFS协议 其实是用 jCIFS 
 
 -------------------------------JSCH
+<dependency>
+  <groupId>com.jcraft</groupId>
+  <artifactId>jsch</artifactId>
+  <version>0.1.55</version>
+</dependency>
+
 jCraft的一个项目,是sftp实现
 
-JSch jsch = new JSch();
-jsch.getSession(username, host, port);
+JSch jsch = new JSch();  
 Session sshSession = jsch.getSession(username, host, port);
+ 
+String pemPrivateKey="C:\\cygwin64\\home\\dell\\.ssh\\id_rsa";
+jsch.addIdentity(pemPrivateKey);//私钥只是使用 ssh-keygen -m PEM 生成的id_rsa 文件
 
-if(keyDir!=null)
-	jsch.addIdentity(keyDir);//密钥验证,未测试
-else
-	sshSession.setPassword(password);
+//sshSession.setPassword(password);
 
 Properties sshConfig = new Properties();
 sshConfig.put("StrictHostKeyChecking", "no");
@@ -3710,24 +3720,54 @@ This will serve Swagger UI at /swagger instead of /.
 
 ---codegen
 <dependency>
-    <groupId>io.swagger.codegen.v3</groupId>
-    <artifactId>swagger-codegen-maven-plugin</artifactId>
-    <version>3.0.8</version>
+  <groupId>io.swagger.codegen.v3</groupId>
+  <artifactId>swagger-codegen-cli</artifactId>
+  <version>3.0.21</version>
 </dependency>
-
-http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.4.7/swagger-codegen-cli-2.4.7.jar
  
-java -jar swagger-codegen-cli-2.4.7.jar help
-java -jar swagger-codegen-cli-2.4.7.jar  langs 显示支持的语言
+java -jar swagger-codegen-cli-3.0.21.jar -h 
+java -jar swagger-codegen-cli-3.0.21.jar  langs 显示支持的语言
 
-java -jar swagger-codegen-cli-2.4.7.jar help generate
-java -jar swagger-codegen-cli-2.4.7.jar  config-help -l java
+java -jar swagger-codegen-cli-3.0.21.jar  generate -h
+java -jar swagger-codegen-cli-3.0.21.jar  config-help -l java
 
-java -jar swagger-codegen-cli-2.4.7.jar generate -l  java -o out_dir -i xxx.yaml 或 xxx.json  
- 如是java语言是java client代码，有gradle,maven,AndroidManifest.xml,依赖于swagger-annotations是1.5的版本
- 如是spring用的是 springfox-swagger2，swagger-annotations 还是1.5版本
+java -jar swagger-codegen-cli-3.0.21.jar   generate -l  java -o out_dir -i xxx.yaml 或 xxx.json  
+
+https://petstore.swagger.io/v2/swagger.json
+
+ 如是java语言是java client代码，有buil.gradle,build.sbt,pom.xml  依赖于swagger-annotations是2的版本
+ 语言有spring 用的还是老的swagger-annotations-1.5 版本，有使用springfox-swagger2
+ 
  
 
+<plugin>
+	    <groupId>io.swagger.codegen.v3</groupId>
+	    <artifactId>swagger-codegen-maven-plugin</artifactId>
+	    <version>3.0.21</version>
+	    <!-- 
+		<executions>
+			<execution>
+				<goals>
+					<goal>generate</goal>
+				</goals>
+			</execution>
+		</executions>
+		 -->
+		 <configuration>
+		 	<inputSpec>c:/tmp/swagger.json</inputSpec> <!-- eclipse可以提示参数名 -->
+		 	<language>java</language>
+		 	<output>${project.build.directory}/generate-source/swagger</output>
+		 </configuration>
+	</plugin>
+mvn swagger-codegen:help 
+mvn swagger-codegen:help -Ddetail=true 可以看所有参数及说明
+mvn swagger-codegen:help -Ddetail=true -Dglobal=<global-name>
+mvn swagger-codegen:generate 生成代码
+
+
+
+
+ 
 
 =======================pinyin4j
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -4183,15 +4223,27 @@ https://github.com/DozerMapper/dozer/
     <version>6.5.0</version>
 </dependency>
 dozer-core-6.5.0.jar
+复制Bean属性
 
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
+import com.github.dozermapper.core.loader.api.BeanMappingBuilder;
+import com.github.dozermapper.core.loader.api.TypeMappingOptions;
+
 
 SourceClassName sourceObject = new SourceClassName();
 sourceObject.setName("Dozer");
 sourceObject.setBirthday(new Date());
-//复制Bean属性
-Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+
+BeanMappingBuilder builder=new BeanMappingBuilder() {
+	@Override
+	protected void configure() {
+		//从哪个类，复制为什么类时，排除哪个字段,如JPA lazy字段
+		mapping(NestPair.class, NestPair.class, TypeMappingOptions.mapNull(false)).exclude("second");
+	}
+};
+Mapper mapper = DozerBeanMapperBuilder.create().withMappingBuilder(builder).build();
+//Mapper mapper = DozerBeanMapperBuilder.buildDefault(); 
 DestinationClassName destObject = mapper.map(sourceObject, DestinationClassName.class);
 
 System.out.println(destObject.getBirthday().equals(sourceObject.getBirthday()));
@@ -4216,7 +4268,35 @@ Pro 版本是收费的
         <propertyFileWillOverride>true</propertyFileWillOverride>
         <propertyFile>src/main/resources/liquibase.properties</propertyFile>
     </configuration>
+	 <executions>  
+		 <execution>  
+		   <phase>process</phase>                                                                    
+		   <goals>  
+		   <goal>update</goal>  
+		   </goals>  
+		 </execution>  
+	   </executions>  
 </plugin>
+
+mvn help:describe -DgroupId=org.liquibase -DartifactId=liquibase-maven-plugin   -Dfull=true 显示帮助
+
+mvn liquibase:update
+mvn liquibase:tag -Dliquibase.tag=myTag
+mvn liquibase:rollback  -Dliquibase.tag=myTag
+mvn liquibase:rollback  -Dliquibase.rollbackCount=2
+ 
+
+--liquibase.properties 必须放在  classpath下
+contexts:  /MyApp   
+changeLogFile: Release004.sql
+driver:  com.mysql.cj.jdbc.Driver
+url:  jdbc:mysql://localhost/mydb?useUnicode=true&characterEncoding=UTF-8
+username:  zh
+password:  123
+verbose:  true   
+dropFirst:  false 
+
+
 如果需要在父项目中配置子项目共享的LiquiBase配置，而各个子项目可以定义自己的配置，并覆盖父项目中的配置，
 则只需要在父项目的pom中将propertyFileWillOverride设置为true即可
 
@@ -4248,18 +4328,87 @@ INSERT INTO table2 (id, firstname) VALUES (NULL, 'name1'),(NULL, 'name2'), (NULL
 
 内容可以是一个SQL文件多个changeset、一个changeset多个SQL
 
-执行使用  --classpath=D:\Program\liquibase-4.0.0\lib\mysql-connector-java-8.0.15.jar
 liquibase --changeLogFile=\tmp\Release004.sql --driver=com.mysql.cj.jdbc.Driver  --url="jdbc:mysql://localhost/mydb?useUnicode=true&characterEncoding=UTF-8"  --username=zh --password=123  update
+liquibase --changeLogFile=\tmp\Release004.sql --driver=com.mysql.cj.jdbc.Driver  --url="jdbc:mysql://localhost/mydb?useUnicode=true&characterEncoding=UTF-8"  --username=zh --password=123  tag v1.0
+liquibase --changeLogFile=\tmp\Release004.sql --driver=com.mysql.cj.jdbc.Driver  --url="jdbc:mysql://localhost/mydb?useUnicode=true&characterEncoding=UTF-8"  --username=zh --password=123  rollback v1.0
+liquibase --changeLogFile=\tmp\Release004.sql --driver=com.mysql.cj.jdbc.Driver  --url="jdbc:mysql://localhost/mydb?useUnicode=true&characterEncoding=UTF-8"  --username=zh --password=123  rollbackCount 1
 
+liquibase --changeLogFile=\tmp\Release004.sql  --driver=com.mysql.cj.jdbc.Driver  --url="jdbc:mysql://localhost/mydb?useUnicode=true&characterEncoding=UTF-8" --username=zh --password=123 rollbackToDate 2013-07-16T16:55:37
 
-撤销到指定日期之后,使用--rollback
-liquibase --changeLogFile=D:\tmp\Release004.sql  --driver=com.mysql.cj.jdbc.Driver --classpath=D:\Program\liquibase-4.0.0\lib\mysql-connector-java-8.0.15.jar --url="jdbc:mysql://localhost/mydb?useUnicode=true&characterEncoding=UTF-8"--username=zh--password=123 rollbackToDate 2013-07-16T16:55:37
-
-
-
+可加  --classpath=D:\Program\liquibase-4.0.0\lib\mysql-connector-java-8.0.15.jar 或放lib目录下
+可加  --logLevel=debug
+ 
 默认记录在  DATABASECHANGELOG 和  DATABASECHANGELOCK  表中
+ 
+ 
+//spring boot 的 DataSourceBuilder 优先使用hikari
+DataSource datasource=DataSourceBuilder.create().url("").username("").password("").build();
+batchUpdate(datasource);
+public static void batchUpdate(DataSource datasource) throws Exception {
+	Connection connection=datasource.getConnection();
+	JdbcConnection jdbcConnection=new JdbcConnection(connection);
+	Database database=DatabaseFactory.getInstance().findCorrectDatabaseImplementation(jdbcConnection);
+	database.setDatabaseChangeLogTableName("T_CHANGE_LOG");
+	database.setDatabaseChangeLogLockTableName("T_LOCK_CHANGE_LOG");
 
+	if(!database.getRanChangeSetList().isEmpty())
+	{
+		StandardChangeLogHistoryService service=new StandardChangeLogHistoryService();
+		List<Map<String, ?>> changeLogTable = service.queryDatabaseChangeLogTable(database);
 
+		List<String> changeLogs=new ArrayList<>();
+		changeLogTable.stream().forEach(o->changeLogs.add(o.get("FILENAME").toString()));
+		
+		List<String> updates=new ArrayList<>();
+		//spring的类
+		ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+		Resource  resouces[]=resolver.getResources("classpath*:db/sql/*.sql");
+		for(Resource resource:resouces) 
+		{
+			String fileName="db/sql/"+resource.getFilename();
+			if(!changeLogs.contains(fileName))
+				updates.add(fileName);
+		}
+		Collections.sort(updates);
+		for(String update:updates)
+		{
+			boolean rollback=true;
+			Liquibase liquibase=new Liquibase(update,new ClassLoaderResourceAccessor(),database);
+			System.out.println(update+"文件的SQL");
+			//为打日志
+			for(ChangeSet changeSet:liquibase.getDatabaseChangeLog().getChangeSets())
+			{
+				rollback=rollback & changeSet.supportsRollback(database);
+				changeSet.getChanges().forEach(change->{
+					Arrays.stream(change.generateStatements(database)).forEach(
+								s -> {
+									System.out.println("SQL-"+s.toString());
+								}
+							);
+					
+					try {
+						Arrays.stream(change.generateRollbackStatements(database)).forEach(
+								s ->{
+									System.out.println("Rollback SQL-"+s.toString());
+								}
+							);
+					} catch (RollbackImpossibleException e) {
+						System.out.println("Rollback SQL Fail");
+					}
+				});
+			}
+			if(rollback) {
+				liquibase.updateTestingRollback(null);
+			}else
+			{
+				liquibase.update((String)null);
+			}
+			liquibase.close();
+		}
+		database.commit();
+	}
+}
+ 
 
 -------------akka
 
@@ -4275,3 +4424,18 @@ authorization server 保存用户密码的服务器
 ---client sparklr2
  
 
+----FIX 
+ FIX的英文全称为Financial Information eXchange（金融信息交换协议）
+https://www.fixtrading.org
+
+---quickfix 
+http://quickfixengine.org/
+FIX Protocol Implementation
+有很多语言的实现 ,java 语言实现 为 QuickFIX/J https://www.quickfixj.org/
+ 
+--Philadelphia 
+https://github.com/paritytrading/philadelphia
+Financial Information Exchange (FIX) engine for the JVM.
+
+ 
+ 

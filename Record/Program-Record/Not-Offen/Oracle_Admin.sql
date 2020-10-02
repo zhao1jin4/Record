@@ -5,7 +5,10 @@ Oracle Database 12c Administrator Certified Professional   (OCP)
 Oracle Certified Master (OCM) --当前还没有课程要求
 
 Oracle Database 19c (19.3)(2019-06-22) 下载大小为2.8GB-2.9GB  没有Mac版本
-XE版本目前只有18c (18.4) 下载大小为	1.9GB-2.4GB 太大没有什么意义,也有Mac版本	
+XE版本目前只有18c (18.4) 下载大小为	1.9GB-2.4GB 太大没有什么意义,也有Mac版本	(11gXE现在官方没下载了)
+
+18c XE磁盘剩余5.8G不能安装(可win7安装) ,如8.3G则可以 ,默认安装路径 C:\app\Administrator\product\18.0.0\
+
 https://docs.oracle.com/en/database/oracle/oracle-database/19/books.html  有很多 PDF可以下载
 支持的linux有 
 	Red Hat Enterprise Linux 7.4 (Oracle Linux 7.4)
@@ -740,8 +743,12 @@ ROW EXCLUSIVE
 SHARE UPDATE  (See ROW SHARE.)
 SHARE  (锁定整个表,其它用户可也锁定这个表(share),)禁止其他用户插入、更新和删除行
 
-V$LOCK  BLOCK为1表示在锁状态 ,LMODE 为6 表示exclusive (X) ,TYPE为TX 表示 Transaction enqueue
-
+V$LOCK  
+	BLOCK为1表示在锁状态 ,
+	LMODE 为6 表示exclusive (X) ,
+	TYPE为TX 表示 Transaction enqueue
+	CTIME是锁的时间，单位为秒
+	SID ，SessionID
 V$LOCKED_OBJECT  的LOCKED_MODE含义
 	0：none
 	1：null 空
@@ -1270,5 +1277,14 @@ select *
      left join all_users u
       on u.USER_ID = s.PARSING_USER_ID) t
  where exec_rank <= 100;
+ 
+ 
+ 查当前连接数
+ select count(*) from V$session;
+ 
+ 查设置的最大的连接数
+ select value from V$parameter where name='process'
+ 
+ 
  
  

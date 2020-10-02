@@ -1992,11 +1992,29 @@ https://github.com/spring-projects/spring-session-bom/#spring-session-bom
 	<groupId>org.springframework.session</groupId>
 	<artifactId>spring-session-data-redis</artifactId>
 </dependency>
-
+<dependency>
+	<groupId>org.springframework.session</groupId>
+	<artifactId>spring-session-hazelcast</artifactId>
+ </dependency>
 
 https://docs.spring.io/spring-session/docs/2.3.0.RELEASE/reference/html5/guides/java-hazelcast.html
+ 
 @EnableHazelcastHttpSession 
-
+@Configuration
+public class HazelcastHttpSessionConfig {
+	@Bean
+	public HazelcastInstance hazelcastInstance() {
+		Config config = new Config();
+		config.setInstanceName("myHazelInst") ;//对应于管理页的clusterName
+		MapAttributeConfig attributeConfig = new MapAttributeConfig()
+				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
+				.setExtractor(PrincipalNameExtractor.class.getName());
+		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME) 
+				.addMapAttributeConfig(attributeConfig).addMapIndexConfig(
+						new MapIndexConfig(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+		return Hazelcast.newHazelcastInstance(config); 
+	}
+}
 
 
 ------------spring websocket 

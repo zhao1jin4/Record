@@ -82,6 +82,7 @@ Review-> Tracking组中 打开 Track Chnages  如删,加文字可以记录,可�
 在线预览excel
 https://view.officeapps.live.com/op/view.aspx?src=www.xxx.com/xx.xlsx
 
+File -> INfo -> protect Workbook  可以设置打开密码
 
 excel 中可以在单元格用  ='Name List'!D8  表示引用Name List的工作表中的D8 内容,
 
@@ -205,14 +206,20 @@ More setting...按钮->outgoing Server 复选Myoutgoing server(SMTP) requires au
 联系人: tools->address book->输入 user name
 会议:Calendar中->new appointment
 
-外出:可能要使用Exchange Server才行
 邮件保存设置: 文件->信息->Account Settings->Data Files->
-outlook 2010 自动回复Out of Office, File->Info-> Automatic Replies
-			在邮件列表按邮件标题排序,可以按相同标题显示在一起,像Mac的iMail
-建立邮件时->Options->Use Voting Button->custome...多个选项以;分隔,收到人选择发送后,可在邮件中单击"sender repond:xx"->view voting respond,查看投票结果
+
+
+外出:可能要使用Exchange Server才行
+自动回复Out of Office, File->Info-> Automatic Replies
 
 撤回发送的邮件
 在已发送箱中双击邮件->Move组->recall this message->弹出对话框,如对方未读可以撤回,也可通知撤回成功的和失败的,等收件箱
+
+
+在邮件列表按邮件标题排序,可以按相同标题显示在一起,像Mac的iMail
+可搜索 输入 from:<发件人拼音>
+
+建立邮件时->Options->Use Voting Button->custome...多个选项以;分隔,收到人选择发送后,可在邮件中单击"sender repond:xx"->view voting respond,查看投票结果
 
 在日历视图中->如没有选中,空白处则有share Calendar按钮,如选中已有的活动有 private 按钮,可以看别人的日程安排,在左侧中MyCalener中右击->add calendar ->from address book增加联系人,选中就可看
 
@@ -743,7 +750,8 @@ windows版本没有中文问题
 ------------------X-Mind
 可画鱼骨图
 
-
+---cpu-z
+在Instructions中有VT-x 表示启动了虚拟化 ，还有一个cpu-v
 
 
 

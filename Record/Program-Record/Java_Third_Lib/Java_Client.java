@@ -720,6 +720,8 @@ public class Actor {
    //getter/setter
 }
 ---------------------------------Redis client Jedis (spring使用这个)
+是阻塞的
+
 https://github.com/xetorthio/jedis
 
 <dependency>
@@ -921,7 +923,7 @@ local  isSet = redis.call('SETNX', KEYS[1], ARGV[1])
     <artifactId>lettuce-core</artifactId>
     <version>5.0.4.RELEASE</version>
 </dependency>
-使用reactor,netty
+使用reactor,netty 非阻塞的
 
 
 //注意 jboss-client.jar了有netty的类
@@ -1001,7 +1003,7 @@ jedis.shutdown();//会把redis服务器关了
 https://redis.io/topics/distlock 提到使用 redisson
 https://github.com/redisson/redisson/wiki/ 有中文的文档
 
-//redisson  依赖于netty,fasterxml的jackson
+//redisson  依赖于netty 非阻塞的,fasterxml的jackson
 
 
 Config config = new Config();
@@ -1033,6 +1035,13 @@ bucket.setAsync(new AnyObject());//单机OK,但cluster master get时卡住???
 AnyObject obj = bucket.get();
 
 redisson.shutdown();
+
+//分布式锁实现使用lua脚本，redis的发布订阅，hash数据结构key是线程ID
+RLock lock = redisson.getLock("anyLock");
+lock.lock(); // lock.lock(10, TimeUnit.SECONDS);
+//...
+lock.unlock();
+ 
  
 ============ZkClient
 <dependency>
@@ -1351,10 +1360,13 @@ Hazelcast IMDG 开源的 in-memory data grid
 服务端/客户端一样的 jar包,大小10MB
 hazelcast-4.0.1\bin\start.bat 启动服务
 
-hazelcast-4.0.1\management-center\start.bat 启动管理界面 
+hazelcast-4.0.1\management-center\start.bat  <端口号> 启动管理界面 
 http://127.0.0.1:8080 第一次启动要求注册 用户名/密码 (至少8个字符,数字,字母,特殊符号)如 hazelcast/HazelFree$
-	Add Cluster Config按钮 cluster Name默认为dev,选中建立的,可以看到很多信息,可以用程序连接
+	Add Cluster Config按钮 cluster Name默认为dev(名与代码中的 config.setClusterName("myHazelInst") 对应),选中建立的,
+	地址格式为 27.0.0.1:5701  回车后变为tag,可以输入多个，也可只输入集群中的一个节点
+	可以看到很多信息,可以用程序连接
 	console标签，可以输入命令,help帮助
+默认存放目录 ~/hazelcast-mc
 
 docker run hazelcast/hazelcast:$HAZELCAST_VERSION
 docker run -e JAVA_OPTS="-Dhazelcast.local.publicAddress=<host_ip>:5701" -p 5701:5701 hazelcast/hazelcast:$HAZELCAST_VERSION
@@ -1453,6 +1465,11 @@ clusterQueue.add("element1");
 System.out.println(clusterQueue.size());
 System.out.println(clusterQueue.poll());
 System.out.println(clusterQueue.size());
+
+---java Server
+Config config = new  Config();
+config.setClusterName("myHazelInst");
+HazelcastInstance server = Hazelcast.newHazelcastInstance(config);
 
 
 

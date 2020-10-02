@@ -14,7 +14,7 @@
 	<dependency>
 		<groupId>org.aspectj</groupId>
 		<artifactId>aspectjweaver</artifactId>
-		<version>1.7.4</version>
+		<version>1.9.6</version>
 	</dependency>
 		
 	<dependency>
@@ -343,6 +343,19 @@ ClassPathResource ("xml文件");
 	abstract="true" 
 	autowire="byName" 
 	depends-on="driverClass"  @DependsOn
+
+ 
+
+@Component(value = "classSelf")
+public class ClassSelf  {
+	//循环注入是可以的
+	
+	@Autowired //可以自已注入自己
+	private ClassSelf myself;
+	
+	@Autowired //可以按类型注入List
+	private List<? extends Provider> allProvider;
+}
 
 <map>
 	<entry key="one" value="1111"></entry>
@@ -1237,8 +1250,8 @@ UserService service1= context.getBean(UserService.class);
 
 
 
-
-
+ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+Resource  resouces[]=resolver.getResources("classpath*:db/sql/*.sql");
 
 ---------其它标签
 
@@ -2004,7 +2017,8 @@ public class MyCache implements Cache
 --cache ehcache
 对方法如果每次的参数相同,缓存后,就不执行方法,直接返回缓存的结果
 public class ReadOnlyCache {
-	@Cacheable(value = "DEFAULT_CACHE" ,key="#param")//对应于ehcache.xm中的配置,#引用参数变量
+	//@Cacheable(value = "DEFAULT_CACHE" ,key="#param")//对应于ehcache.xm中的配置,#引用参数变量
+	@Cacheable(cacheNames = "DEFAULT_CACHE" ,key="#param")//cacheNames和value是一样的，即别名@AliasFor("")
 	public String cacheTest(String param) throws Exception {
 		Thread.sleep(1000 * 1);
 		return "[" + param + "] processed : " + param;
@@ -2068,8 +2082,33 @@ String tmpDir=System.getProperty("java.io.tmpdir");// %HOMEPATH%\AppData\Local\T
 //		 Set<String> allKeys = new HashSet<String>();
 //		 Map<Object, Element> localMap = ehCache.getAll(allKeys);
 
- 
---- 还有 caffeine 和 jcache(ehcache 3.x) (JSR 107 ),hazelcast @Cachable如何过期时间
+---spring cache hazelcast
+@Configuration
+@EnableCaching
+public class HazelCastConfig {
+	@Bean
+	public HazelcastInstance hazelcastInstance() {
+		Config config=new Config();
+		HazelcastInstance h=Hazelcast.newHazelcastInstance(config); 
+		return h;
+	}
+	@Bean //hazelcast-spring-4.0.1.jar
+	public CacheManager cacheManager(HazelcastInstance hazelcastInstance) {
+		MapConfig longLive=new MapConfig("LongLive").setBackupCount(0);
+		longLive.setTimeToLiveSeconds(60*10);//设置过期时间
+		longLive.setReadBackupData(false);
+		hazelcastInstance.getConfig().addMapConfig(longLive);
+		return new HazelcastCacheManager(hazelcastInstance);
+	}
+}
+ //longLive是HazelCast中的
+//@Cacheable(cacheNames="LongLive", key="#isbn.rawNumber")//使用isbn的一个属性当做key
+@Cacheable(value="LongLive", key="#isbn.rawNumber")//cacheNames和value是一样的，即别名@AliasFor("")
+public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
+{
+}
+
+--- 还有 caffeine 和 jcache(ehcache 3.x) (JSR 107 )
 
 
  
@@ -2728,6 +2767,36 @@ amqpTemplate.convertAndSend("hello", "xxx");//hello是Routing key ,对应xml配�
 System.out.println("发送了XXX");
 ctx.close();//如果不关，就不退出 
 
+========================Spring Async
+import org.springframework.scheduling.annotation.EnableAsync;
+@Configuration
+@ComponentScan
+@EnableAsync //线程池做异步
+//@EnableXxx里面一般有一个@ImportXxx的注释，一个配置类上有@Configuration 
+public class SpringAsyncMain {
+	public static void main(String[] args) {
+		AnnotationConfigApplicationContext ctx=new AnnotationConfigApplicationContext(SpringAsyncMain.class);
+		AsyncService service=ctx.getBean(AsyncService.class);
+		service.asyncFunction();
+		System.out.println("main最后一个打印");
+	}
+}
+
+import org.springframework.scheduling.annotation.Async;
+@Service
+public class AsyncService {
+	@Async //线程异步
+	public void asyncFunction() {
+		while(true) {
+			System.out.println("异步方法处理中");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}
 ========================Spring Statemachine
 <dependency>
   <groupId>org.springframework.statemachine</groupId>
@@ -2750,6 +2819,7 @@ public enum States {
 @Configuration
 @ComponentScan //为main spring ,applicationContext
 @EnableStateMachine
+//@EnableStateMachineFactory(name="stateMachineFactory")//加这个就可以不用@EnableStateMachine
 public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<States, Events> {
     @Override
     public void configure(StateMachineStateConfigurer<States, Events> states) throws Exception {
@@ -2828,9 +2898,15 @@ public class BizBean {
         log.info("操作回滚,回到草稿状态. target status:{}", States.DRAFT.name()); 
     }
 }
-public static void main(String[] args) {
-	ApplicationContext context = new AnnotationConfigApplicationContext(StateMachineConfig.class);
-	StateMachine<States, Events> stateMachine=context.getBean(StateMachine.class);
+public static void main(String[] args) { 
+	//ApplicationContext context = new AnnotationConfigApplicationContext(StateMachineConfig.class);
+	//StateMachine<States, Events> stateMachine = context.getBean(StateMachine.class);
+		
+	ApplicationContext context = new AnnotationConfigApplicationContext(StateMachineFactoryConfig.class);
+	StateMachineFactory<States, Events> stateMachineFactory = context.getBean(StateMachineFactory.class);
+	StateMachine<States, Events> stateMachine = stateMachineFactory.getStateMachine();
+	
+	
 	stateMachine.start();//初始draft状态
 	boolean isOK= stateMachine.sendEvent(Events.ONLINE);//发送事件,会产生状态变化configure方法中,会触发@OnTransition(target =XX) 所在函数
 	stateMachine.sendEvent(Events.PUBLISH);//如注释这行，状态切换违法,返回false
@@ -2860,10 +2936,73 @@ public class SpringBootMain implements CommandLineRunner {
         System.out.println(isOK);
     }
 }
-*/
+*/	
+
+stateMachine.start();
+stateMachine.getExtendedState().getVariables().put("myChangeTime", new Date());//发送事件前的传递的变量
+stateMachine.sendEvent(Events.PAY);
+Object myChangeTime= stateMachine.getExtendedState().getVariables().get("myChangeTime");//发送事件后的变量还存在
+System.out.println("发送事件后的变量值:"+myChangeTime);
+
+@Override
+public void configure(StateMachineTransitionConfigurer<States, Events> transitions)
+		throws Exception {
+	transitions
+		.withExternal()
+			.source(States.UNPAID).target(States.WAITING_FOR_RECEIVE)
+			.event(Events.PAY)
+			.action(Actions.errorCallingAction(context->{
+				Object param=context.getExtendedState().getVariables().get("myChangeTime");
+				System.out.println("状态机收到的参数:"+param);
+			}, context->{
+				System.err.println(Context.getCurrentErr());
+			}))
+			.and()
+		.withExternal()
+			.source(States.WAITING_FOR_RECEIVE).target(States.DONE)
+			.event(Events.RECEIVE);
+}
+
+----
+@EnableStateMachineFactory(name="stateMachineFactory")//加这个就可以不用@EnableStateMachine
 
 
- 
+
+@Bean // Persister 未实现
+public StateMachinePersister<States,Events,StateEntity> persistence()
+{
+	StateMachinePersist<States,Events,StateEntity> p=new StateMachinePersist<States,Events,StateEntity>() {
+		@Override
+		public StateMachineContext<States, Events> read(StateEntity entity) throws Exception {
+			//从某个位置（数据库）读状态机上下文数据做返回
+			return entity.getContext();
+		}
+		@Override
+		public void write(StateMachineContext<States, Events> context, StateEntity entity) throws Exception {
+			// 状态机上下文数据  写到某个位置（数据库） 
+			entity.setContext(context);
+		}
+	};
+	return new DefaultStateMachinePersister<States,Events,StateEntity>(p);
+}
+
+@Entity
+@Table(name="STATE_MACHINE")
+public class StateEntity {	
+	@Id
+	private Long id;
+	
+	@Column(name="CONTEXT")
+	private StateMachineContext<States,Events> context;
+
+	public StateMachineContext<States, Events> getContext() {
+		return context;
+	}
+	public void setContext(StateMachineContext<States, Events> context) {
+		this.context = context;
+	}
+}
+
 ======================Spring LADP
 <dependency>
     <groupId>org.springframework.ldap</groupId>
@@ -2984,4 +3123,6 @@ org.springframework.beans.BeanUtils.copyProperties(model, entity);// commons.bea
 Map<RequestMappingInfo, HandlerMethod> methods = requestMappingHandlerMapping.getHandlerMethods();
 
  
+@EnableAsync 放在@Configuration所在类上，
+任务类上放@Async
 

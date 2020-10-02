@@ -375,8 +375,10 @@ Git四种协议
 SmartGit界面UI 
 
 ---windows版本
+Gitblit (Java开发的) http://gitblit.github.io/gitblit/ ，有管理界面,使用http协议(可以为visual studio 2015用,不支持ssh)
+
 Google Code项目 msysgit 中的Git 和 msysGit-fullinstall 有 GitGUI ,C:/Program Files (x86)/Git/doc/git/html
-GitStack 说是开源,30天后变为基本版本,网页形式的Server,http://localhost/gitstack/,可以建库,建用户,以http(s)的形式对外使用
+
 ---GitLab
 只有linux版本,有管理界面,可LDAP登录
 有收费版本
@@ -498,6 +500,8 @@ git init  初始化Git,生成.git目录
 就可,提交 git add *.c  再  git commit  -m 'initial project version'  
 git commit -a -v ( -a 已经跟踪的文件不用add了, -v 先看一下差异,可以写comment),实际上是提交到本地,如果要提交到远程用 push
 
+git commit --amend 如最后一次提交后，但没有push，会打开vi 可以修改这次comment
+
 git clone git://github.com/schacon/grit.git mygrit
 #  操作基本上相当于 git init 加 git fetch
 fetch 本地仓库中还没有的数据
@@ -522,6 +526,8 @@ git diff hello.c
 
 rm hello.c
 git rm hello.c
+git rm -r --cached dir_name #--cached表示从index中删除，不被版本控制，但文件保留
+
 git mv file_from file_to  #改名
 
 git log 历史版本
@@ -530,6 +536,7 @@ git log -p 2
 git log --author=user01 --grep COMMENT_BUG_ID
 
 git log origin/xx_branch 显示服务端指定分支的历史记录
+git log --graph 显示图
 
 git remote -v  显示有名字为 origin , clone后就有
 git remote show origin
@@ -542,7 +549,7 @@ git push [remote-name] [branch-name]
 git push origin master   #master是哪个分支
 git remote rm pb
 
----服务器上部署 Git
+---服务器上部署 Git协议
 
 先把现有仓库(init过的)导出为裸仓库,裸仓库的目录名一般以 .git 结尾
 git clone --bare project1 project1.git
@@ -560,7 +567,7 @@ useradd -s /usr/local/bin/git-shell git (可设置完成后再修改)
 
 git clone git@192.168.0.184:/opt/git_server/project1.git ##只对设置密钥密码为空时才可(linux客户端)
 
-HTTP(S) 协议
+----服务器上部署 HTTP(S) 协议
 cd /var/www/htdocs/
 $ git clone --bare /path/to/git_project gitproject.git
 $ cd gitproject.git
@@ -613,7 +620,7 @@ git push --set-upstream origin myBranch
 
 把myBranch 合并到master
 git checkout master
-git merge myBranch  (git merge remotes/origin/myBranch  ) 如有冲突提示符变  (master|MERGING)，如要取消修改git reset 到(master)
+git merge myBranch 本地分支，也可远程分支 (git merge remotes/origin/myBranch  ) 如有冲突提示符变  (master|MERGING)，如要取消修改git reset 到(master)
 
 合并没用了，就可以删了
 git branch -d myBranch 
@@ -635,6 +642,7 @@ git branch -r 查看远程分支
 
 git pull <远程主机> <远程分支>:<本地分支>
 
+git show <commit-id> 显示文件内容的差异
 
 NetBeans 切换分支生成的命令 git branch --track performance origin/performance
 
@@ -658,8 +666,14 @@ tag要单独puhs用 git push origin [tagname]
 如果想要恢复到修改之前的状态就使用，即自己的修改不想要了(Totorise SVN的revert某个文件)
 git checkout  文件名
  
+git reset --mix HEAD^  表示最近一次commit但没有push的，从提交记录中删除，文件还是被git管理，文件修改的内容还在
+git reset --soft HEAD^  表示最近一次commit但没有push的，从提交记录中删除，但这批文件不被git管理，文件修改的内容还在 
+git reset --hard HEAD^  表示最近一次commit但没有push的，从提交记录中删除，但这批文件不被git管理，文件修改的内容不存在
 git reset --hard  <commit Id> 已经commit没有push做取消 ,<commit Id>是回到那次提交的状态，不是对某个文件，全局的  (新加的文件不会被删除)
-								已经push回退到某个版本
+
+已经commit的但没有push的 一些文件不想做commit
+git reset --soft HEAD^ 提示有git restore --staged <file>做unstage 即不提交这些文件
+
 git revert HEAD
 
 git查看某个文件的修改历史
@@ -682,12 +696,27 @@ git stash pop 从最顶取后删除
 git cherry-pick 可以另一个分支的某一个修改 合并到当前分支中，可能会有冲突
 git cherry-pick <另一分支的commit id>
 
-git rebase --abort
+git rebase --abort 放弃换基，回到rebase之前的状态，之前提交的不会丢失
+git rebase --skip
+git rebase --continue
+git pull --rebase
+
+Git 本地的多个commit合并成一个
+	git rebase -i <after-this-commit> ## [-i | -interactive]进入vi显示所有后面提交
+		有提示命令s,squash <commit> = use commit,but meld into privous commit(meld合并的意思)即从第二行开始修改命令为squash,使用:wq保存退出
+		又进入vi界面,提示修改comment,把多个commit修改为一个
+	#git rebase -i HEAD~5
+rebase也可做类似分支的合并
+
+git format-patch HEAD ^^ #最近2次commit的做 patch,HEAD~10表示最近10次
+git am --abort (am=apply mailbox) 停止应用patch
+
+ 
 
 ----  github操作提示
 …or create a new repository on the command line
 
-echo "# Record" >> README.md
+echo "# Record" >> README.md 
 git init
 git add README.md
 git commit -m "first commit"

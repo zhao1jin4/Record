@@ -326,8 +326,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(locations={"classpath:test_mockmvc/spring-mockmvc.xml"})
 public class MockITO_MockMvcTest  
 {
-	//	@InjectMocks //会进入方法体中
-	//	@Autowired
+	 
 
 	@Mock
 	private MyServiceBean myServiceBean;
@@ -348,6 +347,28 @@ public class MockITO_MockMvcTest
 }
 spring-mockmvc.xml 只有
 	<context:component-scan base-package="test_mockmvc"></context:component-scan>
+	
+	
+	
+@RunWith(MockitoJUnitRunner.Silent.class)
+public class MockTioUnitTest { 
+	@InjectMocks //会注入一个实现类，可以进入方法，不是null,
+	//但如果里面的@Autowired就不行了（用@InjectMocks也不行，只可@Mock再Mockito.when)
+	private UserServiceImpl userSerivce;
+	
+	@Mock
+	//@InjectMocks //没用
+	private MyDao myDao;
+	
+	@Test
+	public void testAutoWired()
+	{
+		Mockito.when(myDao.insertData(ArgumentMatchers.any())).thenReturn(new Long(20));
+		userSerivce.printDao();
+	}
+}
+
+
 -------------------------TestNG
 NG=Next Generation  (Not Good)
 

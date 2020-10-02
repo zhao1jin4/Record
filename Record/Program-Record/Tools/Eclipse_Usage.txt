@@ -16,6 +16,8 @@ ctrl +shift+x 把选择变大写
 ctrl +shift+y 把选择变小写
 ctrl+alt+space 在方法参数上
 
+在debug时， ctrl+alt+点击  当前行的方法上，会自动执行到方法内的第一行
+
 ctrl+f6切换文件
 xml文件中ctrl+shift+c多个单行注释
 control+shift+o 组织导入
@@ -258,8 +260,12 @@ ctrl+2,L  补全方法返回值
 Package Explorer 对 working set 有效果,top level ->working set
 Project Explorer 对maven的父子项目可以 project presentation->hierarchical
 
-eclipse 主题修改为黑色General->Apprance-> Theme 选Dark ,代码字体 有太多的彩色了,类名 ,变例也有 
+.java文件，在工具栏上有  show whitespace characters
 
+eclipse 主题修改为黑色General->Apprance-> Theme 选Dark ,代码字体 
+	有太多的彩色了???类名 ,变例也有,菜单不是黑色，本地文件修改做比较时一个文件没有高亮???项目名有时显示黑色文字，不意看???
+	
+		
 列选择模式  edit->toggle block selection 
 
 XML文件折叠 右击左侧行号 -> fording -> collapse all
@@ -271,8 +277,12 @@ eclipse 中 全选所有项目->maven->update projext ... 会更新pom.xml中新
 
 --
 eclipse 自动转换 匿名内部类 为 Lambda 表达式
+
+在保存时自动格式化
 preferences->Java->Editor-Save Action->复选perform the selected actions on save 复选additional action ，按钮configure...才可用->
 	CodeStyle 标签->复选Convert functional interface instances默认是use Lambda
+
+terminal 可以选择GitBash
 
 =======================================up eclipse==========================
 
@@ -535,13 +545,25 @@ eclipse自带Git 插件
 
 如目录有文件服务端删除本地不会删，Egit显示不出，也无法还原，用git status(提示用 git checkout file.txt) 或者 TortoiseGit 的revert
 
+Git Staging 视图
+	如冲突，右击红色图标的文件名-> merge tool ->  解决后 -> 右击文件名 -> add index -> continue按钮
+
+如本有部分文件有修改但始终不能提交,多数时候拉代码就要stash,在commit & push部分代码时更是要stash ,而intellij idea就不用
 
 
+prefercens->Team ->Git->Configuration  -> New Entry ->输入user.name,user.email
 
-只commit后，再push
+
+配置Git私钥
+	prefercens->General->network connection->SSH2->Key Mangaer ->load existing key ...->功能类似 PUTTYGEN
+	prefercens->General->network connection->SSH2->可以设置private Key ，点add private Key...->增加新的   选择文件为原始的id_rsa文件
+
+Git Repository 视图-> 右击Git项目->properties->配置的是 <项目>/.git/config文件的内容,  puttyKeyFile 是TortoiseGit配置的
+
 右击项目->team->Advanced->sychronized->正确的branch(每个文件名后有提示当前在哪个branch)->不能再 commit and push ???(找不出哪些要push)
 TortoiseGit->Git Sync ...也找不出哪些要push???
-git status 也找不出哪些要push???
+git status 也找不出哪些要push??? 
+
 ----JPA
 eclipse要eclipse jee才有data source explorer视图(sts3,sts4没有),可以建立JPA项目,
 右击项目-> JPA Tools->generate entries from tales 选择表(可以增加级联表)可以生成带@Entity的类

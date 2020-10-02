@@ -154,6 +154,7 @@ List<Student> list=query.getResultList();//JPA是getResultList
 Query sqlQuery=em.createNativeQuery("select count(*) from JPA_STUDENT s,JPA_TEACHER t where s.teacher_id=t.id and t.name=:t_name ");
 sqlQuery.setParameter("t_name" , "teacher1");
 Object count=sqlQuery.getSingleResult();//JAP是getSingleResult
+//这里返回类型为BigInteger ,可能是老版本或者有配置返回为BigDecimal(  createNativeQuery  的 count(*) )
 sqlQuery.setFirstResult(2);
 sqlQuery.setMaxResults(20);
 System.out.println("JPQL Query查询teacher1老师的学生数:"+count);
@@ -574,8 +575,6 @@ public class Employee {
   }
  ---ElementCollection 对象类型
 
-
- 
 ===============上 JPA=========================
    
 
@@ -600,7 +599,7 @@ public class Employee {
 
 
 @Configuration
-@EnableJpaRepositories // (basePackages = "springdata_jpa.repo")
+@EnableJpaRepositories // (basePackages = "springdata_jpa.repo")可多个
 @EnableTransactionManagement
 class ApplicationConfig {
 	@Bean
@@ -624,7 +623,7 @@ class ApplicationConfig {
 		vendorAdapter.setGenerateDdl(true);
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setJpaVendorAdapter(vendorAdapter);
-		factory.setPackagesToScan("springdata_jpa.entity");// 实体包
+		factory.setPackagesToScan("springdata_jpa.entity","jpa.single");// 实体包，可多个
 		Properties jpaProperties = new Properties();
 		jpaProperties.put("hibernate.show_sql", "true");
 		jpaProperties.put("hibernate.format_sql", "true");
@@ -643,7 +642,8 @@ class ApplicationConfig {
 	}
 }
 package springdata_jpa.repo;
-@Repository
+@Repository //SimpleJpaRepository 源码 带 @Transactional(readOnly=true) ,是可以被子类覆盖的
+//用JPA无论是spring的@Transactional还是javax的@Transactinal都是有效的
 public interface UserRepository extends JpaRepository<User,Long> {
 	public Optional<User> findByUsername(String username);
 	//findBy开头 官方文档 搜索Supported keywords   参考 https://docs.spring.io/spring-data/jpa/docs/2.3.1.RELEASE/reference/html/#reference 
@@ -697,7 +697,7 @@ public static void main(String[] args) {
 	<executions>
 	  <execution>
 		<goals>
-		  <goal>process</goal>
+		  <goal>process</goal><!-- process 的意思是IDE每次修改编译都生成 -->
 		</goals>
 		<configuration>
 		  <outputDirectory>target/generated-sources/java</outputDirectory>
@@ -727,14 +727,46 @@ UserBean user = query.select(userBean)
 	
 //JPAQueryFactory
 JPAQueryFactory factory=new JPAQueryFactory(entityManager);
-factory.select(QUserBean.userBean).from(userBean)
+UserBean user2 =factory.select(QUserBean.userBean).from(userBean)
 .where(userBean.id.eq(
 		//子查询
 		JPAExpressions.select(QUserBean.userBean.id).from(QUserBean.userBean).where(userBean.name.startsWith("叶"))
 	))
   .fetchOne();
-System.out.println(user);
+System.out.println(user2);
 
+
+public static void multiQuery(EntityManager entityManager  )
+{
+	JPAQueryFactory factory=new JPAQueryFactory(entityManager);
+	List<OrderItem>  allItem=factory.select(QOrderItem.orderItem).from(QOrder.order,QOrderItem.orderItem)//from可以放多表
+	.where(
+			QOrder.order.orderid.eq(QOrderItem.orderItem.order.orderid)
+			.and(QOrder.order.amount.goe(20))
+			).fetch();
+	System.out.println(allItem);
+}
+
+public   static void queryUseDSLupdateUseSQL( EntityManager entityManager )
+{ 
+	entityManager.getTransaction().begin();
+	QUserBean userBean = QUserBean.userBean;
+	JPAQuery<?> query = new JPAQuery<Void>(entityManager);
+	UserBean user = query.select(userBean)
+	  .from(userBean).where(userBean.name.startsWith("叶"))
+	  .fetchOne();
+	System.out.println(user.getPassword());//abc123
+	
+	entityManager.createQuery("update UserBean u set u.password='123'").executeUpdate();//这SQL的修改不会更新缓存
+	entityManager.flush();
+	query = new JPAQuery<Void>(entityManager);
+	  user = query.select(userBean)
+	  .from(userBean).where(userBean.name.startsWith("叶"))
+	  .fetchOne();
+	System.out.println(user.getPassword());//abc123这还是老值
+	entityManager.getTransaction().commit();
+}
+ 
 
 @Column(length = 1,nullable = true,name="IS_LEAGUE")
 @Convert(converter = YNConverter.class)
@@ -743,21 +775,32 @@ private Boolean isLeague;
 
 //Database Y/N -> Java Boolean
 public class YNConverter implements AttributeConverter<Boolean,String>{ 
-@Override
-public String convertToDatabaseColumn(Boolean attribute) {
-	if(Objects.nonNull(attribute) && attribute)
-		return "Y";
-	else
-		return "N";
-} 
-@Override
-public Boolean convertToEntityAttribute(String dbData) {
-	if("Y".equalsIgnoreCase(dbData))
-		return Boolean.TRUE;
-	else
-		return Boolean.FALSE;
-} 
+	@Override
+	public String convertToDatabaseColumn(Boolean attribute) {
+		if(Objects.nonNull(attribute) && attribute)
+			return "Y";
+		else
+			return "N";
+	} 
+	@Override
+	public Boolean convertToEntityAttribute(String dbData) {
+		if("Y".equalsIgnoreCase(dbData))
+			return Boolean.TRUE;
+		else
+			return Boolean.FALSE;
+	} 
 }
+
+public static void update(EntityManager entityManager  )
+{
+	 JPAQueryFactory factory=new JPAQueryFactory(entityManager);
+	 entityManager.getTransaction().begin();
+	 //必须在事务中
+	 factory.update(QUserBean.userBean).where(QUserBean.userBean.name.startsWith("叶"))
+	 .set(QUserBean.userBean.password, "123").execute();
+	 entityManager.getTransaction().commit();
+}
+
 
 
 

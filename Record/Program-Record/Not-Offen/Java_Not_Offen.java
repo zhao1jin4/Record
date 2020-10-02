@@ -1,3 +1,87 @@
+-------------Jasper Report
+eclipse有一个BIRT
+
+Jasper有Community版本
+https://community.jaspersoft.com/
+下载要登录
+
+JasperSoft Studio 设计工具基于eclipse的，目前最新版本为v6.14.0
+
+---JasperSoft Studio
+File->New->Jasper report  会建立*.jrxml文件,可以看Source,可以Review，如有错误会提示
+Pallet面板中拖入Static Text组件, Properties面板中可以设置边框
+Outline面板,可以删除组件 ，右击parameter->create parameter 建立参数后，可以直接拖入设计器,在preview 时会提示输入参数值，按回车预览
+
+New AdataAdapter -> Orcle JDBC Connection -> 选择 MySQL ,Driver classpath中选择jar包
+
+Outline视图 最顶级右击->Dataset and Query -> 弹出对话框 在右则的Texts中可以写SQL再点Read Fields按钮，也可在界面中选择字段再点Add按钮
+    ->完成后在outline视图中增加一个fields项,可以拖动子项到设计器
+	
+设计器的几个区域	
+	Title 只在第一页的最上显示
+	Page Header 每页都显示，如在第一页显示在Title下
+	Detail 每页都显示
+	Column Header,如表格的标题
+	Column Footer 如分页
+	Page Footer 每页都显示
+	Summary 只在最后一页显示
+
+<dependency>
+  <groupId>net.sf.jasperreports</groupId>
+  <artifactId>jasperreports</artifactId>
+  <version>6.6.0</version>
+</dependency>
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.sf.jasperreports.engine.JRAbstractExporter;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JsonDataSource;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+
+public static void main(String[] args) throws Exception {
+	Product product=new Product();
+	product.setCost(BigDecimal.valueOf(20));
+	product.setName("产品001");
+	
+	ObjectMapper mapper=new ObjectMapper();//jsonAPI
+	String jsonProduct=mapper.writerWithDefaultPrettyPrinter().writeValueAsString(product);
+	//ByteArrayInputStream input=new  ByteArrayInputStream(jsonProduct.getBytes("UTF-8"));
+	ByteArrayInputStream input=new  ByteArrayInputStream(jsonProduct.getBytes());
+	//studio设计工具中使用的数据源，这里使用JSON
+	JsonDataSource dataSource=new JsonDataSource(input);	
+	//编译jrxml文件到jasper文件
+	String jasperFile=JasperCompileManager.compileReportToFile("c:/tmp/Blank_A4.jrxml");
+	JasperReport report =(JasperReport)JRLoader.loadObject(new File(jasperFile));//参数可为File或FileInputStream
+	
+	Map<String,Object> params=new HashMap<>();
+	params.put("Parameter1","参数值1");
+	JasperPrint print=JasperFillManager.fillReport(report, params,dataSource);
+	
+	JRXlsxExporter XlsxExporter=new JRXlsxExporter();
+	JRPdfExporter pdfExporter=new JRPdfExporter();
+	genFile(print,XlsxExporter,new File("C:/tmp/excel.xlsx"));
+	genFile(print,pdfExporter,new File("C:/tmp/pdf.pdf")); //生成pdf有中文问题
+	
+}
+public static void genFile(JasperPrint jasperPrint,JRAbstractExporter exporter,File outFile) throws Exception {
+	
+	ByteArrayOutputStream byteOut=new ByteArrayOutputStream();
+	exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+	exporter.setExporterOutput(new SimpleOutputStreamExporterOutput(byteOut));
+	exporter.exportReport();
+	byte[] fileArray=byteOut.toByteArray();
+	FileOutputStream out=new FileOutputStream(outFile);
+	out.write(fileArray);
+	out.close();
+}
 -------------DynamoDB AWS 亚马逊云的 NoSQL
 https://docs.aws.amazon.com/zh_cn/dynamodb/index.html 
 
@@ -189,10 +273,10 @@ List<Reply> latestReplies = mapper.query(Reply.class, queryExpression);
 ======================ActiveMQ   JMS
 <dependency>
 	 <groupId>org.apache.activemq</groupId>
-	 <artifactId>activemq-core</artifactId>
-	 <version>5.7.0</version>
+	 <artifactId>activemq-client</artifactId>
+	 <version>5.16.0</version>
  </dependency>
-
+    
 ActiveMQ是一个JMS Provider的实现,tomcat 使用JMS 
 
 JMeter做性能测试的文档
@@ -455,8 +539,7 @@ import org.apache.activemq.command.ActiveMQTopic;
 public class MainApp 
 {
 	public static void main(String[] args) throws Exception
-	{
-		// apache-activemq-5.11.1\bin\activemq.bat start 来启动
+	{ 
 		//ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
 		String url = ActiveMQConnection.DEFAULT_BROKER_URL;  //failover://tcp://localhost:61616
 		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
@@ -476,7 +559,7 @@ public class MainApp
 					System.out.println("Consumer1 get " + ((TextMessage)m).getText());
 				} catch (JMSException e) {
 					e.printStackTrace();
-				}
+				}	
 			}
 		});
 		//创建一个生产者，然后发送多个消息。
@@ -490,6 +573,9 @@ public class MainApp
 	}
 }
 ============ActiveMQ 的集群
+activemq create c:/tmp/activemq_broker
+cd c:/tmp/activemq_broker/bin
+activemq_broker start
 
 	  
 activemq5.9.0 开始 , activemq的集群实现方式取消了传统的Master-Slave方式 , 增加了基于 zookeeper + leveldb 的实现方式
@@ -577,10 +663,43 @@ Artemis Console available at http://localhost:8161/console  是JMX的
  
  
  
----JMS 2.0 共享topic
-session.createSharedConsumer(topic);
+---JMS 2.0 
+https://www.oracle.com/technetwork/cn/articles/java/jms2messaging-1954190-zhs.html
 
+<dependency>
+  <groupId>javax.jms</groupId>
+  <artifactId>javax.jms-api</artifactId>
+  <version>2.0.1</version>
+</dependency>  
+
+//topic上有三条消息x、y、z,A和B能合起来消费x、y、z，即A消费x、z，B消费y，那只能是A和B共享同一个订阅了，
+MessageConsumer messageConsumer = session.createSharedConsumer(topic, "mySubscription"); // 需要指定共享订阅的名称，以便多个消费者能确定彼此共享的订阅
+//MessageConsumer messageConsumer = session.createSharedDurableConsumer(topic, "mySubscription");  //也支持持久
 ---
+JMS2.0 提供者必须设置消息属性JMSXDeliveryCount,表示JMS提供者给消费者发送消息的尝试次数,消费者可以根据这个值确认消息是否被重复发送了
+class SampleMessageListener implements MessageListener {  
+   @Override  
+   public void onMessage(Message message) {  
+      try {  
+         int deliveryCount = message.getIntProperty("JMSXDeliveryCount");  
+         if (deliveryCount < 10){  
+             //模拟消息处理失败的情形，使得JMS提供者能重发消息  
+             throw new RuntimeException("Exception thrown to simulate a bad message");  
+         } else {  
+             // 消息已经被发送了10次，放弃重发，进行其他的处理  
+         }  
+      } catch (JMSException e) {  
+         throw new RuntimeException(e);  
+      }  
+   }  
+}
+
+需要在发送消息之前通过对 MessageProducer 调用 setDeliveryDelay 来设置传递延迟（毫秒）
+messageProducer.setDeliveryDelay(2000);
+  
+
+---STOMP
+
  
 ---------------------------------Log4j 1 
 1版本 2015年已经终止了

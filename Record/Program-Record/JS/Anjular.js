@@ -591,14 +591,98 @@ ng g component mymodule/user/com/profile
 --app.component.html中
 <a [routerLink] ="['/user']"  >跳到user组件</a>
 
+ 
+--------国际化
+
+在assets 新建文件夹 i18n,在i18n文件下下新建zh.json 和 en.json 文件
+---zh.json
+{
+  "hello": "你好 {{name}}",
+  "header": {
+   "author": "早上好"
+  }
+}
+---en.json
+{
+  "hello": "Hello {{name}}",
+  "header": {
+   "author": "Good morning"
+  }
+}
+ 
+npm install @ngx-translate/core  --save
+npm install @ngx-translate/http-loader  --save　
+
+---app.module.ts
+
+import {HttpClient} from '@angular/common/http';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
+  
+export function createTranslateHttpLoader(http: HttpClient) {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
+
+@NgModule  下的    imports 中加入
+	
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: (createTranslateHttpLoader),
+        deps: [HttpClient]
+      }
+    })
+	
+
+---app.component.ts 
+
+import {OnInit} from '@angular/core';//为国际化
+import {TranslateService} from '@ngx-translate/core';
+
+修改 implements OnInit 
+	
+	languageBtn;//为选择语言
+    language; 
+	
+	constructor(public translateService: TranslateService) {
+	}
+	 
+	ngOnInit() { 
+		this.translateService.addLangs(['zh', 'en']);
+		this.translateService.setDefaultLang('zh');
+		const browserLang = this.translateService.getBrowserLang();
+		this.translateService.use(browserLang.match(/zh|en/) ? browserLang : 'zh');
+		
+		 this.settingBtn(browserLang);//为选择语言
+	}
+   //以下为选择语言
+   settingBtn(language: string) {
+    if (language === 'zh') {
+      this.languageBtn = 'English';
+      this.language = 'en';
+    } else {
+      this.languageBtn = '中文';
+      this.language = 'zh';
+    }
+  } 
+  changeLanguage(lang: string) {
+    console.log(lang);
+    this.translateService.use(lang);
+    this.settingBtn(lang);
+  }
+  
+--app.component.html
+<h1>{{'hello' | translate:{name:"lisi"}}}</h1>
+<h1>{{'header.author' | translate}}</h1>   
+ 选择语言
+ <button (click)="changeLanguage(language)">{{ languageBtn}}</button>
 
 
-------<ng-template> 如何用??
-
-
-
-
-
+------<ng-template> 类似HTML5的 <template>
+<br/> ng-template内容默认不显示,如 [ngIf]="true"会显示
+<ng-template [ngIf]="true">
+	<p> ngIf with a ng-template.</p>
+</ng-template>
 
 
 

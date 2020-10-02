@@ -542,6 +542,22 @@ VM.command_line 		查看 JVM 的启动命令行
 VM.version 				查看 JVM 版本
 
 解锁商业特性,可与 Java Flight Recorder (JFR)一起使用
+--查看CPU占用过高 ，java进程要  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder 
+ps -mp <PID>  -o THREAD,tid,time 看该进程的线程
+top -p <PID>  H显示线程
+printf "%x\n" <TID> 的线程TID置换为16进制 
+jstack <PID> | grep <HEX_TID> 
+
+录制一段时间
+jcmd <PID> help
+jcmd <PID> JFR.start 开始录制，有提示recording值
+jcmd <PID> JFR.check	 显示正在录制的recording值
+jcmd <PID> JFR.dump	recording=1 filename=c:/tmp/my.jfr #1为上面显示的 ,把从start到现在录制做保存为文件，可以用jmc界面工具打开
+jcmd <PID> JFR.stop	recording=1 停止录制
+
+ 还可以 java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder  -XX:StartFilightRecording=duration=60s,filename=myrecording.jfr MyApp
+	可以结合 -XX:FlightRecordingOptions
+
 
 
 jcmd <pid | main class> <command ...|PerfCounter.print|-f file>  
@@ -554,7 +570,7 @@ jstack -- 如果java程序崩溃生成core文件，jstack工具可以用来获�
 
 ps -mp <pid> -o THREAD,tid,time 命令查看该进程的线程情况 (-m 显示所有的线程 -p pid 进程使用cpu的时间)
 jstack -l 进程ID (-l 看synchronizer lock) //查看,显示每个线程，有十六进制的tid,可看到线程正在执行代码堆栈
-
+jstack -l 进程ID 可以看当前所有线程的调用栈，可以分析，当前阻塞在哪行代码上RUNNABLE	
 
 Map<Thread, StackTraceElement[]> maps = Thread.getAllStackTraces();
 //      maps.keySet();
@@ -1366,7 +1382,16 @@ interface MethodConstructRef
 
 MethodConstructRef constructRef= String::new;//构造函数引用，接口方法与构造函数声明结构相同
 constructRef.processStr(new char[]{'中','国'});
-		
+
+ public void init() {
+	new Thread(this::connect);
+}
+public void connect() {
+	Map<String,String> override=new HashMap<>();
+	override.forEach(this::setString);
+}
+public void setString(String key ,String val) {
+}
 		
 LocalDateTime dateAndTime = LocalDateTime.now();
 LocalDate currentDate = LocalDate.from(dateAndTime); 
@@ -1389,7 +1414,16 @@ String[] countryCities=TimeZone.getAvailableIDs();//所有 大州/市
 
 java.time.ZonedDateTime.parse("2017-01-20T17:42:47.789+08:00[Asia/Shanghai]");
 	
- 
+Instant.ofEpochMilli(System.currentTimeMillis());
+Instant.parse("1995-10-23T10:22:22Z");
+Instant after=Instant.now().plus(1,ChronoUnit.DAYS); //GMT时间
+
+Clock clock = Clock.systemDefaultZone();
+long millis = clock.millis();
+
+Instant instant = clock.instant();
+Date legacyDate = Date.from(instant);   // legacy java.util.Date
+	
 //接口中有方法实现,方法前加default或static
 //default方法 能够添加新的功能到已经存在的接口，确保与采用老版本这些接口编写的代码的二进制兼容性
 //比抽象类好处可以多重继承,一个类继承两个接口时,这个两个接口中如有相同的default方法,子类必须重写
@@ -3551,7 +3585,10 @@ Math.round() 结果是整数
 / 结果是整数 
 BigDecimal   b   =   new   BigDecimal(0.032); //不会有计算精度问题，比较要用compareTo，而不是equals
 double   f1   =   b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue();  
-
+BigDecimal.ROUND_HALF_EVEN (偶)
+	如去除部分左侧为奇数则同 BigDecimal.ROUND_HALF_UP
+	如去除部分左侧为偶数则同 BigDecimal.ROUND_HALF_DOWN
+	
 # >>是带符号位的右移符号,x>>1就是x的内容右移一位,如果开头是1则补1,是0责补0,(x的内容并不改变).
 # >>>是不带符号位的右移,x>>>1就是x的内容右移一位,开头补0(x的内容并不改变)
 
@@ -3612,12 +3649,27 @@ ThreadPoolExecutor  中的doc
 ThreadPoolExecutor waitTermination(timeout, unit)//isTerminated(); 必须调用 shutodwn
 
 
-//如一个有异常,有时会影响其它线程的???,如果两个都有异常,有时会只有报一个异常的错误,只能在每个任务中try???
-//ThreadPoolExecutor 中用 ThreadGroup 捕没异常没用的???,thread.setUncaughtExceptionHandler没用的  ???, 如何捕??
 
-//线程池名字没用,因为线程会不停的重建
+ThreadGroup group=new ThreadGroup("my_group") {
+	@Override
+	public void uncaughtException(Thread t, Throwable e) {
+		System.err.println("thread group my_group catche Error");
+		e.printStackTrace();
+	}
+};
+ThreadFactory factory=new ThreadFactory() {
+	@Override
+	public Thread newThread(Runnable r) {
+		//可自己实现生成线程最大数,起名，放线程组
+		return new Thread(group,r,"my_thread"+Math.random()*10+10);
+	}
+}; 
+
 private  ThreadPoolExecutor  waitingExecutor = new ThreadPoolExecutor(2,3, 10,TimeUnit.SECONDS,
-						new ArrayBlockingQueue<Runnable>(30), new ThreadPoolExecutor.CallerRunsPolicy());//如果队列满,新加入的使用当前线程调用run而不是start运行,相当于未开线程
+						new ArrayBlockingQueue<Runnable>(30), 
+						//new ThreadPoolExecutor.CallerRunsPolicy()//如果队列满,新加入的使用当前线程调用run而不是start运行,相当于未开线程
+						factory
+						);
  private ExecutorCompletionService<Object>  waitingComplete =new ExecutorCompletionService<Object>(waitingExecutor);
 for (int i = 0; i < tasks; ++i) {
 	Furture future=waitingComplete.take();
@@ -4588,7 +4640,7 @@ Beans.instantiate(classloader,"org.MyClass");
 
 
 
-ResultSet .getTimestamp反加Timestamp,SimpleDateFormate  format( timestamp)有日期，有时间
+ResultSet .getTimestamp反回Timestamp,SimpleDateFormat  format( timestamp)有日期，有时间
 Timestamp 的valueOf(String s)  返回一个Timestamp
 GregorianCalendar(TimeZone zone)
 
@@ -4600,8 +4652,9 @@ TimeZone 的方法
 
 SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//不是同步，不是线程安全的,如要写static工具方法,要每次new
 DateFormat formatMedium=DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFormat.MEDIUM, Locale.CHINA);
- System.out.println(formatMedium.format(new Date()));// 2012-7-31 10:44:09
-		 
+System.out.println(formatMedium.format(new Date()));// 2012-7-31 10:44:09
+yyyy-Mon-dd中的Mon月份在中文环境下Local.setDefault(Locale.CHINESE)会显示为"n月",到Oracle中就可能会报错
+
 format和parse方法
 alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss'//oracle大小写无关
 
