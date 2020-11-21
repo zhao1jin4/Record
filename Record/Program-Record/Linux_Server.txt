@@ -1,51 +1,4 @@
 
-==============vsFTP===============
-
-ftp中mget下载，put上传
-
-chkconfig vsftpd off --list
-finger 用户名
-
-
-make 后　生成vsftpd文件
-cp vsftpd	/usr/local/sbin
-cp vsftpd.conf /etc/
-cp xinetd.d/vsftpd  ...
-
-cp  RedHat/vsftpd.pam    /etc/pam.d/ftp   复制认证文件
-后service vsftpd start 后在文件保存在　/var/ftp/下的文件夹中
-
-vi /etc/vsftpd/vsftpd.conf  配置文件　
-
-listen_port=2121改变默认端口21为 2121
-anonymous_enable=YES 改为NO取消匿名登录,要用系统的ftp用户,有主目录
-local_enable=YES
-
-chroot_local_user=YES	#将本地用户锁定在主目录中，不允许切换到上一级目录中
-
-
-FTP虚拟用户 --linux才有
-db_load(db4-utils) -T -t hash -f /etc/vsftpd/ftp_users.txt( 第一行用户，第二行密码) vsftpd_login.db
-
-编辑 /etc/pam.d/vsftpd 
-auth	required	/lib/secrity/pam_userdb.so db=/etc/vsftpd_login
-vi /etc/vsftpd/vsftpd.conf  中加入 guest_enable=YES	guest_username=ftp(虚拟用户充当的用户)
-
-find -perm 002  其它可写的文件
-权限s
-find -perm +6000 | more
-smtps 
-https
-sftp
-ssh
-
-
-
-配置 listen=YES 可独立启动
-/usr/local/sbin/vsftpd & 启动,会读/etc/vsftpd.conf
-
-local_enable=YES 要用目录/usr/share/empty
-
 ======================DNS   bind,
 www.isc.org
 
@@ -501,6 +454,7 @@ git init  初始化Git,生成.git目录
 git commit -a -v ( -a 已经跟踪的文件不用add了, -v 先看一下差异,可以写comment),实际上是提交到本地,如果要提交到远程用 push
 
 git commit --amend 如最后一次提交后，但没有push，会打开vi 可以修改这次comment
+如git clone 的地址是https时报SSL问题，可以关闭验证 git config --global http.sslVerify false
 
 git clone git://github.com/schacon/grit.git mygrit
 #  操作基本上相当于 git init 加 git fetch
@@ -526,7 +480,7 @@ git diff hello.c
 
 rm hello.c
 git rm hello.c
-git rm -r --cached dir_name #--cached表示从index中删除，不被版本控制，但文件保留
+git rm -r --cached dir_name #指定目录中的全部文件 --cached表示从index中删除，显示为删除图标，但文件保留
 
 git mv file_from file_to  #改名
 
@@ -1173,41 +1127,6 @@ cd /var/www/cgi-bin/openwebmail［Enter］　　// 进入openwebmail目录
 		当屏幕上显示"Please hit 'Enter' to continue or Ctrl-C to break."时，单击回车键继续。
 
 
-==========Squid ,浏览器设置代理
-代理服务器和Web缓存服务器
-CDN(Content Delivery Network) 缓存  Edge Side Includes (ESI)
-
-squid-3.5.22.tar.gz
-
-./configure --prefix=/usr/local/squid
-make all    ## 不能运行,如yum install squid后又可以了,知道依赖什么
-make install
-
-/usr/local/squid/etc/squid.conf		配置
-	http_port 3128
-	
-/usr/local/squid/sbin/squid -z		安装
-/usr/local/squid/sbin/squid			启动 报错???
-
-----yum install squid
-vi /etc/squid/squid.conf
-service squid start  如 CentOS 跳到 /bin/systemctl start  squid.service
-squid -k reconfig 重新加载配置
---- squid.conf 配置
-http_port 3128
-access_log /var/log/squid/access.log
-cache_dir  /var/spool/squid/
-visible_hostname  10.0.0.1
-
-acl localnet src 10.0.0.0/8    		#localnet自己起的名字
-acl all src 0.0.0.0/0.0.0.0 
-
-http_access deny  localnet
-http_access allow all
-
-浏览器设置代理  10.0.0.1  3128
-
-
 ================ HAProxy 可用于放在Ngnix的前方
 支持数以万计的并发连接, 使用事件驱动, 单一进程 ,不能做缓存
  
@@ -1263,9 +1182,14 @@ backend http_back
  
 
 
-============== Nginx 比 Squid 强
-最新稳定版本1.14  有windows 版本.zip文件 
-Nginx Plus 收费版本
+============== Nginx 比 Squid 强 
+Nginx Plus 收费版本  https://nginx.com
+Nginx Controller 是为 Nginx Plus 
+Nginx App Protect 是为 Nginx Plus 
+Nginx Amplify 是Monitor
+
+有open Source版本 https://nginx.org/
+最新稳定版本1.18.0(2020-10)  有windows 版本.zip文件 
 
 ​N​e​t​S​c​a​l​e​r​ 和 A10 EX Series  类似于F5,Radware 的硬件 ,负载均衡器
 Apache的 mod_proxy和mod_cache结合使用也可以实现对多台app server的反向代理和负载均衡，但是在并发处理方面apache还是没有 nginx擅长
@@ -1333,6 +1257,20 @@ http{
 		 }
 	 }
 }
+
+
+配置日志 https://docs.nginx.com/nginx/admin-guide/monitoring/logging/
+http {
+    log_format compression '$remote_addr - $remote_user [$time_local] '
+                           '"$request" $status $body_bytes_sent '
+                           '"$http_referer" "$http_user_agent" "$gzip_ratio"'; 
+    server {
+        gzip on;
+        access_log /spool/logs/nginx-access.log compression;
+        ...
+    }
+}
+
 
 配置层级结构 http->server->location , events 和http同级
 
@@ -3272,7 +3210,7 @@ docker run --name some-zabbix-server-mysql -e DB_SERVER_HOST="some-mysql-server"
 
 有 docker版本  docker pull sonarqube
 解压下载的 sonarqube-7.8.zip (Community版本)
-
+sonarqube-8.5 要求jdk11,jdk15不行，最高支持PostgreSQL-12
 --演示安装
 # On Windows, execute:
 C:\sonarqube\bin\windows-x86-xx\StartSonar.bat
@@ -3292,8 +3230,7 @@ mvn sonar:sonar \
   
 -- 生产环境安装
 支持数据库有 SQL Server, Oracle,PostgreSQL
-
-sonarqube-7.8 支持Java 12
+ 
 解压目录logs/sonarqube.log看日志, 
 	设置内核参数普通不会立即生效，可能要重启
 	elastic search不能以root用户启动
@@ -3303,9 +3240,7 @@ sonarqube-7.8 支持Java 12
 
 ALTER USER sonar SET search_path to mySonarSchema;
 
----
-版本要求JDK-11 , PostgreSQL最好为10 
-
+--- 
 sysctl vm.max_map_count 最好>= 262144
 sysctl fs.file-max 最好>=65536
 

@@ -236,10 +236,11 @@ command >filename 2 >&1 把标准输出和标准错误一起重定向文件中##
 command >>filename 2 >&1 把标准输出和标准错误一起重定向文件中(追加)############
 
 command <<delimiter 直至到delimiter 中止
-command <＆-关闭标准输入
+command <<<  xx 表示后是单字符串文本，如 bash<<<'ls mydir'
 
-
-＆３ 表示引用３代表的
+command <&-关闭标准输入
+ 
+&3 表示引用3代表的文件描述符
 
 cat >>res.txt<<EOF
 

@@ -6,12 +6,23 @@ A/B 测试,手机端的流量(高级的按地区年龄)切换到 V2 版本
 影子测试 , 生产数据库复制
 
 CNCF毕业的项目
-kubernetes,prometheus(istio),Enovy(istio),CoreDNS(k8s),Containerd(容器,从docker分离出来)
-		TUF(The Update Framework  https://theupdateframework.io/ )
-		Jaeger(istio),
-		Fluentd(Build Your Unified Logging Layer https://www.fluentd.org/)
-		Vitness(A database clustering system for horizontal scaling of MySQL  https://vitess.io/)
-		Helm(k8s)
+	kubernetes
+	CoreDNS(k8s)
+	Helm(k8s)
+	Enovy(istio)
+	prometheus(istio)
+	Harbor
+	
+	Containerd(容器,从docker分离出来)
+	
+	TUF(The Update Framework  https://theupdateframework.io/ )
+	Jaeger((distributed tracing 使用go开发,istio使用),
+	Fluentd(Build Your Unified Logging Layer https://www.fluentd.org/)
+	Vitness(A database clustering system for horizontal scaling of MySQL  https://vitess.io/)
+	
+	TiKV (A distributed transactional key-value database)
+	Rook(Storage for Kubernetes,有ceph 的provider,使用Go开发)
+		
 		
 ------------------------------------Kubernetes  (K8s)
 https://kubernetes.io/zh/
@@ -59,6 +70,8 @@ https://kubernetes.io/docs/setup/release/notes/  下载二进制
 https://storage.googleapis.com/kubernetes-release/release/v1.15.3/kubernetes-server-linux-amd64.tar.gz
 https://storage.googleapis.com/kubernetes-release/release/v1.15.3/kubernetes-client-linux-amd64.tar.gz
 https://storage.googleapis.com/kubernetes-release/release/v1.15.3/kubernetes-node-linux-amd64.tar.gz
+
+https://storage.googleapis.com/kubernetes-release/release/v1.18.0/kubernetes-server-linux-amd64.tar.gz
 有了这些地址就可不翻墙下载了
 
 2020-07-25 稳定版本为  v1.18  https://dl.k8s.io/v1.18.0/kubernetes-server-linux-amd64.tar.gz 可以下载
@@ -188,7 +201,8 @@ docker container logs  CONTAINERID
 ---vi /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
-baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64  
+#原始官方地址为 https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
 enabled=1
 gpgcheck=0
 repo_gpgcheck=0
@@ -196,6 +210,7 @@ repo_gpgcheck=0
 setenforce 0
 yum install  kubelet kubeadm kubectl
 
+如rpm -ivh *kube*.rpm 报 not an rpm package 用yum install *.rpm 就可以
 ----1.18.0 版本  
 yum install  kubelet-1.18.0 kubeadm-1.18.0 kubectl-1.18.0 安装指定版本
 

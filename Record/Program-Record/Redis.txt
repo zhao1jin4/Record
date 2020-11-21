@@ -730,10 +730,16 @@ SLOWLOG GET 命令 有执行命令，执行时间，耗时
 SLOWLOG LEN
 SLOWLOG RESET 清空
 
---------禁用  FLUSH* KEYS
+--------禁用  FLUSH* KEYS 配置文件增加
 rename-command FLUSHALL ""  
 rename-command FLUSHDB ""  
 rename-command KEYS ""
+rename-command SMEMBERS ""
+生产环境不建议用 KEYS ，SMEMBERS 会锁很长多秒时间，使用SCAN 做替代，SSCAN(set),HSCAN(hash),ZSCAN(sorted set)
+scan 0 表示从0开始 返回一个元素为一次使用的游标号，相当于分页查所有键，默认每页10页
+scan 0 MATCH * COUNT 20 可通配符，设置分页大小
+
+
 --------client 命令
 CLIENT LIST
 CLIENT GETNAME 

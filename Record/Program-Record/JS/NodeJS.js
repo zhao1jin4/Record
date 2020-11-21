@@ -40,10 +40,24 @@ npm config set registry https://registry.npm.taobao.org
 npm config get registry  验证
 npm install -g react react-dom   就很快了
 
+如npm安装不行，可用 yarn 
+	https://yarnpkg.com  
+	https://classic.yarnpkg.com/en/docs/install 下载
+	yarn install
+	缓存目录 %USERPROFILE%\AppData\Local\Yarn\Cache
+	
+
 也可安装淘宝镜像提供的cnpm工具
 npm install -g cnpm --registry=https://registry.npm.taobao.org
 cnpm install [name] 
-注意：不要使用 cnpm！cnpm 安装的模块路径比较奇怪，packager 不能正常识别！
+
+npm install -g nrm (NPM Registry manager)
+nrm ls
+nrm use taobao (上面显示的别名)
+nrm use npm (默认的 https://registry.npmjs.org)
+
+
+
 
 也可用bower工具安装  npm install -g bower
 bowner install react
@@ -76,7 +90,12 @@ npm run dev   会启动 http://localhost:3000
 package.json文件中有 dependencies字段,表示依赖的模块, 用 npm install 就会安装所有的依赖
 有时提示	npm audit fix
 通过node_modules目录来加载
- 
+如源码中没有node_modules目录 使用npm install (读package.json文件)来下载,可加参数 --ignore-scripts
+npm cache clean --force  可能没有完成删除目录 ~\AppData\Roaming\npm_cache\_cache目录 (npm cache verify 提示的)
+删除package-lock.json
+npm install --verbose 有每个文件下载日志
+
+
  chrome 调试node
   node --inspect test-debug.js 监听9229 端口
   chrome地址栏输入 chrome://inspect/ -> 可以看到运行的文件，点击进入
@@ -627,7 +646,10 @@ npm install express --save
 const express = require('express')
 const app = express()
 
- 
+app.use(express.static('public')) ;//public目录放html,js,css图片等
+app.use("/static",express.static(__dirname+'/static'));//指定路径对应的目录
+
+
 // 自定义跨域中间件
 var allowCors = function(req, res, next) {
   res.header('Access-Control-Allow-Origin', req.headers.origin);
@@ -638,15 +660,44 @@ var allowCors = function(req, res, next) {
 };
 app.use(allowCors);//使用跨域中间件
 
+//方式二
+app.all('*',function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', req.headers.origin);//不能多个，如用xhr.withCredentials=true不使用*
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type,mycors,Cookie');
+  res.header('Access-Control-Allow-Credentials','true');
+  if(req.method=='OPTIONS') 
+	res.sendStatus(200);
+  else
+	next();
+});
+
+
+//--跨域也可使用cors库
+https://expressjs.com/en/resources/middleware/cors.html
+npm install cors --save
+//import cors form "cors"
+var cors = require('cors')
+app.use(cors({
+	credentials:true,
+	orign:["http://127.0.0.1:3000","http://localhost:3000"],
+	methods["GET","POST"],
+	allowedHeaders["Content-Type","mycors","Cookie"]
+	}))
+
+//---
 app.get('/', (req, res) => res.send('Hello World!'))
 
 
 const port = 3000
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
 
-//--cookie
-res.cookie(name,value,[,options])
 
+//--cookie-parser 
+npm install cookie-parser --save
+
+var cookieParser=require("cookie-parser");
+app.use(cookieParser()); 
 --- npm install body-parser  
 
 var express = require('express')
@@ -677,7 +728,7 @@ app.post('/api/users', jsonParser, function (req, res) {
 
 
 app.listen(3000);
-//---express 结合body-parser 示例
+//---express 结合body-parser 示例  cookie-parser
 
 const express = require('express')
 const app = express()
@@ -686,22 +737,13 @@ var bodyParser = require('body-parser')
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
  
-app.all('*',function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('Access-Control-Allow-Credentials','true');
-  if(req.method=='OPTIONS') 
-	res.sendStatus(200);
-  else
-	next();
-});
-
  
 app.get('/', (req, res) => res.send('Hello World!'))
 
 app.post('/news', (req, res) => { 
 	console.log(req.body);//请求要加content-type : application/json
+	console.log("request cookie loginId:"+req.cookies.loginId);//是cookie-parser的作用
+	res.cookie("loginId","abc");
 	res.json({"msg":"from express"});
 })
 
@@ -774,11 +816,12 @@ node index.js 后访问 http://localhost:3000/index.html 显示 Hello World
 ================================stompit
 https://www.npmjs.com/package/stompit
 
-//activeMQ 的新版本 Artemis,实现了 STOMP 
+//activeMQ 的新版本 Artemis,实现了 STOMP=Simple (or Streaming) Text Orientated Message Protocol
+node.js 版本的STOMP客户端
+
 npm i stompit
 
-//activeMQ new verion Artemis,it implements STOMP 
-
+//示例代码开两个客户端可以连接artermis做测试成功
 const stompit = require('stompit');
  
 const connectOptions = {
@@ -1054,12 +1097,12 @@ if (cluster.isMaster) {
 }
 ---------bluebird
 http://bluebirdjs.com/docs/getting-started.html
-可用于浏览器的Promise增强， Bluebird supports cancellation 
+可用于浏览器的Promise增强， Bluebird 支持取消
 
 npm install bluebird
 var Promise = require("bluebird");
 import * as Promise from "bluebird";
-
+示例见JS_ThirdLib
 
 //development
 Promise.config({
@@ -1183,8 +1226,33 @@ require('jsonwebtoken')
 
 var jwt = require('jsonwebtoken');
 var token = jwt.sign({ foo: 'bar' }, 'shhhhh');
+ 
 
-----cookie-parser
+----lodash
+https://lodash.com
+npm i  lodash --save
+有集合的一些操作方法，像filter,map 
+示例见JS_ThirdLib
+
+---moment-timezone 时区库
+https://momentjs.com/timezone/
+npm i moment-timezone  --save 
+虽然有浏览器版本，但测试不行，只能node
+
+var moment = require('moment-timezone');
+
+var zone = "America/Los_Angeles";
+var res=moment.tz('2013-06-01T00:00:00+00:00', zone).format(); // 2013-05-31T17:00:00-07:00
+console.log(res);
+
+res=moment('2013-06-01T00:00:00+00:00',"America/Los_Angeles");
+console.log(res.format());
+
+var timestamp = 1403454068850,
+date = new Date(timestamp);
+res=moment.tz(timestamp, "America/Los_Angeles").format(); // 2014-06-22T09:21:08-07:00
+console.log(res); 
+
 
 
 

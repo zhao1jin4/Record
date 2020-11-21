@@ -20,16 +20,17 @@ group 资源仓库组,用来合并多个hosted/proxy资源仓库,配置maven依�
  可以设置是否可以 deployment,是release的还是snapshot的
  
 ------Nexus Repository OSS 3.5.1
- 3.x版本 测试支持PyPI,Docker,npm,yum(proxy),社区支持 apt,go,CocoaPods
-有windows,unix,mac版本
-没有 -bundle.zip了 unix版本 要求只能JDK 1.8 ,解压出现了sonatype-work，刚解压只有log,tmp, orient/plugins目录，启动后会生成很多文件
+ 3.28 版本  还支持 npm,docker,helm ,yum,apt,go,PyPI 每个有proxy和hosted
+ 
+有windows,unix,mac版本,没有 -bundle.zip了 unix版本
+	要求只能JDK 1.8 ,解压出现了sonatype-work，刚解压只有log,tmp, orient/plugins目录，启动后会生成很多文件
 
 nexus-3.5.1-02/bin/nexus start  是后台运行，相应的有stop
 tail -f sonatype-work/nexus3/log/nexus.log 初次启动时间较长
 
-./nexus run 前台运行
+./nexus run 前台运行 ,如是windows版本用 nexus.exe /run ,对应的有 /start /stop /restart
  
-直接仿问 http://127.0.0.1:8081/ 默认有一个用户 admin  密码 admin123     
+直接仿问 http://127.0.0.1:8081/ 默认有一个用户 admin  密码 admin123 ,新版本提示密码初始放在 nexus-3.21.1-01-win64/sonatype-work/nexus3/admin.password 文件中     
 		提示 max file descriptor至少65536(默认4096)
 		 /etc/security/limits.conf (Ubuntu 除外)
 			nexus - nofile 65536
@@ -147,6 +148,8 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 					http://central.maven.org/maven2
 					https://repo.spring.io/libs-release/ 
 					http://maven.aliyun.com/nexus/content/groups/public
+					https://mirrors.huaweicloud.com/repository/maven/ 
+   --> 
 			-->
 		<release_deployment_url>http://localhost:8080/my/repo</release_deployment_url>
 		<snapshot_deployment_url>http://localhost:8080/my_snapshot/repo</snapshot_deployment_url>

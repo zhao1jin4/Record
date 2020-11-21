@@ -15,15 +15,20 @@ end
 Vagrant.configure("2") do |config| 
 	config.vm.box="my"
 	config.vm.box_version="0"
-	config.vm.synced_folder  "vagrant/" ,"/vagrant"
+	config.vm.synced_folder  "vagrant/" ,"/vagrant" 
     $script = <<SCRIPT
 	sudo systemctl restart network.service
 	sudo yum install -y wget
-	echo "192.168.60.101 mycentos1"| sudo tee /etc/hsots
+	echo "192.168.60.101 mycentos1"| sudo tee /etc/hosts
 SCRIPT
    config.vm.provision "shell", inline: $script   
-	(1...2).each do |i|
+	(1..2).each do |i|   #如想只一个用  (1..1)
 		config.vm.define "mycentos#{i}" do |node|
+			#硬盘config.vm.disk，还是Experimental阶段
+			#node.vm.disk :disk, size: "20GB", primary: true
+			#node.vm.disk :disk, name: "backup", size: "8G"  #加新的硬盘
+			#node.vm.disk :dvd, name: "installer", path: "./installer.iso"
+			
 		   node.vm.hostname="mycentos#{i}"
 		   node.vm.network "private_network", ip: "192.168.60.10#{i}"
 		   node.vm.provider "virtualbox" do |v|
@@ -81,24 +86,11 @@ vagrant package --base  <上面的name的值> --output ./my.box
 		inline: "echo hello from node #{i}"
 	end 
   end
-		
-
-
-
-   
-   
- 
- 
- 
- 
- 
- 
- 
- 
-  
-  
+		 
   
 ----------------VirtualBox 要硬件BIOS打开Virtualization Technology(VT) 是Enabled
+不能和Hyper-V同时使用
+Hyper-V禁用卸载后 bcdedit 查看有 hypervisorlanchtype 值为Auto 要关闭才可用VirtualBox(bcdedit /set hypervisorlanchtype off 后重启)
 
 FreeNAS工具  NAS (Network Attached Storage),支持iSCSI protocols
 

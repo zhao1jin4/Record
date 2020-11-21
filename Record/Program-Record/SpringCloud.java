@@ -44,17 +44,18 @@ Intellij Idea 建立 spring initialir 项目->Cloud Discory -> eureka server  �
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.1.4.RELEASE</version>
+    <version>2.3.5.RELEASE</version>
 </parent>
 <dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
-            <version>Hoxton.RELEASE</version>  
+            <version>Hoxton.SR9</version>  
 			<!--
-				Greenwich.SR5   要和spring-boot 2.1.x  对应 目前 2.1.11
-				Hoxton.SR4  要和spring-boot 2.2.1.RELEASE
+				Greenwich.SR5   要和 spring-boot 2.1.1.RELEASE
+				Hoxton.SR4  	要和 spring-boot 2.2.1.RELEASE
+				Hoxton.SR9  	要和 spring-boot 2.3.5.RELEASE
 			-->
             <type>pom</type>
             <scope>import</scope>

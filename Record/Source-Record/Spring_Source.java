@@ -190,8 +190,13 @@ public class MyApplicationContextInitializer implements  ApplicationContextIniti
 AnnotatedBeanDefinitionReader 的构造器中有 registerAnnotationConfigProcessors 注册了很多 PostProcessors
 	ConfigurationClassPostProcessor用来处理@Configuration标记的类
 
- 
-
+---spring 事务DataSourceTransactionManager
+PROPAGATION_REQUIRES_NEW 是基于数据库连接实现的
+	TransactionIntercepter 的invoke方法 -> 父类TransactionAspectSupport的invokeWithinTransaction()->createTransactionIfNessary()->
+		AbstractPlatformTransactionManager.getTransaction()->handleExistingTransaction() 里有PROPAGATION_REQUIRES_NEW->
+		suspend()->doSuspend() 里有 txObject.setConnectionHolder(null)后面的doBegin()中有根据这个变量来得到新的连接
+		
+		
 ------ spring boot 
 @SpringBootApplication 里有 
 		@SpringBootConfiguration(里有@Configuration)

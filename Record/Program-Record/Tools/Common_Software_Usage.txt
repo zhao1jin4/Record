@@ -82,7 +82,7 @@ Review-> Tracking组中 打开 Track Chnages  如删,加文字可以记录,可�
 在线预览excel
 https://view.officeapps.live.com/op/view.aspx?src=www.xxx.com/xx.xlsx
 
-File -> INfo -> protect Workbook  可以设置打开密码
+File -> INfo -> protect Workbook  可以设置打开密码,mark as final 可以设置为只读
 
 excel 中可以在单元格用  ='Name List'!D8  表示引用Name List的工作表中的D8 内容,
 
@@ -285,14 +285,21 @@ firefox63  插件 只能在线安装了(可以右击复制链接在edge里下载
 	EPUBReader 安装后在工具栏上 用于读epub文件 mongodb doc  
 	CHM
 	SSHGate 
-	DownThemAll-4.2.6 (但还是使用firefox本身的下载) 可firefox74
+	DownThemAll-4.2.6  可firefox74
+	Markdown viewer 右上角有一个m图标，拖入文件或输入file:///c
 	--- 新firefox 没了？？ 
 	ColorZilla-2.8  新firefox57 不兼容了？？？？
-	cacheviewer-0.7.6(Tools->Web Developer->CacheViewer)
+	cacheviewer-0.7.6(Tools->字loper->CacheViewer)
 	FireFTP-2.0.18(Connection标签选择SFTP)
 	FireSSH-0.94.4(在Tools->Web Developer下,ls --color 才变色,ls 中文是根据系统字符集自动匹配view->character encoding来查看,手工设置LANG无效)
-
-	
+	Developer toolbar (shift+f2)的命令,提示功能很好,子命令可按回车提示，新版本没了？？？
+		screenshot xx 截屏png格式保存到Downloads目录(win7)
+		screenshot --clipboard
+		dbg list  		
+		pagemod replace group goups123   true    修改页,把Group替换为group123 ,忽略大小写
+		pagemod remove element h3
+	 
+		
 修改书签保存位置
 https://developer.mozilla.org/en-US/docs/Mozilla/Command_Line_Options
 firefox.exe  -profilemanager  或者用 -p  会打开［选择用户配置文件］对话框->［创建配置文件］ 按钮
@@ -316,18 +323,8 @@ firefox.exe 其它选项
 如
 firefox.exe -P myProfile
 firefox.exe  --profile D:\Program\firefox_data\Profiles
-
-  
-  
-ctrl+shift+k 打开高度控制台(替代firebug)
-
-Developer toolbar (shift+f2)的命令,提示功能很好,子命令可按回车提示
-	screenshot xx 截屏png格式保存到Downloads目录(win7)
-	screenshot --clipboard
-	dbg list  		
-	pagemod replace group goups123   true    修改页,把Group替换为group123 ,忽略大小写
-	pagemod remove element h3
  
+
 禁用JS 地址栏输入 about:config  ->  搜索 javascript.enabled 双击 把这个true修改为false
 
 不记录历史 ,先清历史记录 preferences->privacy->History中选择Never remeber history 
@@ -351,8 +348,10 @@ about:support 查看有 browser.newtab.url 有值 ,在about:config 中删除其�
 ctrl+shift+P 以隐身(Private)模式上网,不会保留浏览历史和Cookie
 Tools->options->Privacy  -> remove individual cookies ->可以看到Cookie
 
-Firefox不能访问6000,6666端口
+Firefox 不能访问6000,6666端口
 
+Firefox 允许跨域CORS ,安装CORS Everywhere 插件 ，安装后右上角有一个 Cors E图标，绿色开启(是对全部标签生效)，粉色关闭
+ 	
 -------------Chrome
 
 
@@ -431,6 +430,10 @@ Chrome都不能访问6000,6666端口,报ERR_UNSAFE_PORT, 要加启动参数 -exp
 
 chrome://flags  SameSite by default cookies 设置为禁用
 
+
+chrome 允许跨域CORS --disable-web-security --user-data-dir 一定要两个参数一起使用
+	启动chrome 后上方就一个提示，说明成功了，如果再启动一个窗口就没有了
+ 	
 
 -------------Edge --------
 自带flash player ...->设置->查看高级设置-> 打开  Adobe Flash Player  

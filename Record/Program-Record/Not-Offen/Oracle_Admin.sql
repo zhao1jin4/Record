@@ -471,8 +471,14 @@ spool off;
 
 sys,system,sysman,dbsnmp安装时的默认用户,为安装时的密码
 hr 用户是lock ,有表的
- 
- select * from tab; 显示所有用户的表,视图
+
+select * from all_synonyms where table_name ='USER_TAB_COLUMNS'
+select * from USER_TAB_COLS where table_name='mytable' ;
+select * from cols where table_name='mytable' ; 显示表中的列
+
+select * from all_synonyms where table_name ='USER_TABLES'
+select * from tab; 显示所有用户的表,视图
+
   
 启动实例可以用 oradim -startup -sid orcl
  
@@ -608,6 +614,8 @@ xe.__streams_pool_size=0
 ###可加 instance='other' 每个initSID文件不同,改其它的如db_name,control_file...
 ###启多个instance 要更改环境变量ORACLE_SID ,用不同用户(orapwd生成的)
 
+ instantclient 19.8版本 ，只basic+sqlplus即可，windows下可不设置环境变量，可无sqlnet.ora 和 tnsnames.ora
+		tools的imp,exp,sqlldr...
 --------instantclient 的tnsnames.ora
 # set ORACLE_HOME=D:\instantclient_11_1
 # set TNS_ADMIN=D:\instantclient_11_1
@@ -1284,7 +1292,10 @@ select *
  
  查设置的最大的连接数
  select value from V$parameter where name='process'
- 
+ show parameter processes
+ show parameter sessions
+ alter system set processes=30 scope=spfile
+ alter system set sessions=200 scope=spfile
  
  
  

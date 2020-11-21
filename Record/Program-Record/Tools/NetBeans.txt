@@ -4,7 +4,7 @@ apache下11.2版本 支持JDK11
 apache Netbeans-12
 netbeans-11.2-bin\netbeans\etc\netbeans.conf 中要修改 netbeans_jdkhome 的配置才可启动
 
-支持Gradle
+支持Gradle,对Maven的支持比eclipse还差
 
 默认位置
 %HOMEPATH%\AppData\Roaming\NetBeans 存用户的配置

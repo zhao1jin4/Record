@@ -322,7 +322,7 @@ CREATE TABLE num_type
 	my_old_double2  DOUBLE(7,4) comment '过时用法'
 );
 
-CHAR ,VARCHAR,BINARY,VARBINARY,BLOB,TEXT,ENUM , SET	 类型
+CHAR ,VARCHAR,BINARY,VARBINARY,BLOB,TEXT,ENUM , SET	 类型,没有clob类型对应的是text
 	
  CREATE SCHEMA 是 CREATE DATABASE 的同义词
  
@@ -348,7 +348,7 @@ mysql 8 已经修正了这个问题 (建表,加列时,列的类型为 timestamp 
 
  
  DATETIME 范围是 '1000-01-01 00:00:00' to '9999-12-31 23:59:59'.
- TIMESTAMP 范围是 '1970-01-01 00:00:01' UTC to '2038-01-19 03:14:07' UTC.
+ TIMESTAMP 范围是 '1970-01-01 00:00:01' UTC to '2038-01-19 03:14:07' UTC. 4字节
  
 YEAR ,TIME  类型     
 
@@ -1375,7 +1375,7 @@ MySQL性能注意问题，如果left join 连续使用两个关联三张表 (最
 关联三张表 
 其中一个表(可能最后一个) 有个关联条件, 建立复合索引有用,看Cardinality的值变小,影响join( 未少时使用analyze table 无用???) (但还是很慢??? ), 如建立两个独立地索引无用
 
-count(*) 可以保证数据正确,如果count(col) 如果某行col的值为null不会被计算,MySQL和Oracle都是这样的
+只要一行不全为空count(1)就可替代count(*) 可以保证数据正确,如果count(col) 如果某行col的值为null不会被计算,MySQL和Oracle都是这样的
 
 
 select sleep(3);  //单位秒

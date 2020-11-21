@@ -1460,6 +1460,17 @@ snap abort 2
 
 snap install redis-desktop-manager
 snap install lxd
+
+以下未试
+snap info kubectl  显示版本 放在--channel参数 ,版本带 --classic
+snap 安装指定版本
+snap install kubectl  --channel=18.0/stable  --classic
+
+snap install kubectl --classic
+kubectl version --client
+
+
+
 ----------snap 下载配置
 
 ----------snap 私服

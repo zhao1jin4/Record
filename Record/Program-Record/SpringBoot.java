@@ -205,7 +205,7 @@ public class ApplicationTests {
 <parent>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-parent</artifactId>
-	<version>2.1.1.RELEASE</version> <!-- 2.0.2.RELEASE 2.0.7.RELEASE 2.1.1.RELEASE -->
+	<version>2.3.5.RELEASE</version> <!-- 2.2.1.RELEASE 2.3.5.RELEASE  -->
 	<relativePath/> 
 </parent>
  

@@ -112,10 +112,18 @@ debug时依赖gdb命令 ,安装Cygwin的gdb后,调试有时中文乱码??? 控�
 	~\go\bin下就有dlv.exe
 	
 	https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
-	也可  go install ...
-
+	也可下载后进入目录  go install
+	
+	写代码时 类.时 提示 gocode 找不到 , go get -v github.com/mdempsky/gocode 安装
+	选中方法名->右击 go to type definition 提示 guru 找不到 , go get -v golang.org/x/tools/cmd/guru 安装
+	
+	一个目录（工作区）只可有一个main函数
 	debug时不依赖gdb
 ---
+
+
+gofmt 用来格式化代码 
+
 
 ---hello.go
 package main //main函数所在文件的包名必须是main,同一文件夹的go文件包名必须全一样,建议用文件夹名
@@ -1593,6 +1601,59 @@ func main(){
 }
 
 
+import (
+	"fmt"
+	"net/http"
+	"net/url"
+	"io/ioutil"
+)
+//---http client
+func printRes(resp *http.Response, err error  ){
+	if err != nil {
+		fmt.Print("error:",err)
+		return
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Printf("body=%s \n",body)
+}
+
+func main() {
+	{
+		resp, err := http.Get("http://localhost:8080/J_JavaEE/index.jsp")
+		printRes(resp, err)
+		resp, err  = http.PostForm("http://localhost:8080/J_JavaEE/receiveForm",
+			url.Values{"username": {"lisi"}, "password": {"123"}})
+		printRes(resp, err)
+	}
+	{
+		client := &http.Client{
+			//CheckRedirect: redirectPolicyFunc,
+		}
+		resp, err := client.Get("http://localhost:8080/J_JavaEE/index.jsp")
+		printRes(resp, err)
+
+		req, err := http.NewRequest("POST", "http://localhost:8080/J_JavaEE/receiveForm", nil)
+		req.Header.Add("If-None-Match", `W/"wyzzy"`)//请求头
+		resp, err  = client.Do(req) //发起请求
+		printRes(resp, err)
+	}
+
+}
+//----http server
+import (
+	"fmt"
+	"html"
+	"log"
+	"net/http"
+)
+
+http.HandleFunc("/bar", func(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+})
+
+log.Fatal(http.ListenAndServe(":8080", nil))
+//http://localhost:8080/bar
 
 
 

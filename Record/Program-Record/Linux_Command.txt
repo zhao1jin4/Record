@@ -329,7 +329,7 @@ stty erase ^h  使用backspace键生效　　(Oracle中) 也可以ctrl+backspace
 rlwrap sqlplus 可以使用 sqlplus 中可使用上下键
 
 
-bash 中ls-> 按esc 3 ->再按a  ,就会出现3个a (aaa)
+bash 中ls-> 按esc 3 ->再按a  ,就会出现3个重复a (aaa)
 
  dd if=/dev/cdrom of=RedhatEL5.iso
  mkisofs -o RedhatEL5.iso -r /dev/cdrom
@@ -345,6 +345,7 @@ mkisofs -volset-size 4  -volset-seqno 2  -r -o a.iso    a/
 mkisofs  -print-size  -r a/
 预计建立映像文件的容量大小(extents) extent的单位是扇区
 
+unlink 效果同 rm
 
  数据同步  sync 命令,async
  
@@ -444,6 +445,8 @@ export TZ=GMT+8
 date后 时间就变对了
 
 ntpdate time.windows.com 时间同步
+
+uptime 显示系统启动时间
 
 linux 长按键 没用，使用 xset r命令后就可用了
 
@@ -793,8 +796,8 @@ atrm 2 删除任务
 chkconfig --list
 chkconfig crond on/off       定时任务
 
-telnet <IP> <port>  退出 按ctrl+],出现telent>打q回车
-
+telnet <IP> <port>  退出 按ctrl+],出现telnet>打q回车
+替代telnet的方式为 curl,wget
 
 
 /etc/ssh/sshd_config 文件中打开下面三个
@@ -1478,8 +1481,8 @@ y2      算当前行向下共2 行
 
 p                在前粘贴
 P                在后粘贴
-:$ 移动到尾行 
-G  移动到尾行 
+:$ 移动到文件尾 
+G  移动到文件尾 
 
 :n 到指定行
 :m,n copy x   将m～n行内容复制到 x 行之后   ＃
@@ -1889,19 +1892,27 @@ firewall-cmd --list-services
 firewall-cmd --get-services 哪些服务可以打开
 
 添加新端口
-firewall-cmd --zone=public --add-port=6379/tcp --permanent		redis
-firewall-cmd --zone=public --add-port=27017/tcp --permanent      mongodb 
+firewall-cmd --zone=public --add-port=6379/tcp --permanent		#redis
+firewall-cmd --zone=public --add-port=27017/tcp --permanent     #mongodb 
 
-firewall-cmd --zone=public --add-port=2181/tcp --permanent       zookeeper
-firewall-cmd --zone=public --add-port=60010/tcp --permanent 	 hbase
-firewall-cmd --zone=public --add-port=6627/tcp --permanent 		 storm   对应的有 --remove-port
-firewall-cmd --zone=public --add-service=ssh --permanent  对应的有--remove-service
+firewall-cmd --zone=public --add-port=2181/tcp --permanent      #zookeeper
+firewall-cmd --zone=public --add-port=60010/tcp --permanent 	#hbase
+firewall-cmd --zone=public --add-port=6627/tcp --permanent 		#storm  
+#对应的有 --remove-port
+firewall-cmd --zone=public --remove-port=6627/tcp --permanent
 
+#service
+firewall-cmd --zone=public --add-service=ssh --permanent
+#对应的有--remove-service
+firewall-cmd --zone=public --remove-service=ssh --permanent  
 
-firewall-cmd --reload 
+firewall-cmd --reload  重新启动，上面的修改重启才生效
 firewall-cmd --state
 
 firewall-cmd --zone=public --list-ports  查开了哪些端口
+firewall-cmd --query-port=3306/tcp
+
+firewall-cmd --get-active-zones
 
 存在配置文件中 /etc/firewalld/zones/public.xml
 
@@ -1926,8 +1937,13 @@ sudo firewall-cmd --zone=dmz --add-interface=eth0
 firewall-cmd --list-rich-rules
 
 允许来自主机 192.168.0.14 的所有 IPv4 流量
-firewall-cmd --zone=public --add-rich-rule 'rule family="ipv4" source address=192.168.0.14 accept'
-	对应的就有 --remove-rich-rule 'rule family="ipv4" source address=192.168.0.14 accept'
+firewall-cmd --zone=public --add-rich-rule 		'rule family="ipv4" source address=192.168.0.14 accept'
+firewall-cmd --zone=public --remove-rich-rule 	'rule family="ipv4" source address=192.168.0.14 accept'
+
+允许 (网段有/24,单机没有/24) 的IP 仿问本机的1186端口
+firewall-cmd --zone=public --add-rich-rule   'rule family="ipv4" source address="192.168.60.1/24" port port="1186" protocol="tcp" accept'
+firewall-cmd --zone=public --query-rich-rule 'rule family="ipv4" source address="192.168.60.1/24" port port="1186" protocol="tcp" accept'
+
 
 拒绝来自主机 192.168.1.10 到 22 端口的 IPv4 的 TCP 流量 
     sudo firewall-cmd --zone=public --add-rich-rule 'rule family="ipv4" source address="192.168.1.10" port port=22 protocol=tcp reject'
@@ -1938,7 +1954,11 @@ firewall-cmd --zone=public --add-rich-rule 'rule family="ipv4" source address=19
 将主机 172.31.4.2 上 80 端口的 IPv4 流量转发到 8080 端口（需要在区域上激活 masquerade） 
 	sudo firewall-cmd --zone=public --add-rich-rule 'rule family=ipv4 forward-port port=80 protocol=tcp to-port=8080 to-addr=172.31.4.2'
 
-	 
+做客户端要可以访问指定服务器 ,不用加destination(允许发出)默认是可以的
+	firewall-cmd --zone=public  --add-rich-rule 'family="ipv4" destination address="192.168.60.101" port port="1186" protocol="tcp" accept'
+	如加  invert="true" 则 firewall-cmd --list-rich-rules 显示为NOT
+	firewall-cmd --zone=public  --add-rich-rule 'family="ipv4" destination address="192.168.60.101" invert="true" port port="1186" protocol="tcp" accept'
+	  
 	
 	
 iptablse -A INPUT -p tcp -dport 22 -j  LOG --log-level 5 --log-prefix "iptables::" ###记录日志 --prefix 并不是最前的
@@ -2299,7 +2319,9 @@ unzip -l  显示文件目录结构  -o 覆盖存在的不提示   -n 不覆盖�
 unzip file.zip -d mydir
 tar -t    显示文件目录结构
 tar -zcvf my.tar.gz xx.txt
-
+tar -Jxvf xx.xz
+	-J --xz
+	
 xz test.txt
 xz -d -k test.txt.xz  (-k --keep 保持原文件不被删除,-d --decompress )
 
@@ -3296,11 +3318,13 @@ hostname myhost
 -------
 rpm -ivh xx.rpm --nodeps
 rpm -ivh xx.rpm -force   强制安装,不管是否已经安装，都重新安装
+rpm -Uvh xx.rpm
 
 rpm 解包 rpm2cpio FileName.rpm | cpio -div
 	-d --make-directories
 	-i --extract
 	-v --verbose
+	-U upgrade
 	
 -------------redhat rpm-build
 可以安装rpm-build 来安装 *.src.rpm 等同于解压->./configure ->make 不过会提示少 openssl-devel
@@ -3597,7 +3621,7 @@ yum install xen-4.1.3
 yum install xen-4.1.3 xen-runtime-4.1.3 xen-libs-4.1.3
 
 要安装pip 我们需要启用EPEL(Extra Packages for Enterprise Linux)存储库
-sudo yum install epel-release
+sudo yum install epel-release (rpm -ivh http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm)
 sudo yum install python-pip  是python2的 
 sudo yum install docker-distribution
 

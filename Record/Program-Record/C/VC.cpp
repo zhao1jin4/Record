@@ -64,7 +64,7 @@ VS 2017.15.8 (可win10上)下载离线版本
 	安装后就不能多增加组件了，再安装总是提示安装目录不为空???
 	不能建立MFC项目，BUG????????????????
 	
-Visual Studio 2019  Version 16.5
+Visual Studio 2019  Version 16.5 (安装要求.NetFramework 4.6 及更高版本)
 
 
 

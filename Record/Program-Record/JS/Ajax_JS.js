@@ -329,6 +329,8 @@ xhr.open("POST", "./uploadServlet3");
 xhr.send(formData);
 
 =========== CORS
+firefox可以看到OPTIONS请求，方便调试，chrome就看不到
+
 ------ 简单请求
 XMLHttpRequest 不加请求头成功
 <div id="out"></div>
@@ -828,6 +830,16 @@ alert(typeof(eval(prop3)[1]));//number
 
 
 删除数组，把length=0就可以了
+
+各种进制转换为10进制
+parseInt("0x3ff",16)
+
+10进制转换为二进制
+decimalNum=123
+decimalNum.toString(2)
+
+JS表示的整数没有Java的Long长
+
 
 new Date();
 
@@ -2003,7 +2015,10 @@ var getUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || na
 淘宝触屏版 touchstart, touchend, touchmove
 多点触击涉及到三个事件：gesturestart、gesturechange、gestureend
 
-document.addEventListener("touchmove" 
+document.addEventListener("touchmove" ,x);
+document.addEventListener("DOMContentLoaded" ,function(){
+	console.log("HTML文档被加载完,不用等样式图片");
+});
 
  
 

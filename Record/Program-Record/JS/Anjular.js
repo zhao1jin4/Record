@@ -1,8 +1,12 @@
 Google所收购
 谷歌2012年06月15日发布了一个全新的Web模板——AngularJS 1.0。 比react要早
 
+比较重量级,用TypeScript  语言 (微软的),比较重量级
+
 https://angular.io/
 https://angular.cn/
+
+vscode 调试方法同调试JS，即要安装debugger for chrome,生成lanuch.json  ,打开入口文件 点debug按钮
 
 官方UI组件库	https://material.angular.cn/  
 UI 框架 PrimeNG	https://www.primefaces.org/primeng/

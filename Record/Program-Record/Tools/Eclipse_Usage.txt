@@ -2,8 +2,10 @@
 ﻿Eclipse 2019-06  inst (4.12.0) 支持JDK 12版本  
 ﻿Eclipse 2019-09 R (4.13.0)  compiler还只是到12 
 ﻿Eclipse 2019-12  
-﻿Eclipse 2020-03 (4.15.0)   compiler 到jdk 13
+﻿Eclipse 2020-03 (4.15.0)  compiler 到jdk 13
 ﻿Eclipse 2020-06(4.16.0)   compiler 到jdk 14
+﻿Eclipse 2020-09(4.17.0)   compiler 到jdk 14
+
 
 =======================================eclipse==========================
 快捷键
@@ -513,6 +515,8 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 	有 Spring Boot->Spring Starter
 	只能用Maven,
 	有Server标签能建立Tomcat
+	
+---SpringToolSuite-4.8 (﻿Eclipse 4.17.0)
 ---- Data Tools Platform (DTP)
 eclipse jee版本自带
 dtp-repository-1.14.102.201809101906.zip 依赖很多，可能要在线安装
@@ -648,7 +652,7 @@ SonarQube (要建立服务器端,可以看web页式的单元测试覆盖率,也�
 	sonar-runner -Dsonar.projectKey=my-project -Dsonar.sources=src
 	sonar-runner -Dproject.settings=../myproject.properties
 
-	eclipse插件 help->marketplace->SonarLint
+eclipse插件 help->marketplace->SonarLint 有eclipse,idea,vscode版本
 
 eclemma-3.1.1.zip  JUnit/TestNG/Scala  代码覆盖率  (eclipse插件 ,官方提示可dropins安装,测试无效(可能是目录错误), help->install就可以)
 	EclEmma 是基于 JaCoCo 的一个 Eclipse 插件

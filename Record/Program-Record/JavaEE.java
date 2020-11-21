@@ -2311,7 +2311,7 @@ ulimit -n  默认值1024
 
 
 
-跨域 cross-origin (CORS)
+跨域 cross-origin (CORS) 参考 Ajax_JS
 
 META-INF目录下加context.xml文件 (为Tomcat使用 新版本测试没用)
 <Context crossContext="true" /> 

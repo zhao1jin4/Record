@@ -1,5 +1,10 @@
 ﻿
 ----------------------------------Junit  4.0 
+<dependency>
+  <groupId>junit</groupId>
+  <artifactId>junit</artifactId>
+  <version>4.13.1</version>
+</dependency>
 
 Junit 要求
 

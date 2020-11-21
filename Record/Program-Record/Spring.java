@@ -1051,7 +1051,7 @@ PlatFormTransactionManger  -->DataSourceTransactionManager,HibernateTransactionM
 	事务的边界是方法
 TransactionDefinition
 	1.PROPAGATION_MANDATORY 必须有事务,如没有在事务中报错
-	2.PROPAGATION_NESTED 如当前事务存在，再新产生一个事务,否则建立事务 和PROPAGATION_REQUIRES_NEW  一样,使用savepoint实现
+	2.PROPAGATION_NESTED 如当前事务存在，再新产生一个事务,否则建立事务 和 PROPAGATION_REQUIRES_NEW  一样,使用savepoint实现
 	3.PROPAGATION_NEVER 不能在事务中执行，否则报错
 	4.PROPAGATION_REQUIRED 如当前已经在事务中，加入这个事务,否则建立事务
 	5.PROPAGATION_NOT_SUPPORTED 如当前已经在事务中，事务会被挂起
@@ -1909,7 +1909,7 @@ Quartz内存泄漏
 @Scheduled(fixedDelay=5000)
 public void doBusAtRate()
 
-@Scheduled(cron="*/5 * * * * MON-FRI")
+@Scheduled(cron="*/5 * * * * MON-FRI") //秒 分 时 日  月 星期 ,?号表示不指定,只能在星期和日上出现,用于冲突
 public void doBusCrond()
 
 @Async

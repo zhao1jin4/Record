@@ -204,6 +204,9 @@ tools -> Preferences -> 上面组Oracle中的Logon History->选中Store  history
 =============  SQL Developer-3.1 ============= 
 可以没有Oracle客户端
 
+SQL 语句查询默认只查前200条数据(双击表格也是显示部分数据),statement窗口中可以看执行SQL,如滚动条拖到底部才会自动加载
+	Preferences -> Advanced -> SQL Array Fetch Size 最大只能设置200
+
 SQL Developer 调试好像必须是放在function或者procedure中才行,建立好function或者procedure后在左树中打开，
 	点edit按钮，再comipler for debug按钮,打断点，点debug按钮,修改传入参数，下方debugging面板来step over
 	
@@ -238,14 +241,12 @@ windows 下
 
 Filter 中写 field_name='' 来过虑数据
 
-SQL Developer Data Modeler工具用来设计表的,查看现有表关系,文件->导入->数据字典->建立连接,选择用户,选择表
-
 sqldeveloper-4.0.0.13.80-no-jre\sqldeveloper\bin\sqldeveloper.conf  有 SetJavaHome
 
 日期默认不显示时间
 工具->首选项->数据库->NLS->日期格式: DD-MON-RR 修改为: YYYY-MM-DD HH24:MI:SS
 
-%USERPFORILFE%/AppData/Roaming/SQL Developer/下的System<Version>目录存配置
+%USERPROFILE%/AppData/Roaming/SQL Developer/下的System<Version>目录存配置
 
 view->ssh视图中 右击ssh host->new ssh host输入主机,端口22,来建立ssh连接做跳板机,可以使用私钥导入
 	PUTTYGEN.exe 可以导出.ppk文件(Putty private key)
@@ -255,9 +256,12 @@ view->ssh视图中 右击ssh host->new ssh host输入主机,端口22,来建立ss
 
 Preferences -> database -> Advanced -> 可以复选 Auto commit
 
-可查看视图SQL,DBvisulizer 和DBeaver不行的
+可查看视图SQL,DBvisulizer  不行的
 
-=============  SQL Developer Data Modeler============= 
+=============  SQL Developer Data Modeler=============
+
+SQL Developer Data Modeler工具用来设计表的,查看现有表关系,文件->导入->数据字典->建立连接,选择用户,选择表
+ 
 可以建立逻辑模型
 看现有的物理模型 ,file->import->data dictionary->建立数据库连接->选择schema-> 选择表->全选要ctrl+a ->在点下方的Select All按钮
 生成图表可以 ctrl+滑轮 放大缩小，但不能是以光标为中心有bug,图有点乱，要重新开，才能好
@@ -463,9 +467,13 @@ SQL编辑器 菜单 ->SQL编辑器(F3)
  
 默认查询只显示前200条，Preferences->Editor->Data Editor -> ResultSet fetch size 默认为200
 
-不能运行oracle的desc命令，但sql developer可以,可以运行MySQL的desc
 
 可以写SQL 时可以用:param做参数时，可以弹框输入值
+
+不能运行oracle的desc命令(select * from cols where table_name='mytable' 来替代)，但sql developer可以,可以运行MySQL的desc
+不能运行oracle的show paramter processes命令,但sql developer可以
+
+连接MySQL时 , 首次登录 , 要设置JDBC 参数allowPublicKeyRetrieval=true , 可能要设置JDBC 参数serverTimeZone=UTC
 
 ----------- phphbaseadmin github上已经有6年没有更新，有中文
 -----------SQuirrel SQL Client 
@@ -605,8 +613,12 @@ clone... -> 可以复选 load putty ->选择私钥文件
 
 
 选中两个文件或文件夹 ->右击->TortoiseGit->diff 可做文件差异比较 ,免费
-
-
+---日志查看工具 BareTail,可以高亮，可以像linux tail一样，实时加载变化
+	工具栏上的 选择字符编码为UTF-8,
+		可以取消follow tail 
+	工具栏上的Highlighting按钮 弹窗->Add 按钮-> String中是要搜索的字串，如Warn,设置颜色，只会高亮一整行
+	下方的Search也只是高亮一整行
+	
 ------------GitExtensions 免费Git工具(windows) 
 	默认要kdiff3做为比较合并工具,可选择BeyondCompare3,4 也要sh可用git,或者cygwin
 
@@ -625,11 +637,32 @@ clone... -> 可以复选 load putty ->选择私钥文件
 		vim-8.2 (可单独下载win版本gvim)
 		tmux 可以分隔多个命令行窗口 (terminal multiplexe)
 			tmux 进入,如退出exit或ctrl+d,ctrl+b 再?显示所有快捷键
-		   tmux split-window  划分上下两个窗格  ( Ctrl+b ")
-		   tmux split-window -h 划分左右两个窗格 (Ctrl+b %)
+		   tmux split-window  划分上下两个窗格  ( Ctrl+b, ") 注意符号要为英文的
+		   tmux split-window -h 划分左右两个窗格 (Ctrl+b, %)
 		   #tmux select-pane -U 光标切换到上方窗格
-			Ctrl+b <arrow key>：光标切换到其他窗格
-			Ctrl+b Ctrl+<arrow key>：按箭头方向调整窗格大小
+			Ctrl+b ,<arrow key>：光标切换到其他窗格
+			Ctrl+b ,Ctrl+<arrow key>：按箭头方向调整窗格大小
+			ctrl+b,x 有提示kill-panel?输入y,关闭当前窗格
+			ctrl+b ,:set synchronize-panes 输入字符会在所有窗格都打上，取消用 ctrl+b ,:set synchronize-panes off
+			ctrl+d退出
+			
+			多窗格没有滚动条，可翻页 ctrl+b+[ 再用PgUp/PgDn键来翻页，退出用q
+			
+			
+
+			还可以管理多任务的窗口，最下方显示 窗口id:窗口名字，如后有*表示当前窗口
+			 ctrl+b,c 建立窗口
+			 ctrl+b,p 上一个窗口
+			 ctrl+b,n 下一个窗口
+			 ctrl+b,& 提示kill window?输入y 关闭窗口
+			 ctrl+b,0 切换第0个窗口
+			 
+			 ctrl+b,逗号 重命名窗口
+			 ctrl+b, f 按名字查找窗口
+			 
+ 			 
+			 
+			 
 		openssh
 		
 PATH=D:\Program\cygwin\bin
@@ -639,6 +672,8 @@ cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make  -m, --mixed
 cygcheck -c cygwin  显示当前Cygwin 安装的版本	 -c, --check-setup
 
 mount 显示 c:/cygwin64  挂载到 /
+
+ctrl+滚动滑轮 放大字体
 
 --卸载Cygwin
 去PATH环境变量,
@@ -677,6 +712,14 @@ ls / 是没有c盘的 ,如使用C盘  ls /c 即可,
 mount 命令显示 / 挂载到  %userprofile%\AppData\Local\Programs\Git
 
 支持 <<<,如 vagrant ssh <<< sh -c "ls"
+
+----ConEmu (ConsoleEnumlate) 一个cmd窗口管理器 
+"三"图标->Settings->General->可以修改使用gitbash
+每次新建不会提示用哪种终端,使用最新设置的,但可以点+旁边的下拉选择cmd还是gitbash,可以Cygwin,图标变化
+
+----有cmder但不支持Gitbash  一个cmd窗口管理器
+但不支持Gitbash 
+每次新建都提示用哪种终端 如minitty(图标像gitbash,使用也是/c当C盘) 
 
 ------------TortoisHg 是 Mercurial(分布式版本控制)工具
 
@@ -899,12 +942,11 @@ export LANG=zh_CN.UTF-8
 	Inspect按 选择选择要修改的元素,如<form> (切换到HTML组下)   右击它 ->past HTML->as  last child
 
 	字体变大 , 点图标 -> Text Size-> increse text Size
-----Firefox 的 Web Developer (Web开发者)
-	network 标签 disable cache 禁用缓存
-	字体变大 ????
+----Firefox 的 Web Developer (Web开发者) (替代firebug)	打开 F12  ctrl+shift+k 调试控制台
+	network 标签 disable cache 禁用缓存 
 	控制台中默认不能粘贴(安全原因) 提示写入 allow pasting 才可
 	firefox ->Debugger中 ,在一个文件中, 选中一个区域 如 encodeURI("test.jsp?username=张三") ,右击->add Watch
-
+	ctrl + +/- 放大缩小调试区，即字体大小
 ---- ChromeDeveloper 
 	设置字体大小 ctrl+滚轮
 	network 标签 disable cache 禁用缓存
@@ -917,16 +959,31 @@ file->setting->general 有显示保存文件默认在是%HOMEPATH%/Postman/files
 
 Authentication 有 Bearer Token ,Oauth2
 
----------Jenkins   2.183 基于hudson  
+---------Jenkins  基于hudson
+Jenkins 2.249.2 LTS (2020-10-29) 
 持续集成和持续交付( CI/CD )
-支持 Docker
+下载.war包放tomcat ,支持 Docker 
 
-下载.war包放tomcat
+要在线下载插件，已经下载的保存在~/.jenkins/plugins 可以做备份为离线环境下使用,推荐插件中有Git,Jsch, 
+Manage Jenkins --> Global Tool Configuration 可以配置Git,JDK,Mave,还可以配置Maven Configuration即settings.xml
+
+new Item ->Maven Project(要安装Maven Integration插件,不在Suggest Plugins中)
+
 	
 初次进入页面提示复制~/.jenkins/secrets/initialAdminPassword中的密码
+
 会要求安装插件,可选择建议(支持gradle)，只是请求服务器本身的资源,安装后提示建立admin user
 页面中可再安装插件 Jenkins->Mange Jenkins->manage plugin, 如maven,安装后建立项目时会提示指定maven目录(Global Tool Configuration)
 配置中默认工作目录~/.jenkins ,建立的项目在workspace目录，如页面上删目录不会删
+
+可以点All旁边的+图标 ,建立多个标签,每个标签中可再建立项目 ,如多个环境(对应标签),每个环境又有多个服务
+
+git配置私钥 
+	Jenkins->manage Jenkins->Manage Credentials ->Credentials 组中点表格中一条->进入system页，再点已有一条Global credentials(unrestricted)
+		->左则Add credentials按钮，下拉选择SSH username with private key->输入 username,description,粘贴私钥字串
+		就可以在git中下拉选择刚刚配置的用户了
+		
+
 Maven项目
 自动构建 Build Triggers 
 	可选择Build after other projects are built,输入项目名字时会提示的
@@ -942,15 +999,32 @@ Maven项目
 ---------teamcity 放在IntelliJ中了
 
 
-----------SonarQube 可扫描JS代码 
-还有findbug 扫描java
-安装见Linux Server
+----------SonarQube 可扫描JS代码  
+有使用elastic search
+
+admin密码保存在users表中,修改密码 右上角图标->My Account -> Security 
+建立项目时,提示输入key如abc,输入token如lisi生成长串,提示使用下面命令(maven项目)
+mvn sonar:sonar \
+	-Dsonar.projectKey=abc \
+	-Dsonar.host.url=http://localhost:9000 \
+	-Dsonar.login=长串 \
+	
+Rule菜单 -> Java有很多规则,如何修改?
+
+
+
+
+
+
+-----------findbug 扫描java
+安装见Linux Server，Eclipse中也有
 
 
 
 
 ---------------Bug Tracker 工具
   Jira(Java 除了scrum 还有 Kanban 看板管理) 安装见Linux Server
+  confluence ,右上角的...->以层级查看
   禅道 项目管理 和Bug (中英文) 安装见Linux Server
   Mantis BT(BT=BugTracter PHP)
    
@@ -963,11 +1037,10 @@ Model->Add Diagram->Sequence Diagram
 ================Visual Studio Code 
 
 免费 有windows,linux ,mac版本
-也有zip包  VSCode-win32-x64-1.39.2.zip 直接解压就可用，标题菜单都是黑色
-
+windows zip包  VSCode-win32-x64-1.51.zip 直接解压就可用，标题菜单都是黑色
+linux 下新的标题菜单都不是黑色,只有1.30.1才是黑色
 linux zip包和rpm code-1.39.2-1571154220.el7.x86_64.rpm 在 openSUSE下可安装 
-linux下都是标题菜单都不是黑色,只有1.30.1才是黑色
-		
+	
 .exe方式 默认安装目录 %HOMEPATH%\AppData\Local\Programs\Microsoft VS Code
 
 默认插件安装目录 %USERPROFILE%\.vscode\extensions
@@ -1010,8 +1083,14 @@ File->preferences-> extensions  可以在线安装 各种语言的 如 C/C++(Min
 
 对于像springboot项目,可不使用mvn spring-boot:run ,main方法上方就有Run或Debug链接
 
-右击方法名-> Find All References
+右击方法名-> Find All References  ,  peek references (shift+F12)这个是popup窗口方式 , 打开调用这个方法的所有地方
  
+terminal窗口中可下拉选择gitbash,下次建立terminal 生效
+
+离线下载插件  .vsix文件 ，安装使用VSCode-1.xx\bin\code --install-extension <path\xx.vsix>  对兼容版本有要求 
+https://marketplace.visualstudio.com
+
+
 ----- Node JS
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
 
@@ -1054,7 +1133,7 @@ Go->Go to File 输入 ext install octref.vetur 安装 也可通过界面安装
 	
 	launch.json 在[后按 alt+/ (在Keyboard shoutcut中为Trigger Suggest)出下拉提示 {}Chrome:Attach选中后自动出默认配置
 	##request为attach方式使用，在chrome启动的快捷方式后加参数  --remote-debugging-port=9222
-
+	(可以debug anjular项目)
 -----扩展 Debugger for Firefox 
 像Debugger for Chrome  
 
@@ -1106,8 +1185,12 @@ xdebug.remote_port = 9000
 		
 	打开.go文件 ->调试启动按钮，提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,要花点时间下载的
 	https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
-	也可  go install ...
-
+	也可下载后进入目录  go install
+	
+	写代码时 类.时 提示 gocode 找不到 , go get -v github.com/mdempsky/gocode 安装
+	选中方法名->右击 go to type definition 提示 guru 找不到 , go get -v golang.org/x/tools/cmd/guru 安装
+	
+	一个目录（工作区）只可有一个main函数
 -----  Python  扩展
 提示安装 pylint,也可不安装
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言, 选Python file ->会自动生成launch.json
@@ -1187,6 +1270,9 @@ maven插件Jetty不能识别@WebServlet
 
 -----扩展 Drools (作者，无名气)
 
+------SonarLint 有eclipse,idea,vscode版本
+ 
+ 
 
 
 

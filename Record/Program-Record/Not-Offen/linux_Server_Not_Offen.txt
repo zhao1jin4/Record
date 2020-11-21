@@ -8,6 +8,90 @@
   }  
   工作站ping   服务器　ok
 
+
+==============vsFTP===============
+
+ftp中mget下载，put上传
+
+chkconfig vsftpd off --list
+finger 用户名
+
+
+make 后　生成vsftpd文件
+cp vsftpd	/usr/local/sbin
+cp vsftpd.conf /etc/
+cp xinetd.d/vsftpd  ...
+
+cp  RedHat/vsftpd.pam    /etc/pam.d/ftp   复制认证文件
+后service vsftpd start 后在文件保存在　/var/ftp/下的文件夹中
+
+vi /etc/vsftpd/vsftpd.conf  配置文件　
+
+listen_port=2121改变默认端口21为 2121
+anonymous_enable=YES 改为NO取消匿名登录,要用系统的ftp用户,有主目录
+local_enable=YES
+
+chroot_local_user=YES	#将本地用户锁定在主目录中，不允许切换到上一级目录中
+
+
+FTP虚拟用户 --linux才有
+db_load(db4-utils) -T -t hash -f /etc/vsftpd/ftp_users.txt( 第一行用户，第二行密码) vsftpd_login.db
+
+编辑 /etc/pam.d/vsftpd 
+auth	required	/lib/secrity/pam_userdb.so db=/etc/vsftpd_login
+vi /etc/vsftpd/vsftpd.conf  中加入 guest_enable=YES	guest_username=ftp(虚拟用户充当的用户)
+
+find -perm 002  其它可写的文件
+权限s
+find -perm +6000 | more
+smtps 
+https
+sftp
+ssh
+
+
+
+配置 listen=YES 可独立启动
+/usr/local/sbin/vsftpd & 启动,会读/etc/vsftpd.conf
+
+local_enable=YES 要用目录/usr/share/empty
+
+==========Squid ,浏览器设置代理
+代理服务器和Web缓存服务器
+CDN(Content Delivery Network) 缓存  Edge Side Includes (ESI)
+
+squid-3.5.22.tar.gz
+
+./configure --prefix=/usr/local/squid
+make all    ## 不能运行,如yum install squid后又可以了,知道依赖什么
+make install
+
+/usr/local/squid/etc/squid.conf		配置
+	http_port 3128
+	
+/usr/local/squid/sbin/squid -z		安装
+/usr/local/squid/sbin/squid			启动 报错???
+
+----yum install squid
+vi /etc/squid/squid.conf
+service squid start  如 CentOS 跳到 /bin/systemctl start  squid.service
+squid -k reconfig 重新加载配置
+--- squid.conf 配置
+http_port 3128
+access_log /var/log/squid/access.log
+cache_dir  /var/spool/squid/
+visible_hostname  10.0.0.1
+
+acl localnet src 10.0.0.0/8    		#localnet自己起的名字
+acl all src 0.0.0.0/0.0.0.0 
+
+http_access deny  localnet
+http_access allow all
+
+浏览器设置代理  10.0.0.1  3128
+
+
+
 ===============================CVS
 光盘中的rpm可以直接安装 (最好关闭seLinux)
 安装xinetd软件包(rel5盘中有的)可以直接安装

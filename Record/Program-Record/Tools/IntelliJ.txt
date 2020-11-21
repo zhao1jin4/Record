@@ -8,12 +8,27 @@ https://www.jetbrains.com/go/download/other.html
 
 2020.1 版本位置变为 %USERPROFILE%\AppData\Local\JetBrains\IntelliJIdea2020.1
 			linux变为	~/.cache/JetBrains/IntelliJIdea2020.1
-			
-README.md 文件是markdown语法,idea可以识别 
+
+-----markdown语法		
+README.md 文件是,idea可以识别，firefox 安装插件 markdown viewer ，右上角有一个m图标，拖入文件或输入file:///c
+##		二级标题
+###		三级标题
+####	四级标题
+> 表示引用的内容，即缩进
+>- 缩进  并显示圆点式 项目符号
+``` 这行文本显示高亮，如要多行，只要在首尾有```即可，像多行注释
+**加粗** 也可多行，像多行注释
+分隔线用 3个或以上的*或- 
+[redis链接](doc/redis.md)  表示显示html链接
+![提示文字](screenshot.png)表示显示图片
+
+------ 
 
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
-IDEA 2018.2.6 版本可以支持 JDK11
-IDEA 2020.1 版本可以支持 JDK14
+IDEA 2018.2.6 	版本可以支持 JDK11
+IDEA 2020.1 	版本可以支持 JDK14
+IDEA 2020.2.2 	版本可以支持 JDK15
+
 
 --idea.properties 有提示 idea.home.path ,windows路径使用/ 分隔,事先建立好D:/Program/idea_data即可
 #idea.config.path=${user.home}/.IntelliJIdea/config
@@ -165,7 +180,7 @@ code -> optimize import (ctrl+alt+o)
 code->folding->collapse all(ctrl+shift+-) 对JS太多很有用
 
 自动批量导入
-Editor>General>Auto Import-> Java组中 复选 add unambiguous imports on the fly选项
+Settings->Editor>General>Auto Import-> Java组中 复选 add unambiguous imports on the fly选项 (ctrl+alt+o)
 
  
 File->Settings->Key Map 可以选择与eclipse一样的快捷键
@@ -215,7 +230,7 @@ window -> editor tabs -> tabs replacement -> show tabs in single row
 	-XX:ReservedCodeCacheSize=240m
 
 默认情况下不能调试(debug)多线程，如要调试多线程，在每个线程代码中打断点，右击断点->单选Thread(默认All), set Default 
-
+	run/debug窗口中右则有 个 Allow parallel run 的复选框
 
 intellij edea 一个main方法只可启动一次，如要多在配置启动项中取消  single instance only
 自带.ftl插件
@@ -289,7 +304,11 @@ https://plugins.jetbrains.com/plugin/10119-mybatisx
 	
 ---QAplugin findbug 替代老的findbugs
 	右击项目  analyze 有图标-> analyze code  ,可以单选whole project
-
+---SonarLint 有eclipse,idea,vscode版本
+	右击项目-> SonarLint -> analyze with SonarLint
+		SonarLint视图中显示 分析当前打开文件
+		
+		
 ---jd-gui
 
 ---JRebel 热部署插件（收费）
@@ -446,7 +465,7 @@ Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 -----YouTrack 收费
 Agile  PM
  
------teamCity CI/CD工具 
+========================teamCity CI/CD工具 
 3个agent 是免费的
 
 前端使用react开发
@@ -480,7 +499,7 @@ GRANT ALL   ON teamcity.* TO 'teamcity'@'%';
 
 登录为管理员，右上角有Aminstration链接，
 Licenses 显示为professional ,最多3个agent,最多 100 build configurations
-
+增加多个agent可以同时做相同的事，如3个项目同时做build
 Agent->Install Build Agents 下载文件即
 	C:\TeamCity\webapps\ROOT\update\ 下的 agentInstaller.exe , buildAgentFull.zip  程序包
 
@@ -502,17 +521,17 @@ build级配置 的 Run边上的...按钮-> 可以选择Agent,也可建立多个A
 
 右上角的 project级 切换 Edit project Settings 		和 project home
 		 build 级 切换 Edit Configuration Settings 	和 build configuration home
---Git
-project级配置 Maven Settings文件,可以配置SSH Keys  (teamcity使用jsch只支持 ssh-keygen -m PEM的 方式生成的 id_rsa文件)
-build级配置  GIT  可以用 private key 
+
+project级配置 
+	Maven Settings文件可以上传，起名字为builder级使用,默认只使用镜像URL,不使用仓库位置(下载到C:\TeamCity\buildAgent\system\jetbrains.maven.runner\maven.repo.local)
+	SSH Keys 可为 Git 使用 (teamcity使用jsch只支持 ssh-keygen -m PEM的 方式生成的 id_rsa文件)
+build级配置  Git  可以用 private key 
 	Authentication Method:
 		可下拉选择 Upload Key，即在project级上传的
 		可下拉选择Default Private Key ,提示路径为"C:\Windows\system32\config\systemprofile\.ssh\config"
 			C:\Windows\system32\config 是已经存在的,后面的要单独建立
 		可下拉选择为Custom Private Key ,可以使用project级或build级来配置Parameter (ssh-keygen -m PEM的 方式生成的 id_rsa文件)
 	
-看界面中的日志 代码下载到 C:\TeamCity\buildAgent\system\git\git-xxx.git
-
 build级配置
 	build number format:默认值为  %build.counter%  可被其它地方使用
 	build counter:
@@ -528,12 +547,20 @@ build级配置
 			Maven Settings:默认使用M2_HOME
 			Additional Maven command line paramter:可配置如-Dmaven.test.skip=true
 			Path to POM file: 可以使用相对路径如./Server/pom.xml 
-			User Settings:选择project级上传的settings.xml文件,默认只使用镜像URL,不使用仓库位置(下载到C:\TeamCity\buildAgent\system\jetbrains.maven.runner\maven.repo.local)
+			User Settings:选择project级上传的settings.xml文件起的名,默认只使用镜像URL,不使用仓库位置(下载到C:\TeamCity\buildAgent\system\jetbrains.maven.runner\maven.repo.local)
 				可修改Local Artifact Repository Settings默认的per agent为maven default
 			
 			
 			
---
-环境变量%system.teamcity.build.checkoutDir% 的值是C:\TeamCity\buildAgent\work\xxx ，当前这个build级的目录，在第一次启动后生成，后面就一直用这个目录
+---
+环境变量%system.teamcity.build.checkoutDir% 的值是C:\TeamCity\buildAgent\work\xxx ,代码下载目录，当前这个build级的目录，在第一次启动后生成，后面就一直用这个目录
 	work下的文件夹如没有被teamcity使用，会被自动删除，文件不会
 看有哪些环境变量可用，可在已经执行过的bulder中的parameter标签，如%teamcity.agent.work.dir%
+
+拿不到其它的builder的目录 ,只能通过复制到一个公共可仿问的目录
+
+
+定时构建
+	build级配置->trigger->add new triger按钮->可选择schedule Trigger,
+		VCS trigger 监测到代码变化时，可输入分支名，advance options->Quiet Period Settings 组下可以配置Quiet period mode 选custom，如30分钟一次
+		

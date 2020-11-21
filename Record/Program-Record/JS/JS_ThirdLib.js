@@ -766,7 +766,148 @@ https://github.com/MikeMcl/bignumber.js
 	console.log("x="+x);                                   // "0.3"
 	console.log("0.1+0.2="+ new BigNumber(0.1).plus(0.2));      
 </script>
+===========lodash 
+有集合的一些操作方法，像filter,map 
+也支持node
+<script type="text/javascript" src="lodash.min.js"></script>
+<script type="text/javascript">
+	 var users=[{'user':'lisi','age':36},
+		 {'user':'wang','age':25},
+		 {'user':'lisi','age':10},];
+	 
+	var younest= _.chain(users).filter(function(o){return o.age<35})
+	 .sortBy('age').map(function(o){
+		 return o.user+":"+o.age;
+	 }).first().value();
+	 console.log(younest);
+</script>
+===========bluebird
+http://bluebirdjs.com/docs/getting-started.html
+也支持Node，
+Promise增强 Bluebird 支持取消
 
+<script type="text/javascript" src="bluebird-3.7.2/bluebird.min.js"></script>
+<style type="text/css">
+  #dialog {
+    width:      200px;
+    margin:     auto;
+    padding:    10px;
+    border:     thin solid black;
+    background: lightgreen;
+  }
+  .hidden {
+    display: none;
+  }
+</style>
+</head>
+<body>
+	<div id="dialog" class="hidden">
+	  <div class="message">foobar</div>
+	  <input type="text">
+	  <div>
+	    <button class="ok">Ok</button>
+	    <button class="cancel">Cancel</button>
+	  </div>
+	</div>
+	<p>The current time is <span id="time-stamp"></span>.</p>
+	<p>Your name is <span id="prompt"></span>.</p>
+	<button id="action">Set Name</button>
+</body>
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    var time = document.getElementById('time-stamp');
+    clockTick();
+    setInterval(clockTick, 1000);
+    function clockTick() {
+      time.innerHTML = new Date().toLocaleTimeString();
+    }
+  });
+var noop = function() {
+	  return this;
+	};
+	function UserCanceledError() {
+	  this.name = 'UserCanceledError';
+	  this.message = 'User canceled dialog';
+	}
+	UserCanceledError.prototype = Object.create(Error.prototype);
+
+	function Dialog() {
+	  this.setCallbacks(noop, noop);
+	}
+	Dialog.prototype.setCallbacks = function(okCallback, cancelCallback) {
+	  this._okCallback     = okCallback;
+	  this._cancelCallback = cancelCallback;
+	  return this;
+	};
+	Dialog.prototype.waitForUser = function() {
+	  var _this = this;
+	  return new Promise(function(resolve, reject) {
+	    _this.setCallbacks(resolve, reject);
+	  });
+	};
+	Dialog.prototype.cancel = function() {
+	  this._cancelCallback(new UserCanceledError());
+	};
+	Dialog.prototype.show = noop;
+	Dialog.prototype.hide = noop;
+
+	function PromptDialog() {
+	  Dialog.call(this);
+	  this.el           = document.getElementById('dialog');
+	  this.inputEl      = this.el.querySelector('input');
+	  this.messageEl    = this.el.querySelector('.message');
+	  this.okButton     = this.el.querySelector('button.ok');
+	  this.cancelButton = this.el.querySelector('button.cancel');
+	  this.attachDomEvents();
+	}
+	PromptDialog.prototype = Object.create(Dialog.prototype);
+	PromptDialog.prototype.attachDomEvents = function() {
+	  var _this = this;
+	  this.okButton.addEventListener('click', function() {
+	    _this._okCallback(_this.inputEl.value);
+	  });
+	  this.cancelButton.addEventListener('click', function() {
+	    _this.cancel();
+	  });
+	  
+	};
+	PromptDialog.prototype.show = function(message) {
+	  this.messageEl.innerHTML = '' + message;
+	  this.el.className = '';
+	  return this;
+	};
+	PromptDialog.prototype.hide = function() {
+	  this.el.className = 'hidden';
+	  return this;
+	};
+
+	document.addEventListener('DOMContentLoaded', function() {
+	  var button = document.getElementById('action');
+	  var output = document.getElementById('prompt');
+	  var prompt = new PromptDialog();
+	  button.addEventListener('click', function() {
+	    setTimeout(function() {
+	      prompt.cancel();//这个是扩展的功能
+	    }, 5000);
+	    
+	    prompt.show('What is your name?')
+	      .waitForUser()
+	      .then(function(name) {
+	        output.innerHTML = '' + name;
+	      })
+	      .catch(UserCanceledError, function() {
+	        output.innerHTML = '¯\\_(ツ)_/¯';
+	      })
+	      .catch(function(e) {
+	        console.log('Unknown error', e);
+	      })
+	      .finally(function() {
+	        prompt.hide();
+	      });
+	  });
+	});
+</script>
+	 
 
 
 ------------YUI Compressor 压缩JS

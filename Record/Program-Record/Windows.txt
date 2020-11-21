@@ -353,7 +353,15 @@ Control Panel\User Accounts and Family Safety\User Accounts  -> Create a passwor
 在登录屏幕中，输错误密码，有reset password 链接
 ====快捷键
 
+win+e		打开资源管理器
+win+r		打开运行窗口
+win+d		返回桌面
+win+m		全部小化的窗口
+win+shift+m  原还刚全部小化的窗口
+win+shift+esc 打开任务管理器
+
 ctrl+tab 当前程序的多窗口切换 
+
 
 win+P	切换连接到投影仪的方式
 win+加号"+"按比例放大整个屏幕
@@ -503,8 +511,10 @@ windows 7环境变量
 	;路径可以 / 或者\\ ,;为注释
 	;如值是带有%XX%的,类型要为REG_EXPAND_SZ,使用命令可以做到,手写注册表不行???????
 	;reg add HKCU\Environment\ /v PATH /t REG_EXPAND_SZ /d ^%JAVA_HOME^%/bin
-	;reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\" /v PATH /t REG_EXPAND_SZ /d ^%JAVA_HOME^%/bin
-
+	;reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment\" /v PATH /t REG_EXPAND_SZ /d ^%JAVA_HOME^%/bin    #d全称data
+	;reg query  HKCU\Environment /v Path
+	;reg delete  HKCU\Environment /v Path
+	
 Program Files 写时可用 PROGRA~1 来替代
  
 
@@ -521,6 +531,7 @@ Program Files 写时可用 PROGRA~1 来替代
 开机自动运行
 操作注册表   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
 
+win10开机自动运行 Settings-> App-> Startup
 
 window 键 +r =>msconfig 配置开机启动 (win10 在任务管理器中)
 msconfig中[启动中]项中有所的 注册表项CU=CURRENT_USER,LM=LOCAL_MACHINE,Wow6432Node 应该是在64位机上为了兼容32位
@@ -791,13 +802,15 @@ time /T 显示时间
 cls
 ver
 
-md dir1\dir2  建立目录
+md dir1\dir2  建立目录 #md命令和 mkdir 命令是相同的
 rename dir1 dirx #也可对文件
 move 移动文件 
 rd /s /q abc  删目录及文件  /s 所有 /q quite 
 del /s /q dir  只删所有目录中的文件,目录还存在
 
-copy  /y /b  file1.txt file1.txt  #只复制文件/b binary /y 不提示overite
+copy  /y /b  file1.txt file1.txt  #只复制文件/b binary /y 不提示overite,
+	#原只能是文件，只能是当前目录下的文件，目标可是目录或文件，路径可以是相对的，但要加""
+	
 xcopy /y /q /e /r /h dirx  diry  #把dirx目录下的所有文件复制到diry目录中(要已经存在)
 	/e 子目及子目录(包括空目录) /h hidden /r overite readonly  /q 复制不显示文件名
 
@@ -980,7 +993,8 @@ chcp 命令显示   活动代码页: 936 , 右击cmd窗口->属性->选项  标�
 
 win7_unlimited 可安装界面语言,控制面板->更改显示语言->键盘和语言 标签->安装卸载语言按钮... 
 	但官方对基语言的是中文切换英文,和基语言的是英文切换中文没有语言包可以下载,只是用windows update
-	
+
+win7  可以同时打开多个窗口，光标移动到哪个窗口，滑动滚轮就可以直接生效，不用先点击激活窗口
 ===========win8.1==========
 安装时会自动把FAT32分区修改为NTFS分区
 
@@ -1079,12 +1093,23 @@ TASKLIST  命令显示进程
 TASKLIST | findstr redis
 TASKLIST | find /C ".exe"   ,/C 表示计数
 TASKLIST  /FI "SESSIONNAME eq Services"
-TASKLIST  /FI "SESSIONNAME eq Console"
+TASKLIST  /FI "SESSIONNAME eq Console"   #FI=Filter
+TASKLIST /V  有显示标题，有时是参数 #V=verbos
+
 
 查看命令参数
 wmic process where caption="FlashHelperService.exe" get caption,commandline /value
-   
+
+wmic process list full
+wmic process  where caption="java.exe" get caption,commandline,ProcessID /value  #ProcessID是进程ID
+
+ 
 win10自带Hyper-V 但要启用(像启用 IIS 一样,开始->windows 系统-> 控制面板->添加删除程序->启用特性中),在开始-> windows Accessories->Administrative Tools->Hyper-V Manager
+开启菜单中有Hyper-V Manager 的管理界面
+
+Hyper-V禁用卸载后 bcdedit 查看有 hypervisorlaunchtype 值为 auto 为开启,
+要关闭才可用VirtualBox ,bcdedit /set hypervisorlanchtype off 后重启
+还有Hyper-V网卡可以删除(使用设备管理器)
 
 telent win10 默认没有,要使用 要在启用/关闭windows功能才安装telnet 客户端
 

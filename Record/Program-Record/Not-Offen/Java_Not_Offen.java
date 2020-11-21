@@ -3,20 +3,26 @@ eclipse有一个BIRT
 
 Jasper有Community版本
 https://community.jaspersoft.com/
-下载要登录
+下载要登录,登录后是从 https://sourceforge.net/projects/jasperstudio  
 
 JasperSoft Studio 设计工具基于eclipse的，目前最新版本为v6.14.0
 
 ---JasperSoft Studio
-File->New->Jasper report  会建立*.jrxml文件,可以看Source,可以Review，如有错误会提示
+File->New->project ...->Jasper report  project
+File->New->Jasper report ->Data Adaper 选择One Empty Record 会建立*.jrxml文件,可以看Source,可以Review，如有错误会提示
 Pallet面板中拖入Static Text组件, Properties面板中可以设置边框
 Outline面板,可以删除组件 ，右击parameter->create parameter 建立参数后，可以直接拖入设计器,在preview 时会提示输入参数值，按回车预览
 
 New AdataAdapter -> Orcle JDBC Connection -> 选择 MySQL ,Driver classpath中选择jar包
 
-Outline视图 最顶级右击->Dataset and Query -> 弹出对话框 在右则的Texts中可以写SQL再点Read Fields按钮，也可在界面中选择字段再点Add按钮
-    ->完成后在outline视图中增加一个fields项,可以拖动子项到设计器
+Outline视图 最顶级右击->Dataset and Query -> 弹出对话框,上面下拉选择刚建立的Adapter, 在右则的Texts中可以写SQL再点Read Fields按钮(也可在界面中点Add按钮来手工新建)edit 写column name,
+    ->完成后在outline视图中增加一个fields项,可以拖动子项到设计器，双击它，表达式中默认为$F{id} 格式，在preview 时注意选择的Adapter
+
+数据库没有数据preview时 默认显示为 Document is Empty,没有UI,如想有UI,点击设计窗口的工作区外,在properties窗口中的report标签->when no data type 下拉选择No Data Section
+	修改Adaper为One Empty Record 没有数据但会有UI
 	
+点击工具栏上的 build all按钮生成 *.japser文件
+	 
 设计器的几个区域	
 	Title 只在第一页的最上显示
 	Page Header 每页都显示，如在第一页显示在Title下
@@ -26,11 +32,32 @@ Outline视图 最顶级右击->Dataset and Query -> 弹出对话框 在右则的
 	Page Footer 每页都显示
 	Summary 只在最后一页显示
 
+---pdf中文显示问题 
+ C:\Windows\Fonts\simhei.ttf 复制到 D:/tmp/simhei.ttf
+	设计器 preferences->japster studio -> font -> Add,起名如 myJasperFont ,输入D:\tmp\simhei.ttf(只可是ttf文件,如为ttc不行)
+		pdf encoding下拉选择 Identity-H (Unicode with horizontal writing) , 复选embed this font in PDF document 
+		export按钮导出成 myJasperFont.jar包，为程序使用
+		
+选中静态文本、变量框 ->properties标签 有Static Text或者 Text Field ,在font中(也可以在上方的工具栏中选择字体) 可选择上面的建立 myJasperFont (默认为SansSerif)
+测试成功
+
 <dependency>
   <groupId>net.sf.jasperreports</groupId>
   <artifactId>jasperreports</artifactId>
-  <version>6.6.0</version>
+  <version>6.15.0</version>
+  <exclusions>
+	<exclusion>
+		<groupId>com.lowagie</groupId>
+		<artifactId>itext</artifactId>
+	</exclusion>
+  </exclusions>
 </dependency>
+<dependency>
+	<groupId>com.lowagie</groupId>
+	<artifactId>itext</artifactId>
+	<version>2.1.7</version>
+</dependency>
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -46,19 +73,17 @@ import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 
-public static void main(String[] args) throws Exception {
-	Product product=new Product();
-	product.setCost(BigDecimal.valueOf(20));
-	product.setName("产品001");
-	
+jasperGen("H:/NEW_/eclipse_java_workspace/M_JasperReport/src/main/java/Blank_A4_product.jrxml",product);
+public static void jasperGen(String filePath,Object dbParam)throws Exception
+{
 	ObjectMapper mapper=new ObjectMapper();//jsonAPI
-	String jsonProduct=mapper.writerWithDefaultPrettyPrinter().writeValueAsString(product);
+	String jsonProduct=mapper.writerWithDefaultPrettyPrinter().writeValueAsString(dbParam);
 	//ByteArrayInputStream input=new  ByteArrayInputStream(jsonProduct.getBytes("UTF-8"));
 	ByteArrayInputStream input=new  ByteArrayInputStream(jsonProduct.getBytes());
 	//studio设计工具中使用的数据源，这里使用JSON
 	JsonDataSource dataSource=new JsonDataSource(input);	
 	//编译jrxml文件到jasper文件
-	String jasperFile=JasperCompileManager.compileReportToFile("c:/tmp/Blank_A4.jrxml");
+	String jasperFile=JasperCompileManager.compileReportToFile(filePath);
 	JasperReport report =(JasperReport)JRLoader.loadObject(new File(jasperFile));//参数可为File或FileInputStream
 	
 	Map<String,Object> params=new HashMap<>();
@@ -68,8 +93,7 @@ public static void main(String[] args) throws Exception {
 	JRXlsxExporter XlsxExporter=new JRXlsxExporter();
 	JRPdfExporter pdfExporter=new JRPdfExporter();
 	genFile(print,XlsxExporter,new File("C:/tmp/excel.xlsx"));
-	genFile(print,pdfExporter,new File("C:/tmp/pdf.pdf")); //生成pdf有中文问题
-	
+	genFile(print,pdfExporter,new File("C:/tmp/pdf.pdf")); //生成pdf有中文问题,使用生成的myJasperFont.jar测试成功
 }
 public static void genFile(JasperPrint jasperPrint,JRAbstractExporter exporter,File outFile) throws Exception {
 	
@@ -293,7 +317,11 @@ http://localhost:8161/admin    admin/admin (配置在/conf/jetty-realm.propertie
 	Jolokia REST API available at http://0.0.0.0:8161/api/jolokia/
     at: stomp://my-PC:61613
 
-
+开启支持延时发送 activemq.xml中 <broker>标签中增加 schedulerSupport="true", 
+	管理控制台有scheduled标签页可以看,不能使用建立broker启动，要用原始解压包启动，否则无效
+	ObjectMessage objectMessage=session.createObjectMessage("hello");//javax.ObjectMessage,TextMessage也可设置
+	objectMessage.setLongProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY,5000);//单位millsenods
+	
 看log4j.properties日志在data目录中
 
 方法2（在JVM中嵌套启动）：
@@ -543,6 +571,15 @@ public class MainApp
 		//ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://localhost");
 		String url = ActiveMQConnection.DEFAULT_BROKER_URL;  //failover://tcp://localhost:61616
 		ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+		
+		//重试发送
+		 RedeliveryPolicy retry=new RedeliveryPolicy();
+	     retry.setMaximumRedeliveries(3);
+	     retry.setRedeliveryDelay(9000);
+	     retry.setInitialRedeliveryDelay(3000);
+	     factory.setRedeliveryPolicy(retry);
+	     
+		
 		Connection connection = factory.createConnection();
 		connection.start();
 		//在容器中,一个connection只能创建一个活的session,否则异常
@@ -624,7 +661,7 @@ activemq.xml
  
 ======================ActiveMQ  新版 Artemis 使用NIO
 比多老版本增加了JMS 2.0 支持(java client可以使用Apache的qpid),有共享topic的功能(类似kafka的分组)
-支持STOMP
+支持STOMP = Simple (or Streaming) Text Orientated Message Protocol  
 
 
  apache-artemis-2.13.0-bin.zip
@@ -661,9 +698,13 @@ Or you can setup the broker as Windows service and run it in the background:
 Artemis Jolokia REST API available at http://localhost:8161/console/jolokia
 Artemis Console available at http://localhost:8161/console  是JMX的
  
- 
+
+如send()时报Blocked ,artemis控制台显示 Disk full! 修改broker.xml中的 <max-disk-usage>90</max-disk-usage> 到99,是百分比
  
 ---JMS 2.0 
+要求ActiveMQ 的artemis版本,spring-jms-5.0 版本才支持
+	 shareTopic只是xml配置<jms:listener-container  destination-type="shareTopic" 或 shareDurableTopic ,durableTopic 
+
 https://www.oracle.com/technetwork/cn/articles/java/jms2messaging-1954190-zhs.html
 
 <dependency>
@@ -672,9 +713,41 @@ https://www.oracle.com/technetwork/cn/articles/java/jms2messaging-1954190-zhs.ht
   <version>2.0.1</version>
 </dependency>  
 
+界面中有的目录树，也可使用jconsole看JMX
+
+artemis_broker\etc\broker.xml  <addresses> 下增加配置 为spring boot 项目使用
+
+
+//---------创建 sessionFactory的几种方式 
+ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
+ClientSessionFactory sessionFactory = locator.createSessionFactory();
+ClientSession session1 = sessionFactory.createSession();
+if(! session1.queueQuery(new SimpleString("example")).isExists())
+{
+	//如存在创建报错
+	session1.createQueue(new QueueConfiguration("example").setRoutingType(RoutingType.ANYCAST).setDurable(true));
+}
+//----------------
+Map<String,Object> map=new HashMap<>();
+map.put("host", "127.0.0.1");
+map.put("port", "61616");
+TransportConfiguration transportConfiguration=new TransportConfiguration(NettyConnectorFactory.class.getName(),map);
+ConnectionFactory connectionFactory2 =ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, transportConfiguration);
+//RoutingType.ANYCAST 就是QueueRoutingType.MULTICAST 就是Topic
+
+//----------------
+String user = "input";
+String password = "input";
+String url = "tcp://localhost:61616";
+//ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url,user,password);
+ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(url);
+
+//测试成功,Artemis使用Netty,如用jdk8报Unsafe找不到,不影响用
 //topic上有三条消息x、y、z,A和B能合起来消费x、y、z，即A消费x、z，B消费y，那只能是A和B共享同一个订阅了，
 MessageConsumer messageConsumer = session.createSharedConsumer(topic, "mySubscription"); // 需要指定共享订阅的名称，以便多个消费者能确定彼此共享的订阅
 //MessageConsumer messageConsumer = session.createSharedDurableConsumer(topic, "mySubscription");  //也支持持久
+Topic topic= new ActiveMQTopic("sharedTopic");//如存在创建不报错
+
 ---
 JMS2.0 提供者必须设置消息属性JMSXDeliveryCount,表示JMS提供者给消费者发送消息的尝试次数,消费者可以根据这个值确认消息是否被重复发送了
 class SampleMessageListener implements MessageListener {  
@@ -694,13 +767,49 @@ class SampleMessageListener implements MessageListener {
    }  
 }
 
-需要在发送消息之前通过对 MessageProducer 调用 setDeliveryDelay 来设置传递延迟（毫秒）
-messageProducer.setDeliveryDelay(2000);
-  
 
----STOMP
 
- 
+ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616");
+Connection connection = factory.createConnection();
+connection.start();//一定要start()
+//在容器中,一个connection只能创建一个活的session,否则异常
+Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);//boolean transacted, int acknowledgeMode　
+Queue queue= new ActiveMQQueue("delayQueue");
+MessageConsumer comsumer1 = session.createConsumer(queue);
+comsumer1.setMessageListener(new MessageListener()
+{
+	public void onMessage(Message m) {
+		try {
+			System.out.println("Consumer1 get " + ((TextMessage)m).getText());
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}	
+	}
+});
+MessageProducer messageProducer = session.createProducer(queue);
+// messageProducer.setDeliveryDelay(2000);//MessageProducer 设置,发送之前
+TextMessage textMessage = session.createTextMessage("Hello world");
+textMessage.setJMSDeliveryTime(System.currentTimeMillis()+3000);//消息级设置,发送之前
+messageProducer.send(textMessage);
+for(int i=0;i<100;i++)
+{	
+	Thread.sleep(1000);
+	System.out.println("wait");
+}
+//producer.close();
+
+
+
+JMSProducer  也是一样
+TextMessage textMsg=context.createTextMessage("hello");
+textMsg.setJMSDeliveryTime(System.currentTimeMillis()+3000);//消息级设置
+
+JMSProducer jmsProducer=context.createProducer();
+//jmsProducer.setDeliveryDelay(2000);
+//jmsProducer.send(queue, "Hello World!"); //毫秒，JMSProducer设置 ,也是在发送消息之前设置
+
+jmsProducer.send(queue, textMsg); 
+
 ---------------------------------Log4j 1 
 1版本 2015年已经终止了
  

@@ -42,9 +42,11 @@ mysqld --install MySQL57 --defaults-file=E:\\Program\\mysql-5.7.18-winx64\\my.in
 mysqld --remove MySQL57
 
 ##OK 
-mysqld  --defaults-file=E:/Program/mysql-5.7.18-winx64/my.ini --initialize   ##这是5.7版本新的要做的,root 密码在.err日志里 
+mysqld  --defaults-file=E:/Program/mysql-5.7.18-winx64/my.ini --initialize   ##这是5.7版本新的要做的,root 密码在.err日志里 ,--initialize 要放在--defaults-file之后(最后)
 mysqld  --defaults-file=E:/Program/mysql-5.7.18-winx64/my.ini   --console  
  如果不指定 --console   输出到data_dir下 或者用 --log-error 
+
+不建议生产环境用--initialize-insecure 因root密码为空
 
 ##OK    ,type= own  ,要在=后有一个空格,建立删除如不行,不要在注册表中选中,关闭services.msc
 sc create MySQL57 binpath= "\"E:/Program/mysql-5.7.18-winx64/mysql-5.7.18-winx64/bin/mysqld\" --defaults-file=\"E:/Program/mysql-5.7.18-winx64/my.ini\" MySQL57" type= own start= auto displayname= "MySQL57"
@@ -208,6 +210,8 @@ show variables like 'storage_engine'
 
 
 --- linux 二进制安装 mysql-5.7.17   / 8
+mysql-8.0.18 二进制解压为tar 大小变2.6G
+
 
 看doc
 shell> groupadd mysql
@@ -281,8 +285,6 @@ bin/mysql_ssl_rsa_setup  --datadir=/zh/mysql-files/data
 su - mysql
 bin/mysqld  --defaults-file=/zh/mysql-files/my.cnf 
 
-#二进制解压 ldd bin/mysql openSUSE-leap-15.1报找不到  libtinfo.so.5 安装zypper install libncurses5 即可
-
 
 bin/mysql -u root   -P 3306  -h localhost -S /zh/mysql-files/mysql.sock  #临时密码,对不知道root密码不能登录
 mysqladmin 默认读配置顺序/etc/my.cnf /etc/mysql/my.cnf /usr/local/mysql/etc/my.cnf ~/.my.cnf 
@@ -313,6 +315,7 @@ mysqladmin -u用户名 -p旧密码 password 新密码  -h 主机 -S socket文件
 mysqladmin -uroot  -p password root   -S /zh/mysql-files/mysql.sock
 
 ---- openSUSE 15 使用 mysql 客户端 要libtinfo.so.5 而实际上有libncurses6-6.1 ,zypper install libncurses5
+#二进制解压 ldd bin/mysql openSUSE-leap-15.1报找不到  libtinfo.so.5 安装zypper install libncurses5 即可
 
 ---innodb参数
 innodb_fast_shutdown   0表示关闭，会缓冲区中数据写入硬盘，下次启动再读入内存，1(默认)打开
@@ -363,23 +366,22 @@ max_allowed_packet   67108864   即64M
 
 
 
-==========MySQL NDB cluster 7.1  solaris----OK   现在已经有7.6.12版本了
-MySQL 8.0版本不能使用NDB Cluster只能用InnoDB Cluster
+==========MySQL NDB cluster 8.0.21  centos 7 ----OK   
+MySQL 8.0.19 版本开始 可以使用NDB Cluster 8.0,
+MySQL cluster 8.0.21版本linux版解压tar后大小变3.8G
 
 无共享存储设备 （Share Nothing）
 要将所有索引装载在内存中
 
-
-新的是客户端连接到MySQL Router 再连接到(可用 X Protocal ) InnoDB Cluster
-MySQL Shell (使用JavaScript 或者 Python)可以交互(控制)MySQL Router
-新的插件 DocumentStore/NoSQL , X DevAPI, X Protocal 
-
+MySQL8的二进制包和cluster不能一起使用，两版本号现是相同做配对使用
+NDB只支持Read Commit的隔离级别，而InnoDB 支持所有,不支持savePoint
+  
 NDB(Network DataBase)
 节点(node)在这里含义是进程(process),一台机器可以有多个节点,节点所在的机器叫(cluster host)
 
 一台(多台) 管理(MGM)节点:	启动其他节点之前首先启动这类节点,ndb_mgmd启动的 , 客户端ndb_mgm, 只要这两命令即可  
 多台 数据节点:	用命令ndbd启动的 , ndbmtd (multi-threaded) ,只要这两个命令即可  
-多台 SQL节点:	mysqld –ndbcluster --ndb-connectstring 启动的,或将ndbcluster添加到my.cnf后使用mysqld启动   ,NDBCLUSTER 存储引擎
+多台 SQL节点:	mysqld --ndbcluster --ndb-connectstring 启动的,或将ndbcluster添加到my.cnf后使用mysqld启动   ,NDBCLUSTER 存储引擎
 
 ndb_restore是用来恢复备份
 
@@ -392,33 +394,21 @@ ndb_restore是用来恢复备份
 
 数据存储均是在内存中进行,可以基于 磁盘的存储
 
-运行configure时，务必使用“--with-ndbcluster”选项。
+源码编译 configure时，务必使用“--with-ndbcluster”选项 
 也可以使用BUILD/compile-pentium-max创建脚本
-
-
---------
-
-
-
-管理节点(MGM)	 mgmtHost		不必须安装MySQL, 有ndb_mgmd和ndb_mgm
+ 
+-------- 
+管理节点(MGM)	 mgmtHost	有ndb_mgmd 和 客户端ndb_mgm
 SQL节点1(SQL1)	 sqlHost	安装MySQL
-数据节点1(NDBD1) dataHost1	
+SQL节点2(SQL2)	 sqlHost2
+数据节点1(NDBD1) dataHost1	有ndbd
 数据节点2(NDBD2) dataHost2
 
-每个节点都要安装
-cp support-files/my-small.cnf  /etc/my.cnf
-./scripts/mysql_install_db --user=mysql,启动方式见下
-
-
-安装存储节点,要ndbd　命令，要  cp  mysql-cluster-gpl-7.1.3-solaris10-sparc-64bit/bin/ndbd 
-安装SQL节点 ,要使用cluster版的 ln -s  mysql-cluster-gpl-7.1.3-solaris10-sparc-64bit /usr/local/mysql
-
-
-配置SQL节点  # vi /usr/local/mysql/my.cnf
-
+https://dev.mysql.com/doc/refman/8.0/en/mysql-cluster-config-example.html
+配置SQL节点  # vi /usr/local/mysql/my.cnf 
 	[mysqld]
-	basedir         = /usr/local/mysql/
-	datadir         = /usr/local/mysql/data
+	basedir         = /usr/local/mysql/		#可其它目录
+	datadir         = /usr/local/mysql/data  #这个配置项是就算不配置也有默认值，因此也要 mysqld --initialize 生成root密码
 	user            = mysql
 	port            = 3306
 	socket          = /tmp/mysql.sock
@@ -428,109 +418,150 @@ cp support-files/my-small.cnf  /etc/my.cnf
 	ndb-connectstring=mgmtHost
 
 
-配置存储节点(NDB节点) # vi /usr/local/mysql/my.cnf
-
+配置存储节点(NDB节点) # vi /usr/local/mysql/my.cnf  	#可以不用
 	[mysqld]
 	ndbcluster
 	ndb-connectstring=mgmtHost
 	[MYSQL_CLUSTER]
 	ndb-connectstring=mgmtHost
 
-
-安装管理节点  ndb_mgm和ndb_mgmd 
-# cp mysql-cluster-gpl-7.1.3-solaris10-sparc-64bit/bin/ndb_mgm*  /usr/local/mysql/bin/
-# chown -R mysql:mysql /usr/local/mysql
-
-
-
-配置管理节点	# vi /usr/local/mysql/config.ini  ###
+https://dev.mysql.com/doc/refman/8.0/en/mysql-cluster-install-configuration.html
+配置管理节点	# vi /usr/local/mysql/config.ini  #不区分大小写
 	[NDBD DEFAULT]
-	NoOfReplicas=1			
+	NoOfReplicas=1	
+	#DataMemory=98M #可设置存数据的内存大小
 	#每一份数据被冗余存储在不同节点上面的份数，一般为2
 	[TCP DEFAULT]
-	portnumber=3306
+	#portnumber=3306 #5.7版本为ServerPort，到8.0版本就没了
 	
 	#设置管理节点服务器
 	[NDB_MGMD]
-	id=1
+	#NodeId=1 #可以没有
 	hostname=mgmtHost
 	#MGM上保存日志的目录
 	datadir=/usr/local/mysql/data/
 	
 	#设置SQL节点服务器
 	[MYSQLD]
-	id=2
+	NodeId=2 #如只有一个SQL节点也可以没有
 	hostname=sqlHost
-
-	#设置存储节点服务器(NDB节点)
-	[NDBD]
-	id=3
-	hostname=dataHost1
-	datadir=/usr/local/mysql/data/
 	
-	[NDBD]
-	id=4
+	[MYSQLD]
+	NodeId=3
+	hostname=sqlHost2
+	
+	#设置存储节点服务器(NDB节点)
+	[NDBD] 
+	NodeId=4
+	hostname=dataHost1
+	datadir=/usr/local/mysql/data/  #目录要事先存
+	
+	[NDBD] 
+	NodeId=5
 	hostname=dataHost2
 	datadir=/usr/local/mysql/data/
 
 
-可以有多个　[NDBD]和[MYSQLD],　[NDB_MGMD]和[NDBD]和[MYSQLD]中也可以有　Id=1,Id=2 ...
+可以有多个　[NDBD]和[MYSQLD],　[NDB_MGMD]和[NDBD]和[MYSQLD]中也可以有 
 
 
 合理的启动顺序是
-1.启动管理节点	# /usr/local/mysql/bin/ndb_mgmd -f /usr/local/mysql/config.ini
-2.启动存储节点，如第一次启动ndbd进程的话 # /usr/local/mysql/bin/ndbd --initial
-		或在备份/恢复数据或配置文件发生变化后重启ndbd时使用“--initial”参数	
-		不是第一次# /usr/local/mysql/bin/ndbd
-3.启动SQL节点	# /usr/local/mysql/bin/mysqld_safe --defaults-file=/etc/my.cnf &
+1.启动管理节点	# /usr/local/mysql/bin/ndb_mgmd -f /usr/local/mysql/config.ini  
+	-f 或--config-file
+	cluster-8.21版本默认使用 /usr/local/mysql/mysql-cluster 目录,要事先存在,即--configdir 或 --config-dir是二进制配置
 	
-管理节点服务器上 客户端 #/usr/local/mysql/ndb_mgm
-			ndb_mgm> SHOW
+2.启动存储节点，如第一次启动ndbd进程的话 # /usr/local/mysql/bin/ndbd --initial 
+		#--ndb-connectstring=mgmtHost (或 -c mgmtHost:1186 ,-c --ndb-connectstring  )可不用配置文件，也可加--defaults-file=my.cnf
+		或在备份/恢复数据或配置文件发生变化后重启ndbd时使用--initial参数	
+		不是第一次# /usr/local/mysql/bin/ndbd
+3.启动SQL节点	# /usr/local/mysql/bin/mysqld  --defaults-file=/etc/my.cnf  如第一次也要加 --initialize 
 
-管理节点要有1186端口监听	netstat -an | grep 1186
+如要加SQL节点，管理节点修改ini配置文件后还要重建 --configdir 指向的目录
+管理节点服务器上 客户端 #/usr/local/mysql/ndb_mgm --ndb-connectstring=mgmtHost
+			ndb_mgm> SHOW 显示所有连接上来的IP，数据节点一个有显示 * 号 ，一直在交互式，如有节点上或下会有日志
 
-必须用 ENGINE=NDB 或 ENGINE=NDBCLUSTER 选项创建,或用ALTER TABLE选项更改
+---firewalld
+管理节点要有1186端口监听	ss  -an | grep 1186 可能要 systemctl firewalld stop 
+	#firewall-cmd --zone=public --add-port=1186/tcp --permanent
+	 允许 (网段有/24,单机没有/24) 的IP 仿问本机的1186端口
+	 firewall-cmd --zone=public --add-rich-rule 'rule family="ipv4" source address="192.168.60.1/24" port port="1186" protocol="tcp" accept'
+	 firewall-cmd --reload
+
+SQL节点 3306 端口 开防火墙  
+	firewall-cmd --zone=public --add-port=3306/tcp --permanent
+
+存储节点间要可相互通讯,信任网段内机器的所有端口通讯 ,不用加destination(允许发出)默认是可以的
+	firewall-cmd --zone=public --add-rich-rule 'rule family="ipv4" source address="192.168.60.1/24" accept' #protocol="tcp"
+	
+---
+SQL节点执行 show status like '%ndb%' 有显示
+	Ndb_cluster_node_id		配置的
+	Ndb_config_from_host	为 mgmtHost
+	Ndb_config_from_port	为 1186
+ 
+	
+create table 必须用 ENGINE=NDB 或 ENGINE=NDBCLUSTER 选项创建,或用ALTER TABLE选项更改
 如mysqldump导入表  添加ENGINE选项
 
 每个NDB表必须有一个主键
-
-
+ 
 安全停止
-1.停止MGM节点	 # /usr/local/mysql/bin/ndb_mgm -e shutdown  也会把数据节点停
+1.停止MGM节点	 # /usr/local/mysql/bin/ndb_mgm -e shutdown  也会把数据节点停,也可进入交互式执行
 2.停止SQL节点的mysqld服务# /usr/local/mysql/bin/mysqladmin -uroot shutdown
 
 
+每个SQL节点 (如第一次也要加 --initialize) 都要单独建立用户，单独grant database 权限(用root@localhost可以看到全部数据库)
+测试 在一个 SQL 节点上，建表 ENGINE=NDB 插数据,另一个SQL节点也可以查到
+jdbc:mysql:loadbalance://sqlHost1:3306,sqlHost2:3306/mydb?serverTimezone=UTC  
 
-测试 在一个 SQL 节点上，建表 ENGINE=NDB 插数据，
+--排错
+show engines 显示 ndbcluster  ，如失败也有显示
+ndb_mgm 的show没有显示所有的IP
+create table x(id int) ENGINE=NDB;错误后 show warnings;也有error信息
+关闭所有防火墙试
+--- NDB 建立 表空间
+https://dev.mysql.com/doc/refman/8.0/en/create-tablespace.html#create-tablespace-ndb-examples
 
-JDBC连接SQL节点 OK,
+ CREATE LOGFILE GROUP myg1        ADD UNDOFILE 'myundo-1.dat'   ENGINE=NDB;
+ #如失败show warnings 显示 只支持一个LOGFILE GROUP
+ #drop  LOGFILE GROUP myg1    ENGINE=NDB;
+ #查 SELECT *  FROM INFORMATION_SCHEMA.FILES WHERE LOGFILE_GROUP_NAME IS NOT NULL;
+ 
+ CREATE TABLESPACE myts   ADD DATAFILE 'mydata-1.dat'  USE LOGFILE GROUP mylg   ENGINE=NDB; 
+ #为何不成功？？有时提示文件名要以.ibd结尾
+ 
+ 
+ CREATE TABLE mytable (
+      id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+      lname VARCHAR(50) NOT NULL,
+      fname VARCHAR(50) NOT NULL,
+      dob DATE NOT NULL,
+      joined DATE NOT NULL,
+      INDEX(last_name, first_name)
+  ) TABLESPACE myts STORAGE DISK  ENGINE=NDB;
 
-==========MySQL InnoDB cluster
-要MySQL 8.0版本
-mysql-8.0.18-linux-glibc2.12-x86_64.tar.xz  自带 mysqlrouer命令
+查
+SELECT FILE_NAME, FILE_TYPE, LOGFILE_GROUP_NAME, STATUS, EXTRA
+       FROM INFORMATION_SCHEMA.FILES
+       WHERE TABLESPACE_NAME = 'myts';
 
-表必须是innodb 引擎
-8.0.17版本以后必须有 server_id  参数
+--- INNODB  建立 表空间
+CREATE TABLESPACE `ts1` ADD DATAFILE 'ts1.ibd' ENGINE=INNODB;
 
-至少3个MySQL服务实例，每个实例运行 Group Replication 
-客户端 -> MySQL Router -> Primary节点 -> 两个Secondary节点 
-MySqlShell 管理 Primary节点(也可连接MySQL Router)
+CREATE TABLE t1 (c1 INT PRIMARY KEY) TABLESPACE ts1 ROW_FORMAT=REDUNDANT;
 
-AdminAPI 
-Time for Node Failure Recovery 要 30 seconds or longer 
-支持 MVCC，Transactions 支持所有的,而NDB只支持 READ COMMITTED
+CREATE TABLE t2 (c1 INT PRIMARY KEY) TABLESPACE ts1 ROW_FORMAT=COMPACT;
+
+CREATE TABLE t3 (c1 INT PRIMARY KEY) TABLESPACE ts1 ROW_FORMAT=DYNAMIC;
+
+CREATE TABLESPACE `ts2` ADD DATAFILE 'ts2.ibd' FILE_BLOCK_SIZE = 8192 Engine=InnoDB; 
+CREATE TABLE t4 (c1 INT PRIMARY KEY) TABLESPACE ts2 ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8;
 
 
---mysql shell
-mysqlsh js > dba.help('getCluster')
-mysqlsh js >  dba.configureInstance('ic@ic-1:3306', \ 
-{clusterAdmin: "'icadmin'@'ic-1%'", clusterAdminPassword: 'password'})
-
-dba.configureLocalInstance('root@localhost:3306')
-dba.createCluster() 
 
 
 =========Replication 
+一个主(如主down了就不行了,就不能写了)，多个从（用来读）
 默认是异步的,不是持续连接,可以指定数据,指定表
 
 --主服务器的 my.ini
@@ -563,9 +594,9 @@ mysql> change master to
 ->master_port=3308,
 ->master_user='repl',
 ->master_password='slavepass';
-
-MASTER_LOG_FILE='recorded_log_file_name',
-MASTER_LOG_POS=recorded_log_position;
+也可加下面的，不区分大小写
+MASTER_LOG_FILE='recorded_log_file_name'
+MASTER_LOG_POS=recorded_log_position
 
 start slave;  -- 主上有日志, stop slave;
 -- 从上也有了repl用户
@@ -583,15 +614,175 @@ mysqldump --all-databases --master-data > dbdump.db
 SET GLOBAL read_only = OFF;
 UNLOCK TABLES;
 
+半同步  rpl_semi_sync_master_wait_point 取值 AFTER_SYNC(默认值) , AFTER_COMMIT
+
+
+
+
+==========MySQL InnoDB cluster mysql-8.0.21 版本测试OK
+mysql-8.0.21-linux-glibc2.12-x86_64.tar.xz  自带 mysqlrouer命令
+
+表必须是innodb 引擎 
+
+新的是客户端连接到MySQL Router 再连接到(可用 X Protocal ) InnoDB Cluster
+MySQL Shell (使用JavaScript 或者 Python)可以交互(控制)MySQL Router
+新的插件 DocumentStore/NoSQL , X DevAPI, X Protocal 
+
+
+至少3个MySQL服务实例，每个实例运行 Group Replication 
+客户端 -> MySQL Router -> Primary节点 -> 两个Secondary节点 
+MySqlShell 管理 Primary节点(也可连接MySQL Router)
+
+AdminAPI 
+Time for Node Failure Recovery 要 30 seconds or longer 
+支持 MVCC，Transactions 支持所有的,而NDB只支持 READ COMMITTED
+
+打开防火墙端口，所有主机以主机名解析互通
+先安装mysqld服务，x-devapi使用33060端口，只管理节点需要安装mysql-router
+
+mysqlsh --log-level=DEBUG
+参数格式 mysqlsh --uri root:root@mycentos1:3306/mydb
+如已用 --uri登录 就可dba.checkInstanceConfiguration()
+dba.checkInstanceConfiguration('root@mycentos1:3306')
+
+红色ERROR 提示要可远程登录
+create user root@'%' identified by 'root';
+
+经色ERROR 提示要很多权限，也可简单用 grant all on *.* to root@'%' 即所有权限,select * from mysql.user where user='root' \G 看还变Y
+	如使用提示的命令在建立好cluster环境下，在主个执行也会同步到从
+
+绿色NOTE 提示要修改配置即my.cnf,也可用dba.configureInstanc()命令
+enforce_gtid_consistency 	要为 ON
+gtid_mode 					要为 ON
+server_id 					要为 唯一
+直到提示OK (可能要重新mysqld)
+
+默认有的配置 (文档的Replication Framework区)
+log_bin=binlog
+log_slave_updates=ON
+binlog_format=ROW
+master_info_repository=TABLE
+relay_log_info_repository=TABLE
+transaction_write_set_extraction=XXHASH64
+binlog_checksum=CRC32
+
+
+
+dba.configureLocalInstance('root@mycentos1:3306') 提示 report_host变量
+dba.checkInstanceConfiguration()
+以上操作在多个节点（至少3个）操作成功后，在任一个节点执行下面 (如连接mycentos1,\connect root@mycentos1:33060)
+var cluster=dba.createCluster('dev')提示group replication使用33061端口，提示使用Cluster.addInstance(),至少3个
+cluster.addInstance('root@mycentos2:3306'); 交互提示 please select a recovery method [C]lone/[A]bort:输C,等一会 (errant 不定的)
+	提示重启超时，可配置shell.options["dba.restartWaitTimeout"],重启后使用<cluster>.rescan()
+	cluster.rescan(),如在打日志时间内手工重启就不用这步
+cluster.addInstance('root@mycentos3:3306'); 	
+
+var cluster = dba.getCluster()
+cluster.status()显示
+	primary: "mycentos1:3306"
+	status:ok
+	statusText:Cluster is ONLINE,and can tolerance up to ONE failure
+	主节点为mode:R/W
+	从节点为mode:R/O
+
+关闭主节点服务，看主节点切，换测试OK 
+
+mysqlrouter --bootstrap root@mycentos2 要为主节点， -B或  --bootstrap
+	如连接到从节点，提示参数 super_read_only 要为 ON
+	提示生成配置文件mysqlrouter.conf，启动使用
+mysqlrouter -c  <mysql-router-home>/mysqlrouter.conf
+	提示 MySQL 或 MySQL X 的读和写 使用的端口，共4个以 644xx 开头
+
+innodb cluster(group replication) 要求每个表必须要有主键,如没有在insert时报错,#comply 遵守，顺从
+
+JDBC测试加 useSSL=false 
+select group_replication_switch_to_multi_primary_mode() 热机情况下切换到多主模式，mysqlsh要重新rescan，即 dba.getCluster().rescan() 提示输入y
+select group_replication_switch_to_single_primary_mode()
+
+mysql-router 测试成功,停主节点，自动切换， JDBC使用相同地址继续写
+ 
+日志显示有 CHAGE MASTER TO FOR CHANNEL 'group_replication_recover' executed
+		   Setting super_read_only=OFF
+
+Group Replication笔记中
+    auto_increment_increment=1   
+	auto_increment_offset=2
+	
+	group_replication_single_primary_mode=off 表示多主节点 
+	group_replication_bootstrap_group=OFF;  表示启动完成
+	
+	select @@read_only
+	SELECT * FROM performance_schema.replication_group_members;  可以看哪个是主  是否在线
+	
+	Show plugins; 显示有group-replication
+	SHOW BINLOG EVENTS;
+	show master status 显示binlog的文件名和位置
+
+	
+========= MySQL Shell 8
+XDevApi见MySQL_Dev
+
+bin/mysqlsh
+MySQL  JS > \connect user1@127.0.0.1?connect-timeout=2000
+bin/mysqlsh  user1@127.0.0.1:33060/mydb
+
+
+\quit
+\status
+\history
+\use mydb
+\js  切换到js
+\sql 切换到sql
+\source xx.js
+\warnings
+\nowarnings
+
+sql>warnings  每次执行都显示信息，而不用show warnings;
+
+bin/mysqlsh  user1@127.0.0.1:33060/mydb   --import file collection       
+                                          --import file table [column] 
+        如file为-表示从标准输入
+  两个都是指定数据库
+  -D, --schema=name     
+  --database=name    
+
+
+mysqlsh js > dba.help('getCluster')
+
+也是BSON
+
+全局变量 session,db,dba (InnoDB Cluster),shell,util
+ 
+ 
+========= MySQL Router   8
+是 InnoDB cluster 的一部分 ，不支持 NDB Cluster
+MySQLRouter安装在和应用相同的机器，再连接InnoDB Cluster
+ 做failover
  
 ========= Group Replication 未测试
+---双主，一个主收到数据除了 传给slave数据外，还要写到另一个主上
+两相主加log_bin配置，每个都要有server-id
+
+auto_increment_increment=2  主键自增的步长 对双主的情况
+auto_increment_offset=1 	主键自增初始值
+当一个主节点的表id生成了1，3，5后，另一个主节点的id直接生成6的数据,不是2,性能高，不用向后移动索引位置
+
+log-slave-updates （是双主节点）表示从另一节点(另一个主)传来的数据要不要生成bin-log再传给子,(如传给原来的主节点，会根据server-id知道是自己的数据做忽略）
+sync_binlog=1 事务提交几次，同步bin-log
+	
+初始启动两个主时，show master status 可能两个使用的bin-log文件和位置不一致，用reset master（不是必须的）
+
+stop slave 
+reset slave
+
+
 要求
   表是Innodb引擎
   表要有主键
   机器内网 从8.0.14版本后支持IPv6
 配置要求
  --log-bin[=log_file_name] 默认启用
- --log-slave-updates
+ --log-slave-updates  双主节点都设置这个，这样一主接受到另一主的数据才能给自己的从节点
  --binlog-format=row
  --gtid-mode=ON
  --master-info-repository=TABLE 
@@ -712,45 +903,6 @@ SHOW BINLOG EVENTS;
 当在 START GROUP_REPLICATION; 时失败？？？原因是24901,34903没有监听？？？
 systemctl stop firewalld
 
-========= MySQL Shell 8
-XDevApi见MySQL_Dev
-
-bin/mysqlsh
-MySQL  JS > \connect user1@127.0.0.1?connect-timeout=2000
-bin/mysqlsh  user1@127.0.0.1:33060/mydb
-
-
-\quit
-\status
-\history
-\use mydb
-\js  切换到js
-\sql 切换到sql
-\source xx.js
-\warnings
-\nowarnings
-
-bin/mysqlsh  user1@127.0.0.1:33060/mydb   --import file collection       
-                                          --import file table [column] 
-        如file为-表示从标准输入
-  两个都是指定数据库
-  -D, --schema=name     
-  --database=name    
-
-
-也是BSON
-
-全局变量 session,db,dba (InnoDB Cluster),shell,util
-
-
- 
- 
- 
-========= MySQL Router   8
-是 InnoDB cluster 的一部分 ，不支持 NDB Cluster
-MySQLRouter安装在和应用相同的机器，再连接InnoDB Cluster
- 做failover
- 
  
 
 =======远程DB的连接,federated引擎

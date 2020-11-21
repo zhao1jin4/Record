@@ -1,4 +1,4 @@
-1立方米=1000升
+=1000升
 水的密度 1000kg/m3   =   1kg/L  =1g/ml
 
 商户		佣金
@@ -179,15 +179,63 @@ If we had found him earlier we could have saved his life. 要是我们当时早�
 	条件从句用 “were to+动词原形”(表示与将来事实相反的假设)；
 	
  
-	
+虚拟语气
+	与现在事实相反
+	从句用过去式(be过去式一般用were),主句为would(shold,could,might)+动词原形
+	If I were you ,I would take the bus to work 
+
+	与过去事实相反
+	从句用 had+过去分司 ,主句为would(shold,could,might)+have+过去分词
+	IF you had come a few minutes earlier ,you would have cauht the first train
+
+	与将来事实相反 
+	从句用过去式should/were to+动词原形,主句为would(shold,could,might)+动词原形
+	If it were to snow tomorrow,they should not go out
+
+
+can 自身具有的能力
+be able to 经过一段时间努力所有具有的能力
+
+一般现在时，常用的句子为，offen/always/sometimes/very day /on sunday
+一般过去时
+一般将来时 主语 + will/shall + 动词原形
+一般将来时 主语 + will/shall + 动词原形 
+			be going to +动词原形
+			be  to +动词原形 表示安排，计划，决定要发生 the sports meeting is to be held tomorrow afternoon
+			be about to +动词原形  ，表示即将发生，不可用时间状语，Harry! The Train is about to leave
+过去将来时	主语 + would/should + 动词原形 如表过去某种习惯只能用would
+			was/were going to +动词原形 
+			was/were about to +动词原形
+			was/were  to +动词原形
+现在进行时 	主语 + am/is/are + doing
+	与always,constantly,continuously等连用，表示强烈的感情
+	He is always asking the same quetion(表示不满)
+	Mother is always thinking of what she could do for other
+	可用现在进行时表示，计划，安排将要发生的动作（类似将来时be  to）,词包括go,come,leave,start,arrive,stay,return,stop
+	He is coming to see me next week
+	The Bus is stopping
+过去进行时
+将来进行时 shall/will be doing
+现在完成时 have/has + 过去分词
+过去完成时 had + 过去分词
+将来完成时 shall/will have done
+	By this summer we'll have been here for five years
+现在完成进行时 have/has been doing,表示过去某时 一直延续到 现在 （可能刚停止，也可能继续着）
+	Tom has been working hard since the new term began
+
+过去完成进行时 表示过去某时间之前开妈   到 过去某一时间(延续)，还在正行或刚刚结束
+		He was tired. He had been working since dawn
+		
+
 --词区别
-说人，动物，树木等有生命的东西,用tall，不用hight
+说人，动物，树木等有生命的东西,用tall，不用high
 high可作副词，tall不能
 tall的反义词为short, high的反义词为low
 
 
 Purse是女式的钱包，
 Wallet是男士用的钱包
+
 
 
 ---------PETS3
@@ -204,7 +252,7 @@ ledger		[会计]分类帐  分户总帐
 general ledger	 总清帐
 
 ---目录树
-Logistics	后勤学, 后勤
+Logistics	物流
 transportation  运输
 
 Scorecard	记分卡
@@ -286,11 +334,8 @@ Settlement　结算,
 
 aggregate 合计,
 
-derive 起源 solaris
-
-===============Oracle Database 单词=================
-=============走遍美国
-
+derive 起源 solaris 
+=============走遍美国 
 episode		一段情节
 vender		卖主, 售卖者
 
@@ -313,7 +358,7 @@ teaspoon	茶匙
 pasta		意大利面食
 dessert		餐后甜点
 vanilla		[植]香草	
-scoop		铲子	,掘, 挖?????????????????????????
+scoop		铲子,用勺舀；抱起
 stuff		原料, 材料
 take it easy
 keep donig 
@@ -1008,45 +1053,11 @@ wonder of humanity  人类的奇迹
 flatter		过分夸赞
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 ===============新概念词汇=================
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 =========大学英语
 pronoun		代名词
 preposition	介词
@@ -1107,26 +1118,7 @@ premier		总理
 unilateral	单方面, 
 bimonthly	双月的
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ 
 =============
 deposit  , 存款, 押金, 保证金
 withdraw  收回
@@ -1136,10 +1128,7 @@ worm  蠕虫
 
 diploma 文凭
 wheat 小麦,
-
-
-
-
+ 
 
 ===========手机
 analogue	相似物  (时钟形状)
@@ -1576,9 +1565,7 @@ FYI	For Your Information 供参考
 
 tilde (~) character
 
-
-
-
+ 
 -----SALt film 
 petroleum	石油
 sabotage	阴谋破坏
@@ -1622,14 +1609,10 @@ maternity leave	产假
 
 
 crematorium	火葬场
-
-
-
+ 
 leopard	豹
 lion	狮子
-
-
-
+ 
 Gambling		赌博
 frown upon	表示不赞成
 frown		皱眉
@@ -1663,12 +1646,10 @@ surrender 放弃
 bullshit	胡说
 
 --
- vista 狭长的景色, 街景, 展望, 回想
+vista 狭长的景色, 街景, 展望, 回想
 adios 再见, 一路平安
-
-
-hasta la vista baby
-
+ 
+hasta la vista baby  再见，宝贝
 ---
 sturdy 强健的
 
@@ -1692,12 +1673,10 @@ Viking 海盗,北欧海盗,
 demeanor 行为, 风度
 
 envy   嫉妒
-
 ===== 
 exclamation point	[计] 感叹号
 dash			破折号
 bracket			括弧
-
 
 DMZ  demilitarized zone  隔离区
 
@@ -1715,3 +1694,59 @@ e.g. 举例来说（等于for example）;
 
 
 
+
+~ 	tilde  /squiggle 
+!   exclamation mark/bang 
+@ 	at  
+# 	pound or hash / crosshatch/sharp/hash
+$ 	dollar 
+% 	percent /mod  
+^ 	caret/circumflex 
+& 	ampersand  / 
+* 	asterisk/star  
+( 	opening parenthesis or opening round bracket 
+) 	closing parenthesis or closing round bracket 
+_ 	underscore or underline 
++ 	plus  
+-   minus or hyphen or dash 
+=   equals  
+`   backtick or backquote \grave accent 重音号
+{   opening brace 
+}   closing brace  
+[   opening square bracket 
+]   closing square bracket 
+|   pipe or vertical bar 
+\   backslash / escape 
+: 	colon 
+;  	semicolon 
+"  	quotation marks/double quote 
+'  	apostrophe/single quote  
+<  	less than or left angle bracket 
+>  	greater than or right angle bracket 
+,  	comma 
+.  	dot/period/point 
+?  	question mark  
+/  	slash or forward slash 
+空格  space 
+小键盘 keypad 
+ 
+(), [] and {} 
+may also be called brackets in general. In that case, they specifically call []  
+square brackets and {} curly brackets.  Open and Closing may also be called  
+left and right. 
+
+
+
+VAT=Value Added Tax 增值税
+CAB=Change Advisory Board 变更顾问委员会
+
+copper  铜 
+aluminium 铝
+plumbum   铅
+zinc   锌
+
+impact  有相当强度的影响。impact 的本意为撞击
+influence 潜移默化的影响
+
+not yet 还没有
+ 

@@ -682,6 +682,8 @@ com.mysql.cj.jdbc.Driver //MySQL 8
 jdbc:mysql://localhost:3306/databasename
 jdbc:mysql:///mydb?characterEncoding=UTF-8&serverTimezone=UTC    xml文件中用&amp;
 jdbc:mysql://address=(protocol=tcp)(host=localhost)(port=3306)/mydb?characterEncoding=UTF-8
+jdbc:mysql:loadbalance://sqlHost1:3306,sqlHost2:3306/mydb?serverTimezone=UTC  为MySQL NDB
+
 
 clobCharacterEncoding
 connectionCollation 会覆盖  characterEncoding
@@ -776,6 +778,9 @@ eclipse->debug configration...->可以建立 Remote Java Application,
 	复选Allow termination of remote VM,表示可以在eclispe中停止服务端(-server)的
 	Connection Type: 选择Standard(Socket Attach)做客户端,连接Host(可远程IP),Port  ,要在eclipse中打断点
 	Connection Type: 选择Standard(Socket Listen)做服务端
+
+jdb 命令(gdb)
+
  
 JDI  (Java Debug Interface)
 
@@ -1022,11 +1027,85 @@ Instrumentation类的
 appendToBootstrapClassLoaderSearch(JarFile jarfile)  
 appendToSystemClassLoaderSearch(JarFile jarfile) 
 
+--------------------------JDK17 据说是 LTS
+
+--------------------------JDK16 新特性
+
+--------------------------JDK15 新特性
+//Text Block ,可以方便写SQL
+ String html = """
+	  <html>
+		  <body>
+			  <p>Hello, world</p>
+		  </body>
+	  </html>
+	   """;
+
+//新算法
+KeyPairGenerator kpg = KeyPairGenerator.getInstance("Ed25519");
+KeyPair kp = kpg.generateKeyPair();
+Signature sig = Signature.getInstance("Ed25519");
+sig.initSign(kp.getPrivate());
+sig.update(msg);
+byte[] s = sig.sign();
+
+// example: use KeyFactory to contruct a public key
+KeyFactory kf = KeyFactory.getInstance("EdDSA");
+NamedParameterSpec paramSpec = new NamedParameterSpec("Ed25519");
+boolean xOdd = true;
+BigInteger y1 =   BigInteger.valueOf(2);
+EdECPublicKeySpec pubSpec = new EdECPublicKeySpec(paramSpec, new EdECPoint(xOdd, y1));
+PublicKey pubKey = kf.generatePublic(pubSpec);
+		
+---
+java.lang.invoke.MethodType::descriptorString
+
+DatagramSocket 和 MulticastSocket 重新实现
+
+偏向锁 做deprecate 和 默认禁用
+
+ZGC 可用于生产,只用XX:+UseZGC 即可
+Shenandoah GC收集器，可用于生产，低暂停时间, 只用-XX:+UseShenandoahGC 即可
+
+JMX
+	com.sun.management.jmxremote.port=<port#>
+	com.sun.management.jmxremote.local.port=<port#>
+ 
+ 
+//--preview 关键字record,会自动重写equals,hashCode,toString
+record Point(int x, int y) { }
+//---preview   关键字 sealed(密封)  permits
+//只有permits关键字后面的类， 能够实现这个接口,必须和封闭类处于同一模块（module）或者包空间（package）里
+public abstract sealed class Shape   permits Circle, Rectangle 
+{
+   
+}
+//继承自密封时，必须指sealed继续密封,non-sealed停止密封
+//关键字non-sealed表示本类取消密封，子类可以任何类
+public non-sealed class Circle extends   Shape
+{
+}
+public final class Rectangle extends  Shape {
+}
+			
+//---preview Pattern Matching 
+String obj="1,a";
+if (obj instanceof String s) {
+	//以前要用   String s = (String) obj; 
+	s.split(",");
+}
+
+
+删除  rmic 命令 
+删除  Nashorn  JavaScript Engine
+
+
 --------------------------JDK14 新特性
-java.lang.Record 是Preview阶段 javac --enable-preview
-ZGC 在 Windows/macOS 上是 experimental 阶段, 打开使用 -XX:+UnlockExperimentalVMOptions -XX:+UseZGC. 
 G1的 NUMA(non-uniform memory access) 内存分配  -XX:+UseNUMA
 switch增加不是Preview了
+
+java.lang.Record 是Preview阶段 javac --enable-preview
+ZGC 在 Windows/macOS 上是 experimental 阶段, 打开使用 -XX:+UnlockExperimentalVMOptions -XX:+UseZGC.  
 
 --删除的
 CMS garbage collector has been removed.
@@ -1100,6 +1179,9 @@ G1
 	改进 G1 垃圾回收器，以便在空闲时自动将 Java 堆内存返回给操作系统
 	
  ZGC 不使用的类可被卸载 默认启用，可 -XX:-ClassUnloading
+ 
+ Shenandoah: A Low-Pause-Time Garbage Collector (Experimental)
+ 
 --------------------------JDK11 新特性 LTS
 Oracle JDK 11 是LTS（长期支持）版本
 
@@ -1112,30 +1194,30 @@ Oracle JDK 11 是LTS（长期支持）版本
 GTK3 Is Now the Default on Linux/Unix 
 
 
-    HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://foo.com/"))
-                .timeout(Duration.ofMinutes(2))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofFile(Paths.get("file.json")))
-                .build();
+HttpRequest request = HttpRequest.newBuilder()
+		.uri(URI.create("https://foo.com/"))
+		.timeout(Duration.ofMinutes(2))
+		.header("Content-Type", "application/json")
+		.POST(HttpRequest.BodyPublishers.ofFile(Paths.get("file.json")))
+		.build();
 
 
-        HttpClient client = HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(Duration.ofSeconds(20))
-                .proxy(ProxySelector.of(new InetSocketAddress("proxyIP", 80)))
-                .authenticator(Authenticator.getDefault())
-                .build();
+HttpClient client = HttpClient.newBuilder()
+		.version(HttpClient.Version.HTTP_1_1)
+		.followRedirects(HttpClient.Redirect.NORMAL)
+		.connectTimeout(Duration.ofSeconds(20))
+		.proxy(ProxySelector.of(new InetSocketAddress("proxyIP", 80)))
+		.authenticator(Authenticator.getDefault())
+		.build();
 
-        client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                .thenApply(HttpResponse::body)
-                .thenAccept(System.out::println);
+client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+		.thenApply(HttpResponse::body)
+		.thenAccept(System.out::println);
 
 
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.statusCode());
-        System.out.println(response.body());
+HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.statusCode());
+System.out.println(response.body());
 
 
 ZGC 只用在 Linux/x64 实际阶段 XX:+UnlockExperimentalVMOptions  , 不兼容 Graal 
@@ -1145,9 +1227,7 @@ Epsilon GC 实际阶段
 
 Class Data Sharing (CDS) 支持在module path,即 --module-path选项
 
-
 --------------------------JDK10 新特性
-JDK版本规则开始变化 ，半年一个特性(大)版本
 从JDK9之后，每6个月发布一个版本，每3年发布一个LTS版本
 
 var str=new String("abc123");//var 类型推断
@@ -1336,6 +1416,23 @@ jshell>/imports 列出已经导入的包：//默认import的有
 /l -a 的全写是  /list -all
 
 
+jhsdb 命令  (HSDB就是HotSpot Debugger的简称,openJDK中有这个命令)
+jhsdb有clhsdb、debugd、hsdb、jstack、jmap、jinfo、jsnap这些mode可以使用
+jhsdb jstack --help
+ 
+通用的三个选项
+ --pid用于指定JVM的进程ID
+ --exe用于指定可执行文件
+ --core用于指定core dump文件
+ 
+ jhsdb jstack --locks --pid 1
+jhsdb jinfo --help
+
+jhsdb jinfo --sysprops --pid 1 命令同 jinfo -sysprops 1
+
+
+
+jhsdb clhsdb 交互式的命令行debug
 
 --------------JDK8 新特性
 //@FunctionalInterface //即只可有一个未实现的方法,如不加这个默认就是
@@ -1510,8 +1607,14 @@ List<Integer> list2=Arrays.stream(numbers).map(e -> Integer.parseInt(e)).collect
 	     
 boolean isEmpty=Arrays.stream(emps).anyMatch(item -> item.getSalary()>3500);//.allMatch 
 
+Map<Integer,Employee> map=Arrays.stream(emps).collect(Collectors.toMap(Employee::getSalary, i->i));//key重复会报错
+//key重复如何处理,Function.identity()同 i->i
+Map<Integer,Employee> map2=Arrays.stream(emps).collect(Collectors.toMap(Employee::getSalary, Function.identity(),(newVal,oldVal)-> newVal ));
+
 Map<String,List<Employee>> titleEmp=Arrays.stream(emps).collect(Collectors.groupingBy(Employee::getTitle));
-		
+Map<String,List<Employee>> titleEmp1=Arrays.stream(emps).collect(Collectors.groupingBy(Employee::getTitle,ConcurrentHashMap::new,Collectors.toList()));
+Map<String,Long> titleEmpCoutn=Arrays.stream(emps).collect(Collectors.groupingBy(Employee::getTitle, Collectors.counting()));
+
 // Accumulate names into a List
  List<String> list = people.stream()
    .map(Person::getName)
@@ -1543,6 +1646,22 @@ Map<String,List<Employee>> titleEmp=Arrays.stream(emps).collect(Collectors.group
  // Partition students into passing and failing
  Map<Boolean, List<Student>> passingFailing = students.stream()
    .collect(Collectors.partitioningBy(s -> s.getGrade() >= PASS_THRESHOLD));
+   
+Map<Department, Set<String>> totalByDept1 = employees.stream()
+		   .collect(Collectors.groupingBy(Employee::getDepartment,
+										  Collectors.mapping(emp->emp.getTitle(), Collectors.toSet())));
+
+
+List<Integer> a=new ArrayList<>();
+a.add(Integer.valueOf(3));
+a.add(Integer.valueOf(4));
+List<Integer> b=new ArrayList<>();
+b.add(Integer.valueOf(3));
+b.add(Integer.valueOf(6));
+
+List<Integer> res=Stream.of(a,b).flatMap(u->u.stream()).collect(Collectors.toList());
+System.out.println(res);//3,4,5,6
+   
    
 --------------------------JDK 7 新特性
 G1拉圾收集器   -XX:+UseG1GC -Xms2g Xmx2g -XX:MaxGCPauseMillis=500 

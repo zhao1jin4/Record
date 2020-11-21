@@ -1038,9 +1038,25 @@ redisson.shutdown();
 
 //分布式锁实现使用lua脚本，redis的发布订阅，hash数据结构key是线程ID
 RLock lock = redisson.getLock("anyLock");
-lock.lock(); // lock.lock(10, TimeUnit.SECONDS);
-//...
+lock.lock(); 
+lock.lock(10, TimeUnit.SECONDS);// acquire lock and automatically unlock it after 10 seconds
+
 lock.unlock();
+
+
+lock.tryLock(waitTime, releaseTime, TimeUnit.SECONDS); 
+// or wait for lock aquisition up to 100 seconds 
+// and automatically unlock it after 10 seconds
+boolean res = lock.tryLock(100, 10, TimeUnit.SECONDS);
+if (res) {
+   try {
+     ...
+   } finally {
+       lock.unlock();
+   }
+}
+
+
  
  
 ============ZkClient
@@ -1361,7 +1377,9 @@ Hazelcast IMDG 开源的 in-memory data grid
 hazelcast-4.0.1\bin\start.bat 启动服务
 
 hazelcast-4.0.1\management-center\start.bat  <端口号> 启动管理界面 
-http://127.0.0.1:8080 第一次启动要求注册 用户名/密码 (至少8个字符,数字,字母,特殊符号)如 hazelcast/HazelFree$
+http://127.0.0.1:8080 第一次启动 
+		如Security Provider下拉选择Default 要求注册 用户名/密码 (至少8个字符,数字,字母,特殊符号)如 hazelcast/HazelFree$
+		如Dev Mode就不用，还有LDAP
 	Add Cluster Config按钮 cluster Name默认为dev(名与代码中的 config.setClusterName("myHazelInst") 对应),选中建立的,
 	地址格式为 27.0.0.1:5701  回车后变为tag,可以输入多个，也可只输入集群中的一个节点
 	可以看到很多信息,可以用程序连接
@@ -1445,7 +1463,8 @@ public class DistributedMap {
 
  IMap<String, String> mapLock = h.getMap("my-map-lock");
  mapLock.putIfAbsent("record1","value1");//上一线程在锁中，这里阻塞,多个Java进程间也是一样的
- mapLock.lock("record1");
+ //mapLock.lock("record1");
+ mapLock.tryLock("record1",5,TimeUnit.SECONDS);//tryLock类似redisson
  System.out.println("locking");
  mapLock.unlock("record1");
  
@@ -1456,19 +1475,67 @@ clientConfig.setClusterName("dev");
 clientConfig.getNetworkConfig().addAddress("127.0.0.1:5701", "127.0.0.1:5702");
 HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
 IMap<Integer, String> mapCustomers = client.getMap("MyMap"); //creates the map proxy
+//客户端缓存变化事件
+mapCustomers.addEntryListener(new MapListenerAdapter<String,String> () {
+	@Override
+	public void entryAdded(EntryEvent<String, String> event) {
+		System.out.println(event);
+	}
+	@Override
+	public void entryEvicted(EntryEvent<String, String> event) {
+		System.out.println(event);
+	}
+	@Override
+	public void entryRemoved(EntryEvent<String, String> event) {
+		System.out.println(event);
+	}
+	@Override
+	public void mapCleared(MapEvent event) {
+		System.out.println(event);
+	}
+	@Override
+	public void mapEvicted(MapEvent event) {
+		System.out.println(event);
+	}
+},  true);
+
 
 mapCustomers.put(1, "one");
 //当存了数据后，management-center服务后UI http://127.0.0.1:8080 可以Storage->Maps进入 MyMap-> Map Browser 按钮->键输入为1，类型选择integer, 查看值
 IQueue<String> clusterQueue=client.getQueue("MyQueue");
 
 clusterQueue.add("element1");
+//客户端缓存变化事件
+clusterQueue.addItemListener(new ItemListener<String>() {
+	@Override
+	public void itemRemoved(ItemEvent<String> event) {
+		System.out.println(event);
+	}
+	@Override
+	public void itemAdded(ItemEvent<String> event) {
+		System.out.println(event);
+	}
+}, true);
+
 System.out.println(clusterQueue.size());
 System.out.println(clusterQueue.poll());
 System.out.println(clusterQueue.size());
 
+
+//EntryXxxListener类名同redisson名字
+class MyListener implements EntryAddedListener<String,String>,EntryRemovedListener<String,String>,EntryUpdatedListener<String,String>
+							, EntryEvictedListener<String,String>,MapEvictedListener,MapClearedListener
+{
+
+}
 ---java Server
 Config config = new  Config();
-config.setClusterName("myHazelInst");
+config.setClusterName("myHazelCluster");
+
+NetworkConfig network=config.getNetworkConfig();
+System.out.println(network.getPort());//默认5701
+network.setPort(6701);//修改监听端口，如被占用+1，直到可用
+		
 HazelcastInstance server = Hazelcast.newHazelcastInstance(config);
 
 
