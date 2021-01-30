@@ -1,0 +1,161 @@
+去原生 CNCF 毕业的项目
+	kubernetes
+	CoreDNS(k8s)
+	
+	Helm(k8s)
+	Harbor(docker)
+	
+	Enovy(istio)
+	prometheus(istio)
+	Jaeger(istio使用,distributed tracing 使用go开发)
+	
+	Containerd(容器,从docker分离出来)
+	
+	TUF(The Update Framework  https://theupdateframework.io/ )
+	Fluentd(Build Your Unified Logging Layer https://www.fluentd.org/)
+	Vitness(A database clustering system for horizontal scaling of MySQL  https://vitess.io/) 官方文档有中文语言
+	
+	TiKV (A distributed transactional key-value database)
+	Rook(Storage for Kubernetes,有ceph 的provider,使用Go开发)
+		
+		
+
+=============prometheus 监控
+CNCF毕业的项目,Istio使用,使用大量数学公式
+https://github.com/prometheus/prometheus 使用Go语言开发,适合监控容器
+意思是一个神,人类带来了火,图标是火种
+ 
+ 
+docker run --name prometheus -d -p 127.0.0.1:9090:9090 prom/prometheus
+
+https://prometheus.io/download/ 下载 prometheus-2.18.1.linux-amd64.tar.gz
+
+
+./prometheus 启动 默认是9090端口  http://127.0.0.1:9090
+以时间序列(Time-Series)存储,每两个小时为一块(block),每个block分为多个chunck
+chunck用来存Time-Series文件,metadata文件和index文件 
+一次key/value的采集叫metric,对数据打label,如可表示数据来自哪个客户端哪个服务,这两个叫ndex
+
+数据采集过来先放内存中,定期写入硬盘(WAL =write ahead log),如挂了,再启时,把数据读入存,方便查询(使用内存较大)
+
+拉监控数据,在客户端有一个exporte是一个web服务器
+推pushgateway安装任意地方(如服务端或客户端),自己开发,发给pushgateway,pushgatewayg再给prometheus
+
+界面中输入  process_open_fds 当前打开文件数 ,console标签显示当前的值,Grap标签中显示历史数据,以图显示
+
+支持很多数学公式
+界面中输入  rate(process_open_fds[1m])+ rate(process_open_fds[1m])/2 ^2
+
+rate(node_cpu[1m])
+
+配置文件 
+可以和grafana(显示的更好)结合使用
+
+
+=============Envoy 用C++开发
+https://www.envoyproxy.io/
+
+yum install yum-utils
+yum-config-manager --add-repo https://getenvoy.io/linux/centos/tetrate-getenvoy.repo
+yum install getenvoy-envoy 就一个二进制文件90MB
+
+envoy --version
+envoy --help  版本为 1.17
+
+--vi  envoy-demo.yaml , https://www.envoyproxy.io/docs/envoy/latest/_downloads/92dcb9714fb6bc288d042029b34c0de4/envoy-demo.yaml
+admin:
+  access_log_path: /dev/null
+  address:
+    socket_address:
+      address: 0.0.0.0
+      port_value: 9901
+	  
+...
+
+-- envoy-override.yaml  
+admin:
+  address:
+    socket_address:
+      port_value: 9902
+	  
+	  
+envoy -c envoy-demo.yaml  --config-yaml "$(cat envoy-override.yaml)"   
+	一起使用 --config-yaml 和 -c   --config-path 会合并，相同的后面的覆盖前面的
+
+http://localhost:10000
+http://localhost:9901/ 管理控制台
+
+
+envoy --mode validate -c my-envoy-config.yaml 只验证配置，不启动
+
+envoy -c envoy-demo.yaml --log-path logs/custom.log
+-l 或 --log-level info，还有debug
+
+envoy -c envoy-demo.yaml -l off --component-log-level upstream:debug,connection:trace
+
+Listener discovery service (LDS)
+Cluster discovery service (CDS)
+
+
+
+--envoy-demo.yaml  
+host_rewrite：更改 HTTP 请求的入站 Host 头信息。
+cluster: 将要处理请求的集群名称，下面会有相应的实现。
+
+
+
+
+
+----docker 版本
+
+docker pull envoyproxy/envoy:v1.17-latest
+docker run --rm envoyproxy/envoy:v1.17-latest --version  
+
+docker run --rm -it \
+      -p 9901:9901 \
+      -p 10000:10000 \
+      getenvoy/envoy:stable
+	  
+	  
+ docker run --rm -it \
+      -v $(pwd)/envoy-custom.yaml:/envoy-custom.yaml \
+      -p 9901:9901 \
+      -p 10000:10000 \
+       getenvoy/envoy:stable \
+          -c /envoy-custom.yaml
+		  
+		  
+
+
+
+4层/L层 代理转发器 
+
+Listener 管理界面端口
+Routes 可根据请求路径来选择哪个 Cluster
+Clusters 定义如 ROUND_ROBIN 轮循
+Endpoints 转发目的地IP端口
+
+
+======Jaeger
+CNCF毕业的项目,Istio使用
+https://www.jaegertracing.io/
+
+open source, end-to-end distributed tracing
+
+
+docker pull jaegertracing/all-in-one:1.18
+
+
+---------Vitness
+A database clustering system for horizontal scaling of MySQL 
+https://vitess.io/  官方文档有中文语言
+	
+
+
+
+
+
+
+
+
+
