@@ -216,6 +216,11 @@ win7下单个文件名总长度只截取前230个字符,文件总径也有长度
 
 pseudo	假的， 冒充的
 
+
+chcp  (change code page)显示当前值  
+cmd窗口修改为英文字符  chcp 437，chcp 936 是 GB2312 编码，65001 代表 utf-8
+
+
 windows 7 英文版 增加中文的支持,默认是支持中文的文件名,但文件体不支持
 Control Panel\Clock, Language, and Region ->Region and Language-> Administrative 标签->Change System Local...按钮选择 Chinese (Simplified,RPC)
 
@@ -279,7 +284,8 @@ windows 10 可以关闭它,设置->个性化->开始->关闭   在"开始"菜单
 看显卡  附件->系统工具->系统信息->展开 组件->显示 第一个是集成的,第二个是独立显卡
 	也可在设备管理器在看到两个, dxdiag 名称栏中 看到的是显示名,是集成的显卡
 	
-附件->系统工具->资源监视器, 也可任务管理器->性能->资源监视器
+附件->系统工具->资源监视器, 也可任务管理器->性能->资源监视器， 看进程有线程数的列
+
 附件->系统工具->任务计划,也可右击计算机->管理 中删没用的,如Google ,Baidu update
 右击计算机->管理->事件查看器, 性能 ,任务计划
 
@@ -395,6 +401,7 @@ Win+SHIFT+左键 将活动窗口移至左侧显示器 (当前桌面)
 win+space 切换输入法 不松手多次space来切换
 win + x 弹出菜单(相当右击开始图标)
  
+win+g  win10录屏
 
 alt+space弹出菜单 ->按 M 移动 ,再按方向键 就可移动窗口(当窗口标题超出顶部)
  
@@ -760,6 +767,19 @@ SHIFT /2
 
 echo %date:~6,4%-%date:~0,2%-%date:~3,2%_%time:~0,2%_%time:~3,2%_%time:~6,2%
 		##:~6,4是从返回的字串第6位开始长度4个
+		
+echo %DATE:~0,4%  格式为 yyyy
+echo %DATE:~5,2%  格式为 mm
+echo %DATE:~8,2%  格式为 dd 
+
+%TIME:~0,2% 格式为 hh
+%TIME:~3,2% 格式为 mi
+%TIME:~6,2% 格式为 ss 
+
+echo %DATE:~0,4%-%DATE:~5,2%-%DATE:~8,2% %TIME:~0,2%:%TIME:~3,2%:%TIME:~6,2% > last_pull_date
+windows 下的echo x> file文件尾总有一个换行 ，使用下面命令
+>last_pull_date set /p="%DATE:~0,4%-%DATE:~5,2%-%DATE:~8,2% %TIME:~0,2%:%TIME:~3,2%:%TIME:~6,2%" <nul
+
 echo %time%
 
 如果已经在一个中,直接调用另一个bat 会导致后面的命令不会被执行,必须使用 call xx.bat
@@ -916,6 +936,7 @@ shutdown /t 120 /s  ,两分钟后关机
 
 win 7/10 默认支持 exFat 分区,不安装什么
 
+timeout 2 像linux sleep
 -------------
 运行 cmd  /t:70  /k  cd \ ,以黑字白底显示,并执行 cd \
 运行 cmd/notepad/wordpad/mspaint/regedit/explorer 命令
@@ -1050,6 +1071,8 @@ C:\Windows\SystemApps 是 win10 系统应用
 win10 设置另一显示器方向，Setting->Display->Orientagion->可以继续选择Landscap或portrait 
 win10 字体大小，Setting->搜索Ease->选中Easy of Access brighting Setting->Make Text Bigger 中拖动滚动条
 win10护眼模式  ，Setting->Display->打开Night Light
+win10 右击.iso文件 -> 装载 ，会自动生成虚拟光驱
+
 -----windows Defender
 
 金山毒霸可以让windows Defender 服务停止.
@@ -1108,7 +1131,7 @@ win10自带Hyper-V 但要启用(像启用 IIS 一样,开始->windows 系统-> �
 开启菜单中有Hyper-V Manager 的管理界面
 
 Hyper-V禁用卸载后 bcdedit 查看有 hypervisorlaunchtype 值为 auto 为开启,
-要关闭才可用VirtualBox ,bcdedit /set hypervisorlanchtype off 后重启
+要关闭才可用VirtualBox ,bcdedit /set hypervisorlaunchtype off 后重启
 还有Hyper-V网卡可以删除(使用设备管理器)
 
 telent win10 默认没有,要使用 要在启用/关闭windows功能才安装telnet 客户端
@@ -1135,7 +1158,7 @@ systeminfo 命令 可以看系统信息,有 系统类型 可知是32位还64位
 
 ,win10 Explorer中键 功能目录向上, 浏览器返回
 
-------powershell 
+------powershell  
 PowerShell Integerated Scripting Enviroment (ISE) ,文件名powershell_ise.exe 
 运行 Get-PhysicalDisk 可以看硬盘是否SSD(碎片整理和优化驱动器  中也可以看)
 资源管理器空白处，shift + 右键->open powershell window here
@@ -1143,8 +1166,26 @@ PowerShell Integerated Scripting Enviroment (ISE) ,文件名powershell_ise.exe
 -----win10  Windows Subsystem for Linux(WSL)
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 是微软和Canonical(snapd)一起开发
-在 PowerShell 中开启,也可以在控制面板中添加新特性来安装
-WSL 2 要求win10 build 19041 版本
+在 PowerShell 中开启,也可以在控制面板中添加新特性来安装,要启动虚拟机
+WSL 2 要求win10 build 19041 版本，安装新的linux内核更新
+
+资源管理器空白处，shift + 右键->open linux shell here 显示窗口为#提示符，同输入wsl命令一样，但不能运行yast2
+
+ wsl --shutdown 会停止doker
+ wsl --set-default-version 2
+ wsl --list --verbose 显示安装的和运行状态,version列表示使用的是wsl 1 还是wsl 2 
+ wsl --set-version openSUSE-Leap-15.2  2 把这个安装修改为wsl 2
+ 
+在Microsoft store界面中找 openSUSE 安装，后 openSUSE-Leap-15.2 有 启动按钮
+	进入提示符为$ ,su root密码为windows系统密码,后可用yast2,是命令行界面
+	
+zypper search gnome 显示的type列为pattern
+zypper install -t pattern gnome 
+
+在Microsoft store上安装 Windows Terminal (也可github上下载) , 可以像cmder,ConEnum一样是多标签式的窗口管理，默认是powershell提示符PS
+可以点下拉三角打开cmd 或者安装的 openSUSE-Leap-15.2 
+https://github.com/microsoft/terminal/releases
+
 
 
 --- win mac

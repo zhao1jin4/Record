@@ -1669,7 +1669,8 @@ export GOPROXY=https://gonexus.dev
 
 如Go >= 1.13
 go env -w GOPROXY=https://gonexus.dev,direct
-
+go env -w GOPROXY=https://goproxy.cn,direct  下载模块的位置
+编译示例项目  go build -o sample-controller  .
 
 
 //---go modules

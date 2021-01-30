@@ -3,7 +3,7 @@ eclipse有一个BIRT
 
 Jasper有Community版本
 https://community.jaspersoft.com/
-下载要登录,登录后是从 https://sourceforge.net/projects/jasperstudio  
+下载要登录,登录后是从 https://sourceforge.net/projects/jasperstudio
 
 JasperSoft Studio 设计工具基于eclipse的，目前最新版本为v6.14.0
 

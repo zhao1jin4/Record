@@ -109,6 +109,13 @@ numChildren = 2
 ] quit 
 ] connect 连接到其它机器   close 后无法再返回了
 
+data目录的currentEpoch文件中存的是当前哪一个届的选举
+每个Server第一轮都会投票给自己，
+比较先看谁在epoch届大,再看zxid,再看id
+
+收发消息是两个独立的线程
+如收到的消息比自己新，更新选票
+
 
 4个字母的命令  nc=net cat 
 echo stat | nc  127.0.0.1 2181  也可以用 telnet 127.0.0.1 2181 后 stat  

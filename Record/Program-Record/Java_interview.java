@@ -50,8 +50,24 @@ System.out.println(ss);
 
 设计模式六大原则（6）：开闭原则 		一个软件实体如类、模块和函数应该对扩展开放，对修改关闭。 
 
-
+六大设计原则(SOLID)
+Single Responsibility Principle：单一职责原则
+Open Closed Principle：开闭原则
+Liskov Substitution Principle：里氏替换原则
+Law of Demeter：迪米特法则
+Interface Segregation Principle：接口隔离原则
+Dependence Inversion Principle：依赖倒置原则
  
+KISS原则(Keep It Simple,Stupid，Keep It Simple And Stupid) 
+	（尽量保持简单）傻瓜 
+	
+YAGNI 原则的英文全称是：You Ain’t Gonna Need It 你不会需要它
+	不要去设计当前用不到的功能，不要去编写当前用不到的代码，不要做过度设计
+
+DRY原则，Don’t Repeat Yourself，
+关注点分离（Separation of concerns，SOC）
+Don’t Make Me Think  让我一眼就知道你要干什么，不要让我去思考你在干什么
+
 
 简单工厂和工厂方法不一样的是没有抽像工厂类
 工厂方法　　只一个抽像产品类(可多个实现),一个抽像工厂类和一个实现工厂类,抽像工厂类(一个方法)只能创建一种的抽像产品的实现
@@ -552,20 +568,24 @@ LockSupport.unpark 唤醒
 尽管Java1.6为Synchronized做了优化，增加了从偏向锁到轻量级锁再到重量级锁的过度，但是在最终转变为重量级锁之后，性能仍然较低
 
 
-好多地方用到了 CAS(应该是 AbstractQueuedSynchronized) ,尤其是java.util.concurrent包下，比如 CountDownLatch、Semaphore、ReentrantLock 中
-AbstractQueuedSynchronized（AQS） 
-先进先出的阻塞队列, 锁状态(int state)源子性即CAS , getState,setState,compareAndSetState
+好多地方用到了 CAS( AbstractQueuedSynchronized) ,尤其是java.util.concurrent包下，比如 CountDownLatch、Semaphore、ReentrantLock 中
+ 
+先进先出的阻塞队列, 
+锁状态(int state)源子性即CAS ,操作状态使用这三个方法  getState,setState,compareAndSetState 
+重写下面方法(可不同时支持独占和共享)
 isHeldExclusively()：该线程是否正在独占资源
 tryAcquire(int)：独占方式。尝试获取资源，成功则返回true，失败则返回false。
 tryRelease(int)：独占方式。尝试释放资源，成功则返回true，失败则返回false。
 tryAcquireShared(int)：共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。
 tryReleaseShared(int)：共享方式。尝试释放资源，如果释放后允许唤醒后续等待结点返回true，否则返回false。
 
+AbstractOwnableSynchronizer 可以知道当前有锁的线程是哪一个，方便控制
+在实现tryAcquire中 如 hasQueuedPredecessor()可以知道是否有前面排除，有值，tryAcquire返回false,来实现公平锁
 
 
 ReentrantLock 
-	公平锁时，线程在尝试获取锁之前进行一次CAS运算
-	非公平锁时，线程在尝试获取锁之前进行两次CAS运算
+	公平锁时，线程在尝试获取锁之前进行一次CAS运算，性能好
+	非公平锁时，线程在尝试获取锁之前进行两次CAS运算，性能差一点
 	线程进入队列即进入waiting状态，相当于挂起，频繁挂起与唤醒是消耗资源的行为，因此非公平锁中线程更少的挂起唤醒可以提高性能，这也是ReentrantLock.lock()默认为非公平锁的原因。
 	非公平锁可能会导致有些线程始终得不到执行
 
@@ -717,7 +737,7 @@ CAP原则，指的是在一个分布式系统中，一致性（Consistency）、
 可用性(Availability) (保证每个请求不管成功或者失败都有响应)
 分隔容忍(Partition tolerance) (系统中任意信息的丢失或失败不会影响系统的继续运作)
 
-eureka是 AP(一致性弱) ，Consul，zooKeeper，etcd 都是 CP(牺牲可用性)
+eureka 是 AP(一致性弱) ，Consul，zooKeeper，etcd 都是 CP(牺牲可用性)
 
 
 notify ,notifyAll
@@ -755,7 +775,8 @@ https浏览器生成随机的对称秘钥 ，如果网站生成会话秘钥，�
 
 spring的循环依赖 三个缓存，先找singletonObjects，再找 earlySingletonObjects，再从singletonFactories如有getObject创建Bean实例，放在earlySingletonObjects中（还没有属性注入和init初始化）
 
-
+主键ID生成方案--类snowflake（雪花算法）
+https://github.com/twitter-archive/snowflake  现在没了
 
 
 

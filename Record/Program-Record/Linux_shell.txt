@@ -374,6 +374,8 @@ break 2 #跳出2层循环
 
 while : #表示永远循环要有空格 while [ true ]
 
+while true ;  do  curl 192.168.42.130:30737/productpage ; sleep 0.2; done
+  
 function myfun()  #function  可省,declare -i x=1;let x=4
 {
 	echo "";

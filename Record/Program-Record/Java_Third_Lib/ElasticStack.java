@@ -1150,7 +1150,7 @@ output.console:
   pretty: true
   enable: true
 ----- 
-./filebeat -e -c console.yml  启动 控制台输入 hello加车，返回有 "message":"hello"
+./filebeat -e -c console.yml  启动 控制台输入 hello回车，返回有 "message":"hello"
  -e, --e                    Log to stderr and disable syslog/file output
 
 

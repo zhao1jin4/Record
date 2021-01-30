@@ -66,6 +66,8 @@ File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
 
 	打开pom.xml 右击-> Diagrams--Show Dependencies  可以信赖的图形 (也可Maven Projects视图) 
 	ctrl+左键拖动，移动位置,ctrl+中键滚动，放大缩小，ctrl+f找包名,按alt放大镜
+	
+	右击pom.xml-> maven-> open 'settings.xml'
  
 --SVN 
 	File -> Setting -> Version Control -> Subversion 配置 svn 命令所在路径
@@ -96,7 +98,13 @@ File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
 	
 	File->Settings->Version Control ->可以配置Git 的 root目录 (VCS Root如没有配置，右击文件就没有Git菜单，启动时会提示的)
 	.git/config 文件中有保存git项目地址
-	 
+	
+	
+	github上的Usr->Settings->Developer Settings菜单 -> Personal access tokens-> 菜单 ->generate  new token 按钮-> resend verify email 后->generate  new token 按钮进入界面->
+	输入名字，选择权限(全部)后，生成token
+	
+	右击文件中的行号 -> Annotate -> 可以显示 这个文件的 Git 修改历史,
+	
 ---
 像word 同时只能打开一个项目
 File->project stucture ->选择Modules标签 可以Import或者Add 多个,默认目录是在本项目的子目录 (有 Search for projects recursively)，可以修改为同级,多个web项目可独立运行
@@ -154,6 +162,8 @@ Project Encoding: UTF-8
 Navigator-> implments (ctrl+T ,开源版ctrl+alt+B) 打开实现类, 也可ctrl+alt+点击
 右击方法-> Find Usages 
 如ctrl+点方法 默认是usage 也可点旁边的小设置按钮,修改为implmenting mehtod
+
+ 右击 代码方法调用处 ->refractor-> introduce varaible...  补全方法返回值
 
  
  
@@ -462,8 +472,13 @@ Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 -----UpSource  免费的
 用来做Code review
 
+-----RestfulToolkit 免费的
+ctrl+\  可搜索spring mvc 的地址
+
 -----YouTrack 收费
 Agile  PM
+
+-----MyBatisPlus 代码生成code gen 依赖收费的datasource
  
 ========================teamCity CI/CD工具 
 3个agent 是免费的

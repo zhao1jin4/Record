@@ -314,7 +314,7 @@ parameterType="list" 或者不写也可以
 		select id as id ,username as username,password as password ,birthday as birthday 
 		from employee
 		<where>
-			<!--  使用   &gt;=  和  &lt;= 
+			<!--  使用   &gt;=  和  &lt;=  也可用  <![CDATA[    ]]>
 			<if test="username != null and username != '' ">username = #{username} </if>  
 			<if test="department_id != null">AND department_id = #{department_id} </if>
 			 -->
@@ -737,6 +737,9 @@ userDao.insert(user);//user中有值
 		@Result(property="jobTitle", column="job_title" )
    })
 public List<Job> getJobsByUserId( int userid); 
+
+//默认支持enum类型，是以名字name()返回
+
 	
 //示例@One
 @Select("select job_id,job_title,user_Id from job_history where job_title like 'java%'")
@@ -1046,7 +1049,7 @@ web.xml 中加
 		 <property name="connectionProperties" value="config.decrypt=true;config.decrypt.key=${publickey}" />
 	</bean>
 	
-也可重写 PropertyPlaceholderConfigurer来加密指定配置字段 
+也可重写 PropertyPlaceholderConfigurer 来加密指定配置字段  过时 使用 PropertySourcesPlaceholderConfigurer
 public class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {
 	private String[] encryptPropNames = { "usernameEnc", "passwordEnc" };
 	@Override

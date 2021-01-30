@@ -1905,7 +1905,10 @@ systemctl  restart xdm  (openSUSE方式,没有177端口监听???? 测试不行)
 /etc/init.d/xdm restart
 
 openSUSE-leap-15.1 Rescue LiveCD 默认是Xfce桌面 体积最小,也有Gnome,KDE桌面版本
-
+	
+	zypper search gnome 显示的type列为pattern
+	zypper install -t pattern gnome (-t type) 来安装gnome,如对于windows Sub Linux下
+	
 试过openSUSE-leap-15.1 gnome版本DISO文件 在linux下使用 dd命令方式写U盘可以成功启动，使用windows下的ultra写虽然可以引导但不能成功启动
 	linux dd 写的也可在linux下浏览目录，但目录内容和windows ultraiso写的内容不一样
 

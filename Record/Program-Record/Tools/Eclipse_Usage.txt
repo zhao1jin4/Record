@@ -761,6 +761,12 @@ Builder Pattern  生成代码
 Download the jar file
 Put the jar file in the eclipse/dropins directory
 
+------plugin lombok
+https://projectlombok.org/setup/eclipse  
+install new software 写入地址  https://projectlombok.org/p2
+ 
+
+
 
 
 

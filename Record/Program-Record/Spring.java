@@ -357,6 +357,10 @@ public class ClassSelf  {
 	private List<? extends Provider> allProvider;
 }
 
+@Bean
+@Primary 表示在使用 @Autowired 如有相同类型的bean，使用这个bean
+
+
 <map>
 	<entry key="one" value="1111"></entry>
 </map>
@@ -727,7 +731,8 @@ ApplicationListener.getResource();得到的是实现ApplicationEvent类的构造
  BeanFactory在getBean的时候会返回实例,而ApplicationContext会在初始化时全部实例
  
  用BeanFactory手工注册
-	1. BeanFactoryPostProcessor 的实现（PropertyPlaceholderConfigurer） 接口的一个postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory子类是 XmlBeanFactory ）
+	1. BeanFactoryPostProcessor 的实现（PropertyPlaceholderConfigurer过时，使用PropertySourcesPlaceholderConfigurer）
+	接口的一个postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory子类是 XmlBeanFactory ）
  	实例化任何的Bean之前，读完配置数据并修改它
  在配置文件的值中	用${key}
 

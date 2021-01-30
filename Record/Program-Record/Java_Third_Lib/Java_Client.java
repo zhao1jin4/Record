@@ -997,7 +997,7 @@ jedis.shutdown();//会把redis服务器关了
 <dependency>
    <groupId>org.redisson</groupId>
    <artifactId>redisson</artifactId>
-   <version>3.9.1</version>
+   <version>3.14.1</version>
 </dependency>  
 
 https://redis.io/topics/distlock 提到使用 redisson
@@ -1009,7 +1009,7 @@ https://github.com/redisson/redisson/wiki/ 有中文的文档
 Config config = new Config();
 //--单机 
 //SingleServerConfig singConfig= config.useSingleServer();
-//singConfig.setAddress("redis://127.0.0.1:6379");
+//singConfig.setAddress("redis://127.0.0.1:6379").setPassword(password);;
 
 //--cluster配置
 MasterSlaveServersConfig  msConfig=config.useMasterSlaveServers();
@@ -1057,7 +1057,27 @@ if (res) {
 }
 
 
- 
+@Configuration
+public class RedissonConfig {
+ @Value("${spring.redis.host}")
+ private String host;
+ @Value("${spring.redis.port}")
+ private String port;
+ @Value("${spring.redis.password}")
+ private String password;
+ @Bean
+ public RedissonClient getRedisson(){
+	 Config config = new Config();
+	 config.useSingleServer().setAddress("redis://" + host + ":" + port).setPassword(password);
+	 return Redisson.create(config);
+ }
+}
+或用 
+  	  <dependency>
+         <groupId>org.redisson</groupId>
+         <artifactId>redisson-spring-boot-starter</artifactId>
+         <version>3.14.0</version>
+     </dependency
  
 ============ZkClient
 <dependency>

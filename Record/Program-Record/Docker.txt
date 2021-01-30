@@ -88,14 +88,17 @@ yum-config-manager   --add-repo    https://download.docker.com/linux/centos/dock
 	
 或者 下载下来安装
 https://download.docker.com/linux/centos/7/x86_64/stable/Packages/
-https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-18.03.1.ce-1.el7.centos.x86_64.rpm 	现在有 docker-ce-19.03.x 版本了 
+https://download.docker.com/linux/centos/7/x86_64/stable/Packages/docker-ce-19.03.12-3.el7.x86_64.rpm
 		依赖于container-selinux, policycoreutils-python,libcgroup ,DVD中就有
-	
 yum install docker-ce  (显示版本为3:19.03.12-3.el7  )  安装后是docker-ce-19.03.12-3.el7.x86_64， 依赖于 containerd.io-1.2.13-3.2.el7.x86_64.rpm  docker-ce-cli-19.03.12-3.el7.x86_64.rpm
-
+yum list docker-ce --showduplicates | sort -r
+yum install docker-ce-19.03.12
 
 http://mirrors.huaweicloud.com/centos/7/extras/x86_64/Packages/  
 extra下有docker
+
+https://download.docker.com/linux/centos/8/x86_64/stable/Packages/
+
 
 ---openSUSE
 docker-19.03.11_ce-lp152.1.1.x86_64.rpm 要下载的
@@ -124,10 +127,10 @@ docker --version
 systemctl start docker  
 docker run hello-world  运行镜像,本地没有，会从网上下载
 
-docker images 显示本地已有的镜像 (结果同docker image ls)
+docker images 显示本地已有的镜像 (结果同docker image ls) , 镜像默认保存在 /var/lib/docker/image/
 
 systemctl enable docker.service   配置开机启动
-systemctl disable docker.service  
+systemctl disable docker.service
 
 看日志
 journalctl -u docker.service
@@ -253,7 +256,10 @@ docker inspect 镜像名，有 "Cmd":表示启动容器时执行的命令
 docker commit -p -m "this is my busybox httpd" -a "dell" -c 'CMD ["/bin/httpd","-f","-h","/data/html"]' epic_lewin  busybox_httpd:0.0.1
 -c 最外用单引号,数组中用双引号
 
-docker login
+docker login  --username=user1@mycom    registry.cn-shanghai.aliyuncs.com
+	--username , -u
+	--password , -p
+	--password-stdin
 docker push  (要事先在docker hub上建立repository如 busybox)
 
 
@@ -848,18 +854,42 @@ $ docker run -d -p 5000:5000 --restart=always --name registry \
 
 -------私有仓库 Harbor 基于Registry 支持HA
 看文档，下载离线版本 harbor-offline-installer-v1.8.2 ，解压 修改 harbor.yml配置文件 ，有些选项必须修改
-	如hostname:
+	如hostname: 要是类似.com结尾,如centos71.com
 	默认用户 admin/Harbor12345
 	默认数据用户 root/root123 #Harbor DB
-	默认log
+	默认log ，location: /var/log/harbor
+	
+#openssl genrsa -out tls.key 2048 私钥
+#openssl req  -new -x509 -key tls.key -out tls.crt -subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=centos71.com 自签证书,CN的值和hostname一样
+	#https 配置打开,即nginx用的
+	#  certificate: /root/harbor/tls.crt
+	#  private_key: /root/harbor/tls.key
+	如打开https安装失败？？
+
+客户端的docker ,/etc/docker/daemon.js 中加 配置"insecure-registries": ["centos71.com"],重启docker, 在docker push的时候就不用https了
+	
 	要docker-compose  版本>= 1.18.0 (复制二进制到/usr/local/bin不行)
+	#yum install python3-pip
 	#sudo pip3 install -i https://pypi.doubanio.com/simple/  -U docker-compose  (安装在 /usr/bin/下,最新1.25.5)
-sudo ./install.sh    提示设置了base dir为解压目录
+sudo ./install.sh   日志提示下载了很多 goharbor/开头的docker镜像, 提示设置了base dir为解压目录
 registry/redis/nginx 容器名不能存在  
 
-成功后 http://127.0.0.1 跳转到 http://<hostname>/harbor  有界面 登录 默认有一个名为library的project,仿问级别只有Public
+成功后 http://127.0.0.1 跳转到 http://<hostname>/harbor ,可以外网仿问, 有界面 登录 默认有一个名为library的project,仿问级别只有Public
+	Repository标签下Push Image按钮下拉有提示 docker push centos71.com/library/IMAGE[:TAG]
+	
+docker login  --username=admin --password  Harbor12345   centos71.com
+docker push  centos71.com/library/gateway-kubernetes:1.0 成功后表格就有内容
 
 停止服务  源码目录 下 sudo docker-compose stop  共9个容器
+
+cd 安装目录下，如/root/harbor
+docker-compose ps
+docker-compose start
+docker-compose stop
+docker-compose restart
+
+
+
 
 -------私有仓库 nexus
 https://help.sonatype.com/repomanager3
@@ -878,10 +908,16 @@ vim /usr/lib/systemd/system/docker.service
 # 在dockerd后面加参数
 ExecStart=/usr/bin/dockerd --registry-mirror=http://127.0.0.1:8081/repository/docker-group/
 不行？？？
-/etc/docker/daemon.json  (openSUSE-leap-15.1 是 /etc/daemon.js)
 
 
+dockerd 的配置选项 --config-file="/etc/docker/daemon.json"
 
+/etc/docker/daemon.json  (openSUSE-leap-15.1 是 /etc/daemon.js) 
+{
+    "registry-mirrors": ["http://hub-mirror.c.163.com"]
+}
+ 
+docker info 查看 Registry Mirrors: 配置
 
 =============== Docker compose
 用于单机的容器编排工具，可以先做镜像，容器可以按顺序启动，自动配置容器，(如多物理机用docker-swarm，加入docker-swarm要求用docker-machine)

@@ -1750,3 +1750,15 @@ influence 潜移默化的影响
 
 not yet 还没有
  
+ETA   估计到达时间（Estimated Time of Arrival）
+
+
+
+
+
+
+
+
+
+
+

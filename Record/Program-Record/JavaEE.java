@@ -2467,7 +2467,10 @@ tomcat9/logs/localhost_access_log.x.txt  显示是 HTTP/2.0
 	insert into user_roles(user_name,role_name) values('zhang','market');
 
 	
-	
+windows控制台乱码 conf/logging.properties
+	#java.util.logging.ConsoleHandler.encoding = UTF-8
+	java.util.logging.ConsoleHandler.encoding = GBK
+
 Tomcat 日志文件格式
 server.xml中在<Host>下有配置,并有提示文档在  /docs/config/valve.html
 	   <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"

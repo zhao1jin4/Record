@@ -16,6 +16,7 @@ falcor(有node服务端配套)一个 取数据的ajax框架,可以配合Rxjs一�
 
 
 npm install -g @angular/cli  目前版本 9.1.8
+%HOMEPATH%\AppData\Roaming\npm\ng
 
 ng new my-app
 

@@ -383,7 +383,9 @@ SELECT STR_TO_DATE('01,5,2013 12:22:32','%d,%m,%Y %H:%i:%s');
 select ("11"+0)*3  // 33  字符向数字转换
 SELECT CAST(123 AS CHAR); 
 SELECT CAST("+111" AS UNSIGNED); 
-  
+SELECT CONVERT('123',SIGNED);
+
+
 select last_day(curdate())  --指定日期的当月最后一天的日期,如有的没有31日
 select DATE_ADD(current_date,interval -day(current_date)+1 day) 当月第一天
 select MONTH('1998-02-03');
@@ -501,9 +503,14 @@ insert select 和 load file 会对insert产生阻塞(因表相关的排它锁,�
 alter table t auto_increment = 3;
 alter table users modify column id  int auto_increment  primary key ; -- modify column 或者 modify
 
+select auto_increment from information_schema.tables where table_schema='mydb' and table_name='USER';  查出来的值不对?? 也不变
+show create table user; -- 显示的才是马上要使用的auto_increment id
+
+
 alter table users drop  primary key ;
 alter table users add  primary key (user_id,class_id)
 
+ 
 
 alter table 表名　engine =innodb
 show create table 表名
@@ -1194,13 +1201,21 @@ COMMIT;
 END;
 
 
+ALTER TABLE xx ADD CONSTRAINT INX_xx_U unique  (user_id,product_id,deleted);
+ALTER TABLE xx drop key INX_xx_U;
+
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insertLog`()
 begin
 declare  i int default 1;
+
+SET  AUTOCOMMIT=0;
 while i<10 do
-insert into boss_log(agent_name,oper_type,function_type) values('xxx','???????','?????????');
+insert into boss_log(agent_name,oper_type,function_type) values('xxx',1,'yy');
 set i=i+1;
 end while;
+commit;
+SET  AUTOCOMMIT=1;
 end;
 
 
@@ -1343,7 +1358,8 @@ REPEATABLE-READ
 Session-1 查询
 Session-2 查询修改了,已经提交，Session-1 再查还是看到数据不变，即可以重复读
 如同一记录Session-1做了修改未提交， Session-2做了修改会锁等Session-1，如Session-1提交，Session-2等完成提示更新为0条，查询查件也未变
-如不是同一记录也是锁等，因条件未做索引,就是表锁, 注意!!! ,新版本MySQL-5.7.19就是这样,MySQL做的差的,如条件是索引就是行级锁
+如不是同一记录也是锁等，因条件未做索引,就是表锁, 注意!!! ,如索引的列是有重复记录的，那么所有的重复记录全部被锁
+新版本MySQL-5.7.19，8.0.18就是这样,MySQL做的差的,如条件是索引就是行级锁
 
 SERIALIZABLE 同一条记录 Session-1 查询了也加锁， Session-2做不可以改(REPEATABLE-READ可以)，
 

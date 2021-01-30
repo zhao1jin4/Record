@@ -438,9 +438,13 @@ w 查看所有的ttyp,write user pts/1
 mesg n 表示不想接收消息 ,
 mesg y 开启
 
-tzselect命令 交互选择Asia
+tzselect 命令 交互选择Asia,China提示
+ TZ='Asia/Shanghai'; export TZ
+ 
 export TZ=GMT  (openSUSE 显示时间不准的解决方法)
 export TZ=GMT+8
+
+date -R 显示+8 
 
 date后 时间就变对了
 
@@ -472,7 +476,7 @@ sed -n 111p filename
 sed -n '起始行号,结束行号p' xx.log >partLog.txt
 
 ldd /bin/ls 命令打印现所依赖的共享
-
+today=`date +"%Y-%m-%d %H:%M:%S"`
 date -s 07/28/2008  来改日期  月/日/年
 hwclock --hctosys
 hwclock --systohc
@@ -625,7 +629,7 @@ gpg --verify   签名文件  tar.gz.sign(tar.asc)
 
 wget http://  来下载
 -q  --quiet  Turn off Wget's output.
--O file 如file是 - 会输出到标准标出上
+-O file 如file的值是 - 表示输出到标准标出上
 -P,  --directory-prefix=PREFIX  保存位置 
 --header  'header:value'
 
@@ -3602,6 +3606,8 @@ yum groups install "GNOME Desktop"
 
 yum search gcc  模糊查找软件包名
 yum list |grep gcc  有gcc-c++
+yum list docker-ce --showduplicates | sort -r  列出软件包支持的所有版本
+
 yum list all |grep gcc 
 64位机 yum 安装32位 gcc ,yum search all gcc
 
@@ -3979,6 +3985,7 @@ nc www.baidu.com 80
 	-z 端口范围
 
 
-
+sha256sum file.tar  > file.sha256
 
  
+ | json_pp 格式化json

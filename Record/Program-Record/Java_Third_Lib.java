@@ -3194,6 +3194,8 @@ ObjectMapper mapper = new ObjectMapper();
 mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);//全局范围，如果该属性为NULL,生成joson没有该字段 
 String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user);
+//String jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(JsonNode);//通用对象
+
 System.out.println(jsonString);
 
 //--- JSON字串 到 对象
@@ -3204,14 +3206,16 @@ mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);//允许�
 mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true); //允许使用单引号
 String str= json2String();
 UserJson user=mapper.readValue(str, UserJson.class);
-
-============alibaba JSON 用 FasterXml
+//JsonNode node=mapper.readTree( str);   //通用对象
+============alibaba JSON  
 https://github.com/alibaba/fastjson
+
+有过远程代码执行安全漏洞
 
 <dependency>
 	<groupId>com.alibaba</groupId>
 	<artifactId>fastjson</artifactId>
-	<version>1.2.38</version>
+	<version>1.2.75</version>
 </dependency>
 
 import com.alibaba.fastjson.JSON;
@@ -3235,6 +3239,32 @@ JSONObject  jsonObject = JSONObject.parseObject(jsonStr); //JSON->Map
 Map<String,Object> map = (Map<String,Object>)jsonObject;
 
 JSONObject json = new JSONObject(map); //Map->JSON
+
+
+
+
+//不知道json字串对应的java类型，做格式化
+JSONObject object = JSONObject.parseObject(jsonString);
+String pretty = JSON.toJSONString(object, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue, 
+SerializerFeature.WriteDateUseDateFormat);
+
+============google JSON
+ <dependency>
+  <groupId>com.google.code.gson</groupId>
+  <artifactId>gson</artifactId>
+  <version>2.8.6</version>
+</dependency>
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+public static String formatJSONByGoogle(String json) {
+	JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
+	Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	return gson.toJson(jsonObject);
+}
 
 ============SnakeYaml
 在线验证yaml的好工具

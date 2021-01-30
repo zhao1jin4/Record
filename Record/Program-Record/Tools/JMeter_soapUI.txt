@@ -20,7 +20,11 @@ option -> choose language-> Chinese(Simple)
 第一步要建立一个线程组
 
 
-Test Plan->ThreadGroup中的设置 "Ramp-Up in period (in seconds)" 的意思是,所有的线程数在多长时间(秒)内平均启动完成,
+Test Plan->ThreadGroup中的设置
+		Number of thread : (windows 下jmeter启动默认有30+线程,启动后明显线程增加)
+		Loop Count是每个线程执行多少次
+		
+		"Ramp-Up in period (in seconds)" 的意思是,所有的线程数在多长时间(秒)内平均启动完成,
 		如线程数为10, ramp-up为100钞,即用100秒的时间启动10个线程,每隔10 (100/10)秒启动一次指定线程数(看官方文档)
 		ramp(斜道)
 Loop Count:5 表示重复做5次
@@ -79,12 +83,21 @@ __setProperty('name','value',true) 可选第三个参数true表示返回原来�
 
 
 
+工具栏上有一个Toggle按钮，还有一个clear All按钮
+
 右击线程组-》添加-》配置元件-》HTTP请求默认值 
-右击线程组-》添加-》Sampler(取样器)->HTTP请求
-右击线程组-》添加-》监听器-》图形结果(第二个)->
-右击线程组-》添加-》监听器-》聚合报告
-右击线程组-》添加-》监听器-》用表格查看结果
-右击线程组-》添加-》监听器-》查看结果树  (可以看到每次请求和响应的报文)
+
+右击线程组-》添加-》配置元件-》HTTP Header Manager,可以增加Content-Type: application/json;charset=UTF-8
+
+右击线程组-》添加-》Sampler(取样器)->HTTP请求  ,(可以选中Redirect Automatically,如http跳转到https)
+
+右击线程组-》添加-》 Assertion->JSON ssertion->json PATH可写 $.data ,可复选Additionally assert value 在expect value中写test data，可有空格，可无'或"
+
+ 
+右击线程组-》添加-》监听器-》图形结果(第二个) Graph Results->可以看 断点式的图
+右击线程组-》添加-》监听器-》聚合报告 Aggregate Report (可以看吞吐率，错误率)
+右击线程组-》添加-》监听器-》用表格查看结果 View Results in Table(可以看到每次请求状态，时间)
+右击线程组-》添加-》监听器-》查看结果树 View Results Tree (可以看到每次请求和响应的报文)
 
 右击线程组-》添加-》监听器-》 Response Time Graph
 
@@ -107,7 +120,7 @@ JSR223+Groovy 替代BeanShell(脚本语言运行在java中)
 右击线程组-》添加-》断言-》响应断言-》   输入要测试的包含的字符
 右击线程组-》添加-》监听器-》断言结果->
 右击线程组-》添加-》监听器-》图形结果->
-右击线程组-》添加-》监听器-》查看结果树 (可带日志看错误)
+右击线程组-》添加-》监听器-》查看结果树  
 
 set global general_log=ON;
 set global log_output='TABLE';

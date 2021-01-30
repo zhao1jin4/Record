@@ -618,6 +618,40 @@ artifactId 是自己的项目名
 			<installDirectory>target</installDirectory>
 		</configuration>
     </plugin>
+	<plugin>
+		<groupId>org.codehaus.gmaven</groupId>
+		<artifactId>groovy-maven-plugin</artifactId>
+		<version>2.0</version>
+		<executions>
+			<execution>
+				<phase>package</phase>
+				<goals>
+					<goal>execute</goal>
+				</goals>
+				<configuration>
+					<source>${project.basedir}/src/main/groovy/test.groovy</source>
+				</configuration>
+			</execution>
+		</executions>
+	</plugin>
+	<!-- test.groovy
+	def filePath = "version.txt"
+//执行命令
+def command = "git name-rev --name-only HEAD"
+def process = command.execute()
+println "process=" + process
+process.waitFor()
+def tags = process.text.tokenize()
+def tagName = tags[0]
+println "tagName=" + tagName
+def dateTime = new Date().format("yyyyMMddHHmm")
+def version = "$tagName-$dateTime".replace("/", "")
+println "version=" + version
+File file = new File(filePath)
+println file.getAbsolutePath()
+// 写入文件
+file.write(version)
+	-->
   
 	</plugins>
   </build>

@@ -5,6 +5,7 @@ https://kotlinlang.org/docs/tutorials/command-line.html
 https://github.com/JetBrains/kotlin/releases/tag/v1.3.61  离线版本 github　上下载很慢，后面总是失败 (有kotlin-native)
 
 1.3.60 源码构建最高可用JDK9
+1.4.20  可以支持 Java 15
 
  在线安装方法
  curl -s https://get.sdkman.io | bash
@@ -23,7 +24,7 @@ Intellij IDEA 的官方(jetbrains)语言
 chmod 755 ./kotlin  ./kotlinc
 ./kotlin -version  版本是 1.2.51
 
-
+Intellij IDEA 建立项目 使用的是Gradle建
 
 
 fun main(args: Array<String>) {
@@ -840,4 +841,7 @@ fun example(computeFoo: () -> Foo) {
 }
 
 
- 
+val proc = Runtime.getRuntime().exec("cmd /C dir")
+Scanner(proc.inputStream).use {
+	while (it.hasNextLine()) println(it.nextLine())
+}

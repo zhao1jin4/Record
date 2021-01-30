@@ -1280,6 +1280,17 @@ from INFORMATION_SCHEMA.KEY_COLUMN_USAGE
 where CONSTRAINT_SCHEMA ='mydb' AND
 REFERENCED_TABLE_NAME = 'jpa_student';
  
+ 
+ 查所有索引  ,  不同的表, 可以有相同的索引名字
+
+SELECT a.TABLE_SCHEMA,
+a.TABLE_NAME,
+a.index_name,
+GROUP_CONCAT(column_name ORDER BY seq_in_index) AS `Columns`
+FROM information_schema.statistics a
+GROUP BY a.TABLE_SCHEMA,a.TABLE_NAME,a.index_name
+
+
 --------- sys schema
 SELECT * FROM sys.version;
 
@@ -1510,6 +1521,8 @@ explain  select ........   //索引效率,执行计划
 		explain select * from employee where   password='123' and username ='lisi'  -- 顺序会自动优化
 	  如为 using temporary 会比较慢，用到了临时表，一般出现在group by中 ,解决方法 分组的字段出现在where 中
 		 create index inx_emp_deptid on employee(department_id)
+		 drop  index inx_emp_deptid on employee;
+
 		 explain select department_id ,max(age) from  employee where id in (101,102) group by department_id
 	  还有using index ,using where ,impossiable where 如 where id=1 and id=2
 		 using join buffer,mysql给做了优化
@@ -1660,5 +1673,22 @@ TRUNCATE TABLE time_zone_transition;
 TRUNCATE TABLE time_zone_transition_type;
 START TRANSACTION;
 COMMIT;
+
+
+innodb_autoinc_lock_mode  MySQL 8之前默认值为1，MySQL8开始默认值为2
+ 0 (“traditional” lock mode) 	     所有的insert都是 表级锁
+ 1 (“consecutive” lock mode) 连继的, 批量插入(insert ..select,load data)时是表级锁，
+ 2 (“interleaved” lock mode) 交替的, 速度快，但当使用bin log 做replication 和replay 时不安全
+
+
+
+
+
+
+
+
+
+
+
 
 

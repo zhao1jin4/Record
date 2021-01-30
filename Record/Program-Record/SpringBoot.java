@@ -59,11 +59,10 @@ mybatis-spring-boot-starter
 spring-boot-start-xx.jar 没有源码,只有配置 META－INF/spring.providers 只用来管理依赖
 
 SpringApplication 加载 application.properties 或applicaion.yml  优先级依次为
-1. 当前目录下的 config目录
-2. 当前目录   (也就是说application.properties配置文件可.jar外的同级目录)
-3. classpath /config 包
-4. classpath 根
-
+1. classpath 根
+2. classpath /config 包
+3. 当前目录   (也就是说application.properties配置文件可.jar外的同级目录)
+4. 当前目录下的 config目录
 
 在application.yml再建一个配置文件 , 语法是三个横线
  
@@ -77,9 +76,18 @@ System.setProperty("spring.config.name", "sec-application");//会覆盖默认的
 SpringApplication.run(MainSpringBootSecurity.class, args);//jar 启动 可以登录 ，war启动不行
 
 #logging.file=my.log  日志输入到当前目录下的文件名
-logging.file=/tmp/springBoot.log
+#logging.file=/tmp/springBoot.log
+
+#新版本用 
+logging.file.name=/tmp/springBoot.log	#LOG_FILE 变量
+
+
+
 logging.level.root=DEBUG
 logging.level.mybatis.dao=DEBUG 
+
+logging.logback.rollingpolicy.max-file-size=200MB
+logging.logback.rollingpolicy.max-history=7
 
 Spring Tool Suite 可以建立Spring starter project ,可选Maven(默认) 或 Gradle,Web组中选web  会自动建立项目
 在resource的目录(classpath)下有
@@ -139,7 +147,27 @@ server.servlet.context-path=/J_SpringBoot
 //@ConditionalOnBean(RedisTemplate.class)//存在某个Bean时
 //@ConditionalOnMissingBean(CacheManager.class) 
 //@ConditionalOnJava(range=ConditionalOnJava.Range.EQUAL_OR_NEWER,value=JavaVersion.NINE)//当Java版本>=9.0
-@ConditionalOnProperty(name="useMyprop",havingValue="yes",matchIfMissing=true)//如没有配置，就是havingValue配置的值yes
+@ConditionalOnProperty(name="useMyprop",havingValue="yes",matchIfMissing=true)//当配置useMyprop=yes时成立
+//当matchIfMissing=true  表示如没有配置条件成立，默认matchIfMissing=false
+
+
+
+@Conditional(SqlLogCondition.class)
+public class SQLLogInterceptor implements Interceptor {}
+
+
+public class SqlLogCondition implements Condition {
+	@Value("${mylatch.sql.log:x}")//拿不到值
+	private String sqlLogStr;
+	@Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+		String configed=context.getEnvironment().getProperty("mylatch.sql.log");
+		boolean res="true".equalsIgnoreCase(configed);
+        return res;
+    }
+}
+
+
 
 @PropertySource(value = "classpath:test.properties") 
 @ConfigurationProperties(prefix = "my") //推荐增加 spring-boot-configuration-processor
@@ -376,7 +404,8 @@ spring.messages.cache-duration=36000
  
 #spring.resources.static-locations=
 #默认值为classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
-
+#spring.web.resources.static-locations 默认值为 classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
+ 
 
 // SpringBootServletInitializer 实现 Spring自己的  WebApplicationInitializer  类
 public class ServletInitalizer extends SpringBootServletInitializer {
@@ -873,7 +902,7 @@ public class RepositoryCustomTests {
 <dependency>
 	<groupId>org.mybatis.spring.boot</groupId>
 	<artifactId>mybatis-spring-boot-starter</artifactId>
-	<version>1.3.0</version>
+	<version>2.1.3</version>
 </dependency>
   
 @SpringBootApplication
@@ -1771,20 +1800,68 @@ spring.security.user.password=pass
 				<groupId>org.springframework.boot</groupId>
 				<artifactId> spring-boot-starter-data-elasticsearch</artifactId>
 		</dependency> 
-		
----upload 
-spring.servlet.multipart.max-file-size
-spring.servlet.multipart.max-request-size
 
 ----tomcat
 server:
   tomcat:
-    uri-encoding: UTF-8
+    uri-encoding: UTF-8    默认值为 UTF-8
     max-threads: 200
     max-connections: 10000
     min-spare-threads: 10
     accept-count: 100
+---upload 
+spring.servlet.multipart.max-file-size  默认1MB
+spring.servlet.multipart.max-request-size  默认10MB
 
+
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-web</artifactId>
+</dependency> 
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-validation</artifactId>
+</dependency> 
+
+spring.jackson.date-format  = yyyy-MM-dd HH:mm:ss
+spring.jackson.time-zone    = GMT+8
+spring.jackson.default-property-inclusion=ALWAYS
+#JsonInclude.Include.ALWAYS
+#JsonInclude.Include.NON_NULL
+		
+#spring.web.resources.static-locations default classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
+ 
+//---@Valid 生效，JSON日期格式生效
+public Employee queryEmployeeValid	( @Valid  Employee emp)  
+{
+}
+
+@RestControllerAdvice
+public class MyGlobalException {
+	@ExceptionHandler(BindException.class)
+	public Object commonException(BindException exception )
+	{
+		System.err.println(exception);
+		BindingResult result=exception.getBindingResult() ;
+		List<String> errList=new ArrayList<>();
+		if(result.hasErrors())
+		{
+			for(ObjectError err:result.getAllErrors())
+			{
+				System.out.println(err.getObjectName()+"=="+err.getDefaultMessage());
+				errList.add(err.getDefaultMessage());
+			} 
+		}
+		return errList;
+	}
+	@ExceptionHandler(Exception.class)
+	public Object commonException(Exception exception )
+	{
+		System.err.println(exception);
+		return "Exception返回"+exception.getMessage();
+	}
+}
 	
 ---Spring Boot Shiro
 https://shiro.apache.org/spring-boot.html
@@ -2339,6 +2416,35 @@ public void booksTest() {
 
 
 
+<dependency>
+	 <groupId>org.redisson</groupId>
+	 <artifactId>redisson-spring-boot-starter</artifactId>
+	 <version>3.14.1</version>
+ </dependency> 
+ 依赖于 spring-data-redis,redisson-spring-data-23 和 spring-boot版本	2.3.x
+ 
+因用netty，只能用JDK1.8
 
+
+spring:
+  redis:
+    database: 0
+    host: 192.168.42.129
+    port: 6379
+    password: redisPass
+	
+就可以用 
+
+@Autowired
+private RedissonClient  redissonClient;
+@Autowired
+private RedisTemplate   redisTemplate;
+
+
+
+#如客户端请求头Accept-Encoding: 没有gzip不会返回压缩
+server.compression.enabled: true #启动响应response,响应头有 Content-Encoding: gzip
+#server.compression.mime-types: 默认支持很多，不必设置
+server.compression.min-response-size: 1 #默认2KB
 
 

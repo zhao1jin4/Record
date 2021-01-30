@@ -3,7 +3,7 @@ Istio   由 Google、IBM 和 Lyft 联合开发，只支持 Kubernetes 平台,使
 
 Istio来自希腊语，英文意思是「sail」, 意为「启航」
 
-中文文档 https://istio.io/latest/zh/docs/setup/getting-started 
+官方中文文档 https://istio.io/latest/zh/docs/setup/getting-started 
 
 
 https://github.com/istio/istio/releases 下载慢的不行
@@ -12,14 +12,9 @@ https://gcsweb.istio.io/gcs/istio-release/releases/ 速度快 有windows/mac版�
 
 Rancher 收费的 界面工具(非国产 https://rancher.com/)
 
+2020-11-28 istio 1.8.0 已经在 Kubernetes 版本 1.16, 1.17, 1.18, 1.19 中测试过
 
-2020-04-23 稳定版本为 1.5.1
-Istio 1.5 已经在 Kubernetes 版本 1.14, 1.15, 1.16 中测试过
-
-Istio 1.6 has been tested with these Kubernetes releases: 1.15, 1.16, 1.17, 1.18.
-2020-07-25 稳定版本为 1.6.5
-
-2020-11-03 稳定版本为 1.7.4 已经在 Kubernetes 1.16, 1.17, 1.18 测试过
+应用程序必须使用 HTTP/1.1 或 HTTP/2.0 协议用于 HTTP 通信；HTTP/1.0 不支持
 
 调用链追踪
 动态路由
@@ -31,52 +26,47 @@ samples/ 示例目录
 
 
 
+istio-1.8.1 在openSUSE-leap-15.2  和 Centos-7.9 上（k8s-1.18.0）安装是可以的,但在centOS-8.3上就不行!!!!
 
 
-/opt/istio-1.5.1/bin放PATH环境变量中,只有一个istioctl命令
+/opt/istio-1.8.1/bin放PATH环境变量中,只有一个istioctl命令
 
+centos 8 本身就支持 istioctl  m时按tab键自动补全为 manifest ,不用cp istioctl.bash  ~/
 
-时按tab键自动补全子命令
-cd /opt/istio-1.5.1/tools/
+时按tab键自动补全子命令 (openSUSE-leap-15.2测试istio-1.8.0也可以)
+cd /opt/istio-1.8.1/tools/
 cp istioctl.bash  ~/
 cd ~
 source ~/istioctl.bash  
-后就可以istioctl  m时按tab键自动补全为 manifest (openSUSE-leap-15.1测试正常,CentOS-7.6报错)
+后就可以istioctl  m时按tab键自动补全为 manifest (openSUSE-leap-15.1测试正常,CentOS-7.9报错)
 
 
-istioctl  version 
+istioctl  version 未安装不能执行
 istioctl  version  --remote=false
 
 使用istioctl工具来安装
 istioctl manifest apply 会安装 default profile 配置文件,生产环境建议使用,性能高
-istioctl manifest apply --set profile=demo 
+#istioctl manifest apply --set profile=demo   
 
-istioctl  profile  list  查看共有多少种profile
+1.8.0版本变为
+istioctl manifest install --set profile=demo (可能要root用户执行)
+#istioctl install --set profile=demo
+  
+  
+istioctl  profile  list  查看共有多少种profile,像是/opt/istio-1.8.0/manifests/profiles 下的文件
 
 验证安装
 
-kubectl get svc -n istio-system 有 
-	grafana      绘图工具(可与prometheus一起用)         
+kubectl get svc -n istio-system 有  
+	istiod 	
 	istio-egressgateway         
-	istio-ingressgateway        
-	istio-pilot   服务发现 	             
-	istiod                      
-	jaeger-agent          (jaeger纯毛织品，贼鸥; 猎人)        
-	jaeger-collector            
-	jaeger-collector-headless   
-	jaeger-query                
-	kiali       管理界面                
-	prometheus  监控(使用consul做服务发现,用数学,可嵌入程序内抓数据)   
-	tracing      链接监控               
-	zipkin                 
-
+	istio-ingressgateway  
+ 
 kubectl get pod -n istio-system 有 
-	istio-egressgateway-xxx
-	istio-ingressgateway-xxx
-	istio-tracing-xxx
-	istiod-xxx 
-	kiali-xxx   
-	prometheus-xxx
+	istio-egressgateway-xxx   		istio-proxy 容器使用镜像 docker.io/istio/proxyv2:1.8.1
+	istio-ingressgateway-xxx  		istio-proxy 容器使用镜像 docker.io/istio/proxyv2:1.8.1
+	istiod-xxx 						discovery   容器使用镜像 docker.io/istio/pilot:1.8.1
+ 
 
 kubectl get all -n istio-system
 状态全部正常,可以正常下载镜像,并运行
@@ -107,7 +97,7 @@ empty profile 是全部是关闭的, 自己才决定开哪个
 remote profile  
 
 =====注入
---vi my-inject.yml
+--vi 1_my-inject.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -133,77 +123,90 @@ spec:
 
 --
 kubectl create ns my-ns
-kubectl apply -f  my-inject.yml -n my-ns
+kubectl apply -f  1_my-inject.yml -n my-ns
 kubectl get pods -n my-ns  记pod名字,注入后源pod被删,生成新的pod
 
 注入前看生成的yml
-istioctl kube-inject -f my-inject.yml -o my-after-inject.yml  
-发现containers 下多了一个名为 istio-proxy 的容器,
-还有一种容器类型 initContainers 下面多了一个名为 istio-init 使用的镜像和 istio-proxy 是一样的(proxyv2:1.5.1)
+istioctl kube-inject -f 1_my-inject.yml -o 1_gen_my-after-inject.yml  
+发现containers 下多了一个名为 istio-proxy 的容器(镜像 proxyv2:1.8.1),
+还有一种容器类型 initContainers 下面多了一个名为 istio-init 使用的镜像和 istio-proxy 是一样的(镜像 proxyv2:1.8.1)
 
 执行注入
-istioctl kube-inject -f my-inject.yml  | kubectl  apply -f - -n my-ns  
+istioctl kube-inject -f 1_my-inject.yml  | kubectl  apply -f - -n my-ns  
 看速看pod,是先新pod在 Running 后,再 Terminating 前面的pod
 原来的Ready列是 1/1 , 现在是 2/2 ,总共两个容器
 istio-init 很快就终止了 用于初始化网络名称空间
 
 kubectl get pods -n my-ns 复制名为 my-xx
 kubectl exec -it -n my-ns my-xx -c nginx -- ifconfig  ##-c 指定哪个容器,用latest版本的nginx没有ifconfig或ip命令, 最好使用alphine版本的
-kubectl exec -it -n my-ns my-xx -c nginx /bin/bash
+kubectl exec -it -n my-ns my-xx -c nginx --  /bin/sh
 kubectl exec -it -n my-ns my-xx -c istio-proxy -- ifconfig 
 显示两个容器有相同的网络接口,相同的IP地址
+
 kubectl exec -it -n my-ns my-xx -c nginx -- route -n
-kubectl exec -it -n my-ns my-xx -c istio-proxy --  route -n 
+kubectl exec -it -n my-ns my-xx -c istio-proxy --  route -n  也是一样的
 	
 监听的端口增加了很多
 kubectl exec -it -n my-ns my-xx  --  netstat -tnlp 
-	0 0.0.0.0:15090  enovy prometheus
-	127.0.0.1:15000  envoy admin   不可外部仿问的
-	0 0.0.0.0:15001  envoy out
-	0 0.0.0.0:15006  enovy in
-	:::15020         pilot-agent health 
+
+https://istio.io/latest/docs/ops/deployment/requirements/
+	0 0.0.0.0:15021		HTTP	Health checks
+	0 0.0.0.0:15090  	HTTP	Envoy Prometheus telemetry
+	127.0.0.1:15000  	TCP		Envoy admin port (commands/diagnostics)   不可外部仿问的
+	0 0.0.0.0:15001  	TCP		Envoy outbound
+	0 0.0.0.0:15006  	TCP 	Envoy inbound
+	:::15020         	HTTP	Merged Prometheus telemetry from Istio agent, Envoy, and application 
 
 
-kubectl exec -it -n my-ns my-xx  -c istio-proxy --  netstat -tnlp  显示是由envoy 和 pilot-agent 程序来监听
+kubectl exec -it -n my-ns my-xx  -c istio-proxy --  netstat -tnlp   显示是由envoy 和 pilot-agent 程序来监听
+    0 0.0.0.0:15021      envoy 
+    0 0.0.0.0:15090      envoy
+    0 127.0.0.1:15000    envoy
+    0 0.0.0.0:15001      envoy
+    0 0.0.0.0:15006      envoy
+    0 :::15020           pilot-agent
+
 
 网络策略变化,操作系统内核的netfilter模块,可以定义这个pod可以被哪个网段仿问,有命令如iptables调用netfilter实现
 
 kubectl edit pod -n my-ns my-xx  (就是看使用的yml)
- initContainers 中有使用 istio-iptables 命令
+	initContainers 中有使用 istio-iptables 命令
+	
 kubectl logs -f -n my-ns my-xx -c istio-init
   看日志是修改了iptables的nat表,增加4个链(chain)
 	-N ISTIO_REDIRECT
 	-N ISTIO_IN_REDIRECT
 	-N ISTIO_INBOUND
 	-N ISTIO_OUTPU
-	-A ISTIO_REDIRECT -p tcp -j REDIRECT --to-port 15001  表示所有tcp协议的都重定向 到 15001端口上
-  --append  -A chain
-  --new     -N chain
+	-A ISTIO_REDIRECT -p tcp -j REDIRECT --to-port 15001  表示所有tcp协议的都重定向 到 15001 端口上
+  
+  iptables 
+	--append  -A chain
+	--new     -N chain
 
 
-kubectl get pods -n my-ns my-xx -o wide  看在哪个节点上
+kubectl get pods -n my-ns my-xx -o wide  看在哪个节点上 
+	在上面显示的节点上
+	docker container ls | grep istio-proxy 复制第一列容器ID
 
-在指定节点上
-docker container ls | grep istio-proxy 复制第一列容器ID
-
-docker exec -it --privileged <容器ID> bash
-	sudo su root #不行啊
-	iptables -nvL -t nat
+	docker exec -it --privileged <容器ID> bash
+		sudo su root #不行啊
+		iptables -nvL -t nat
 
 kubectl exec -it -n my-ns my-xx  -c istio-proxy -- ps -ef 
-显示有pilot-agent 和envoy两个进程 ,看PID,pilot-agent是父,envoy是子
+显示有pilot-agent 和envoy两个进程 ,看PID,pilot-agent 是父,envoy是子
 
-pilot-agent作用是 生成envoy的配置,启动envoy,监控管理envoy,重新加载envoy,enovy出错重启 (envoy相当于反向代理,比nginx更轻量化)
+pilot-agent 作用是 生成envoy的配置,启动envoy,监控管理envoy,重新加载envoy,enovy出错重启 (envoy相当于反向代理,比nginx更轻量化)
 
 kubectl get pods -n istio-system 复制 istiod-xx
 kubectl exec -it -n istio-system istiod-xx  -c discovery -- ps -ef  
-	istiod的pod中的discovery容器中有pilot-discove 进程,
-		pilot-discove 可以实时知道api-server(存在etcd中)的配置变化,再下发到被注入的pod中的istio-proxy容器的pilot-agent进程
-		pilot-agent 再下发到envoy,就可以立即限流,熔断等等,再下发的自己的微服务
+	istiod的pod中的discovery容器中有pilot-discovery 进程,
+		pilot-discovery 可以实时知道api-server(存在etcd中)的配置变化,再下发到被注入的pod中的istio-proxy容器的pilot-agent进程
+		pilot-agent 再下发到envoy,就可以立即限流,熔断等等,再下发到自己的微服务
 
 
 kubectl edit pod -n my-ns my-xx   
-	看两个相同的镜像名为 proxyv2:1.5.1
+	看两个相同的镜像名为 proxyv2:1.8.1 (容器名为 istio-proxy,istio-init)
 
 docker images |  grep proxyv2 复制镜像ID
 docker inspect <image_id> 
@@ -211,10 +214,10 @@ docker inspect <image_id>
 k8s中的yml 有args 参数  - proxy  - sidecar 
 最终生成
 kubectl exec -it -n my-ns my-xx  -c istio-proxy -- /bin/bash
-	ps -ef  中的 pilot-agent进程有很多参数, pilot-agent proxy sidecar  ... envoy ,即启动envoy进程是参数传入的
+	ps -ef  中的 pilot-agent进程有很多参数, pilot-agent proxy sidecar
  
 
-k8s中的yml  initContainers 中有使用 istio-iptables 命令 虽然也使用相同的镜像,但会覆盖docker中的 Entrypoint 命令
+k8s中的yml  initContainers 中有使用 istio-iptables 命令 虽然也使用相同的镜像,  (但会覆盖docker中的 Entrypoint 命令)
 
 批量注入是根据名称空间下的标签
 kubectl  get ns my-ns --show-labels
@@ -222,20 +225,21 @@ kubectl  delete deployment -n my-ns   my
 kubectl  get  pods -n my-ns 没有了
 kubectl label ns my-ns  istio-injection=enabled
 #kubectl label ns my-ns istio-injection- 删除标签
+#kubectl label ns my-ns  istio-injection=disabled
 
-kubectl apply -f my-inject.yml -n my-ns  显示READY 是 2/2 
+kubectl apply -f 1_my-inject.yml -n my-ns  显示READY 是 2/2 
 
 生成service
 kubectl expose deployment -n my-ns my
 kubectl get svc -n my-ns 
 kubectl edit svc -n my-ns  (生成的yml)
-kubectl get svc -n my-ns  -o yaml > my-service.yml
+kubectl get svc -n my-ns  -o yaml > 1-1_gen_my-service.yml
 手工注入
-istioctl kube-inject -f my-service.yml -o my-after-service.yml 
+istioctl kube-inject -f 1-1_my-service.yml -o 1-1_gen_my-after-service.yml 
 对比发现service注入不会用任务改变,还有ConfigMap,Secrets也是一样 
 不一样的有Job,DeamonSet,ReplicaSet,Pod,Deployment
 
-----升级 istioctl方式 还有一种helm方式
+----升级 istioctl方式[实验中] 还有一种helm方式
 export $PATH=$PATH:$PWD   是解析当前目录的值,不是动态的
 除了升级istio外,还要升级已前的注入过的资源
 要确认新老版本的profile 的名字是一致的,如老版本用demo,新版本也要用demo
@@ -273,7 +277,7 @@ Gateways
 Service entries
 Sidecars
 
---vi traffic-client.yml
+--vi 2-1_traffic-client.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -294,7 +298,7 @@ spec:
         imagePullPolicy: IfNotPresent 
         command: ["/bin/sh","-c","sleep 3600"]
 
---vi traffic-deploy.yml
+--vi 2-2_traffic-deploy.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -343,11 +347,11 @@ spec:
     spec:
       containers:
       - name: tomcat
-        image: tomcat:9.0.34-jdk11
+        image: tomcat:9.0.41-jdk11-corretto
         imagePullPolicy: IfNotPresent
         command: ["/bin/sh","-c","mkdir webapps/ROOT;echo 'tomcat' > webapps/ROOT/index.html;catalina.sh run"]
         
---vi traffic-svc.yml
+--vi 2-3_traffic-svc.yml
 apiVersion: v1
 kind: Service
 metadata:
@@ -392,7 +396,7 @@ kubectl apply -f  .    表示当前目录下的全部
 
 kubectl describe pods httpd 来看错误日志
 
-kubectl get endpoints 显示 服务的IP 可以curl来测试  
+kubectl get endpoints 显示 服务的IP (kubectl describe svc httpd-svc 也有显示) 可以curl来测试  
 
 kubectl  get pods 复制client名
 kubectl exec -it client-xx -- sh
@@ -403,7 +407,7 @@ kubectl exec -it client-xx -- sh
 kubectl get svc 显示web-svc的地址 curl 加:8080端口测试 ,来回切换httpd和tomcat
 
 
----vi virtual-svc.yaml
+---vi 2-4_virtual-svc.yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -424,13 +428,17 @@ spec:
       weight: 80
 
 --
-kubectl  apply -f virtual-svc.yaml 
+kubectl  apply -f 2-4_virtual-svc.yaml 
 
-kubectl  get virtualservices.networking.istio.io   应该是可以自动补全名字的
+kubectl get virtualservices.networking.istio.io   应该是可以自动补全名字的
+kubectl get virtualservices
+kubectl get virtualservice
+kubectl get vs 
   显示建立的名为 web-svc-vs 
+  
 还要所有pod被注入 
-istioctl kube-inject -f traffic-client.yml  | kubectl apply -f - 
-istioctl kube-inject -f traffic-deploy.yml  | kubectl apply -f -
+istioctl kube-inject -f 2-1_traffic-client.yml  | kubectl apply -f - 
+istioctl kube-inject -f 2-2_traffic-deploy.yml  | kubectl apply -f -
 
 kubectl  get pods -w  观察
 
@@ -445,7 +453,7 @@ kubectl exec -it client-xx -- sh
 
 
 
----vi virtual-svc-match.yaml  不能和  virtual-svc.yaml 一起测试
+---vi 3_virtual-svc-match.yaml  不能和  2-4_virtual-svc.yaml 一起测试
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -465,8 +473,8 @@ spec:
         prefix: "/portal" 
       ignoreUriCase: true  
       #上面所有条件同时成立,并且的关系 
-	  #rewrite: 可以重写，未试
-	  #  url: "/"
+   #rewrite: 可以地址重写 kubectl explain vs.spec.http.rewrite.uri
+   #  uri: "/portal2"
     route:
     - destination:
         host: tomcat-svc #也可配置DestinationRule
@@ -474,11 +482,14 @@ spec:
     - destination:
         host: httpd-svc
 ----
+
+
+ 
 列多可设置的条件
 https://istio.io/docs/reference/config/networking/virtual-service/#HTTPMatchRequest
 
-kubectl delete -f  virtual-svc.yaml
-kubectl apply -f  virtual-svc-match.yaml
+kubectl delete -f  2-4_virtual-svc.yaml
+kubectl apply  -f  3_virtual-svc-match.yaml
 
 kubectl  get pods 复制client名
 kubectl exec -it client-xx -- sh 来测试
@@ -495,30 +506,161 @@ DestinationRule 路由到这里后，是使用轮循还是最小连接数
 ServiceEntry 
 
 ----bookinfo示例代码
- 
+ 数据节点内存2G 不够用
  
 https://istio.io/docs/setup/getting-started/#bookinfo
 
 kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml
 
 查看 kubectl get services ,kubectl get pods 要显示2/2 等下载建立完成
+如不是2/2 使用 istioctl analyze 分析问题，提示 kubectl label namespace default istio-injection=enabled 或 disabled
+ 
+kubectl exec "$(kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}')" -c ratings -- curl -s productpage:9080/productpage | grep -o "<title>.*</title>"
+
+kubectl get pod -l app=ratings -o jsonpath='{.items[0].metadata.name}' 只显示pod名字
+
+ grep  -o, --only-matching    
+ jsonpath 的查找路径是  kubectl edit pod xxx 的json路径
+
+
+--- NodePort情况下变量(jsonpath 示例)
+export INGRESS_HOST=$(kubectl get po -l istio=ingressgateway -n istio-system -o jsonpath='{.items[0].status.hostIP}')
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].nodePort}')
+  //'@' for the current object.  expressions  syntax ?(<boolean expr>),[] child operator 或者是collection
+export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+
+
 
 kubectl get svc -n istio-system 显示的 istio-ingressgateway 
 kubectl get svc  -n istio-system istio-ingressgateway -o yaml 有显示名为http2的nodePort为 随机端口(31380) 转内到80端口
 
-  samples/bookinfo/networking/bookinfo-gateway.yaml 中有依赖于destination  (根据选择器有使用istio-ingressgateway )
-  (官方示例上没有,要事先建立    samples/bookinfo/networking/destination-rule-all.yaml)
+kubectl apply -f   samples/bookinfo/networking/bookinfo-gateway.yaml 
+kubectl get gateway 
+  
+
+http://IP:31380/productpage 就可以仿问到 ,多次请求返回不同版本,原始k8s的service标签选择不同的deployment(pod) ，五角星显示为红和黑为不同的版本
+echo "http://$GATEWAY_URL/productpage" 请求 测试成功,先经过gateway再根据配置到service
+
+while true ;  do  curl http://$GATEWAY_URL/productpage ; sleep 0.2; done
+Kiali 的Graph 标签-> 第二个下拉选择 Workload graph ,Display下拉选择 复选 Traffict Admin 和 单选 Requests Percentage
+
+kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-v3.yaml  (是一个VirtualService)使用v3版本 
+	中destination的有配置subset:v3, 那么host的值 对应于 destination 的subsets，是按labels 选择deployment(pod),
+	即依赖于   kubectl apply -f  samples/bookinfo/networking/destination-rule-all.yaml
+	再刷新页使用是红色版本
+	#如果启用了双向 TLS kubectl apply -f samples/bookinfo/networking/destination-rule-all-mtls.yaml
+	kubectl get destinationrules -o yaml
+	kubectl get dr -o yaml
+
+#kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-jason-v2-v3.yaml 如使用jason用户登录就是v2版本
+
+
+
+安装  Kiali dashboard, 带 Prometheus, Grafana,  Jaeger.
+
+kubectl apply -f samples/addons  可能报错，一个文件,一个文件 的执行就成功
+kubectl rollout status deployment/kiali -n istio-system
+
+docker save -o kiali-v1.26.tar  quay.io/kiali/kiali:v1.26
+docker image save -o grafana-7.2.1.tar grafana/grafana:7.2.1
+docker image save -o jaegertracing-1.20.tar jaegertracing/all-in-one:1.20
+docker image save -o prometheus-v2.21.0.tar prom/prometheus:v2.21.0
+docker image save -o configmap-reload-v0.4.0.tar jimmidyson/configmap-reload:v0.4.0
  
- istioctl analyze 分析问题 kubectl label namespace default istio-injection=enabled
+istioctl dashboard kiali 启动服务 提示打开 http://localhost:20001/kiali 不能外网访问
+kubectl patch svc kiali -p '{"spec":{"type":"NodePort"}}' -n istio-system
+kubectl get svc kiali -n istio-system 显示 20001:31952/TCP ，就可以外网使用31952端口
+
+
+istioctl dashboard 显示所有可用命令
+  controlz    Open ControlZ web UI
+  envoy       Open Envoy admin web UI
+  grafana     Open Grafana web UI  (非CNCF)
+  jaeger      Open Jaeger web UI
+  kiali       Open Kiali web UI
+  prometheus  Open Prometheus web UI
+  zipkin      Open Zipkin web UI
+  
+  
+istioctl dashboard controlz  deployment/istiod.istio-system   --address  <外网IP>  # 默认只127.0.0.1
+  提示打开  http://localhost:9876
+  
+istioctl dashboard envoy deployment/productpage-v1  --address <外网IP> 
+istioctl dashboard envoy productpage-123-456.default 
+	提示打开 http://localhost:15000
+	
+ istioctl dashboard jaeger --address  <外网IP> 
+	提示打开  http://localhost:16686 
  
-http://IP:31380/productpage 就可以仿问到 ,五角星显示为红和黑为不同的版本
+istioctl dashboard  prometheus --address  <外网IP> 
+  提示打开 http://localhost:9090
 
-/samples/bookinfo/networking/virtual-service-reviews-v3.yaml  使用v3版本 再刷新页使用是红色版本
-virtual-service-reviews-jason-v2-v3.yaml 如使用jason用户登录就是v2版本
+kubectl create -f samples/addons/extras/zipkin.yaml
+istioctl dashboard  zipkin  --address  <外网IP> 
+  提示打开  http://localhost:9411
+  
+
+
+  
+清理示例 samples/bookinfo/platform/kube/cleanup.sh
+	kubectl get virtualservices 
+	kubectl get destinationrules
+	kubectl get gateway         
+	kubectl get pods            
+
+
+https://istio.io/latest/zh/docs/concepts/traffic-management/  DestinationRule 目标规则示例，VirtualService超时，查询重试
+
+kubectl explain vs.spec.http.timeout
+确保服务不会因为等待答复而无限期的挂起
+
+kubectl explain vs.spec.http.retries
+	attempts
+	perTryTimeout
+
+	
+断路器
+kubectl explain dr.spec.subsets.trafficPolicy.connectionPool.tcp.maxConnections 并发连接的数量或对该主机调用失败的次数
+
+
+示例
+https://istio.io/latest/zh/docs/tasks/traffic-management/circuit-breaking/
+ 
+kubectl apply -f samples/httpbin/httpbin.yaml 服务端
+
+kubectl apply -f - <<EOF
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: httpbin
+spec:
+  host: httpbin
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 1
+      http:
+        http1MaxPendingRequests: 1
+        maxRequestsPerConnection: 1
+    outlierDetection:
+      consecutiveErrors: 1
+      interval: 1s
+      baseEjectionTime: 3m
+      maxEjectionPercent: 100
+EOF
+
+＃ maxConnections: 1 和 http1MaxPendingRequests: 1。 如果并发的连接和请求数超过一个， 续请求或 连接将被阻止
 
 
 
-istioctl dashboard kiali 开启界面  登录用户名 admin/admin
+kubectl apply -f  samples/httpbin/sample-client/fortio-deploy.yaml 客户端
+  FORTIO_POD=$(kubectl get pod | grep fortio | awk '{ print $1 }')
+  kubectl exec -it $FORTIO_POD  -c fortio -- /usr/bin/fortio load -curl  http://httpbin:8000/get
+  
+  并发数为 2 的连接（-c 2），请求 20 次（-n 20）：
+  kubectl exec -it $FORTIO_POD  -c fortio -- /usr/bin/fortio load -c 2 -qps 0 -n 20 -loglevel Warning http://httpbin:8000/get
+
 
 
 

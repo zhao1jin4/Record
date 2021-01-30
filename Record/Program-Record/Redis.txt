@@ -4,6 +4,16 @@ redis-desktop-manager-0.9.1  可以监控，可写命令好用
 
 redisclient-win32.x86_64.2.0.jar
 RedisStudio-en-0.1.5.exe  不能写命令，不能看数据值
+Medis (react ,redux开发)可Mac上使用 https://github.com/luin/medis  
+
+源码安装 npm install , npm run pack(要修改package.json加set,还是失败),npm start 
+	node即使设置了registry也会从github上下载，提示
+	export HTTP_PROXY=http://example.com:1234 
+	export HTTP_PROXY=https://registry.npm.taobao.org
+	或者
+    npm config set proxy http://example.com:8080
+	npm config set proxy https://registry.npm.taobao.org
+
 -----phpRedisAdmin   测试成功(nginx)
 有Docker 镜像 docker run --rm -it -e REDIS_1_HOST=myredis.host -e REDIS_1_NAME=MyRedis -p 80:80 erikdubbelboer/phpredisadmin
 
@@ -114,8 +124,7 @@ make MALLOC=libc   #要 jemalloc/jemalloc.h 是MacOS用的
 sudo make install 安装在 /usr/local/bin/
 
 redis-server  --version
-
-
+ 
 
 -----------
 redis-server -v 看版本
@@ -126,7 +135,7 @@ cp redis.conf  /usr/local/etc/
 redis-server /usr/local/etc/redis.conf
 
 
-默认配置 protected-mode yes 修改为 no
+默认配置 protected-mode yes 修改为 no ,CONFIG SET protected-mode no
 
 bind 默认127.0.0.1  是不能外网连接的，要修改为本机IP 或者注释它,或者修改为0.0.0.0
 
@@ -134,6 +143,7 @@ bind 默认127.0.0.1  是不能外网连接的，要修改为本机IP 或者注�
 ./redis-server /etc/redis/6379.conf --loglevel debug 
 
 ./redis-cli -p <port>  -h <hostname>  有交互命令如ping
+--pass 
 >help 再按tab有命令组的提示,如@string
  help brpop
 >bgsave  保存到磁盘  使用LASTSAVE 命令判断 BGSAVE 命令是否执行成功
@@ -320,12 +330,15 @@ MOVE name 0		DB移动
 DBSIZE  当前库的key的个数
 info		显示所有配置
 FLUSHDB    清当前DB
-FLUSHALL   清所有的key
+FLUSHALL   清所有DB,清所有的key
 del   <theKey>
 type dest 集合是什么类型的
 
 TTL 命令可以获取某个key值的过期时间(-1表示永不过期)
 
+pttl 
+PEXPIRE 以毫秒为单位
+ 
 set name "john doe"
 ttl name
 

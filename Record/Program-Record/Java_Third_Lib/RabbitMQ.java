@@ -89,7 +89,7 @@ http://127.0.0.1:15672/     guest/guest  只可localhost登录 可以建立Queue
 http://127.0.0.1:15672/api
 http://127.0.0.1:15672/cli 
 
-STOMP 插件
+STOMP 插件 (所有可用插件文件位于plugins目录下)
 rabbitmq-plugins enable rabbitmq_stomp　　默认监听　61613　端口
 
 修改端口　rabbitmq.conf　新的是sysctl格式,即properties格式　(3.7 以前版本是rabbitmq.config　是json格式)
@@ -387,6 +387,35 @@ channel.confirmSelect();
 ----
 String jsonStr = new com.rabbitmq.tools.json.JSONWriter().write(para);//Object(可Map)->JSON
 Object obj = new com.rabbitmq.tools.json.JSONReader().read(jsonStr);//返回Object是一个HashMap
+
+-------delay message 
+https://www.rabbitmq.com/community-plugins.html
+ 
+https://github.com/rabbitmq/rabbitmq-delayed-message-exchange
+rabbitmq_delayed_message_exchange-3.8.0.ez (支持rabbitmq-3.7-3.8.4)文件放 于plugins目录下
+
+rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+
+// ... elided code ...
+Map<String, Object> args = new HashMap<String, Object>();
+args.put("x-delayed-type", "direct");
+channel.exchangeDeclare("my-exchange", "x-delayed-message", true, false, args);
+// ... more code ...
+
+
+// ... elided code ...
+byte[] messageBodyBytes = "delayed payload".getBytes("UTF-8");
+Map<String, Object> headers = new HashMap<String, Object>();
+headers.put("x-delay", 5000);
+AMQP.BasicProperties.Builder props = new AMQP.BasicProperties.Builder().headers(headers);
+channel.basicPublish("my-exchange", "", props.build(), messageBodyBytes);
+
+byte[] messageBodyBytes2 = "more delayed payload".getBytes("UTF-8");
+Map<String, Object> headers2 = new HashMap<String, Object>();
+headers2.put("x-delay", 1000);
+AMQP.BasicProperties.Builder props2 = new AMQP.BasicProperties.Builder().headers(headers2);
+channel.basicPublish("my-exchange", "", props2.build(), messageBodyBytes2);
+// ... more code ...
 
 ------RabbitMQ Cluster 
 

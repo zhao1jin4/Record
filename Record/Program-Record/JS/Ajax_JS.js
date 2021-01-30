@@ -32,7 +32,12 @@ SameSite Lax模式 Get请求 (非ajax/iframe) 和  <link  rel="prerender" href="
 defaults write com.apple.Safari IncludeDebugMenu 1
 可以显示 safari的debug菜单->打开"Log Javascript Exceptions" 
 
+JS 中能精准表示的最大整数是 Math.pow(2, 53)，十进制即 9007199254740992 
 
+1353614932567457794   
+1353902168542347265
+这种Long类型在javascript中不能很好的表示精度，服务端返回，json解析尾部为000,不是范围的问题36，39都是
+(不是计算，是表示)
 
 ============Ajax
  

@@ -44,6 +44,9 @@ Ant Design 蚂蚁金服的
 react-toolbox 
 https://react.rocks/example/react-toolbox 有示例
 
+rechart
+
+
 ----------------------
 默认的npm install很慢，可以使用国内的
 npm config set registry https://registry.npm.taobao.org

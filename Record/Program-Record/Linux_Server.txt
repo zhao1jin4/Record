@@ -332,7 +332,7 @@ Gitblit (Java开发的) http://gitblit.github.io/gitblit/ ，有管理界面,使
 
 Google Code项目 msysgit 中的Git 和 msysGit-fullinstall 有 GitGUI ,C:/Program Files (x86)/Git/doc/git/html
 
----GitLab
+--------GitLab
 只有linux版本,有管理界面,可LDAP登录
 有收费版本
 免费版本下载 https://packages.gitlab.com/gitlab/gitlab-ce 
@@ -385,12 +385,9 @@ LDAP用户支持 Microsoft Active Directory ,Apple Open Directory 和 OpenLDAP ,
 #     password: '_the_password_of_the_bind_user'
 
 修改配置后 gitlab-ctl reconfigure
+--------
 
 
-
-
-
----
 
 %HOMEPATH%\AppData\Local\Programs\Git\mingw64\bin\git.exe
 
@@ -449,7 +446,11 @@ git help -a 查看一级帮助
 git config 查看二级帮助  , git help commit 打开浏览器 C:/Program Files/Git/mingw64/share/doc/git-doc/git-commit.html
 
 cd project1
-git init  初始化Git,生成.git目录
+git init  初始化Git,生成.git目录 
+如客户端使用ssh协议，linux服务器要使用git init --bare，客户端才可以push
+--bare 不再生成.git目录,而是只生成.git目录下面的版本历史记录文件
+
+
 就可,提交 git add *.c  再  git commit  -m 'initial project version'  
 git commit -a -v ( -a 已经跟踪的文件不用add了, -v 先看一下差异,可以写comment),实际上是提交到本地,如果要提交到远程用 push
 
@@ -488,6 +489,7 @@ git log 历史版本
 git log -p 2
 -p 显示内容差异,-2 仅显示最近的两次更新
 git log --author=user01 --grep COMMENT_BUG_ID
+git log --after="2021-01-20 10:44:00" 指定日期之后的
 
 git log origin/xx_branch 显示服务端指定分支的历史记录
 git log --graph 显示图
@@ -501,10 +503,12 @@ git fetch [remote-name]
 git pull 为了合并分支,就是fetch加merge
 git push [remote-name] [branch-name]
 git push origin master   #master是哪个分支
+git push origin HEAD 可以把本地的git reset xxx  的HEAD修改push到服务器上
+git push --set-upstream origin feature/v2.0
+  
 git remote rm pb
-
----服务器上部署 Git协议
-
+ 
+----服务器上部署 SSH 协议
 先把现有仓库(init过的)导出为裸仓库,裸仓库的目录名一般以 .git 结尾
 git clone --bare project1 project1.git
 .git目录用于放在服务中对外使用,目录有写权限,就有推送权限
@@ -521,26 +525,28 @@ useradd -s /usr/local/bin/git-shell git (可设置完成后再修改)
 
 git clone git@192.168.0.184:/opt/git_server/project1.git ##只对设置密钥密码为空时才可(linux客户端)
 
-----服务器上部署 HTTP(S) 协议
+----服务器上部署 哑（Dumb） HTTP 协议 
+web 服务器仅把裸版本库当作普通文件来对待,支持post-update 的挂钩
+
 cd /var/www/htdocs/
 $ git clone --bare /path/to/git_project gitproject.git
 $ cd gitproject.git
 $ mv hooks/post-update.sample hooks/post-update
 $ chmod a+x hooks/post-update
 
- 
-
+  
 客户端
-## git clone http://192.168.0.184:80/project1.git
+## git clone http://192.168.0.184:80/project1.git 
 
-## git remote add local_proj /opt/git/project.git 本地协议  
 
-Git 协议
-9418端口,先创建 git-daemon-export-ok 文件,一旦允许该操作，网络上任何一个知道项目 URL 的人将都有推送权限
+---Git 本地协议  
+git remote add local_proj /opt/git/project.git 
 
+---Git 协议，没有授权机制
+9418端口,先创建 git-daemon-export-ok 文件,一旦允许该操作，网络上任何一个知道项目 URL 的人将都有推送权限 
 如何做,为开源匿名只读,要有独的用户验证机制
 
-
+----
 git branch 查看branch 有 *master
 git branch --merged 查看哪些分支已被并入当前分支
 git branch --no-merged 查看尚未合并的工作
@@ -595,6 +601,10 @@ git branch -a 可以查看到 remotes/origin 开头的远程分支
 git branch -r 查看远程分支
 
 git pull <远程主机> <远程分支>:<本地分支>
+git pull origin <远程分支名>:<本地分支名>
+git pull origin <远程分支名>
+git pull 将与本地当前分支同名的远程分支 拉取到 本地当前分支上
+
 
 git show <commit-id> 显示文件内容的差异
 
@@ -615,7 +625,14 @@ tag要单独puhs用 git push origin [tagname]
 
 	git checkout -b branch-v1.4 v1.4  基于tag建立分支
 	
+	查tag信息
+	git log v1.0
+	git show v1.0
 	
+	
+	git tag -d <tag>
+	-d
+	--delete
 ---
 如果想要恢复到修改之前的状态就使用，即自己的修改不想要了(Totorise SVN的revert某个文件)
 git checkout  文件名
@@ -722,6 +739,26 @@ XXXX=manager
 然后我直接修改，文件吧文[credential] XXXX=manager 直接删除
 ---
 TortoiseGit -》 setttings->Git->点edit systemwide gitconfig按钮
+
+---Git 服务端钩子
+项目中的 .git/hooks 目录 放(任何语言)可以执行脚本
+ 
+来自客户端的推送操作时，最先被调用的脚本是 pre-receive,从标准输入获取,如果它以非零值退出，所有的推送内容都不会被接受
+
+update 脚本 ,不会从标准输入读取内容，而是接受三个参数,当同时向多个分支推送内容，pre-receive 只运行一次，相比之下 update 则会为每一个被推送的分支各运行一次
+
+post-receive 挂钩在整个过程完结以后运行,标准输入数据,以用来更新其他系统服务或者通知用户
+
+
+--示例--vi hooks/post-receive
+#/usr//bin/bash
+echo "$(date) to /root/git_post_log"
+echo $(date) >>/root/git_post_log
+wget -q -O - http://192.168.114.13:8080/jenkins/generic-webhook-trigger/invoke?token=mytoken
+
+
+开源项目 webhook, github上可配置webhook,在push后,可以配置请求指定URL(webhook项目可以启动一个服务，可以配置一个可执行的文件)
+
 
 ============== 上 Git 
 ===========phpmyadmin-5.0.1

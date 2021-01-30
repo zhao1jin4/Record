@@ -1,4 +1,4 @@
-https://docs.oracle.com/en/java/javase/11/
+https://docs.oracle.com/en/java/javase/
 
 C:\ProgramData\Oracle\Java\javapath  目录中有java,javaw
 
@@ -47,6 +47,7 @@ use 或 sourepath 查/设源码路径
 
 
 ==========JVM 相关
+
 
 在线 Techonolgies->Java Virtual Machine ->HotSpot VM  进入->Documentation 下的 HotSpot VM Command Line Options  -> 看JDK8的windows,linux(JDK7是通用的)
 http://docs.oracle.com/javase/8/   -> Reference ->  Developer Guides -> 图中最低层的(本地也有) Java HotSpot Client and Server VM
@@ -662,16 +663,18 @@ jdbc:postgresql://localhost:5432/test?user=fred&password=secret&ssl=true&current
 Class.forName("org.postgresql.Driver");
 
 
+MariaDB Connector/J  是 LGPL 的许可,不需要开源商业软件的代码
 jdbc:mariadb://localhost:3306/DB?user=root&password=myPassword
 Class.forName("org.mariadb.jdbc.Driver") 
 
 
-
+mysql-connector-java 是 GPL 的许可，即使用这个必须开放源代码 
 <dependency>
 	<groupId>mysql</groupId>
 	<artifactId>mysql-connector-java</artifactId> 
 	<version>8.0.15</version> <!--5.1.45, 8.0.15 -->
 </dependency>
+
 依赖于 protobuf-java 3.6.1
 com.mysql.jdbc.jdbc2.optional.MysqlXADataSource //MySQL 5.x
 com.mysql.cj.jdbc.MysqlXADataSource //MySQL 8
@@ -693,12 +696,18 @@ connectionCollation 会覆盖  characterEncoding
 
 emptyStringsConvertToZero 默认是true
 useSSL 默认是true
-
+allowPublicKeyRetrieval=true
 connectTimeout  单位是milliseconds
 
 "jdbc:mysql:loadbalance://" +
         "localhost:3306,localhost:3310/test?" +
         "loadBalanceConnectionGroup=first&ha.enableJMX=true"
+
+
+
+
+
+
 
 
 Properties props = new Properties(); 

@@ -14,24 +14,21 @@ Ribbon								Spring Cloud Loadbalancer
 Zuul 1								Spring Cloud Gateway
 Archaius 1							Spring Boot external config + Spring Cloud Config
 
+https://docs.spring.io/spring-cloud-netflix/docs/2.2.6.RELEASE/reference/html/			Modules In Maintenance Mode
+Zuul，Ribbon，Hystrix-xx，turbine-xx 都是维护模式，不包括 Euraka 
 
 
-open-service-broker 为 Kubernetes
+
+
 Consul
-Euraka
-Zookeeper 也可配置
-
+Zookeeper 也可配置 
 Config 
 Bus  			使用 RabbitMQ 或Kafka 
-Stream		 	为Kafka和Rabbit MQ提供Binder实,基于 Spring Integration
-
-
 netflix
-	Ribbon -> OpenFeign   
+	Ribbon -> loadbalancer (上层为 OpenFeign) 
 	zuul   -> Gateway
 Circuit Breaker
-	Hystrix	->Resilience4j
-
+	Hystrix	->  Resilience4j  (上层为 circuitbreaker)
 Security		使用OAuth2
 Sleuth			第三方的分布式跟踪解决方案 zipkin
 
@@ -52,10 +49,9 @@ Intellij Idea 建立 spring initialir 项目->Cloud Discory -> eureka server  �
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-dependencies</artifactId>
             <version>Hoxton.SR9</version>  
-			<!--
-				Greenwich.SR5   要和 spring-boot 2.1.1.RELEASE
-				Hoxton.SR4  	要和 spring-boot 2.2.1.RELEASE
+			<!-- 
 				Hoxton.SR9  	要和 spring-boot 2.3.5.RELEASE
+				 2020.0.0	  	要和 spring-boot 2.4.1 去了 netflix-xx 如zuul，turbine，hystrix ,ribbon(Eureka还有) 用Junit5,
 			-->
             <type>pom</type>
             <scope>import</scope>
@@ -289,159 +285,8 @@ spring:
 测试
 http://localhost:8762/hi?name=lisi
 
--- ribbon+restTemplate 
-ribbon是一个客户端负载均衡
--- Netflix开源了Hystrix组件, 断路器模式
 
-客户端(服务端) 改个端口到 8763 再启动一个  service-hi 就有两个服务了
-
-再建立一个客户端   Client Side Load Balancing (Ribbon)
- 
-<dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
-</dependency>>
- 
-<dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
-</dependency>
-
-
-<dependency>
-	<groupId>org.springframework.boot</groupId>
-	<artifactId>spring-boot-starter-actuator</artifactId>
-</dependency>
-<!-- http://localhost:8762/actuator -->
- 
-<dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
-</dependency>
-<dependency>
-	<groupId>com.netflix.hystrix</groupId>
-	<artifactId>hystrix-javanica</artifactId>
-	<version>1.5.18</version>
-</dependency>
-<dependency> 
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-netflix-turbine</artifactId>
-</dependency> 
-
-@SpringBootApplication
-@EnableDiscoveryClient 
-//@EnableHystrix //断路器(如果几台中一台服务不可用,就把这台服务器隔离了,就仿问不到这台机器了) Hystrix后加的
-@EnableCircuitBreaker //可以替代 @EnableHystrix
-@EnableHystrixDashboard //maven 加 spring-boot-starter-actuator 就可以仿问 http://localhost:8764/hystrix  提示 http://hostname:port/turbine/turbine.stream 
-//文本框中输入 http://localhost:8764/hystrix.stream ( http://localhost:8764/actuator/hystrix.stream),2000ms,Monitor Stream按钮 ->Greenwitch 版本 OK
-
-//在另一个窗口 http://localhost:8764/hi?name=lisi 时,上一个窗口有图表 
-
-//对这个服务的负载方式默认的轮循可修改为随机
-@RibbonClient(name="SERVICE-HI",configuration=config.Config.class)
-public class ServiceRibbonApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(ServiceRibbonApplication.class, args);
-	}
-	@Bean
-	@LoadBalanced //(spring-cloud-starter-ribbon) ribbon 和 @LoadBalanced 一起用      客户端都可做负载均衡,相当于 dubbo consumer 
-	RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
-}
-//包名不能在@SpringBootApplication所在的包下,或 @ComponentScan(excludeFilters= {@ComponentScan.Filter(type=FilterType.ANNOTATION,value=我的自定义@.class)} )
-
-@Configuration
-public class Config {
-	@Bean
-	public IRule ribbonRule(IClientConfig config) {
-		return new RandomRule();//ribbon随机请求
-	}
-}
-
-@Service
-public class HelloService {
-    @Autowired
-    RestTemplate restTemplate;
-	
-	 @HystrixCommand(fallbackMethod = "hiError")//Hystrix后加的
-    public String hiService(String name) {
-		 //restTemplate 上有 @LoadBalanced 负载均衡客户端
-        return restTemplate.getForObject("http://SERVICE-HI/hi?name="+name,String.class); 
-		//这里直接SERVICE-HI用名字来连,不区分大小写, 用在方法级别
-    }
-	
-	//Hystrix后加的
-    public String hiError(String name) {
-        return "hi,"+name+",sorry,error!";
-    }
-}
-@RestController
-public class HelloControler {
-    @Autowired
-    HelloService helloService;
-    @RequestMapping(value = "/hi")
-    public String hi(@RequestParam String name){
-        return helloService.hiService(name);
-    }
-	@GetMapping("/feignMVC/{owner}/")//针对@FeignClient中加	configuration= {config.FooConfiguration.class},/
-	public String feignMVC(@PathVariable("owner") String owner)
-	{
-		return "hello "+owner+",i am from port:" +port;
-	}
-	 @Autowired
-	private LoadBalancerClient loadBalancer;
-    @RequestMapping(value = "/choose")
-    public String hi( ){
-    	//默认是轮循,已经修改为随机，但SERVICE-HI要用大写
-	   ServiceInstance serviceInstance = this.loadBalancer.choose("SERVICE-HI");
-	   return serviceInstance.getHost()+":"+serviceInstance.getPort();
-    }
-}
---application.yml文件
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-server:
-  port: 8764
-spring:
-  application:
-    name: service-ribbon
-	
-#management.endpoints.web.exposure.include: hystrix.stream
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-      cors:
-        allowed-origins: "*"
-        allowed-methods: "*"
-#Cross-origin resource sharing (CORS)  from spring boot
-
-#16.4 Customizing the Ribbon Client by Setting Properties#优先级高于@RibbonClient(name="SERVICE-HI",configuration=config.Config.class)
-service-hi:
-  ribbon: 
-     NFLoadBalancerRuleClassName: com.netflix.loadbalancer.RandomRule
-#    listOfServers: 127.0.0.1:8762     #  对ribbon不使用eureka
-# 对 ribbon不使用eureka
-#ribbon:
-#  eureka:
-#   enabled: false 
-
-
-   
-测试  http://localhost:8764/hi?name=forezp 	  发现间隔调用 8762 和 8763 ,因加了 @LoadBalanced
-   
----客户端一ribbon  用在方法级别 
-  @EnableDiscoveryClient  (spring-cloud-starter-netflix-ribbon)
-		  
-		  @LoadBalanced 放在 new RestTemplate()上  
-		  方法中 restTemplate.getForObject("http://SERVICE-HI/hi")
-		  
-
----客户端二feign  用在类别级 使用ribbon 即也用 EnableDiscoveryClient
+---客户端二feign  用在类别级  即也用 EnableDiscoveryClient
 	 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -459,11 +304,14 @@ service-hi:
 		@RequestMapping(value = "/hi",method = RequestMethod.GET)   //这里的hi 与服务端的hi对应
 		String sayHiFromClientOne(@RequestParam(value = "name") String name); //这里的name 与服务端的name对应
   
----feign   如不使用ribbon+restTemplate,就使用feign,其实Feign已经使用Ribbon
+---feign   使用 Ribbon 或 LoadBalancer
 -- 
 @SpringBootApplication
 @EnableDiscoveryClient  
-@EnableFeignClients //增加
+@EnableFeignClients(
+	//basePackages= {"com.xx"}
+)//增加
+
 
 public class ServiceFeignApplication {
 
@@ -473,11 +321,13 @@ public class ServiceFeignApplication {
 }
 
 @FeignClient(value = "service-hi"   //同@LoadBalanced 服务名在这里
+	url="http://127.0.0.1:8762/",//直接连接
 //configuration= {config.FooConfiguration.class},//不能和@SpringBootApplication在同一包下
 , fallback = SchedualServiceHiHystric.class //Hystrix后加的,调用服务全断   不会调用对应的错误实现类的方法???? 
 //fallbackFactory=SchedualServiceHiFactory.class //方式二
 )
 public interface SchedualServiceHi {
+	 
     @RequestMapping(value = "/hi",method = RequestMethod.GET)
     String sayHiFromClientOne(@RequestParam(value = "name") String name);
 	
@@ -485,6 +335,8 @@ public interface SchedualServiceHi {
  	//对使用  configuration= {config.FooConfiguration.class},feign.Contract.Default
    // @RequestLine("GET /feignMVC/{owner}/") //参数加{} 
    //	String feignMVC(@Param("owner") String owner);//使用@Param ,service-hi的参数也是{}
+   
+   
 }
 
 @Component
@@ -494,6 +346,9 @@ public class SchedualServiceHiHystric implements SchedualServiceHi { //Hystrix�
         return "sorry "+name;
     }
 }
+
+//feign.hystrix.FallbackFactory
+//org.springframework.cloud.openfeign.FallbackFactory 2020版本
 @Component
 public class SchedualServiceHiFactory  implements FallbackFactory<SchedualServiceHi>  {
 
@@ -526,12 +381,63 @@ public class HiController {
 	
 }
 @Configuration
-public class FooConfiguration {
+public class FooConfiguration
+		implements RequestInterceptor  //feign传header
+{
     @Bean
     public Contract feignContract() {
 		//要使用 @RequestLine("GET /hi/{name}/")
         return new feign.Contract.Default();
     }
+	
+	/* 再加如下相配置，就可以有详细的openFeign请求返回日志  
+	logging:
+	  level:
+       #feogn日志以什么级别监视那个接口
+        com.xxFeignService: debug
+	 */
+	@Bean 
+    feign.Logger.Level feignLoggerLevel(){
+        return feign.Logger.Level.FULL;
+    }
+	
+	
+	 
+	//打印 openfeign 返回json日志
+	@Autowired
+    private ObjectFactory<HttpMessageConverters> messageConverters;
+    @Bean
+    public Decoder feignDecoder() {
+        return new MyRestfulLogGzipDecoder(new OptionalDecoder(new ResponseEntityDecoder(new SpringDecoder(this.messageConverters))));
+    }
+	
+	 
+	@Override
+	public void apply(RequestTemplate template) { 
+		System.out.println("===openFeign 请求参数为："+ template.queryLine());//?param=123456
+		//feign传header
+	    ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder
+                .getRequestAttributes();
+	    //attributes 是null原因为openfeign 启用了hystrix,切换了Thread,导致threadLocal中的东西丢失，导致RequestContextHolder.getRequestAttributes()为null
+	    //attributes 是null原因为openfeign 启用了 circuitbreaker, 使用了线程池，
+	    //源码 初始化在FeignClientFactoryBean，最后实例化jdk代理handler类FeignCircuitBreakerInvocationHandler，当调用时会到FeignCircuitBreakerInvocationHandler -> Resilience4JCircuitBreaker
+       
+        HttpServletRequest request = attributes.getRequest();
+        Enumeration<String> headerNames = request.getHeaderNames();
+        if (headerNames != null) {
+            while (headerNames.hasMoreElements()) {
+                 String name = headerNames.nextElement();//Content-length 不能传
+                if(name.equalsIgnoreCase("AuthenToken") )
+                {
+                    String values = request.getHeader(name);
+                    template.header(name, values);//不会替换已经存在的，会增加重复的
+                }
+            }
+			 //template.header("Accept-Encoding", "gzip"); //测试用
+            System.out.println("feign interceptor header:"+template);
+        }
+	}
+	
 	//eureka用户名密码
 //    @Bean
 //    public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
@@ -545,6 +451,37 @@ public class FooConfiguration {
 //	}
 
 }
+//打印 openfeign 返回json日志,如服务端返回gzip做解码
+public final class MyRestfulLogGzipDecoder implements Decoder { 
+    final Decoder delegate;
+
+    public MyRestfulLogGzipDecoder(Decoder delegate) {
+        Objects.requireNonNull(delegate, "Decoder must not be null. ");
+        this.delegate = delegate;
+    }
+
+
+    /**
+        feign.compression.response.enabled=true 如加了这个配置，可不用实现Decoder做gzip解码,但要求feign接口修改返回类型为ResponseEntity<byte[]>
+		feign.compression.response.useGzipDecoder=true
+     */
+    @Override
+    public Object decode(Response response, Type type) throws IOException {
+        String resultStr = null;
+		Collection<String> encodingStrings = (Collection)response.headers().get("content-encoding"); 
+		if (null != encodingStrings && encodingStrings.contains("gzip")) {//对于部署到k8s上的情况
+			resultStr = IOUtils.toString(new GZIPInputStream(response.body().asInputStream()), "utf-8");
+			
+		}else { 
+			resultStr = IOUtils.toString(response.body().asInputStream(), "utf-8");//StandardCharsets.UTF_8
+		}
+		System.out.println("====openFeign response json :"+resultStr);
+		// 回写body,因为response的流数据只能读一次，这里回写后重新生成response
+		return delegate.decode(response.toBuilder().body(resultStr, StandardCharsets.UTF_8).build(), type);
+    }
+}
+
+
 eureka:
   client:
     serviceUrl:
@@ -555,189 +492,33 @@ spring:
   application:
     name: service-feign
 	
-feign:
-  hystrix:
-    enabled: true
+feign: 
+  client:
+    config:
+      default: #可是feigName
+        connectTimeout: 5000
+        readTimeout: 5000
+        loggerLevel: basic
+ hystrix:
+    enabled: false
+    #enabled: true #会使用新线程，threadLocal丢失，RequestContextHolder.getRequestAttributes()为null,除非修改Hystrix使用SEMAPHORE
+    
+  circuitbreaker: #pom.xml要加spring-cloud-starter-circuitbreaker-resilience4j，可能要2020版本
+    enabled: true 
+	
 #  httpclient:
 #    enabled: true
 #  okhttp:
-#    enabled: false 	
-#feign中使用断路器
+#    enabled: false
 
+  #compression:
+    #response:
+    #  enabled: true #如加了这个配置，可不用实现Decoder做gzip解码
+    #request:
+    #  enabled: true #如实现RequestInterceptor了再加这个可能没用
+      	  
 http://localhost:8765/hi?name=lisi  也是 port:8762 和 port:8763切换
 
--- Zuul 是服务端的负载均衡器，是使用ribbon
- 默认和Ribbon结合   route and filter    
-被spring cloud gatewary所替代
- 
-<dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-netflix-zuul</artifactId>
-</dependency>
-<dependency>
-	<groupId>com.netflix.hystrix</groupId>
-	<artifactId>hystrix-javanica</artifactId>
-	<version>1.5.18</version>
-</dependency>
-
-
-@EnableZuulProxy  //新增加的
-@EnableEurekaClient
-@SpringBootApplication
-public class ServiceZuulApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(ServiceZuulApplication.class, args);
-	}
-}
-application.yml
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-server:
-  port: 8769
-spring:
-  application:
-    name: service-zuul
-zuul:  //新增组 
-  #prefix: /api
-  #http://localhost:8769/api/api-a/hi?name=lisi 
-  #strip-prefix: false #如加上 是找controller为/api/api-a/hi
-  #禁用zuul filter
- #zuul.<SimpleClassName>.<filterType>.disable=true 
-  MyFilter:
-    pre:
-      disable: false
-  routes:
-    api-a:
-      path: /api-a/**				#*/
-      serviceId: service-ribbon
-	#api-a:
-    #  path: /api-a/**
-    #  url: http://localhost:8769/
-	#地址写死,不会做负载，不会HystrixCommand
-	#---
-	#service-ribbon: /api-a/** #方式二 格式<application-name>:/路径/**     */
-    api-b:
-      path: /api-b/**				#*/
-      serviceId: service-feign
-	  
-如请求路径以是/zuul/*   */格式可以跳过DispatcherServlet ，如上传大小的限制
--- application.yml 
-feign:
-  hystrix:
-    enabled: true
-#  httpclient:
-#    enabled: true
-#  okhttp:
-#    enabled: false 
-
-#对第一次请求就是失败，原因第一次请求返回时间过长
-hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 60000
-ribbon:
-  ConnectTimeout: 3000
-	: 60000  
-
-禁用某个filter
-  zuul.<SimpleClassName>.<filterType>.disable=true
-  
-curl -v -H "Transfer-Encoding: chunked" \
-    -F "file=@mylarge.iso" localhost:9999/zuul/simple/file
-	
---filter
-@Component
-public class MyFilter extends ZuulFilter{
-
-    private static Logger log = LoggerFactory.getLogger(MyFilter.class);
-    @Override
-    public String filterType() {
-        return "pre";
-    }
-//    	pre：路由之前
-//    	routing：路由之时
-//    	post： 路由之后
-//    	error：发送错误调用
-
-    @Override
-    public int filterOrder() {
-        return 0;
-    }
-
-    @Override
-    public boolean shouldFilter() {
-        return true;
-    }
-
-    @Override
-    public Object run() {
-        RequestContext ctx = RequestContext.getCurrentContext();
-        HttpServletRequest request = ctx.getRequest();
-        log.info(String.format("%s >>> %s", request.getMethod(), request.getRequestURL().toString()));
-        Object accessToken = request.getParameter("token");
-        if(accessToken == null) {
-            log.warn("token is empty");
-            ctx.setSendZuulResponse(false);
-            ctx.setResponseStatusCode(401);
-            try {
-                ctx.getResponse().getWriter().write("token is empty");
-            }catch (Exception e){}
-
-            return null;
-        }
-        log.info("ok");
-        return null;
-    }
-}
-
-测试
-http://localhost:8769/api-a/hi?name=lisi
-http://localhost:8769/api-b/hi?name=lisi&token=123
-http://localhost:8769/service-ribbon/hi?name=lisi  默认这个可以仿问 如不加路由 routes:别名 配置
-	
-@Component
-class MyFallbackProvider implements FallbackProvider {
-    @Override
-    public String getRoute() {
-        return "service-hi"; //当zuul路由这个服务不可以仿问时，显示fallback getBody()的返回值 
-    }
-    @Override
-    public ClientHttpResponse fallbackResponse(String route, final Throwable cause) {
-        if (cause instanceof HystrixTimeoutException) {
-            return response(HttpStatus.GATEWAY_TIMEOUT);
-        } else {
-            return response(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    private ClientHttpResponse response(final HttpStatus status) {
-        return new ClientHttpResponse() {
-            @Override
-            public HttpStatus getStatusCode() throws IOException {
-                return status;
-            }
-            @Override
-            public int getRawStatusCode() throws IOException {
-                return status.value();
-            }
-            @Override
-            public String getStatusText() throws IOException {
-                return status.getReasonPhrase();
-            }
-            @Override
-            public void close() {
-            }
-            @Override
-            public InputStream getBody() throws IOException {
-                return new ByteArrayInputStream("fallback".getBytes());
-            }
-            @Override
-            public HttpHeaders getHeaders() {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                return headers;
-            }
-        };
-    }
-}
 
 
 ----------Spring cloud sidecar
@@ -974,9 +755,8 @@ spring.rabbitmq.username=zh
 spring.rabbitmq.password=123
 #management.security.enabled=false
 
- POST 请求 (Firefox的 RESTClient)
-		 http://localhost:8881/bus/refresh(老Dalston版本) 
-		 http://localhost:8881/actuator/bus-refresh(新的 Content-Type : application/json) 
+ POST 请求 (Firefox的 RESTClient) 
+		 http://localhost:8881/actuator/bus-refresh( Content-Type : application/json) 
 						  也可部分刷新加参数如 /bus-refresh/customers:9000  (service ID) 或  /bus-env/customers:** 
 (config client端) 如更改Git配置,不用重启服务这样也能刷新 (MQ 广播配置文件的更改) 
 
@@ -1236,89 +1016,16 @@ services:
 更新镜像后
  docker commit -m="描述信息" -a="作者" <容器ID> <要创建的目标镜像名>
  
------ 
-Hystrix Turbine将每个服务Hystrix Dashboard数据进行了整合(Hystrix被替代，Turbine也没什么发展了)
- 
-<dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-netflix-turbine</artifactId>
-</dependency>
-
-<dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-netflix-turbine</artifactId>
-</dependency>
-
-<dependency>
-	<groupId>org.springframework.cloud</groupId>
-	<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
-</dependency>
-
-@EnableEurekaClient
-@EnableDiscoveryClient
-@RestController
-@EnableHystrix
-@EnableHystrixDashboard
-@EnableCircuitBreaker 
-@EnableTurbine 注解包含了@EnableDiscoveryClient注解
- //文本框中输入 http://localhost:8764/turbine.stream
- 
---application.yml
-spring:
-  application.name: service-turbine
-server:
-  port: 8769
-  
-#security.basic.enabled: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
-      cors:
-        allowed-origins: "*"
-        allowed-methods: "*"
-#Cross-origin resource sharing (CORS)  from spring boot 
-
-turbine:
-  aggregator:
-    clusterConfig: default   # 指定聚合哪些集群，多个使用","分割，默认为default。可使用http://.../turbine.stream?cluster={clusterConfig之一}访问
-  appConfig: service-hi,service-lucy  ### 配置Eureka中的serviceId列表，表明监控哪些服务
-  clusterNameExpression: new String("default")
-  # 1. clusterNameExpression指定集群名称，默认表达式appName；
-  
-  //后面待确认真的对吗?
-  #此时：turbine.aggregator.clusterConfig需要配置想要监控的应用名称
-  # 2. 当clusterNameExpression: default时，turbine.aggregator.clusterConfig可以不写，因为默认就是default
-  # 3. 当clusterNameExpression: metadata['cluster']时，假设想要监控的应用配置了eureka.instance.metadata-map.cluster: ABC，则需要配置，同时turbine.aggregator.clusterConfig: ABC
-
-  #combine-host: true
-  combineHostPort: true
-  instanceUrlSuffix: 
-    default: actuator/hystrix.stream
-  
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
-	  
-http://localhost:8763/hystrix 或 http://localhost:8762/hystrix
-http://localhost:8764/turbine.stream 做为monitor的地址
-Hosts 值为2，下面有两组server
-
-
-https://projects.spring.io/spring-cloud/spring-cloud.html#_turbine
-https://projects.spring.io/spring-cloud/spring-cloud.html#_circuit_breaker_hystrix_dashboard
 
 ---consul
+使用go语言开发
 分布式系统的服务注册和发现、配置等
 服务健康监测
 key/value 存储
 
 https://www.consul.io/downloads.html 
 下载 win zip包,就一个consul命令
- https://github.com/hashicorp/consul/ 使用go语言开发
+ https://github.com/hashicorp/consul/ 
 consul agent -dev 启动
 http://localhost:8500
 
@@ -1348,7 +1055,7 @@ spring:
 server:
   port: 8502
 
----gateway  有打算弃用 Zuul
+---gateway 
 lb://  协议 
 
  <dependency>
@@ -1954,7 +1661,7 @@ public  class DemoControllerService {
         return cbFactory.create("myid")
         		.run(
         			() -> rest.getForObject("http://"+MyController.remoteServiceName+"/hi?name="+name, String.class), 
-        			throwable -> { throwable.printStackTrace(); return "fallback"; }
+        			throwable -> { throwable.printStackTrace(); return "fallback with Resilience4J"; }
         		 );
     }
 }
@@ -1962,13 +1669,14 @@ public  class DemoControllerService {
 ----------------loadbalancer 
 Client-Side Load-Balancing 
 Hoxton版本开始 Ribbon变维护模式 使用 loadbalancer 
+
 <dependency>
 	<groupId>org.springframework.cloud</groupId>
 	<artifactId>spring-cloud-starter-loadbalancer</artifactId>
 </dependency>
 spring.cloud.loadbalancer.ribbon.enabled: false 或者 maven去除spring-cloud-starter-netflix-ribbon
  
-原来的ribbon替换为balancer 使用方式是一样的
+原来的ribbon替换为 loadbalancer 使用方式是一样的
 @Bean
 @LoadBalanced //表明这个restRemplate开启负载均衡的功能
 RestTemplate restTemplate() {
@@ -2033,33 +1741,167 @@ docker container start my-cloud-k8s
 #docker container rm  my-cloud-k8s
 
 
---- vi cloud-config-deploy.yml 
+--- vi k8s_cloud-deployment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cloud-config
+  name: cloud-service
+  namespace: my-ns
   labels:
-    app: cloud-config 
+    app: cloud-service
 spec:
-  replicas: 1
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%
   selector:
     matchLabels:
-      app: cloud-config 
+      app: cloud-service
   template:
-    metadata: 
-      name: cloud-config
+    metadata:
       labels:
-        app: cloud-config 
+        app: cloud-service
     spec:
       containers:
-      - name: cloud-config
-        image: cloud-k8s:0.1
-        imagePullPolicy: IfNotPresent
-        #command: [""]
+        - name: cloud-service
+          image:  centos71.com/library/cloud-service:1.0
+          
+          imagePullPolicy: Always
+          #imagePullPolicy: IfNotPresent
+         #env:
+          ports:
+            - containerPort: 8081
+          readinessProbe:
+            tcpSocket:
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          volumeMounts:
+            - mountPath: /app/tmp
+              name: tmp-volume
+      volumes:
+        - name: tmp-volume
+          emptyDir: { }
+      #imagePullSecrets:
+      #  - name: xxx
+
 ---
-kubectl apply -f cloud-config-deploy.yml 
+kubectl apply -f k8s_cloud-deployment.yml
 
+---k8s_cloud-service.yml
+apiVersion: v1
+kind: Service
+metadata:
+  name: myk8s-app
+  #namespace: my-ns
+spec: 
+   selector:  
+    app: cloud-service 
+   #clusterIP: 172.21.5.97 #可不指定动态分配，指定容易冲突
+   type: ClusterIP
+   ports: 
+   - port: 9000 
+     targetPort: 8081  
 
+//@RefreshScope 或 @ConfigurationProperties  configmap修改时，会自动触发重启刷新( mode: event,strategy: restart_context) 
+
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+---application.yml
+spring: 
+  cloud:
+    kubernetes:
+      reload:
+        enabled: true #--默认关闭 
+        #strategy: refresh #--默认refresh 对 @ConfigurationProperties 或  @RefreshScope的做刷新
+        strategy: restart_context
+        monitoring-config-maps: true
+        monitoring-secrets: true
+        mode: event
+        
+#如 strategy: restart_context 要加如下 
+management:
+  endpoint:
+    restart:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: restart 
+---bootstrap.yml
+spring:
+  application:
+    name: kubernetesApp
+  profiles:
+    active: dev
+ 
+  cloud: 
+    loadbalancer:
+       ribbon:
+         enabled: false 
+    kubernetes: #k8s config可以覆盖spring boot的application.yml中的配置
+      config:
+        enabled: true  #--bootstrap
+        name:  my-cloud-config  #--bootstrap  
+        #(默认就是${spring.application.name},找kubernetes中哪个configMap,即kind: ConfigMap中对应有名为这个为metadata级下的name的值 
+        namespace: my-ns
+         
+        #sources: #这里name和namespace可覆盖config下name和namespace
+        #- namespace: n3 
+        #  name: c3  
+        
+      secrets:
+        enabled: true
+        enable-api: true
+        name: my-cloud-secret
+        namespace: my-ns
+        
+        
+      discovery:
+        all-namespaces: true
+        service-name: ${spring.application.name}
+      loadbalancer:
+        mode: SERVICE
+     
+		
+		
+--kubernetes-gateway项目
+--bootstrap.yml
+spring: 
+  cloud: 
+    kubernetes:  
+      discovery:
+        all-namespaces: true
+        service-name: ${spring.application.name}
+      loadbalancer:
+        mode: SERVICE
+---application.yml
+
+spring:
+  application:
+    name: gateway-k8s
+  cloud:
+    gateway:
+      discovery:
+        #enabled: false #表示禁用 DiscoveryClient
+        locator:
+          enabled: false                 #为true，表明gateway开启服务注册和发现的功能，false使用下面的routes配置
+          lowerCaseServiceId: true       #是将请求路径上的服务名配置为小写
+      routes:
+      - id: kubernetes-app
+        #uri: lb://myk8s-app:9000    #是建服务的端口,在k8s上service为clusterIP 用lb不行，
+        uri: http://myk8s-app:9000
+        predicates:
+          - Path=/remote/**     #.discovery.locator.enabled 改为false 就可  
+        filters:
+          - StripPrefix=1       #自带的，去除第1个，转发之前将/demo去掉
+
+ 
 ----------oauth2
 <dependency>
     <groupId>org.springframework.cloud</groupId>

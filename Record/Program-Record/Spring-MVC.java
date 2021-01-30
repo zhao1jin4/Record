@@ -464,6 +464,39 @@ public class MyInterceptor extends HandlerInterceptorAdapter
 	}
 }
 
+
+ 
+@Configuration 
+public class  Configuration implements WebMvcConfigurer { 
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) { 
+        registry.addInterceptor(new LogInterceptor()); 
+    }
+}
+ 
+public class LogInterceptor implements HandlerInterceptor {
+    Logger log= LoggerFactory.getLogger(HandlerInterceptor.class); 
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        log.info("preHandle:handler={} ,ParameterMap={},ContentLength={}", handler,
+                ToStringBuilder.reflectionToString(request.getParameterMap()),request.getContentLength());
+        return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        log.info("postHandle handler={} modelAndView={},ContentType={}",handler,modelAndView,response.getContentType());
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+
+    }
+}
+
+
+
+
 类定义使用 @Component ,就配置<bean>了
 @Component 有一个可选的入参，用于指定 Bean 的名称(一般不用的,byType,如果有继承可能要的吧)
 @Repository、@Service 和 @Controller //持久层、业务层和控制层（Web 层）相对应 和 @Component 是等效的
@@ -564,6 +597,8 @@ public String login(@ModelAttribute("account") Account account)//表单对应的
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
+	
+	
 }
 
 @EnableWebMvc  同  <mvc:annotation-driven/>

@@ -25,7 +25,7 @@ https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project
   
 		HAXM=Hardware Accelerated Execution Manager
 		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat (MAC是silent_install.sh) (也可intelhaxm-android.exe)
-	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x 
+	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x  (VT-x不能被Hyper-V占用，即安装了docker就会)
 2. google usb 可能些手机不能识别
 	右键单击[我的电脑] -> 属性 -> 设备管理器->右键单击[有问号的设备] -> 属性 -> 详细信息 -> “属性”下拉列表框选择：硬件 Id
     右键单击选复制，如我的RedMi 5A 是 
@@ -55,7 +55,9 @@ android-5=api 21
 android-8.1=api 27
 android-9=api 28
 android-10=api 29
+android-11=api 30
 (新建选择minSDK 21,app/build.gradle中minSdkVersion 21 ,targetSdkVersion 28,compileSdkVersion 28)
+(新建选择minSDK 27,app/build.gradle中minSdkVersion 27 ,targetSdkVersion 30,compileSdkVersion 30 )
  
 ---------------问题解决方法
 真机报
@@ -92,6 +94,8 @@ fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
 ----- Android Studio
  AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8, 自带Grale , linux 下提示安装KVM提速 
  AndroidStudio-3.5.3 下载的是 gradle-5.4.1-all.zip 自带OpenJDK Jre-1.8.0_202
+ AndroidStudio-4.1.2 下载的是 gradle-6.5-bin.zip
+ 
   下载时可中断,
         　~/.gradle/wrapper/dists/gradle-<version>-all/<uuid>/   
  %HOMEPATH%/.gradle/wrapper/dists/gradle-<version>-all/<uuid>/
@@ -108,8 +112,9 @@ fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
  默认工作区   %HOMEPATH%\AndroidStudioProjects
  如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
 在path中找到gradle命令不会下载,再配置如下
-有项目后　settings->Build,Execution,Deployment->Build Tool->Gradle->单选use Local Gradle, Gradle home:选择路径/opt/gradle-5.2
+有项目后　settings->Build,Execution,Deployment->Build Tool->Gradle->下拉选择Specified Location 选择路径/opt/gradle-5.2
 可全局配置service directory path: ~/.gradle 到其它目录,  AndroiStudio会使用 GRADLE_USER_HOME 环境变量
+ GRADLE_REPO\caches\modules-2\files-2.1 ,里面的目录格式不同于maven的,gradle的是一个目录名为"org.apache",而maven是org目录下有apache
 
 如不能运行项目 File -> sync project with gradle file 
 分析依赖 gradle视图->app项目->Tasks->android->androidDependences 右击->Run  在控制台显示树

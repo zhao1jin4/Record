@@ -721,6 +721,16 @@ mount 命令显示 / 挂载到  %userprofile%\AppData\Local\Programs\Git
 但不支持Gitbash 
 每次新建都提示用哪种终端 如minitty(图标像gitbash,使用也是/c当C盘) 
 
+右击标题栏->debug->properties ->布局 可以设置窗口 buffer 大小
+
+右击标题栏->debug->dump screen 选择保存文件路径 -> 内容乱码？？？
+ 
+输入 chcp.com 显示为 65001 代表 utf-8 要修改
+chcp.com  936 是 GB2312 编码
+set LANG=zh_CN.GBK
+ 
+ Setting->Startup ->Enviroment->可以看有提示有 chcp utf-8，增加命令 chcp.com 936 无效
+ 
 ------------TortoisHg 是 Mercurial(分布式版本控制)工具
 
 OpenJDK source下载用的
@@ -787,7 +797,7 @@ Rules-> Automatic Breakpoint  ->Before Requests(这种方法会中断所有的�
 选中capture中要修改的文件,在AutoResponder标签中,addRule按钮,复选Enable Automatic reponse,复选Unmacthced request passthrough
 最下方区下拉选择find a file ...->选择替换响应的文件->save,再次请求并capture
 --- 手机
-Tools >   Options  > Connections -> 打开 Allow remote computers to connect
+Tools >   Options  > Connections -> 打开 Allow remote computers to connect 重启fiddler，查端口
 Tools >   Options  > HTTPS -> 复选Decrypt HTTPS Traffic  复选Ignore server certifcate errors(unsafe)
 
 ------------ Hemes JMS
@@ -959,6 +969,9 @@ file->setting->general 有显示保存文件默认在是%HOMEPATH%/Postman/files
 
 Authentication 有 Bearer Token ,Oauth2
 
+右上角 第二行 有环境变量相关功能的图标，设置好变量如webRoot,token 使用格式为{{webRoot}}
+
+
 ---------Jenkins  基于hudson
 Jenkins 2.249.2 LTS (2020-10-29) 
 持续集成和持续交付( CI/CD )
@@ -979,7 +992,7 @@ new Item ->Maven Project(要安装Maven Integration插件,不在Suggest Plugins�
 可以点All旁边的+图标 ,建立多个标签,每个标签中可再建立项目 ,如多个环境(对应标签),每个环境又有多个服务
 
 git配置私钥 
-	Jenkins->manage Jenkins->Manage Credentials ->Credentials 组中点表格中一条->进入system页，再点已有一条Global credentials(unrestricted)
+	Jenkins->manage Jenkins->Manage Credentials ->Stores scoped to Jenkins 组中点表格中一条->进入system页，再点已有一条Global credentials(unrestricted)
 		->左则Add credentials按钮，下拉选择SSH username with private key->输入 username,description,粘贴私钥字串
 		就可以在git中下拉选择刚刚配置的用户了
 		
@@ -995,7 +1008,121 @@ Maven项目
 
 	Deploy to container 插件可以部署到tomcat,  在Maven项目最后的 Post-build Actions 有deploy war/ear to container,target/xx.war测试使用没有效果
 	Capitomcat Plugin   插件可署到多台远程tomcat上
+
+---pipeline
+
+Pipeline Syntax 链接可以生成pipeline script 
+	Snipped Generator 标签生成的是steps组下的命令
+	Declarative Directive Generator标签
 	
+当脚本为空时，有下拉可选择hello world 示例
+pipeline {
+    agent any
+
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World' 
+            }
+        }
+    }
+}
+
+
+--我的示例,服务器要安装git,mvn
+
+pipeline {
+    agent any 
+	environment {
+        DISABLE_AUTH = 'true'
+    }
+    stages {
+        stage('pull code') {
+            steps {
+                dir('/root/client') { //可用于windows目录，相对目录应该在%USERPROFILE%\.jenkins\jobs\<project_name>\workspace
+					 //git credentialsId: 'baedbdbd-bd65-4d61-adf0-39fb012faaf0', url: ' root@192.168.42.129:/root/git_project'
+					 git branch: 'master', credentialsId: 'baedbdbd-bd65-4d61-adf0-39fb012faaf0', url: ' root@192.168.42.129:/root/git_project'
+				}
+            }
+        }
+		stage('build project') {
+            steps {
+                dir('/root/client/') { 
+					   //sh 'mvn clean package -Dmvn.test.skip=true'  //会执行nohup,即应在linux上用
+					   //powershell 'mvn clean package -Dmvn.test.skip=true'
+					   bat 'mvn clean package -Dmvn.test.skip=true' //windows bat
+				}
+            }
+        }
+		stage('start server') {
+            steps {
+                dir('/root/client/') { 
+					  bat """
+						echo "---DISABLE_AUTH =${DISABLE_AUTH}"
+						start java -jar target/springboot_security.jar
+					  """
+					  //服务会阻塞,用start,在windows不会结束子进程，这里会结束？？？
+				}
+            }
+        }
+    }
+}
+
+--示例2
+node {
+ 
+   stage('pull code') { 
+		dir('/root/client/') {    
+		   git branch: 'master', credentialsId: 'baedbdbd-bd65-4d61-adf0-39fb012faaf0', url: ' root@192.168.42.129:/root/git_project'
+		     
+			def last_date = '1979-01-01 00:00:00'
+		    if(fileExists('last_pull_date'))
+			{
+			  last_date = readFile 'last_pull_date'
+			}
+			echo "last_date=${last_date}" 
+			if (isUnix()) {
+				sh """
+					  echo \$(date +'%Y-%m-%d %H:%M:%S') > last_pull_date
+				      git log --after="${last_date}"
+					  echo because last quote  sign here must have something
+					"""
+			}else
+			{ 
+			    echo "windows 下的echo x> file文件尾总有一个换行"
+				bat """
+					>last_pull_date set /p="%DATE:~0,4%-%DATE:~5,2%-%DATE:~8,2% %TIME:~0,2%:%TIME:~3,2%:%TIME:~6,2%" <nul
+				    git log --after="${last_date}"
+					echo because last quote  sign here must have something
+				   """ 
+			}
+		}
+   }
+ 
+    stage('Build') { 
+		dir('/root/client/') {    
+		  if (isUnix()) {
+			 sh "mvn -Dmaven.test.skip=true clean package"
+		  } else {
+			 bat(/mvn -Dmaven.test.skip=true clean package/)
+		  }
+		}
+   }
+    stage('Test') {  
+    }
+    stage('Deploy') { 
+    }
+}
+
+---插件 Generic Webhook Trigger
+https://plugins.jenkins.io/generic-webhook-trigger/#releases
+下载 generic-webhook-trigger.hpi 文件 ,版本1.7.2,在Advanced标签Upload Plugin区上传文件安装
+
+可以被任何webhook触发 ,如GitHub,GitLab
+项目的Build Triggers组下就有 Generic Webhook Trigger 复选框
+	提示有 		http://JENKINS_URL/generic-webhook-trigger/invoke 
+	也可带token http://JENKINS_URL/generic-webhook-trigger/invoke?token=TOKEN_HERE ,和页面上设置的token相同即可,如成功会有返回json
+
 ---------teamcity 放在IntelliJ中了
 
 
@@ -1012,8 +1139,8 @@ mvn sonar:sonar \
 Rule菜单 -> Java有很多规则,如何修改?
 
 
-
-
+----Snyk  可以扫描 依赖maven的安全,license 问题
+----Checkmarx 可以找出哪块代码有XSS的风险，即接受的参数会返回页面前没有处理的
 
 
 -----------findbug 扫描java
@@ -1090,6 +1217,8 @@ terminal窗口中可下拉选择gitbash,下次建立terminal 生效
 离线下载插件  .vsix文件 ，安装使用VSCode-1.xx\bin\code --install-extension <path\xx.vsix>  对兼容版本有要求 
 https://marketplace.visualstudio.com
 
+outline视图，打开方式 view->open view...-> 输入outline
+
 
 ----- Node JS
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
@@ -1114,7 +1243,7 @@ https://code.visualstudio.com/docs/nodejs/reactjs-tutorial
 
 ----Vetur 扩展(Vue)
 vscode 打开 .vue文件 提示推荐安装 Vetur 扩展，才可高亮显示
-VS code 插件Vetur 安装
+VS code 插件 Vetur 安装
 Go->Go to File 输入 ext install octref.vetur 安装 也可通过界面安装
 
 -----扩展 Debugger for Chrome  
@@ -1272,7 +1401,7 @@ maven插件Jetty不能识别@WebServlet
 
 ------SonarLint 有eclipse,idea,vscode版本
  
- 
+------Remote - WSL 为windows sub linux使用的
 
 
 

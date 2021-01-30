@@ -1,5 +1,10 @@
-
 ------VaGrant虚拟机管理工具 
+windows 7 下要求 Powershell 最小版本为: 3 
+	 https://github.com/powershell/powershell
+	 https://github.com/PowerShell/PowerShell/releases/tag/v7.1.0  PowerShell-7.1.0-win-x64.msi 要求Windows Management Framework 4.0+
+		 WMF=Windows Management Framework  5.1 win7sp1版本 要求.NET Framework 4.5.2 (Win7AndW2K8R2-KB3191566-x64.ZIP 才可以，用Win7-KB3191566-x86.ZIP不能安装)
+ 
+ 
   默认安装目录 C:\HashiCorp\Vagrant 数据文件存在%userprofile%/.vagrant.d 
   
 有时报VT-x错误,  删除 ~/.VirtualBox VMs  ~/VirtualBox   ~/.vagrant.d 重新
@@ -52,7 +57,7 @@ vagrant box list 显示的是my
 vagrant box add vagrant-centos-7.2.box --name my  #--force
 	#vagrant-centos-7.2.box 是virtulBox安装的文件 ，当前目录有agrantfile 文件,my名字要和config.vm.box="my"对应
 vagrant up 首次会要管理员的密码，用来建立网卡
-vagrant ssh 后df -h 显示有 /vagrant目录，可写，不用管VirtualBox设置的ShareFolder配置
+vagrant ssh (也可打开virtualbox后用户名vagrant，密码为vagrant登录)后df -h 显示有 /vagrant目录，可写，不用管VirtualBox设置的ShareFolder配置
 	centos修改语言 /etc/locale.conf
 	修改root密码，sudo passwd root,也可在Vagrantfile中加 config.ssh.username,config.ssh.password
 vagrant status
@@ -193,7 +198,13 @@ VBoxManage setextradata "VM name" VBoxInternal2/EfiGopMode 2
 VirtualBox 6.0.x 新建时最高可选择 Mac OS X 10.13 High Sierra 客户机
  可以选择支持虚拟化 Enable VT-X/AMD-V
 
+linux 下默认启动服务 
+vboxautostart-service     
+vboxballoonctrl-service 
+vboxdrv 
+vboxweb-service 
 
+systemctl disable vboxautostart-service
 
 --------------VMWare Workstation
 VMWare Workstation 10 默认安装后全部服务启动
