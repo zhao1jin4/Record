@@ -290,8 +290,17 @@ List<Reply> latestReplies = mapper.query(Reply.class, queryExpression);
 
 
 
--------------S3 bucket  AWS 亚马逊云的 存储
+-------------Amazon S3 (Simple Storage Service)  ,亚马逊云的 对象存储 
+S3 bucket
 
+-------------OSS (Object Storage Service)  alibaba 云的 对象存储
+ // 创建OSSClient实例。
+OSS ossClient = new OSSClientBuilder().build(ENDPOINT, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+// 上传Byte数组。
+ossClient.putObject(bucketName, filePath, new ByteArrayInputStream(bytes));
+
+// 关闭OSSClient。
+ossClient.shutdown();
 
 
 ======================ActiveMQ   JMS
@@ -810,6 +819,14 @@ JMSProducer jmsProducer=context.createProducer();
 
 jmsProducer.send(queue, textMsg); 
 
+
+ 
+ActiveMQ consumer按顺序处理消息  如果队列只有一个consumer，那就很ok了
+
+queue = new ActiveMQQueue("TEST.QUEUE?consumer.exclusive=true");
+consumer = session.createConsumer(queue);
+2个consumer都是这样配置的，broker只会把队列消息发送给其中一个consumer，如果这个consumer挂掉了，broker会把消息推送给另外的consumer，这样就保证了按顺序消费消息。
+
 ---------------------------------Log4j 1 
 1版本 2015年已经终止了
  
@@ -1077,6 +1094,57 @@ public class JavaMailMessageBean implements MessageDrivenBean, JavaMailMessageLi
     }
 }
 
+
+=============================Batch
+
+JavaEE带的示例
+
+.war\WEB-INF\classes\META-INF\batch-jobs\PayrollJob.xml
+
+<job id="payroll" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+    <step id="process">
+        <chunk item-count="3">
+            <reader ref="SimpleItemReader"></reader>   <!-- 对应 @Named("SimpleItemReader"), 类要 extends AbstractItemReader  从哪读要做的记录 -->
+            <processor ref="SimpleItemProcessor"></processor> <!-- implements ItemProcessor  处理读到的记录 -->
+            <writer ref="SimpleItemWriter"></writer> <!-- extends AbstractItemWriter  存储处理结果-->
+        </chunk>
+		<partition>
+            <mapper ref="PayrollPartitionMapper"/> <!-- implements PartitionMapper  -->
+        </partition>
+    </step>
+</job>
+
+@Inject
+private JobContext jobContext; //EJB 容器实现
+
+Properties jobParameters = BatchRuntime.getJobOperator().getParameters(jobContext.getExecutionId());
+
+JobOperator jobOperator = BatchRuntime.getJobOperator();
+long executionID = jobOperator.start("PayrollJob", props); //每一个名字是xml文件名,提交一个Job,AbstractItemReader 就被调用了
+
+for (JobInstance jobInstance : jobOperator.getJobInstances("payroll", 0, Integer.MAX_VALUE-1))//取全部, "payroll" 对应xml文件中的 <job id="payroll"
+{
+	for (JobExecution jobExecution : jobOperator.getJobExecutions(jobInstance)) 
+	{
+	    jobExecution.getJobName()// payroll
+		jobExecution.getExecutionId()
+		jobExecution.getBatchStatus()//emnu 的类型 BatchStatus.COMPLETED
+		jobExecution.getExitStatus()
+		jobExecution.getStartTime()
+		jobExecution.getEndTime()
+	}
+}
+
+ return new PartitionPlanImpl()
+        {
+            @Override
+            public int getPartitions() {
+                return 5;
+            }
+            @Override
+            public Properties[] getPartitionProperties() {
+			}
+		}
 =============================WebSphere full profile for Developer 8.5 版本
 C:\Program Files (x86)\IBM\WebSphere\AppServer\bin\ProfileManagement下
 开始 ->WebSphere Customerization Toolbox(wct.ba) 工具 ,Profile Management Tool(pmt.bat)
@@ -3308,7 +3376,7 @@ web.xml
 
  
 
-id="codeTable 第一个作用是每个List的子对象的名，第二个生成<table id="">
+id="codeTable" 第一个作用是每个List的子对象的名，第二个生成<table id="">
  
 
 <display:table name="blacklist" id="blacklistTable" defaultsort="1"   partialList="true" requestURI="/pages/sysInfoMgmt/codeMgmt/blacklist.do?method=query"

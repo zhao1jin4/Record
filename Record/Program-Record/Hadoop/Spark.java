@@ -10,14 +10,29 @@ MongoDB Spark Connector
 
 spark-2.3.0-bin-hadoop2.7 
  
+ 
 <dependency>
   <groupId>org.apache.spark</groupId>
-  <artifactId>spark-core_2.11</artifactId>
-  <version>2.3.1</version>
+  <artifactId>spark-core_2.12</artifactId>
+  <version>3.1.0</version>
+</dependency>
+ <dependency>
+  <groupId>org.apache.spark</groupId>
+  <artifactId>spark-streaming_2.12</artifactId>
+  <version>3.1.0</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.spark</groupId>
+  <artifactId>spark-sql_2.12</artifactId>
+  <version>3.1.0</version>
 </dependency>
 
- 
-
+	<dependency>
+	  <groupId>org.apache.spark</groupId>
+	  <artifactId>spark-streaming-kafka_2.11</artifactId>
+	  <version>1.6.3</version>
+	</dependency>
+	
 ./bin/spark-shell	使用 Scala 语言, 提示SparkUI  http://127.0.0.1:4040 
 scala> 
 

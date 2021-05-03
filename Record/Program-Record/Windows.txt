@@ -815,7 +815,7 @@ for /R . %f in (*.txt) do FINDSTR /N /I acFlag=    "%f"   #加"号是防止路�
 findStrInPath.cmd D:/dir_name/  "acFlag="
 for /R "%1"  %%f in (*) do FINDSTR /N /I /R  "%2"   "%%f"     ##%2会丢失=???,如何匹配文本文件
 
-type file.txt 显示文件内容
+type file.txt 显示文件内容 类似 linux cat
 fc file1.txt file2.txt 文件内容比较
 date /T 显示日期
 time /T 显示时间

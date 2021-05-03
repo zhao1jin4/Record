@@ -10,9 +10,12 @@ https://github.com/istio/istio/releases 下载慢的不行
 
 https://gcsweb.istio.io/gcs/istio-release/releases/ 速度快 有windows/mac版本 作用不大
 
-Rancher 收费的 界面工具(非国产 https://rancher.com/)
+Rancher 界面工具里有Istio的支持,选中project出现Resources菜单->istio
 
 2020-11-28 istio 1.8.0 已经在 Kubernetes 版本 1.16, 1.17, 1.18, 1.19 中测试过
+2021-02-09 Istio 1.9.0 is officially supported on Kubernetes versions 1.17.0 to 1.20.x.
+
+
 
 应用程序必须使用 HTTP/1.1 或 HTTP/2.0 协议用于 HTTP 通信；HTTP/1.0 不支持
 
@@ -50,7 +53,7 @@ istioctl manifest apply 会安装 default profile 配置文件,生产环境建�
 
 1.8.0版本变为
 istioctl manifest install --set profile=demo (可能要root用户执行)
-#istioctl install --set profile=demo
+#istioctl         install --set profile=demo
   
   
 istioctl  profile  list  查看共有多少种profile,像是/opt/istio-1.8.0/manifests/profiles 下的文件
@@ -179,7 +182,7 @@ kubectl logs -f -n my-ns my-xx -c istio-init
 	-N ISTIO_INBOUND
 	-N ISTIO_OUTPU
 	-A ISTIO_REDIRECT -p tcp -j REDIRECT --to-port 15001  表示所有tcp协议的都重定向 到 15001 端口上
-  
+ 
   iptables 
 	--append  -A chain
 	--new     -N chain
@@ -191,7 +194,7 @@ kubectl get pods -n my-ns my-xx -o wide  看在哪个节点上
 
 	docker exec -it --privileged <容器ID> bash
 		sudo su root #不行啊
-		iptables -nvL -t nat
+		iptables -nvL -t nat 和日志中的是一样的
 
 kubectl exec -it -n my-ns my-xx  -c istio-proxy -- ps -ef 
 显示有pilot-agent 和envoy两个进程 ,看PID,pilot-agent 是父,envoy是子
@@ -406,7 +409,7 @@ kubectl exec -it client-xx -- sh
 	
 kubectl get svc 显示web-svc的地址 curl 加:8080端口测试 ,来回切换httpd和tomcat
 
-
+可以做 分一部分流量到指定版本上
 ---vi 2-4_virtual-svc.yaml
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -543,7 +546,9 @@ http://IP:31380/productpage 就可以仿问到 ,多次请求返回不同版本,�
 echo "http://$GATEWAY_URL/productpage" 请求 测试成功,先经过gateway再根据配置到service
 
 while true ;  do  curl http://$GATEWAY_URL/productpage ; sleep 0.2; done
-Kiali 的Graph 标签-> 第二个下拉选择 Workload graph ,Display下拉选择 复选 Traffict Admin 和 单选 Requests Percentage
+
+kubectl create -f samples/addons/kiali.yaml
+Kiali 界面中，第一个下拉选择namesapce: istio-system, Graph 标签-> 第二个下拉选择 Workload graph ,Display下拉选择 复选 Traffict Admin 和 单选 Requests Percentage
 
 kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-v3.yaml  (是一个VirtualService)使用v3版本 
 	中destination的有配置subset:v3, 那么host的值 对应于 destination 的subsets，是按labels 选择deployment(pod),
@@ -559,7 +564,7 @@ kubectl apply -f samples/bookinfo/networking/virtual-service-reviews-v3.yaml  (�
 
 安装  Kiali dashboard, 带 Prometheus, Grafana,  Jaeger.
 
-kubectl apply -f samples/addons  可能报错，一个文件,一个文件 的执行就成功
+kubectl apply -f samples/addons  可能报错 kiali 要用create -f ,不能用apply -f  
 kubectl rollout status deployment/kiali -n istio-system
 
 docker save -o kiali-v1.26.tar  quay.io/kiali/kiali:v1.26
@@ -583,21 +588,22 @@ istioctl dashboard 显示所有可用命令
   zipkin      Open Zipkin web UI
   
   
-istioctl dashboard controlz  deployment/istiod.istio-system   --address  <外网IP>  # 默认只127.0.0.1
+istioctl dashboard controlz  deployment/istiod.istio-system  #可选的加 --address  <本机外网IP>  # 默认只127.0.0.1
   提示打开  http://localhost:9876
   
-istioctl dashboard envoy deployment/productpage-v1  --address <外网IP> 
-istioctl dashboard envoy productpage-123-456.default 
+istioctl dashboard envoy deployment/productpage-v1  --address <本机外网IP>  #为何有时打不开呢？？
 	提示打开 http://localhost:15000
+istioctl dashboard envoy productpage-v1-6987489c74-wmp9d  --address <本机外网IP>  #是 kubectl get pod  -l app=productpage 
+	提示打开 http://localhost:15000			#为何有时打不开呢？？
 	
- istioctl dashboard jaeger --address  <外网IP> 
+ istioctl dashboard jaeger --address  <本机外网IP> 
 	提示打开  http://localhost:16686 
  
-istioctl dashboard  prometheus --address  <外网IP> 
+istioctl dashboard  prometheus --address  <本机外网IP> 
   提示打开 http://localhost:9090
 
 kubectl create -f samples/addons/extras/zipkin.yaml
-istioctl dashboard  zipkin  --address  <外网IP> 
+istioctl dashboard  zipkin  --address  <本机外网IP> 
   提示打开  http://localhost:9411
   
 
@@ -639,7 +645,7 @@ spec:
   trafficPolicy:
     connectionPool:
       tcp:
-        maxConnections: 1
+        maxConnections: 1   #限流
       http:
         http1MaxPendingRequests: 1
         maxRequestsPerConnection: 1

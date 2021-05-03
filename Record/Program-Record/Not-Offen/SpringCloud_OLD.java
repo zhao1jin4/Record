@@ -456,6 +456,57 @@ https://projects.spring.io/spring-cloud/spring-cloud.html#_circuit_breaker_hystr
 
 
 
+----------Spring cloud sidecar  2020版本已经去除了
+maven 加 
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-netflix-sidecar</artifactId>
+</dependency>
+
+项目注册到eureka上,可以显示这个服务
+
+
+
+sidecar:
+  port: 8000
+  health-uri: http://localhost:8000/health.json
+  
+  加@EnableSidecar 里面有@EnableCircuitBreaker ， @EnableZuulProxy
+ 
+其它非JVM语言(如node.js)，实现请求health-uri配置的地址返回 
+{
+  "status":"UP"
+}
+---sidecar.js
+var url = require('url'); 
+var http = require('http'); 
+var server = http.createServer(function (req, res)
+{ 
+  var pathname=url.parse(req.url).pathname;
+  res.writeHead(200,{'Content-Type':'application/json;charset=utf8'});
+  if(pathname=='/health.json')
+  {
+	res.end(JSON.stringify({"status":"UP"}));
+  }else if(pathname='/')
+  {
+	res.end("welcome to node.js");
+  }else
+  {
+	  res.end("404");
+  }
+})
+server.listen(8000,function(){
+	console.log("server started");
+});
+---
+//就可以用ribbon (restTemplate)项目  仿问sidecar服务，就会转发到其它语言上( node.js  8000 )
+//要求node.js要和sidecar服务要在同一台机器上  Run the resulting application on the same host as the non-JVM application.
+//如要不是一台机器配置eureka.instance.hostname未试
+public String sidecar( ) { 
+		//service-sidecar可小写
+	return restTemplate.getForObject("http://service-sidecar/",String.class);
+}
+--------------------
 
 
 

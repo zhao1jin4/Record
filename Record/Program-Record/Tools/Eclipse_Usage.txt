@@ -1,11 +1,6 @@
-﻿Eclipse 2018-12 (4.10.0) 支持JDK 11版本 , eclipseEE 版本带 Gradle
-﻿Eclipse 2019-06  inst (4.12.0) 支持JDK 12版本  
-﻿Eclipse 2019-09 R (4.13.0)  compiler还只是到12 
-﻿Eclipse 2019-12  
-﻿Eclipse 2020-03 (4.15.0)  compiler 到jdk 13
-﻿Eclipse 2020-06(4.16.0)   compiler 到jdk 14
-﻿Eclipse 2020-09(4.17.0)   compiler 到jdk 14
-
+﻿﻿Eclipse 4.17.0			 compiler 到jdk 14
+Eclipse 2020-12(4.18.0)   compiler 到jdk 15
+Eclipse 2021-03(4.19.0)   compiler 到jdk 15 
 
 =======================================eclipse==========================
 快捷键
@@ -39,6 +34,7 @@ alt + 上/下方向键,可以移动代码,
 ctrl+shift+t 打开按类名，open type（工具栏上有一个按钮）
 ctrl+shift+r 打开按资源名,如jsp
 ctrl+l = navigator-> go to line  
+ctrl+shift+g = search->references	-> workspace (相当于 intellij idea的find usage)
 
 选中接口方法　ctrl+t　打开实现类　同右击->Quick type Hierachy
 
@@ -48,7 +44,7 @@ ctrl+l = navigator-> go to line
 Window –> preferences –> General –> Startup and Shutdown –> Workspaces -> 右边的 prompt for workspaces on startup 打上勾即可
 
 
-preferences->Keys->点Catergory标签来排序,在Edit组中找 ctrl+space的快捷键(Content Assist)->修改为 ctrl+alt+/ ,如alt+ ->有冲突
+preferences->Keys->点Catergory标签来排序,在Edit组中找 ctrl+space的快捷键(搜索 Content Assist)->修改为 ctrl+alt+/ ,如alt+ ->有冲突
 
 XML->XML Catalog->Use Specified Entries->Add...按钮->在location中选择 .xsd文件路径,Key Type中选择Public ID,Key中复制 "-//"开头的部分,复选Alternative Web Address ,复制http://xxx.xsd的路径
 会生成eclipse_java_workspace\.metadata\.plugins\org.eclipse.wst.xml.core\user_catalog.xml 可备份
@@ -174,7 +170,7 @@ preferences->Genel->Editors -> Text Editors->复选 insert spaces for tabs ,就�
 											
 preferences->Java->Code Style->Formater建立自己的　Indendatoin标签->tab policy中下选择space only
 
-eclipse的console设计缓冲区大小，preference->Run/Debug->Console->Console buffer size(characters),默认最多显示80000个字符
+eclipse的console设计缓冲区大小，preference->Run/Debug->Console->复选limist console output 在Console buffer size(characters),默认最多显示80000个字符
 
 eclipse 3.x 对插件的删除,在help->about eclipse->installion detail->选中->uninstall...
 
@@ -368,8 +364,15 @@ Cygwin和MinGW可以共存使用,但有些Cygwin在windows不能编译,MinGW还�
 
 ------------------
 ----------------- CDT 与 VC 集成
+----安装VC++ 2019 Build Tool , 参考 Rust/VC 中安装 
+除了path还增加下面
+lib=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\lib\x64;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64
+include=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt
 
-建立C++项目时可选 Microsoft Visual C++  ,
+建立C++项目没有  Microsoft Visual C++ ？
+
+
+----安装Visual Studio 建立C++项目时可选 Microsoft Visual C++
 但报C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\crtdefs.h(10): fatal error C1083: Cannot open include file: 'corecrt.h': No such file or directory 
 
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.10150.0\ucrt\corecrt.h
@@ -432,6 +435,7 @@ shift+enter 自动换行缩进
 
 
 =========== Eclipse 4.6 以上插件 goClipse 依赖于 CDT 9.0以上  只安装 Main Feature组即可
+As of 2017, Goclipse is no longer actively maintained
 http://goclipse.github.io/
 https://github.com/GoClipse/goclipse/blob/latest/documentation/Installation.md   下载
 
@@ -498,7 +502,8 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 安装 Drools-6.4 插件 
 		取消 JBoss Runtime Drools Detector Developer  依赖于 org.jboss.tools.common.core      在JBOSS Tools-4.3.1中没有????
 
----SpringToolSuite-3.9.12 (eclipse 4.15.0) 最后一个STS 3版本 github上有 springsource下载链接
+---SpringToolSuite-3.9.15 (eclipse 4.18.0)  官方有STS 3版本链接到 github上
+要求JDK11
 	可以在 spring的xml中(spring config editor编辑器) 输入按快捷键(content Assist)提示属性名，方法名，
 		但类名不行??? 以前可以的啊??? 3.9.10版本也不行, 但可以提示类不存在错误
 		
@@ -508,15 +513,15 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 	sts3 spring data  repository会报方法不存在错，其实可以自定义的,这是有问题的,但sts4没有data source explorer视图,要单独安装DTP)
 ---SpringToolSuite-4.7(eclipse 4.16.0) 
 有Visual Studio Code 版本
-不能建立 web项目,到4.6.0(eclipse-4.15.0)版本又能建立web项目了,
+4.8(4.17.0)版本能建立web项目,4.9版本不能建立 web项目,4.10版本不能建立 web项目
+
 	没有spring的xml编辑器了??? xml文件中写类或属性方法做提示了 ???, 原始xml编辑器只可按ctrl+类名有链接表示类存在.
 	有spring的 yaml 或 properties编辑器 
 
 	有 Spring Boot->Spring Starter
 	只能用Maven,
 	有Server标签能建立Tomcat
-	
----SpringToolSuite-4.8 (﻿Eclipse 4.17.0)
+	 
 ---- Data Tools Platform (DTP)
 eclipse jee版本自带
 dtp-repository-1.14.102.201809101906.zip 依赖很多，可能要在线安装
@@ -760,6 +765,8 @@ Builder Pattern  生成代码
 
 Download the jar file
 Put the jar file in the eclipse/dropins directory
+右击源码->Source   ->generate build pattern code 
+
 
 ------plugin lombok
 https://projectlombok.org/setup/eclipse  

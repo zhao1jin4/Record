@@ -529,6 +529,138 @@ implements ItemWriter<Message>
 
 
 
+ =========================Spring HATEOAS
+(HATEOAS) Hypermedia as the Engine of Application State
+//依赖于 objenesis-2.1.jar
+
+
+import org.springframework.hateoas.ResourceSupport;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+public class Greeting extends ResourceSupport {
+    private final String content;
+    @JsonCreator
+    public Greeting(@JsonProperty("content") String content) {
+        this.content = content;
+    }
+    public String getContent() {
+        return content;
+    }
+}
+
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+@Controller
+public class GreetingController
+{
+    private static final String TEMPLATE = "Hello, %s!";
+
+    @RequestMapping("/greeting")
+    @ResponseBody
+    public HttpEntity<Greeting> greeting(
+            @RequestParam(value = "name", required = false, defaultValue = "World") String name) {
+
+        Greeting greeting = new Greeting(String.format(TEMPLATE, name));
+        greeting.add(linkTo(methodOn(GreetingController.class).greeting(name)).withSelfRel());
+        
+        //依赖于 objenesis-2.1.jar
+        //linkTo 生成 ("href":) 放入 add 到 _links  中
+        // methodOn(GreetingController.class).greeting(name) 生成  "href":"http://localhost:8080/J_SpringMVC/greeting?name=World"
+        // withSelfRel 生成 Link对象 生成  "rel":"self" 
+        /* 
+        	{"content":"Hello, World!",
+        		"links":
+        			[{
+        				"rel":"self",
+        				"href":"http://localhost:8080/J_SpringMVC/greeting?name=World"
+        			}]
+        	}
+        */
+        return new ResponseEntity<Greeting>(greeting, HttpStatus.OK);
+    }
+}
+
+
+@RestController 返回 Greeting 类时,是以JSON显示
+如要以XML返回,返回类要有默认构造器,返回类加@XmlRootElement  (可选方法上加@ResponseBody)
+
+
+
+==============Swagger 框架  1.x(SpringMVC)
+swagger-springmvc-1.0.2.jar
+swagger-models-1.0.2.jar
+swagger-annotations-1.3.11.jar
+guava-17.0.jar
+swagger-spring-mvc-ui-0.4.jar  不可自定义界面
+
+
+
+
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+@Controller
+@RequestMapping(value = "swaggerController")
+public class SwaggerController {
+	@RequestMapping(value = "test", method = RequestMethod.POST, produces = "application/json; charset=utf-8")
+    @ApiOperation(value = "测试接口", httpMethod = "POST", notes = "测试接口", response = ResponseModel.class)
+    public @ResponseBody ResponseModel newPlan(@ApiParam(required = true) @RequestBody  RequestModel request)
+    {
+		System.out.println("StartTime="+request.getStartTime());
+		ResponseModel resp=new ResponseModel();
+		resp.setData("123");
+		resp.setErrorMessage("成功");
+		return resp;
+    }
+}
+
+import com.mangofactory.swagger.configuration.SpringSwaggerConfig;
+import com.mangofactory.swagger.models.dto.ApiInfo;
+import com.mangofactory.swagger.plugin.EnableSwagger;
+import com.mangofactory.swagger.plugin.SwaggerSpringMvcPlugin;
+@Configuration
+@EnableSwagger
+public class SwaggerConfig
+{
+    private SpringSwaggerConfig springSwaggerConfig;
+    @Autowired
+    public void setSpringSwaggerConfig(SpringSwaggerConfig springSwaggerConfig)
+    {
+        this.springSwaggerConfig = springSwaggerConfig;
+    }
+
+    @Bean
+    public SwaggerSpringMvcPlugin customImplementation() throws IOException
+    {
+        Properties prop = new Properties();
+        String pathString = this.getClass().getClassLoader().getResource("/").getPath();
+        pathString+="properties/apiInfo.properties";
+        InputStream in = new FileInputStream(pathString);
+        prop.load(in);
+        in.close();
+        ApiInfo apiInfo = new ApiInfo("项目标题",  "项目描述", "官方URL",  "联系人aa@sina.com", null, null);
+        return new SwaggerSpringMvcPlugin(this.springSwaggerConfig).apiInfo(apiInfo).includePatterns(".*?");
+    }
+}
+import com.fasterxml.jackson.annotation.JsonProperty;
+public class RequestModel     {
+
+    @JsonProperty("StartTime")
+    private Date startTime; 
+    
+    @JsonProperty("Status")
+   	private  String status;
+           
+    @JsonProperty("ID")
+	private  Long id;
+}
+properties/apiInfo.properties
+
+
+http://127.0.0.1:8080/J_SpringMVC/sdoc.jsp 
+ 页面中使用 http://127.0.0.1:8080/J_SpringMVC/api-docs.mvc  或者修改   <url-pattern>/</url-pattern>
+
+页面中 Data Type 组选    Model Schema 
+
 
 
 

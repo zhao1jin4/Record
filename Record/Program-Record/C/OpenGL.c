@@ -12,7 +12,8 @@ Debug 要把*.dll文件放在　PATH中
 opengl32.dll和glu32.dll 位于 C:\WINDOWS\system32\
 
 右击项目->properties->C/C++ Build -> Tool chain Editor 中可以　查看/修改　当前使用的编译器  MacOSX GCC/MinGW /CygWin/LinuxGCC/Microsoft Visual C++
-	
+
+
 ---common.h
 #ifndef COMMON_H_
 #define COMMON_H_
@@ -201,6 +202,9 @@ VC 2010  编译openGL时报LINK : fatal error LNK1123: failure during conversion
 ---------Linux下
 ---linux下的 freeglut和glut类似 
  
+zypper install freeglut-devel
+
+
 rpm -ivh /mnt/iso/suse/x86_64/freeglut-devel-2.8.0-3.1.2.x86_64.rpm 
 rpm -ivh /mnt/iso/suse/x86_64/libglut3-2.8.0-3.1.2.x86_64.rpm
 rpm -ivh /mnt/iso/suse/noarch/xorg-x11-devel-7.6-37.1.1.noarch.rpm  有太多的依赖关系，使用yast2

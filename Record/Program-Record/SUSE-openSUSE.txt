@@ -12,8 +12,10 @@ openSUSE-leap-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,
 	Mesa(openGL) 
 	
 	 
-	 
- 
+Xfce桌面
+Xournal 手写笔,草图工具, journal 日报(windows 版本有 autodesk sketchbook)
+Xournalpp 是使用CPP写的
+zypper install xournal
 	
  
 openSUSE-leap-15.2-DVD有    chromium-83 yast2 install
@@ -196,7 +198,7 @@ VMWare 15 安装 openSUSE-leap-15 时必须要建立Partition ID为 Bios Boot Pa
 如真机安装 openSUSE-leap-15(存的window 10)则要一个至少256M的fat分区,挂在/boot/efi下
 默认其它分区类型是 /是 BrtFS((btree,还是ext4好,windows有可能读ext4 )  /home是 XFS
 
-U盘是openSUSE-15分区类型是fuseblk ,windows是NTFS,可以写数据
+U盘是openSUSE-15分区类型是fuseblk ,windows是NTFS,可以写数据 (FUSE=Filesystem in Userspace)
 默认不支持 exFat 格式 ,要安装包  zypper -n install fuse-exfat exfat-utils 后 就可以 mount -t extfat /dev/sdax /mnt 了
 
 ------------------------硬盘安装SUSE-Desktop-10-DVD
@@ -298,7 +300,16 @@ route -n 可以看,netstat -rn 相同 (前三列,和最后一列 是network/rout
 /etc/sysconfig/network/ifcfg-[网络类型]/-id-[网卡mac地址] ,#如ifcfg-wlan-id-00:16:6f:25:73:1f
 
 nmtui 工具可以设置静态IP，但没有修改上面文件
+systemctl enable NetworkManager
+systemctl start NetworkManager
 
+/etc/resolv.conf 中提示 文件是生成的根据配置文件  /etc/sysconfig/network/config file:
+#     NETCONFIG_DNS_STATIC_SEARCHLIST
+#     NETCONFIG_DNS_STATIC_SERVERS    #生成 nameserver的值
+#     NETCONFIG_DNS_FORWARDER
+# or disable DNS configuration updates via netconfig by setting:
+#     NETCONFIG_DNS_POLICY=''
+调用 netconfig update 来更新配置
 
 
 查看所有路由表。
@@ -445,12 +456,23 @@ ss -atr | grep ssh
 	
 bridge
 
-iwlist、iwconfig
+iwlist、iwconfig(只显示无线网卡)
 这两个命令需要你有无线网卡才能够进行使用
 
-ifstat 只可显示一次 网络使用
-iftop 要单独安装   iftop -i  wlan0
 
+ifstat 只可显示一次 网络使用，只是刚网卡级 
+iftop 要单独安装(zypper install iftop)  				iftop -i  wlan0 		不能知道是哪个进程
+nload 要单独安装(zypper install nload) 				nload wlan0  				也是不能知道是哪个进程
+iptraf-ng 要单独安装(zypper install iptraf-ng)  	iptraf-ng -g 				也是不能知道是哪个进程
+vnstat 要单独安装(zypper install vnstat)  			vnstat -i wlan0 -l   也是不能知道是哪个进程
+
+nethogs 要单独安装(zypper install nethogs)  			nethogs wlan0				可以看到使用网络的进程及大小  
+交互式 	m : 修改单位
+    	  r  sort by 'received'
+       s  sort by 'sent'
+
+
+ps aux 或 ps -aux 有%CPU,%MEM的使用
 
 
 nmcli 是 network manager 工具
@@ -664,7 +686,7 @@ chroot /mnt
 update-bootloader --add
 update-bootloader --refresh
 cp /boot/grub2/grub.cfg /boot/grub2/grub.cfg.bak
-grub2-mkconfig -o /boot/grub2/grub.cfg  ###有错误,windows引导项会丢失,进入linux再执行没有错误也没有????
+grub2-mkconfig -o /boot/grub2/grub.cfg  ##正常是可以发现windows的,是使用os-prober命令来检查是否有windows
 grub2-install /dev/sda   ###注意是grub2-install
 
 exit
@@ -681,6 +703,16 @@ set root='(hd0,msdos2)'
 search --no-floppy --fs-uuid --set 3038D76238D7261E
 chainloader +1
 }
+
+
+报 Invalid EFI file path ??
+可能要yast boot loader 修改Grub2 for EFI到Grub2 ,也没用,
+安装linux时/boot/efi 安装时有提示要用vfat,分区ID默认为EFI系统分区，修改为Liux，也不行,EFI是安装在BOIS中的，如在BOIS中删除，会进入grub rescue模式,再次安装linux不要选择EFI(对MBR分区表)即可
+
+fdisk -l 显示的中 Disklabel type: dos 表示是MBR式硬盘 
+parted -l 显示的中 Partition Table: msdos 表示是MBR式硬盘 
+
+
 menuentry "Windows loader" {
 insmod ntfs
 set root=(hd0,2)
@@ -692,7 +724,7 @@ menuentry "Windows 7 search" {
   search --set -f /bootmgr               
   chainloader +1
 }
-##search -f /bootmgr 返回 hd0,msdos2  hd0,msdos2
+##search -f /bootmgr 返回 hd0,msdos2 ，在windows 7 的boot分区中有一个bootmgr 的文件
 有项,但不能引导???
 --如果是LVM的做法
 
@@ -757,9 +789,17 @@ zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snap
 zypper ar https://download.opensuse.org/repositories/filesystems:/ceph/openSUSE_Leap_15.1/filesystems:ceph.repo
 ar=addrepo 生成文件 /etc/zypp/repos.d/filesystems_ceph.repo  
 
+zypper ar -f /mnt/iso dvd  (-f --refresh)
+
+zypper mr  -d  --all
+zypper mr  -e  dvd
+(-d = disable,-e == enable)
+ 
+
 手动升级仓库 （dup=dist-upgrade）
 zypper dup --from snappy 
 
+zypper install -y mariadb\*   可通配安装
 
 /etc/zypp/zypp.conf
     solver.cleandepsOnRemove = false 改为true (不会立即生效)
@@ -802,6 +842,7 @@ http://127.0.0.1:631 有界面,可生成配置文件,如要仿问admin页面,要
 
 -------------fcitx 输入法 
 Free Chinese Input Tool for X  
+输入文字提示背界是灰色，文字颜色
 
 openSUSE-leap-15.2 DVD 带部分rpm
 
@@ -817,7 +858,9 @@ start ->fcitx configuration-> input method ->  这里就是切换输入法是有
 
 (/etc/sysconfig/language 设置 INPUT_METHOD="fcitx"  ,logoff也没用  有文件/etc/X11/xim.d/fcitx )
 
-/etc/profile 仅限于传统的X11  /etc/environmen (说明是被 pam_env 模块解析的)设置变量 
+/etc/profile 仅限于传统的X11  /etc/environmen (说明是被 pam_env 模块解析的)设置变量
+（下面的配置放~/.bashrc文件中，fcitx在xfce桌面上也是生效的）
+
 export XMODIFIERS=@im=fcitx
 export QT_IM_MODULE=fcitx
 export GTK_IM_MODULE=fcitx 
@@ -825,7 +868,7 @@ export INPUT_METHOD="fcitx"
 
 注销再登录就可以用了
 
-按住ctrl+shift 切换输入法,会有弹出的提示当前是什么输入法,ctrl+space切换中英文
+ctrl+space来打开输入法 ，ctrl+shift 切换输入法,会有弹出的提示当前是什么输入法
 速度比ibus快很多,中文输入一半时就可按左shift打入英文 比ibus方便
 (如已经安装ibus,再安装fcitx,在komoedit中只可用ibus,textedit中只可用fcitx)
 
@@ -840,7 +883,7 @@ Settings->Regon & Language -> Input Source ->  + add a chinese 就可以win+spac
 # export LANG=en_US.UTF-8
 
 -------------ibus输入法  支持日文anthy,韩文hangul
-拼音是用python3写的
+拼音是用python3写的，输入文字背界是黑色，文字白色
 
 在GTK3中会出现右上角的工具栏中
 
@@ -886,6 +929,12 @@ Settings->Yast2 moudle ->language ,main language 选择 chinese 会安装很多�
 				export XMODIFIERS=@im=ibus
 				export GTK_IM_MODULE=ibus
 				export QT_IM_MODULE=ibus
+-------ibus 在 xfce 4 桌面下
+打开ibus设置会提示启动ibus进程，还会提示下面放在 ~/.bashrc 文件中
+export XMODIFIERS=@im=ibus
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+使用速度比在gnome 3下快多了，爽
 				
 -------------scim输入法 openSUSE-leap-15没有这个,openSUS官方说有scim不维护了
 支持日文ja,韩文ko
@@ -947,7 +996,7 @@ view  /etc/sysconfig/bootloader  配置使用grub2
 
 
 openSUSE-leap-15 有Boot Loader界面工具
-
+修改默认选中的引导系统
 vi /etc/default/grub
 修改GRUB_DEFAULT＝saved为GRUB_DEFAULT＝2,按从上到下顺序从0开始 ,
 后使用 grub2-mkconfig -o /boot/grub2/grub.cfg ,看menuentry项
@@ -1021,7 +1070,8 @@ unar Record.zip  可以成功解决zip包中是windows的GBK编码的文件名  
 unar -e GBK -o Record2019-01-24__16 Record2019-01-24__16.zip 
 
 
------- flash player 32,linux x64下有两个版本
+------ flash player 32,linux x64下有两个版本 
+(flash player  2020-12已经不支持了，firefox安装无效了，chrome自带的flash player 还可以用)
 https://get.adobe.com/cn/flashplayer/otherversions/
 https://www.adobe.com/support/flashplayer/debug_downloads.html
 
@@ -1123,7 +1173,22 @@ Python写的性能不大好
 -----bluefish 免费
 不是python 比komodoedit 要快 
 openSUSE-leap-15可以 --nodeps安装fedora20版本的rpm
- 
+
+--------- starUML 
+libXtst is needed by StarUML-4.0.1-1.x86_64
+libuuid is needed by StarUML-4.0.1-1.x86_64
+nss is needed by StarUML-4.0.1-1.x86_64
+
+libXtst6 包SUSE 已经安装   忽略依赖安装 ,安装在/opt/starUML下，启动要用图标
+
+也可用 LibreOffice Drawing（不是类似powerpoint，但只是基本图形，无UML）
+
+--------- GanttProject
+https://sourceforge.net/projects/ganttproject/files/
+Java 11+ ganttproject-3.0.3000.zip是二进制包，但在linux不能启动，什么也没有
+
+
+
 -----Robo 3T 
 
 -要破解
@@ -1345,8 +1410,8 @@ su - root
 systemctl start  rpcbind.service 
 /etc/init.d/nfs start 是客户端 , 有nfs进程
 
-cat /var/log/messages 有日志 (openSUSE-leap-15没有这个文件错误进入不了系统提示用  journalctl -xb )
-dmesg
+cat /var/log/messages 有日志，如新建用户不能登录也有日志，原因为home目录没有创建，建立用户没-m选项 (openSUSE-leap-15没有这个文件错误进入不了系统提示用  journalctl -xb )
+dmesg 作用不大
 
 cat /etc/services | grep rpcbind 查到是111 
 cat /etc/services | grep nfs 查到是2049
@@ -1905,8 +1970,12 @@ systemctl  restart xdm  (openSUSE方式,没有177端口监听???? 测试不行)
 /etc/init.d/xdm restart
 
 openSUSE-leap-15.1 Rescue LiveCD 默认是Xfce桌面 体积最小,也有Gnome,KDE桌面版本
+	zypper install  -t pattern  xfce  (基于GTK的，ibus 输入法比gnome快很多,在登录时点设置图标下拉可以切换桌面,gnome有好多次在使用chrome查找时死机)
+
+	类似的还有一个 LXQt
 	
 	zypper search gnome 显示的type列为pattern
+	zypper search -t pattern gnome 	
 	zypper install -t pattern gnome (-t type) 来安装gnome,如对于windows Sub Linux下
 	
 试过openSUSE-leap-15.1 gnome版本DISO文件 在linux下使用 dd命令方式写U盘可以成功启动，使用windows下的ultra写虽然可以引导但不能成功启动
@@ -1942,8 +2011,7 @@ fat32分区最好不要加fsck 为2 ,遇到一次openSUSE-leap-15写入的文件
 (不能挂载vfat,exfat分区，也可能是windows系统更新导致!!!!!,重新格式化vfat分区就可以了）
 （exFAT 报file system is not found不行可能是新的exfat驱动原因，也可能是vmware安装后编译内核导致)
 
-
-
+linux下挂载android的mtp设备 ,  MTP 协议连接移动设备的内部存储
 
 
 

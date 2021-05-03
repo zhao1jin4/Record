@@ -1,6 +1,6 @@
 国家企业信用信息公示系统
 http://www.gsxt.gov.cn/index.html
-
+http://sh.gsxt.gov.cn/index.html  上海 
 
 -----------
 
@@ -187,6 +187,11 @@ NIO，BIO 实现原理  （老的叫BIO）
 通道与流的不同之处在于通道是双向的,UNIX 模型中，底层操作系统通道是双向的。
 通道的读写只对Buffer来操作而不是数组，比按(流式的)字节处理数据要快得多
 
+select使用fdset,有大小限制，
+poll不使用fdset,使用poolfd链接表结构，没有数量限制
+epoll  但是select和poll在“醒着”的时候要遍历整个fd集合，而epoll在“醒着”的时候只要判断一下就绪链表是否为空就行了
+select和poll (每次都是全部遍历fdset)
+
  伪异步IO 一个线程池和任务队列去处理所有客户端的请求,当有一个客户端的读取信息非常慢时，服务器对其的写操作时会很慢，甚至会阻塞很长时间，因为线程池中的线程是有限的，当有客户端需要分配线程时，就会导致新任务在队列中一直等待阻塞的客户端释放线程
 
 只能由一方A传到另一方B，则称为单工
@@ -194,7 +199,11 @@ NIO，BIO 实现原理  （老的叫BIO）
 在任意时刻，线路上存在A到B和B到A的双向信号传输
 
 
-Java逃逸  TLAB 以及Java对象分配 
+锁升级
+
+Java逃逸(将堆分配转化为栈分配)  TLAB(Thread Local Allocation Buffer) 以及Java对象分配 
+逃逸分析
+
 
 ByteBuffer 存在哪
 深入理解 ByteBuffer
@@ -399,7 +408,10 @@ RandomListNode *copyRandomList(RandomListNode *head) {  
 自定义   序列化   Externalizable
  
  
- B+Tree数据只存放在叶子节点上,  叶子节点之间使用链表连接
+ B+Tree数据只存放在叶子节点上,  叶子节点之间使用链表连接,索引和数据放在一起，是即全部数据，
+	索引是主键索引，没有用唯一索引，如再没有自动建立一列rowNum，如一个表多个索引呢？？
+ 
+ Hash索引 ， 范围查询效率低，模块匹配，只能全表扫描
  
  索引怎么实现的  Btree  B 通常认为是Balance的简称怎么存储的  
 http://www.aikaiyuan.com/1809.html
@@ -531,7 +543,7 @@ Chrome 等浏览器强制要求使用 HTTP/2.0 必须要用上 SSL
 
  
 快速排序  选一个轴点，把所有小于这个节点放在左边，大于放在右边，这个轴点的数位置就确定，再相同的递归做左右两边
-
+平均时间复杂度也是O(nlog2n)
 
  http 2.0  , Servlet 4.0
 
@@ -550,6 +562,12 @@ Future(FutureTask 实现了Runable和Future) get  使用了LockSupport.park(暂�
 LockSupport.unpark 唤醒
 
 基于Unsafe类开发 比如Netty Hadoop Kafka等
+CAS 基于一个汇编指令cmpxchg保证原子，但如多核CPU 会有锁总线，现在最新的还有锁北桥信号，
+ABA问题，就是 一个线程修改一个变量速度很快先修改为A再修改为B又修改为A，而一个线程再做CAS时还是拿自己的A去比较，但其实已经被修改过了，但不知道
+
+使用 AtomicReference 如引用变了就不一样了，而不是原始类型
+AtomicStampedReference 带版本号，可以解决ABA问题
+
 
 
 偏向锁→轻量级锁→自旋锁(CAS)→重量级锁
@@ -558,11 +576,19 @@ LockSupport.unpark 唤醒
 	。而操作系统实现线程之间的切换这就需要从用户态转换到核心态，这个成本非常高
  
 	锁可以从偏向锁升级到轻量级锁，再升级的重量级锁（但是锁的升级是单向的，也就是说只能从低到高升级，不会出现锁的降级）
-	默认是开启偏向锁和轻量级锁的，我们也可以通过-XX:-UseBiasedLocking来禁用偏向锁
+	默认是开启偏向锁和轻量级锁的，我们也可以通过-XX:-UseBiasedLocking来禁用偏向锁,jdk15 过时
 
 
 偏向锁    偏向锁只需要在置换ThreadID的时候依赖一次CAS原子指令，一旦出现多线程竞争的情况就必须撤销偏向锁，只有一个线程执行同步块时进一步提高性能
-轻量级锁  没有多线程竞争的前提下，减少传统的重量级锁使用产生的性能消耗。 如果存在同一时间访问同一锁的情况，就会导致轻量级锁膨胀为重量级锁。 获取及释放依赖多次CAS原子指令，为了在线程交替执行同步块时提高性能，
+轻量级锁（自旋锁）  没有多线程竞争的前提下，减少传统的重量级锁使用产生的性能消耗。 如果存在同一时间访问同一锁的情况，就会导致轻量级锁膨胀为重量级锁。 获取及释放依赖多次CAS原子指令，为了在线程交替执行同步块时提高性能，
+
+
+
+偏向锁的获取流程
+查看Mark Word中偏向锁的标识，如是偏向锁，检查对应线程（不是当前线程）是否存在，如不存在，设置头为无锁，再用CAS设置线程
+若为可偏向状态，则测试Mark Word中的线程ID是否与当前线程相同
+	若不相同 当前线程通过CAS操作竞争锁，若竞争成功，则将Mark Word中线程ID设置为当前线程
+	CAS竞争锁失败的情况下，说明有竞争。当到达全局安全点时之前获得偏向锁的线程被挂起，偏向锁升级为轻量级锁，
 
 
 尽管Java1.6为Synchronized做了优化，增加了从偏向锁到轻量级锁再到重量级锁的过度，但是在最终转变为重量级锁之后，性能仍然较低
@@ -612,9 +638,10 @@ else
     return 0
 end
 
---java 实现分布式锁 可用 redisson，还是连接断，锁释放比较好
---etcd分布式锁
---数据库
+--java 实现分布式锁 可用 redisson（Semaphore信号量的tryAcquire方法来阻塞,redis的发布、订阅来唤醒）
+	 还是连接断，锁释放比较好
+--etcd 分布式锁
+--数据库分布式锁
 
 ------
 
@@ -660,21 +687,16 @@ jetcache(alibaba.可远程redis)
 JWT(Json Web Token) ,Oauth2
 spring session ,requestWrapper ，为何不能用继承，因要为所有容器可用
 
-
-spring boot 源码
+ 
 
 
 & 如前为false也会执行&后的代码
 
 
-船按吨拉货，输入根吨货数量如100, 返回拆分成几个来运，如拆分成10,30,60(算法目前不确定，有复杂的算法，生产3个也不是确定的) ，总和要等于根数100,可以把其它两个（多个）合并在一起(应该也不可不合并，或者合并多个)，如结果为40(为10+30),60
-要求根100可以修改，自动计算出拆分数
-
-
 hystrix 关开，开，关，什么时候切换，如失败，失败数+1,达到某个阀值，打开断路器，经过一段时间是半开状态，如再请求失败再打开断路器，如再请求成功关闭断路器
 
 
-redis 分片的定位方法  取模？？？一致性hash????
+redis 分片的定位方法  按key取模？？？一致性hash????
 mysql 索引的定位方法 BTree
 
 缓存击穿 （指数据库中有，但缓存中没有，）
@@ -685,7 +707,7 @@ mysql 索引的定位方法 BTree
  
  
 
-领域驱动设计(DDD:Domain-Driven Design)   统一了分析和设计编程
+领域驱动设计(DDD:Domain-Driven Design)   统一了分析和设计编程，微服务的粒度
 
 
 HashMap为何初始容量是16（2的次方），16-1= 二进制1111要位与操作可以hash均匀分布，降低hash碰撞的几率
@@ -697,8 +719,10 @@ LRU 使用集合类
 ThreadLocal 里存在线程里的（Thread.currentThread()得到）中的一个属性threadLocals里类型为ThreadLocalMap类型
 	(内部是一个初始16长度的Entry数组,如不够用会扩容的,如一个线程使用多ThreadLocal对象个使用this区分)
 	值Entry类型是WeakReference， Entry构造器是把key(即threadLocal this)引用调用父类WeakReference(threadLocal是弱引用，如threadLocal=null就会被回收),value不是,没有被回收内存溢出
-		线程一直在,threadLocal，一直在，如threadLocal只一个一存在的强引用， 下次再set冲前面的，即使用不调用remove()没问题 
-如每次调用new ThreadLoca()，用完一定最要用remove()
+		线程一直在,threadLocal，一直在，如threadLocal只存在一个的强引用， 下次再set冲前面的，即使用不调用remove()没问题 
+
+如每次即每次产生新的线程 ，再销毁也没问题，里面的ThreadLocalMap也销毁
+如	线程一直在,每次产生新的new ThreadLocal(),其它构造器什么也没干（只在get/set时拿当前线程)，用完一定最要用remove()
 
 
 公私钥加签，验签 
@@ -778,5 +802,195 @@ spring的循环依赖 三个缓存，先找singletonObjects，再找 earlySingle
 主键ID生成方案--类snowflake（雪花算法）
 https://github.com/twitter-archive/snowflake  现在没了
 
+动态规划法 即 找钱算法
+贪心算法
 
+
+
+一个表中可以有多个唯一性索引，但只能有一个主键。
+主键列不允许空值，而唯一性索引列允许空值。
+
+
+
+秒杀系统
+ 异步处理  
+ 缓存 
+ 
+ 熔断
+ 限流：
+   
+ 可扩展：服务集群，服务可扩展，这样不仅可以扩大系统的并发量，还可以避免单点故障
+
+MVCC 多版本并发控制 MySQL InnoDB中的实现主要是为了提高数据库并发性能，用更好的方式去处理读-写冲突
+	为每个修改保存一个版本，版本与事务时间戳关联 快照
+
+
+
+redis 的一个键的值很大 (MB),大key,lazy-free
+
+HashMap 容量为什么要是2^n ，原因为，数组下标为 2^n-1 ，转换为二制 全为1，在做hash 时会避免hash冲突
+
+Hystrix 熔断一般是某个服务（下游服务）故障引起
+		服务降级一般是从整体负荷考虑
+
+zookeeper ZAB 协议作为数据一致性的算法
+
+的强一致性 Paxos 算法,raft更好的
+
+redis,zookeeper分布式锁的区别 
+	redisre主写成功立即返回到客户端，再写从，有可能挂了就不行了，
+	zookeeper主写成功写从超半数成功返回到客户端
+	
+	redis在有锁时也在阻塞
+
+redis RedLock  多个节点有超过半数就可以
+
+@MyAutowired ，和@SpringBootApplication中有@ComponentScan
+  InheritableThreadLocal,线程池的threadlocal
+
+rabbitMq 客户端挂了,死信队列很大，怎么办？？？,TTL
+
+Netty 粘包,发送缓冲区，可能一次是多个数据包，拆包，一个包被分成两次发送
+MySQL 8 的主从 replay log,不是binlog
+Mycat
+
+redis 很多的key,比如何知道一个key是否是数据中存在的，比hash更快的 
+redis 布隆过滤器  BloomFilter  主要用于判断一个元素是否在一个集合中，数据库防止穿库，路由在哪个数据库
+布隆过滤器 ：固定大小的二进制向量或者位图（bitmap）和一系列映射函数组成的。当有变量被加入集合时，通过 K 个映射函数将这个变量映射成位图中的 K 个点，把它们置为 1
+查询某个变量的时候我们只要看看这些点 
+    如果这些点有任何一个 0，则被查询变量一定不在；
+    如果都是 1，则被查询变量很可能存在
+只有在布隆过滤器中，才去查询缓存，如果没查询到，则穿透到db。如果不在布隆器中，则直接返回。
+
+redis 中怎么快速定位key,Hash?
+
+MySQL B+Tree  innodb_page_size 默认是16K
+
+Nio 多路复用 poll,epoll,锁升级，gateway ,zuul,openfeign,aio,nio,volitale
+
+mvcc 高可用，群集
+redis keys命令很慢，用scan
+
+数据不能丢失，kafka (acks=all),redis,mysql 
+
+在Client端按一定规则缓存并批量发送。在这期间，如果客户端发生死机等情况，都会导致消息的丢失
+系统会先将数据流写入缓存中，至于什么时候将缓存的数据写入文件中是由操作系统自行决定。 
+commit再处理消息。如果在处理消息的时候异常了
+
+
+Quartz  多节点，会不会重复执行，数据库，感觉乐观锁更新为正在执行，加当前节点为条件，（两节点时间一致）
+
+
+线程池实现原理,包装一个Work,从阻塞队列里取任务，run里面是调用Runnable .run()方法，每个work有Lock串行执行,volatile corePoolSize
+
+kafka  offset ,按时间设置offset ，有API的 
+kafka 分区规则，写消息可传 partition id,如不传就传key使用key的hash决定哪个partition id,如也没传key首次生成随机数决定哪个partition，后面加1
+kafka 一个分区被组内多成员消费
+
+ Kafka 内部存在两种默认的分区分配策略（组）：Range 和 RoundRobin 交叉轮循分配
+	Range 如果有余，则表明有的消费线程之间分配的分区不均匀，那么这个多出来的分区会给前几个消费线程处理
+	partition.assignment.strategy 默认是 org.apache.kafka.clients.consumer.RangeAssignor
+						org.apache.kafka.clients.consumer.RoundRobinAssignor
+ 
+ 
+spring cloud gateway 限流 RequestRateLimiter，redis-rate-limiter  Redis和lua脚本实现了令牌桶的方式
+令牌桶算法的原理是系统会以一个恒定的速度往桶里放入令牌，而如果请求需要被处理，则需要先从桶里获取一个令牌，当桶里没有令牌可取时，则拒绝服务。
+
+漏桶算法思路很简单，请求先进入到漏桶里，漏桶以固定的速度出水，也就是处理请求，当水加的过快，则会直接溢出，也就是拒绝请求，
+
+consule 也可做  key/value 存储 ,configurations,健康检查
+eureka 如没有心跳，默认一分钟才下线 
+
+线程池数 占CPU比较多最大一般是cpu核数+1 ，如果IO读写比较忙，cpu核数*2，如是有很多阻塞*10
+
+redis 	
+		set可以用intset或者字典(拉链法)实现。(只有当数据全是整数值，而且数量少于512个时，才使用intset)
+		zset 数据结构 数据少时，使用ziplist,ziplist占用连续内存，每项元素都是（数据+score）的方式连续存储，按照score从小到大排序,ziplist为了节省内存，每个元素占用的空间可以不同，对于大的数据（long long），就多用一些字节来存储，而对于小的数据（short），就少用一些字节来存储。因此查找的时候需要按顺序遍历。ziplist省内存但是查找效率低
+					 数据多时，使用字典+跳表 ,字典用来根据数据查score，跳表用来根据score查找数据（查找效率高）
+					 
+					 跳表是基于一条有序单链表构造的，通过构建索引提高查找效率，空间换时间，查找方式是从最上面的链表层层往下查找，最后在最底层的链表找到对应的节点：
+					 跳表查找的时间复杂度为O(log(n))。索引占用的空间复杂度为 O(n)。
+					 按照区间查找数据这个操作，红黑树的效率没有跳表高
+					 插入、删除时跳表只需要调整少数几个节点，红黑树需要颜色重涂和旋转，开销较大
+					 
+					dict的保存key/value，便于通过key(元素)获取score(分值)。
+					zskiplist保存有序的元素列表
+		hash就是 字典，希冲突的方法是拉链法			
+		list 底层使用双向链表
+		string 结构体 简单动态字符串（SDS）,记录长度
+		
+		redis 数据库一致，只能更新缓存，延迟更新数据库
+		redis 主从同步是 aof文件？
+		redis 淘汰数据  默认为  noeviction （不驱逐）,
+			allkeys-lru,			 LRU( Least Recently Used) 清最老的数据
+			volatile-lru (volatile对有过期时间的)
+			allkeys-random,
+			volatile-random,
+			
+			volatile-ttl（过期时间的数据集中挑选将要过期的数据淘汰）
+			
+			Redis 4.0 新的 LFU (Least Frequently Used) 将访问频率最少的键值对淘汰。 
+		  volatile-lfu
+		  allkeys-lfu 
+		   惰性删除：当读/写一个已经过期的key时，会触发惰性删除策略，直接删除掉这个过期key（无法保证冷数据被及时删掉）
+			定期删除：Redis会定期主动淘汰一批已过期的key（随机抽取一批key检查）
+			内存淘汰机制：当前已用内存超过maxmemory限定时，触发主动清理策略
+			
+	redis 主从同步，主从刚刚连接的时候，进行全量同步（发送快照）；全同步结束后，进行增量同步（aof）
+		首先会尝试进行增量同步，如不成功，要求从机进行全量同步
+		
+MQ 顺序  ，rabbitmq关闭autoack，prefetchCount=1，每次只消费一条信息，处理过后进行手工ack ,kafka 确保顺序消息发送到同一个partition
+   积压，死信TTL
+ 	一致/丢失(ack)，send方事务
+		
+		
+区别系列，consul,zookeeper,
+	    shiro,spring security
+Pod 生命周期， Pod 被调度到某节点	   ，阶段Pending，Running，Succeeded，Failed，  Unknown
+
+	    	如果 Pod 的 Init 容器失败，kubelet 会不断地重启该 Init 容器直到该容器成功为止。 然而，如果 Pod 对应的 restartPolicy 值为 "Never"，Kubernetes 不会重新启动 Pod。
+			如果为一个 Pod 指定了多个 Init 容器，这些容器会按顺序逐个运行。 每个 Init 容器必须运行成功，下一个才能够运行。当所有的 Init 容器运行完成时， Kubernetes 才会为 Pod 初始化应用容器并像平常一样运行。
+
+如一个处理任务在5分钟还没处理完，就取消kill任务,清资源,线程启动记录Map<Thread,startime>，另一个线程
+
+
+
+Shiro 和 spring security 的区别，shiro 可以支持非web应用 
+
+RabbitMQ 消息可以不经过 Exchange ，直接到Queue
+
+MySQL Innodb CLuster 的Group Replication是否能保证数据不丢失
+MongoDB 索引类型,MongoDB使用B-Tree
+
+
+New/Old区比是 1：2 
+
+
+
+
+cgroups ,systemd 面试 
+cgroups 的全称是 Linux Control Groups，属于Linux内核提供的一个特性,主要作用是限制、记录和隔离进程组（process groups）使用的物理资源（cpu、memory、IO 等）
+Systemd也是对于Cgroup接口的一个封装。systemd以PID1的形式在系统启动的时候运行
+
+flink window 窗口
+jprofile ,eclipse Memory Analyziser
+
+logback+logstash的性能是否有问题。
+mysql innodb  非主键索引存在哪里
+
+
+zuul 和 gateway 区别  gateway 很好的支持异步，而zuul仅支持同步,gateway对比zuul多依赖了spring-webfluxgateway对比zuul多依赖了spring-webflux
+
+redis 数据类型的存储结构 skip table ,dict原理  
+mysql 2千万数据量，性能 
+
+
+http 1.1 服务器推  ，JS EventSource (看network监控 像是ajax多次请求)，Java text/event-stream,可替代websocket?
+
+
+Eureka  自我保护机制,不可用， 默认1分钟才清除
+spring cloud gateway 默认线程数,并发高，多了也没用，CPU有关，最大连接数 spring.cloud.gateway.httpclient.pool.max-connections 没有默认值 ，
+gateway中做filter登录验证行吗，servlet记得不用请求到的
+
+websocket可以跨域 
 

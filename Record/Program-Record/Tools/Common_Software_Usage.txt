@@ -1,4 +1,4 @@
-﻿ 
+
 智能ABC 输入特殊符号  v1 空格
 极点五笔-7.1.3 (win10 的edge 不能用)
 	简繁转换ctrl+J
@@ -66,7 +66,8 @@ Office 2016 Professinal Plus 可以安装在win7 Unlimited上 ,自己的电脑wi
 Office-2016  没有Office-2010 好用,两个版本可以时存在,world 2016 和 excel 2016 有的文件打不开,而2010版本的则可以打开,
 word 2016安装在win7上还会出现内存不断增大,导致系统卡死 ??????
 
-Office 2019  只能安装在 win10上  Project 2019其实就是Project 2016,卸载时看详细版本是一样的
+Office 2019  只能安装在 win10上
+Project 2019其实就是Project 2016,卸载时看详细版本是一样的
 
 
 
@@ -164,7 +165,7 @@ Excel 的ABC列显示为123原因为
 
 可加入 复选框组件 
 File->options->General->右侧树中 复选 Developer,出现Developer菜单->Insert->Form Control中有Check box
-
+viwe->gridline的开关，是否显示网格,灰色的边框
 
 --------PowerPoint
 制作播放菜单
@@ -441,6 +442,8 @@ chrome 允许跨域CORS --disable-web-security --user-data-dir 一定要两个�
  	
 
 -------------Edge --------
+有win7版本，在线下载安装,版本88
+
 自带flash player ...->设置->查看高级设置-> 打开  Adobe Flash Player  
 
 2018年  EdgeHTML 17
@@ -694,6 +697,7 @@ UltraISO 打开可启动的iso文件后(如winPE,win7,一键Ghost光盘版) ,启
 Adobe Reader 如点链接后,想返回,按alt+左键
 world 创建模板文件 另存为(libreOffice导出) pdf  -> Adobe Acrobat Reader Proc DC  再编辑 PDF 
 	->准备表单->工具栏上 添加"文本"域 ,拖出一个区域, 设置变量,itext程序就可以赋值 
+-----一键Ghost 2017 02 17 版本 可能是最后一个U盘的版本(U盘版本安装失败) ghost版本为11.5.1
 
 -------------GIMP
 工具箱 m 移动工具
@@ -714,7 +718,11 @@ http://www.alexa.com/
 
 有安装 winRar , 如有两个.zip文件都有加密码,并且相同,可以把一个zip拖动复制到另一个zip包中,并不提示要密码,注意!!!
 
+-------------- windows版本 autodesk sketchbook﻿  手写笔,草图工具
 
+-------------- linux 版本 Xournal 手写笔,草图工具
+
+ 
 -----------------------Camtasia 8 
 录制时可以拖一个屏幕区域
 
@@ -761,19 +769,30 @@ windows版本没有中文问题
 ---cpu-z
 在Instructions中有VT-x 表示启动了虚拟化 ，还有一个cpu-v
 
+----Teams 依赖Edge(win7有),但提示Edge版本不够，已经最新了 
 
 
+----蓝灯(Lantern)
+https://getlantern.org/zh_CN/index.html
+https://github.com/getlantern/
 
+win7及以上 备用地址
+https://gitlab.com/getlantern/lantern-binaries-mirror/-/raw/master/lantern-installer.exe
+https://s3.amazonaws.com/lantern/lantern-installer.exe
+https://github.com/getlantern/lantern-binaries/raw/master/lantern-installer.exe
 
+Android(4.1+) 备用地址
+https://gitlab.com/getlantern/lantern-binaries-mirror/-/raw/master/lantern-installer.apk
+https://s3.amazonaws.com/lantern/lantern-installer.apk
+https://github.com/getlantern/lantern-binaries/raw/master/lantern-installer.apk
 
+android最新preview版本
+https://raw.githubusercontent.com/getlantern/lantern-binaries/master/lantern-installer-preview.apk
 
+windows7+最新preview版本
+https://raw.githubusercontent.com/getlantern/lantern-binaries/master/lantern-installer-preview.exe
 
-
-
-
-
-
-
+----
 
 
 

@@ -72,6 +72,11 @@ __const__	代替 const,
 __inline__	代替 inline.
 
 
+libstdc++6-devel-gcc7 
+libstdc++6-devel-gcc9 
+
+gcc-c++
+gcc9-c++
 
 ======================Linux C
 #include<unistd.h>

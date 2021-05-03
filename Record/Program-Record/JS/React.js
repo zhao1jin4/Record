@@ -46,6 +46,7 @@ https://react.rocks/example/react-toolbox 有示例
 
 rechart
 
+vscode, elastic search,noe4j,swagger,Audi,CSDN,简书,金山词霸,拼多多 ,腾讯云 官方  是使用react开发的
 
 ----------------------
 默认的npm install很慢，可以使用国内的

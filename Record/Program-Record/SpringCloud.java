@@ -4,16 +4,7 @@ https://microservices.io/
 版本名是伦敦地铁站的名字，字母表的顺序 
  
  
-netflix 的 eureka 闭源，netflix 的 hystrix 不维护  推荐 Resilience4j
-https://spring.io/blog/2018/12/12/spring-cloud-greenwich-rc1-available-now#spring-cloud-netflix-projects-entering-maintenance-mode
-
-CURRENT								REPLACEMENT
-Hystrix								Resilience4j
-Hystrix Dashboard /(actuator,turbine)		Micrometer + Monitoring System
-Ribbon								Spring Cloud Loadbalancer
-Zuul 1								Spring Cloud Gateway
-Archaius 1							Spring Boot external config + Spring Cloud Config
-
+netflix 的 eureka 闭源，netflix 的 hystrix 不维护  推荐 Resilience4j 
 https://docs.spring.io/spring-cloud-netflix/docs/2.2.6.RELEASE/reference/html/			Modules In Maintenance Mode
 Zuul，Ribbon，Hystrix-xx，turbine-xx 都是维护模式，不包括 Euraka 
 
@@ -519,58 +510,8 @@ feign:
       	  
 http://localhost:8765/hi?name=lisi  也是 port:8762 和 port:8763切换
 
-
-
-----------Spring cloud sidecar
-maven 加 
-<dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-netflix-sidecar</artifactId>
-</dependency>
-
-项目注册到eureka上,可以显示这个服务
-
-
-
-sidecar:
-  port: 8000
-  health-uri: http://localhost:8000/health.json
-  
-  加@EnableSidecar 里面有@EnableCircuitBreaker ， @EnableZuulProxy
  
-其它非JVM语言(如node.js)，实现请求health-uri配置的地址返回 
-{
-  "status":"UP"
-}
----sidecar.js
-var url = require('url'); 
-var http = require('http'); 
-var server = http.createServer(function (req, res)
-{ 
-  var pathname=url.parse(req.url).pathname;
-  res.writeHead(200,{'Content-Type':'application/json;charset=utf8'});
-  if(pathname=='/health.json')
-  {
-	res.end(JSON.stringify({"status":"UP"}));
-  }else if(pathname='/')
-  {
-	res.end("welcome to node.js");
-  }else
-  {
-	  res.end("404");
-  }
-})
-server.listen(8000,function(){
-	console.log("server started");
-});
----
-//就可以用ribbon (restTemplate)项目  仿问sidecar服务，就会转发到其它语言上( node.js  8000 )
-//要求node.js要和sidecar服务要在同一台机器上  Run the resulting application on the same host as the non-JVM application.
-//如要不是一台机器配置eureka.instance.hostname未试
-public String sidecar( ) { 
-		//service-sidecar可小写
-	return restTemplate.getForObject("http://service-sidecar/",String.class);
-}
+feign的 max-connections 默认200
 
 ----config 分布式配置中心 
 Git 好处可看历史版本(读无密码),也可从zookeeper,consul,svn,vault,filesystems,jdbc上读
@@ -763,25 +704,6 @@ spring.rabbitmq.password=123
 ----Sleuth  足迹，警犬，侦探 
 Spring Cloud Sleuth 可以结合 Zipkin，将信息发送到 Zipkin
 
-Dapper  一个请求在系统中会经过多个子系统的处理，而且这些处理是发生在不同机器甚至是不同集群上的，
-	当请求处理发生异常时，需要快速发现问题，并准确定位到是哪个环节出了问题 
-Twitter开源的Zipkin就是参考Google Dapper 论文而开发
-
-还有PINPOINT  (也是 Dapper)监控调用哪个链路出现了问题，如响应时间
-https://github.com/naver/pinpoint
- 
-
-https://github.com/openzipkin/zipkin/
-
-java -jar zipkin-server-2.19.2-exec.jar  后就可 http://127.0.0.1:9411/zipkin/  或
-docker run -d -p 9411:9411 openzipkin/zipkin
-
-耗时分析
-可视化错误
-一次完整链路请求所收集的数据被称为Span
-Zipkin 提供了可插拔数据存储方式：In-Memory、MySql、Cassandra 以及 Elasticsearch。生产推荐 Elasticsearch
-Zipkin的 收集器组件，从外部系统发送过来的跟踪信息,并转换为 Zipkin 内部处理的 Span 格式
- 存储组件，API 组件，UI 组件
 
 
 ---service-hi项目
@@ -1054,8 +976,50 @@ spring:
     name: consul-miya
 server:
   port: 8502
+------------------consul-config
+<dependency>
+   <groupId>org.springframework.cloud</groupId>
+   <artifactId>spring-cloud-starter-consul-config</artifactId>
+</dependency>
 
----gateway 
+@RestController
+@RefreshScope //当在consul界面中有配置修改了，这个值立即被刷新
+public class ConfigClientController {
+    @Value("${config.info}")
+    private String configInfo;
+    // http://127.0.0.1:8081/yaml
+    @GetMapping("/yaml")
+    public String getConfigInfo() {
+        return configInfo;
+    }
+}
+
+----bootstrap.yml
+spring:
+  application:
+    name: configConsulApp
+  profiles:
+    active: dev 
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      config: 
+        enabled: true 
+        prefix: root_config #所有key的前缀，显示为目录
+        defaultContext: apps #默认值 application
+        profileSeparator: '-'  
+        format: YAML
+        data-key: data #如为yaml一定设置这个
+        #consul kv put root_config/apps-dev/data   config:info:myval  进入界面修改类型为yaml
+  
+  
+   
+
+
+-----------------gateway 
+gateway 很好的支持异步，而zuul仅支持同步,gateway对比zuul多依赖了spring-webflux
+
 lb://  协议 
 
  <dependency>
@@ -1412,13 +1376,7 @@ spring:
 
 
 ---
-
-Spring Cloud提供为两个库 
-Spring Cloud Context
-Spring Cloud Commons  有不同的实现,如有 Netflix  , Consul
-
-如果使用openJDK可能要Java Cryptography Extension (JCE) local_policy.jar 和 US_export_policy.jar  放在JDK/jre/lib/security 目录中(Oracle JDK不用)
-
+ 
 两个上下文共享一个Environment
 Bootstrap属性的优先级高，因此默认情况下不能被本地配置覆盖
 
@@ -1433,8 +1391,7 @@ spring:
     name: foo
   cloud:
     config:
-      uri: ${SPRING_CONFIG_URI:http://localhost:8888
-	  }
+      uri: ${SPRING_CONFIG_URI:http://localhost:8888}
 	  
 	  
 这样会更好,设置spring.application.name（在bootstrap.yml或application.yml）

@@ -19,6 +19,8 @@ https://github.com/alibaba/spring-cloud-alibaba/tree/master/spring-cloud-alibaba
 也是provider向注册到Nacos,consumer向Nacos取可用服务，直接连接provider而不是Nacos做通讯
 客户端负载均衡
 
+同时支持AP和CP模式,他根据服务注册选择临时和永久来决定走AP模式还是CP模式
+
 下载  nacos-server-1.2.1.zip
 linux 启动 ./startup.sh -m standalone
 windows 双击 startup.cmd
@@ -350,7 +352,9 @@ service.vgroupMapping.storage-service-seata-service-group=default
 业务表有单独的在源码中
 
 
---------Sentinel 流控防护组件
+--------Sentinel 流控防护组件,限流
+
+
  
 
  

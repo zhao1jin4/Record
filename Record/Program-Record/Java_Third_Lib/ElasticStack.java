@@ -15,12 +15,20 @@ vi config/elasticsearch.yml
 	#http.port: 9200
 	#path.data:  <home>/data 
 	#path.logs:  <home>/logs
+	
+新版本提示 必须配置一个 discovery.seed_hosts, discovery.seed_providers, cluster.initial_master_nodes 
+放开
+#cluster.name: my-application
+#node.name: node-1
+#discovery.seed_hosts: ["host1", "host2"]  #做修改可，只要一个,主机名要是可解析的
+#cluster.initial_master_nodes: ["node-1", "node-2"]  #做修改可，只要一个
 
 
 
 ES使用 mmapfs 存储 mapping a file into memory (mmap)
 
 --vi /etc/sysctl.conf
+#virtual memory areas
 vm.max_map_count=262144
 
 sysctl -p 立即生效
@@ -39,7 +47,12 @@ ulimit -Hn 查看
 centOS-7.6 本机和远程 就可以生效
 
 ----???
-openSUSE-leap-15 本机不行，远程登录就可 ，重启没用 ???
+openSUSE-leap-15 本机不行，远程登录就可 ，重启没用 ,redis,SonarQube也要???
+
+
+vi /etc/systemd/system.conf 
+DefaultLimitNOFILE=65536  
+#  nofile - max number of open file descriptors
 
 
 /etc/ssh/sshd_config 中UsePAM 默认yes 
@@ -64,7 +77,8 @@ vi config/jvm.options
 
 
 不能以root运行
-bin\elasticsearch   启动   http://localhost:9200/ 有JSON 返回，包含版本信息的cluser_name,lucene_version
+ES_JAVA_OPTS="-Xms1g -Xmx1g"  ./bin/elasticsearch   #要求Xms和Xmx要一样大
+bin\elasticsearch   启动   http://localhost:9200/  有JSON 返回，包含版本信息的cluser_name,lucene_version
 -d 后台启动
 
 
@@ -90,7 +104,7 @@ bin/elasticsearch-plugin remove analysis-smartcn
 放开
 #cluster.name: my-application
 #node.name: node-1
-#discovery.seed_hosts: ["host1", "host2"]  #做修改可，只要一个
+#discovery.seed_hosts: ["host1", "host2"]  #做修改可，只要一个,主机名要是可解析的
 #cluster.initial_master_nodes: ["node-1", "node-2"]  #做修改可，只要一个
 
 #path.data: /path/to/data
@@ -1039,7 +1053,7 @@ output {
     #password => "changeme"
   }
 }
- 这里的index的值(不能有大写)，要在kibina建立索引时用
+ 这里的index的值(不能有大写)，要在kibana建立索引时用
  
 ---logstash.conf 的(为logback) 输入配置 
 input {
@@ -1079,8 +1093,8 @@ cd  kibana-7.1.1-linux-x86_64/bin
 	
 
  http://127.0.0.1:5601/   有界面
-左侧菜单点management -> index management 显示已有的索引
-左侧菜单点management -> index patterns -> 点 Create index pattern->选择索引名字，可以用*做通配->选择时间字段@timestamp
+左侧菜单点management (新版本变Data)-> index management 显示已有的索引
+左侧菜单点management(新版本变Kibana) -> index patterns -> 点 Create index pattern->选择索引名字，可以用*做通配->选择时间字段@timestamp
 左侧菜单点Discover ->
 	 首次时入 提示 Create index pattern,要先有数据写入后，才能建，即在logstash配置ouput组中index的值, my-sys-* 还要选择日期字段名 默认有@timestamp
  	 下拉可以选择my-sys-* 前缀开头的日志, 过滤条件可以选择日期范围，可选今天

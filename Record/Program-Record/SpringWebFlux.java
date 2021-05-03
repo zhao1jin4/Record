@@ -1,15 +1,15 @@
 
-Ê¹ÓÃ Reactor ¿â×öÎªreact stream, ÎªJDK8,ÈçJDK9¾ÍÒÑ¾­ÓĞFlowÀàÁË£¬Ò²ÊÇreact stream 
+ä½¿ç”¨ Reactor åº“åšä¸ºreact stream, ä¸ºJDK8,å¦‚JDK9å°±å·²ç»æœ‰Flowç±»äº†ï¼Œä¹Ÿæ˜¯react stream 
 
-·´Ó¦Ê½±à³Ì
-ÒªÇóÔËĞĞÔÚServlet 3.1+ÈİÆ÷ÉÏ,Ö§³ÖÒì²½servlet
+ååº”å¼ç¼–ç¨‹
+è¦æ±‚è¿è¡Œåœ¨Servlet 3.1+å®¹å™¨ä¸Š,æ”¯æŒå¼‚æ­¥servlet
 
-0..1 (Mono)    µ¥ÉùµÀµÄ
-0..N (Flux) 	ÈÛ»¯£» ÈÛ½â Á÷³ö [Îï]Á÷Á¿
-¶ÔÓÚ¸´ÔÓµÄÓ¦ÓÃÀ´Ëµ£¬·´Ó¦Ê½±à³ÌºÍ¸ºÑ¹µÄÓÅÊÆ»áÌåÏÖ³öÀ´£¬¿ÉÒÔ´øÀ´ÕûÌåµÄĞÔÄÜµÄÌáÉı 
+0..1 (Mono)    å•å£°é“çš„
+0..N (Flux) 	ç†”åŒ–ï¼› ç†”è§£ æµå‡º [ç‰©]æµé‡
+å¯¹äºå¤æ‚çš„åº”ç”¨æ¥è¯´ï¼Œååº”å¼ç¼–ç¨‹å’Œè´Ÿå‹çš„ä¼˜åŠ¿ä¼šä½“ç°å‡ºæ¥ï¼Œå¯ä»¥å¸¦æ¥æ•´ä½“çš„æ€§èƒ½çš„æå‡ 
 
 @Configuration
-@ComponentScan //index.html·ÂÎÊ²»µ½??
+@ComponentScan //index.htmlä»¿é—®ä¸åˆ°??
 @EnableWebFlux
 public class WebConfig implements WebFluxConfigurer {
 
@@ -26,7 +26,7 @@ public class MyInitializer extends AbstractReactiveWebInitializer {
 	} 
 }
 
-¿ÉÊ¹ÓÃspring boot ,ÄÚ²¿Ê¹ÓÃNettyWebServer,²»ĞèÒªtomcat-embed»òJettyÈİÆ÷
+å¯ä½¿ç”¨spring boot ,å†…éƒ¨ä½¿ç”¨NettyWebServer,ä¸éœ€è¦tomcat-embedæˆ–Jettyå®¹å™¨
 <dependency>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-webflux</artifactId>
@@ -51,12 +51,12 @@ public class BasicController {
 		"username":"lisi"
 	}
 	 
-	 http://127.0.0.1:8080/user/2     ÈçÃ»Êı¾İ¾Í·µ»ØÖ¸¶¨´íÎóÂë
+	 http://127.0.0.1:8080/user/2     å¦‚æ²¡æ•°æ®å°±è¿”å›æŒ‡å®šé”™è¯¯ç 
 	  http://127.0.0.1:8080/user/list
 	*/
 	
     @GetMapping("/hello_world")
-    public Mono<String> sayHelloWorld() { //¿ÉÒÔ·µ»ØMono 
+    public Mono<String> sayHelloWorld() { //å¯ä»¥è¿”å›Mono 
         return Mono.just("Hello World");
     }
 	
@@ -66,7 +66,7 @@ public class BasicController {
     }
 	
 	@GetMapping("/{id}")
-    public Mono<User>getById(@PathVariable("id") final String id) { //·µ»ØÀàĞÍ°ü×°ÔÚ·ºĞÍÖĞ
+    public Mono<User>getById(@PathVariable("id") final String id) { //è¿”å›ç±»å‹åŒ…è£…åœ¨æ³›å‹ä¸­
         return this.userService.getById(id);
     }
     @PostMapping("/create") 
@@ -95,13 +95,13 @@ class UserService {
   user.setId("100");
   user.setName("Test");
   user.setEmail("test@example.org");
-  //springµÄreactiveÏÂµÄWebClient
+  //springçš„reactiveä¸‹çš„WebClient
   final WebClient client = WebClient.create("http://localhost:8080/user");
   final Mono<User> createdUser = client.post()
           .uri("/create")
           .accept(MediaType.APPLICATION_JSON)
           .body(Mono.just(user), User.class)
-          .exchange()//ÇëÇó·şÎñ¶Ë,·µ»ØMono
+          .exchange()//è¯·æ±‚æœåŠ¡ç«¯,è¿”å›Mono
           .flatMap(response -> response.bodyToMono(User.class));
   System.out.println(createdUser.block());
  
@@ -109,11 +109,11 @@ class UserService {
 @RequestMapping("/sse")
 public class SseController {
     @GetMapping("/randomNumbers")
-    //·şÎñÆ÷ÍÆËÍÊÂ¼ş(µ¥ÏòµÄ)£¬·µ»ØServerSentEvent
+    //æœåŠ¡å™¨æ¨é€äº‹ä»¶(å•å‘çš„)ï¼Œè¿”å›ServerSentEvent
     public Flux<ServerSentEvent<Integer>> randomNumbers() {
-        return Flux.interval(Duration.ofSeconds(1)) //·µ»ØÃ¿ÃëÊı£¬1,2,3ÏòÏÂ´«µ½seq±äÁ¿
+        return Flux.interval(Duration.ofSeconds(1)) //è¿”å›æ¯ç§’æ•°ï¼Œ1,2,3å‘ä¸‹ä¼ åˆ°seqå˜é‡
         			  //ThreadLocalRandom
-                .map(seq -> Tuples.of(seq, ThreadLocalRandom.current().nextInt()))//ÏòÏÂ´«ÎªTupel2µ½data±äÁ¿
+                .map(seq -> Tuples.of(seq, ThreadLocalRandom.current().nextInt()))//å‘ä¸‹ä¼ ä¸ºTupel2åˆ°dataå˜é‡
                 .map(data -> ServerSentEvent.<Integer>builder()
                         .event("random")
                         .id(Long.toString(data.getT1()))
@@ -121,12 +121,12 @@ public class SseController {
                         .build());
     }
 }
-²âÊÔÒªÓÃ curl   http://localhost:8080/sse/randomNumbers 
+æµ‹è¯•è¦ç”¨ curl   http://localhost:8080/sse/randomNumbers 
 
 /*
 /*
     	 java.lang.UnsatisfiedLinkError: no netty_transport_native_epoll_x86_64 in java.library.path
-    	spring boot°æ±¾pom ÖĞÒÑ¾­×Ô´øÏÂÃæµÄ£¬»¹ÊÇ±¨´í£¬µ«²»Ó°ÏìÊ¹ÓÃ
+    	spring bootç‰ˆæœ¬pom ä¸­å·²ç»è‡ªå¸¦ä¸‹é¢çš„ï¼Œè¿˜æ˜¯æŠ¥é”™ï¼Œä½†ä¸å½±å“ä½¿ç”¨
     	<dependency>
 	      <groupId>io.netty</groupId>
 	      <artifactId>netty-transport-native-epoll</artifactId>
@@ -139,19 +139,19 @@ public class SseController {
         client.get()
                 .uri("http://localhost:8080/sse/randomNumbers")
                 .accept(MediaType.TEXT_EVENT_STREAM)
-                .exchange()//·µ»ØMono,ºóÈ«ÊÇreactorµÄ·½·¨
-                //Ê¹ÓÃ flatMapMany °Ñ Mono<ClientResponse>×ª»»³ÉÒ»¸ö Flux<ServerSentEvent>¶ÔÏó
+                .exchange()//è¿”å›Mono,åå…¨æ˜¯reactorçš„æ–¹æ³•
+                //ä½¿ç”¨ flatMapMany æŠŠ Mono<ClientResponse>è½¬æ¢æˆä¸€ä¸ª Flux<ServerSentEvent>å¯¹è±¡
                 .flatMapMany(response -> 
                 				response.body(
                 						BodyExtractors.toFlux( 
-                								//±íÎ´ÁËÏìÓ¦ÏûÏ¢Á÷ÖĞµÄÄÚÈİÊÇ ServerSentEvent ¶ÔÏó
+                								//è¡¨æœªäº†å“åº”æ¶ˆæ¯æµä¸­çš„å†…å®¹æ˜¯ ServerSentEvent å¯¹è±¡
                 								new ParameterizedTypeReference<ServerSentEvent<String>>() {}
                 								)
                 			 	)
                 			)
                 .filter(sse -> Objects.nonNull(sse.data()))
-                .map(ServerSentEvent::data)//dataº¯ÊıÃ»ÓĞ²ÎÊı,¿ÉÒÔ²»½ÓÊÕ£¿£¿£¿
-                .buffer(10)//À´»ñÈ¡Ç° 10 ÌõÏûÏ¢²¢Êä³ö
+                .map(ServerSentEvent::data)//dataå‡½æ•°æ²¡æœ‰å‚æ•°,å¯ä»¥ä¸æ¥æ”¶ï¼Ÿï¼Ÿï¼Ÿ
+                .buffer(10)//æ¥è·å–å‰ 10 æ¡æ¶ˆæ¯å¹¶è¾“å‡º
                 .doOnNext(System.out::println)
                 .blockFirst();
 
@@ -159,12 +159,12 @@ public class SseController {
 -------websocket
 import org.springframework.web.reactive.socket.WebSocketHandler;
 @Component
-//webSocketË«ÏòµÄ
+//webSocketåŒå‘çš„
 public class EchoHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(final WebSocketSession session) {
-        return session.send(  //²ÎÊıÀàĞÍÎª Publisher<WebSocketMessage> 
-                session.receive()//·µ»ØMono<WebSocketMessage>
+        return session.send(  //å‚æ•°ç±»å‹ä¸º Publisher<WebSocketMessage> 
+                session.receive()//è¿”å›Mono<WebSocketMessage>
                         .map(msg -> session.textMessage("ECHO -> " + msg.getPayloadAsText())));
     }
 }
@@ -195,16 +195,16 @@ public class WebSocketConfiguration {
     }
 }
   
-//webSocket¿Í»§¶Ë
+//webSocketå®¢æˆ·ç«¯
   final WebSocketClient client = new ReactorNettyWebSocketClient();
-  //executeº¯ÊıÓë·şÎñ¶ËÁ¬½Ó
+  //executeå‡½æ•°ä¸æœåŠ¡ç«¯è¿æ¥
   client.execute(URI.create("ws://localhost:8080/echo"),
         		session ->
         			session.send(Flux.just(session.textMessage("Hello")))
                         .thenMany(
-                        		//receive ·½·¨À´µÈ´ı·şÎñÆ÷¶ËµÄÏìÓ¦²¢Êä³ö¡£take(1)µÄ×÷ÓÃÊÇ¿Í»§¶ËÖ»»ñÈ¡·şÎñÆ÷¶Ë·¢ËÍµÄµÚÒ»ÌõÏûÏ¢¡£
+                        		//receive æ–¹æ³•æ¥ç­‰å¾…æœåŠ¡å™¨ç«¯çš„å“åº”å¹¶è¾“å‡ºã€‚take(1)çš„ä½œç”¨æ˜¯å®¢æˆ·ç«¯åªè·å–æœåŠ¡å™¨ç«¯å‘é€çš„ç¬¬ä¸€æ¡æ¶ˆæ¯ã€‚
 		                        session.receive().take(1)
-                        		.map(WebSocketMessage::getPayloadAsText)//getPayloadAsTextº¯ÊıÃ»ÓĞ²ÎÊı,¿ÉÒÔ²»½ÓÊÕ£¿£¿£¿
+                        		.map(WebSocketMessage::getPayloadAsText)//getPayloadAsTextå‡½æ•°æ²¡æœ‰å‚æ•°,å¯ä»¥ä¸æ¥æ”¶ï¼Ÿï¼Ÿï¼Ÿ
                         		)
                         .doOnNext(System.out::println)
                         .then()
@@ -216,12 +216,12 @@ public class WebSocketConfiguration {
 // http://localhost:8080/calculator?operator=xxx&v1=4&v2=5
 // http://localhost:8080/calculator?operatorxxx=xxx&v1=4&v2=5
 
-//º¯ÊıÊ½±à³Ì
+//å‡½æ•°å¼ç¼–ç¨‹
 @Configuration
 public class Config {
     @Bean
     @Autowired
-    //RouterFunctionÀàĞÍµÄBean»á×¢²áURLµØÖ·£¬
+    //RouterFunctionç±»å‹çš„Beanä¼šæ³¨å†ŒURLåœ°å€ï¼Œ
     public RouterFunction<ServerResponse>routerFunction(final CalculatorHandler calculatorHandler) {
         return RouterFunctions.route(
         		RequestPredicates.path("/calculator"), 
@@ -234,13 +234,13 @@ public class Config {
 			                        .flatMap(new Function<Method,Mono<ServerResponse>>()
 			                        {
 			                        	 public Mono<ServerResponse> apply(Method method)
-			                        	 {   //Èç¹ûÇ°ÃæµÄ·½·¨´æÔÚ£¨justOrEmpty×öµÄ£©£¬µ÷ÓÃÕâÀï£¬·ñÔò²»µ÷ÓÃÕâÀï
+			                        	 {   //å¦‚æœå‰é¢çš„æ–¹æ³•å­˜åœ¨ï¼ˆjustOrEmptyåšçš„ï¼‰ï¼Œè°ƒç”¨è¿™é‡Œï¼Œå¦åˆ™ä¸è°ƒç”¨è¿™é‡Œ
 			                        		 return (Mono<ServerResponse>) ReflectionUtils.invokeMethod(method, calculatorHandler, request);
 			                        	 }
 			                        }) 
-		                        .switchIfEmpty(ServerResponse.noContent().build())//operator²ÎÊıÖµ´íÎó(Èç²»ÊÇadd)
+		                        .switchIfEmpty(ServerResponse.noContent().build())//operatorå‚æ•°å€¼é”™è¯¯(å¦‚ä¸æ˜¯add)
 		                        .onErrorResume(ex -> ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).build())//???
-                           ).orElse(ServerResponse.status(HttpStatus.NOT_ACCEPTABLE) .build() ) //Ã»ÓĞ´«operator²ÎÊı
+                           ).orElse(ServerResponse.status(HttpStatus.NOT_ACCEPTABLE) .build() ) //æ²¡æœ‰ä¼ operatorå‚æ•°
 	        );
     }
 }
@@ -280,7 +280,7 @@ public class CalculatorHandler {
 }
 
 
-//µ¥Ôª²âÊÔ,spring-testÖĞ´øwebflux
+//å•å…ƒæµ‹è¯•,spring-testä¸­å¸¦webflux
  private final WebTestClient client = WebTestClient.bindToServer().baseUrl("http://localhost:8080").build();
  @Test
  public void testCreateUser() throws Exception {

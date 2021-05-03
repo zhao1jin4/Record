@@ -346,7 +346,7 @@ dubbo-server.xml 接口方法参数类 implements Serializable
 可以使用 telent 127.0.0.1 28004 连接上用 ls看所有提供服务
 
 dubbo consumer 负载均衡策略
-1.Random  随机　按权重
+1.Random  随机　按权重  默认 
 2.RoundRobin 轮循 按权重
 3.LeastActive  最少活跃调用数,相同活跃数的随机  ,调用前后计数差,慢的提供者收到更少请求，因为越慢的提供者的调用前后计数差会越大
 4.ConsistentHash  一致性Hash  缺省只对第一个参数Hash，

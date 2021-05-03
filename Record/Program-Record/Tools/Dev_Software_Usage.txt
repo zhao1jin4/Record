@@ -343,6 +343,8 @@ Server -> Data Export->只能选整个库。
  select  * from xx procedure analyse() 表格中显示blob其实是字符
 ---- 
 -------------MyFront 5.3 免费
+-------------HeidiSQL
+只支持windows,只支持MySQL,MariaDB,SQLServer,SQLite实验中, 是用C客户端开发,自带.dll文件
 
 -------------SQLyog(MySQL工具收费,只windows)    
 
@@ -428,8 +430,8 @@ PHP5.6 最新版本为 php-5.6.39-Win32-VC11-x64.zip
 extension=mongodb
 
  
--------------DBeaverEE 可 mongoDB , Redis
-有CE免费版本,基于 eclipse
+-------------DBeaverEE 可 mongoDB , Redis,Neo4j
+有CE免费版本(不支持Mongo, Redis),CE有Neo4j，基于 eclipse
 有eclipse插件和各系统的独立包,见eclipse中
 windows版本要打开防火墙,Inbound rule
 CE版本可以查看BLOB内容 ,可以写sql时自动提示,比DBvisulizer free版本强
@@ -769,6 +771,9 @@ IE  -> 工具 -> 选项 -> 连接 -> 局域网设置->高级->设置 ->看HTTP�
 
 -------------Fiddler 代理工具
 4.6 可对edge有效 目前最新是5.0
+
+wine安装 fiddler 5 测试中。。。
+
 win10中修改了 设置->网络和Internet->代理->打开了 使用代理服务器  在地址中写了 http=127.0.0.1:8888;https=127.0.0.1:8888
 
 对IE 11 有效,也可在工具栏上修改为Firefox
@@ -799,6 +804,9 @@ Rules-> Automatic Breakpoint  ->Before Requests(这种方法会中断所有的�
 --- 手机
 Tools >   Options  > Connections -> 打开 Allow remote computers to connect 重启fiddler，查端口
 Tools >   Options  > HTTPS -> 复选Decrypt HTTPS Traffic  复选Ignore server certifcate errors(unsafe)
+	PC端可能会提示作用根证书，查看Action->Export Root Certification to Desktop
+	手机端 仿问 http://<PC-IP>:8888 页面中有下载证书的连接，做安装即可使用https
+
 
 ------------ Hemes JMS
 启动后会在C:\下生成一个 %HOMEPATH%\.hermes 目录 所有的配置存在那里
@@ -934,7 +942,11 @@ Connection->SSH->Auth 可以选择一个私钥，格式为.ppk文件，IP格式�
 
 ssh -i /xx/ssh_private_file xuser@xhost (这个文件是puttygen 工具 conversion -> export open ssh转ppx文件到ssh文件) 就可无密码登录了
 
- 
+------MobaXterm Home免费版
+新建SSH时，Specify username中输入root,在Bookmark setting标签 -> session name 中为IP 起别名
+
+可以像XShell一样的多标签窗口，工具栏上的MultiExec可以像Xshell一样，同时在多个窗口执行命令
+地址窗口上方有一个  上传 按钮 ，可以直接上传文件
 
 ------------ FileZilla
 help->about 查看 默认 文件目录为 %APPDATA%\FileZilla
@@ -1158,7 +1170,10 @@ Rule菜单 -> Java有很多规则,如何修改?
   BugZilla(Perl)
   HP QC(Quality Center)
   
---------- starUML
+--------- starUML 
+Evulate永久免费
+有Mac,Linux版本（Redhat,Fedora的rpm）
+
 Model->Add Diagram->Sequence Diagram
  
 ================Visual Studio Code 
@@ -1180,6 +1195,11 @@ VSCode-win32-x64-1.39.2\bin\code --help
 bin\code --list-extensions 还是使用默认的目录 
 bin\code --list-extensions  --extensions-dir D:\Program\vscode_data\extensions
 
+离线下载插件  .vsix文件 ，安装使用VSCode-1.xx\bin\code --install-extension <path\xx.vsix>  对兼容版本有要求 
+https://marketplace.visualstudio.com
+
+
+%USERPFORILE%\AppData\Roaming\Code\User\settings.json 是保存全局设置
 
 默认文件编码为UTF-8,
 Setting->Text Editor->Files-> Encoding 组默认为UTF-8
@@ -1214,12 +1234,16 @@ File->preferences-> extensions  可以在线安装 各种语言的 如 C/C++(Min
  
 terminal窗口中可下拉选择gitbash,下次建立terminal 生效
 
-离线下载插件  .vsix文件 ，安装使用VSCode-1.xx\bin\code --install-extension <path\xx.vsix>  对兼容版本有要求 
-https://marketplace.visualstudio.com
 
 outline视图，打开方式 view->open view...-> 输入outline
 
-
+运行也会自动保存 
+	Task:Save Before Run默认为always  
+	
+保存时自动格式化注释
+	Editor:Format On Save 默认是没有选中的
+		
+		
 ----- Node JS
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
 
@@ -1229,7 +1253,7 @@ outline视图，打开方式 view->open view...-> 输入outline
 
 
 -----自带Git功能 
-ctrl+shift+p,空项目时有提示，输入命令git:clone但会提示未尾有错误，不如TortoiseGit好用
+(View->Command Palette)ctrl+shift+p,空项目时有提示，输入命令git:clone但会提示未尾有错误，不如TortoiseGit好用
 source control 视图-> 可以右击多个文件 -> discard change ,stage change 
 				右上角的...按钮->pull,commit(没有提示输入comment),undo last commit,show git output
 				
@@ -1285,45 +1309,258 @@ xdebug.remote_host = 192.168.1.102
 ;对应phpStorm配置中xdebug的端口
 xdebug.remote_port = 9000
 
------ Go  扩展
-	打开.go文件时  提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装(就一个main.go文件)
-		又提示 不认导入路径  golang.org/x/tools/go/buildutil , get连接失败，被墙了
-	https://github.com/golang/tools/tree/master/go/buildutil 中有
-	项目下载下来,cd tools-master\go\buildutil 执行 go install
-	再go get 就可以了, ~\go\bin下就有go-outline.ex
-
-		
-	go help get ,显示 -v verbose,-u update
-		
-	安装后,Debug视图->上方的设置按钮生成.vscode/launch.json
+---Visual Studio Code(vscode) 的Go  Extension
+	go env -w GOPROXY=https://goproxy.cn,direct 
+	go env -w  GO111MODULE=on  表示不下载源码 %USERPROFILE%\go\src下没有新增,%USERPROFILE%\go\pkg\mod(也有源码)和%USERPROFILE%\go\bin有新增
+	打开.go文件时  
+	提示 gopls 命令找不到,使用 go get -v  golang.org/x/tools/go/gopls 被墙了
+		https://github.com/golang/tools/tree/master/gopls
+		cd tools-master\go\gopls 执行 go install 
+		#又提示要github.com/jba/templatecheck@v0.5.0 (https://github.com/jba/templatecheck)
+		#下载  "https://proxy.golang.org/github.com/jba/templatecheck/@v/v0.5.0.mod"  失败
+		#go env -w GOPROXY=https://goproxy.cn,direct 再来
+	提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装,可能不行，使用vscode的install按钮是可以的
+		( 
+			就一个main.go文件
+			又提示 不认导入路径  golang.org/x/tools/go/buildutil , get连接失败，被墙了
+			https://github.com/golang/tools/tree/master/go/buildutil 中有
+			项目下载下来,cd tools-master\go\buildutil 执行 go install
+			再go get -v github.com/ramya-rao-a/go-outline  就可以了, ~\go\bin下就有go-outline.exe
+		)
+	
+	打开.go文件 -> 调试启动按钮
+	提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,~\go\bin下就有dlv.exe
+		(//上可以成功，这部分不用
+			https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
+			也可下载后进入目录  go install
+		)
+	写代码时 类.时 
+	提示 gocode 找不到 ,  go get -v github.com/uudashr/gopkgs/v2/cmd/gopkgs  安装 
+	
+	安装后,Debug视图->create a launch.json file 链接->Go: Launch file 或者Go: Launch package, 生成.vscode/launch.json
 	{ 
 		"version": "0.2.0",
 		"configurations": [
-			{
-				"name": "Launch",
+			  {
+				"name": "Launch file",
 				"type": "go",
 				"request": "launch",
-				"mode": "auto",
-				"program": "${fileDirname}",
-				"env": {},
-				"args": []
+				"mode": "debug",
+				"program": "${file}"
 			}
 		]
 	}
-	如没有生成launch.json,不能运行xx_test.go文件,如有则可以(文件在任何目录，没有设置GOPATH,代码没有放在src目录下)
-		
-	打开.go文件 ->调试启动按钮，提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,要花点时间下载的
-	https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
-	也可下载后进入目录  go install
+	当Go: Launch package时，一个目录（工作区）只可有一个main函数 
+	  {
+            "name": "Launch Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}"
+       }
+	   
+	debug时不依赖gdb 
+	go help get ,显示 -v verbose,-u update
 	
-	写代码时 类.时 提示 gocode 找不到 , go get -v github.com/mdempsky/gocode 安装
-	选中方法名->右击 go to type definition 提示 guru 找不到 , go get -v golang.org/x/tools/cmd/guru 安装
+
+同时debug两个go文件(如服务端和客户端),调用一个进行中,再启动另一个调试,CALL STACK 视图显示多个进程 不行????
+ launch.json中增加如下,测试不行???
+ { 
+    "version": "0.2.0",
+    "configurations": [
+		{
+            "name": "Client",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/src/adv/mynet/myrpc_client.go"
+        },
+        {
+            "name": "Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/src/adv/mynet/myrpc_server.go"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Server/Client",
+            "configurations": [
+                "Server",
+                "Client"
+            ],
+            //"preLaunchTask": "${defaultBuildTask}"
+        }
+    ] 
+	只能文件在不同目录，启动两个vscode来做
 	
-	一个目录（工作区）只可有一个main函数
------  Python  扩展
+	 
+	
+
+Go不是在terminal窗口中运行，而是在Debug Console 窗口运行，所以读不到标准输入？？
+可能lauch.json中为 "type": "go",如C++的 为"cppdbg"是在terminal窗口中运行的
+
+fmt.Printf("请输入两个数\n")
+var x, y int
+fmt.Scan(&x, &y)
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
+fmt.Print("请输入")
+in:=bufio.NewReader(os.Stdin)
+str,_:=in.ReadString('\n'); //这里才可开始读,以\n做为结束
+fmt.Print(str)
+
+
+---------  Python  扩展
 提示安装 pylint,也可不安装
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言, 选Python file ->会自动生成launch.json
 下拉显示Python:Current File ,打断点，启动按钮，即可调试
+--------- C/C++  扩展
+Mac 安装 clang --version
+windows 安装  MinGW-x64 
+	安装时architecture下拉选择x86_64,默认安装在C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
+	放PATH环境变量,g++ version 版本为 8.1
+	
+linux下 开发安装 libstdc++6-devel-gcc7 或 libstdc++6-devel-gcc9  软件包
+	
+写示例程序 
+#include<iostream>
+using namespace std; 
+int main()
+{
+    cout<<"hello"<<endl;
+	int input;
+    cout<<"please input ";
+    cin>>input;
+    cout<<"input="<<input;
+}
+	
+ Terminal > Run Build Task ->提示选择 C/C++: g++.exe build active file (另一个是gcc)
+ 
+ 生成.exe, 支行后没有打印hello?  (或许用 Run-> Run without debuging) 重启安装完.NetFramework4.6.2后就好了
+ 
+点debug按钮，win7下提示要安装 .NetFramework4.6.2(下载runtime版本即可) (也可用Cygwin)，默认就有生成  miDebuggerPath 指向gdb
+测试成功
+
+Linux下debug (windows MinGW) 可能要 Run and Debug按钮 (或者  Run-> Start Debug ) ->选择C++(GDB/LLDB)  ->选择一个XXX build and debug active file ，会生成一个task.json文件   "program": "${fileDirname}/${fileBasenameNoExtension}",
+(这样可以一个项目中有很多main方法，只编译选中的文件,但如是多个文件组成的项目就不行了)
+
+
+如只是点 create a launch.json链接 （选择C++(GDB/LLDB)  ->选择一个default configuration） 只生成一个launch.json文件，如debug，要修改  "program": "enter program name, for example ${workspaceFolder}/a.out",
+
+因是在terminal窗口中运行，所以读到标准输入
+
+---配置引用库 未成功？？？
+ctrl+, （左边设置图标->settings）打开设置 ->Extension->C/C++ ->  找C_Cpp>Default:Include Path下有Edit Settings.json （这个文件生成用户目录下，是全局设置）
+
+(View->Command Palette)ctrl+shift+p ->输入到有提示 C/C++: Edit Configurations(JSON)会生成一个 c_cpp_properties.json 文件 "includePath": []中增加，但编译还是报错，
+task.json中修改命令参数，没有报找不到头文件，但说c_cpp_properties.json 文件 有问题？？
+
+手工g++命令加参数编译可以， g++ -o mysql_conn C_MySQLSelect_OK.C  -I ~/mysql-8.0.18-linux-glibc2.12-x86_64/include/ -L ~/mysql-8.0.18-linux-glibc2.12-x86_64/lib/  -l mysqlclient
+运行就找不到库 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/mysql-8.0.18-linux-glibc2.12-x86_64/lib  就可以了
+
+----windows下对于安装 MSVC Build Tool 做debug 
+要 Run and Debug按钮 (或者  Run-> Start Debug ) ->选择C++(Windows)->选择一个 cl.exe Build and debug Active file
+报错,help-> toggle develop tools是chrome的F12, 原因是code没有运行在 Developer Command Prompt
+开始搜索Developer,找到 Developer Command Prompt for Visual Studio 输入 cl 命令做测试，使用 code .  启动vscode才可,第二个参数表示打开当前目录
+debug 测试成功  参考 Rust/VC 中安装 MSVC Build Tool
+
+
+--------- Rust扩展 preview
+目前不能打断点，Settings->搜索break, Debug:Allow Breakpoints Everywhere 做选中
+要 Run and Debug按钮 (或者  Run-> Start Debug ) -> windows系统 选择C++(Windows) ->修改launch.json中的   
+	"program": "${workspaceFolder}/target/debug/${workspaceFolderBasename}",
+cargo建立项目 调试测试成功，但如修改文件，要手工编译才生效
+
+launch.json 手工增加 "preLaunchTask": "rust_cargo_build", 
+preLaunchTask对应的值 rust_cargo_build 就是在tasks.json里的label字段,可复制 C/C++: g++.exe build active file 生成
+--tasks.json
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "rust_cargo_build",
+            "command": "cargo",
+            "args": [
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
+
+--最终 launch.json (windows VC)
+{ 
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "win rust cargo",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/target/debug/${workspaceFolderBasename}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [], 
+            "preLaunchTask": "rust_cargo_build", 
+            "externalConsole": false
+        }
+    ]
+}
+cargo项目，修改文件,debug 测试成功
+
+------rustc 方式 可运行，测试debug也成功
+---launch.json
+{ 
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "rustc run  current file",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/target/${fileBasenameNoExtension}.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "preLaunchTask": "rustc_build", 
+            "externalConsole": false
+            
+        }
+    ]
+}
+----tasks.json
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "rustc_build",
+            "command": "rustc",
+            "args": [
+                "${workspaceFolder}/src/${fileBasename}",
+                "--out-dir",
+                "target",
+                "-o",
+                "${workspaceFolder}/target/${fileBasenameNoExtension}.exe",
+				"-g"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
+
+----Markdown 扩展
 
 
 ----Kubernetes 扩展
@@ -1342,7 +1579,7 @@ Java Dependency Viewer
 Visual Studio IntelliCode
 
 右击工作区 -> Create Maven Project 
-(也可 ctrl+shift+p,空项目时有提示，输入命令maven: create Maven project，就是执行mvn命令)
+(也可(View->Command Palette) ctrl+shift+p,空项目时有提示，输入命令maven: create Maven project，就是执行mvn命令)
 
 ctrl+. 即 quick fix 可导入类，重命名文件
 写代码像eclipse一样智能，ctrl+点类名会跳到源码，鼠标滑类上有说明 ，写类会提示所在包，自动加import
@@ -1357,7 +1594,7 @@ Debug视图->上方的设置按钮->选Java ->生成launch.json
 File-> add folder to workspace...选择maven项目主目录
 
 -----扩展 Spring Initializr Java Support(microsoft)
-ctrl+shift+p,空项目时有提示，输入命令Spring Initializr:create maven project
+(View->Command Palette)ctrl+shift+p,空项目时有提示，输入命令Spring Initializr:create maven project
 也是下载
 
 -----扩展 Sring Boot Tools(pivotal)

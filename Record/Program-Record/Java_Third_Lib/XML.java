@@ -1,6 +1,6 @@
-
+ï»¿
 ==============================Dom4j
----------Dom4j Ğ´
+---------Dom4j å†™
 Document document = DocumentHelper.createDocument();
 Element root = document.addElement("root");
 Element status=root.addElement("status");
@@ -8,23 +8,23 @@ status.addText("OK");
 
 model.addAttribute("id","1")
 	.addAttribute("name", "lisi");
-System.out.println( document.asXML());//ÓĞ<?xml 
-System.out.println(root.asXML());//ÎŞ<?xml  
-root.write(response.getWriter());//ÊÇÒ»ĞĞµÄ,ServletÖĞ
-//ÒÔÉÏ¡¡¡¡Ã»ÓĞ<?xmlÍ·
+System.out.println( document.asXML());//æœ‰<?xml 
+System.out.println(root.asXML());//æ— <?xml  
+root.write(response.getWriter());//æ˜¯ä¸€è¡Œçš„,Servletä¸­
+//ä»¥ä¸Šã€€ã€€æ²¡æœ‰<?xmlå¤´
  
   
 FileWriter fileWriter = new FileWriter("c:/temp/hello.xml");  
 //OutputFormat xmlFormat = new OutputFormat();  
 OutputFormat xmlFormat = OutputFormat.createPrettyPrint();
 xmlFormat.setEncoding("GBK");  
-xmlFormat.setIndent(true);//"»òÕßÊÇ¼¸¸ö¿Õ¸ñ"
-XMLWriter xmlWriter = new XMLWriter(fileWriter,xmlFormat);//ÊÇ¸ñÊ½ºÃµÄ,response.getWriter()
-xmlWriter.write(document);//ÓĞ<?xml
-//xmlWriter.write( root );//ÎŞ<?xml
+xmlFormat.setIndent(true);//"æˆ–è€…æ˜¯å‡ ä¸ªç©ºæ ¼"
+XMLWriter xmlWriter = new XMLWriter(fileWriter,xmlFormat);//æ˜¯æ ¼å¼å¥½çš„,response.getWriter()
+xmlWriter.write(document);//æœ‰<?xml
+//xmlWriter.write( root );//æ— <?xml
 xmlWriter.close(); 
 
----------Dom4j SAX¶Á
+---------Dom4j SAXè¯»
 <dependency>
 	<groupId>jaxen</groupId>
 	<artifactId>jaxen</artifactId>
@@ -32,33 +32,33 @@ xmlWriter.close();
 </dependency>
 	
 Document document = DocumentHelper.parseText(xmlSoapResponse.toString());
-Element soapenvNode = document.getRootElement().element("Body").element("respone1");//dom4j»á±£ÁôÃû³Æ¿Õ¼ä,w3cµÄ²»»á
+Element soapenvNode = document.getRootElement().element("Body").element("respone1");//dom4jä¼šä¿ç•™åç§°ç©ºé—´,w3cçš„ä¸ä¼š
 
-FileReader in= new FileReader( "c:/temp/output.xml" );//»òÕßÊ¹ÓÃStringReader
+FileReader in= new FileReader( "c:/temp/output.xml" );//æˆ–è€…ä½¿ç”¨StringReader
 SAXReader reader=new SAXReader();
-Document doc=reader.read(in);//ÎŞ<?xml,ÓĞ<?xml ¶¼¿É½âÎö
-java.util.List list=root.selectNodes("//author[@name='James']");//Òªorg/jaxen/
+Document doc=reader.read(in);//æ— <?xml,æœ‰<?xml éƒ½å¯è§£æ
+java.util.List list=root.selectNodes("//author[@name='James']");//è¦org/jaxen/
 
 Element root=doc.getRootElement();
-System.out.println("¸ù½ÚµãÃû£º"+root.getName());
+System.out.println("æ ¹èŠ‚ç‚¹åï¼š"+root.getName());
 //root.elementByID("")
 List<Element> authors=root.elements();
-//¿É root.element("×ÓÒ»¼¶").element("×Ó¶ş¼¶")
+//å¯ root.element("å­ä¸€çº§").element("å­äºŒçº§")
 for(Iterator<Element> it= authors.iterator();it.hasNext();)
 {
 	Element author= it.next();
 	Attribute attr=author.attribute("name");
-	System.out.println("ÊôĞÔ£º"+attr.getValue());
-	System.out.println("ÎÄ±¾£º"+author.getText());
+	System.out.println("å±æ€§ï¼š"+attr.getValue());
+	System.out.println("æ–‡æœ¬ï¼š"+author.getText());
 	
 }
 in.close();
-//-------dom4j DOM¶Á
+//-------dom4j DOMè¯»
 DOMReader domReader=new DOMReader();
 org.dom4j.Document doc4j=domReader.read(doc);//org.w3c.dom.Document -> org.dom4j.Document
-//doc4j.accept(new MyVisitor());//·½Ê½Ò»
-Element root=doc4j.getRootElement();//·½Ê½¶ş
-java.util.List list=root.selectNodes("//author[@name='James']");//Òªorg/jaxen/
+//doc4j.accept(new MyVisitor());//æ–¹å¼ä¸€
+Element root=doc4j.getRootElement();//æ–¹å¼äºŒ
+java.util.List list=root.selectNodes("//author[@name='James']");//è¦org/jaxen/
 for(int i=0;i<list.size();i++)
 {
 	System.out.println(((Element)list.get(i)).getData());
@@ -66,16 +66,16 @@ for(int i=0;i<list.size();i++)
 class MyVisitor extends VisitorSupport
 {
 	public void visit(Attribute node) {
-		System.out.println("ÊôĞÔ£º"+node.getName()+"="+node.getValue());
+		System.out.println("å±æ€§ï¼š"+node.getName()+"="+node.getValue());
 	}
 	public void visit(Element node) {
 		if(node.isTextOnly())
-			System.out.println("ÔªËØ£º"+node.getName()+" > "+node.getText());
+			System.out.println("å…ƒç´ ï¼š"+node.getName()+" > "+node.getText());
 		else
-			System.out.println("ÔªËØ£º"+node.getName());
+			System.out.println("å…ƒç´ ï¼š"+node.getName());
 	}
-	public void visit(ProcessingInstruction node) {//Ö¸Áî,ÈçÒıÓÃXSL
-		System.out.println("Í·£º"+node.getTarget());
+	public void visit(ProcessingInstruction node) {//æŒ‡ä»¤,å¦‚å¼•ç”¨XSL
+		System.out.println("å¤´ï¼š"+node.getTarget());
 	}
 }
 ==============================xerces
@@ -86,17 +86,17 @@ class MyVisitor extends VisitorSupport
     <version>2.12.0</version>
 </dependency>
 
-xercesImpl.jar/META-INF/services/javax.xml.parsers.DocumentBuilderFactoryÎÄ¼şÖĞ¼ÇÂ¼×ÅDocumentBuilderFactoryÊµÏÖÀà
+xercesImpl.jar/META-INF/services/javax.xml.parsers.DocumentBuilderFactoryæ–‡ä»¶ä¸­è®°å½•ç€DocumentBuilderFactoryå®ç°ç±»
 
----------xerces ¶Á    //²»ÄÜºöÂÔËõ½ø¿Õ°×??????????
+---------xerces è¯»    //ä¸èƒ½å¿½ç•¥ç¼©è¿›ç©ºç™½??????????
 org.apache.xerces.parsers.DOMParser  parser = new DOMParser();//xerces 
 InputStream input=TestXerces.class.getResourceAsStream("/testxml/rule.xml");
 InputSource source=new InputSource(input);
 parser.parse(source);//parser.parse("employees.xml");
 org.w3c.dom.Document doc1=parser.getDocument();
   
----------xerces Ğ´  
-//Êä³ö¸ñÊ½Á¼ºÃ,¹ıÊ±µÄµÄ,ÍÆ¼öÓÃDOM Level 3 LSSerializer »òÕß JAXP's Transformation 
+---------xerces å†™  
+//è¾“å‡ºæ ¼å¼è‰¯å¥½,è¿‡æ—¶çš„çš„,æ¨èç”¨DOM Level 3 LSSerializer æˆ–è€… JAXP's Transformation 
 OutputFormat   outputFormat   =   new   OutputFormat("XML","gb2312",true);  
 FileWriter   fileWriter=new   FileWriter(new File("test.xml"));  
 XMLSerializer   xmlSerializer=new   XMLSerializer(fileWriter,outputFormat);  
@@ -104,7 +104,7 @@ xmlSerializer.asDOMSerializer();
 xmlSerializer.serialize(result.getDocumentElement());  
 fileWriter.close();   
 
-org.w3c.dom.Document myDoc=new org.apache.xerces.dom.DocumentImpl();//½¨Á¢
+org.w3c.dom.Document myDoc=new org.apache.xerces.dom.DocumentImpl();//å»ºç«‹
 
 ---------xalan
 <dependency>
@@ -115,7 +115,7 @@ org.w3c.dom.Document myDoc=new org.apache.xerces.dom.DocumentImpl();//½¨Á¢
 
 TransformerFactory   tFactory=TransformerFactory.newInstance();
 System.getProperty("javax.xml.transform.TransformerFactory");//org.apache.xalan.processor.TransformerFactoryImpl
-//xx.jar/META-INF/services/javax.xml.transform.TransformerFactoryÎÄ¼ş
+//xx.jar/META-INF/services/javax.xml.transform.TransformerFactoryæ–‡ä»¶
 java org.apache.xalan.xslt.Process -IN student.xml -XSL student.xsl -OUT student.html
 
 
@@ -129,7 +129,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 public static String objToXml(Object srcObj)
 {
 	XStream xStream = new XStream(new DomDriver());
-	xStream.autodetectAnnotations(true);	// Ê¹ÔÚBeanÖĞµÄ×¢½âÉúĞ§
+	xStream.autodetectAnnotations(true);	// ä½¿åœ¨Beanä¸­çš„æ³¨è§£ç”Ÿæ•ˆ
 	return  xStream.toXML(srcObj);
 }
 
@@ -138,17 +138,17 @@ public static <T>  T xmlToObj(String xml,Class<T> clazz)
 	if(xml == null) 
 		return null;
 	XStream xStream = new XStream(new DomDriver());
-	xStream.processAnnotations(clazz);//ÉùÃ÷Ê¹ÓÃÁË×¢½â
+	xStream.processAnnotations(clazz);//å£°æ˜ä½¿ç”¨äº†æ³¨è§£
 	Object obj = xStream.fromXML(xml);
 	return (T)obj;
 }
 
 
-@XStreamAlias("Request") //ÒòÊÇ×î¸ù¼¶(ÉÏ²ã)ËùÒÔ¿ÉÒÔ¼ÓÔÚÀàÇ°
+@XStreamAlias("Request") //å› æ˜¯æœ€æ ¹çº§(ä¸Šå±‚)æ‰€ä»¥å¯ä»¥åŠ åœ¨ç±»å‰
 public class MyRequest {
 	@XStreamAlias("Head")
-	private MyHead head;  // ÔÚMyHeadµÄÀàÇ°Ãæ¼Ó@XStreamAlias ÎŞĞ§
-	// @XStreamImplicit//ÒşÊ½¼¯ºÏ£¬Ö»ÏÔÊ¾¼¯ºÏÀïµÄÄÚÈİ
+	private MyHead head;  // åœ¨MyHeadçš„ç±»å‰é¢åŠ @XStreamAlias æ— æ•ˆ
+	// @XStreamImplicit//éšå¼é›†åˆï¼Œåªæ˜¾ç¤ºé›†åˆé‡Œçš„å†…å®¹
 	@XStreamImplicit(itemFieldName = "Body")
 	private List<MyBody> body;
 }

@@ -8,6 +8,7 @@ Ratpack 构建简单高效的 HTTP 微服务 ,基于Netty 来开发
 4.良好的高可用
 
 也就是说可以没有监控， 注册中心，断路器 保证高可用
+https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html#common-application-properties
 
 ========================Spring Boot
 
@@ -58,7 +59,7 @@ spring-boot-start-freemarker , spring-boot-start-activemq,spring-boot-start-test
 mybatis-spring-boot-starter
 spring-boot-start-xx.jar 没有源码,只有配置 META－INF/spring.providers 只用来管理依赖
 
-SpringApplication 加载 application.properties 或applicaion.yml  优先级依次为
+SpringApplication 加载 application.properties 或applicaion.yml  (先读yml再读properties)优先级依次为
 1. classpath 根
 2. classpath /config 包
 3. 当前目录   (也就是说application.properties配置文件可.jar外的同级目录)
@@ -457,11 +458,22 @@ spring:
 </dependency>
 
 application.properties中加
-#spring.redis.host=127.0.0.1
-spring.redis.host=172.16.37.42
+
+spring.redis.database=0
+spring.redis.host=127.0.0.1 
 spring.redis.port=6379
-#cluster ??
-#spring.redis.cluster.nodes=127.0.0.1:6379,127.0.0.1:6380
+#--cluster和上面的host,port选一个
+#spring.redis.cluster.nodes=127.0.0.1:7000,127.0.0.1:7001,127.0.0.1:7002,127.0.0.1:7003,127.0.0.1:7004,127.0.0.1:7005
+#spring:
+#  redis:  
+#    cluster:
+#      nodes:
+#      - 127.0.0.1:7000
+#      - 127.0.0.1:7001
+#      - 127.0.0.1:7002
+#      - 127.0.0.1:7003
+#      - 127.0.0.1:7004
+#      - 127.0.0.1:7005
 
 #sentinel OK
 #spring.redis.sentinel.master=mymaster
@@ -469,14 +481,98 @@ spring.redis.port=6379
 
 spring.redis.password=  
 
+#cache1 and cache2 caches with a time to live of 10 minutes:
+spring.cache.cache-names=cache1,cache2
+spring.cache.redis.time-to-live=10m
+
+
+
+
+
 @SpringBootApplication 下加
 @EnableCaching//Redis
  
+  //这个对 @Cachable有用
+ @Bean
+  public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory){
+   //缓存配置对象
+   RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
  
+   redisCacheConfiguration = redisCacheConfiguration.entryTtl(Duration.ofMinutes(30L)) //设置缓存的默认超时时间：30分钟
+//                .disableCachingNullValues()             //如果是空值，不缓存
+           .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))         //设置key序列化器
+           .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer())) //设置value序列化器
+  		 ; 
+   return RedisCacheManager
+           .builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
+           .cacheDefaults(redisCacheConfiguration).build();
+  }  
+private RedisSerializer<Object> valueSerializer() {
+//如缓存取出是 LinkedHashMap 强转 Book 要用 GenericJackson2JsonRedisSerializer
+// redis中保存为 {"@class":"redis_single_cluster.Book","bookName":"book11Long"}
+//带泛型,但时间是以时间戳的方式保存，存redis中不重要
+		//GenericJackson2JsonRedisSerializer jackson=   new GenericJackson2JsonRedisSerializer( ); 
+		
+//---二选一
+		Jackson2JsonRedisSerializer jackson=new Jackson2JsonRedisSerializer(Object.class);
+		 ObjectMapper mapper=new ObjectMapper();
+		 mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+		 mapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));//对Timestamp类型
+		 mapper.setSerializationInclusion( JsonInclude.Include.NON_NULL);//不显示null
+		 
+		 /* 加上这句，保存的json为 
+		   [
+			"redis_single_cluster.Book",
+			{
+				"bookName": "book11Long"
+			}
+			]
+		*/
+		 mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
+		jackson.setObjectMapper(mapper);
+		
+		
+		return jackson; 
+}
+ 
+  //---不同缓存过期时间 
+@Bean
+public RedisCacheManagerBuilderCustomizer myRedisCacheManagerBuilderCustomizer() {
+	return (builder) -> builder
+			.withCacheConfiguration("short_cache",
+					RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofSeconds(10)))
+			.withCacheConfiguration("long_cache",
+					RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(1)))
+			;
+
+ }
+	 
+@Bean //这个对@cache 没用
+	public RedisTemplate<String, Object> buildRedisTemplate(RedisConnectionFactory connectionFactory) {
+	      
+//		Jackson2JsonRedisSerializer<Object> jackson=new Jackson2JsonRedisSerializer<>(Object.class);
+//		 ObjectMapper mapper=new ObjectMapper();
+//		 mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+//		 mapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));//对Timestamp类型
+////			 mapper.setSerializationInclusion( JsonInclude.Include.NON_NULL);//不显示null
+//		 jackson.setObjectMapper(mapper);
+		 
+		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+	       redisTemplate.setKeySerializer(new StringRedisSerializer());
+//	       redisTemplate.setValueSerializer(jackson);
+//	       redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+//	       redisTemplate.setHashValueSerializer(jackson);
+	       redisTemplate.setConnectionFactory(connectionFactory);
+	       return redisTemplate;
+	   }
+
+	 
 @Autowired  
 private RedisTemplate<String,String> redisTemplate;  
 
 @Cacheable("cacheList") //Redis ,返回Bean 一定要Serializable
+//redis中的key为"cacheList::SimpleKey []" ,type命令显示类型为string
+
 @RequestMapping("cachePage")
 public List showList() {
 	System.out.println("调用了showList方法 ");
@@ -496,18 +592,37 @@ public List showList() {
 	return list;
 } 
 	
-
 @RequestMapping("redisTemplate")
-public String useRedisTemplate() {
-	ValueOperations<String, String> ops=	redisTemplate.opsForValue();
-	ops.set("myKey", "my中文 ");
-	return ops.get("myKey");
-}
+public Object useRedisTemplate() {
+	UserVO user=new UserVO();
+	user.setId(32);
+	user.setUsername("李");
+	user.setBirthday(new Date());
 	
---redis cluster  
-不行？？？？
+	ValueOperations<String, Object> ops=redisTemplate.opsForValue();
+	ops.set("myKey", user); 
+	
+	return ops.get("myKey"); 
+}
 
 
+	//Redis中就是key的前缀:: ,MyRedis::key1是string类型，里面是二进制的,自己定义的RedisTemplate没用,要用CacheManager
+	@Cacheable(cacheNames="MyRedis", key="#isbn.rawNumber")//使用isbn的一个属性当做key
+	public Book findBook(ISBN isbn, boolean checkWarehouse, boolean includeUsed)
+	{
+		System.out.println("invoke findBook" );
+		if("key1".equals(isbn.getRawNumber()))
+		{
+			Book book1=new Book();
+			book1.bookName="book1";
+			return book1;
+		}
+		return null;
+	}
+	 
+@CacheEvict(cacheNames="cacheList",allEntries = true )  //清这个名称cacheList::开头的所有键 
+@CacheEvict(cacheNames="MyRedis", key="#isbn.rawNumber") //清 MyRedis::xx 的一个键
+	
 --spring boot  session redis
 <dependency>
 	<groupId>org.springframework.session</groupId>
@@ -1422,11 +1537,11 @@ public class SampleController {
 
     @Autowired
     private KafkaTemplate<String, String> template;
-
-    @RequestMapping("/send")//http://localhost:8081/send?topic=t1&key=test1&data=hello122
+    //http://localhost:8081/springboot_kafka/send?topic=t1&key=test1&data=hello122
+    @RequestMapping("/send") 
     @ResponseBody
     String send(String topic, String key, String data) {
-        template.send(topic, key, data);
+        template.send(topic, key, data);//也可加分区参数
         return "success";
     }
 
@@ -1439,7 +1554,8 @@ public class SampleController {
         logger.info("{} - {} : {}", cr.topic(), cr.key(), cr.value());
     }
 
-    @KafkaListener(id = "t2", topics = "t2")  //自动创建topic
+    @KafkaListener(id = "t2", topics = "t2")  //也可单独配置groupId
+    //自动创建topic,只在某一个broker上，即使配置了多个bootstrap-servers
     public void listenT2(ConsumerRecord<?, ?> cr) throws Exception {
         logger.info("{} - {} : {}", cr.topic(), cr.key(), cr.value());
     }
@@ -1862,7 +1978,63 @@ public class MyGlobalException {
 		return "Exception返回"+exception.getMessage();
 	}
 }
-	
+
+
+----从http头中取用户信息
+@Target(ElementType.PARAMETER)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface HeaderUser {
+
+}
+
+
+@RequestMapping(value="/headerUser",method=RequestMethod.POST)
+@ResponseStatus(HttpStatus.OK)
+@ResponseBody 
+public UserEntity  headerUser( @HeaderUser UserEntity headerUser) 
+//扩展注解@HeaderUser 在 HeaderUserResolver ,SpringMVC项目中不行，SpringBoot项目就可，@RequestBody 
+{
+	headerUser.setName(headerUser.getName()+"___");
+	return headerUser;
+}
+
+
+@Configuration
+public class WebMvcConfig implements WebMvcConfigurer 
+{
+	@Resource
+	private HeaderUserResolver headerUserResolver;
+	@Override
+	public void  addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+		//pringMVC项目中调用不到，SpringBoot项目就可
+		argumentResolvers.add(headerUserResolver);
+       
+    } 
+} 
+
+@Component 
+public class HeaderUserResolver implements HandlerMethodArgumentResolver {
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return // parameter.getParameterType().isAssignableFrom( UserEntity.class) &&
+        		parameter.hasParameterAnnotation(HeaderUser.class);
+    }
+    @Override
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer container,
+                                  NativeWebRequest request, WebDataBinderFactory factory) {
+
+        String openId = request.getHeader("openId"); 
+        Assert.notNull(openId, "http头中没openId！"); 
+        UserEntity user=new UserEntity();
+        //模拟数据库
+        user.setName("lisi-openid-"+openId);
+        return user;
+    }
+
+}
+
+
+
 ---Spring Boot Shiro
 https://shiro.apache.org/spring-boot.html
  
@@ -2069,7 +2241,7 @@ spring:
 	<artifactId>spring-boot-admin-starter-client</artifactId>
 </dependency>
 
-spring.boot.admin.client.url=http://localhost:8769    #是指向 pring Boot Admin Server 
+spring.boot.admin.client.url=http://localhost:8769    #是指向 spring Boot Admin Server 
 management.endpoints.web.exposure.include=*   
 #暴露微服务的所有监控端口,生产环境应该只暴露部分
 
@@ -2389,7 +2561,7 @@ camel:
   component:
     servlet:
       mapping:
-        contextPath: /camel-rest-jpa/*
+        contextPath: /camel-rest-jpa/*    --  */
 		
 @Autowired
 private TestRestTemplate restTemplate;
@@ -2413,8 +2585,64 @@ public void booksTest() {
   <artifactId>camel-swagger-java</artifactId>
   <version>3.5.0</version>
 </dependency>
+------swagger
+https://github.com/springfox/springfox
+https://github.com/springfox/springfox-demos  是使用Gradle
+
+<dependency>
+    <groupId>io.springfox</groupId>
+    <artifactId>springfox-boot-starter</artifactId>
+    <version>3.0.0</version>
+</dependency>
+
+import springfox.documentation.oas.annotations.EnableOpenApi;
+@EnableOpenApi  //启用
+@SpringBootApplication
+public class  Application { 
+ // http://127.0.0.1:8081/J_SpringBoot_swagger/swagger-ui/index.html 
+  public static void main(String[] args) {
+    SpringApplication.run(Application.class, args);
+  }
+}
 
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
+@RestController
+@RequestMapping("products")
+@Api(tags = "商品接口")
+public class ProductsController {
+	private static Logger LOG = LoggerFactory.getLogger(ProductsController.class);
+
+	@ApiOperation("用户列表")
+    @GetMapping("/users")
+    public List<User> list(@ApiParam("查看第几页") @RequestParam int pageIndex,
+                           @ApiParam("每页多少条") @RequestParam int pageSize) {
+        List<User> result = new ArrayList<>();
+        result.add(new User("aaa", 50, "北京", "aaa@ccc.com"));
+        result.add(new User("bbb", 21, "广州", "aaa@ddd.com"));
+        return result;
+    }
+	
+}
+
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+@ApiModel("用户基本信息")
+public class User {
+
+    @ApiModelProperty("姓名") 
+    private String name;
+    
+    
+    @ApiModelProperty("年龄") 
+    private Integer age;
+}
+
+------redisson
 
 <dependency>
 	 <groupId>org.redisson</groupId>
@@ -2423,22 +2651,73 @@ public void booksTest() {
  </dependency> 
  依赖于 spring-data-redis,redisson-spring-data-23 和 spring-boot版本	2.3.x
  
-因用netty，只能用JDK1.8
-
 
 spring:
   redis:
     database: 0
-    host: 192.168.42.129
-    port: 6379
-    password: redisPass
-	
+    
+    #host: 192.168.42.129
+    #port: 6379
+    #password: redisPass
+	 #--cluster
+    cluster:
+      nodes:
+      - 127.0.0.1:7000
+      - 127.0.0.1:7001
+      - 127.0.0.1:7002
+      - 127.0.0.1:7003
+      - 127.0.0.1:7004
+      - 127.0.0.1:7005
+      
+如是properties文件用 #spring.redis.cluster.nodes=127.0.0.1:7000,127.0.0.1:7001,127.0.0.1:7002,127.0.0.1:7003,127.0.0.1:7004,127.0.0.1:7005
+
+
+	  
 就可以用 
 
 @Autowired
 private RedissonClient  redissonClient;
 @Autowired
 private RedisTemplate   redisTemplate;
+
+
+
+@EnableCaching
+    @Bean
+       CacheManager cacheManager(RedissonClient redissonClient) {
+           Map<String, CacheConfig> config = new HashMap<String, CacheConfig>(); 
+           // create "testMap" cache with ttl = 24 minutes and maxIdleTime = 12 minutes
+           config.put("MyRedis", new CacheConfig(24*60*1000, 12*60*1000));//MyRedis 是一个hash,永不过期
+           return new RedissonSpringCacheManager(redissonClient, config,new JsonJacksonCodec());   //为@Cacheable,key是带 \"
+       }
+	就可以
+	//MyRedis 一个hash,永不过期,有一个key为 key1
+	@Cacheable(cacheNames="MyRedis", key="#isbn.rawNumber")//使用isbn的一个属性当做key
+	 
+使用redisson 把	 session保存redis
+ <dependency>
+    <groupId>org.springframework.session</groupId>
+    <artifactId>spring-session-core</artifactId> 
+</dependency>
+ <dependency>
+	<groupId>org.springframework.session</groupId>
+	<artifactId>spring-session-data-redis</artifactId> 
+</dependency>	  
+@Configuration
+@EnableRedisHttpSession
+public class SessionConfig extends AbstractHttpSessionApplicationInitializer {  
+     @Bean
+     public RedissonConnectionFactory redissonConnectionFactory(RedissonClient redisson) {
+         return new RedissonConnectionFactory(redisson);
+     } 
+  }  
+  //key 格式为 spring:session:sessions:<session-id> 的hash,里有 sessionAttr:myAttr,值是序列化的
+
+------
+
+
+
+
 
 
 

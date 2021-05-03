@@ -1,43 +1,43 @@
 ﻿Neo4j  NoSQL  图 数据库   是Java来开发实现的
-Client (Driver) 有Python,JavaScript , .Net
+社交网络的应用 
+事务支持、高可用性和高性能
+
 
 工具 Neoclipse  4-5年没有维护了已经不能用了
 
-在下载 Neo4j Desktop 版本 的下方有 下载 Neo4j Server Commnity  版本
-解压  neo4j-community-3.4.8-windows.zip
+有收费版本，也有community版本
+https://neo4j.com/download-center/#community
+有　docker版本,windows是单独的版本 
 
-有　docker版本
-
-conf/neo4j.conf
-	打开才能远程连接
-	#dbms.connectors.default_listen_address=0.0.0.0
+Neo4j Desktop(1.4.3) 一个客户端界面工具
+ 
+conf/neo4j.conf (neo4j-community-4.2.5版本)
+	打开才能远程连接 
+	#dbms.default_listen_address=0.0.0.0
 	默认监听下面端口
 	#dbms.connector.http.listen_address=:7474
 	#dbms.connector.https.listen_address=:7473
 	#dbms.connector.bolt.listen_address=:7687
 	
-	#dbms.active_database=graph.db
 
-启动命令：bin/neo4j  start/console/stop（启动/控制台/停止）
-命令行：bin/cypher-shell
-
-
-bin/neo4j.bat console 可以启动 
-
+bin/neo4j.bat console 在windows下要用console启动 ,start不行，除非安装服务
 bin\neo4j install-service  后才可 bin\neo4j.bat start
- 执行命令是 neo4j-community-3.4.8-windows\neo4j-community-3.4.8\bin\tools\prunsrv-amd64.exe //RS//neo4j 
+	执行命令是 bin\tools\prunsrv-amd64.exe //RS//neo4j 
 bin\neo4j uninstall-service
 
+linux 下启动命令 bin/neo4j   start/console/stop  （启动/控制台/停止）
+
+
 http://localhost:7474/browser/
-内部可以在输入 host 值为 bolt://localhost:7687 
+neo4j 用户 默认密码是 neo4j 登录后要求修改,如 myneo4j
+登录指令为 :server connect
 
-也可以使用 Neo4j Desktop 中的 Neo4j Browser 工具host也可以输入 bolt://localhost:7687 
- 
- 
- :server connect
- 
-neo4j用户 默认密码是 neo4j 登录后要求修改
+也可以使用 Neo4j Desktop(1.4.3) 中的 Neo4j Browser 工具host也可以输入 bolt://localhost:7687 
 
+命令行   bin/cypher-shell 要用户密码，要求命令以;结束，ctrl+d 登出
+
+ 
+ 
 WARNING: Max 1024 open files allowed, minimum of 40000 recommended.
 ulimit -n 最大打开文件数
 ulimit -Sn  软
@@ -46,15 +46,12 @@ ulimit -Hn  硬
 user1   soft    nofile  1024
 user1   hard    nofile  40000 
 
-社交网络的应用
-
-事务支持、高可用性和高性能
 节点(Node接口)和关系(Relationship 接口) 都有属性,都继承自 PropertyContainer 接口
 每个关系由起始节点、终止节点和类型(RelationshipType)等三个要素组成   
 
 
 
-=== Cypher Query Language
+=== Cypher Query Language (.cql)
 命令区分大小写
 
 

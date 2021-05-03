@@ -55,6 +55,61 @@ sample 目录下的java_first_pojo
  
 //接口和实现类要在同一个包下,因为名称空间,生成的wsdl不能有<wsdl:import location=
  
+
+
+
+
+
+
+
+
+  <properties> 
+	  <cxf.version>3.4.2</cxf.version>
+  </properties>
+
+ 
+<dependency>
+  <groupId>org.apache.cxf</groupId>
+  <artifactId>cxf-rt-bindings-soap</artifactId>
+  <version>${cxf.version}</version> 
+</dependency>
+<dependency>
+  <groupId>org.apache.cxf</groupId>
+  <artifactId>cxf-rt-bindings-xml</artifactId>
+  <version>${cxf.version}</version> 
+</dependency>
+<dependency>
+  <groupId>org.apache.cxf</groupId>
+  <artifactId>cxf-rt-databinding-jaxb</artifactId>
+  <version>${cxf.version}</version> 
+</dependency>
+<dependency>
+  <groupId>org.apache.cxf</groupId>
+  <artifactId>cxf-rt-databinding-aegis</artifactId>
+  <version>${cxf.version}</version> 
+</dependency>
+<dependency>
+  <groupId>org.apache.cxf</groupId>
+  <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+  <version>${cxf.version}</version> 
+</dependency>
+<dependency>
+  <groupId>org.apache.cxf</groupId>
+  <artifactId>cxf-rt-frontend-jaxws</artifactId>
+  <version>${cxf.version}</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.cxf</groupId>
+  <artifactId>cxf-rt-rs-client</artifactId>
+  <version>3.4.2</version> 
+</dependency>
+<dependency>
+  <groupId>org.apache.cxf</groupId>
+  <artifactId>cxf-rt-transports-http-jetty</artifactId>
+  <version>${cxf.version}</version> 
+</dependency>
+
+
 ===== sample 目录下的 java_first_jaxws 
 ------HelloWorld.java
 package org.zh.cxf;

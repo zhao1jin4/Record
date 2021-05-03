@@ -135,7 +135,7 @@ G1收集器  JDK9的server默认
 	Eden空间中，每一个线程都有一个固定的分区用于分配对象,即一个 TLAB.分配对象时，线程之间不再需要进行任何的同步。
 	如果Eden空间无法容纳该对象，就只能在老年代中进行分配空间
 
-    Young GC和Mixed GC，两种都是Stop The World(STW)的,还有FullGC
+    Young GC和 Mixed GC(当老年代占用超过-XX:InitiatingHeapOccupancyPercent=45)，两种都是Stop The World(STW)的,还有FullGC
 	server-style,目标多处理器,大内存(超过6G或更大),有GC暂停(0.5秒以下),大吞吐量  ,将来替代CMS
 	
 	是压缩,紧凑,致密(Compact)的, 根据配置的暂停时间确定回收区域数,压缩从一个或多个区域复制另一个单个区域
@@ -148,16 +148,16 @@ G1收集器  JDK9的server默认
 	一个对象大于分区(region)一半 ,认为是一个巨大对象,直接分配到老年代的巨大对象区,如果装不下，会找这些区是续的巨大对象区,有时候不得不启动Full GC 
 	
 	-XX:G1HeapRegionSize 设置每个Region大小 
-	-XX:MaxGCPauseMillis
+	-XX:MaxGCPauseMillis=200
 	G1 保证“每次GC停顿时间不会过长”的方式，是“每次只清理一部分而不是全部的Region”的增量式清理。那独立清理某个Region时 , 就需要有RememberSet来记录Region之间的对象引用关系， 这样就能依赖它来辅助计算对象的存活性而不用扫描全堆， RS通常占了整个Heap的20%或更高。
 
 不算维护RemeberSet
 	 1.初始标记(STW initial mark)  
     2.并发标记(Concurrent marking)
 	 3.最终标记 同CMS重新标记，也要STW，修正RemeberSet
-	 4.筛选回收
+	 4.筛选回收 STW 最多停多长时间，不一定一次性全回收
 	 
-----ZGC jdk11 experimental  
+----ZGC jdk11 experimental  ,jdk15 production
 	https://wiki.openjdk.java.net/display/zgc/Main	
 	
 	STW的阶段 不包括GC堆里的对象指针，所以这个暂停就不会随着GC堆的大小而变化
@@ -167,20 +167,12 @@ G1收集器  JDK9的server默认
 	
 	ZGC没分代
 	
-	ZGC将堆划分为Region作为清理，移动，以及并行GC线程工作分配的单位。不过G1一开始就把堆划分成固定大小的Region，而ZGC 可以有2MB，32MB，N× 2MB 三种 
-	256k以下的对象分配在Small Page， 4M以下对象在Medium Page，以上在Large Page。
+	ZGC将堆划分为Region作为清理，移动，以及并行GC线程工作分配的单位。不过G1一开始就把堆划分成固定大小的Region，
+	而ZGC 可以有2MB，32MB，N× 2MB 三种,256k (8个)以下的对象分配在Small Page， 4M(8个)以下对象在Medium Page，以上在Large Page。
 
 	ZGC是Mark-Compact ，会将活着的对象都移动到另一个Region，整个回收掉原来的Region。
 	
-	
-
------Epsilon GC 也是 jdk11 experimental 的 No-Op GC
-
-
-
-
-
- 
+  
 ===所有JVM标准实现选项
 -agentlib:hprof=help  ( Heap and CPU Profiling Agent (JVMTI Demonstration Code))
 -agentlib:hprof=cpu=samples,interval=20,depth=3   彩样CPU信息每20秒,栈深3,生成java.hprof.txt文件 ,参考java.lang.instrument 和 JVMTI
@@ -274,8 +266,8 @@ G1收集器  JDK9的server默认
 -XX:ConcGCThreads=n
 -XX:G1ReservePercent=n    默认10 , 保留10%的空间,防止失败
 -XX:G1HeapRegionSize=n    默认区的大小(统一) ,只可是2的次方，范围从1MB - 32MB , 默认根据堆大小分成约 2048 个regions
--XX:G1NewSizePercent=  experimental flag ，The default value is 5 percent 
-
+-XX:G1NewSizePercent=   The default value is 5 percent 
+    G1MaxNewSizePercent=60
 
 ---性能
 -XX:+AggressiveOpts				性能优化,建议打开,未来默认
@@ -292,6 +284,7 @@ G1收集器  JDK9的server默认
 -XX:ThreadStackSize=512			线程堆栈大小(KB) 同 -Xss (byte)
 -XX:+UseBiasedLocking			调优	偏向锁只能在单线程下起作用,它提高了单线程访问同步资源的性能。
 								标准的轻量级锁,默认开启
+								jdk15 过时
 -XX:+UseFastAccessorMethods		优化原始类型的getter方法性能
 -XX:+UseLargePages				默认禁用
    
@@ -412,8 +405,8 @@ jvisualvm  界面工具
 
 JDK8 的jmc (Java Mission Control)->"飞行记录器"(即JFR)->提示对要监控的JVM要加参数  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder 
 记录器会在一段时间内做记录(一分钟),保存到 %HOMEPATH%\.jmc\5.3.0\xxx.jfr ,用于事后查看
-JDK11去除jmc要单独下载
-
+JDK11去除jmc要单独下载(openjdk官方有链接,基于ecipse)
+jprofile
 
 jps 命令显示所有Java进程的ID号 和 类名 ,像ps
 jps 返回vmid 为了获得更好的效果，采用 -Dcom.sun.management.jmxremote 属性集启动 Java 进程(JDK 1.5 加, 1.6 )
@@ -520,9 +513,10 @@ jcmd <PID> help 可以用help 查所有的命令
 jcmd <pid> GC.class_histogram  显示目前类的实例数和使用空间
 
 JFR.stop			FLR结束录制，jcmd 7824  JFR.stop recording=1
-JFR.start			FLR开始录制，提示 Use JFR.dump recording=1 filename=FILEPATH to copy recording data to file (可用jmc打开来看)
+JFR.start			FLR开始录制，提示 Use jcmd <PID> JFR.dump  name=1  filename=FILEPATH to copy recording data to file (可用jmc打开来看)
 JFR.dump
 JFR.check			显示正在录制的recording值
+
 VM.native_memory
 VM.check_commercial_features   查是否开启FLR
 VM.unlock_commercial_features  运行时开启FLR
@@ -553,8 +547,8 @@ jstack <PID> | grep <HEX_TID>
 jcmd <PID> help
 jcmd <PID> JFR.start 开始录制，有提示recording值
 jcmd <PID> JFR.check	 显示正在录制的recording值
-jcmd <PID> JFR.dump	recording=1 filename=c:/tmp/my.jfr #1为上面显示的 ,把从start到现在录制做保存为文件，可以用jmc界面工具打开
-jcmd <PID> JFR.stop	recording=1 停止录制
+jcmd <PID> JFR.dump	name=1 filename=c:/tmp/my.jfr #1为上面显示的 ,把从start到现在录制做保存为文件，可以用jmc界面工具打开
+jcmd <PID> JFR.stop	name=1 停止录制
 
  还可以 java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder  -XX:StartFilightRecording=duration=60s,filename=myrecording.jfr MyApp
 	可以结合 -XX:FlightRecordingOptions
@@ -1037,10 +1031,78 @@ appendToBootstrapClassLoaderSearch(JarFile jarfile)
 appendToSystemClassLoaderSearch(JarFile jarfile) 
 
 --------------------------JDK17 据说是 LTS
+Alpine Linux
+
 
 --------------------------JDK16 新特性
 
+
+-----InvocationHandler.invokeDefault
+interface A {
+    default String getName(A a) { return "A"; }
+}
+interface B {
+    default String getName(A a) { return "B"; }
+}
+interface C extends A {}
+ Object proxy = Proxy.newProxyInstance(A.class.getClassLoader(), new Class<?>[] { A.class },
+                (o, m, params) -> {
+                    if (m.isDefault()) {
+                        // if it's a default method, invoke it
+                        System.out.println("调用默认方法");
+                        return InvocationHandler.invokeDefault(o, m, params);//jdk 16功能
+                    }else
+                    {
+                        System.out.println("方法调用之前");
+                        Object result = m.invoke(o, params);
+                        System.out.println("方法调用之后");
+                        return result;
+                    }
+                });
+        A o=(A)proxy;
+       System.out.println( o.getName(new C(){}));
+
+//---DateTimeFormatter  B
+ ZonedDateTime zdt = ZonedDateTime.now();
+ var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm ZZZZ");
+ System.out.println(formatter.format(zdt));
+ 
+ formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd B");
+ //B	是新增的，如上午还是下午
+ System.out.println(formatter.format(zdt));//2021-04-19 下午
+
+ 
+
+   /* jpackage 命令变正式用 (jlink命令创建JRE的子集)
+        jlink --add-modules java.base,java.sql --output smalljre
+        
+        jpackage --type app-image -i out/artifacts/idea_projects_jar/ -n swingbase64_jre  --main-class swingbase64.Base64SwingTextArea --main-jar swingbase64.jar 
+		  当前目录下生成文件  swingbase64_jre/bin/swingbase64_jre，直接执行即可，没有安装JDK/JRE也可，内部自带了
+        jpackage  
+        	--type 在linux下可选值为 "app-image", "rpm", "deb",但用rpm报不支持，只有app-image了
+   */
+   
+   /*
+       java -XX:CompileCommand=help 控制动态编译（JIT编译） 
+        可多个-XX:CompileCommand选项, 如 XX:CompileCommand=exclude,java/*.* -XX:CompileCommand=log,java*.*
+        也可以从.hotspot_compiler 文件中加载,按多行分隔
+       	exclude java/*.*
+  */
+ 
+ 
+ //Collectors.toList() ;//JDK16
+ //Elastic Metaspace,-XX:MetaspaceReclaimPolicy=(balanced|aggressive|none),Reclaim 开拓 默认为balanced
+ //JVM的有  ZGC Concurrent Stack Processing（替代stop-the-world ） 和 Concurrently Uncommit Memory in G1
+  //安全加密  SHA-3，EdDSA 
+  //几个 Incubator 特性vector，record 第二次Preview 
+  //删除和deprecat很多
+
+
+
+
 --------------------------JDK15 新特性
+AArch64 平台的版本(如android手机的CPU)
+
 //Text Block ,可以方便写SQL
  String html = """
 	  <html>
@@ -1073,8 +1135,12 @@ DatagramSocket 和 MulticastSocket 重新实现
 
 偏向锁 做deprecate 和 默认禁用
 
-ZGC 可用于生产,只用XX:+UseZGC 即可
-Shenandoah GC收集器，可用于生产，低暂停时间, 只用-XX:+UseShenandoahGC 即可
+ZGC 可用于生产,只用-XX:+UseZGC 即可
+
+#Shenandoah GC收集器，可用于生产，低暂停时间, 只用 -XX:+UseShenandoahGC 即可
+
+winddows 版本的openjdk 15 不能使用 -XX:+UseShenandoahGC ，如用-XX:+UseZGC 也要高版本(win7不行的) windows 1803
+
 
 JMX
 	com.sun.management.jmxremote.port=<port#>
@@ -1110,7 +1176,7 @@ if (obj instanceof String s) {
 
 
 --------------------------JDK14 新特性
-G1的 NUMA(non-uniform memory access) 内存分配  -XX:+UseNUMA
+G1的 NUMA(non-uniform memory access Archtecture )  内存分配  -XX:+UseNUMA
 switch增加不是Preview了
 
 java.lang.Record 是Preview阶段 javac --enable-preview
@@ -1193,6 +1259,21 @@ G1
  
 --------------------------JDK11 新特性 LTS
 Oracle JDK 11 是LTS（长期支持）版本
+
+<!-- 因删 javax.xml.bind. 则使用这个包-->
+<dependency>
+  <groupId>org.jboss.spec.javax.xml.bind</groupId>
+  <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+  <version>2.0.1.Final</version>
+</dependency>
+
+<!-- 因删 javax.ws.rs  则使用这个包--> 
+<dependency>
+  <groupId>org.jboss.spec.javax.ws.rs</groupId>
+  <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
+  <version>2.0.1.Final</version> 
+</dependency>
+
 
 //javax.jws.WebService web;//JDK 11没有这个类 
 //删java.xml.ws , java.xml.bind  ,java.xml.ws.annotation 
@@ -3265,7 +3346,7 @@ byte[] decoded=base64Decoder.decode(encoded);
 System.out.println("解密后：" + aesDecryptByBytes(decoded, key));
 
 
--------------MD5
+-------------MD5 被破解
 
 MessageDigest md5 = MessageDigest.getInstance("MD5");// 确定计算方法  SHA256
 
@@ -3848,8 +3929,15 @@ ScheduledExecutor.schedule(callable,5,TimeUnit.SECONDS); //5 秒后启动线程
 	Executors.defaultThreadFactory()// same ThreadGroup and with the same NORM_PRIORITY priority and non-daemon status
 	
  
+1.当线程池小于corePoolSize时，新提交任务将创建一个新线程执行任务，即使此时线程池中存在空闲线程。 
+2.当线程池达到corePoolSize时，新提交任务将被放入workQueue中，等待线程池中任务调度执行 
+3.当workQueue已满，且maximumPoolSize>corePoolSize时，新提交任务会创建新线程执行任务 
+4.当提交任务数超过maximumPoolSize时，新提交任务由RejectedExecutionHandler处理 
+5.当线程池中超过corePoolSize线程，空闲时间达到keepAliveTime时，关闭空闲线程 
+6.当设置allowCoreThreadTimeOut(true)时，线程池中corePoolSize线程空闲时间达到keepAliveTime也将关闭 
+
 ThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
-					BlockingQueue<Runnable> workQueue,RejectedExecutionHandler handler)			
+					BlockingQueue<Runnable> workQueue,ThreadFactory threadFactory,RejectedExecutionHandler handler)			
 	
 	如池中当线程数大于corePoolSize,如超出线程等待时间超过keepAliveTime会被终止
 	
@@ -3944,6 +4032,9 @@ ThreadLocal  其实是采用哈希表的方式来为每个线程都提供一个�
 			所变量保存在ThreadLocal中，只有set,get,remove 
 			
 ThreadLocal 不能声明为static(因是多个线程共享),如一个线程，只会使用一个ThreadLocal实例，可不用remove,如多个实例一定要remove(),否则可能内存溢出
+
+InheritableThreadLocal //子线程可以得到父线程的threadLocal,是浅复制，如修改 重写 childValue方法
+
 
 CountDownLatch countDownLatch = new CountDownLatch(threadNumber);//主线程等所有线程完成
 子线程结束前调用countDownLatch.countDown();  
@@ -4403,9 +4494,12 @@ public class Person implements java.io.Serializable
  
  
 volatile
-线程可以把变量保存在本地内存（比如机器的寄存器）中，而不是直接在主存中进行读写
+线程可以把变量保存在本地内存(线程私有内存)中，而不是直接在主存中进行读写
 一个线程在主存中修改了一个变量的值，而另外一个线程还继续使用它在寄存器中的变量值的拷贝，造成数据的不一致。 
 把该变量声明为volatile（不稳定的）即可，这就指示JVM，这个变量是不稳定的，每次使用它都到主存中进行读取
+
+不能保证原子性
+（多线程中才有意义）禁止编辑后的指令做重排（没有依赖的指定），保证顺序
 
 当要访问的变量已在synchronized代码块中，或者为常量时，不必使用。 
 
@@ -5244,5 +5338,9 @@ ServiceLoader<Developer> serviceloader = ServiceLoader.load(Developer.class);
 for (Developer dev : serviceloader) {
 	System.out.println("find ." + dev.getPrograme());
 }
+
+---AbstractQueuedSynchronized AQS
+
+
 
 

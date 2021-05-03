@@ -1,7 +1,10 @@
 ﻿
 ============================Netbeans-8.2 最后一个oracle版本===============================
 apache下11.2版本 支持JDK11
-apache Netbeans-12
+apache Netbeans-12.3 (March 3, 2021) 可以到JDK 16 
+
+右击项目->properties->sources->Source/Target binary format 下拉选择JDK版本
+
 netbeans-11.2-bin\netbeans\etc\netbeans.conf 中要修改 netbeans_jdkhome 的配置才可启动
 
 支持Gradle,对Maven的支持比eclipse还差
@@ -375,6 +378,8 @@ buildTools为23.0.3(24就不行了) 的 Android 7 NBAndroid 启动时logcat,也�
 Tools -> Plugins
 
 ============= NetBeans  FindBugs
+============= NetBeans  Sonarlint
+nb-sonarlint
 
 ============= NetBeans 8.1 安装  nbscala-1.8.1.2  插件/模块  
 http://plugins.netbeans.org/   下载文件 1465275768_nbscala-1.8.1.2.zip

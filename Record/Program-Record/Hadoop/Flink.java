@@ -5,7 +5,7 @@ apache项目 ，可以不使用Hadoop,但推荐用
 alibaba 收购了开发公司,实时计算比alibaba的Storm,JStorm要快
 也可批量任务
 
-因用scala所以只可JDK1.8
+因用scala所以只可JDK1.8 和 JDK11
 
 主要用于实时计算 ，可以批处理 
 
@@ -135,18 +135,20 @@ bin/yarn-session.sh
 <dependency>
   <groupId>org.apache.flink</groupId>
   <artifactId>flink-java</artifactId>
-  <version>1.9.1</version>
+  <version>1.12.1</version>
 </dependency>
 <dependency>
   <groupId>org.apache.flink</groupId>
   <artifactId>flink-streaming-java_2.12</artifactId>
-  <version>1.9.1</version>
+  <version>1.12.1</version>
 </dependency>
 <dependency>
   <groupId>org.apache.flink</groupId>
   <artifactId>flink-clients_2.12</artifactId>
-  <version>1.9.1</version>
+  <version>1.12.1</version>
 </dependency>
+ 
+
 加入上面就可IDE中开发
  
 

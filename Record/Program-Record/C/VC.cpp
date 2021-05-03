@@ -48,7 +48,7 @@ VS2015  update 3 最后一版ISO文件(可能是最后一个运行在win7上)
 		
 	
 
-VS 2017.15.8 (可win10上)下载离线版本 
+VS 2017.15.8 (可win10上)下载离线版本 ，有Community版本
 	 C++ desktop development  	安装时多选  MFC (在Visual Studio扩展开发组选中,再选中MFC 会安装C#.Net)
 		
 	也可双击出现界面选择要安装组件，选择下载保存目录，在安装的时候有选择语言包，不选择中文就行
@@ -66,7 +66,34 @@ VS 2017.15.8 (可win10上)下载离线版本
 	
 Visual Studio 2019  Version 16.5 (安装要求.NetFramework 4.6 及更高版本)
 
+Visual Studio 2019  C++ build tools 
+https://visualstudio.microsoft.com/visual-cpp-build-tools/ 下载 vs_buildtools_xxx.exe  大项 选  C++ build tools  
+	最新的是VS2019的,子项默认选中多个提示大小为6.86GB，只选中MSVCv142(VS 2019 C++)提示大小为4GB,下载中提示大小为1G
+	默认下载在 C:\ProgramData\Microsoft\VisualStudio\Packages (实际上是安装的解压目录,一个包下载在哪?)
+	默认安装在 C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools 安装后大小为2.36GB , 有VC#目录大小只为3M 
+	下拉选择download all then install
+	安装中提示 Dot Net版本为4.7.2,安装 263 个包 (可在windows 7中安装)
 
+	设置环境变量，PATH是增加的
+	   PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\bin\Hostx64\x64 
+	    lib=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\lib\x64
+	include=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\include
+	或者
+	开始搜索Developer,找到 Developer Command Prompt for Visual Studio 输入 cl 命令
+	
+	windows 10 SDK,可以安装在 windows 7 SP1 上,
+	默认目录在	C:\Program Files (x86)\Microsoft SDKs\Windows Kits\10 	只有9MB
+				C:\Program Files (x86)\Windows Kits\10\					大小1.46GB
+					Lib\10.0.19041.0\ucrt
+					Lib\10.0.19041.0\ucrt_enclave
+					Lib\10.0.19041.0\um 
+					
+					ucrt=Universal C Runtime
+					um=非托管
+					enclave被包围的领土 
+	
+对 C++11, C++14, C++17，C++20 支持情况
+https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-160
 
 
 ------------	

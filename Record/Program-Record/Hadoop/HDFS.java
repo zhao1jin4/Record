@@ -43,7 +43,7 @@ cat output/*			*/ 显示的是output/part-r-00000文件, 内容为		1       dfsa
 
 <property>
 	<name>hadoop.tmp.dir</name>
-	<value>/data/hadoop3.2/standalone/tmp</value> <!-- 默认值 /tmp/hadoop-${user.name} -->
+	<value>/AppData/hadoop32/standalone/tmp</value> <!-- 默认值 /tmp/hadoop-${user.name} -->
 </property>
 
 --- etc/hadoop/hdfs-site.xml
@@ -67,17 +67,109 @@ $ chmod 0600 ~/.ssh/authorized_keys
 ----hadoop 支持 windwos 不方便
  不能format  要使用/方式分隔目录,  如以D:/ 开头 报   URI has an authority component 不行？？？ 
  路径必须是linux格式的以/开头才行,不能切换盘符
+ 
+md D:\AppData\hadoop32\standalone\tmp
+
 <name>hadoop.tmp.dir</name>
-<value>/java_program/hadoop-3.2.0/tmp/</value>  
+<value>/AppData/hadoop32/standalone/tmp</value>  
+
+
+---官方对windows有单独的wiki页，但版本只到2.0
+下载源码构建 ，BUILDING.txt里有很多需要的，没有写支持windows
+mvn package -Pdist,native-win -DskipTests -Dtar
+generates a binary hadoop .tar.gz package in _hadoop-dist\target_
+
+set PATH=%PATH%;D:\Application\hadoop-3.2.0\hadoop-3.2.0\bin
+cd sbin
+start-dfs.cmd  新版本报hadoop-3.2.0\bin找不到 winutils.exe  
+  报 UnsatisfiedLinkError，还要复制 hadoop.dll 和 hdfs.dll (可能两个)
+namenode启动成功，但datanode还是报 UnsatisfiedLinkError ，原因是.dll版本对不上
+
+https://github.com/steveloughran/winutils 有3.0 
+
 ----	
 	
 $ bin/hdfs namenode -format  格式化文件系统
 $ sbin/start-dfs.sh  启动 NameNode 和 DataNode   可能要密码  日志在$HADOOP_LOG_DIR 中(默认是 $HADOOP_HOME/logs),有secondaryNameNode的日志
 对应的就有 sbin/stop-dfs.sh
-
+ 
+  
 http://localhost:9870  NameNode的接口  Utilities->Browser the file system
 http://localhost:9870/conf		中有所有的配置信息 ,没有链接进入, 看50070配置来源是programatically
  
+   <dependency>
+	  <groupId>org.apache.hadoop</groupId>
+	  <artifactId>hadoop-common</artifactId>
+	  <version>3.2.0</version>
+	</dependency>
+	 <dependency>
+	  <groupId>org.apache.hadoop</groupId>
+	  <artifactId>hadoop-hdfs-client</artifactId>
+	  <version>3.2.0</version>
+	</dependency>
+    
+  <!--   
+  <dependency>
+	  <groupId>org.apache.hadoop</groupId>
+	  <artifactId>hadoop-client</artifactId>
+	  <version>3.2.0</version>
+	</dependency> 
+	-->
+ public static FileSystem createFileSystem1() throws Exception {
+		Configuration conf = new Configuration();
+		conf.set("fs.defaultFS", "hdfs://127.0.0.1:9000");
+		Properties properties = System.getProperties();
+		properties.setProperty("HADOOP_USER_NAME", "dell");
+		FileSystem fs = FileSystem.get(conf);
+		return fs;
+	}
+	public static FileSystem createFileSystem2() throws Exception {
+		Configuration conf = new Configuration();
+		String user = "dell";
+		FileSystem fs = FileSystem.get(new URI("hdfs://127.0.0.1:9000"), conf, user);
+		return fs;
+	}
+	public static void main(String[] args) throws Exception {
+		FileSystem fs = createFileSystem1();
+//		FileSystem fs=createFileSystem2();  
+		Path path = new Path("/user/");
+		fs.delete(path, true);// recursive
+		fs.create(path);
+		// 使用 bin/hdfs dfs -ls / 显示有
+		
+		Path imgs=new Path("/imgs");
+		fs.delete(imgs, true);// recursive
+		if(!fs.exists(imgs)) {
+			boolean isOK=fs.mkdirs(imgs);
+		}
+		Path man1=new Path("/"+imgs.getName()+"/man1");
+	   FSDataOutputStream out =fs.createFile(man1).build(); //createFile
+	   out.write("这是文件内容".getBytes());
+	   out.close();
+	   //bin/hdfs dfs -cat /imgs/man1
+	   
+		RemoteIterator<LocatedFileStatus> iterator =fs.listFiles(imgs, false);
+		while(iterator.hasNext()) {
+			LocatedFileStatus status=iterator.next();
+			if(status.isDirectory())
+			{
+				System.out.println("目录"+status.getPath());
+				continue;
+			} 
+			FSDataInputStream input=fs.open(status.getPath());
+			ByteArrayOutputStream outByte=new ByteArrayOutputStream();
+			long len=status.getLen(); 
+			IOUtils.copy(input, outByte,(int)len);
+			System.out.println("读到的是："+new String(outByte.toByteArray()));
+//			FileStatusProto proto=PBHelper.convert(status); 
+//			proto.getLength();
+			
+		}
+		
+	}
+	
+	
+
 <property>
 	<name>dfs.namenode.http-address</name>
 	<value>0.0.0.0:9870</value> 
@@ -226,7 +318,7 @@ sbin/hadoop-daemons.sh start journalnode  #是带s的命令 如日志没有显�
 bin/hdfs namenode -format 
 
 启动namenode
-sbin/hadoop-daemon.sh start namenode  
+sbin/hadoop-daemon.sh start namenode    (没有windows命令)
 	提示令过时用 "hdfs --daemon start"  (即 bin/hdfs  --daemon start  namenode )
 	jps 有NameNode
 

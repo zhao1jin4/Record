@@ -782,8 +782,26 @@ Alias  /phpmyadmin "/software/linux_software/phpMyAdmin-5.0.1-all-languages"
 
 
 
+----mailx 一个邮件客户端工具 
+测试使用 echo "Mail Content" | mailx -s "Mail Subject" -a /tmp/attach.txt xx@163.com 测试成功(可没有DNS服务,使用/etc/hosts)
+日志在  /var/log/mail ,journalctl -xeu postfix 或 journalctl -u postfix --since today
 
+
+vi /etc/mail.rc  (mailx包中的)
+...
+#set from=dellx@domain.com smtp=smtp.domain.com
+#set smtp-auth-user=dell@domain.com smtp-auth-password=123
+#set smtp-auth=login
+
+#以下测试可以登录sina.com并发送到163.com
+set from=user1@sina.com smtp=smtp.sina.com
+set smtp-auth-user=user1@sina.com smtp-auth-password=123
+set smtp-auth=login
+ 
+-----
 ===========postfix===========================
+----源码安装 postfix 3.5.10
+make 提示 要先安装  db*-devel 
 
 ---源码安装 postfix
 依赖于PCRE , ./configure  && make && make install 安装在/usr/local下 ,
@@ -817,79 +835,57 @@ setgid_group: [postdrop]
 mail_owner = postfix
 queue_directory = /var/spool/postfix
 
-myhostname = smtp.domain.com   
-mydomain = doamin.com   
+myhostname = smtp.domain.com    #要修改的,有配置 myhostname = localhost
+mydomain = domain.com   			 #要修改的
 
-myorigin = $mydomain    将发信地址“@”后面的部分设置为域名
+myorigin = $mydomain    #要放开的，将发信地址“@”后面的部分设置为域名
 
-inet_interfaces = all   如localhost表明只能在本地邮件主机上寄信  ,一般应是all
+inet_interfaces = all   #默认为all，如localhost表明只能在本地邮件主机上寄信  ,一般应是all
  
-inet_protocols = all   # ipv4，如果支持ipv6，则可以为all 
+inet_protocols = all   #默认为ipv4，如果支持ipv6，则可以为all 
 
-mydestination = $myhostname, localhost.$mydomain 参数非常重要，因为只有当发来的邮件的收件人地址与该参数值相匹配时,才自己接收
+mydestination = $myhostname, localhost.$mydomain #这是默认值，参数非常重要，因为只有当发来的邮件的收件人地址与该参数值相匹配时,才自己接收
 
-mynetworks=192.168.16.0/24，则表示这台邮件主机只转发子网192.168.16.0/24中的客户端所发来的邮件，而拒绝为其他子网转发邮件。
+mynetworks=192.168.16.0/24  #要修改的，则表示这台邮件主机只转发子网192.168.16.0/24中的客户端所发来的邮件，而拒绝为其他子网转发邮件。
 #mynetworks = hash:/etc/postfix/network_table
 
-mynetworks-style = class  #class(A,B,C类地址), host ,subnet
+mynetworks-style = subnet  #默认为subnet，可选的有class(A,B,C类地址), host ,subnet
 
-通常，用户不设置mynetworks-style参数，而直接设置mynetworks参数。如果这两个参
-数都进行了设置，那么mynetworks参数的设置有效。
+通常，用户不设置mynetworks-style参数，而直接设置mynetworks参数。如果这两个参数都进行了设置，那么mynetworks参数的设置有效
 
 
-relay_domains = $mydestination 默认值
-有配置 relay_domains = $mydestination, hash:/etc/postfix/relay
+#relay_domains = $mydestination 
+relay_domains = $mydestination, hash:/etc/postfix/relay
+则表示任何由域 $mydestination  发来的邮件都会被认为是信任的，Postfix会自动对这些邮件进行转发。（relay 转送）
 
-则表示任何由域$mydestination  发来的邮件都会被认为是信任的，Postfix会自动对这些邮件进行转发。
-
-ome_mailbox = Maildir/
-message_size_limit = 0
-mailbox_size_limit = 0
+home_mailbox = Maildir/  #默认是关闭的，相对于/var/spool/mail/user 或 /var/mail/user 目录（/var/mail 链接到/var/spool/mail）
+message_size_limit = 0 #默认值0
+mailbox_size_limit = 0 #默认值0
 ---
 
-要查看Postfix的当前主要配置postconf -n
-systemctl restart postfix 或者  postfix reload 
+要查看Postfix的当前主要配置postconf -n （只看显示的配置）
+root用户执行 systemctl restart postfix 或者  postfix reload 
 
-测试使用 echo "Mail Content" | mailx -s "Mail Subject" -a /tmp/attach.txt xx@163.com 测试成功(可没有DNS服务,使用/etc/hosts)
-日志在  /var/log/mail ,journalctl -xeu postfix 或 journalctl -u postfix --since today
+virtual_alias_domains 用来指定虚拟别名域的名称 
+virtual_alias_maps = hash:/etc/postfix/virtual #默认值，没放开 用来指定含有虚拟别名域定义的文件路径。
 
-
-vi /etc/mail.rc
-...
-#set from=dellx@domain.com smtp=smtp.domain.com
-#set smtp-auth-user=dell@domain.com smtp-auth-password=123
-#set smtp-auth=login
-
-#以下测试可以登录sina.com并发送到163.com
-set from=user1@sina.com smtp=smtp.sina.com
-set smtp-auth-user=user1@sina.com smtp-auth-password=123
-set smtp-auth=login
-
-
-
------
-virtual_alias_domains 用来指定虚拟别名域的名称
-virtual_alias_maps 用来指定含有虚拟别名域定义的文件路径。
-
-有配置
-virtual_alias_domains = hash:/etc/postfix/virtual
-virtual_alias_maps = hash:/etc/postfix/virtual
-
-/etc/postfix/virtual文件内容,第一列虚拟域或者虚拟域用户 ,  第二列无@ 表示本地linux用户
+/etc/postfix/virtual 文件内容,第一列虚拟域或者虚拟域用户 ,  第二列无@ 表示本地linux用户
 @dzxx.cn  @gdvcp.net
 admin@example.com  lbt
 st0321@example.com  st0321001，st0321002
 daliu@example.com  lbt，liu6812@163.com
 
 执行:
-postmap /etc/postfix/virtual   生成virtual.db
+postmap /etc/postfix/virtual   生成 virtual.db
 postfix reload
 
 
 ----
-用户别名
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
+用户别名 http://www.postfix.org/postconf.5.html#alias_maps
+postconf -d | grep alias (-d 表示 default 默认配置)
+
+alias_maps = hash:/etc/aliases   #默认配置
+alias_database = hash:/etc/aliases #默认配置
 
 示例:/etc/aliases，
 st0322:  st0322001，st0322002，st0322003，st0322004
@@ -909,9 +905,9 @@ postfix reload
 http://www.postfix.org/SASL_README.html
 
 
-SMTP服务要做登录认证,Postfix SMTP 支持 Cyrus SASL 和 Dovecot SASL(2.3版本开始)  两个实现
+SMTP服务要做登录认证,Postfix SMTP 支持 Cyrus SASL 和 Dovecot SASL 两个实现
 
-默认使用Cyrus SASL(C和Perl开发),如要使用 Dovecot SASL(C开发) 	/etc/postfix/main.cf 中加配置  
+默认使用Cyrus SASL(C和Perl开发),如要使用 Dovecot SASL(C开发，可使用mysql,postgresql,sqlite,有对应的backend-xx-rpm包) 	/etc/postfix/main.cf 中 做修改 
 	smtpd_sasl_type = dovecot
 
 postconf -a 查看服务端在编译时支持哪个
@@ -919,15 +915,17 @@ postconf -A  查看客户端支持哪个
 
 
 smtp   端口 25
+SMTPS  端口 465
+
 imap   端口 143
 imaps  端口 993  即imap的 TLS/SSL 
 pop3s  端口 995  即pop3的 TLS/SSL 
 pop3   端口 110
 
 --/etc/postfix/main.cf 
-smtpd_sasl_type = dovecot
+smtpd_sasl_type = dovecot #或 cyrus
 smtpd_sasl_security_options = noanonymous
-smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd  #当 disable_plaintext_auth = no 时要这个
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
 smtpd_sasl_auth_enable = yes			服务端
 smtp_sasl_auth_enable = yes			客户端
 
@@ -1099,7 +1097,13 @@ Cyrus-IMAP的邮件信箱位于/var/spool/imap目录下
 
 
 ===========上 postfix==========================
-===========postfixadmin-3.2 (2018更新,使用php,apache2,可以配置Dovecot)
+===========postfixadmin
+https://github.com/postfixadmin/postfixadmin
+
+一个 php + mysql/postgresql 的管理工具 
+可以配置 Dovecot 
+ 
+
 zypper install postfixadmin
 
 #启用POSTFIXADMIN标志，为/etc/apache2/conf.d/postfixadmin.conf文件使用
@@ -1166,6 +1170,8 @@ cd /var/www/cgi-bin/openwebmail［Enter］　　// 进入openwebmail目录
 
 ================ HAProxy 可用于放在Ngnix的前方
 支持数以万计的并发连接, 使用事件驱动, 单一进程 ,不能做缓存
+
+支持四层负载与七层负载
  
 https://www.haproxy.org/download/2.0/src/haproxy-2.0.5.tar.gz  		2019-08-16
 已经有下载地址就不需要翻墙了
@@ -3334,7 +3340,7 @@ man systemd-system.conf
 ulimit -u  默认30792  the maximum number of user processes
 ulimit -n  默认1024	the maximum number of open file descriptors
 
-ulimit -Hn  H=Hard    发现只有root 用户生效，普通用户没用，放在/etc/profile 中普通用户又没权限执行,原因是要修改/etc/systemd/system.conf 才对普通用户生效
+ulimit -Hn  H=Hard    发现只有root 用户生效，普通用户没用，放在/etc/profile 中普通用户又没权限执行,原因是要修改/etc/systemd/system.conf 才对普通用户生效(elasticsearch,redis也要)
 ulimit -Sn  S=Soft
 
 

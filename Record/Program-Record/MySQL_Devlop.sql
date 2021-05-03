@@ -289,6 +289,7 @@ mysql -h host -u user -p < batch-file
 mysql -uroot -proot -D nine -e "select * from boss_functions " --default-character-set=utf8 >/root/xx.xx
 -D 和--database 都可以,可以用空格或=
 -e 和--execute= 都可以,可以用空格或=   执行SQL,使用""引用
+-P --port
 
 如使用关键字做表名,或者字段名,使用 ``引用
 
@@ -858,7 +859,7 @@ alter table boss_agent ALTER [column] total_balance {SET DEFAULT literal | DROP 
  
  CREATE TABLE inventory (
  )ENGINE=InnoDB DEFAULT CHARSET=utf8;  --或者  DEFAULT character set 'utf8'  --utf8可有可无''
- 
+  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci  comment 'X表'; 
  
 GROUP_CONCAT(DISTINCT test_score  ORDER BY test_score DESC SEPARATOR '; ')
 SET [SESSION | GLOBAL] group_concat_max_len = 3600000;// 30万
@@ -1321,6 +1322,10 @@ create table authorities (
     constraint fk_authorities_users foreign key(username) references users(username)
 );
 create unique index ix_auth_username on authorities (username,authority);
+
+SET FOREIGN_KEY_CHECKS = 0; -- 如有外键引用，这个表不能删除，要设置这个才行
+drop table users ;
+SET FOREIGN_KEY_CHECKS = 1;
 
 innodb 和 MyISAM 只支持 BTREE 索引
 

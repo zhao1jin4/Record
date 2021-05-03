@@ -1,4 +1,4 @@
-
+ï»¿
 
 ==============================MongoDB 
  <dependency>
@@ -22,7 +22,7 @@
     <version>3.12.2</version>
 </dependency>
 
-3.11.0 Ö§³ÖMongoDB 4.2 ·Ö²¼Ê½ÊÂÎñ
+3.11.0 æ”¯æŒMongoDB 4.2 åˆ†å¸ƒå¼äº‹åŠ¡
  
 mongodb-driver-3.8.2.jar
 mongodb-driver-async-3.8.2.jar
@@ -111,13 +111,13 @@ public class MongoTest
 	
 		MongoCredential credential = MongoCredential.createCredential("zh", "reporting", "123".toCharArray());
 	
-		//replication set ÊÂÎñOK
+		//replication set äº‹åŠ¡OK
 		ServerAddress[] addrs=	new ServerAddress[] {
 				new ServerAddress("127.0.0.1", 37017),
 				new ServerAddress("127.0.0.1", 37018),
 				new ServerAddress("127.0.0.1", 37019)};
 		
-		//µ¥»ú²»Ö§³ÖÊÂÎñ
+		//å•æœºä¸æ”¯æŒäº‹åŠ¡
 //		ServerAddress[] addrs=	new ServerAddress[] { new ServerAddress("127.0.0.1", 27017) };
 		MongoClientOptions opts= new MongoClientOptions.Builder().build();
 	 	MongoClient mongoClient  = new MongoClient(Arrays.asList(addrs), credential,opts );  
@@ -163,7 +163,7 @@ public class MongoTest
 		
 		MongoDatabase db = mongoClient.getDatabase( "test" );//= use test
 		 System.out.println("--all db");
-		for (String s : mongoClient.listDatabaseNames()) {//= show dbs  ,Èç·şÎñ¶Ë´ò¿ª --auth ÕâÀïÑéÖ¤È¨ÏŞ 
+		for (String s : mongoClient.listDatabaseNames()) {//= show dbs  ,å¦‚æœåŠ¡ç«¯æ‰“å¼€ --auth è¿™é‡ŒéªŒè¯æƒé™ 
 			   System.out.println(s);
 		}
 		 db.drop();
@@ -196,7 +196,7 @@ Block<Builder> block=new Block<Builder>(){
 MongoClientSettings settings = MongoClientSettings.builder().applyToClusterSettings(block).build();
 MongoClient client = MongoClients.create(settings);
 
-//Ö§³ÖJDK8
+//æ”¯æŒJDK8
 collection.insertOne(doc, (Void result, final Throwable t) -> System.out.println("Inserted!"));
 
 Document document = new Document("x", 1);
@@ -208,7 +208,7 @@ collection.insertOne(document, new SingleResultCallback<Void>() {
 });
 
 document.append("x", 2).append("y", 3);
-//Ä£°åÊÇ  UpdateResult
+//æ¨¡æ¿æ˜¯  UpdateResult
 collection.replaceOne(Filters.eq("_id", document.get("_id")), document, 
 	new SingleResultCallback<UpdateResult>() {
 	   @Override
@@ -216,7 +216,7 @@ collection.replaceOne(Filters.eq("_id", document.get("_id")), document,
 		   System.out.println(result.getModifiedCount());
 	   }
    });	
-//Ä£°åÊÇ  List<Document>
+//æ¨¡æ¿æ˜¯  List<Document>
 collection.find().into(new ArrayList<Document>(), 
 	new SingleResultCallback<List<Document>>() {
 		@Override
@@ -227,13 +227,13 @@ collection.find().into(new ArrayList<Document>(),
 
 Block<Document> printDocumentBlock = new Block<Document>() {
 		@Override
-		public void apply(final Document document) {//²éÑ¯µ½µÄÃ¿¸öDocumentµ÷ÓÃÒ»´Î
+		public void apply(final Document document) {//æŸ¥è¯¢åˆ°çš„æ¯ä¸ªDocumentè°ƒç”¨ä¸€æ¬¡
 			System.out.println(document.toJson());
 		}
 	};
 SingleResultCallback<Void> callbackWhenFinished = new SingleResultCallback<Void>() {
 	@Override
-	public void onResult(final Void result, final Throwable t) {//Ö»ÔÚÍê³ÉÊ±µ÷ÓÃÒ»´Î
+	public void onResult(final Void result, final Throwable t) {//åªåœ¨å®Œæˆæ—¶è°ƒç”¨ä¸€æ¬¡
 		System.out.println("Operation Finished!");
 	}
 };
@@ -258,7 +258,7 @@ collection.updateMany(lt("i", 100), new Document("$inc", new Document("i", 100))
 			}
 		});
 
-//Ä£°åÊÇDeleteResult
+//æ¨¡æ¿æ˜¯DeleteResult
 collection.deleteOne(eq("i", 110), new SingleResultCallback<DeleteResult>() {
 	@Override
 	public void onResult(final DeleteResult result, final Throwable t) {
@@ -280,9 +280,9 @@ SingleResultCallback<BulkWriteResult> printBatchResult = new SingleResultCallbac
 		    public void onResult(final BulkWriteResult result, final Throwable t) {
 		    	if(result !=null  && result.getMatchedCount()>0 )
 		    	{
-		    		  System.out.println("¹²"+result.getMatchedCount()+"Ìõ¼ÇÂ¼match,deleteÊı:" +result.getDeletedCount() + 
-		    				  	",insertÊı:"+result.getInsertedCount() +
-		    				  	",modifiedÊı:"+result.getModifiedCount());
+		    		  System.out.println("å…±"+result.getMatchedCount()+"æ¡è®°å½•match,deleteæ•°:" +result.getDeletedCount() + 
+		    				  	",insertæ•°:"+result.getInsertedCount() +
+		    				  	",modifiedæ•°:"+result.getModifiedCount());
 		    	}else 
 		    	{
 		    		  System.out.println( "BulkWriteResult is null or result.getMatchedCount()=0");
@@ -299,12 +299,12 @@ collection.bulkWrite(
 					new DeleteOneModel<>(new Document("_id", 2)),
 					new ReplaceOneModel<>(new Document("_id", 3),
 										  new Document("_id", 3).append("x", 4))),
-	  new BulkWriteOptions().ordered(false),//ÅúÁ¿²»°´Ë³Ğò×ö,²»¼ÓÕâ¸ö²ÎÊıÄ¬ÈÏÊÇ°´Ë³Ğò×öµÄ
+	  new BulkWriteOptions().ordered(false),//æ‰¹é‡ä¸æŒ‰é¡ºåºåš,ä¸åŠ è¿™ä¸ªå‚æ•°é»˜è®¤æ˜¯æŒ‰é¡ºåºåšçš„
 	  printBatchResult
 );
 ---------Querydsl MongoDB
 http://www.querydsl.com/static/querydsl/latest/reference/html/
-ÓĞQuerying SQL(ÓĞmaven²å¼şÉú³É´úÂë),Querying Lucene, JPA,Querying Hibernate Search,Querying in Scala
+æœ‰Querying SQL(æœ‰mavenæ’ä»¶ç”Ÿæˆä»£ç ),Querying Lucene, JPA,Querying Hibernate Search,Querying in Scala
 
 <dependency>
     <groupId>com.querydsl</groupId>
@@ -329,7 +329,7 @@ http://www.querydsl.com/static/querydsl/latest/reference/html/
 
 
 
-Éú³É´úÂë²ÅÓÃµÄ
+ç”Ÿæˆä»£ç æ‰ç”¨çš„
 <dependency>
   <groupId>com.querydsl</groupId>
   <artifactId>querydsl-apt</artifactId>
@@ -374,7 +374,7 @@ public class Customer {
     private String firstName; 
 }
 
-mvn clean install ÔÚ target/generated-sources/java Ä¿Â¼Éú³É QCustomer.java
+mvn clean install åœ¨ target/generated-sources/java ç›®å½•ç”Ÿæˆ QCustomer.java
  
 import javax.annotation.Generated;
 import com.querydsl.core.types.dsl.DateTimePath;
@@ -438,10 +438,10 @@ Datastore datastore = morphia.createDatastore(mongoClient,"reporting");
  final Employee daffy = new Employee("Daffy Duck", 40000.0);
  datastore.save(daffy);
 
- final Employee pepe = new Employee("Pep¨¦ Le Pew", 25000.0);
+ final Employee pepe = new Employee("PepÃ© Le Pew", 25000.0);
  datastore.save(pepe);
 
- elmer.getDirectReports().add(daffy);//±£´æµÄÊÇdirectReportsÊı¾İ£¬0ÊÇ{$ref:"",$id:""}
+ elmer.getDirectReports().add(daffy);//ä¿å­˜çš„æ˜¯directReportsæ•°æ®ï¼Œ0æ˜¯{$ref:"",$id:""}
  elmer.getDirectReports().add(pepe);
 
  datastore.save(elmer);
@@ -472,7 +472,7 @@ datastore.delete(overPaidQuery);
 //        morphia.mapPackage("com.hoo.entity");
 		  
  Customer cust=	new Customer("li","si_dsl_morphie"); 
-		datastore.save(cust);//»á´æÒ»¸öclassNameµÄ×Ö¶Î
+		datastore.save(cust);//ä¼šå­˜ä¸€ä¸ªclassNameçš„å­—æ®µ
   
 		DBObject dbObj=morphia.toDBObject(cust) ;
 		System.out.println(dbObj);
@@ -481,11 +481,11 @@ datastore.delete(overPaidQuery);
 		System.out.println("isMapped: " + morphia.isMapped(Customer.class));
 		//QCustomer customer = new QCustomer("customer");
 		QCustomer customer =   QCustomer.customer;
-  //ÒÀÀµÓÚ mysema-commons-lang-0.2.4.jar
+  //ä¾èµ–äº mysema-commons-lang-0.2.4.jar
 		MorphiaQuery<Customer> query = new MorphiaQuery<Customer>(morphia, datastore, customer);
 		List<Customer> list = query
 		    .where(customer.firstName.eq("li"))
-      .limit(5).offset(1)//Ìø¹ıÒ»¸ö 
+      .limit(5).offset(1)//è·³è¿‡ä¸€ä¸ª 
 		    .fetch();
 		System.out.println(list);
 
@@ -507,9 +507,9 @@ import static com.querydsl.core.alias.Alias.alias;
     <version>1.6.3</version>
 </dependency>
 
-Ö§³ÖJDK8,²»Ö§³Ö9
+æ”¯æŒJDK8,ä¸æ”¯æŒ9
 
- NoSQL  Í¼ Êı¾İ¿â  Cypher Query Language
+ NoSQL  å›¾ æ•°æ®åº“  Cypher Query Language
 
 
 import org.neo4j.driver.v1.AuthTokens;
@@ -603,7 +603,7 @@ while (result.hasNext())
     <groupId>org.neo4j</groupId>
     <artifactId>neo4j-ogm-embedded-driver</artifactId>
     <version>3.1.4</version> 
-</dependency> <!-- ÔËĞĞÒÀÀµÓÚ org.neo4j.graphdb.GraphDatabaseService -->
+</dependency> <!-- è¿è¡Œä¾èµ–äº org.neo4j.graphdb.GraphDatabaseService -->
 
 neo4j-ogm-core-3.1.4.jar
 	neo4j-ogm-api-3.1.4.jar
@@ -621,7 +621,7 @@ URI=http://neo4j:myneo4j@localhost:7474
 #password="myneo4j"
 
 
-String classpathFile="nosql_neo4j_ogm/neo4j-ogm.properties";//JDK 8 ²»ÄÜÒÔ/¿ªÍ·
+String classpathFile="nosql_neo4j_ogm/neo4j-ogm.properties";//JDK 8 ä¸èƒ½ä»¥/å¼€å¤´
 Properties properties = new Properties();
 InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(classpathFile)   ;
 properties.load(is);
@@ -675,7 +675,7 @@ public class Movie {
 	@Property(name="one_title")
 	private String title;
 	
-	 @Transient //²»´æ´¢
+	 @Transient //ä¸å­˜å‚¨
 	private int released;
 
 	@Relationship(type = "ACTS_IN",  
@@ -684,7 +684,7 @@ public class Movie {
 	Set<Actor> actors=new HashSet<>();
 
 	 
-	public Movie() { //Àà±ØĞëÓĞ¿ÕµÄ¹«ÓĞ¹¹ÔìÆ÷
+	public Movie() { //ç±»å¿…é¡»æœ‰ç©ºçš„å…¬æœ‰æ„é€ å™¨
 	}
 
 	public Movie(String title, int year) {
@@ -719,8 +719,8 @@ public class Actor {
 	}
    //getter/setter
 }
----------------------------------Redis client Jedis (springÊ¹ÓÃÕâ¸ö)
-ÊÇ×èÈûµÄ
+---------------------------------Redis client Jedis (springä½¿ç”¨è¿™ä¸ª)
+æ˜¯é˜»å¡çš„
 
 https://github.com/xetorthio/jedis
 
@@ -732,27 +732,27 @@ https://github.com/xetorthio/jedis
     <scope>compile</scope>
 </dependency>
 
-RedisÄ¬ÈÏ¼àÌı 6379 ¶Ë¿Ú
+Redisé»˜è®¤ç›‘å¬ 6379 ç«¯å£
 
-//---µ¥½Úµã,²âÊÔOK
-Jedis jedis=new Jedis(ip,6379);// µ¥»ú »ò clusterµÄmaster
-jedis.auth("123456");//¶ÔÅäÖÃ masterauth ,requirepass 
+//---å•èŠ‚ç‚¹,æµ‹è¯•OK
+Jedis jedis=new Jedis(ip,6379);// å•æœº æˆ– clusterçš„master
+jedis.auth("123456");//å¯¹é…ç½® masterauth ,requirepass 
 String keys = "name";  
 if(jedis.exists(keys))
 	jedis.del(keys);  
 jedis.set(keys, "snowolf");  
 System.out.println(jedis.get(keys));  
 
-//---µ¥½Úµã,²âÊÔOK
-JedisPool pool = new JedisPool(new JedisPoolConfig(), ip,port,2000);//timeout,¿É¼Ópassworld²ÎÊı
+//---å•èŠ‚ç‚¹,æµ‹è¯•OK
+JedisPool pool = new JedisPool(new JedisPoolConfig(), ip,port,2000);//timeout,å¯åŠ passworldå‚æ•°
 		
 Jedis jedis = pool.getResource();
 jedis.set("foo", "bar");//string
 String foobar = jedis.get("foo");
 //zset
-jedis.zadd("sose", 0, "car");//0ÊÇscore
+jedis.zadd("sose", 0, "car");//0æ˜¯score
 jedis.zadd("sose", 0, "bike"); 
-Set<String> sose = jedis.zrange("sose", 0, -1);//score ·¶Î§
+Set<String> sose = jedis.zrange("sose", 0, -1);//score èŒƒå›´
 System.out.println(sose);
 
 jedis.sadd("myset","mysetval");//set
@@ -761,23 +761,23 @@ jedis.lpush("mylist", "two");
 jedis.hset("myhashStuScore", "zhang", "A");//hash
 jedis.hset("myhashStuScore", "lisi", "B");
 
-jedis.close();//Ò»¶¨Òªclose 
+jedis.close();//ä¸€å®šè¦close 
 pool.destroy();
 
 //----transaction
-jedis.watch("name");// µ±Ç°¿Í»§¶Ë¼àÊÓ¸Ãname¼ü
-//jedis.unwatch();    // ³·Ïú¼àÊÓ
+jedis.watch("name");// å½“å‰å®¢æˆ·ç«¯ç›‘è§†è¯¥nameé”®
+//jedis.unwatch();    // æ’¤é”€ç›‘è§†
 
-Transaction tran = jedis.multi();	// ¿ªÆôÊÂÎñ×´Ì¬
+Transaction tran = jedis.multi();	// å¼€å¯äº‹åŠ¡çŠ¶æ€
 
-tran.set("name", "benson");	// Ìí¼Ó¼üÖµ¶Ô
+tran.set("name", "benson");	// æ·»åŠ é”®å€¼å¯¹
 tran.set("job", "java");
 Response<String> res= tran.get("job");
-//tran.discard();		// È¡ÏûÉÏÊöÃüÁîµÄÖ´ĞĞ
-List<Object> list = tran.exec();	// Ìá½»ÊÂÎñ
-System.out.println( res.get());//getÔÚexecºóÖ´ĞĞ
+//tran.discard();		// å–æ¶ˆä¸Šè¿°å‘½ä»¤çš„æ‰§è¡Œ
+List<Object> list = tran.exec();	// æäº¤äº‹åŠ¡
+System.out.println( res.get());//getåœ¨execåæ‰§è¡Œ
 
-//Ò»´ÎĞÔÈ¡È«²¿,ÈçÊÇsetÃüÁî½á¹ûÎªOK
+//ä¸€æ¬¡æ€§å–å…¨éƒ¨,å¦‚æ˜¯setå‘½ä»¤ç»“æœä¸ºOK
 for(Object resp : list) {
   System.out.println(resp.getClass().getName()+resp);
 }
@@ -786,22 +786,22 @@ Transaction t = jedis.multi();
 t.set("fool", "bar"); 
 Response<String> result1 = t.get("fool");
 
-t.zadd("foo", 1, "barowitch"); t.zadd("foo", 0, "barinsky"); t.zadd("foo", 0, "barikoviev");//ÊÇ0
+t.zadd("foo", 1, "barowitch"); t.zadd("foo", 0, "barinsky"); t.zadd("foo", 0, "barikoviev");//æ˜¯0
 Response<Set<String>> sose = t.zrange("foo", 1, -1); 
 List<Object> allResults =t.exec();
 
 String foolbar = result1.get();
-Set<String> set=sose.get();//ÈçÓĞ´íÎó,ÇåÊı¾İ    ,0·ÖµÄÖ»ÓĞµÚÒ»¸ö
+Set<String> set=sose.get();//å¦‚æœ‰é”™è¯¯,æ¸…æ•°æ®    ,0åˆ†çš„åªæœ‰ç¬¬ä¸€ä¸ª
 
 //-------pipline
 Pipeline p = jedis.pipelined();
 p.set("fool", "bar"); 
 p.zadd("foo", 1, "barowitch");  p.zadd("foo", 0, "barinsky"); p.zadd("foo", 0, "barikoviev");
-Response<String> pipeString = p.get("fool"); // ÏÈ¶à´Î·¢ËÍÃüÁî,¹ıºóÔÙÈ¡½á¹û,Ïñtransaction
+Response<String> pipeString = p.get("fool"); // å…ˆå¤šæ¬¡å‘é€å‘½ä»¤,è¿‡åå†å–ç»“æœ,åƒtransaction
 Response<Set<String>> sose = p.zrange("foo", 0, -1);
 p.sync(); 
 
-int soseSize = sose.get().size();//ÈçÓĞ´íÎó,ÇåÊı¾İ
+int soseSize = sose.get().size();//å¦‚æœ‰é”™è¯¯,æ¸…æ•°æ®
 Set<String> setBack = sose.get();
 System.out.println(setBack);
 
@@ -827,29 +827,29 @@ class MyListener extends JedisPubSub {
     	System.out.println("onPMessage pattern="+pattern+",channel="+channel+" receive  :"+message);
     }
 }
-//jedis.psubscribe(listen, "a","b");//»áÒ»Ö±×èÈû,»á¸ù¾İ²ÎÊı¸öÊın µ÷ÓÃn´ÎJedisPubSubµÄonSubscribe·½·¨
-jedis.subscribe(listen, "foo");//»áÒ»Ö±×èÈû,»áµ÷ÓÃJedisPubSubµÄonSubscribe·½·¨
+//jedis.psubscribe(listen, "a","b");//ä¼šä¸€ç›´é˜»å¡,ä¼šæ ¹æ®å‚æ•°ä¸ªæ•°n è°ƒç”¨næ¬¡JedisPubSubçš„onSubscribeæ–¹æ³•
+jedis.subscribe(listen, "foo");//ä¼šä¸€ç›´é˜»å¡,ä¼šè°ƒç”¨JedisPubSubçš„onSubscribeæ–¹æ³•
 
-jedis.publish("foo", "ÏûÏ¢");//ÈçÒÑ¾­ÓĞ subscribe(psubscribeÎŞĞ§)½ø³Ì,ÔòsubscribeµÄ½ø³Ì»áµ÷ÓÃJedisPubSubµÄonMessage·½·¨
+jedis.publish("foo", "æ¶ˆæ¯");//å¦‚å·²ç»æœ‰ subscribe(psubscribeæ— æ•ˆ)è¿›ç¨‹,åˆ™subscribeçš„è¿›ç¨‹ä¼šè°ƒç”¨JedisPubSubçš„onMessageæ–¹æ³•
 
-//---¼¯ÈºµÄredis,ÒÀÀµÓÚ commons/poopl2
+//---é›†ç¾¤çš„redis,ä¾èµ–äº commons/poopl2
 Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
-jedisClusterNodes.add(new HostAndPort(node0Ip, node0Port));//Ö»Ò»¸ömaster½ÚµãOK
+jedisClusterNodes.add(new HostAndPort(node0Ip, node0Port));//åªä¸€ä¸ªmasterèŠ‚ç‚¹OK
 JedisCluster jc = new JedisCluster(jedisClusterNodes);
 //jc.auth("123456");
 jc.set("foo", "bar"); 
 System.out.println(jc.get("foo"));
  
 
---shard Í¨¹ıÒ»ÖÂĞÔ¹şÏ£Ëã·¨¾ö¶¨°ÑÊı¾İ´æµ½ÄÄÌ¨ÉÏ,ËãÊÇÒ»ÖÖ¿Í»§¶Ë¸ºÔØ¾ùºâ
+--shard é€šè¿‡ä¸€è‡´æ€§å“ˆå¸Œç®—æ³•å†³å®šæŠŠæ•°æ®å­˜åˆ°å“ªå°ä¸Š,ç®—æ˜¯ä¸€ç§å®¢æˆ·ç«¯è´Ÿè½½å‡è¡¡
 JedisPoolConfig config=new JedisPoolConfig();
 config.setMaxIdle(20);
 config.setMaxTotal(30);
 config.setMaxWaitMillis(5*1000);
 config.setTestOnBorrow(false);
-config.setBlockWhenExhausted(false);//Á¬½ÓºÄ¾¡Ê±ÊÇ·ñ×èÈû, false±¨Òì³£,ture×èÈûÖ±µ½³¬Ê±, Ä¬ÈÏtrue
-//Öğ³öÁ¬½ÓµÄ×îĞ¡¿ÕÏĞÊ±¼ä Ä¬ÈÏ
-config.setMinEvictableIdleTimeMillis(20*60*1000);//20·Ö
+config.setBlockWhenExhausted(false);//è¿æ¥è€—å°½æ—¶æ˜¯å¦é˜»å¡, falseæŠ¥å¼‚å¸¸,tureé˜»å¡ç›´åˆ°è¶…æ—¶, é»˜è®¤true
+//é€å‡ºè¿æ¥çš„æœ€å°ç©ºé—²æ—¶é—´ é»˜è®¤
+config.setMinEvictableIdleTimeMillis(20*60*1000);//20åˆ†
 
 
 
@@ -857,10 +857,10 @@ JedisShardInfo shardInfo =new JedisShardInfo(ip,port);//passwd
 ShardedJedisPool shardedPool=new ShardedJedisPool(config,Arrays.asList(shardInfo)) ;
 ShardedJedis shardedJedis=shardedPool.getResource();
 //put-key
-shardedJedis.set("user1", "ÓÃ»§1");
-shardedJedis.expire("user1",20*60);//µ¥Î»Ãë£¬20·Ö
+shardedJedis.set("user1", "ç”¨æˆ·1");
+shardedJedis.expire("user1",20*60);//å•ä½ç§’ï¼Œ20åˆ†
 //setnx,incr
-shardedJedis.set("user2", "ÓÃ»§2");
+shardedJedis.set("user2", "ç”¨æˆ·2");
 
 ShardedJedisPipeline pipeline = shardedJedis.pipelined();  
 pipeline.set("trainNo1_SH", "20");  
@@ -877,13 +877,13 @@ while (iter.hasNext())
   Set<String> keys = jedis.keys(delKeyLike + "*");  
   jedis.del(keys.toArray(new String[keys.size()]));  
 }   
-shardedJedis.close();//Ò»¶¨Òªclose
+shardedJedis.close();//ä¸€å®šè¦close
 
 
 
-//¹Ù·½Ëµlua½Å±¾µÄÔ­×ÓĞÔ Atomicity of scripts,Èç½Å±¾ÕıÔÚÖ´ĞĞ£¬ÆäËüÃüÁî»ò½Å±¾²»ÄÜÖ´ĞĞ
-//lua½Å±¾ÊµÏÖ·Ö²¼Ê½Ëø£¬¿ÉÒÔ±£´æÖ¤setnx,expireÁ½¸ö²Ù×÷µÄÔ­×ÓĞÔ 
-//·Ö²¼Ê½Ëø,redisÊÂÎñÃ»ÓĞ¸ôÀëĞÔ
+//å®˜æ–¹è¯´luaè„šæœ¬çš„åŸå­æ€§ Atomicity of scripts,å¦‚è„šæœ¬æ­£åœ¨æ‰§è¡Œï¼Œå…¶å®ƒå‘½ä»¤æˆ–è„šæœ¬ä¸èƒ½æ‰§è¡Œ
+//luaè„šæœ¬å®ç°åˆ†å¸ƒå¼é”ï¼Œå¯ä»¥ä¿å­˜è¯setnx,expireä¸¤ä¸ªæ“ä½œçš„åŸå­æ€§ 
+//åˆ†å¸ƒå¼é”,redisäº‹åŠ¡æ²¡æœ‰éš”ç¦»æ€§
 @Test 
 public void testRedisLuaDistributeLock()
 { 
@@ -896,18 +896,18 @@ public void testRedisLuaDistributeLock()
 	 	String line=scanner.nextLine();
 	 	strBuilder.append(line).append("\n");
 	 } 
-	Object res=jedis.eval(strBuilder.toString(),1,"lockExport","user1","30");//²ÎÊı ¼üÃû,Öµ£¬³¬Ê±Ãë
+	Object res=jedis.eval(strBuilder.toString(),1,"lockExport","user1","30");//å‚æ•° é”®å,å€¼ï¼Œè¶…æ—¶ç§’
 	System.out.println(res);
 }
 
 ------lock.lua
--- µ¥ĞĞ×¢ÊÍ
+-- å•è¡Œæ³¨é‡Š
 --[[
- ¶àĞĞ×¢ÊÍ
-Ã»°ì·¨ÔÚÕâÀïÔİÍ£
+ å¤šè¡Œæ³¨é‡Š
+æ²¡åŠæ³•åœ¨è¿™é‡Œæš‚åœ
  --]]  
 
- -- SETNX ³É¹¦ÉèÖÃ·µ»Ø1,Ê§°ÜÉèÖÃ·µ»Ø0
+ -- SETNX æˆåŠŸè®¾ç½®è¿”å›1,å¤±è´¥è®¾ç½®è¿”å›0
 local  isSet = redis.call('SETNX', KEYS[1], ARGV[1])
  if isSet == 1 then
     redis.call('EXPIRE', KEYS[1], ARGV[2]) 
@@ -917,16 +917,16 @@ local  isSet = redis.call('SETNX', KEYS[1], ARGV[1])
 
 
 
----------------------------------Redis client  lettuce SpringÓÃÕâ¸ö
+---------------------------------Redis client  lettuce Springç”¨è¿™ä¸ª
  <dependency>
     <groupId>io.lettuce</groupId>
     <artifactId>lettuce-core</artifactId>
     <version>5.0.4.RELEASE</version>
 </dependency>
-Ê¹ÓÃreactor,netty ·Ç×èÈûµÄ
+ä½¿ç”¨reactor,netty éé˜»å¡çš„
 
 
-//×¢Òâ jboss-client.jarÁËÓĞnettyµÄÀà
+//æ³¨æ„ jboss-client.jaräº†æœ‰nettyçš„ç±»
 //		RedisClient redisClient = RedisClient.create("redis://password@localhost:6379/0");
 //		RedisClient redisClient = RedisClient.create("redis://localhost:6379/0");
 //		RedisClient redisClient = RedisClient.create(RedisURI.create("localhost", 6379));
@@ -990,37 +990,37 @@ public void testShowAllKeyValues()
 }
 		
 jedis.close();
-jedis.shutdown();//»á°Ñredis·şÎñÆ÷¹ØÁË 
+jedis.shutdown();//ä¼šæŠŠredisæœåŠ¡å™¨å…³äº† 
 	
----------------------------------Redis client redisson	  ·Ö²¼Ê½ËøµÄÊµÏÖ 
- //JCache (JSR-107)
+---------------------------------Redis client redisson	  åˆ†å¸ƒå¼é”çš„å®ç° 
+ //JCache (JSR-107) 
 <dependency>
-   <groupId>org.redisson</groupId>
-   <artifactId>redisson</artifactId>
-   <version>3.14.1</version>
-</dependency>  
+  <groupId>org.redisson</groupId>
+  <artifactId>redisson</artifactId>
+  <version>3.15.0</version>
+</dependency>
 
-https://redis.io/topics/distlock Ìáµ½Ê¹ÓÃ redisson
-https://github.com/redisson/redisson/wiki/ ÓĞÖĞÎÄµÄÎÄµµ
+https://redis.io/topics/distlock æåˆ°ä½¿ç”¨ redisson
+https://github.com/redisson/redisson/wiki/ æœ‰ä¸­æ–‡çš„æ–‡æ¡£
 
-//redisson  ÒÀÀµÓÚnetty ·Ç×èÈûµÄ,fasterxmlµÄjackson
+//redisson  ä¾èµ–äºnetty éé˜»å¡çš„,fasterxmlçš„jackson
 
 
 Config config = new Config();
-//--µ¥»ú 
+//--å•æœº 
 //SingleServerConfig singConfig= config.useSingleServer();
 //singConfig.setAddress("redis://127.0.0.1:6379").setPassword(password);;
 
-//--clusterÅäÖÃ
+//--clusteré…ç½®
 MasterSlaveServersConfig  msConfig=config.useMasterSlaveServers();
 msConfig.setMasterAddress(masterIPPort);
-msConfig.addSlaveAddress(slaveIPPort);//¿É´«¶à¸önode
+msConfig.addSlaveAddress(slaveIPPort);//å¯ä¼ å¤šä¸ªnode
 
-//RedissonClient redisson = Redisson.create();//Ä¬ÈÏ redis://127.0.0.1:6379
+//RedissonClient redisson = Redisson.create();//é»˜è®¤ redis://127.0.0.1:6379
 RedissonClient redisson = Redisson.create(config);
 RKeys keys=redsson.getKeys();
  Iterable<String> iter=keys.getKeys();
- iter.forEach(new Consumer<String>()  //»Øµ÷µÄÒªµÈ²ÅĞĞ
+ iter.forEach(new Consumer<String>()  //å›è°ƒçš„è¦ç­‰æ‰è¡Œ
  {
 	@Override
 	public void accept(String key) {
@@ -1030,20 +1030,20 @@ RKeys keys=redsson.getKeys();
 
 //---Distributed Object storage example
 RBucket<AnyObject> bucket = redisson.getBucket("anyObject");
-//bucket.set(new AnyObject());//µ¥»úOK,µ«cluster master ¿¨×¡???
-bucket.setAsync(new AnyObject());//µ¥»úOK,µ«cluster master getÊ±¿¨×¡???
+//bucket.set(new AnyObject());//å•æœºOK,ä½†cluster master å¡ä½???
+bucket.setAsync(new AnyObject());//å•æœºOK,ä½†cluster master getæ—¶å¡ä½???
 AnyObject obj = bucket.get();
 
 redisson.shutdown();
 
-//·Ö²¼Ê½ËøÊµÏÖÊ¹ÓÃlua½Å±¾£¬redisµÄ·¢²¼¶©ÔÄ£¬hashÊı¾İ½á¹¹keyÊÇÏß³ÌID
+//åˆ†å¸ƒå¼é”å®ç°ä½¿ç”¨luaè„šæœ¬ï¼ŒSemaphoreæ¥é˜»å¡,redisçš„å‘å¸ƒè®¢é˜…æ¥å”¤é†’ï¼Œhashæ•°æ®ç»“æ„keyæ˜¯çº¿ç¨‹ID
 RLock lock = redisson.getLock("anyLock");
 lock.lock(); 
 lock.lock(10, TimeUnit.SECONDS);// acquire lock and automatically unlock it after 10 seconds
 
 lock.unlock();
 
-
+//å¦‚releaseTimeä¸ä¼ ï¼Œä¸º-1ï¼Œå°±ä¼šä¸€ä¸ªçº¿ç¨‹30ç§’çš„æ¯1/3æ—¶é—´åšä¸€æ¬¡ç»­å‘½ï¼Œé˜²æ­¢æŒ‚äº†ä¸€ç›´é” 
 lock.tryLock(waitTime, releaseTime, TimeUnit.SECONDS); 
 // or wait for lock aquisition up to 100 seconds 
 // and automatically unlock it after 10 seconds
@@ -1072,7 +1072,7 @@ public class RedissonConfig {
 	 return Redisson.create(config);
  }
 }
-»òÓÃ 
+æˆ–ç”¨ 
   	  <dependency>
          <groupId>org.redisson</groupId>
          <artifactId>redisson-spring-boot-starter</artifactId>
@@ -1090,67 +1090,67 @@ public class RedissonConfig {
 String rootPath="/testZkClient";
 
 ZkClient zkClient = new ZkClient("10.1.5.225:2581",10000,10000,new SerializableSerializer());
-System.out.println("Á¬½ÓOK");
+System.out.println("è¿æ¥OK");
 
 IZkChildListener childListender=	new IZkChildListener() {
 	@Override
 	public void handleChildChange(String parentPath, List<String> currentChild) throws Exception {
-		System.out.println(parentPath+"µÄ×Ó½Úµã¸Ä±äÁË,ÏÖÓĞ×Ó½ÚµãÓĞ "+currentChild);
+		System.out.println(parentPath+"çš„å­èŠ‚ç‚¹æ”¹å˜äº†,ç°æœ‰å­èŠ‚ç‚¹æœ‰ "+currentChild);
 	}
 } ;
 
-zkClient.subscribeChildChanges(rootPath,childListender );//Ò²¿ÉÒÔ¼àÌı²»´æÔÚµÄ½Úµã,Ò»µ«½¨Á¢»áÊÕµ½
+zkClient.subscribeChildChanges(rootPath,childListender );//ä¹Ÿå¯ä»¥ç›‘å¬ä¸å­˜åœ¨çš„èŠ‚ç‚¹,ä¸€ä½†å»ºç«‹ä¼šæ”¶åˆ°
 
 UserLogin session=new UserLogin();
 session.setLastLogin(new Date());
 session.setUserName("lisi");
-//ÀàÒªÊµÏÖSerializable½Ó¿Ú
+//ç±»è¦å®ç°Serializableæ¥å£
 String path=zkClient.create(rootPath, session, CreateMode.PERSISTENT);
-System.out.println(path+"½¨Á¢ÁË");
+System.out.println(path+"å»ºç«‹äº†");
 
  
 Stat stat=new Stat();
 UserLogin zkData=zkClient.readData(rootPath,stat);
-System.out.println("¶Áµ½ÁË"+zkData );
-System.out.println("¶Áµ½ stat getAversion="+stat.getAversion());
+System.out.println("è¯»åˆ°äº†"+zkData );
+System.out.println("è¯»åˆ° stat getAversion="+stat.getAversion());
 
 
 boolean exist=zkClient.exists(rootPath);
-System.out.println(rootPath+"´æÔÚ? "+exist );
+System.out.println(rootPath+"å­˜åœ¨? "+exist );
 
 List<String> childNames=zkClient.getChildren(rootPath);
-System.out.println(rootPath+"µÄ×Ó½ÚµãÓĞ"+childNames );
+System.out.println(rootPath+"çš„å­èŠ‚ç‚¹æœ‰"+childNames );
 
 
 String childPath=zkClient.createPersistentSequential(rootPath.concat("/childOne"), "ChildOneVal");
-System.out.println(childPath+"½¨Á¢ÁË");
+System.out.println(childPath+"å»ºç«‹äº†");
 
 IZkDataListener changeListender=new IZkDataListener() {
 	@Override
 	public void handleDataDeleted(String path) throws Exception {
-		System.out.println(path+"Êı¾İÉ¾ÁË");
+		System.out.println(path+"æ•°æ®åˆ äº†");
 	}
 	
 	@Override
 	public void handleDataChange(String path, Object newVal) throws Exception {
-		System.out.println(path+"Êı¾İĞŞ¸ÄÁË,ĞÂÊıÎª"+newVal);
+		System.out.println(path+"æ•°æ®ä¿®æ”¹äº†,æ–°æ•°ä¸º"+newVal);
 	}
 };
 zkClient.subscribeDataChanges(childPath, changeListender);
 zkClient.writeData(childPath, "new ChildOneVal");
-Thread.sleep(10);//Èç²»¼Ó,¿ÉÄÜ»áÖ»ÏìÓ¦×îºóÒ»´Î²Ù×÷
+Thread.sleep(10);//å¦‚ä¸åŠ ,å¯èƒ½ä¼šåªå“åº”æœ€åä¸€æ¬¡æ“ä½œ
 zkClient.delete(childPath);
 
-//		zkClient.delete(rootPath);//Ö»¿ÉÉ¾Ã»ÓĞ×Ó½ÚµãµÄ
+//		zkClient.delete(rootPath);//åªå¯åˆ æ²¡æœ‰å­èŠ‚ç‚¹çš„
 zkClient.deleteRecursive(rootPath); 
 
 zkClient.unsubscribeDataChanges(childPath, changeListender);
 zkClient.unsubscribeChildChanges(rootPath, childListender);
 
-System.out.println("ËùÓĞ½¨Á¢µÄ½ÚµãÉ¾³ıÁË");
+System.out.println("æ‰€æœ‰å»ºç«‹çš„èŠ‚ç‚¹åˆ é™¤äº†");
 
 ============curator 
-Ò»¸öZookeeper¿Í»§¶Ë
+ä¸€ä¸ªZookeeperå®¢æˆ·ç«¯
 
 <dependency>
 	<groupId>org.apache.curator</groupId>
@@ -1179,9 +1179,9 @@ String nodeValue="123";
 
 
 
-//		RetryPolicy retryPolicy=new ExponentialBackoffRetry(1000,3);//baseSleepTimeMs,  maxRetries Ã¿´ÎÖØÊÔÊ±¼äÖğ½¥Ôö¼Ó
-//		RetryPolicy retryPolicy=new RetryNTimes(5,1000);//retryCount ×î´óÖØÊÔ´ÎÊı£¬elapsedTimeMs
-RetryPolicy retryPolicy=new RetryUntilElapsed(5000,1000);//maxElapsedTimeMs×î¶àÖØÊÔ¶à³¤Ê±¼ä,   sleepMsBetweenRetries Ã¿´ÎÖØÊÔÊ±¼ä¼ä¸ô
+//		RetryPolicy retryPolicy=new ExponentialBackoffRetry(1000,3);//baseSleepTimeMs,  maxRetries æ¯æ¬¡é‡è¯•æ—¶é—´é€æ¸å¢åŠ 
+//		RetryPolicy retryPolicy=new RetryNTimes(5,1000);//retryCount æœ€å¤§é‡è¯•æ¬¡æ•°ï¼ŒelapsedTimeMs
+RetryPolicy retryPolicy=new RetryUntilElapsed(5000,1000);//maxElapsedTimeMsæœ€å¤šé‡è¯•å¤šé•¿æ—¶é—´,   sleepMsBetweenRetries æ¯æ¬¡é‡è¯•æ—¶é—´é—´éš”
 //		CuratorFramework client=CuratorFrameworkFactory.newClient(ipPort,500,5000, retryPolicy);
 
 
@@ -1192,7 +1192,7 @@ authInfos.add(auth);
 CuratorFramework client= CuratorFrameworkFactory.builder().connectString(ipPort)
 .sessionTimeoutMs(5000)
 .connectionTimeoutMs(5000)
-//		.authorization("digest", "myuser:mypass".getBytes()) //Í¬ÃüÁî  addauth digest  myuser:mypass
+//		.authorization("digest", "myuser:mypass".getBytes()) //åŒå‘½ä»¤  addauth digest  myuser:mypass
 .authorization(authInfos)
 .retryPolicy(retryPolicy)
 .build();
@@ -1201,11 +1201,11 @@ client.start();
 
 
 //		client.delete().deletingChildrenIfNeeded().forPath(nodePath);
-//client.delete().guaranteed().deletingChildrenIfNeeded().withVersion(1).forPath(nodePath); //¿É´øwithVersion
-//guaranteed ÈçÉ¾³ıÊ§°Ü,»áÒ»Ö±ÖØÊÔ
+//client.delete().guaranteed().deletingChildrenIfNeeded().withVersion(1).forPath(nodePath); //å¯å¸¦withVersion
+//guaranteed å¦‚åˆ é™¤å¤±è´¥,ä¼šä¸€ç›´é‡è¯•
 
 
- ACL aclIp=new ACL(Perms.READ,new Id("ip",ip));//Id¹¹ÔìÆ÷²ÎÊıschemaÖ»¿ÉÊÇip(°×Ãûµ¥)»òdigest(ÓÃ»§ÃûÃÜÂë)
+ ACL aclIp=new ACL(Perms.READ,new Id("ip",ip));//Idæ„é€ å™¨å‚æ•°schemaåªå¯æ˜¯ip(ç™½åå•)æˆ–digest(ç”¨æˆ·åå¯†ç )
  String userPwd=DigestAuthenticationProvider.generateDigest("myuser:mypass");
  ACL aclDigest=new ACL(Perms.READ|Perms.WRITE,new Id("digest",userPwd));
  ArrayList<ACL> aclList=new ArrayList<>();
@@ -1214,7 +1214,7 @@ client.start();
 
 
 String path=client.create()
-.creatingParentsIfNeeded() //Èç¹ûÒ»¼¶²»´æ»áÏÈ´´½¨ÔÙ½¨¶ş¼¶Ä¿Â¼
+.creatingParentsIfNeeded() //å¦‚æœä¸€çº§ä¸å­˜ä¼šå…ˆåˆ›å»ºå†å»ºäºŒçº§ç›®å½•
 .withMode(CreateMode.PERSISTENT)
 .withACL(aclList)
 .forPath(nodePath,nodeValue.getBytes());
@@ -1234,7 +1234,7 @@ System.out.println("child have "+children);
 
 
 stat=client.checkExists().forPath(nodePath);
-System.out.println(nodePath+" = "+stat);//null ¾Í²»´æ
+System.out.println(nodePath+" = "+stat);//null å°±ä¸å­˜
 
 ExecutorService executorService= Executors.newFixedThreadPool(5);
 
@@ -1243,12 +1243,12 @@ ExecutorService executorService= Executors.newFixedThreadPool(5);
 client.setData().withVersion(stat.getVersion()).forPath(nodePath,"newData".getBytes());
 
 
-//inBackground ×ªÒì²½
+//inBackground è½¬å¼‚æ­¥
  client.checkExists().inBackground(new BackgroundCallback() {
 		@Override
 		public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
 			CuratorEventType type=event.getType();
-			int resultCode=event.getResultCode(); //0³É¹¦
+			int resultCode=event.getResultCode(); //0æˆåŠŸ
 			System.out.println("processResult type= "+type);
 			System.out.println("processResult resultCode= "+resultCode);
 			System.out.println("processResult getContext= "+event.getContext());
@@ -1260,7 +1260,7 @@ client.setData().withVersion(stat.getVersion()).forPath(nodePath,"newData".getBy
 
  
  
-//¼àÌı Òª curator-recipes °ü
+//ç›‘å¬ è¦ curator-recipes åŒ…
 NodeCache cache=new NodeCache(client,nodePath);
 cache.start();
 cache.getListenable().addListener(new NodeCacheListener() {
@@ -1272,7 +1272,7 @@ cache.getListenable().addListener(new NodeCacheListener() {
 });
 
 
-PathChildrenCache pathCache=new PathChildrenCache(client,nodePath,true);//true ×Ó½Úµã±ä»¯Ê±£¬Ò²È¡ÄÚÈİ
+PathChildrenCache pathCache=new PathChildrenCache(client,nodePath,true);//true å­èŠ‚ç‚¹å˜åŒ–æ—¶ï¼Œä¹Ÿå–å†…å®¹
 pathCache.start();
 pathCache.getListenable().addListener(new PathChildrenCacheListener() {
 	@Override
@@ -1299,16 +1299,16 @@ client.getCuratorListenable().addListener(new CuratorListener() {
 		CuratorEventType type=event.getType();
 		if(type==CuratorEventType.WATCHED)
 		{
-			WatchedEvent watchEvent=event.getWatchedEvent();//·µ»ØzookeeperµÄWatchedEvent
+			WatchedEvent watchEvent=event.getWatchedEvent();//è¿”å›zookeeperçš„WatchedEvent
 			EventType evtType=watchEvent.getType();
 			System.out.println("watched path="+watchEvent.getPath());
-			client.checkExists().watched().forPath(nodePath);//»¹ÒªÔÙ´Îwached
+			client.checkExists().watched().forPath(nodePath);//è¿˜è¦å†æ¬¡wached
 		}
 		//CuratorEventType.EXISTS ,CuratorEventType.DELETE ,CuratorEventType.CREATE
 	}
 });
 
-//·Ö²¼Ê½ËøÓ¦ÓÃ,¿ÉÒÔ×Ô¼ºĞ´Ò»¸öaopÀ¹½Ø @ClusterLock("/lock/order")À´ÊµÏÖ
+//åˆ†å¸ƒå¼é”åº”ç”¨,å¯ä»¥è‡ªå·±å†™ä¸€ä¸ªaopæ‹¦æˆª @ClusterLock("/lock/order")æ¥å®ç°
 InterProcessMutex lock=new InterProcessMutex(client,nodePath);
 try 
 {
@@ -1316,7 +1316,7 @@ try
 	if(lock.acquire(10,TimeUnit.SECONDS))
 	{
 		System.out.println("geted lock");
-		Thread.sleep(1000*3);//Ä£ÄâÊ¹ÓÃÊ±¼ä  
+		Thread.sleep(1000*3);//æ¨¡æ‹Ÿä½¿ç”¨æ—¶é—´  
 	}else
 	{
 		System.out.println("get lock timeout");
@@ -1325,15 +1325,15 @@ try
 	lock.release();
 }
 
-//Òª curator-x-discovery-4.0.1.jar
-//·şÎñÃèÊö
+//è¦ curator-x-discovery-4.0.1.jar
+//æœåŠ¡æè¿°
 ServiceInstanceBuilder<Map> service=ServiceInstance.builder();
 service.address("127.0.0.1");
 service.port(8080);
-service.name(serviceName);//Ëû´´½¨zk½Úµã
+service.name(serviceName);//ä»–åˆ›å»ºzkèŠ‚ç‚¹
 Map<String,String> payload=new HashMap<>();
 payload.put("url","/api/v3/book");
-service.payload(payload);//payload ·Å¶îÍâĞÅÏ¢£¬¿ÉÊÇÈÎºÎÀà
+service.payload(payload);//payload æ”¾é¢å¤–ä¿¡æ¯ï¼Œå¯æ˜¯ä»»ä½•ç±»
 ServiceInstance<Map> instance=service.build();
 		
 ServiceDiscovery  discovery=ServiceDiscoveryBuilder.builder(Map.class)
@@ -1341,13 +1341,13 @@ ServiceDiscovery  discovery=ServiceDiscoveryBuilder.builder(Map.class)
 		.serializer(new JsonInstanceSerializer<Map>(Map.class))
 		.basePath("/service")
 		.build();
-//·şÎñ×¢²á 
+//æœåŠ¡æ³¨å†Œ 
 discovery.registerService(instance);
 discovery.start();
 //ls /service/book
 //get /service/book/<uu-id>
 
-//²éÕÒ·şÎñ
+//æŸ¥æ‰¾æœåŠ¡
 ServiceDiscovery  discovery=ServiceDiscoveryBuilder.builder(Map.class)
 		.client(client)
 		.serializer(new JsonInstanceSerializer<Map>(Map.class))
@@ -1359,18 +1359,18 @@ if(all.isEmpty())
 	return null;
 else
 {
-	//ÕâÀïÖ»ÒªµÚÒ»¸ö·şÎñ
+	//è¿™é‡Œåªè¦ç¬¬ä¸€ä¸ªæœåŠ¡
 	ServiceInstance<Map>  service= new ArrayList<ServiceInstance<Map> >(all).get(0);
 	System.out.println(service.getPayload());
 	System.out.println(service.getAddress()); 
 	return   service;
 }
 
-//Ñ¡leader
+//é€‰leader
 LeaderSelectorListenerAdapter listener=new LeaderSelectorListenerAdapter() {
 	@Override
 	public void takeLeadership(CuratorFramework client) throws Exception {
-		//Áìµ¼½Úµã£¬·½·¨½áÊøºóÍË³öÁìµ¼ ¡£zk»áÔÙ´ÎÖØĞÂÑ¡ÔñÁìµ¼
+		//é¢†å¯¼èŠ‚ç‚¹ï¼Œæ–¹æ³•ç»“æŸåé€€å‡ºé¢†å¯¼ ã€‚zkä¼šå†æ¬¡é‡æ–°é€‰æ‹©é¢†å¯¼
 	}
 };
 LeaderSelector selector=new LeaderSelector(client,"/schedule",listener);
@@ -1380,31 +1380,32 @@ selector.start();
 System.in.read();
 client.close();
 
--------------Hazelcast »º´æ Ìæ´ú  redis
+-------------Hazelcast ç¼“å­˜ æ›¿ä»£  redis
 https://hazelcast.org/  
-Hazelcast IMDG ¿ªÔ´µÄ in-memory data grid
+Hazelcast IMDG å¼€æºçš„ in-memory data grid
 
-ÊÇ¶àÏß³ÌµÄ£¬Ê¹ÓÃJava¿ª·¢
-ÓĞÒ»¸ö¼¯ÈºµÄÁìµ¼£¬Ä¬ÈÏÊÇ×îÀÏµÄ³ÉÔ±£¬¹ÜÀíÊı¾İÊÇÈçºÎÔÚÏµÍ³¼ä·Ö²¼£¬µ«ÊÇ£¬Èç¹û¸Ã½Úµãµ±»ú£¬ÄÇÃ´ÊÇÏÂÃæÒ»¸ö¾É½Úµã½Ó¹Ü
-Ä¬ÈÏÊÇ271¸ö·ÖÇø£¬Æô¶¯Á½´Î×Ô¶¯¼ÓÈë£¬ÏÔÊ¾ÓĞÁ½¸ö³ÉÔ± 
+æ˜¯å¤šçº¿ç¨‹çš„ï¼Œä½¿ç”¨Javaå¼€å‘
+æœ‰ä¸€ä¸ªé›†ç¾¤çš„é¢†å¯¼ï¼Œé»˜è®¤æ˜¯æœ€è€çš„æˆå‘˜ï¼Œç®¡ç†æ•°æ®æ˜¯å¦‚ä½•åœ¨ç³»ç»Ÿé—´åˆ†å¸ƒï¼Œä½†æ˜¯ï¼Œå¦‚æœè¯¥èŠ‚ç‚¹å½“æœºï¼Œé‚£ä¹ˆæ˜¯ä¸‹é¢ä¸€ä¸ªæ—§èŠ‚ç‚¹æ¥ç®¡
+é»˜è®¤æ˜¯271ä¸ªåˆ†åŒºï¼Œå¯åŠ¨ä¸¤æ¬¡è‡ªåŠ¨åŠ å…¥ï¼Œæ˜¾ç¤ºæœ‰ä¸¤ä¸ªæˆå‘˜ 
 
 <dependency>
     <groupId>com.hazelcast</groupId>
     <artifactId>hazelcast</artifactId>
     <version>4.0.1</version>
 </dependency>  
-·şÎñ¶Ë/¿Í»§¶ËÒ»ÑùµÄ jar°ü,´óĞ¡10MB
-hazelcast-4.0.1\bin\start.bat Æô¶¯·şÎñ
+æœåŠ¡ç«¯/å®¢æˆ·ç«¯ä¸€æ ·çš„ jaråŒ…,å¤§å°10MB
+hazelcast-4.2\bin\start.bat å¯åŠ¨æœåŠ¡
 
-hazelcast-4.0.1\management-center\start.bat  <¶Ë¿ÚºÅ> Æô¶¯¹ÜÀí½çÃæ 
-http://127.0.0.1:8080 µÚÒ»´ÎÆô¶¯ 
-		ÈçSecurity ProviderÏÂÀ­Ñ¡ÔñDefault ÒªÇó×¢²á ÓÃ»§Ãû/ÃÜÂë (ÖÁÉÙ8¸ö×Ö·û,Êı×Ö,×ÖÄ¸,ÌØÊâ·ûºÅ)Èç hazelcast/HazelFree$
-		ÈçDev Mode¾Í²»ÓÃ£¬»¹ÓĞLDAP
-	Add Cluster Config°´Å¥ cluster NameÄ¬ÈÏÎªdev(ÃûÓë´úÂëÖĞµÄ config.setClusterName("myHazelInst") ¶ÔÓ¦),Ñ¡ÖĞ½¨Á¢µÄ,
-	µØÖ·¸ñÊ½Îª 27.0.0.1:5701  »Ø³µºó±äÎªtag,¿ÉÒÔÊäÈë¶à¸ö£¬Ò²¿ÉÖ»ÊäÈë¼¯ÈºÖĞµÄÒ»¸ö½Úµã
-	¿ÉÒÔ¿´µ½ºÜ¶àĞÅÏ¢,¿ÉÒÔÓÃ³ÌĞòÁ¬½Ó
-	console±êÇ©£¬¿ÉÒÔÊäÈëÃüÁî,help°ïÖú
-Ä¬ÈÏ´æ·ÅÄ¿Â¼ ~/hazelcast-mc
+hazelcast-4.2\management-center\start.bat  <ç«¯å£å·å¦‚8080> å¯åŠ¨ç®¡ç†ç•Œé¢ 
+http://127.0.0.1:8080 ç¬¬ä¸€æ¬¡å¯åŠ¨ 
+		Settings->Current Security Provider: Dev Mode ä¸‹çš„ChangeæŒ‰é’® 
+		è¦æ±‚æ³¨å†Œ ç”¨æˆ·å/å¯†ç  (è‡³å°‘8ä¸ªå­—ç¬¦,æ•°å­—,å­—æ¯,ç‰¹æ®Šç¬¦å·)å¦‚ hazelcast/HazelFree$ 
+		
+	Add Cluster ConfigæŒ‰é’® cluster Nameé»˜è®¤ä¸ºdev(åä¸ä»£ç ä¸­çš„ config.setClusterName("myHazelInst") å¯¹åº”),é€‰ä¸­å»ºç«‹çš„,
+	åœ°å€æ ¼å¼ä¸º 27.0.0.1:5701  å›è½¦åå˜ä¸ºtag,å¯ä»¥è¾“å…¥å¤šä¸ªï¼Œä¹Ÿå¯åªè¾“å…¥é›†ç¾¤ä¸­çš„ä¸€ä¸ªèŠ‚ç‚¹
+	å¯ä»¥çœ‹åˆ°å¾ˆå¤šä¿¡æ¯,å¯ä»¥ç”¨ç¨‹åºè¿æ¥
+	consoleæ ‡ç­¾ï¼Œå¯ä»¥è¾“å…¥å‘½ä»¤,helpå¸®åŠ©
+é»˜è®¤å­˜æ”¾ç›®å½• ~/hazelcast-mc
 
 docker run hazelcast/hazelcast:$HAZELCAST_VERSION
 docker run -e JAVA_OPTS="-Dhazelcast.local.publicAddress=<host_ip>:5701" -p 5701:5701 hazelcast/hazelcast:$HAZELCAST_VERSION
@@ -1482,20 +1483,20 @@ public class DistributedMap {
 }
 
  IMap<String, String> mapLock = h.getMap("my-map-lock");
- mapLock.putIfAbsent("record1","value1");//ÉÏÒ»Ïß³ÌÔÚËøÖĞ£¬ÕâÀï×èÈû,¶à¸öJava½ø³Ì¼äÒ²ÊÇÒ»ÑùµÄ
+ mapLock.putIfAbsent("record1","value1");//ä¸Šä¸€çº¿ç¨‹åœ¨é”ä¸­ï¼Œè¿™é‡Œé˜»å¡,å¤šä¸ªJavaè¿›ç¨‹é—´ä¹Ÿæ˜¯ä¸€æ ·çš„
  //mapLock.lock("record1");
- mapLock.tryLock("record1",5,TimeUnit.SECONDS);//tryLockÀàËÆredisson
+ mapLock.tryLock("record1",5,TimeUnit.SECONDS);//tryLockç±»ä¼¼redisson
  System.out.println("locking");
  mapLock.unlock("record1");
  
 ---java client
 ClientConfig clientConfig = new ClientConfig();
 clientConfig.setClusterName("dev");
-//ÏÈstart.batÆô¶¯Á½¸öhazelcast·şÎñ
+//å…ˆstart.batå¯åŠ¨ä¸¤ä¸ªhazelcastæœåŠ¡
 clientConfig.getNetworkConfig().addAddress("127.0.0.1:5701", "127.0.0.1:5702");
 HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
 IMap<Integer, String> mapCustomers = client.getMap("MyMap"); //creates the map proxy
-//¿Í»§¶Ë»º´æ±ä»¯ÊÂ¼ş
+//å®¢æˆ·ç«¯ç¼“å­˜å˜åŒ–äº‹ä»¶
 mapCustomers.addEntryListener(new MapListenerAdapter<String,String> () {
 	@Override
 	public void entryAdded(EntryEvent<String, String> event) {
@@ -1521,11 +1522,11 @@ mapCustomers.addEntryListener(new MapListenerAdapter<String,String> () {
 
 
 mapCustomers.put(1, "one");
-//µ±´æÁËÊı¾İºó£¬management-center·şÎñºóUI http://127.0.0.1:8080 ¿ÉÒÔStorage->Maps½øÈë MyMap-> Map Browser °´Å¥->¼üÊäÈëÎª1£¬ÀàĞÍÑ¡Ôñinteger, ²é¿´Öµ
+//å½“å­˜äº†æ•°æ®åï¼Œmanagement-centeræœåŠ¡åUI http://127.0.0.1:8080 å¯ä»¥Storage->Mapsè¿›å…¥ MyMap-> Map Browser æŒ‰é’®->é”®è¾“å…¥ä¸º1ï¼Œç±»å‹é€‰æ‹©integer, æŸ¥çœ‹å€¼
 IQueue<String> clusterQueue=client.getQueue("MyQueue");
 
 clusterQueue.add("element1");
-//¿Í»§¶Ë»º´æ±ä»¯ÊÂ¼ş
+//å®¢æˆ·ç«¯ç¼“å­˜å˜åŒ–äº‹ä»¶
 clusterQueue.addItemListener(new ItemListener<String>() {
 	@Override
 	public void itemRemoved(ItemEvent<String> event) {
@@ -1542,7 +1543,7 @@ System.out.println(clusterQueue.poll());
 System.out.println(clusterQueue.size());
 
 
-//EntryXxxListenerÀàÃûÍ¬redissonÃû×Ö
+//EntryXxxListenerç±»ååŒredissonåå­—
 class MyListener implements EntryAddedListener<String,String>,EntryRemovedListener<String,String>,EntryUpdatedListener<String,String>
 							, EntryEvictedListener<String,String>,MapEvictedListener,MapClearedListener
 {
@@ -1553,33 +1554,33 @@ Config config = new  Config();
 config.setClusterName("myHazelCluster");
 
 NetworkConfig network=config.getNetworkConfig();
-System.out.println(network.getPort());//Ä¬ÈÏ5701
-network.setPort(6701);//ĞŞ¸Ä¼àÌı¶Ë¿Ú£¬Èç±»Õ¼ÓÃ+1£¬Ö±µ½¿ÉÓÃ
+System.out.println(network.getPort());//é»˜è®¤5701
+network.setPort(6701);//ä¿®æ”¹ç›‘å¬ç«¯å£ï¼Œå¦‚è¢«å ç”¨+1ï¼Œç›´åˆ°å¯ç”¨
 		
 HazelcastInstance server = Hazelcast.newHazelcastInstance(config);
 
 
 
---- ×Ô´øhazelcast-spring.jar
+--- è‡ªå¸¦hazelcast-spring.jar
 com.hazelcast.spring.cache.HazelcastCacheManager
 
 
---- spring session hazelcast ¼û SpringMVC
---- spring boot hazelcast ¼û SpringBoot
+--- spring session hazelcast è§ SpringMVC
+--- spring boot hazelcast è§ SpringBoot
 
 ==============ZeroMQ
-²»ÊÇÖĞ¼ä¼ş,Ã»ÓĞbroker,¼´Ã»Ò»¸ö·şÎñÆ÷£¬Ö»Ò»¸ö¿â,Ö§³ÖºÜ¶àÖÖÓïÑÔ
+ä¸æ˜¯ä¸­é—´ä»¶,æ²¡æœ‰broker,å³æ²¡ä¸€ä¸ªæœåŠ¡å™¨ï¼Œåªä¸€ä¸ªåº“,æ”¯æŒå¾ˆå¤šç§è¯­è¨€
 zero latency
 
-ºÍnettyÀàËÆÖ§³Ö0¿½±´£¬epollÊµÏÖ 
+å’Œnettyç±»ä¼¼æ”¯æŒ0æ‹·è´ï¼Œepollå®ç° 
 
 zero broker 
-zero cost Ãâ·Ñ
+zero cost å…è´¹
 zero administration.
 
 Libzmq expose C-API and implemented in C++. (low-level library )
 
---JavaAPIÓĞÈı¸ö,JeroMQ,JZMQ,JCZMQ ÕâÀïÓÃ JeroMQ
+--JavaAPIæœ‰ä¸‰ä¸ª,JeroMQ,JZMQ,JCZMQ è¿™é‡Œç”¨ JeroMQ
 
  <dependency>
   <groupId>org.zeromq</groupId>
@@ -1601,7 +1602,7 @@ public class hwserver
 
             while (!Thread.currentThread().isInterrupted()) {
                 // Block until a message is received
-                byte[] reply = socket.recv(0);//×èÈû
+                byte[] reply = socket.recv(0);//é˜»å¡
 
                 // Print the message
                 System.out.println(
@@ -1670,10 +1671,10 @@ public class psenvpub
             Socket publisher = context.createSocket(SocketType.PUB);
             publisher.bind("tcp://*:5563");
 
-            while (!Thread.currentThread().isInterrupted()) {//Ò»Ö±·¢
+            while (!Thread.currentThread().isInterrupted()) {//ä¸€ç›´å‘
                 // Write two messages, each with an envelope and content
-                publisher.sendMore("A");//Ïàµ±ÓÚ±êÌâ
-                publisher.send("We don't want to see this");//Ïàµ±ÓÚÄÚÈİ£¬ÒªºÍ±êÌâÒ»Æğ·¢ËÍ
+                publisher.sendMore("A");//ç›¸å½“äºæ ‡é¢˜
+                publisher.send("We don't want to see this");//ç›¸å½“äºå†…å®¹ï¼Œè¦å’Œæ ‡é¢˜ä¸€èµ·å‘é€
                 publisher.sendMore("B1");
                 publisher.send("We would like to see this");
             }
@@ -1695,11 +1696,11 @@ public class psenvsub
         try (ZContext context = new ZContext()) {
             Socket subscriber = context.createSocket(SocketType.SUB);
             subscriber.connect("tcp://localhost:5563");
-            subscriber.subscribe("B".getBytes(ZMQ.CHARSET));//¶©B¿ªÍ·µÄÏûÏ¢
+            subscriber.subscribe("B".getBytes(ZMQ.CHARSET));//è®¢Bå¼€å¤´çš„æ¶ˆæ¯
 
             while (!Thread.currentThread().isInterrupted()) {
                 // Read envelope with address
-                String address = subscriber.recvStr();//×èÈûÖ±µ½ÓĞÄÚÈİ
+                String address = subscriber.recvStr();//é˜»å¡ç›´åˆ°æœ‰å†…å®¹
                 // Read message contents
                 String contents = subscriber.recvStr();
                 System.out.println(address + " : " + contents);
@@ -1708,9 +1709,9 @@ public class psenvsub
     }
 }
 
--------------MySQL XDevApi Table ±í 
-JavaScript °æ±¾¼û MySQL_Developer.sql
-//X DevAPI  Òì²½API »ùÓÚ X Protocol,ÒÀÀµÓÚcom.google.protobuf
+-------------MySQL XDevApi Table è¡¨ 
+JavaScript ç‰ˆæœ¬è§ MySQL_Developer.sql
+//X DevAPI  å¼‚æ­¥API åŸºäº X Protocol,ä¾èµ–äºcom.google.protobuf
 
 import com.mysql.cj.xdevapi.*;
 
@@ -1718,7 +1719,7 @@ import com.mysql.cj.xdevapi.*;
 	{
 		String baseUrl="mysqlx://localhost:33060/mydb?user=zh&password=123";
 		//Session mySession = new SessionFactory().getSession(baseUrl);
-		//Á¬½Ó³Ø
+		//è¿æ¥æ± 
 		ClientFactory cf = new ClientFactory(); 
 		Client cli = cf.getClient(baseUrl, "{\"pooling\":{\"enabled\":true, \"maxSize\":8,\"maxIdleTime\":30000, \"queueTimeout\":10000} }");
 		Session mySession = cli.getSession();
@@ -1762,21 +1763,21 @@ import com.mysql.cj.xdevapi.*;
 		RowResult res = employees.select("username, age")
 		  .where("username like :param")
 		  .orderBy("username")
-		  .bind("param", "Àî").execute(); //¿ÉÒÔÊ¹ÓÃ%Í¨Åä·û
+		  .bind("param", "æ").execute(); //å¯ä»¥ä½¿ç”¨%é€šé…ç¬¦
 		
-		while(res.hasNext())//ÀàËÆJDBC
+		while(res.hasNext())//ç±»ä¼¼JDBC
 		{
 			Row row=res.next();
-			System.out.println(row.getString(0) + row.getInt(1));//´Ó0¿ªÊ¼,ºÍJDBC²»Í¬
+			System.out.println(row.getString(0) + row.getInt(1));//ä»0å¼€å§‹,å’ŒJDBCä¸åŒ
 			System.out.println(row.getString("username") + row.getInt("age"));
-			//ÖĞÎÄÂÒÂë
+			//ä¸­æ–‡ä¹±ç 
 		}
 		SqlResult result = session.sql("SELECT username, age " +
 		  "FROM employee " +
 		  "WHERE username like ? " +
-		  "ORDER BY username").bind("Íõ").execute(); //sql·½·¨²ÎÊıÒªÓÃ?
+		  "ORDER BY username").bind("ç‹").execute(); //sqlæ–¹æ³•å‚æ•°è¦ç”¨?
 		 
-		List<Row> rows1=result.fetchAll();//ÁíÒ»ÖÖ·½Ê½
+		List<Row> rows1=result.fetchAll();//å¦ä¸€ç§æ–¹å¼
 		for(Row row:rows1)
 		{
 			System.out.println(row.getString(0) + row.getInt(1)); 
@@ -1790,18 +1791,18 @@ import com.mysql.cj.xdevapi.*;
 		
 		mySession.startTransaction(); 
 		employeeTable.insert("id", "username","age")
-		  .values(2002, "ÕÅ2",32)
-		  .values(2003, "ÕÅ3",33)
+		  .values(2002, "å¼ 2",32)
+		  .values(2003, "å¼ 3",33)
 		  .execute();
 		  
-		//setSavepointÇ¶Ì×ÊÂÎñ
+		//setSavepointåµŒå¥—äº‹åŠ¡
 		mySession.setSavepoint("level1");
 		
 		//mySession.sql("update   employee set  age=? where id=? ").bind(25).bind(2003).execute();
 		
-		//setÓÃ:±äÁ¿²»ĞĞ£¿£¿£¿
+		//setç”¨:å˜é‡ä¸è¡Œï¼Ÿï¼Ÿï¼Ÿ
 		//OK
-		employeeTable.update().set("age", 25).set("username", "ÕÅ3").where("id= :id")
+		employeeTable.update().set("age", 25).set("username", "å¼ 3").where("id= :id")
 			.bind("id",2003).execute();
 		 
 		mySession.setSavepoint("level2");
@@ -1814,22 +1815,22 @@ import com.mysql.cj.xdevapi.*;
 		mySession.commit();
 	}
 -------------MySQL XDevApi NoSQL Collection
-//ÆäÊµNoSQL¼¯ºÏ ¾ÍÊÇ ±í Ö»ÓĞÁ½¸ö×Ö¶Î  ,Ò»¸ö_idÀàĞÍÎªvarbinary(32) ,Ò»¸ödoc ÀàĞÍÎªJSON
+//å…¶å®NoSQLé›†åˆ å°±æ˜¯ è¡¨ åªæœ‰ä¸¤ä¸ªå­—æ®µ  ,ä¸€ä¸ª_idç±»å‹ä¸ºvarbinary(32) ,ä¸€ä¸ªdoc ç±»å‹ä¸ºJSON
 {
 	Schema db=mySession.getSchema("mydb");
 	Table my_collection = db.getCollectionAsTable("my_collection");
-	//my_collection.insert("doc").values("{\"username\": \"Ana\"}").execute();//²»ĞĞ??
+	//my_collection.insert("doc").values("{\"username\": \"Ana\"}").execute();//ä¸è¡Œ??
 }
 
 Schema  db= mySession.getSchema("mydb");
 Collection myColl = db.getCollection("my_collection");
-//Collection myColl = db.getCollection("my_collection",true);//µÚ¶ş¸ö²ÎÊırequireExists£¬Èç²»´æÔÚ±¨Òì³£
+//Collection myColl = db.getCollection("my_collection",true);//ç¬¬äºŒä¸ªå‚æ•°requireExistsï¼Œå¦‚ä¸å­˜åœ¨æŠ¥å¼‚å¸¸
 if(DatabaseObject.DbObjectStatus.NOT_EXISTS == myColl.existsInDatabase())
 {
 	myColl = db.createCollection("my_collection");
 	DbDocImpl doc=new DbDocImpl()  ;
 	doc.add("age",  new JsonNumber().setValue("18"));
-	doc.add("name",  new JsonString().setValue("Íõ"));
+	doc.add("name",  new JsonString().setValue("ç‹"));
 	myColl.add(doc).execute();
 
 	myColl.add("{\"name\":\"Laurie\", \"age\":19}").execute();	
@@ -1838,15 +1839,15 @@ if(DatabaseObject.DbObjectStatus.NOT_EXISTS == myColl.existsInDatabase())
 	
 }
 DocResult docs = myColl.find("name like :name or age < :age")
-		.bind("name", "L%").bind("age", 20).execute();//Í¨Åä·û%ºÍMySQLÒ»Ñù
-while(docs.hasNext())//Í¬JDBC
+		.bind("name", "L%").bind("age", 20).execute();//é€šé…ç¬¦%å’ŒMySQLä¸€æ ·
+while(docs.hasNext())//åŒJDBC
 {
 	DbDoc doc=docs.next();
-	JsonValue val=new JsonString().setValue("2020");//ÎŞJsonDate
+	JsonValue val=new JsonString().setValue("2020");//æ— JsonDate
 	System.out.println(doc.get("name") + doc.getOrDefault("birdthday",val ).toString());
 }
 
-myColl.modify("true").set("age", 19).execute(); //expr( "age + 1") ÈçºÎĞ´±í´ïÊ½£¿£¿
+myColl.modify("true").set("age", 19).execute(); //expr( "age + 1") å¦‚ä½•å†™è¡¨è¾¾å¼ï¼Ÿï¼Ÿ
 
 Map<String, Object> params = new HashMap<>();
 params.put("name", "Nadya");
@@ -1854,16 +1855,16 @@ myColl.modify("name = :name").set(".age", 25).bind(params).execute();//.age
 		
 		
 DbDoc  ds=	docs.fetchOne();//docs.fetchAll()
-String id=ds.get("_id").toFormattedString().replace("\"", "");//Ê×Î²´ø"
+String id=ds.get("_id").toFormattedString().replace("\"", "");//é¦–å°¾å¸¦"
 
-DbDoc doc2 = myColl.getOne(id); //µÈÍ¬ÓÚ  myColl.find("_id = :id").bind("id", id).execute().fetchOne()
-System.out.println(doc2);//ÖĞÎÄÂÒÂë??
-myColl.replaceOne(id, "{\"name\":\"ÖĞ1\", \"age\":11}");
-//myColl.addOrReplaceOne("101", "{\"name\":\"¹ú\", \"age\":33}");//Ôö¼ÓÊ±¿ÉÒÔÊÖ¹¤Ö¸¶¨id
-myColl.removeOne(id);//Ïàµ±ÓÚ myColl.remove("_id = :id").bind("id", id).execute()
+DbDoc doc2 = myColl.getOne(id); //ç­‰åŒäº  myColl.find("_id = :id").bind("id", id).execute().fetchOne()
+System.out.println(doc2);//ä¸­æ–‡ä¹±ç ??
+myColl.replaceOne(id, "{\"name\":\"ä¸­1\", \"age\":11}");
+//myColl.addOrReplaceOne("101", "{\"name\":\"å›½\", \"age\":33}");//å¢åŠ æ—¶å¯ä»¥æ‰‹å·¥æŒ‡å®šid
+myColl.removeOne(id);//ç›¸å½“äº myColl.remove("_id = :id").bind("id", id).execute()
 
 
-//´´½¨Ë÷Òı 
+//åˆ›å»ºç´¢å¼• 
 myColl.createIndex("age", "{\"fields\":[{\"field\": \"$.age\", \"type\":\"INT\", \"required\":true}]}");
 // {fields: [{field: '$.age', type: 'INT'},{field: '$.username', type: 'TEXT(10)'}]}
 SqlResult myResult =mySession.sql("SHOW INDEX FROM mydb.my_collection").execute();
@@ -1872,7 +1873,7 @@ for(Row row : myResult.fetchAll() )
 	System.out.println(row.getString("Key_name")+","+row.getString(2));
 	
 }
-//Êı×éË÷Òı£¬ÒªÇó8.0.17°æ±¾ÒÔºó
+//æ•°ç»„ç´¢å¼•ï¼Œè¦æ±‚8.0.17ç‰ˆæœ¬ä»¥å
 //		collection.createIndex("emails_idx",  
 //			    {fields: [{"field": "$.emails", "type":"CHAR(128)", "array": true}]});
 myColl.dropIndex("age");
@@ -1881,7 +1882,7 @@ myColl.dropIndex("age");
 		
 db.dropCollection("my_collection");
 
-//Á½ÖÖÊı¾İNoSQLºÍ¹ØÁªĞÍ±í ÔÚÒ»¸öÊÂÎñÖĞ
+//ä¸¤ç§æ•°æ®NoSQLå’Œå…³è”å‹è¡¨ åœ¨ä¸€ä¸ªäº‹åŠ¡ä¸­
 public static void transaction(Session mySession) {
 	Schema  db= mySession.getSchema("mydb");
 	Table employeeTable = db.getTable("employee");
@@ -1890,14 +1891,14 @@ public static void transaction(Session mySession) {
 	mySession.startTransaction(); 
 	
 	employeeTable.insert("id", "username","age")
-	  .values(2004, "³Â2",22)
+	  .values(2004, "é™ˆ2",22)
 	  .execute();
 	
 	mySession.setSavepoint("level1");
 
 	DbDocImpl doc=new DbDocImpl()  ;
 	doc.add("age",  new JsonNumber().setValue("28"));
-	doc.add("name",  new JsonString().setValue("ÕÔ"));
+	doc.add("name",  new JsonString().setValue("èµµ"));
 	myColl.add(doc).execute();
 	
 	mySession.setSavepoint("level2");
@@ -1909,9 +1910,9 @@ public static void transaction(Session mySession) {
 }
 -------------
 https://kubernetes.io/docs/reference/using-api/client-libraries/
-https://github.com/kubernetes-client/java  Ê¾Àı´úÂëÊÇÀàËÆÓÚkubectlµÄ¹¦ÄÜ 
+https://github.com/kubernetes-client/java  ç¤ºä¾‹ä»£ç æ˜¯ç±»ä¼¼äºkubectlçš„åŠŸèƒ½ 
 
-¿Í»§¶Ë7.0 Ö§³Öµ½ k8s-1.15 °æ±¾
+å®¢æˆ·ç«¯7.0 æ”¯æŒåˆ° k8s-1.15 ç‰ˆæœ¬
 
 <dependency>
     <groupId>io.kubernetes</groupId>

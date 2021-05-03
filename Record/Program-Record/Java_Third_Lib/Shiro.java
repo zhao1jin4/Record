@@ -3,7 +3,7 @@
 <dependency>
   <groupId>org.apache.shiro</groupId>
   <artifactId>shiro-core</artifactId>
-  <version>1.5.2</version>
+  <version>1.5.2</version>
 </dependency> 
 <dependency>
   <groupId>org.apache.shiro</groupId>

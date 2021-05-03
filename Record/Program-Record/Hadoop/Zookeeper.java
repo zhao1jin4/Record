@@ -1,3 +1,4 @@
+idea 有zookeeper 插件，但新版本好像不能用 
 
 ---------------------------------zookeeper
 一致性(Consistency)  所有节点在同一时间具有相同的数据，强一致
@@ -9,13 +10,16 @@ zooKeeper是 CP(牺牲可用性)
 
 version 是保存最后修改的次数
 
-zookeeper-3.4.6\conf\zoo_sample.cfg 修改为  zoo.cfg
+zookeeper_home\conf\zoo_sample.cfg 修改为  zoo.cfg
 
 windows版本直接 zkServer.cmd  启动
-bin/zkServer.sh start  / start-foreground / stop 
+bin/zkServer.sh start/start-foreground/stop  ，logs目录
+bin/zkServer.sh  --config <conf-dir> start/start-foreground
+没找到配置日志输出目录，还是logs目录，修改log4j.properties也没用，要用 export ZOO_LOG_DIR=/tmp/zookeeper01/
+
 bin/zkServer.sh status 看是leader
 
-bin/zkEnv.sh 修改 -Xmx 设置 ZK_SERVER_HEAP 默认1000m 可修改为200m
+bin/zkEnv.sh 修改 -Xmx 设置 ZK_SERVER_HEAP 默认1000m 可修改为200m ,看有 ZOO_LOG_DIR
 
 ----zoo.cfg
 clientPort=2181  	监听端口
@@ -24,7 +28,7 @@ dataDir=/tmp/zookeeper
 
 
 3.5新功能  AdminServer 是一个嵌入式 Jetty 服务器 
-zookeeper.admin.enableServer  默认启用, 设置 "false" 禁用
+admin.enableServer=false, 系统属性-D使用  zookeeper.admin.enableServer  默认启用, 设置 "false" 禁用
 zookeeper.admin.serverAddress   默认 0.0.0.0
 zookeeper.admin.serverPort		默认端口 8080  
 zookeeper.admin.commandURL		默认 "/commands"   
@@ -67,6 +71,29 @@ forceSync					完成操作前是否时时写入日志到磁盘 (不安全选项)
 jute.maxbuffer 		必须用java system properties 设置才生效 ,必须每个服务和客户端都设置 ,表示一个znode最大存储储数据量,默认1m(不安全选项)
 
 skipACL		跳过acl检查		
+
+
+--单机做集群示例  zk1_conf/zoo.cfg ( zk1_conf下还要复制log4j.properties)
+tickTime=2000 
+initLimit=10 
+syncLimit=5 
+dataDir=/tmp/zookeeper01/data
+dataLogDir=/tmp/zookeeper01/dataLog
+clientPort=2281
+admin.enableServer=false
+server.1=localhost:2287:3387
+server.2=localhost:2288:3388
+server.3=localhost:2289:3389
+
+mkdir -p  /tmp/zookeeper01/data
+echo 1 > /tmp/zookeeper01/data/myid
+export ZOO_LOG_DIR=/tmp/zookeeper01/ ; bin/zkServer.sh  --config ./zk1_conf start  #目录不能以/结尾 ，如用restart就不行了，一个启完后，立即启第二个
+#可用status看是leader还是follower
+
+--重复上面再做两个
+连接任一节点都可以create，其它节点都可以看到
+ 
+
 
 bin/zkCli.sh -server 127.0.0.1:2181   可以选项 -timeout 0 毫秒  -r 表示只读，如有超过半数服务连接断开，就不处理客户端请求，但可以处理只读请求
 也可以用 connect 127.0.0.1:2181 来连接
@@ -111,7 +138,7 @@ numChildren = 2
 
 data目录的currentEpoch文件中存的是当前哪一个届的选举
 每个Server第一轮都会投票给自己，
-比较先看谁在epoch届大,再看zxid,再看id
+比较先看谁在epoch届大,再看zxid,再看myid
 
 收发消息是两个独立的线程
 如收到的消息比自己新，更新选票

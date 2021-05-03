@@ -1,10 +1,11 @@
 
 UI工具
-redis-desktop-manager-0.9.1  可以监控，可写命令好用
-
-redisclient-win32.x86_64.2.0.jar
+redis-desktop-manager-0.9.1  可以监控，可写命令好用，win二进制版本开始收费
+redisclient-win32.x86_64.2.0.jar  国内的，也有4-5年不更新
 RedisStudio-en-0.1.5.exe  不能写命令，不能看数据值
-Medis (react ,redux开发)可Mac上使用 https://github.com/luin/medis  
+
+Medis (react ,redux开发，国人开发)可Mac上使用 https://github.com/luin/medis 
+ (node项目，源码编译 npm install， npm run pack，npm start 可在linux上运行,对集群支持不是太好，命令行不会自动跳转节点，界面只能看连接节点上的key)
 
 源码安装 npm install , npm run pack(要修改package.json加set,还是失败),npm start 
 	node即使设置了registry也会从github上下载，提示
@@ -13,6 +14,8 @@ Medis (react ,redux开发)可Mac上使用 https://github.com/luin/medis
 	或者
     npm config set proxy http://example.com:8080
 	npm config set proxy https://registry.npm.taobao.org
+	
+类似 Medis 网页式的还有 AnotherRedisDesktopManager国人开发， 使用Vue
 
 -----phpRedisAdmin   测试成功(nginx)
 有Docker 镜像 docker run --rm -it -e REDIS_1_HOST=myredis.host -e REDIS_1_NAME=MyRedis -p 80:80 erikdubbelboer/phpredisadmin
@@ -32,10 +35,8 @@ includes/config.sample.inc.php  中有配置连接redis服务的IP和端口,可�
 windows 版 redis-3.2.100
 https://github.com/MicrosoftArchive/redis/releases
 
-http://download.opensuse.org/distribution/leap/15.1/repo/oss/ 下的 x86_64/ 
-	redis-4.0.11
-http://download.opensuse.org/tumbleweed/repo/oss/x86_64/
-	redis-  现在是 5.0.5
+http://download.opensuse.org/distribution/leap/15.2/repo/oss/ 下的 x86_64/ 
+	redis-6.0.4
 	
 
 	
@@ -104,13 +105,21 @@ net.core.somaxconn= 1024
 
 
  
-最大打开文件数 (openSUSE无效？？？？elasticsearch也要设置这个)
+最大打开文件数 (openSUSE无效？？？？elasticsearch,,SonarQube 也要设置这个)
 /etc/security/limits.conf
 *          soft    nofile  1024
 *          hard    nofile  10032
 
 ulimit -Sn  1024
 ulimit -Hn 10032
+
+
+
+vi /etc/systemd/system.conf 
+DefaultLimitNOFILE=1024  
+#  nofile - max number of open file descriptors
+
+
 
 -------------redis 6.0.1
 在 openSUSE-15 下源码编译
@@ -127,6 +136,9 @@ redis-server  --version
  
 
 -----------
+快的原因 ，单线程，基于内存，epoll作为I/O多路复用，事件处理模型
+
+
 redis-server -v 看版本
 ./redis-server ( 默认监听 6379 端口)
 
@@ -144,6 +156,7 @@ bind 默认127.0.0.1  是不能外网连接的，要修改为本机IP 或者注�
 
 ./redis-cli -p <port>  -h <hostname>  有交互命令如ping
 --pass 
+-a auth
 >help 再按tab有命令组的提示,如@string
  help brpop
 >bgsave  保存到磁盘  使用LASTSAVE 命令判断 BGSAVE 命令是否执行成功
@@ -278,9 +291,9 @@ zremrangebyrank myscore 1 2  #根据排名删，包括办界的范围内
 zadd zset2 68 'chinese' 69 'hisotory'
 
 zinterstore zres 2 myscore zset2   #2是相同的,必须是对的
-zrange zres 0 -1  withscores 得到的是分数相加
-zinterstore zres 2 myscore zset2 aggregate max
-zinterstore res 2   myscore zset2 weights 1 2 aggregate max  #对zset2的集合分数做*2
+zrange zres 0 -1  withscores 		相同的键，得到的是分数相加
+zinterstore zres 2 myscore zset2 aggregate max 相同的键，要最大的
+zinterstore res 2   myscore zset2 weights 1 2 aggregate max  #对zset2的集合分数*2，是集合mycore的是*1，取最大的
 类似的有 zunionstore
  
 
@@ -384,9 +397,7 @@ incr ticket  #提示QUEUED
 exec  #这里如果另一个session也修改了ticket，这里再执行会返回nil 表示执行失败，即前的incr ticket被放弃
 
 #执行exec ,discard,unwatch 时会自动取消watch
-
-
----分布式锁 Java client 实现  Redisson 
+ 
 
 ---Lua 
 官方说lua脚本的原子性 Atomicity of scripts,如脚本正在执行，其它命令或脚本不能执行
@@ -416,21 +427,21 @@ EVALSHA 同eval 但参数是SHA1 加密的
 redis.error_reply(error_string)
 redis.status_reply(status_string)
 
+============分布式锁
 lua脚本实现分布式锁，可以保存证setnx,expire两个操作的原子性
 如lua脚本没有执行完成时，不能执行其它脚本
   
---官方SETNX文档的锁方案
+--官方SETNX文档的锁方案，建议用RedLock
 SETNX lock.foo <current Unix time + lock timeout + 1>如返回0表示失败,看时间是否超时(对前一个加锁的进程死了)
 如0查是否>当时前,如过期(这也是一步操作,不能保证 这个和GETSET是原子的 )
 GETSET lock.foo <current Unix timestamp + lock timeout + 1> 就算这个返回值是早于当前时间,取锁失败(被快的抢了),这时要等(但也已经设置了新值)
 用完DEL lock.foo ,有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁???
-
-如果值是写死的形式，如果setnx成功得锁，但在del之前客户端节点挂了，就一直锁了
-
+ 
 --官方 分布式锁文档的方案(单实例),但set命令没说是单实例
 设置key时指定超时时间(PX单位毫秒,EX单位是秒)，NX如不存在则设置，XX如存在则设置，成功返回OK,失败返回nil
 SET resource_name my_random_value NX PX 30000
-也存在相同问题，有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁???
+也存在相同问题，有一种情况是不知道会锁多长时间,设置锁2秒,但5秒才完事,此时就会被其它的取到锁??? 
+	(redisson有一个线程会延期1/3时间，一直做expire即续命，直到完成)
 
 随机值是为了安全释放锁
 如要释放锁使用 lua
@@ -440,7 +451,19 @@ else
     return 0
 end
 
---java 实现分布式锁 可用 redisson，还是连接断，锁释放比较好
+--Redlock
+在主从模块下，如主可以得到锁，在同步从前就很返回客户端，如返回客户端后，主挂了，从没有得到信息。
+	（zookeeper是要同步到其它节点超半数才返回客户端信息）
+红锁就是  多个主节点，超半数确认成功后，再返回给客户端
+
+
+
+--java 实现分布式锁 可用 redsson （如有锁就一直转，不太好）
+zookeeper断连接锁释放，有锁就排队等前面的释放事件
+etcd 分布式锁
+数据库分布式锁
+
+============
 
 --redis.conf
 include /x/y.conf
@@ -451,9 +474,9 @@ timeout 0    客户端空闲几秒后关闭连接 0禁用
 
 daemonize yes
 loglevel warning  (还有notice,verbose,debug)
-logfile	/tmp/redis.log	#log文件位置,默认"",输出到控制台,如后台就不输出
+logfile	/tmp/redis.log	#log文件位置,默认"",输出到控制台,如配置了文件，控制台就不输出了
 
-databases 16  #从０开始
+databases 16  #从0开始
 
 slave-serve-stale-data 	no 		当从不能连接主时，不允许返回过期数据，返回错误
 repl-ping-slave-period 10		slave从向发ping的时间期隔10　秒
@@ -620,16 +643,17 @@ redis-cli  -p 26379
 客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可
 
 
-修改下面配置
 
+修改下面配置
+--redis.conf
 port 7000			 
 cluster-enabled yes
-cluster-config-file nodes0.conf		#文件自动生成,不需要手工修改,配置文件中不要中文
+cluster-config-file nodes7000.conf		#文件自动生成,不需要手工修改,配置文件中不要中文
 cluster-node-timeout 5000			#毫秒 如时间内不能连接节点,认为节点失败
 appendonly yes 		
-appendfilename "appendonly7000.aof
+appendfilename "appendonly7000.aof"
 pidfile /var/run/redis_7000.pid
-
+#logfile /tmp/redis7000.log
 ---学习到的
 slave-serve-stale-data yes  	#表示当 从与主断开 或者 复制正在进行 回复客户端,如为no则报错 
 slave-priority 100   			#如果master 不能正常工作选择从的优先级
@@ -658,7 +682,7 @@ redis-5.0 开始 redis-trib.rb  已经过时 ,使用  redis-cli  代替
 redis-5.0 新方法
 redis-cli --cluster create 127.0.0.1:7000 127.0.0.1:7001  127.0.0.1:7002 127.0.0.1:7003 127.0.0.1:7004 127.0.0.1:7005 --cluster-replicas 1
 
-redis-cli --cluster info 127.0.0.1:7000 
+redis-cli --cluster info 127.0.0.1:7000  执行完立即退出
 redis-cli --cluster help
 
 ----功能和上面类似
@@ -668,11 +692,13 @@ create-cluster create 提示输入yes
 
 create-cluster stop 停止
 -----
-提示3个主节点，分3部分slot,最大值为16383 即3FFF 
+提示3个主节点，分3部分slot,最大值为16383 即3FFF
 	提示哪三台做M,哪三台做S,  输入yes
 	其中 --replicas 1 (新的 --cluster-replicas)表示 每个主节点要一个子节点
 
- ./redis-cli  -p 7000  任何一台（slave也可)
+ ./redis-cli  -p 7000  -h 127.0.0.1  任何一台（slave也可) 交互式,但也可能看这个节点的数据，加-c也不行
+ redis-cli -c --cluster call 127.0.0.1:7001 keys \* 才可以看到集群中所有的key，有从节点的重复的
+ 
 	
 > cluster info 显示 cluster_state:ok
 			cluster_slots_ok:16384
@@ -695,8 +721,10 @@ create-cluster stop 停止
 
 
 
-2的15 次方=16384 所有的slots
+2的14 次方=16384 （16K） 所有的slots
 自己不负责的Slot的请求时，会将负责请求Key所在Slot的Redis Instance地址返回给客户端，客户端收到后自动将原请求重新发往这个地址
+
+一致性哈希 Redis集群有16384个哈希槽，每个key通过CRC16校验后对16384取模来决定放置哪个槽(Slot)，集群的每个节点负责一部分hash槽
 
 redis-cli -p 7000 cluster nodes | grep myself
 redis-cli -p 7000 cluster nodes | grep master
@@ -714,13 +742,19 @@ redis-cli -p 7002 debug segfault 表示 让7002端口的应用掉电
 查询redis允许的最大连接数  默认 4064
 CONFIG GET maxclients
 
-config get maxmemory-policy  默认为noeviction （不驱逐）,allkeys-lru,volatile-lru (对有过期时间的),allkeys-random,volatile-random,volatile-ttl,
+config get maxmemory-policy  默认为noeviction （不驱逐）,
+	allkeys-lru,			 LRU( Least Recently Used) 清最老的数据
+	volatile-lru (volatile对有过期时间的)
+	allkeys-random,
+	volatile-random,
+	volatile-ttl（过期时间的数据集中挑选将要过期的数据淘汰）
+	Redis 4.0 新的 LFU (Least Frequently Used) 将访问频率最少的键值对淘汰。 
+  volatile-lfu
+  allkeys-lfu 
+ 
 config get maxmemory 默认为0
 
-Redis 4.0 新的 LFU (Least Frequently Used) 
-近似LRU( Least Recently Used) 清最老的数据
- volatile-lfu
- allkeys-lfu 
+
  
  
 config set maxmemory 100000
@@ -730,10 +764,12 @@ config set maxmemory-policy  allkeys-lru
 当前的redis连接数
 info clients   
 	看 connected_clients:xx
+
 	 
 最大占用内存
 maxmemory <bytes>
-info 看 used_memory
+info 看 used_memory, maxmemory_policy  显示是下划线
+info memory
 
 配置
 slowlog-log-slower-than    微秒(microsecond，1秒 = 1,000,000 微秒)
@@ -754,7 +790,7 @@ scan 0 MATCH * COUNT 20 可通配符，设置分页大小
 
 
 --------client 命令
-CLIENT LIST
+CLIENT LIST  查看客户端
 CLIENT GETNAME 
 CLIENT SETNAME  my
 
@@ -1015,7 +1051,7 @@ Sentinel 环境中 会使用tls-replication 指令
 Replication 环境中,master服务端 tls-port 和 tls-auth-clients  指令 ,replica服务端指定 tls-replication yes
     
 --------
-
+redis-cli --bigkeys  分析节点存在的大键
 
 
   

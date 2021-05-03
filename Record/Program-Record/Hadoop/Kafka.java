@@ -1,7 +1,5 @@
 
-===========kafka	高吞吐量的分布式发布订阅消息系统
-kafka_2.12-2.3.1
-
+===========kafka	高吞吐量的分布式发布订阅消息系统 
 使用scala语言写的
 
 ---界面管理工具
@@ -31,6 +29,8 @@ https://github.com/smartloli/kafka-eagle
 https://docs.kafka-eagle.org/2.env-and-install/2.installing
 也可创建topic
 
+----kafka tool
+https://www.kafkatool.com/download.html
 
 ----
 
@@ -99,25 +99,27 @@ kafka-server-start.bat ../../config/server.properties      默认监听 9092 端
 
 #管理topic
 建立topic  名为test
-kafka-topics  --create --zookeeper localhost:2181	 --replication-factor 1 --partitions 1 --topic test  
-#kafka-topics  --create --bootstrap-server localhost:9092	 --replication-factor 1 --partitions 1 --topic test  
+#kafka-topics  --create --zookeeper localhost:2181	 --replication-factor 1 --partitions 1 --topic test  
+kafka-topics  --create --bootstrap-server localhost:9092	 --replication-factor 1 --partitions 1 --topic test   
 
 查看topic
-kafka-topics  --list --zookeeper localhost:2181	
-kafka-topics  --list --bootstrap-server localhost:9092	
+#kafka-topics  --list --zookeeper localhost:2181	 #可逗号分隔多个zookeeper
+kafka-topics  --list --bootstrap-server localhost:9092	 #用 --bootstrap-server 主机名一定要能ping通
  
-kafka-topics  --describe --zookeeper localhost:2181	 --topic test  
+#kafka-topics  --describe --zookeeper localhost:2181	 --topic test  
 kafka-topics  --describe --bootstrap-server localhost:9092 	 --topic test 
 
 删除topic 
-kafka-topics  --delete --zookeeper localhost:2181	 --topic test  
+#kafka-topics  --delete --zookeeper localhost:2181	 --topic test  
 kafka-topics  --delete --bootstrap-server localhost:9092   --topic test 
 #只是做了个删除标记，提示 delete.topic.enable 设置为true
 #删除后服务挂了???? 启动不了 AccessDeniedException: D:\tmp\kafka-logs\test-0 -> D:\tmp\kafka-logs\test-0.xxxxxxxxx-delete 删zk数据才行
 
 #console命令主要用于测试
 发消息  , 没有提示后可输入消息,server.properties 中有配置 port=9092,也有zookeeper端口
-kafka-console-producer  --broker-list localhost:9092 --topic test
+#kafka-console-producer  --broker-list localhost:9092 --topic test  #--broker-list过时的
+kafka-console-producer   --bootstrap-server localhost:9092  --topic test  #主机名一定要可以ping通 ，因advertised.listeners 如未配置使用主机名
+
 
 #处理消息(只linux)
 #bin/kafka-run-class.sh   WordCountDemo
@@ -127,42 +129,63 @@ kafka-console-consumer  --bootstrap-server localhost:9092 --topic test --from-be
 
 再启两个服务 (cluster,即主从和failover)
 > cp config/server.properties config/server-1.properties 修改
-    broker.id=1 #每个机器设置不相同的数
-    listeners=PLAINTEXT://:9093
-  	 #log.dir = /tmp/kafka-out
-    log.dirs=/tmp/kafka-logs1  #是kafka暂存数据目录 ，不是打印日志目录 
-	#zookeeper.connect=localhost:2181 
+   broker.id=1 #每个机器设置不相同的数
+   listeners=PLAINTEXT://:9093
+  	#log.dir = /tmp/kafka1/logsdata1 和log.dirs一样的
+   log.dirs=/tmp/kafka1/logdata  #是kafka暂存数据目录 ，不是打印日志目录 
+	#zookeeper.connect=localhost:2181 #这个是可以配置多个，用,分隔
+	zookeeper.connect=localhost:2281,localhost:2282,localhost:2283
  这里的log.dir存的是数据,log4j.properties配置也是这 
  
 > cp config/server.properties config/server-2.properties 修改
 	broker.id=2
-    listeners=PLAINTEXT://:9094
-    log.dirs=/tmp/kafka-logs2
-	#zookeeper.connect=localhost:2181 
+   listeners=PLAINTEXT://:9094
+   log.dirs=/tmp/kafka2/logdata
+	zookeeper.connect=localhost:2281,localhost:2282,localhost:2283
 $ kafka-server-start  ../config/server-1.properties &
+
+#但日志输出还是相同的地方 ,看kafka-run-class.sh 有设置  LOG_DIR
+export LOG_DIR=/tmp/kafka1/logs ; bin/kafka-server-start.sh  config/server-1.properties   #测试用&无效
+
 如windows  cd bin/windows
 kafka-server-start.bat ../../config/server-1.properties   
 
-$ kafka-server-start  ../config/server-2.properties &	
+export LOG_DIR=/tmp/kafka2/logs ;  bin/kafka-server-start.sh  config/server-2.properties &	
 如windows  cd bin/windows
 kafka-server-start.bat ../../config/server-2.properties  
 
 
+
+
 已有3个服务,--replication-factor 不能 > 3,但--partitions可以 > 3
-$ kafka-topics  --create --zookeeper localhost:2181 --replication-factor 3 --partitions 1 --topic my-replicated-topic
+
+#使用 --zookeeper  过时，但没有说替代方法 ，可以多个
+#kafka-topics.sh  --create --zookeeper localhost:2281,localhost:2282,localhost:2283 --replication-factor 3 --partitions 1 --topic my-replicated-topic
+kafka-topics  --create --bootstrap-server localhost:9092,localhost:9093,localhost:9094 --replication-factor 3 --partitions 1 --topic my-replicated-topic
 
 看哪个broker是leader,还有replaction和partition信息 
-$  kafka-topics  --describe --zookeeper localhost:2181 --topic my-replicated-topic   
+#kafka-topics  --describe --zookeeper localhost:2181 --topic my-replicated-topic   
+kafka-topics   --describe --bootstrap-server localhost:9092,localhost:9093,localhost:9094	--topic my-replicated-topic   
+ 
 	leader,replicas中的值是 broker.id
 	isr(in-sync 表示可以成为leader的) 
 		一种是服务挂了，另一种是从leader同步数据太慢了，导致数据不是最新，就不可用
 
 #测试
 指定接口上写(不能写在zookeeper上，任何一个节点都可以写)
-$ kafka-console-producer  --broker-list localhost:9092 --topic my-replicated-topic  				
+#kafka-console-producer  --broker-list localhost:9092,localhost:9093 --topic my-replicated-topic  	
+kafka-console-producer  --bootstrap-server localhost:9092,localhost:9093,localhost:9094 --topic my-replicated-topic  	
+
+
+		
 指定接口上读(不能从zookeeper上读,如从9093节点读也是可以的)
-$ kafka-console-consumer  --bootstrap-server localhost:9092 --from-beginning --topic my-replicated-topic  
-可加--group <name> 实现 rabbit mq的topic exchange
+kafka-console-consumer  --bootstrap-server localhost:9092 --from-beginning --topic my-replicated-topic  
+kafka-console-consumer  --bootstrap-server localhost:9092,localhost:9093,localhost:9094  --from-beginning --topic my-replicated-topic
+
+也就是一个topic即可只在一个broker上，也可在多个broker上
+
+
+可加--group <name> 实现 rabbit mq的 topic exchange下的queue
 
 如当前leader是1,kill它后,再查leader变成其它的了(2)
 ps -ef | grep server-1.properties
@@ -255,7 +278,9 @@ compression.type=none    可为 gzip, snappy, lz4
 
 这些配置可程序覆盖最高,其次是.sh 参数来覆盖
 
-
+MMFiles（Memory Mapped Files）并不是实时的写入硬盘，操作系统的Page来实现文件到物理内存的直接映射。完成映射之后，你对物理内存的操作会被同步到硬盘上（操作系统在适当的时候）
+MMAP其实是Linux中的一个函数，就是用来实现内存映射的。Java的NIO提供了一个MappedByteBuffer类来实现内存映
+批量压缩
 一 磁盘顺序写比随机写快
 二  byte zero copy(零字节复制)不用到用户空间 
 	一般过程
@@ -281,8 +306,10 @@ leader平衡机制，leader不常变
 --describe 信息中replicas中的第一个叫做 preferred leader
 
 如没有leader时用
-$ kafka-preferred-replica-election   --zookeeper localhost:2181
-
+#kafka-preferred-replica-election   --zookeeper localhost:2181 #用 --zookeeper  过时的
+#kafka-preferred-replica-election   --bootstrap-server localhost:9092 # kafka-preferred-replica-election过时 
+ kafka-leader-election
+ 
 auto.leader.rebalance.enable=true 默认true
 
 
@@ -313,60 +340,21 @@ $ kafka-reassign-partitions  --zookeeper localhost:2181 --reassignment-json-file
 
 
 
--- JAVA API 
-	kafka-streams-2.3.1.jar
-	kafka-clients-2.3.1.jar
+============================= JAVA API 
+	kafka-streams-2.5.1.jar
+	kafka-clients-2.5.1.jar
 	
 <dependency>
     <groupId>org.apache.kafka</groupId>
     <artifactId>kafka-clients</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.1</version>
 </dependency>
 <dependency>
     <groupId>org.apache.kafka</groupId>
     <artifactId>kafka-streams</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.1</version>
 </dependency>
 
-
---WordCountApplication	
-//要 rocksdbjni-5.7.3.jar
-Properties config = new Properties();
-config.put(StreamsConfig.APPLICATION_ID_CONFIG, "wordcount-application");
-config.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-config.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-config.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
-
-StreamsBuilder builder = new StreamsBuilder();
-KStream<String, String> textLines = builder.stream("TextLinesTopic");//<key ,value>读入topic
-
-//        JDK 8
-/*
-        KTable<String, Long> wordCounts = textLines
-            .flatMapValues(textLine -> Arrays.asList(textLine.toLowerCase().split("\\W+")))
-            .groupBy((key, word) -> word)
-            .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("counts-store"));
-*/
- //JDK 7
-        KTable<String, Long> wordCounts = textLines
-                .flatMapValues(new ValueMapper<String, Iterable<String>>() {
-                    @Override
-                    public Iterable<String> apply(String textLine) {
-                        return Arrays.asList(textLine.toLowerCase().split("\\W+"));
-                    }
-                })
-                .groupBy(new KeyValueMapper<String, String, String>() {
-                    @Override
-                    public String apply(String key, String word) {
-                        return word;
-                    }
-                })
-                .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("counts-store"));
-				
-wordCounts.toStream().to("WordsWithCountsTopic", Produced.with(Serdes.String(), Serdes.Long()));//输出topic
-
-KafkaStreams streams = new KafkaStreams(builder.build(), config);
-streams.start();
 
 // Serializers/deserializers (serde) 
 //是异步发送，不会一定等有返回结果再发下一个
@@ -538,6 +526,7 @@ public class MyKafkaConsumerManualOffset {
 	         //ConsumerRecords<String, String> records = consumer.poll(100);
 	         ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100)); 
 	         for (ConsumerRecord<String, String> record : records) {
+	         	  //record.topic();//区分哪个topic
 	             buffer.add(record);
 	         }
 	         if (buffer.size() >= minBatchSize) {
@@ -571,6 +560,7 @@ public class MyKafkaConsumerPartition {
 	     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 	     props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 	     KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+	     consumer.subscribe(Arrays.asList("test", "my-replicated-topic")); 
 	     try {
 	         while(running) {
 	             ConsumerRecords<String, String> records = consumer.poll(Long.MAX_VALUE);
@@ -594,4 +584,173 @@ public class MyKafkaConsumerPartition {
          closed.set(true);
          consumer.wakeup();
      }
+
+ 
+ 
+
+==================stream  WordCount 
+
+public class WordCountDemo1 {
+	/*
+	//	org.rocksdb.RocksDBException  x;  //要 rocksdbjni-5.18.3.jar
+	
+	  http://kafka.apache.org/27/documentation/streams/tutorial 
+	 
+	 bin/kafka-topics.sh  --create --bootstrap-server localhost:9092	 --replication-factor 1 --partitions 1 --topic streams-plaintext-input   
+	  会自动建立  bin/kafka-topics.sh  --create --bootstrap-server localhost:9092	 --replication-factor 1 --partitions 1 --topic streams-pipe-output
+	 成功
+	 bin/kafka-console-consumer.sh   --bootstrap-server localhost:9092  --from-beginning --topic streams-pipe-output
+	 bin/kafka-console-producer.sh   --bootstrap-server localhost:9092  --topic  streams-plaintext-input	
+*/
+    public static void main(String[] args) throws Exception {
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-pipe");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());// Serializers/deserializers (serdes) 
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+ 
+//        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+
+        StreamsBuilder builder = new StreamsBuilder();
+        KStream<String, String> source = builder.stream("streams-plaintext-input"); //<key ,value>读入topic
+        source.to("streams-pipe-output");//输出topic，会自动建立
+        final Topology topology = builder.build();
+        System.out.println("================="+topology.describe());
+        final KafkaStreams streams = new KafkaStreams(topology, props);
+        final CountDownLatch latch = new CountDownLatch(1);
+        // attach shutdown handler to catch control-c
+        Runtime.getRuntime().addShutdownHook(new Thread("streams-wordcount-shutdown-hook") {
+            @Override
+            public void run() {
+                streams.close();
+                latch.countDown();
+            }
+        });
+        try {
+            streams.start();
+            latch.await();
+        } catch (Throwable e) {
+            System.exit(1);
+        }
+        System.exit(0);
+    }
+}
+
+
+public class WordCountDemo2 {
+	/*
+	 bin/kafka-console-consumer.sh   --bootstrap-server localhost:9092  --from-beginning --topic streams-linesplit-output
+	 bin/kafka-console-producer.sh   --bootstrap-server localhost:9092  --topic  streams-plaintext-input	
+	  成功
+*/
+    public static void main(String[] args) throws Exception {
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-linesplit");//用不同的名字
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+//      props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        StreamsBuilder builder = new StreamsBuilder();
+        KStream<String, String> source = builder.stream("streams-plaintext-input"); 
+        KStream<String, String> words = source.flatMapValues(value -> Arrays.asList(value.split("\\W+")));
+//        //jdk7
+//        KStream<String, String> words = source.flatMapValues(new ValueMapper<String, Iterable<String>>() {
+//            @Override
+//            public Iterable<String> apply(String value) {
+//                return Arrays.asList(value.split("\\W+"));
+//            }
+//        });
+        
+        words.to("streams-linesplit-output");   //新的名字,会自动建立的
+       
+        final Topology topology = builder.build();
+        System.out.println("================="+topology.describe());
+        final KafkaStreams streams = new KafkaStreams(topology, props);
+        final CountDownLatch latch = new CountDownLatch(1);
+        // attach shutdown handler to catch control-c
+        Runtime.getRuntime().addShutdownHook(new Thread("streams-wordcount-shutdown-hook") {
+            @Override
+            public void run() {
+                streams.close();
+                latch.countDown();
+            }
+        });
+        try {
+            streams.start();
+            latch.await();
+        } catch (Throwable e) {
+            System.exit(1);
+        }
+        System.exit(0);
+    }
+}
+ 
+public class WordCountDemo3 {
+	/*
+	 bin/kafka-console-producer.sh   --bootstrap-server localhost:9092  --topic  streams-plaintext-input	 写
+
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 \
+    --topic streams-wordcount-output \
+    --from-beginning \
+    --formatter kafka.tools.DefaultMessageFormatter \
+    --property print.key=true \
+    --property print.value=true \
+    --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer \
+    --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+    
+	 bin/kafka-console-consumer.sh   --bootstrap-server localhost:9092  --from-beginning --topic  streams-wordcount-counts-store-repartition  只能读到分词
+	  
+*/
+    public static void main(String[] args) throws Exception {
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-wordcount");
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+//        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        StreamsBuilder builder = new StreamsBuilder(); 
+        KStream<String, String> source = builder.stream("streams-plaintext-input");//<key ,value>读入topic
+        
+        source.flatMapValues(value -> Arrays.asList(value.toLowerCase(Locale.getDefault()).split("\\W+")))
+              .groupBy((key, value) -> value)
+              .count(Materialized.<String, Long, KeyValueStore<Bytes, byte[]>>as("counts-store"))
+              .toStream()
+              .to("streams-wordcount-output", Produced.with(Serdes.String(), Serdes.Long()));
+        
+        final Topology topology = builder.build();
+        System.out.println("================="+topology.describe());
+        final KafkaStreams streams = new KafkaStreams(topology, props);
+        final CountDownLatch latch = new CountDownLatch(1);
+        // attach shutdown handler to catch control-c
+        Runtime.getRuntime().addShutdownHook(new Thread("streams-wordcount-shutdown-hook") {
+            @Override
+            public void run() {
+                streams.close();
+                latch.countDown();
+            }
+        });
+        try {
+            streams.start();
+            latch.await();
+        } catch (Throwable e) {
+            System.exit(1);
+        }
+        System.exit(0);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 

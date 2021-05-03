@@ -145,6 +145,28 @@ gnome-shell --version
 ---
 修改默认程序  Settings->Details->Default Application 但是没有文本编辑器的(Komodo Edit 增加右键菜单第一项,快捷键是enter)
 WPS linux版安装后 ，右键菜单有新建doc...
+========================Xfce-4 界面
+startxfce4 启动界面 (startx 进入gnome界面，当安装是gnome时) systemctl set-default graphical.target 
+
+Start->window Manager -> keyboard-> show desktop 默认快捷键为ctrl+alt+d 修改为 super +d 没有效果 ，一按super(win)就会显示开始菜单 
+ctrl+alt+ 左/右箭头 切换工作区
+
+ctrl+alt+L 锁屏(xflock4命令)，但要安装  zypper install xlockmore ，锁屏界面显示非常不好
+	screensaver 应用 ，提示XScreenSaver没有运行在display :0.0 上 ,启动服务后（其实就是运行了 xscreensaver -nosplash），锁屏界面应该是xwindow风格的，点new login 按钮返回能切换多用户
+	启动 xscreensaver 后，如存在多用户时，如输入另一个用户的密码也能进入？？？？	，不使用xscreensaver正常
+	解决方法 zypper install  xfce4-screensaver,因冲突要卸载xscreensaver,xfce4-screensaver启动后，锁屏界面是gtk风格的界面,密码变正常,Switch user按钮
+	Session And Startup应用  可以配置开机自动启动， xfce4-screensaver 命令即可
+   有很漂亮的屏保,fireworkx 烟花 ,flurry (一阵风、雨或雪; 爆发，骚动)也是Mac上有的
+	 
+	
+   lightdm 应用 设置锁屏，作用在什么地方？
+		
+Thunar 资源管理器中 当前目录搜索文件 是像windows一样，只找当前目录的一级，不会像gnome那样找所有子级
+
+Terminal  显示太够宽 再次启动就好了,  如果命令是复制的，再近上键调不出复制的命令，不方便 ？？
+Note 显示太够宽???
+
+
 ========================命令
 ~/.bash_history 命令历史记录
 
@@ -209,13 +231,18 @@ du -sh 目录名   来看这个目录一共占用的空间
 uname -r内核版本 -o 操作系统 -a 全部信息
 pstree 进程树
 ps -ef |grep tomcat (-e同-A 全部,-f full-format listing)
+echo "<html><title>hello</title></html>" | grep -o "<title>.*</title>"  会显示title>hello</title> ( -o, --only-matching )
+
 kill -9 (刚才的进程ID)
 ps -aux |808
 # rm ./F\:\\  对 : 和 \ 空格目录时要用\进行转义  ,即\:  和 \\ 
 如果文件中以-开头  如文件名是  -m , 使用 rm -- -m 或者rm ./-m
 
 
-pgrep -l httpd 显示进程名字及进程ID,再用 killall 进程名
+pgrep(process grep)  如 pgrep -fl vtdataroot  (-l  list PID and process name ,-f full process name to match )
+pkill(process kill)  如 pkill -9 -e -f '(vtdataroot|VTDATAROOT)'  (-e echo 显示什么进程被杀)
+
+pgrep -l httpd 显示进程名字及进程ID,再用 killall 进程名  
 pgrep -u root,daemon httpd    , pkill httpd
 grep -v '^#'  xx.conf
 egrep 就是 grep -E 正则
@@ -243,6 +270,7 @@ centOS 7.5 在linux16行尾加 single 会不一样,但要root密码
 	编辑 /etc/fstab 文件来包含以下行。
 	/home/swap swap swap defaults 0 0
 
+free -m 看实际可用内存 = free + buffer/cache ,当然也可以直接看 available
  
 cat /proc/swaps 正在使用的swap
 swapon 是开启swap
@@ -304,6 +332,9 @@ cat filename_part.z* > filename.zip   //利用cat来合卷
  
 /etc/inittab 文件
 
+
+
+
 sar 1(间隔) 10 (总次数)  (system activity report)
 	-o 输出二进制
 	-f 读二进制
@@ -314,6 +345,7 @@ sar 1(间隔) 10 (总次数)  (system activity report)
 	-r 是page，不是实际的
 用vmstat是对的
 
+sar -n DEV 1 10  是全部网卡级的使用
 
 iostat  （ yum install sysstat ） 只能看到某个硬盘
 	Blk_read/s  Block=Sector=512 bytes
@@ -321,6 +353,24 @@ iotop 可以看到进程级的
 iotop -oP  其中 -o 表示只显示有IO操作的 -P 列表进程或线程
 
 mpstat 查看多处理器状况 (smp 是支持多处理器,up是不支持多处理器)
+
+
+ifstat 只可显示一次 网络使用，只是刚网卡级 
+iftop 要单独安装(zypper install iftop)  				iftop -i  wlan0 		不能知道是哪个进程
+nload 要单独安装(zypper install nload) 				nload wlan0  				也是不能知道是哪个进程
+iptraf-ng 要单独安装(zypper install iptraf-ng)  	iptraf-ng -g 				也是不能知道是哪个进程
+vnstat 要单独安装(zypper install vnstat)  			vnstat -i wlan0 -l   也是不能知道是哪个进程
+
+nethogs 要单独安装(zypper install nethogs)  			nethogs wlan0				可以看到使用网络的进程及大小  
+交互式 	m : 修改单位
+    	  r  sort by 'received'
+       s  sort by 'sent'
+
+
+pidstat  进程使用CPU,pidstat -p <PID>
+pidstat  -d 2 每2秒显示磁盘信息
+ 
+mpstat 多核CPU 状态 mpstat -P all 2 每2秒显示所有cpu
 
  watch -n 1 "/sbin/ifconfig eth0 | grep bytes"  每一秒执行一次命令
 
@@ -361,9 +411,9 @@ route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
 
 /boot分区不能设置为ex4 分区
 
-sort命令  -t 分隔符 -u 标志告诉 sort 命令除去重复的行,-r 反向排序
-/usr/ucb/ps aux | sort -k 4 -r
-
+sort命令  -t 分隔符 -u 标志告诉 sort 命令除去重复的行,-r 反向排序 ,-k, --key 按第几列排序
+ps aux | sort -k 4 -r    按内存
+ps aux | sort -k 3 -r    按CPU
 
 vi /etc/sysconfig/i18n 改系统语言和字符集  echo $LANG=更优先
 centos修改语言 /etc/locale.conf
@@ -409,6 +459,16 @@ echo 123 |passwd --stdin user1 脚本修改密码
 	autoinstall
 
 nohup ${DOMAIN_HOME}/bin/startWebLogic.sh $* 1> console.log 2>&1 &
+
+
+yum install screen 
+screen 后台运行
+screen 命令进入后台，执行启动命令后，ctrl+a,d 设置为后台运行
+screen -ls 看哪些后台运行,显示前部分为 screen的ID，但不知道是什么命令
+screen -r <screen的ID> 再进入前台
+
+
+
 echo "hello" 1 >> test.log 2>&1    # 2>&1 中不能用空格 
 
 ipcs	查ipc已有的资源
@@ -497,10 +557,29 @@ date -s "2008-07-01 13:27"
 time <命令>  可以显看命令的执行时间 
 
 
-iwconfig 
+
+iwconfig  显示当前无线网卡使用的ESSID
+iwlist wlan0 ap 显示热点Access Point信息
+iwlist wlan0 scan 来显示所有的无线 网络找ESSID字段
+iwlist wlan0 scan | grep ESSID
+
+iwconfig wlan0  查看用哪个wifi
+iwconfig wlan0 essid xx 设置网卡使用哪个wifi，不行?,密码
+
+如加密方式是WPA_PSK
+wpa_passphrase your_SSID your_key > myconfig
+wpa_supplicant -i interface -c myconfig 
+-B 后台运行，提示reason=CONN_FAILED
+如加密方式是WPA2_PSK??可以使用 nmtui 命令连接wifi
+/etc/resolv.conf 中加 ip route显示的值 
+ 　　nameserver 192.168.0.1
+ 
+
+dhclient wlan0
+iw dev wlan0 link 检查是否连接
+
 man iwconfig 会显示iwlist 显示所无线网络的命令
-iwlist scan 来显示所有的无线 网络(iwlist wlan0 scan)
-TYPE=Wireless
+  
  
 make -j4 起4个gcc(job)
 make depend && make (用　＆＆　同时执行两条命令在一行上)
@@ -634,7 +713,11 @@ wget http://  来下载
 --header  'header:value'
 
 curl 来请求
-
+	-s, --silent
+	--insecure 
+	-f, --fail 失败时不输出
+	-L, --location 如有重定向，自动重新请求
+	 
 iostat
 vmstat的输入格式
 procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
@@ -757,6 +840,10 @@ su - 比 加－继承了录前用户的环境变量
 su -切换到一登录到SHELL的用户
 
 useradd -d <HOME DIR>  -s <SHELL>
+默认的/home目录是配置在/etc/default/useradd文件中的
+  -m, --create-home 创建目录 
+usermod 
+	-m, --move-home
 
 文件权限的中有s位的,会以root身份的执行
 
@@ -998,6 +1085,9 @@ fstab文件 自动每次开机时自动挂载光驱
 top d 2 ,H显示线程，h帮助 ，k kill  15 要比 9 更有强度
 top -p <PID>
 ps -mp <PID>  -o THREAD,tid,time 看该进程的线程
+	  -m     Show threads after processes.
+
+
 printf "%x\n" <TID> 的线程TID置换为16进制 
 
 /proc/meminfo   lsmem命令
@@ -1017,7 +1107,8 @@ ps -e -o 'pid,comm,args,pcpu,rsz,vsz,stime,user,uid'
 	 cmd,两个别名args,command 即带命令又带参数(但不显示全部)
 	 %cpu 别名pcup 
 	 stime  启动时间，如小于24小时显示"HH:MM" 否则显示 (三个字母的月份两位天)
-	 
+看内存CPU像 ps aux
+
 top 工具
 	显示标题
 		VIRT：进程占用的虚拟内存
@@ -1041,7 +1132,10 @@ top 工具
 	d 或 s  每几秒显示一次
 	W 将当前设置写入~/.toprc文件中
 
-grep -v grep 　不显示grep  -n显示行号, -C 50 显示周边50行
+grep -v grep 　不显示grep  -n显示行号, -C 50 显示周边50行  
+	-i, --ignore-case  
+  -n, --line-number        
+  -H, --with-filename       
 
 zgrep keyworkd file*.zip  对.zip文件
 zless file.zip 对.zip文件  相当于zcat file.zip | less
@@ -1162,8 +1256,8 @@ Activites -> configure wine 可以配置D 盘指向哪里
 https://wiki.winehq.org/Mono
 http://dl.winehq.org/wine/wine-mono/
 
-wine-5.2有wine-mono-5.2.rpm 里有 wine-mono-4.9.2.msi(也可单独下载)
-手动安装 wine64 msiexec /i /usr/share/wine/mono/wine-mono-4.9.2.msi
+wine-mono-5.0.0-lp152.1.1.noarch.rpm 里有 wine-mono-5.0.0.msi (也可单独下载)
+手动安装 wine64 msiexec /i /usr/share/wine/mono/wine-mono-5.0.0.msi
 
 
 
@@ -1178,29 +1272,23 @@ wine msiexec /i whatever.msi   或者 wine start whatever.msi
 安装界面中文乱码解决方法
 env LC_ALL=zh_CN.UTF-8 wine BaiduNetdisk_6.7.0.8.exe
 printenv
-------wine 安装过的应用
 
-----PlSqlDev
-用wine PlSqlDev.exe 来安装PL／SQL Devolope  (可以成功安装在 ~/.wine/drive_c/Program Files/PLSQL Developer 下)
-			 ~/.local/share/applications/wine/Programs/PLSQL\ Developer/ 下也有文件 (像是windows下的桌面,可以双击运行它)
-进入 安装目录 wine plsqldev.exe 就可以成功的运行了,但是界面上的工具栏上的图标不能显示（右击图标 -> customer...显示 全部不能显示）
+还有一种情况是复制windows系统下的 Windows/Fonts/sim* 到 ~/.wine/drive_c/windows/Fonts/ 再启动 wine  CS16_cn.exe 即可
 
+------wine 安装过的软件,尽可能用免费的
+ 
 ---微信
 Activites -> configure wine 可以配置D 盘指向哪里,所有使用的用户都要运行winecfg 配置才会生效，在使用微信时配置总是会被还原？？？
 wine 安装微信找不到文件所在目录 可能是C盘没权限,重新配置D盘就可以了
-
----Navicat_Keygen
-chmod u+x  Navicat_Keygen_Patch_v4.3_By_DFoX.exe 
-wine Navicat_Keygen_Patch_v4.3_By_DFoX.exe 才可运行
-
----StarUML
-wine msiexec /i  StarUML-v2.8.1.msi 
-cd ~/.wine/drive_c/Program\ Files\ \(x86\)/StarUML
-wine StarUML.exe 出界面提示错误
+  
+---Fiddler 5 
+安装成功，但启动失败，日志显示好像有中文问题, 安装了wine-mono-5.0.0，和 mono-core-6.8
 
 ---PowerDesigner
 cd ~/.wine/drive_c/Program\ Files\ \(x86\)/Sybase/PowerDesigner\ 16/
 wine PdShell16.exe 　 报Wine Mono is not installed,安装了mono-core-5.10.1-lp150.1.6.x86_64.rpm　报EXCEPTION
+
+---Photoshop CS6
 
 ----安装Viso2016不行的
 
@@ -1385,6 +1473,9 @@ zk      向上移动到前一折叠的结束处。关闭的折叠也被计入。
 :set nu 显示行号
 :set list 显示tab键为^I,回车为$,空白字符
 
+
+
+:set fileencoding 即可显示文件编码格式
 当vim在utf-8的local下打开gbk文件时,显示的是乱码,可以在~/.vimrc文件中加入如下代码来解决
 set fencs=utf-8,gbk
 或者
@@ -1465,8 +1556,8 @@ X                删除前一个字符
 dd             删除当前行
 
 9u      就是9次
-u                撤销前一步操作 :u 3  撤销3步 (可与ctrl+r 重做 多次)
-U               撤销本行所有操作
+u                撤销(撤消)前一步操作 :u 3  撤销3步 (可与ctrl+r 重做 多次)
+U                撤销本行所有操作
 
 :/word            向下查找word
 :?word           向上查找word
@@ -1682,7 +1773,7 @@ ls (hd0,11)/grub2/i386-pc 有很多.mod文件
 
 set root=(hd0,11)
 set prefix=(hd0,11)/grub2
-insmod /grub2/i386-pc/normal.mod
+insmod /grub2/i386-pc/normal.mod (insmod normal 就会提示找 /grub2/i386-pc/normal.mod ，有时efi目录下)
 normal 就可以进入grub2 引导界面，如分区是可恢复以前形式，就进入windows修改成以前分区形式即可 (亲测试成功),openSUSE不能成功进入系统
 
 分区有一个UUID,使用 　ls -l /dev/disk/by-uuid 查看
@@ -1703,6 +1794,27 @@ windows 10的grub2引导文件
 	insmod fat
 	set root='hd0,gpt1'
 	chainloader /efi/Microsoft/Boot/bootmgfw.efi
+
+windows 7的grub2引导文件 
+# ls -l /dev/disk/by-uuid   显示 327A085A7A081D6B  sda1 显示就是有bootmgr文件的windows的boot分区
+ 
+### BEGIN /etc/grub.d/30_os-prober ###
+menuentry 'Windows 7 (on /dev/sda1)' --class windows --class os $menuentry_id_option 'osprober-chain-327A085A7A081D6B' {
+        insmod part_msdos
+        insmod ntfs
+        set root='hd0,msdos1'
+        if [ x$feature_platform_search_hint = xy ]; then
+          search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1 --hint='hd0,msdos1'  327A085A7A081D6B
+        else
+          search --no-floppy --fs-uuid --set=root 327A085A7A081D6B
+        fi
+        parttool ${root} hidden-
+        chainloader +1
+}
+### END /etc/grub.d/30_os-prober ###
+
+
+
 
 
 
@@ -3071,7 +3183,8 @@ depmod
 modinfo ext3
 modprob (依赖安装,如失败会卸载整组的模块)
 rmmod
-============================fedora 专用的
+============================fedora 专用的 
+最新33版本
 --fedora mirror
  http://mirrors.fedoraproject.org/publiclist 其实是redhat的包
 	http://download.fedoraproject.org/pub/fedora/linux/releases
@@ -3123,7 +3236,7 @@ http://mirrors.163.com/fedora/releases/29/Everything/x86_64/os/Packages/f/
 			fcitx-configtool-0.4.10-5.fc29.x86_64.rpm 就可以点fcitx config
 		一共就这些就能安装
 		
-vi /etc/profile 增加 
+vi /etc/profile 增加  ($HOME/.bashrc 只对当前用户,/etc/bashrc)
 	export INPUT_METHOD="fcitx"
 后重启也没有fcitx进程？？？ fcitx config也没有配置？？？
 
@@ -3151,7 +3264,7 @@ http://mirrors.163.com/fedora/releases/29/Everything/x86_64/os/Packages/s/
 			scim-tables-chinese-0.5.14-5.fc29.x86_64.rpm
 			scim-pinyin-0.5.92-14.fc29.x86_64.rpm
 
-
+openSUSE用的是zypper，fedora是dnf
 
 ---Fedora 29不能使用root用户登录的解决办法
 sudo vi /etc/gdm/custom.conf 在daemon区增加
@@ -3565,7 +3678,8 @@ rpm -qpR /var/cache/yum/x86_64/7/docker-ce-stable/packages/docker-ce-19.03.12-3.
 install 命令相当于 cp
 sudo install minikube /usr/local/bin
 
-useradd -d /u01/oracle  这是用户的默认主目录
+useradd -d /u01/oracle  这是用户的默认主目录,
+
 ------------
 ----------------Redhat yum 自动安装光盘中软件包,相当于 SUSE 的 zypper 
 /etc/fstab
@@ -3651,7 +3765,7 @@ python3可以源码安装
 sudo yum install python36 安装
 sudo yum install python36-pip 会安装 python36-setuptools
 
-
+yum install mariadb\*  -y 可通配安装
 
 ----------------
 -----------------硬盘安装RedhatEL5------------
@@ -3775,7 +3889,7 @@ rsync -vzrtopg --delete --progress jia@127.0.0.1::web /tmp/test  删本地的/tm
 /tmp是客户端存放备份文件的目录
 
 未成功,看日志
-lsof -i :873  有ipv4 和 ipv6协议  ,执行时的权限 
+lsof -i :873  (查监听端口)有ipv4 和 ipv6协议  ,执行时的权限 
 
 
 --progress 显示进度

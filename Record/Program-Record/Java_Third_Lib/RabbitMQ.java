@@ -8,7 +8,7 @@ https://rabbitmq.github.io/rabbitmq-java-client/api/current/
  
 RabbitMQ,启动停止可在services.msc中做也可使用命令启动
 配置文件 是 rabbitmq.config  
-D:\Program\RabbitMQ Server\rabbitmq_server-3.7.7\etc\rabbitmq.config.example 复制修改 (3.7.11版本就没这个文件了？)
+C:\Program Files\RabbitMQ Server\rabbitmq_server-3.7.7\etc\rabbitmq.config.example 复制修改 (3.7.11版本就没这个文件了？)
 #%HOMEPATH%\AppData\Roaming\RabbitMQ\rabbitmq.config.example
 默认端口  {tcp_listeners, [5672]},
 
@@ -32,7 +32,7 @@ windows zip 设置 ERLANG_HOME=D:\Program\erl9.3\ 变量
 看界面默认amp端口是 5672
 看界面默认clustering端口是 25672
  
- 
+windows sbin/rabbitmq-server.bat 管理员安装普通用户启动会自己复制到主目录，提示日志和数据目录在主目录中
 windows安装版本服务启动 Cookie
 从 C:\Windows\System32\config\systemprofile\.erlang.cookie 复制到
 C:\Users\%USERNAME%\.erlang.cookie 

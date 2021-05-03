@@ -25,9 +25,16 @@ README.md 文件是,idea可以识别，firefox 安装插件 markdown viewer ，�
 ------ 
 
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
-IDEA 2018.2.6 	版本可以支持 JDK11
-IDEA 2020.1 	版本可以支持 JDK14
-IDEA 2020.2.2 	版本可以支持 JDK15
+IDEA 2021.1		版本可以支持 JDK16
+
+---缺点
+默认情况下不能调试(debug)多线程，如要调试多线程，在每个线程代码中打断点，右击断点->单选Thread(默认All), set Default 
+	run/debug窗口中右则有 个 Allow parallel run 的复选框( 2021.1 Community版本没有 ，对多线程调试支持很不好!!!)
+
+intellij idea 一个main方法只可启动一次，如要多在配置启动项中取消  single instance only ( 2021.1 Community版本没有 ，对多线程调试支持很不好!!!)
+
+---优点 
+Git, Maven 支持不错
 
 
 --idea.properties 有提示 idea.home.path ,windows路径使用/ 分隔,事先建立好D:/Program/idea_data即可
@@ -171,12 +178,10 @@ View->tool windows->Run 显示控制台
 View->tool windows->project 显示项目视图
 
 
-设置菜单字体大小   File->Setting...->Appearance & Behavior-> Appearance -> Override defaul fonts by (not recommaned) 后面设置为14 (字体SimHei)
+设置菜单字体大小   File->Setting...->Appearance & Behavior-> Appearance -> 选中use custom font： 后面size:设置为12或14 (字体SimHei)
 
-设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts -> Font   16
-				2018版	File->Setting...->Editor -> Color Scheme-> Color Scheme Font   16
-设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font  16
-				 2018版	File->Setting...->Editor -> Color Scheme-> Console Font  16
+设置编辑器字体大小 ile->Setting...->Editor -> Color Scheme-> Color Scheme Font，选中Use color scheme font instead of default,设置Size: 14
+设置控制台器字体大小  File->Setting...->Editor -> Color Scheme-> Console Font  16
 Code -> reformat code 格式化代码 (ctrl+alt+L)
 Edit->join lines (ctrl+shift+j) 把选中的代码压缩成一行
 Code -> Generate...生成getter,setter  ( alter+insert  )
@@ -239,10 +244,7 @@ window -> editor tabs -> tabs replacement -> show tabs in single row
 	-XX:MaxMetaspaceSize=200m
 	-XX:ReservedCodeCacheSize=240m
 
-默认情况下不能调试(debug)多线程，如要调试多线程，在每个线程代码中打断点，右击断点->单选Thread(默认All), set Default 
-	run/debug窗口中右则有 个 Allow parallel run 的复选框
 
-intellij edea 一个main方法只可启动一次，如要多在配置启动项中取消  single instance only
 自带.ftl插件
 .properties 文件做国际化不能转换 settings->Editor->File Encodings 在面板的properties file 区设置编码UTF-8,选中transaprent natvie-to-ascii conversion 
 
@@ -280,6 +282,10 @@ shell视图修改使用git bash(支持linux命令)
 settings->tools->terminal -> shell path 中选择 Git安装目录/bin/bash.exe
 
 ctrl+e 最近打开文件
+
+导出jar包 project structure...->artifacts-> +按钮 ->jar -> from modules with dependences... ->选Main Class,会自己建立 MANIFEST.MF 文件
+Build->Build artifacts...->默认输出在项目的out目录 
+
 
 ====================IntelliJ IDEA plugin 
 https://plugins.jetbrains.com/
@@ -406,6 +412,18 @@ view -> tool windows -> persistence 选中一个项目 右击->Generate persiste
 https://plugins.jetbrains.com/plugin/6585-builder-generator
 Code -> Generate -> 多了一个builder
 
+
+---Intellij Idea 插件 Rust 
+
+https://plugins.jetbrains.com/plugin/8182-rust/
+0.3.144.3766-211 			 2021.1   		Mar 29, 2021 
+	又依赖于toml
+	https://plugins.jetbrains.com/plugin/8195-toml
+
+Settings->Rust-> Standard library 中设置rust主目录
+
+可以运行(使用 cargo)，目前不能打断点
+
 ---------DataGrip 2018  可以不要 IntellijIDEA 也有这此功能,也有 WebStorm ,Android 功能
 
 MySQL 8 jdbc
@@ -463,11 +481,29 @@ Settings-> Go -> GoPATH 下有 global GOPATH (默认是~/go) 配置
 	右击 xx_test.go -> create TestXX (方法名) in xx.go(文件名) ,
 	如运行报找不到方法, Settings-> Go -> GoPATH 下project GOPATH ,增加要把项目目录(代码要在src目录下)
 
+右击文件Run->打开运行配置框，Run Kind 默认是package,可以选File，还有Directory
 
+ 
+可以读到标准输入
+可以同时调试两个文件
+	
 --------Pycharm
 Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 
 ---------Rider 跨平台的C#开发工具(也有开源的MonoDevelop )
+
+---Intellij Idea 插件 Rust 
+
+https://plugins.jetbrains.com/plugin/8182-rust/
+0.3.144.3766-211 			 2021.1   		Mar 29, 2021 
+	又依赖于toml
+	https://plugins.jetbrains.com/plugin/8195-toml
+
+Settings->Rust-> Standard library 中设置rust主目录
+可以运行(使用 cargo)，Community版本 不能打断点
+
+https://plugins.jetbrains.com/plugin/8182-rust/docs/rust-debugging.html  
+中说只可Intellij Idea的 Ulimated版本, GoLand,CLion,PyCharm Pro才行
 
 -----UpSource  免费的
 用来做Code review

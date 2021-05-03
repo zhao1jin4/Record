@@ -8,6 +8,9 @@ https://gomirrors.org/ ( https://goproxy.io/ )
 
 https://golang.google.cn/pkg/ 文档基本上每个 方法都有示例代码，非常好
 
+https://www.manning.com/books/go-web-programming 是GO Web 编程书的源码 ，还有其它很多书的源码 
+
+
 
 windows 1.14 安装后会自动设置系统环境变量
 PATH 增加 C:\Go\bin
@@ -51,7 +54,12 @@ kubernetes的restful使用的是github上的 https://github.com/emicklei/go-rest
 
 是否可以远程调试
 
+
+对于go关键字的多协程的调试，并发测试，vscode和goland都不是很好,打的断点并不一定会停止
+
 ----Eclipse 4.6 以上插件 goClipse 依赖于 CDT 9.0以上  只安装 Main Feature组即可
+As of 2017, Goclipse is no longer actively maintained
+
 http://goclipse.github.io/
 https://github.com/GoClipse/goclipse/blob/latest/documentation/Installation.md   下载
 
@@ -74,56 +82,162 @@ preferences->go->Installation 设置目录(同GOROOT) C:\Go
 
 debug时依赖gdb命令 ,安装Cygwin的gdb后,调试有时中文乱码??? 控制台显示有缓存，显示顺序有问题 ???
 
+----LiteIDE
+有百度网盘，像是国产的，界面有点像eclipse，其实没有任何关系使用Qt开发的
+打断点，只能点工具栏按钮，不太方便
+工具栏的BR表示BuildRun不能Debug, 要Build->Start Debug(F5) ,Debug->step over(F10)  启动调试后，有工具按钮在下方
 
----GoLand 2018.2.4 (IntellijIdea)
+Tools->Manage GOPATH/moudles...-> system GOPATH 有显示，修改了环境变量要重启LiteIDE，也可在use Custom GOPATH中增加自己的
+
+如一个目录有两个文件都有main函数是不行的
+
+debug时不能鼠标滑过看变量，必须在watch 中手工增加变量，不方便
+
+terminal  窗口中的文字 不能复制粘贴，不方便 
+
+
+---GoLand 2018.2.4 (IntellijIdea) 收费
 	Settings-> Go -> GoPATH 下有 global GOPATH (默认是~/go) 配置 
 	
 	右击 xx_test.go -> create TestXX (方法名) in xx.go(文件名) ,
 	如运行报找不到方法, Settings-> Go -> GoPATH 下project GOPATH ,增加要把项目目录(代码要在src目录下)
 	debug时不依赖gdb
 	
----Visual Studio Code(vscode) 的Go  Extension
-	打开.go文件时  提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装(就一个main.go文件)
-		又提示 不认导入路径  golang.org/x/tools/go/buildutil , get连接失败，被墙了
-	https://github.com/golang/tools/tree/master/go/buildutil 中有
-	项目下载下来,cd tools-master\go\buildutil 执行 go install 
-	再go get 就可以了, ~\go\bin下就有go-outline.exe
+	右击文件Run->打开运行配置框，Run Kind 默认是package,可以选File，还有Directory
+	 
 	
-	go help get ,显示 -v verbose,-u update
+	可以读到标准输入
+	可以同时调试两个文件
+
+---Visual Studio Code(vscode) 的Go  Extension
+	go env -w GOPROXY=https://goproxy.cn,direct 
+	go env -w  GO111MODULE=on  表示不下载源码 %USERPROFILE%\go\src下没有新增,%USERPROFILE%\go\pkg\mod(也有源码)和%USERPROFILE%\go\bin有新增
+
+	打开.go文件时  
+	提示 gopls 命令找不到,使用 go get -v  golang.org/x/tools/go/gopls 被墙了
+		https://github.com/golang/tools/tree/master/gopls
+		cd tools-master\go\gopls 执行 go install 
 		
-	安装后,Debug视图->上方的设置按钮生成.vscode/launch.json
+		#又提示要github.com/jba/templatecheck@v0.5.0 (https://github.com/jba/templatecheck)
+		#下载  "https://proxy.golang.org/github.com/jba/templatecheck/@v/v0.5.0.mod"  失败
+		#go env -w GOPROXY=https://goproxy.cn,direct 再来
+	提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装,可能不行，使用vscode的install按钮是可以的
+		( 
+			就一个main.go文件
+			又提示 不认导入路径  golang.org/x/tools/go/buildutil , get连接失败，被墙了
+			https://github.com/golang/tools/tree/master/go/buildutil 中有
+			项目下载下来,cd tools-master\go\buildutil 执行 go install  
+			再go get -v github.com/ramya-rao-a/go-outline 就可以了, ~\go\bin下就有go-outline.exe
+		)
+	
+	打开.go文件 -> 调试启动按钮
+	提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,~\go\bin下就有dlv.exe
+		(//上可以成功，这部分不用
+			https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
+			也可下载后进入目录  go install
+		)
+	写代码时 类.时 
+	提示 gocode 找不到 ,  go get -v github.com/uudashr/gopkgs/v2/cmd/gopkgs  安装 
+	
+	安装后,Debug视图->create a launch.json file 链接->Go: Launch file 或者Go: Launch package, 生成.vscode/launch.json
 	{ 
 		"version": "0.2.0",
 		"configurations": [
-			{
-				"name": "Launch",
+			  {
+				"name": "Launch file",
 				"type": "go",
 				"request": "launch",
-				"mode": "auto",
-				"program": "${fileDirname}",
-				"env": {},
-				"args": []
+				"mode": "debug",
+				"program": "${file}"
 			}
 		]
 	}
-	如没有生成launch.json,不能运行xx_test.go文件,如有则可以(文件在任何目录，没有设置GOPATH,代码没有放在src目录下)
-	
-	打开.go文件 -> 调试启动按钮，提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,要花点时间下载的
-	~\go\bin下就有dlv.exe
-	
-	https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
-	也可下载后进入目录  go install
-	
-	写代码时 类.时 提示 gocode 找不到 , go get -v github.com/mdempsky/gocode 安装
-	选中方法名->右击 go to type definition 提示 guru 找不到 , go get -v golang.org/x/tools/cmd/guru 安装
-	
-	一个目录（工作区）只可有一个main函数
-	debug时不依赖gdb
----
+	当Go: Launch package时，一个目录（工作区）只可有一个main函数 
+	  {
+            "name": "Launch Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}"
+       }
+	   
+	debug时不依赖gdb 
+	go help get ,显示 -v verbose,-u update
 
+同时debug两个go文件(如服务端和客户端),调用一个进行中,再启动另一个调试,CALL STACK 视图显示多个进程 不行????
+ launch.json中增加如下,测试不行???
+  { 
+    "version": "0.2.0",
+    "configurations": [
+		{
+            "name": "Client",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/src/adv/mynet/myrpc_client.go"
+        },
+        {
+            "name": "Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/src/adv/mynet/myrpc_server.go"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Server/Client",
+            "configurations": [
+                "Server",
+                "Client"
+            ],
+            //"preLaunchTask": "${defaultBuildTask}"
+        }
+    ] 
+	只能文件在不同目录，启动两个vscode来做
+
+ 
+
+Go不是在terminal窗口中运行，而是在Debug Console 窗口运行，所以读不到标准输入？？
+可能lauch.json中为 "type": "go",如C++的 为"cppdbg"是在terminal窗口中运行的
+
+fmt.Printf("请输入两个数\n")
+var x, y int
+fmt.Scan(&x, &y)
+	
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
+fmt.Print("请输入")
+in:=bufio.NewReader(os.Stdin)
+str,_:=in.ReadString('\n'); //这里才可开始读,以\n做为结束
+fmt.Print(str)
+
+
+
+
+Settings->Extension->go-> 搜索gopath中有Go:Gopath 下方有Edit in settins.json链接（提示覆盖环境变量），点击进入
+C:\Users\<user>\AppData\Roaming\Code\User\settings.json 文件，增加了 "go.gopath": ""
+提示还有一个Go:Infer(推断，推理;) Gopath,只有当Go:Toggle workspace trust flag
+
+运行也会自动保存 
+	Task:Save Before Run默认为always,修改为never,无效？
+	Go:build on save 默认是package修改为off,无效？
+	
+保存时自动格式化注释，
+		Editor:Format On Save 默认是没有选中的，但还是能在保存时自动格式化注释，如何取消？
+		%USERPFORILE%\AppData\Roaming\Code\User\settings.json 增加  "editor.formatOnSave":  false 也无效
+		
+一保存就删除错误的导入，取消？？
+原来是 Go: Format Tool  配置的作用，没办法不设置,至少选择一个
+
+---
 
 gofmt 用来格式化代码 
 
+gcc9-go  
 
 ---hello.go
 package main //main函数所在文件的包名必须是main,同一文件夹的go文件包名必须全一样,建议用文件夹名
@@ -159,6 +273,10 @@ go fmt 格式化代码
 可使用 GOPATH 环境变量做修改(不能是安装目录)，模块下载(go get命令)在此目录下的 pkg/mod/ 目录中
 go env GOPATH
 export GOPATH=$(go env GOPATH)
+#export GOPATH=H:/GO_PATH
+
+go env 查看有
+set GOENV=C:\Users\dell\AppData\Roaming\go\env 表示这个文件(unix式的\n换行)记录了 go env -w 的值 
 
 $ mkdir -p $GOPATH/src/github.com/user/hello 
 cd $GOPATH/src/github.com/user/hello 
@@ -211,7 +329,7 @@ type Persion struct {
 package main //可执行的包名必须是main
 import (
 	 f "fmt" //导入别名
-	"github.com/user/stringutil" //就可引用刚刚的库,是文件夹名
+	"github.com/user/stringutil" //就可引用刚刚的库,是文件夹名,应该放在 $GOPATH/src/github.com/user/stringutil
 	// _ "github.com/user/stringutil" //表示只为执行包中的init函数
 ) 
 func main() {  //这个括号不能换行
@@ -239,6 +357,9 @@ func init(){
 
 //另一种函数类型为 func BenchmarkXxx(b* testing.B)
 func TestReverse(t *testing.T) {  //函数名TestXxx，参数t *testing.T
+	if testing.Short() { //结合 -short选项
+		t.Skip("跳过测试")
+	}
 	cases := []struct {
 		in, want string
 	}{
@@ -256,8 +377,14 @@ func TestReverse(t *testing.T) {  //函数名TestXxx，参数t *testing.T
 
 
 --
+set GO111MODULE=off
 任何地方 go test github.com/user/stringutil
 或进入目录 go test
+
+go test github.com/user/stringutil -v -cover -short 
+-parallel 2
+
+
 
 
 //------------示例代码
@@ -374,7 +501,7 @@ func TestReverse(t *testing.T) {  //函数名TestXxx，参数t *testing.T
 	fmt.Printf("你的等级是 %s\n", grade );
    
    var xIterface interface{}
-	switch i := xIterface.(type) { //特殊写法
+	switch i := xIterface.(type) {  //强转为type，表示可用switch判断类型，后也可用i继续调用子类
 	case nil: //匹配nil
 		fmt.Printf(" x 的类型 :%T", i)//%T类型
 	case int:
@@ -397,7 +524,7 @@ func TestReverse(t *testing.T) {  //函数名TestXxx，参数t *testing.T
 		fmt.Println("2、case 条件语句为 true")
 		fallthrough
 	case false:
-		fmt.Println("3、case 条件语句为 false")
+		fmt.Println("3、case 条件语句为 false") //这个会被执行
 		fallthrough
 	case true:
 		fmt.Println("4、case 条件语句为 true")
@@ -732,7 +859,7 @@ func main() {
 	for {
 		time.Sleep(100*time.Millisecond)
 		v,ok := <- c
-		fmt.Printf("len=%d,cap=%d,ok=%t\n",len(c),cap(c),ok)
+		fmt.Printf("len=%d,cap=%d,ok=%t\n",len(c),cap(c),ok)//%t 对boolean类型
 		if ok {//true表示没有关闭
 			fmt.Println("读了",v)
 		}else {
@@ -847,7 +974,9 @@ func Sqrt(f float64) (float64, error) {
 cn:="中"
 man:=true;
 fmt.Printf("type=%T,cn=%q,a(ASCII)=%d man=%t\n",cn,cn,'a',man)
-//fmt.Printf("%c\n",cn)//%c有点复杂
+fmt.Printf("%c\n", cn) //%c 中文有点复杂
+fmt.Printf("%c\n", 'a')
+fmt.Printf("%c\n", 97)
 
 //fmt.Printf("请输入两个数\n")
 //var x,y int
@@ -901,7 +1030,7 @@ func main() {
 	fmt.Println(strings.ReplaceAll("oink oink oink", "oink", "moo"))
 
 	fmt.Println("ba" + strings.Repeat("na", 2))
-	fmt.Printf("%q\n", strings.Split("a,b,c", ","))
+	fmt.Printf("%q\n", strings.Split("a,b,c", ","))//%q安全去除单/双引号
 	s := []string{"foo", "bar", "baz"}
 	fmt.Println(strings.Join(s, ", "))
 }
@@ -920,8 +1049,8 @@ func main() {
 	fmt.Println(s+"123")
 	
 	b, err := strconv.ParseBool("true")
-	f, err := strconv.ParseFloat("3.1415", 64)
-	i, err := strconv.ParseInt("-42", 10, 64)
+	f, err := strconv.ParseFloat("3.1415", 64)//float64
+	i, err := strconv.ParseInt("-42", 10, 64)//10进制，int64
 	u, err := strconv.ParseUint("42", 10, 64)
 	fmt.Println(b,f,i,u)
 
@@ -957,7 +1086,7 @@ type Advance interface{
 }
 
 func printInterface(m Move ){
-	if s,ok:=m.(*Student);ok { //断言，强转为子类
+	if s,ok:=m.(*Student);ok { //断言，强转为子类,接口的所有方法在结构体中都有
 		s.walk()
 	}else {
 		m.walk();
@@ -967,7 +1096,7 @@ func printInterface(m Move ){
 		case  *Student:
 	  		s.walk()
 		default:
-			s.walk();
+			m.walk();
 	}
 }
 func noNameInterface(m interface{}){ //匿名空接口
@@ -1001,7 +1130,7 @@ func main(){
 	fmt.Println(s.Human.name,s.grade)
 	fmt.Println(s.name,s.age,s.grade)//可以直接访问name，模拟了继承
 
-	s.walk();//子类可以调用父类的方法
+	s.Human.walk() ;//子类可以调用父类的方法
 
 	printInterface(&s)//如声明是指针，传递要为地址
 	printInterface(s);
@@ -1183,8 +1312,8 @@ func  main()  {
 
 
 	fmt.Print("请输入")
-	in:=bufio.NewReader(os.Stdin) //支持多个空格分隔都能读到
-	str,_:=in.ReadString('\n');
+	in:=bufio.NewReader(os.Stdin) 
+	str,_:=in.ReadString('\n');//这里才可开始读,以\n做为结束
 	fmt.Print(str)
 
 
@@ -1200,7 +1329,7 @@ func copyFile(fromFile string,toFile string)(int64,error){
 		return 0,err;
 	}
 	buf:=make([]byte,64,64)
-	return io.CopyBuffer(to,from,buf)
+	return io.CopyBuffer(to,from,buf)//提高性能，加缓存
 	//return io.Copy(to,from)
 }
 func copyFileInMem(fromFile string,toFile string)(int,error) {
@@ -1246,11 +1375,15 @@ func copyUseBufio(fromFile string,toFile string)(int,error){
 		//data,flag,err:=reader.ReadLine()//底层的
 		//fmt.Printf("flag=%t,err=%s,data=%s",flag,err,string(data))
 		//---
-		data,err:=reader.ReadString('\n') //还有 reader.ReadBytes('\n') ，reader.ReadByte()
+		data, err := reader.ReadString('\n') //文件内容必须是UTF-8，否则中文乱码
+		//还有
+		//data, err := reader.ReadBytes('\n')//文件内容必须是UTF-8，否则中文乱码
+		// data, err :=reader.ReadByte()
 		if err == io.EOF {
-			break;
+			break
 		}
-		fmt.Printf("err=%s,data=%s",err,string(data))
+		//fmt.Printf("err=%s,data=%s", err, string(data)) //对应ReadBytes
+		fmt.Printf("err=%s,data=%s", err, data) //对应ReadString
 	}
 	//--写
 	to,err:=os.OpenFile(toFile,os.O_WRONLY|os.O_CREATE,os.ModePerm)
@@ -1274,7 +1407,7 @@ func recursiveShowDir(dir string,level int)(int,error){
 		tree="| "+tree
 	}
 	for _,item:= range fileInfos {
-		fmt.Printf("%s %s/%s\n",tree,dir,item.Name())
+		fmt.Printf("%s %s/%s\n",tree,dir,item.Name()) //中文可以的
 		if(item.IsDir()){
 			recursiveShowDir(dir+"/"+item.Name(),level+1)
 		}
@@ -1400,7 +1533,7 @@ func writeData(writeChan chan <-  int,num int){//只能写，不能读
 }
 ----reflect
 func main() {
-	//Go是静态语言，编译时类型已经确定,动态类型要求是接口,每个接口会记录(pair)值(ValueOf)，和类型(ValueOf,即%T)
+	//Go是静态语言，编译时类型已经确定,动态类型要求是接口,每个接口会记录(pair)值(ValueOf)，和类型(TypeOf,即%T)
 
 	var pi float64 =3.14 //任何类型都可以看到是一空接口类型，如float32也是
 	fmt.Println("type=",reflect.TypeOf(pi)) //TypeOf参数如是空接口返回nil
@@ -1412,9 +1545,10 @@ func main() {
 	fmt.Println("Float=",valReflect.Float() )//如float32类型精度不准3.140000104904175，默认是float64
 
 	// 反射对象 -> 接口变量
-	convertVal:=valReflect.Interface().(float64)//对已知类型
+	convertVal:=valReflect.Interface().(float64)//对已知类型做强转
 	fmt.Println("convertVal=",convertVal)
 
+	//valReflect.SetFloat(5.18) //值传递的，不可直接修改
 	//--指针,如要修改值一定要使用指针
 	var valPointerReflect reflect.Value = reflect.ValueOf(&pi)
 	fmt.Println("valPointerReflect=",valPointerReflect)//是地址
@@ -1478,7 +1612,7 @@ func main() {
  	paramSlice:= []reflect.Value{reflect.ValueOf(10),reflect.ValueOf(20)}
 	resSlice=reflectFunc.Call(paramSlice ) //调用方法，空参数传 nil 或 空切片
 	fmt.Println("resSlice=",resSlice)
-	res:=resSlice[0].Interface().(string)
+	res:=resSlice[0].Interface().(string) //Interface函数返回空接口强转为string
 	fmt.Println("res=",res)
 
 	///---对象的方法
@@ -1487,7 +1621,7 @@ func main() {
 	fmt.Printf("refValue =%v \n",refValue)
 	//refElem :=refValue.Elem()//指针的指针才要这一步
 	valMethod:=refValue.MethodByName("PrintInfo") //方法名一定要大写
-	fmt.Printf("valMethod =%v \n",valMethod)
+	fmt.Printf("valMethod =%v \n",valMethod)	  //%v显示值内存地址
 	fmt.Printf("valMethod Kind=%s,Type=%s \n",valMethod.Kind(),valMethod.Type())
 
 	emptySlice=make([]reflect.Value,0)
@@ -1521,6 +1655,13 @@ func showReflect(common interface {}){
 
 	ageField2:=refValue.FieldByName("Age")//Value根据字段名取
 	fmt.Printf("Age =%d\n",ageField2)
+	
+	fmt.Printf("---Type Method\n")
+	for i := 0; i < refType.NumMethod(); i++ {
+		method := refType.Method(i)
+		fmt.Printf("TypeOf Name=%s,Type=%s V=%v \n", method.Name, method.Type, method.Type)
+	}
+	
 }
 
 func changeFieldByReflect( p2 *Persion){
@@ -1533,11 +1674,153 @@ func changeFieldByReflect( p2 *Persion){
 		valElem:=refValue.Elem()
 		if valElem.CanSet() {
 			fldAge:=valElem.FieldByName("Age")
-			fldAge.SetInt(30)
+			fldAge.SetInt(30)//结构体的属性大写字母开头的才可写
 			fmt.Println("after change age =",p2.Age)
 		}
 	}
 }
+
+//----------struct  tag
+type cat struct {
+	Name string
+	// 带有结构体tag的字段
+	Type int `json:"type" id:"100"`
+	//` 开始和结尾的字符串。这个字符串在Go语言中被称为 Tag（标签）。一般用于给字段添加自定义信息，方便其他模块根据信息进行不同功能的处理
+	//键与值使用冒号分隔，值用双引号括起来；键值对之间使用一个空格分隔
+
+}
+
+ins := cat{Name: "mimi", Type: 1}
+typeOfCat := reflect.TypeOf(ins)
+for i := 0; i < typeOfCat.NumField(); i++ {
+	fieldType := typeOfCat.Field(i)
+	// 输出成员名和tag
+	fmt.Printf("name: %v  tag: '%v'\n", fieldType.Name, fieldType.Tag)
+}
+// 通过字段名, 找到字段类型信息
+if catType, ok := typeOfCat.FieldByName("Type"); ok {
+	// 从tag中取出需要的tag
+	fmt.Println(catType.Tag.Get("json"), catType.Tag.Get("id"))
+	if val, ok := catType.Tag.Lookup("id"); ok {
+		fmt.Println("结构体标签id的值为", val)
+	} else {
+		fmt.Println("结构体标签不存在")
+	} 
+}
+
+//---IsNil  isValid
+// *int的空指针
+var a *int
+fmt.Println("var a *int:", reflect.ValueOf(a).IsNil())
+s := struct{}{}
+// 尝试从结构体中查找一个不存在的字段
+fmt.Println("不存在的结构体成员:", reflect.ValueOf(s).FieldByName("").IsValid())
+// 尝试从结构体中查找一个不存在的方法
+fmt.Println("不存在的结构体方法:", reflect.ValueOf(s).MethodByName("").IsValid())
+// 实例化一个map
+m := map[int]int{}
+// 尝试从map中查找一个不存在的键
+fmt.Println("不存在的键：", reflect.ValueOf(m).MapIndex(reflect.ValueOf(3)).IsValid())
+//---CanAddr
+{
+	x := 2                   // value type variable?
+	a := reflect.ValueOf(2)  // 2 int no
+	b := reflect.ValueOf(x)  // 2 int no
+	c := reflect.ValueOf(&x) // &x *int no
+	d := c.Elem()            // 2 int yes (x)
+	fmt.Println(a.CanAddr()) // "false"
+	fmt.Println(b.CanAddr()) // "false"
+	fmt.Println(c.CanAddr()) // "false"
+	fmt.Println(d.CanAddr()) // "true"
+	//Addr() 类似于语言层&操作
+	//Elem()  类似于语言层*操作
+
+}
+//---TypeOf再New()返回Value
+{
+	var a int
+	// 取变量a的反射类型对象
+	typeOfA := reflect.TypeOf(a)
+	// 根据反射类型对象创建类型实例
+	aIns := reflect.New(typeOfA)
+	// 输出Value的类型和种类
+	fmt.Println(aIns.Type(), aIns.Kind())
+}
+
+
+//---slice 反射
+var intSlice = []int{256, 512, 1024}
+intSliceElemValue := reflect.ValueOf(&intSlice).Elem()
+if intSliceElemValue.CanSet() {
+	newSliceValue := []int{2560, 5120, 10240}
+	newVale := reflect.ValueOf(newSliceValue)
+	intSliceElemValue.Set(newVale)
+	fmt.Println("NewSliceVal =", intSlice)
+}
+{
+	var intSlice = []int{256, 512, 1024}
+	intSliceValue := reflect.ValueOf(intSlice)
+	e := intSliceValue.Index(0) //Index函数
+	if e.CanSet() {
+		e.SetInt(2560)
+		fmt.Println("NewVal =", intSliceValue)
+	}
+}
+//----map反射
+m1 := map[string]int{"a": 1, "b": 2, "c": 3}
+m2 := map[string]int{"a": 1, "c": 3, "b": 2}
+fmt.Println(reflect.DeepEqual(m1, m2))
+
+iter := reflect.ValueOf(m1).MapRange()
+for iter.Next() {
+	k := iter.Key()
+	v := iter.Value()
+	fmt.Println("key=", k, "value=", v)
+}
+
+mapVal := reflect.ValueOf(m1)
+if mapVal.MapIndex(reflect.ValueOf("a")).IsValid() { //SetMapIndex
+	mapVal.SetMapIndex(reflect.ValueOf("a"), reflect.ValueOf(11)) //SetMapIndex
+	fmt.Println(m1)
+}
+
+ 
+########通道相关：
+func (v Value) Send(x reflect.Value)// 发送数据（会阻塞），v 值必须是可写通道。
+
+func (v Value) Recv() (x reflect.Value, ok bool) // 接收数据（会阻塞），v 值必须是可读通道。
+
+func (v Value) TrySend(x reflect.Value) bool // 尝试发送数据（不会阻塞），v 值必须是可写通道。
+
+func (v Value) TryRecv() (x reflect.Value, ok bool) // 尝试接收数据（不会阻塞），v 值必须是可读通道。
+
+func (v Value) Close() // 关闭通道
+//-----channel反射 
+
+all := make(chan int)
+go writeData(all, 20)
+go readData(all)
+
+time.Sleep(30 * time.Second)
+ 
+func readData(readChan <-chan int) { //只能读，不能写
+	fmt.Println("准备读")
+	refReadChan := reflect.ValueOf(readChan)
+	if read, ok := refReadChan.Recv(); ok { //Recv
+		fmt.Println("读到了", read)
+	}
+	fmt.Println("读到结束")
+}
+func writeData(writeChan chan<- int, num int) { //只能写，不能读
+	fmt.Println("准备写")
+	refWriteChan := reflect.ValueOf(writeChan)
+	refWriteChan.Send(reflect.ValueOf(num)) //Send
+	fmt.Println("写了", num)
+}
+
+
+
+
 ----DNS解析
 addr,err:=net.LookupHost("www.baidu.com1")
 	if(err!=nil){
@@ -1567,7 +1850,7 @@ func main(){
 		return
 	}
 	rpc.HandleHTTP() //使用HTTP协议来访问
-
+	//上下这两段，代码没有联系，但运行确实关联上了
 	listen,err:=net.Listen("tcp","0.0.0.0:8181")//端口
 	if err!=nil {
 		fmt.Print("监听失败=",err)
@@ -1641,23 +1924,707 @@ func main() {
 
 }
 //----http server
+
+func simpleHttp() {
+	http.HandleFunc("/bar", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+	})
+	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "测试, %q", html.EscapeString(r.URL.Path))
+	})
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
+	//http://localhost:8080/bar
+	//http://localhost:8080/test
+}
+
+
+
+
+func index(writer http.ResponseWriter, request *http.Request) { //debug时这个方法可能会因超时被重复调用
+	fmt.Println("---begin index")
+	var t = template.New("layout")
+	t = template.Must(t.ParseFiles("templates/index.html", "templates/private.navbar.html"))
+
+	data := struct {
+		Title string
+		Items []string
+	}{
+		Title: "My page",
+		Items: []string{
+			"My photos",
+			"My blog",
+		},
+	}
+	t.ExecuteTemplate(writer, "layout", data)
+	fmt.Println("---end index")
+}
+func login(writer http.ResponseWriter, request *http.Request) {
+	fmt.Println("---begin login")
+	var email = request.PostFormValue("email")
+	fmt.Println("email=", email)
+
+	cookie, err := request.Cookie("_session_id")
+	if cookie != nil && err == nil {
+		fmt.Println("_session_id=", cookie.Value)
+	} else {
+		cookie := http.Cookie{
+			Name:     "_session_id",
+			Value:    "123abc",
+			HttpOnly: true,
+		}
+		http.SetCookie(writer, &cookie) //响应头并没有Set-Cookie
+
+	}
+	writer.Write([]byte("cookie 保存了"))
+	//http.Redirect(writer, request, "index?id=123", 302) //客户端跳转带不了cookie?
+	fmt.Println("---end login")
+}
+
+func upload(w http.ResponseWriter, r *http.Request) {
+	var maxUploadSize int64 = 1024 * 1024 * 2 //2MB
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+		fmt.Println("---FILE_TOO_BIG")
+		panic(err)
+	}
+	var user_id = r.FormValue("user_id") //GET
+	fmt.Println("---user_id=", user_id)
+	fileType := r.PostFormValue("type")
+	file, _, err := r.FormFile("uploadFile")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	fileBytes, err := ioutil.ReadAll(file)
+
+	filetype := http.DetectContentType(fileBytes)
+	if filetype != "image/jpeg" && filetype != "image/jpg" &&
+		filetype != "image/gif" && filetype != "image/png" &&
+		filetype != "application/pdf" {
+		fmt.Println("INVALID_FILE_TYPE")
+		return
+	}
+
+	fileName := "my_file_name"
+	newPath := filepath.Join("d:/tmp", fileName)
+	fmt.Printf("FileType: %s, File: %s\n", fileType, newPath)
+	newFile, err := os.Create(newPath)
+
+	defer newFile.Close()
+	if _, err := newFile.Write(fileBytes); err != nil {
+		fmt.Printf("CANT_WRITE_FILE")
+		return
+	}
+	w.Write([]byte("SUCCESS"))
+}
+
+func downloadHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm() //解析url传递的参数，对于POST则解析响应包的主体（request body）
+	//注意:如果没有调用ParseForm方法，下面无法获取表单的数据
+	fileName := r.Form["filename"]            //filename  文件名
+	path := "d:/tmp/"                         //文件存放目录
+	fileNames := url.QueryEscape(fileName[0]) // 防止中文乱码
+	w.Header().Add("Content-Type", "application/octet-stream")
+	w.Header().Add("Content-Disposition", "attachment; filename=\""+fileNames+"\"")
+	//---
+	http.ServeFile(w, r, path+fileName[0])
+	//---
+	/*
+		file, err := os.Open(path + fileName[0])
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer file.Close()
+		content, err := ioutil.ReadAll(file)
+		if err != nil {
+			fmt.Println("Read File Err:", err.Error())
+		} else {
+			w.Write(content)
+		}
+	*/
+}
+func templateHttp() {
+
+	mux := http.NewServeMux()
+	files := http.FileServer(http.Dir("public"))                //相对当前文件的public目录放js,image等文件
+	mux.Handle("/static/", http.StripPrefix("/static/", files)) //请求static转到public目录
+	// http://localhost:8081/static/go-logo-blue.svg
+	mux.HandleFunc("/index", index)
+	mux.HandleFunc("/login", login)
+	mux.HandleFunc("/upload", upload)
+	mux.HandleFunc("/download", downloadHandler)
+	// http://localhost:8081/index
+	// http://localhost:8081/login
+	// http://localhost:8081/upload
+	//http://localhost:8081/download?filename=中文.txt  文件内容要为UTF-8
+	server := &http.Server{
+		Addr:           "0.0.0.0:8081",
+		Handler:        mux,
+		ReadTimeout:    time.Duration(3 * int64(time.Second)),
+		WriteTimeout:   time.Duration(2 * int64(time.Second)),
+		MaxHeaderBytes: 1 << 20,
+	}
+	server.ListenAndServe()
+}
+//---index.html
+{{ define "layout" }}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{.Title}}</title>
+  </head>
+  <body>
+    <div data_kind="top">
+      {{ template "navbar" . }}
+      <form action="login" method="post">
+         <input type="text" name="email"/>
+         <input type="submit" value="提交"></input>
+      </form> 
+    </div> 
+   
+  </body>
+</html>
+
+{{ end }}
+//---private.navbar.html
+{{ define "navbar" }}
+ 
+    <div  data_kind="content">
+      {{range .Items}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
+    </div>
+ 
+{{ end }}
+
+
+//---------https server
+http.HandleFunc("/bar", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
+	})
+server := http.Server{
+	Addr:    ":8080",
+	Handler: nil,
+}
+/*
+	openssl genrsa -out server.key 2048
+	set OPENSSL_CONF=D:\Application\OpenSSL-1.1.1h_win32\OpenSSL-1.1.1h_win32\openssl.cnf
+	openssl req -new -x509 -key server.key -out server.crt -days 3650
+	请求 https://127.0.0.1:8080 显示不安全
+*/
+err := server.ListenAndServeTLS("d:/tmp/server.crt", "d:/tmp/server.key")
+if err != nil {
+	panic(err)
+}
+
+//---------https client
+tr := &http.Transport{
+	TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+}
+client := &http.Client{Transport: tr}
+resp, err := client.Get("https://127.0.0.1:8080/bar")
+
+if err != nil {
+	fmt.Println("error:", err)
+	return
+}
+defer resp.Body.Close()
+body, err := ioutil.ReadAll(resp.Body)
+fmt.Println(string(body))
+
+
+//----------flag 命令行参数
+env := flag.String("env", "dev", "环境") //命令行启动，读参数
+pageSize := flag.Int("size", 30, "页大小")
+flag.Parse()
+fmt.Println("env=", *env, "size=", *pageSize)
+// go run src/arg_md5_regexp.go --help 显示参数是一个-,但如果参数过多，其实要用两个-
+//go run src/arg_md5_regexp.go -env=test -size=10
+//go run src/arg_md5_regexp.go --env=test --size=10
+//------md5
+myMd5 := md5.New()
+myMd5.Write([]byte("内容"))
+result := myMd5.Sum([]byte(""))
+fmt.Printf("result=%x", result)
+ 
+//---正则
+//reg := regexp.MustCompile(`(1{1}[0-9]{10}){1}`)
+reg := regexp.MustCompile(`(1[0-9]{10})+`)
+matched := reg.FindAllStringSubmatch("my phone 13012345678 in book,your is 18011112222", -1)
+fmt.Printf("matched=%v \n", matched) //%v	the value in a default format
+
+re := regexp.MustCompile(`a(x*)b`)
+fmt.Printf("%q\n", re.FindAllStringSubmatch("-ab-", -1))
+fmt.Printf("%q\n", re.FindAllStringSubmatch("-axxb-", -1))
+fmt.Printf("%q\n", re.FindAllStringSubmatch("-ab-axb-", -1))
+fmt.Printf("%q\n", re.FindAllStringSubmatch("-axxb-ab-", -1))
+
+
+
+//----------json
+//encoding/json 包性能比较低,ffjson (https://github.com/pquerna/ffjson) 性能高些,API使用是一样的
+array := [5]int{1, 2, 3, 4, 5}
+//array
+jsonByte, err := json.Marshal(array)
+if err != nil {
+	fmt.Println("error")
+	return
+}
+fmt.Println(string(jsonByte))
+//---map
+pair := make(map[string]float32)
+pair["age"] = 30
+jsonByte, err = json.Marshal(pair)
+if err != nil {
+	fmt.Println("error")
+	return
+}
+fmt.Println(string(jsonByte))
+//---struct 只有大写字母开头属性才会转换
+type Person struct {
+	Name     string `json:"fullName"` //定义输出名字
+	Birthday time.Time
+	Weight   float32
+}
+lisi := Person{
+	Name:     "lisi",
+	Birthday: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+	Weight:   70.5,
+}
+jsonByte, err = json.Marshal(lisi)
+if err != nil {
+	fmt.Println("error")
+	return
+}
+fmt.Println(string(jsonByte)) //{"fullName":"lisi","Birthday":"2009-11-10T23:00:00Z","Weight":70.5}
+var emptyInter interface{}
+json.Unmarshal(jsonByte, &emptyInter)
+fmt.Printf("unmashal=%v \n", emptyInter) //结果是一个Map
+//unmashal=map[Birthday:2009-11-10T23:00:00Z Weight:70.5 fullName:lisi]
+ 
+
+//----------context
+package main
+
 import (
+	"context"
 	"fmt"
-	"html"
-	"log"
-	"net/http"
+	"time"
 )
 
-http.HandleFunc("/bar", func(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-})
+func main() {
+	// 传递带有超时的上下文
+	// 告诉阻塞函数在超时结束后应该放弃其工作。
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+	select {
+	case <-time.After(1 * time.Second):
+		fmt.Println("overslept")
+	case <-ctx.Done():
+		fmt.Println(ctx.Err()) // 终端输出"context deadline exceeded"
+	}
+}
+//----------socket
+---tcp_server.go
+package main
 
-log.Fatal(http.ListenAndServe(":8080", nil))
-//http://localhost:8080/bar
+import (
+	"fmt"
+	"net"
+)
+
+//Go语言将 Non-Block + I/O多路复用 “复杂性”隐藏在Runtime中了
+//只需在每个连接对应的goroutine中以“block I/O”的方式对待socket处理即可
+func main() {
+	l, err := net.Listen("tcp", ":8888")
+	if err != nil {
+		fmt.Println("listen error:", err)
+		return
+	}
+
+	for {
+		conn, err := l.Accept() //会阻塞
+		defer conn.Close()
+		if err != nil {
+			fmt.Println("accept error:", err)
+			break
+		}
+
+		go handleConn(conn)
+	}
+}
+func handleConn(conn net.Conn) {
+	buf := make([]byte, 1024)
+	len, err := conn.Read(buf)
+	if err != nil {
+		fmt.Println("Read error:", err)
+		panic(err)
+	}
+	fmt.Println("readed :", string(buf[0:len]))
+
+}
+
+---tcp_clent.go
+package main
+
+import (
+	"fmt"
+	"net"
+	"time"
+)
+
+func main() {
+	conn, err := net.DialTimeout("tcp", ":8888", 2*time.Second)
+	if err != nil {
+		fmt.Println("connect error:", err)
+		return
+	}
+	defer conn.Close()
+	conn.Write([]byte("你好 from client"))
+}
 
 
+---模板  "html/template" ， "text/template"
+package main
+
+import (
+	"log"
+	"text/template"
+
+	//"html/template"
+	"os"
+)
+
+func main() {
+	//.代表传入的参数
+	t1, err := template.New("foo").Parse(`{{define "T"}}Hello, {{.}}!{{end}}`)
+	if err != nil {
+		panic(err)
+	} else {
+		err = t1.ExecuteTemplate(os.Stdout, "T", "<script>alert('you have been pwned')</script>")
+		//"html/template" 包结果对<做转义为&lt;
+		//"text/template" 包结果对<不做处理
+	}
+	//管道
+	t1, err = template.New("piple").Parse(`{{ 12.3456 | printf "%.2f"  }} `)
+	if err != nil {
+		panic(err)
+	} else {
+		err = t1.Execute(os.Stdout, "")
+	}
+	//with后面的要用双引号包起，表示这块区域的.表示这个值
+	t1, err = template.New("alias").Parse(`cat is {{.}}, {{ with "arg" }}  temp arg  is {{.}} {{end}} `)
+	if err != nil {
+		panic(err)
+	} else {
+		err = t1.Execute(os.Stdout, "cat")
+	}
+	//变量
+	t1, err = template.New("vari").Parse(`{{ range $key,$val:= . }} key= {{$key}} ,val={{$val}} {{end}} `)
+	if err != nil {
+		panic(err)
+	} else {
+		kvs := map[string]string{"a": "apple", "b": "banana"}
+		err = t1.Execute(os.Stdout, kvs)
+	}
+	//if 有某个变量  gt
+	t1, err = template.New("vari").Parse(`  
+	{{ if . }}
+      Number has value 
+    {{ else }}
+      Number is  empty
+	{{ end }} 
+	
+	{{if gt .Age 18}}
+	<p>hello, old man, {{.Name}}</p>
+	{{else}}
+	<p>hello,young man, {{.Name}}</p>
+	{{end}} 
+	`)
+	if err != nil {
+		panic(err)
+	} else {
+		type Person struct {
+			Name string
+			Age  int
+		}
+		p := Person{Name: "safly", Age: 30}
+		err = t1.Execute(os.Stdout, p)
+	}
+	//模板 自定义函数
+	funcMap := template.FuncMap{"fdate": formatDate} //自己的函数
+	tFunc := template.New("customFUnc").Funcs(funcMap)
+	tFunc, _ = tFunc.Parse("The date/time is {{ . | fdate }}")
+	tFunc.Execute(os.Stdout, time.Now())
 
 
+	/*block用类似于template语法的使用，但是不同的是block会有一个默认值，而template没有默认值
+	<body>{{block "content" .}}This is the default body.{{end}}</body>
+	如果你的content模板没有任何匹配的定义，将会显示默认的内容
+	*/
+	
+	const tpl = `
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="UTF-8">
+			<title>{{.Title}}</title>
+		</head>
+		<body>
+			{{range .Items}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
+		</body>
+	</html>`
+
+	check := func(err error) {
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	t, err := template.New("webpage").Parse(tpl)
+	check(err)
+
+	data := struct {
+		Title string
+		Items []string
+	}{
+		Title: "My page",
+		Items: []string{
+			"My photos",
+			"My blog",
+		},
+	}
+
+	err = t.Execute(os.Stdout, data)
+	check(err)
+
+	noItems := struct {
+		Title string
+		Items []string
+	}{
+		Title: "My another page",
+		Items: []string{},
+	}
+
+	err = t.Execute(os.Stdout, noItems)
+	check(err)
+
+	//--转义
+	const s = `"Fran & Freddie's Diner" <tasty@example.com>`
+	v := []interface{}{`"Fran & Freddie's Diner"`, ' ', `<tasty@example.com>`}
+
+	fmt.Println(template.HTMLEscapeString(s))
+	template.HTMLEscape(os.Stdout, []byte(s))
+	fmt.Fprintln(os.Stdout, "")
+	fmt.Println(template.HTMLEscaper(v...))
+
+	fmt.Println(template.JSEscapeString(s)) //& 变 \u开头，‘ 变 \' ，< 变 \u开头
+	template.JSEscape(os.Stdout, []byte(s))
+	fmt.Fprintln(os.Stdout, "")
+	fmt.Println(template.JSEscaper(v...)) //空格
+
+	fmt.Println(template.URLQueryEscaper(v...)) //%形式
+}
+//---------gob
+
+import (
+	"bytes"
+	"encoding/gob"
+	"fmt"
+	"io/ioutil"
+)
+
+type Post struct {
+	Id      int
+	Content string
+	Author  string
+}
+
+// store data
+func store(data interface{}, filename string) {
+	buffer := new(bytes.Buffer)
+	encoder := gob.NewEncoder(buffer)
+	err := encoder.Encode(data)
+	if err != nil {
+		panic(err)
+	}
+	err = ioutil.WriteFile(filename, buffer.Bytes(), 0600)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// load the data
+func load(data interface{}, filename string) {
+	raw, err := ioutil.ReadFile(filename)
+	if err != nil {
+		panic(err)
+	}
+	buffer := bytes.NewBuffer(raw)
+	dec := gob.NewDecoder(buffer)
+	err = dec.Decode(data)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+	post := Post{Id: 1, Content: "Hello World!", Author: "Sau Sheong"}
+	store(post, "d:/tmp/post1")
+	var postRead Post
+	load(&postRead, "d:/tmp/post1")
+	fmt.Println(postRead)
+}
+//----------csv
+package main
+
+import (
+	"encoding/csv"
+	"fmt"
+	"os"
+	"strconv"
+)
+
+type Post struct {
+	Id      int
+	Content string
+	Author  string
+}
+
+func main() {
+	// creating a CSV file
+	csvFile, err := os.Create("d:/tmp/posts.csv")
+	if err != nil {
+		panic(err)
+	}
+	defer csvFile.Close()
+
+	allPosts := []Post{
+		Post{Id: 1, Content: "Hello World!", Author: "Sau Sheong"},
+		Post{Id: 2, Content: "Bonjour Monde!", Author: "Pierre"},
+		Post{Id: 3, Content: "Hola Mundo!", Author: "Pedro"},
+		Post{Id: 4, Content: "Greetings Earthlings!", Author: "Sau Sheong"},
+	}
+
+	writer := csv.NewWriter(csvFile) //csv
+	for _, post := range allPosts {
+		line := []string{strconv.Itoa(post.Id), post.Content, post.Author}
+		err := writer.Write(line)
+		if err != nil {
+			panic(err)
+		}
+	}
+	writer.Flush()
+
+	// reading a CSV file
+	file, err := os.Open("d:/tmp/posts.csv")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file) //csv
+	reader.FieldsPerRecord = -1
+	record, err := reader.ReadAll()
+	if err != nil {
+		panic(err)
+	}
+
+	var posts []Post
+	for _, item := range record {
+		id, _ := strconv.ParseInt(item[0], 0, 0)
+		post := Post{Id: int(id), Content: item[1], Author: item[2]}
+		posts = append(posts, post)
+	}
+	fmt.Println(posts[0].Id)
+	fmt.Println(posts[0].Content)
+	fmt.Println(posts[0].Author)
+}
+
+
+-------zip
+package main
+
+import (
+	"archive/zip"
+	"bytes"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"os"
+)
+
+var zipFilePath = "d:/tmp/readme.zip"
+
+func main() {
+	writeZip()
+	readZip()
+}
+func writeZip() {
+
+	// Create a buffer to write our archive to.
+	buf := new(bytes.Buffer)
+
+	// Create a new zip archive.
+	w := zip.NewWriter(buf)
+
+	// Add some files to the archive.
+	var files = []struct {
+		Name, Body string
+	}{
+		{"readme.txt", "This archive contains some text files."},
+		{"gopher.txt", "Gopher names:\nGeorge\nGeoffrey\nGonzo"},
+		{"todo.txt", "Get animal handling licence.\nWrite more examples."},
+	}
+	for _, file := range files {
+		f, err := w.Create(file.Name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = f.Write([]byte(file.Body))
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// Make sure to check the error on Close.
+	err := w.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ioutil.WriteFile(zipFilePath, buf.Bytes(), os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+}
+func readZip() {
+	// Open a zip archive for reading.
+	r, err := zip.OpenReader(zipFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer r.Close()
+
+	// Iterate through the files in the archive,
+	// printing some of their contents.
+	for _, f := range r.File {
+		fmt.Printf("Contents of %s:\n", f.Name)
+		rc, err := f.Open()
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = io.CopyN(os.Stdout, rc, 40)
+		if err != nil && err != io.EOF {
+			log.Fatal(err)
+		}
+		rc.Close()
+		fmt.Println()
+	}
+}
+ 
 
 //-------nexus 私服 私有仓库
 https://help.sonatype.com/repomanager3
@@ -1709,6 +2676,34 @@ go list -m -json all
 go mod graph //打印模块依赖图
 go mod verify //校验依赖
 -----
+
+//----------log  
+import (
+	"io"
+	"log"
+	"os"
+) 
+func main() {
+	log.SetFlags(log.Llongfile | log.Lmicroseconds | log.Ldate)
+	log.Println("这是一条很普通的日志。")
+	v := "很普通的"
+	log.Printf("这是一条%s日志。\n", v)
+	//log.Fatalln("这是一条会触发fatal的日志。")//不会执行后面的代码
+	//log.Panicln("这是一条会触发panic的日志。")//不会执行后面的代码
+
+	//如何滚文件呢？
+	to, err := os.OpenFile("d:/tmp/go.log", os.O_WRONLY|os.O_APPEND, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	logger := log.New(io.MultiWriter(to, os.Stdout), "<Prodcut_module>", log.Lshortfile|log.Ldate|log.Ltime)
+	logger.Printf("这是一条%s日志。\n", v)
+}
+
+//----------mail
+ 
+---testing包 自动测试 ，go test 命令
+单元测试覆盖率
 
 
 

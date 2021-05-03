@@ -11,7 +11,7 @@ D: durability.
 或者配置mysql   的my.ini 
 或者“我的电脑”上点击右键－“属性”－“硬件”－“设备管理器”，然后点击“查看”，勾上“显示隐藏的设备”，然后在下面找到“beep”并双击，将其改成“不要在当前硬件配置文件中使用这个设备（停用）” 
 
- 
+
 ------------MySQL-8 windows zip 版
 my.ini
 
@@ -208,8 +208,39 @@ show variables like 'storage_engine'
 日志：vi /usr/local/mysql/var/[hostname].err
 
 
+------------MariaDB linux 版安装
 
---- linux 二进制安装 mysql-5.7.17   / 8
+mariadb-10.5.8-linux-systemd-x86_64
+bin目录很多mysql开头的命令都是链接到mariadb开头命令上
+
+mariadb 10.4版本可以兼容MySQL-5.7
+mariadb 10.5版本 和 MySQL-8 不兼容的地方如下
+https://mariadb.com/kb/en/incompatibilities-and-feature-differences-between-mariadb-105-and-mysql-80/
+说 not support the --initialize option. Use mysql_install_db
+
+./scripts/mysql_install_db  --user=mysql --datadir=/opt/mariadb-10.5.8-linux-systemd-x86_64/data  报 libaio.so.1 找不到 yum install libaio
+	不加datadir参数默认目录为/var/lib/mysql (可以看shell源码，或者echo 式debug)
+ 
+提示  root@localhost 没有密码
+还提示 如开机启动复制 ./support-files/mysql.server 文件到指定位置(也可不用它) 
+	看./support-files/mysql.server文件
+	提示 /etc/my.cnf, ~/.my.cnf  , 可以修改 basedir,datadir 
+	如不设置 basedir默认为/usr/local/mysql , datadir默认为/usr/local/mysql/data
+	提示复制 my_print_defaults 到 /usr/bin 才可./support-files/mysql.server start
+--my.cnf
+[mysql]
+default-character-set=utf8 
+[mysqld]
+default-storage-engine=INNODB
+character_set_server=UTF8MB4
+basedir =/opt/mariadb-10.5.8-linux-systemd-x86_64
+#目录事先存在
+datadir =/opt/mariadb-10.5.8-linux-systemd-x86_64/data
+ 
+mysql用户下启动(不能以root用户运行)
+bin/mysqld    --defaults-file=./my.cnf  
+  
+-------------linux 二进制安装 mysql-5.7.17   / 8
 mysql-8.0.18 二进制解压为tar 大小变2.6G
 
 
@@ -1044,7 +1075,7 @@ select *  into dumpfile '/tmp/myTable.dump' from myTable where id=1  -- 文件�
 --lock-tables=false   默认true , 为 insert 前加,LOCK TABLES myTable WRITE; 再insert完成后加UNLOCK TABLES;  可 --skip-lock-tables
  --add-locks  可--skip-add-locks 
  -B , --databases 
- --tables  会覆盖  --databases 
+ --tables  空格加参数 会覆盖  --databases 
  -A, --all-databases
  -d, --no-data  不要数据，只要表结构
 --ignore-table=db_name.tbl_name,db_name2.tbl_name2
@@ -1099,15 +1130,18 @@ myisam_356.sdi
 isam_tbl.MYI 是索引文件
 isam_tbl.MYD 是数据文件
 
+聚簇索引,   物理顺序和逻辑顺序是一致的,一个表只可有一个，默认主键
+非聚簇索引, 物理顺序和逻辑顺序没有必然联系
 
-聚簇索引,  数据和索引放在一起,innodb引擎,ibd文件就是聚簇索引文件,
-非聚簇索引,数据和索引不放在一起,myisam引擎
+innodb引擎,数据和索引放在一起,ibd文件就是聚簇索引文件,
+myisam引擎,数据和索引不放在一起,
+
 唯一索引 值可以为null，主键索引不能为null,一个表只可一个
 InnoDB是行级锁，
 MyIsam是表级锁
 
 SHOW ENGINES
-B+Tree数据只存放在叶子节点上，叉节点上的数据只用于查找分界用
+B+Tree 数据只存放在叶子节点上，叉节点上的数据只用于查找分界用
 所有叶节点具有相同的深度，等于树高
  
   
@@ -1289,6 +1323,17 @@ a.index_name,
 GROUP_CONCAT(column_name ORDER BY seq_in_index) AS `Columns`
 FROM information_schema.statistics a
 GROUP BY a.TABLE_SCHEMA,a.TABLE_NAME,a.index_name
+
+
+select 
+table_schema as '数据库',
+table_name as '表名',
+table_rows as '记录数',
+truncate(data_length/1024/1024, 2) as '数据容量(MB)',
+truncate(index_length/1024/1024, 2) as '索引容量(MB)'
+from information_schema.tables
+order by data_length desc, index_length desc; 
+
 
 
 --------- sys schema

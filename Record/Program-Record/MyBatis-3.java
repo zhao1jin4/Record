@@ -1073,6 +1073,32 @@ public class MyPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigur
 		return false;
 	}
 }
+
+springboot druid
+
+https://github.com/alibaba/druid/tree/master/druid-spring-boot-starter
+
+<dependency>
+   <groupId>com.alibaba</groupId>
+   <artifactId>druid-spring-boot-starter</artifactId>
+   <version>1.1.17</version>
+</dependency>
+
+spring.datasource.druid.url= # 或spring.datasource.url= 
+spring.datasource.druid.username= # 或spring.datasource.username=
+spring.datasource.druid.password= # 或spring.datasource.password=
+spring.datasource.druid.driver-class-name= #或 spring.datasource.driver-class-name=
+
+
+配置多数据源
+
+
+
+
+
+
+
+
 ----HikariCP 光 数据源
 Spring Boot 优先使用
 https://github.com/brettwooldridge/HikariCP

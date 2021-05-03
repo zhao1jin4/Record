@@ -2,120 +2,33 @@ https://developer.gnome.org/references  下有很多 Glib,GTK+ 3,GDK 3,libxml2,l
 https://developer.gnome.org/gtk3/stable/gtk-getting-started.html
 https://developer.gnome.org/gtk4/stable/  已经有GTK+ 4 library, version 3.94.0
 
+GTK 4 除了用C开发，还支持JavaScript 和 Rust
+
+zypper install gtk3-devel 软件包
+
 Eclipse只有GTK的,Firefox基于GTK
 
 gtkmm C++版的GTK SuSE Linux: 用 yast 安装 gtkmm3-devel.
 
 
-zh@linux-hlbo:~> pkg-config --cflags --libs gtk+-3.0
--pthread -I/usr/include/gtk-3.0 -I/usr/include/pango-1.0 -I/usr/include/gio-unix-2.0/ -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/freetype2 -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/libpng12 -I/usr/include/libpng14  -lgtk-3 -lgdk-3 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lcairo-gobject -lpango-1.0 -lcairo -lgobject-2.0 -lglib-2.0  
-zh@linux-hlbo:~> 
+> pkg-config --cflags --libs gtk+-3.0
+-pthread -I/usr/include/gtk-3.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib64/dbus-1.0/include -I/usr/include/gtk-3.0 -I/usr/include/gio-unix-2.0 -I/usr/include/libxkbcommon -I/usr/include/wayland -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/fribidi -I/usr/include/harfbuzz -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/uuid -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -lgtk-3 -lgdk-3 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0
  
-
-.cproject中的部分
-
- <option id="gnu.cpp.compiler.option.include.paths.1611167307" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-        <listOptionValue builtIn="false" value="/usr/include/gtk-3.0"/>
-        <listOptionValue builtIn="false" value="/usr/include/libpng14"/>
-        <listOptionValue builtIn="false" value="/usr/include/pango-1.0"/>
-        <listOptionValue builtIn="false" value="/usr/include/gio-unix-2.0"/>
-        <listOptionValue builtIn="false" value="/usr/include/atk-1.0"/>
-        <listOptionValue builtIn="false" value="/usr/include/cairo"/>
-        <listOptionValue builtIn="false" value="/usr/include/gdk-pixbuf-2.0"/>
-        <listOptionValue builtIn="false" value="/usr/include/freetype2"/>
-        <listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
-        <listOptionValue builtIn="false" value="/usr/lib64/glib-2.0/include"/>
-        <listOptionValue builtIn="false" value="/usr/include/pixman-1"/>
-        <listOptionValue builtIn="false" value="/usr/include/libpng12"/>
-</option>	
-
-...
-
-<option id="gnu.cpp.link.option.libs.1129858520" superClass="gnu.cpp.link.option.libs" valueType="libs">
-        <listOptionValue builtIn="false" value="gtk-3"/>
-        <listOptionValue builtIn="false" value="gdk-3"/>
-        <listOptionValue builtIn="false" value="atk-1.0"/>
-        <listOptionValue builtIn="false" value="gio-2.0"/>
-        <listOptionValue builtIn="false" value="pangocairo-1.0"/>
-        <listOptionValue builtIn="false" value="gdk_pixbuf-2.0"/>
-        <listOptionValue builtIn="false" value="cairo-gobject"/>
-        <listOptionValue builtIn="false" value="pango-1.0"/>
-        <listOptionValue builtIn="false" value="cairo"/>
-        <listOptionValue builtIn="false" value="gobject-2.0"/>
-        <listOptionValue builtIn="false" value="glib-2.0"/>
-</option>
-
-
----win64 下 gtk+bundle_3.6.4-20131201_win64
+eclipse CDT 插件 可以编辑  .cproject 文件中 批量增加 -I 和 -l
+ 
+===========win64 下 gtk+bundle_3.6.4-20131201_win64
 gtk+bundle_3.6.4-20131201_win64\bin 放入PATH环境变量
 
 pkg-config --cflags --libs gtk+-3.0 去除重复的
-
--mms-bitfields 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/gtk-3.0 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/cairo 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/pango-1.0 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/atk-1.0 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/pixman-1 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/freetype2 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/gdk-pixbuf-2.0 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/libpng15 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/glib-2.0 
--IC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/lib/glib-2.0/include 
--LC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/lib
--lgtk-3 -lgdk-3 -lgdi32 -limm32 -lshell32 -lole32 -Wl,-luuid -lpangocairo-1.0 -lpangoft2-1.0 -lfreetype -lfontconfig -lpangowin32-1.0   -lpango-1.0 -lm -latk-1.0 -lcairo-gobject -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 -lintl
-
-加多加的 
-C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/lib/glib-2.0/include
-
-------eclipse 配置 
-
--mms-bitfields  
--Wl,-luuid   
--LC:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/lib
-
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/gtk-3.0"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/libpng15"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/pango-1.0"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/atk-1.0"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/cairo"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/gdk-pixbuf-2.0"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/freetype2"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/glib-2.0"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/lib64/glib-2.0/include"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/include/pixman-1"/>
-<listOptionValue builtIn="false" value="C:/My/soft_ware/c++/gtk+bundle_3.6.4-20131201_win64/lib/glib-2.0/include"/>
+===========
 
 
-<listOptionValue builtIn="false" value="gtk-3"/>
-<listOptionValue builtIn="false" value="gdk-3"/>
-<listOptionValue builtIn="false" value="gdk_pixbuf-2.0"/>
-<listOptionValue builtIn="false" value="atk-1.0"/>
-<listOptionValue builtIn="false" value="glib-2.0"/>
-<listOptionValue builtIn="false" value="gio-2.0"/>
-<listOptionValue builtIn="false" value="gobject-2.0"/>
-<listOptionValue builtIn="false" value="pango-1.0"/>
-<listOptionValue builtIn="false" value="pangocairo-1.0"/>
-<listOptionValue builtIn="false" value="pangoft2-1.0"/>
-<listOptionValue builtIn="false" value="m"/>
-<listOptionValue builtIn="false" value="intl"/>
-<listOptionValue builtIn="false" value="freetype"/>
-<listOptionValue builtIn="false" value="fontconfig"/>
-<listOptionValue builtIn="false" value="cairo"/>
-<listOptionValue builtIn="false" value="cairo-gobject"/>
-<listOptionValue builtIn="false" value="gdi32"/>
-<listOptionValue builtIn="false" value="shell32"/>
-<listOptionValue builtIn="false" value="ole32"/>
-<listOptionValue builtIn="false" value="imm32"/> 
-
----------------
 gtk3-demo 命令  有示例代码, 双击列表项可以运行,代码也有很多编译时提示deprecate
 gtk3-demo-application	一个小应用
 gtk3-widget-factory		所有的组件界面
 
-glade-3.x 有win32/Mac 版本的二进制文件,用于UI设计
+glade-3.x 是Gnome的项目 ，有win32/Mac 版本的二进制文件,用于UI设计
+Anjuta  是 Gnome 的集成开发环境
 
  
 #include<stdlib.h>

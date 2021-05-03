@@ -955,6 +955,15 @@ ar工具来维护、管理静态库，我们就不需要考虑这一步 ,不要m
 对于一个双后缀规则的目标“.x.a”，经过make转换后会产生两个模式规则：“(%.o): %.x” 和“%.a: %.x”。
 
 
+----makefile 示例 检查操作系统
+ifeq ($(OS),Windows_NT)
+	RM=del
+else
+	RM=rm
+endif 
+.PHONY: clean
+clean: 
+	$(RM) *.html
 
 
 ---------------------automake ,autoconf

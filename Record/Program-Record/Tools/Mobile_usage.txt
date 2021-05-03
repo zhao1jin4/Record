@@ -19,8 +19,24 @@ firefox到  /download
 百度商店下载目录/baidu/AppSearch/downloads
 小米商店下载目录 /MiMarket/files/
 
-截图目录 /DCIM/Screeshots/
-        /DCIM/Camera/
+
+截图  音量减小键和电源键同时按  <手机存储根>/Pictures/Screenhost  目录 
+拍照   /DCIM/Camera/
+录音   record
+
+		
+tencent/QQfile_recv
+tencent/MobileQQ
+
+tencent/MicroMsg
+
+微信附件保存在
+/storage/emulated/0/Android/data/com.tencent.mm/MicroMsg/Download
+
+
+
+QQ  备份聊天记录(复制tencent 目录,再恢复时QQ可以恢复)
+	复制tencent 目录,再恢复,微信不行,MicroMsg生成了新的UID
 
 
 金山词霸注册同步到云
@@ -28,10 +44,6 @@ firefox到  /download
 备份联系人(android自带功能),NoteEverything
 时钟,日历重设,浏览器收藏夹
 
-QQ 微信 备份聊天记录(复制tencent 目录,再恢复时QQ可以恢复,但微信不行,MicroMsg生成了新的UID)
-
-
-截图  音量减小键和电源键同时按  <手机存储根>/Pictures/Screenhost  目录
 
 去拍照声音,进入/system/media/audio/ui目录,将里面的文件camera_click.ogg 改名或者删掉 ,VideoRecord.ogg 是录像开始,VideoRecordEnd.ogg是录像结束
 去对焦声音  

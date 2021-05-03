@@ -145,6 +145,19 @@ newgrp docker
 
 docker run hello-world 就可以不用root了
  
+ 
+ 
+ 
+-----docker安装后默认  Cgroup Driver是 cgroupfs 可以用 docker info | grep Cgroup 看
+vi /etc/docker/daemon.json (没有该文件就新建一个） 
+
+{
+  "exec-opts": ["native.cgroupdriver=systemd"]
+}
+
+systemctl restart docker
+ 
+ 
 
 --windows 10 版本使用  Hyper-V ,只用于开发 
 启用Hyper-V, 开始->  Settings->Apps->related setting 组下的programs and features 打开win7式的窗口->turn  windows feature of or off 复选Hyper-V
@@ -198,7 +211,8 @@ docker run -d -p 4000:5000 training/webapp python app.py   小p指定端口
 docker port <CONTAINER ID>或<NAMES> 查看端口
 docker top <CONTAINER ID>或<NAMES>  容器内部运行的进程
 docker restart <NAMES/CONTAINER ID列的值>
-docker stats <CONTAINER ID>或<NAMES>   对CPU的占用
+docker stats 
+docker stats <CONTAINER ID>或<NAMES>   对CPU,内存,网络，磁盘，PIDS列进程线程数
 docker inspect <CONTAINER ID>或<NAMES>   会返回一个 JSON 文件记录着 Docker 容器的配置和状态信息
 
 
@@ -468,13 +482,63 @@ systemctl restart docker
 
 docker -H --host 默认本机的/var/run/docker.sock
 
+
 修改docker服务可以被远程连接 
-要求/usr/lib/systemd/system/docker.service 中ExecStart 不能有 -H选项，如有去除后要 systemctl daemon-reload
+------docker 远程连接  服务端  
+要求/usr/lib/systemd/system/docker.service 中ExecStart 不能有 -H选项，如有去除后要 systemctl daemon-reload(可能无效)
 /etc/docker/daemon.json
 {
 "hosts":["tcp://0.0.0.0:2375","unix:///var/run/docker.sock"]
 }
 
+------docker 远程连接  客户端
+docker context  ls
+	有一个名为 default 旁边有 * 表示当前使用的， 提示 DOCKER_HOST 值为 unix:///var/run/docker.sock  
+docker context inspect default 
+ 
+docker -c default image ls
+	  -c, --context  就是上面的 default
+
+docker -c default image ls
+
+ 
+docker -H 127.0.0.1:2375  image ls
+docker -H remote-pc:2375  image ls  测试OK
+	  -H, --host 
+
+docker context create docker-test \
+  --default-stack-orchestrator=swarm \
+  --docker host=unix:///var/run/docker.sock
+
+
+存在 ～/.docker/contexts/meta/<UUID>/meta.json ，默认的是没有存在这里的
+
+这个未测试?
+ docker context create k8s-test \
+  --default-stack-orchestrator=kubernetes \
+  --kubernetes config-file=～/.kube/config \
+  --docker host=unix:///var/run/docker.sock
+
+docker context create remote-docker \
+  --default-stack-orchestrator=swarm \
+  --docker host=tcp://remote-pc:2375
+  
+#docker context rm remote-docker 
+docker -c remote-docker image ls 测试成功
+docker context use remote-docker 
+ 
+
+
+
+export DOCKER_CONTEXT=remote-docker 测试成功   ，后再 docker context  ls 显示 * 变以了,default值没有变
+export DOCKER_HOST=tcp://remote-pc:2375 测试成功 ，后再 docker context  ls 显示 default 值变以了
+
+docker context export remote-docker 
+提示生成了 "remote-docker.dockercontext" 文件
+
+docker context import remote-docker2  remote-docker.dockercontext
+ 
+------
  
 
 docker network create -d bridge --subnet "172.26.0.0/24" --gateway "172.26.0.1" docker_br0

@@ -1,5 +1,8 @@
 http://www.open-std.org/jtc1/sc22/wg21/   The C++ Standards Committee
 Ritchie 研制的C语言
+
+C/C++ 可以开发 WebAssembly (wasm)
+
 ============C/C++基础
 
 int max(x,y) //函数声明无参数类型
@@ -1558,6 +1561,7 @@ len=sizeof(int *);//VC2012中指针,32位时=4,64位时=8
 ==========C11 / C++11 
 https://gcc.gnu.org/projects/cxx0x.html
 -std=c++11
+
 //-----------友元是模板
 template<class W>
 class Q
@@ -1673,14 +1677,14 @@ g++ -std=c++17
     -std=gnu++17  启用GNU扩展特性
 
 
-========== C++2a 
-gcc 8 以后 还是 experimental 还是实验阶段
+========== C++20   验验阶段
+-std=gnu++2a
+ 
 
--std=c++2a 
--std=gnu++2a  启用GNU扩展特性
+========== C++23  验验阶段
+GCC 11
 
-
-
+C++23 features that do not reflect the final standard
 
 ========== boost   C++ 标准库,MySQL有使用这个库
 

@@ -1748,7 +1748,11 @@ import org.apache.commons.logging.LogFactory;
 Log logger = LogFactory.getLog(XXX.class);
 
 -------------------------------commons codec 
-
+<dependency>
+    <groupId>commons-codec</groupId>
+    <artifactId>commons-codec</artifactId>
+    <version>1.15</version>
+</dependency>
 import org.apache.commons.codec.digest.DigestUtils;
 
 byte[] data="hello".getBytes(Charset.forName("UTF-8"));
@@ -2621,6 +2625,70 @@ org.quartz.dataSource.myDS.password: user1
 org.quartz.dataSource.myDS.maxConnections: 5
 org.quartz.dataSource.myDS.validationQuery=select 1
 
+--------------------------------xxl 项目 国产的
+xxl-job 定时任务带web管理界面的，大众点评使用
+
+https://www.xuxueli.com/
+下载项目源码，导入开发工具
+
+ /xxl-job/doc/db/tables_xxl_job.sql  是MySQL脚本
+ /xxl-job/xxl-job-admin/src/main/resources/application.properties 设置数据库连接，报警邮箱
+ 
+ 启动  xxl-job-admin (调度中心)项目 依赖于xxl-job-core
+ http://localhost:8080/xxl-job-admin   默认登录账号 “admin/123456”, 前端使用bootstrap开发的
+ 
+ 
+ 
+ 
+ 
+ 
+“执行器”项目：xxl-job-executor-sample-springboot
+			  xxl-job-executor-sample-frameless (是没有springboot框架的)
+ 
+ 作用：负责接收“调度中心”的调度并执行；可直接部署执行器，也可以将执行器集成到现有业务项目中。
+   <dependency>
+		<groupId>com.xuxueli</groupId>
+		<artifactId>xxl-job-core</artifactId>
+		<version>2.3.0</version>
+	</dependency>
+	
+/xxl-job/xxl-job-executor-samples/xxl-job-executor-sample-springboot/src/main/resources/application.properties
+
+### 调度中心部署跟地址 [选填]：如调度中心集群部署存在多个地址则用逗号分隔。执行器将会使用该地址进行"执行器心跳注册"和"任务结果回调"；为空则关闭自动注册；
+xxl.job.admin.addresses=http://127.0.0.1:8080/xxl-job-admin
+
+#同一个执行器集群内appname需要保持一致
+xxl.job.executor.appname=xxl-job-executor-sample  
+#本机的外网地址
+xxl.job.executor.ip=
+
+
+启动
+
+
+项目中使用下面代码，界面中建立任务，Bean模式，输入 demoJobHandler
+
+/**
+ * 1、简单任务示例（Bean模式）
+ */
+@XxlJob("demoJobHandler")
+public void demoJobHandler() throws Exception {
+	XxlJobHelper.log("XXL-JOB, Hello World.");
+
+	for (int i = 0; i < 5; i++) {
+		XxlJobHelper.log("beat at:" + i);
+		TimeUnit.SECONDS.sleep(2);
+	}
+	// default success
+}
+
+
+
+
+
+
+
+
 
 
 ---------------------------------Netty 4
@@ -2643,36 +2711,13 @@ jdk8是可以的，但jdk11启动示例报错
 
 new NioEventLoopGroup(1);//线程数，每个NioEventLoopGroup有一个selector
 
-ChannelPipeline 是Handler （使用ChannelHandlerContext来串起来）的集合
+ChannelPipeline 是 Handler （使用ChannelHandlerContext来串起来）的集合
 
  .option(ChannelOption.SO_BACKLOG, 100) //连接时 当服务端的线程池用完，用来设置队列的大小
  .childOption(ChannelOption.SO_KEEPALIVE,true)
  
- 	SimpleChannelInboundHandler
- extends ChannelInboundHandlerAdapter { //In是读，对应的有Out
- 	//一般要重写这几个方法
-  	@Override
-    public void channelActive(ChannelHandlerContext ctx) {
-        //  ctx.writeAndFlush(firstMessage);//客户端用
-    }
 
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-        ctx.write(msg);
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) {
-       ctx.flush();
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { 
-        cause.printStackTrace();
-        ctx.close();
-    }
- }
-
+ 
 
 Bootstrap 用于客户端 group函数要1个参数
 
@@ -2683,6 +2728,149 @@ ByteBuf ,可用 Unpooled.copiedBuffer("测试".getBytes(CharsetUtil.UTF_8))
 
 ChannelHandlerContext .writeAndFlush()
 
+
+
+
+
+
+ 
+public final class MyClient {
+
+    static final String HOST = System.getProperty("host", "127.0.0.1");
+    static final int PORT = Integer.parseInt(System.getProperty("port", "8007"));
+    static final int SIZE = Integer.parseInt(System.getProperty("size", "256"));
+
+    public static void main(String[] args) throws Exception {
+        EventLoopGroup group = new NioEventLoopGroup();
+        try {
+            Bootstrap b = new Bootstrap();//用于客户端
+            b.group(group)
+             .channel(NioSocketChannel.class)
+             .option(ChannelOption.TCP_NODELAY, true)
+             .handler(new ChannelInitializer<SocketChannel>() {
+                 @Override
+                 public void initChannel(SocketChannel ch) throws Exception {
+                     ChannelPipeline p = ch.pipeline();
+                     p.addLast(new LineBasedFrameDecoder (1024));//一行最多1024个
+                     //LengthFieldBasedFrameDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength) 基于数据包长度的拆包器 ,应用层协议中包含数据包的长度
+                      //new LengthFieldBasedFrameDecoder(1024,0,4,0,4)//表示接受的数据中没有长度信息
+                      
+                     //FixedLengthFrameDecoder 每个应用层数据包的都拆分成都是固定长度的大小，比如 1024字节。
+                     p.addLast(new MyClientHandler()); 
+                 }
+             });
+
+            // Start the client.
+            ChannelFuture f = b.connect(HOST, PORT).sync();
+
+           // f.channel().writeAndFlush("client 写消息");
+           // f.channel().writeAndFlush("\r\n"); 
+            
+            // Wait until the connection is closed.
+            f.channel().closeFuture().sync();
+        } finally {
+            // Shut down the event loop to terminate all threads.
+            group.shutdownGracefully();
+        }
+    }
+}
+
+public class MyClientHandler extends ChannelInboundHandlerAdapter {
+	//In是读，对应的有ChannelOutboundHandlerAdapter 
+	//一般要重写这几个方法
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) {
+       String line="\r\n";
+       for(int i=0;i<50;i++)//连接发可能粘包,如用LineBasedFrameDecoder
+        {
+            ctx.writeAndFlush(Unpooled.copiedBuffer(("客户测试消息"+i+line).getBytes(CharsetUtil.UTF_8)));
+        }
+    } 
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+       // ctx.write(msg);
+//    	ctx.channel().writeAndFlush("aa"); 
+    	ByteBuf buf=(ByteBuf)msg;
+    	System.out.println("客户收到："+buf.toString(CharsetUtil.UTF_8));
+    } 
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+       ctx.flush();
+    } 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        // Close the connection when an exception is raised.
+        cause.printStackTrace();
+        ctx.close();
+    }
+}
+
+
+public final class MyServer {
+
+    static final int PORT = Integer.parseInt(System.getProperty("port", "8007"));
+
+    public static void main(String[] args) throws Exception {
+        // Configure the server.
+        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        try {
+            ServerBootstrap b = new ServerBootstrap();//用于服务端 group函数要两个参数
+            b.group(bossGroup, workerGroup)//两个线程组
+             .channel(NioServerSocketChannel.class)
+             .option(ChannelOption.SO_BACKLOG, 100) //连接时 当服务端的线程池用完，用来设置队列的大小
+             .childOption(ChannelOption.SO_KEEPALIVE,true)
+             .handler(new LoggingHandler(LogLevel.INFO))
+             .childHandler(new ChannelInitializer<SocketChannel>() {
+                 @Override
+                 public void initChannel(SocketChannel ch) throws Exception {
+                     ChannelPipeline p = ch.pipeline();
+                     p.addLast(new LineBasedFrameDecoder (1024));//一行最多1024个
+                     p.addLast(new MyServerHandler());
+                 }
+             });
+
+            // Start the server.
+            ChannelFuture f = b.bind(PORT).sync();
+            
+            System.out.println("server started");
+            
+            // Wait until the server socket is closed.
+            f.channel().closeFuture().sync();
+        } finally {
+            // Shut down all event loops to terminate all threads.
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+        }
+    }
+}
+
+public class MyServerHandler extends ChannelInboundHandlerAdapter {//In是读， 对应的有Out
+ 	//一般要重写这几个方法
+	@Override
+    public void channelActive(ChannelHandlerContext ctx) {
+//        ctx.writeAndFlush(firstMessage);//客户端用
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    	ByteBuf buf=(ByteBuf)msg;
+    	System.out.println("服务收到："+buf.toString(CharsetUtil.UTF_8)); 
+//        ctx.write(msg);
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) {
+//        ctx.flush();
+    	ctx.writeAndFlush(Unpooled.copiedBuffer("服务测试消息".getBytes(CharsetUtil.UTF_8)));
+      }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
+    }
+}
 
 
 
@@ -2811,6 +2999,16 @@ SURF (Speeded Up Robust Features, 加速稳健特征) 实现
 
 openCV , Android人脸识别 (Face++)
 openSURF  基于 OpenCV
+
+------------hutool
+https://gitee.com/dromara/hutool
+国产的    Java工具类库
+
+hutool-extra 有二维码识别  基于Zxing的二维码工具类
+	byte[] bytes=cn.hutool.extra.qrcode.QrCodeUtil.generatePng(content, width, height);
+
+hutool-captcha 	图片验证码实现
+hutool-bloomFilter 	布隆过滤
 
 ---------------------------------Ehcache 2.9
 
@@ -3420,14 +3618,18 @@ redis_password=overP_
 
 
 --------- RESTEasy
+
+
+
 <dependency>
     <groupId>org.jboss.resteasy</groupId>
     <artifactId>resteasy-jaxrs</artifactId>
     <version>3.8.1.Final</version>
-</dependency> 
+</dependency>  
 <dependency>
 	<groupId>org.jboss.spec.javax.ws.rs</groupId>
 	<artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
+	 <version>1.0.3.Final</version>
 </dependency>
         
 <dependency>
@@ -3446,6 +3648,17 @@ jettison-1.3.3.jar (org/codehaus/jettison/jettison/1.3.3)
 
 
 #新版本测试也可 
+ <dependency>
+  <groupId>org.jboss.resteasy</groupId>
+  <artifactId>resteasy-core</artifactId>
+  <version>4.6.0.Final</version>
+</dependency>
+<dependency>
+  <groupId>org.jboss.resteasy</groupId>
+  <artifactId>resteasy-core-spi</artifactId>
+  <version>4.6.0.Final</version>
+</dependency>
+	
 resteasy-core-4.1.1.Final.jar 
 resteasy-core-spi-4.1.1.Final.jar
 microprofile-config-api-1.3.jar
@@ -3515,12 +3728,22 @@ public class MyApplication extends Application {
 }
 
 
+---Swagger CodeGen 3.x 
 
--------------Swagger 
+<dependency>
+  <groupId>io.swagger.codegen.v3</groupId>
+  <artifactId>swagger-codegen-cli</artifactId>
+  <version>3.0.4</version>
+</dependency>
+
+java -jar swagger-codegen-cli-3.0.4.jar generate   -i http://petstore.swagger.io/v2/swagger.json -l java   -o /var/tmp/java_api_client
+是生成客户端代码,使用okhttp 和　google的gson
+
+-------------Swagger  
 类似的有 RAML(RESTful API Modeling Language)
 
 新版本使用OpenAPI
-OpenAPI最新 3.0 版本 OpenAPI Specification (OAS)
+OpenAPI最新 3.0 版本 OpenAPI Specification (OAS)  可以用YAML或JSON编写 JAX-RS (CXF) 
 有用 OAuth2
 
 ---Swagger-Core
@@ -3537,7 +3760,32 @@ javax.ws.rs.sse包(Server Send Event)是JAX-RS 2.1的功能
 
 swagger-jersey2-jaxrs.jar 包 支持 JAX-RS 2.0
 
+<!-- 因jdk11版本删 javax.xml.bind ,javax.ws.rs, javax/activation/DataSource -->  
+<dependency>
+  <groupId>org.jboss.spec.javax.xml.bind</groupId>
+  <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
+  <version>2.0.1.Final</version>
+</dependency>
+ 
+<dependency>
+  <groupId>org.jboss.spec.javax.ws.rs</groupId>
+  <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
+  <version>2.0.1.Final</version> 
+</dependency>
+<dependency>
+  <groupId>org.jboss.resteasy</groupId>
+  <artifactId>resteasy-jaxb-provider</artifactId>
+  <version>4.6.0.Final</version>
+</dependency>
 
+<dependency>
+  <groupId>javax.activation</groupId>
+  <artifactId>activation</artifactId>
+  <version>1.1.1</version>
+</dependency>
+	 
+
+- 
  
  <dependency>
       <groupId>io.swagger.core.v3</groupId>
@@ -3556,7 +3804,7 @@ swagger-jersey2-jaxrs.jar 包 支持 JAX-RS 2.0
     <version>4.8.43</version>
 </dependency>
 
-------swagger 2.0.8  OAS-3.0 deps   可以和 swagger1 一起用
+------swagger 2.0.8  OAS-3.0 deps    
 jboss-logging-3.3.0.Final.jar
 commons-lang3-3.5.jar
 jackson-dataformat-yaml-2.9.5.jar 
@@ -3643,20 +3891,7 @@ Accept : application/json 返回json
 Accept : application/xml 返回xml 
 
 http://127.0.0.1:8080/J_ThirdLibWeb/sample/pet/1
-
-//测试下来，这个没用？？？？
-@Provider
-public class SampleExceptionMapper implements ExceptionMapper<Exception> {
-}
-//好像没有什么用
-@Provider
-public class JsonProvider implements ContextResolver<ObjectMapper> {
-}
-
-
---- Swagger-Inflector
-Mock responses for any unimplemented methods, based on your OAS definition.
-
+ 
 ---- swagger-editor
 下载源码 v3.6.31  2019-07-24
 
@@ -3676,9 +3911,29 @@ docker pull swaggerapi/swagger-editor
 docker run -d -p 80:8080 swaggerapi/swagger-editor
 
 ---swagger-ui
-源码 版本v3.23.1  2019-07-24
 
 
+
+-------------Swagger-UI 3.x  OpenAPI-3.x  
+https://github.com/swagger-api/swagger-ui   (v3.20.6) 下载项目把dist目录里的东西复制到项目里  
+http://localhost:8080/M_SwaggerWeb/swagger-ui-v2/swagger-ui-dist/index.html 
+最上方地址中输入	http://localhost:8080/M_SwaggerWeb/sample/openapi.json -> explorer 会显示出信息
+	增加一个sample.json 文件 
+	http://localhost:8080/M_SwaggerWeb/swagger-ui-v2/swagger-ui-dist/sample.json
+ 
+为了记住地址，可修改index.html中的 url: "https://petstore.swagger.io/v2/swagger.json" 为这个地址
+
+
+<dependency>
+	<groupId>org.webjars</groupId>
+	<artifactId>swagger-ui</artifactId>
+	<version>3.47.1</version>
+</dependency>
+jar包中的/META-INF/resources/目录下
+http://localhost:8080/M_SwaggerWeb/webjars/swagger-ui/3.47.1/index.html
+
+	
+源码 版本v3.23.1  2019-07-24 
 --- 方式1  测试OK
 npm init 
 npm install swagger-ui-dist --save
@@ -3696,7 +3951,9 @@ app.listen(3000)
 
 启动服务 node swagger-ui-server.js 就可仿问  http://127.0.0.1:3000/
 但不可在Explore地栏写系统路径,
-如输入 http://127.0.0.1:8080/J_ThirdLibWeb/my-swagger-ui/swagger.json 报 cross-origin (CORS) 响应头要求加 'Access-Control-Allow-*' 
+如输入 http://127.0.0.1:8080/M_SwaggerWeb/my-swagger-ui/swagger.json 报 cross-origin (CORS) 响应头要求加 'Access-Control-Allow-*' 
+ 
+
 
 写个通用的Filter
  res.addHeader("Access-Control-Allow-Origin", "*");
@@ -4439,6 +4696,41 @@ public static void batchUpdate(DataSource datasource) throws Exception {
 	}
 }
  
+--------------CNCF Fluentd Java Client
+
+有Java版本，但没有Go
+https://github.com/fluent/fluent-logger-java
+
+ <dependency>
+    <groupId>org.fluentd</groupId>
+    <artifactId>fluent-logger</artifactId>
+    <version>0.3.4</version>
+  </dependency>
+fluent-logger-0.3.4.jar
+	msgpack-0.6.8.jar
+	
+import org.fluentd.logger.FluentLogger; 
+
+//连接本机，这个应该只调用一次
+//	private static FluentLogger LOG = FluentLogger.getLogger("debug"); //这个是tagPrefix 
+// 如是连接远程
+private static FluentLogger LOG = FluentLogger.getLogger("debug", "127.0.0.1", 24224);
+
+ public static void main (String ...args) {
+     // ...
+     Map<String, Object> data = new HashMap<String, Object>();
+     data.put("from", "userA");
+     data.put("to", "userB");
+     LOG.log("test", data);//第一个参数是tag ,不太容易定位到类(传this反射可做)的某个方法多少行上，
+    //FluentLogger.close();
+        /* 对应配置为 
+				<match debug.**>
+				  @type stdout
+				  @id stdout_output
+				</match> 
+	         */
+	         
+ }
 
 -------------akka
 

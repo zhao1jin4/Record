@@ -234,6 +234,9 @@ $.ajax({
 	url:root+"/jQueryAjaxJsonList",
    dataType:"json",//返回是json
    data: "one=一",
+   headers :{
+		openId:'123abc'
+	},
    success: function(json)
    {
 		$(json).each(function(i)//里每个是对象返回数组的index

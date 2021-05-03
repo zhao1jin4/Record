@@ -1,11 +1,15 @@
-﻿
+﻿==========C 处理json（DB返回数据做转换）
 ===========C 连接 MongoDB
 
 =========== Redis C client  hiredis 
 
 
-===========C连接MySQL Select
-#include <windows.h>
+===========C连接MySQL Select 
+g++ -o mysql_conn C_MySQLSelect_OK.C  -I ~/mysql-8.0.18-linux-glibc2.12-x86_64/include/ -L ~/mysql-8.0.18-linux-glibc2.12-x86_64/lib/  -l mysqlclient
+运行就找不到库 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/mysql-8.0.18-linux-glibc2.12-x86_64/lib  就可以了
+
+
+//#include <windows.h>
 //如是运行在windows 下MinGW还要加windows.h,//如是运行在windows 下MinGW还要加windows.h,对于libmysql.dll使用-l libmysql或者-lmysql,对于libmysql.lib只能使用-llibmysql,测试成功
 
 //---C++连接Mysql Fedora-9成功,RedhatEL5成功----sparc-solaris 9 失败

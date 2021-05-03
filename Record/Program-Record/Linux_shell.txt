@@ -34,7 +34,7 @@ xxx
 
 alias ll='ls -l' 定义别名  #####  在=左右不要有空格
 
-$HOME/.bashrc 中定义别名
+$HOME/.bashrc 中定义别名  (/etc/bashrc,/etc/profile)
 
 ``中的字串当命令
 

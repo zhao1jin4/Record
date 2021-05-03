@@ -1855,20 +1855,23 @@ var person=prompt("请输入你的名字","李四");
 
 //myDiv.style.cssText;显示所有有值的CSS
  
-
+websocket可以跨域 
 if ("WebSocket" in window)
   {
 	 alert("WebSocket is supported by your Browser!");
 	  var ws = new WebSocket("ws://localhost:8080/J_AjaxServer/webSocket");//tomcat支持
 	 ws.onopen = function()
 	 {
-		ws.send("Message to send");
+		ws.send("Message to send"); 
 		alert("Message is sent...");
 	 };
 	 ws.onmessage = function (evt) 
 	 { 
-		var received_msg = evt.data;
-		alert("Message is received...");
+		var received_msg = evt.data; 
+		console.log("Message is received..."+received_msg);
+        ws.send("from client every time"+new Date());//有缓冲
+        console.log("WebSocket.bufferedAmount="+ws.bufferedAmount);//是一个只读属性，用于返回已经被send()方法放入队列中但还没有被发送到网络中的数据的字节数
+
 	 };
 	 ws.onclose = function()
 	 { 
@@ -2030,6 +2033,7 @@ document.addEventListener("DOMContentLoaded" ,function(){
 Time:  <div id="foo"></div> 
 <button onclick="start()">Start Server Send</button>
 function start() {
+	//浏览器看，是多次请求服务服务端
 	//服务器端把 "Content-Type" 报头设置为 "text/event-stream"。
 	var eventSource = new EventSource("serverSend");
 	eventSource.onmessage = function(event) {

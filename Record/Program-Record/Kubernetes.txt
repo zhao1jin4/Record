@@ -46,8 +46,84 @@ Kubernetes (开源) 基于 Docker 构建一个容器的调度服务
 
  
 coreDNS是扩展了DNS
-Dashboard 一个web界面为 k8s
 
+Dashboard 一个web界面为 k8s
+---------------Rancher  (大牧场主; 大农场工人) 
+界面工具(非国产),Kubernetes管理平台 , 现在开源
+
+https://rancher.com/
+https://gitee.com/rancher/rancher
+
+
+docker pull rancher/rancher  
+docker pull rancher/rancher:v2.5.5  
+
+docker save -o docker_rancher-v2.5.5.tar rancher/rancher:v2.5.5  #这个是管理界面
+docker load -i docker_rancher-v2.5.5.tar 大小为939M,docker stats 运行占用内存约为1.2G,CPU一直在用20%左右，PIDS列进程线程数为297
+ 
+#docker官方现在下载很慢，要么备份，要么配置daemon.json 文件不存在，新建
+{
+    "registry-mirrors": [
+       "https://docker.mirrors.ustc.edu.cn"
+   ]
+}
+
+
+docker run -d --restart=unless-stopped -p 80:80 -p 443:443 --privileged rancher/rancher  
+等一会打开 http://127.0.0.1 首次进入要修改admin密码，(界面语言有中文)如MyRancher->默认选择为cluster->设置server-URL(后面可系统设置中再修改)，最好是外网IP,yaml有通过环境变量传给容器中
+
+配置三级  Global->Cluster->Project 每级的菜单是不同的
+
+新建一个集群名为myk8s,在已有的k8s集群中 按界面提示执行 kubectl apply -f  https://xxx/xxx.yaml , 里面有镜像 rancher/rancher-agent:v2.5.5
+  因https是不安全的，则使用 curl --insecure -sfL https://xxx/xxx.yaml  | kubectl apply -f -    
+   
+kubectl get deploy -n cattle-system 有  cattle-cluster-agent  未成功
+
+POD=$(kubectl get pod -n cattle-system  | grep  cattle-cluster-agent | awk '{ print $1 }')
+kubectl describe  pod  $POD   -n  cattle-system  下载未成功，配置镜像地址，后来又报 Unhealthy,原因为server-URL设置主机名不行的
+
+docker save -o docker_rancher-agent-v2.5.5.tar rancher/rancher-agent:v2.5.5 #大小为476MB 这个是为k8s集群中用的
+docker load -i docker_rancher-agent-v2.5.5.tar  
+ 
+kubectl get pod -n cattle-system 又有 dashboard-shell-xxx   (在给的yaml中找不到dashboard-shell或shell，怎么创建的呢？)
+docker save -o docker_rancher-shell-v0.1.5.tar  rancher/shell:v0.1.5
+docker load -i docker_rancher-shell-v0.1.5.tar   
+
+
+报
+failed calling webhook "rancherauth.cattle.io": Post https://rancher-webhook.cattle-system.svc:443/v1/webhook/validation?timeout=10s: dial tcp 10.43.117.228:443: connect: connection refused
+ 使用下面命令记动就OK了,如用istio,还要加istiod.istio-system.svc
+ 
+docker run -d --privileged --restart=unless-stopped -p 80:80 -p 443:443 \
+-e HTTP_PROXY=proxy \
+-e HTTPS_PROXY=proxy \
+-e NO_PROXY="localhost,127.0.0.1,0.0.0.0,10.0.0.0/8,cattle-system.svc,istiod.istio-system.svc" \
+rancher/rancher
+
+
+kubectl get crd
+
+
+
+使用方法 ，在项目/名称空间 标签中 建立自己的项目  如 myproject ,在现有的k8s的名称空间下拉菜单可Move到自己的mypoject项目中 
+
+选中集群如myk8s 出现Tools菜单->istio,OPA Gatekeeper
+	Storage->Persistent Volume -> add Volume 支持NFS Share,Host Path,不支持cephfs
+
+选中项目如myproject出现Resources菜单->istio,Secret,Config,下方标签有 工作负载(deployment,statfulset,job),负载均衡(ingress),服务发现(service),Volum(PVC)
+	Config菜单->建立myconfig,Key为MYSQL_ROOT_PASSWORD，值为root
+	Volum 标签->add Volumn (Volume Claim)->起名mypvc,选择已有的pv
+	workload标签 ->deploy按钮->起名mydb,镜像mysql, Workload Type中选 Stateful set ->Add port 3306 ,clusterIP->enviroment中add from source 从建立的config map中选，可设置别名
+				 -> volumn ->add exists Persistent Volume (Claim)->选择mypvc,Mount Point中输入 /var/lib/mysql  (deployment应用可以做health check)-> Launch
+#kubectl delete  sts mydb  -n my-ns
+0 Pods显示不成功 , 看问题还是要 kubectl describe sts mydb -n my-ns
+			 
+istio的pod 展开三角，里面有小圆图标，滑过出菜单点...下拉菜单->view logs ,或者链接进入pod组...下拉菜单->view logs,也有execute shell(直接进入exec)，如有多个容器，每个容器可单独view logs
+
+进入某个(myk8s)集群有一个Cluster Explorer  按钮，点击后进入的界面很像 k8s 的 dashboard,url地址也变了(点Apps按钮进入Marketplace)，如再返回 点 cluster manager按钮,也有>Shell按钮
+
+
+---------------
 
 pod 一组相同网络名称空间的容器，要求一个pod必须在一个节点，pod以标签来区分，k8s的最小单位,
 	pod上层还有service,防止pod重建ip地址变化造成通讯问题
@@ -107,7 +183,7 @@ kubeadm config images pull --cri-socket /var/run/dockershim.sock (当有 docker 
 (启动docker,swapoff -a 日志提示也可  --fail-swap-on=false,即 /etc/sysconfig/kubelet 文件的 KUBELET_EXTRA_ARGS)
 
   
-kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.18.0  --cri-socket /var/run/dockershim.sock 
+root运行 kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.18.0  --cri-socket /var/run/dockershim.sock 
 --skip-phases=preflight 
 
 rpm包安装，执行 kubeadm init  还一直卡在preflight ???，像是检查docker镜像中已经事先下好
@@ -145,16 +221,24 @@ vi /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf  在KUBELET_KUBECON
 
 #另一节点 只需安装 kubernetes-proxy,kubernetes-kubeadm
 在preflight阶段报不能是btrfs（ext4可以的）加 --skip-phases=preflight 可以成功
-但也要kubelet修改为docker,要和主使用一样的cgroups
+但也要kubelet修改为docker,要和主使用一样的cgroups,日志也有显示，kubernetes 和  docker 的 Cgroup Driver要是一样的
 
- 
-kubeadm join 192.168.1.102:6443 --token c5syyq.3hqpi1i4zqsotmb5 \
+ 提示普通用户运行  
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+root运行  kubeadm join 192.168.1.102:6443 --token c5syyq.3hqpi1i4zqsotmb5 \
     --discovery-token-ca-cert-hash sha256:a05e6937f3e3e438fd7ff51ff0c2d17aad9bb9ca52f5beb904a8f487d89842ea  --skip-phases=preflight --cri-socket /var/run/dockershim.sock 
     
-安装了 flannel ,kubectl get nodes 也全是NotReady 
+kubectl get nodes 也全是NotReady 
 
-安装 flannel (依赖 net-tools-deprecated)，flannel-k8s-yaml-0.11.0 软件包 (记得有依赖flanneld命令，应该只能是rpm)
-kubectl  apply -f /usr/share/k8s-yaml/flannel/kube-flannel.yaml 会下载 registry.opensuse.org/kubic/flannel:0.11.0 镜像
+#安装 flannel (依赖 net-tools-deprecated)，flannel-k8s-yaml-0.11.0 软件包 (记得有依赖flanneld命令，应该只能是rpm)
+#kubectl  apply -f /usr/share/k8s-yaml/flannel/kube-flannel.yaml (配置是找/usr/bin/flanneld,但实际上是/opt/bin/flanneld)会下载 registry.opensuse.org/kubic/flannel:0.11.0 镜像
+使用官方的 kube_flannel.yml 文件
+
+kubectl get node -n kube-system 全部是Runing 才行
+
 docker tag  quay.io/coreos/flannel:v0.11.0-amd64  registry.opensuse.org/kubic/flannel:0.11.0
 journalctl -xeu kubelet 报 
 	[failed to find plugin "flannel" in path [/opt/cni/bin] failed to find plugin "portmap" in path [/opt/cni/bin
@@ -290,9 +374,9 @@ done
 ----
 
 第一次启动kubelet 报没有 /var/lib/kubelet/config.yaml 忽略（没有kubeadm init/join）
-kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.18.0 (测试成功)日志会自动启动kubelet,执行成功后 systemctl stop/start kubelet 就可成功,提示systemctl enable kubelet.service
+root运行 kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.18.0 (测试成功)日志会自动启动kubelet,执行成功后 systemctl stop/start kubelet 就可成功,提示systemctl enable kubelet.service
 
-但另一台机器 执行 kubeadm join  双方都关闭防火墙和selinux(setenforce 0 ) 成功
+但另一台机器 执行root运行   kubeadm join  双方都关闭防火墙和selinux(setenforce 0 ) 成功
 
 kubectl get nodes  状态是NotReady要安装网络
 
@@ -328,7 +412,7 @@ docker image save -o ingress-nginx-controller-v0.41.2.tar   k8s.gcr.io/ingress-n
 docker load -i 	ingress-nginx-controller-v0.41.2.tar
 ----
 
-kubeadm init 成功提示
+root用户运行 kubeadm init 成功后提示（普通用户运行）
  
   mkdir -p $HOME/.kube
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -430,7 +514,7 @@ kubectl run  busybox-client --image=busybox:latest  -it --restart=Never
 >cat /etc/resolv.conf 显示指向了coreDNS
    nameserver 10.96.0.10
    search   default.svc.cluster.local    svc.cluster.local    cluster.local
-   #default表pod所属名称空间     svc.cluster.local表k8s本地pod资源
+   #default表示pod所属名称空间     svc.cluster.local表示k8s本地pod资源
 	里面 ping nginx / wget nginx 是可用的 (curl 不行，因search会自动加default.svc.cluster.local) 是可解析service名为nginx的
 
 dig -t A  nginx.default.svc.cluster.local @10.96.0.10  可以成功解析
@@ -771,7 +855,7 @@ kubectl get rs  -o wide 显示修改后的镜像版本，但测试 kubectl descr
 
 deployment的回滚基于replicaSet实现的
 
-一个 deployment 简写为deploy 基于多个replicaSet ，可充许最多几个pod和最少几个pod (防止删一个pod来更新导致少一个pod不能承受并发数)，如replicas为5最多可多5个就能实现蓝绿部署，
+一个 deployment 简写为deploy 基于多个replicaSet ，可允许最多几个pod和最少几个pod (防止删一个pod来更新导致少一个pod不能承受并发数)，如replicas为5最多可多5个就能实现蓝绿部署，
 kubectl explain deploy
 VERSION用 apps/v1
 kubectl explain deploy.spec
@@ -1836,8 +1920,8 @@ subjects:
   kind: User
   name: user1
 ---
-kubelet get clusterrole 报错？？有很多系统自带的，如admin,cluster-admin
-kubelet get clusterrole user1 可以看到有哪些资源，权限可用   
+kubectl get clusterrole  有很多系统自带的，如admin,cluster-admin
+kubectl get clusterrole user1 可以看到有哪些资源，权限可用   
 kubectl describe clusterrolebinding user1-read-all-pods 
 kubectl get clusterrolebinding  有 cluster-admin
 kubectl delete clusterrolebinding  user1-read-all-pods   

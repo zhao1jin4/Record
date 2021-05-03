@@ -1,5 +1,6 @@
-去原生 CNCF 毕业的项目
+云原生 CNCF 毕业的项目
 	kubernetes
+	Etcd(k8s)
 	CoreDNS(k8s)
 	
 	Helm(k8s)
@@ -13,47 +14,489 @@
 	
 	TUF(The Update Framework  https://theupdateframework.io/ )
 	Fluentd(Build Your Unified Logging Layer https://www.fluentd.org/)
-	Vitness(A database clustering system for horizontal scaling of MySQL  https://vitess.io/) 官方文档有中文语言
+	Vitess(A database clustering system for horizontal scaling of MySQL  https://vitess.io/) 官方文档有中文语言
 	
 	TiKV (A distributed transactional key-value database)
 	Rook(Storage for Kubernetes,有ceph 的provider,使用Go开发)
-		
-		
+	
+	
+	Open Policy Agent(OPA)  ( www.openpolicyagent.org )
+
+=================== etcd
+https://github.com/etcd-io/etcd/
+https://etcd.io/docs/  
+下载地址
+https://github.com/etcd-io/etcd/releases 
+
+使用GO语言开发 ，用来替代 zookeeper (openstack使用这个)
+
+
+一致性(Consistency)  所有节点在同一时间具有相同的数据，强一致
+可用性(Availability)  保证每个请求不管成功或者失败都有响应 
+分隔容忍(Partition tolerance)  系统中任意信息的丢失或失败不会影响系统的继续运作 
+
+也是超过半数服务可用,集群就可用
+
+
+etcd 是 CP(牺牲可用性)
+使用gRPC
+使用Raft 协议, 一致性算法(consensus)  ,选举，日志复制
+	有3种状态,leader,follower,Condiate 
+	选举
+		一开始所有节点是 follower状态,一定时间内(选举超时随机150ms-300ms,防止全部一起进入Condiate有一样的票数,如是这样再一次随机)没有收到leader的消息(leader挂了)变Condiate,
+		Condiate的节点,term产生新值(表示第几任),投自己一票，再请求其它节点给我投票,
+		如其它节点(不是condiate节点)在这个term没有票，那么就投这个Condiate ,每个都记录自己投了谁
+		如有多于半数节点回应投票同意，我就变成为leader，leader不停发送心跳检查follower是否健康 
+		如leader挂了,相同流程选出新的leader,老的leader如又恢复了term是老的值，
+	日志复制
+		1.客户端的请求经过leader,数据先放日志中,状态是未提交
+		2.leader把未提交更新日志复制(是通过心跳信息做的)其它follower节点，leader等多于半数follower回应已经记录日志
+		3.先leader做提交,响应客户端,再发消息给其它follower做提交
+	
+	网络分区下的一致性
+	 当网络被分成两个区，每个区有一个leader，就有两个leader，没有收到半数以上的回应不会提交，两个leader间会比较谁的follower多(奇数)
+	
+存储使用 bbolt (源码vender/bbolt目录 或者 https://github.com/etcd-io/bbolt)
+
+
+
+/etc/hosts 要有127.0.0.1 localhost否则etcd不能启动
+
+./etcd 监听 2379 用来和客户端通讯
+       监听	2380 用来服务端和服务端通讯
+       
+   --name 'default'
+		human-readable name for this member.
+	--data-dir '${name}.etcd'
+		path to the data directory.
+	--listen-peer-urls 'http://localhost:2380' 
+	
+	--listen-client-urls 'http://localhost:2379'
+	--advertise-client-urls 'http://localhost:2379'
+	--logger=zap
+
+./etcdctl put mykey "this is awesome"  #老版本是set
+./etcdctl get mykey
+
+--etcd集群
+https://github.com/etcd-io/etcd/blob/master/Documentation/demo.md
+
+TOKEN=token-01
+CLUSTER_STATE=new
+NAME_1=machine-1
+NAME_2=machine-2
+NAME_3=machine-3
+HOST_1=10.240.0.17
+HOST_2=10.240.0.18
+HOST_3=10.240.0.19
+CLUSTER=${NAME_1}=http://${HOST_1}:2380,${NAME_2}=http://${HOST_2}:2380,${NAME_3}=http://${HOST_3}:2380
+
+
+# For machine 1
+THIS_NAME=${NAME_1}
+THIS_IP=${HOST_1}
+etcd --data-dir=data.etcd --name ${THIS_NAME} \
+	--initial-advertise-peer-urls http://${THIS_IP}:2380 --listen-peer-urls http://${THIS_IP}:2380 \
+	--advertise-client-urls http://${THIS_IP}:2379 --listen-client-urls http://${THIS_IP}:2379 \
+	--initial-cluster ${CLUSTER} \
+	--initial-cluster-state ${CLUSTER_STATE} --initial-cluster-token ${TOKEN}
+
+类似再加两节点，建立集群
+
+
+客户端
+export ETCDCTL_API=3
+HOST_1=10.240.0.17
+HOST_2=10.240.0.18
+HOST_3=10.240.0.19
+ENDPOINTS=$HOST_1:2379,$HOST_2:2379,$HOST_3:2379   ,后面版本要加 http://
+
+etcdctl --endpoints=$ENDPOINTS member list
+# 不加 --endpoints 默认就连接本机的 2379端口
+
+etcdctl --endpoints=$ENDPOINTS put foo "Hello World!"  
+etcdctl --endpoints=$ENDPOINTS get foo
+  列出所有的key #老版本有ls  
+etcdctl --endpoints=$ENDPOINTS --write-out="json" get foo
+
+etcdctl --endpoints=127.0.0.1:2379 get foo -w json | json_pp 格式化json
+{
+   "kvs" : [            #表示key/values,显示的是base64编码的,二进制存的
+      {
+         "value" : "SGVsbG8gV29ybGQh",
+         "mod_revision" : 3,		#最近修改时的版本(header中的revision)
+         "create_revision" : 3,  #创建时的版本
+         "version" : 1,			   #针对这个key的版本,修改一次+1
+         "key" : "Zm9v"
+      }
+   ],
+   "header" : {
+      "member_id" : 10276657743932975437,
+      "revision" : 3,			  #全局唯一的版本,任何一个key变动时(增加/修改/删除)+1
+      "raft_term" : 2,          #重启时,或才 leader 变化时+1
+      "cluster_id" : 14841639068965178418
+   },
+   "count" : 1
+}
+
+echo Zm9v | base64 -d 
+echo SGVsbG8gV29ybGQh | base64 -d 
+
+etcdctl --endpoints=$ENDPOINTS put web1 value1
+etcdctl --endpoints=$ENDPOINTS put web2 value2
+etcdctl --endpoints=$ENDPOINTS put web3 value3 
+etcdctl --endpoints=$ENDPOINTS get web --prefix 键的前缀
+etcdctl --endpoints=$ENDPOINTS get web1  web3 是区间的,包括web1,不包括web3
+
+
+etcdctl --endpoints=$ENDPOINTS put key myvalue
+etcdctl --endpoints=$ENDPOINTS del key
+
+etcdctl --endpoints=$ENDPOINTS put k1 value1
+etcdctl --endpoints=$ENDPOINTS put k2 value2
+etcdctl --endpoints=$ENDPOINTS del k --prefix
+
+
+#txn 事务
+etcdctl --endpoints=$ENDPOINTS put user1 bad
+etcdctl --endpoints=$ENDPOINTS txn --interactive  
+# -i, --interactive
+	进入交互模式,提示compares: 输入比较操作,如 value("web1") = "aa"  再多打一次回车结束 
+	再提示 success requests (get, put, del): 输入 ,如 get web 再多打一次回车结束 
+	再提示 failure requests (get, put, del): 输入 ,如 put web1 value11 回车结束 put web2 value22 回车结束 get web1
+如显示FAILURE则执行了失败
+
+#监控值变化
+etcdctl --endpoints=$ENDPOINTS watch stock1
+etcdctl --endpoints=$ENDPOINTS put stock1 1000
+
+etcdctl --endpoints=$ENDPOINTS watch stock --prefix
+etcdctl --endpoints=$ENDPOINTS put stock1 10
+etcdctl --endpoints=$ENDPOINTS put stock2 20
+
+
+#租用时间
+etcdctl --endpoints=$ENDPOINTS lease grant 300
+# lease 2be7547fbc6a5afa granted with TTL(300s)
+
+etcdctl --endpoints=$ENDPOINTS put sample value --lease=2be7547fbc6a5afa
+etcdctl --endpoints=$ENDPOINTS get sample
+
+etcdctl --endpoints=$ENDPOINTS lease keep-alive 2be7547fbc6a5afa
+etcdctl --endpoints=$ENDPOINTS lease revoke 2be7547fbc6a5afa
+# or after 300 seconds
+etcdctl --endpoints=$ENDPOINTS get sample
+
+
+#分布式锁
+etcdctl --endpoints=$ENDPOINTS lock mutex1
+
+# another client with the same name blocks
+etcdctl --endpoints=$ENDPOINTS lock mutex1
+
+
+#选举
+etcdctl --endpoints=$ENDPOINTS elect one p1
+
+# another client with the same name blocks
+etcdctl --endpoints=$ENDPOINTS elect one p2
+
+#状态
+etcdctl --write-out=table --endpoints=$ENDPOINTS endpoint status
+etcdctl --endpoints=$ENDPOINTS endpoint health
+
+
+#要求认证才能用
+export ETCDCTL_API=3
+ENDPOINTS=localhost:2379
+
+etcdctl --endpoints=${ENDPOINTS} role add root
+etcdctl --endpoints=${ENDPOINTS} role grant-permission root readwrite foo
+etcdctl --endpoints=${ENDPOINTS} role get root
+
+etcdctl --endpoints=${ENDPOINTS} user add root
+etcdctl --endpoints=${ENDPOINTS} user grant-role root root
+etcdctl --endpoints=${ENDPOINTS} user get root
+
+etcdctl --endpoints=${ENDPOINTS} auth enable
+# now all client requests go through auth
+
+etcdctl --endpoints=${ENDPOINTS} --user=root:123 put foo bar
+etcdctl --endpoints=${ENDPOINTS} get foo
+etcdctl --endpoints=${ENDPOINTS} --user=root:123 get foo
+etcdctl --endpoints=${ENDPOINTS} --user=root:123 get foo1
+
+
+etcd gateway is a simple TCP proxy
+
+
+
+
 
 =============prometheus 监控
 CNCF毕业的项目,Istio使用,使用大量数学公式
 https://github.com/prometheus/prometheus 使用Go语言开发,适合监控容器
 意思是一个神,人类带来了火,图标是火种
- 
- 
+
+
+所有相关机器一定要安装ntpdate，同步时间用的
+
+
 docker run --name prometheus -d -p 127.0.0.1:9090:9090 prom/prometheus
 
-https://prometheus.io/download/ 下载 prometheus-2.18.1.linux-amd64.tar.gz
-
-
+https://prometheus.io/download/ 下载 prometheus-2.24.1.linux-amd64.tar.gz
 ./prometheus 启动 默认是9090端口  http://127.0.0.1:9090
-以时间序列(Time-Series)存储,每两个小时为一块(block),每个block分为多个chunck
-chunck用来存Time-Series文件,metadata文件和index文件 
-一次key/value的采集叫metric,对数据打label,如可表示数据来自哪个客户端哪个服务,这两个叫ndex
+	 --config.file="prometheus.yml"
+    --web.listen-address="0.0.0.0:9090" 
+    
+	--web.read-timeout=5m  是对 数据提供方
+    --web.max-connections=512  
+	--storage.tsdb.retention.time=15d 默认值 15天
+	--storage.tsdb.path="data/"
+    --query.timeout=2m   是对UI界面上的
+    --query.max-concurrency=20
+	 
+Status -> Target就是监控的目标机器 ，默认有一条监控自己的记录 ,地址以metrics结尾，是数据，Grafana 使用的东西 
 
+这个是自带的，功能太简单了
+Graph -> 输入process 提示有很多，选一个 process_cpu_seconds_total -> Execute 按钮后 在下方的Graph标签就有图，可以- + 按钮调整时间范围
+
+Status -> Configuration 就是最新的prometheus.yml配置文件的内容 
+
+global:
+  # How frequently to scrape targets by default.
+  [ scrape_interval: <duration> | default = 1m ]
+
+
+
+https://prometheus.io/docs/prometheus/latest/storage/
+以时间序列(Time-Series)存储,
+每两个小时为一块(block),每个block分为多个chunck,chunck用来存Time-Series文件,metadata文件和index文件 
+一次key/value的采集叫metric,对数据打label,如可表示数据来自哪个客户端哪个服务,这两个metric,label做index
 数据采集过来先放内存中,定期写入硬盘(WAL =write ahead log),如挂了,再启时,把数据读入存,方便查询(使用内存较大)
 
-拉监控数据,在客户端有一个exporte是一个web服务器
-推pushgateway安装任意地方(如服务端或客户端),自己开发,发给pushgateway,pushgatewayg再给prometheus
+
+pull: 拉监控数据,在客户端有一个exporter是一个web服务器,prometheus到指定的机器上拉数据，如node_exporter上的数据特别多，多半是用不上的
+push: pushgateway 官方组件安装任意地方(如服务端或客户端),自己开发把(metrics格式)数据发给pushgateway,pushgateway 再给prometheus
 
 界面中输入  process_open_fds 当前打开文件数 ,console标签显示当前的值,Grap标签中显示历史数据,以图显示
 
+
+
+metrics数据类型   https://prometheus.io/docs/concepts/metric_types/
+1. Gauge (测量),如内存使用，瞬间变化较快的数据
+2. Counter ,计数器,不会出现下降的情况
+3. Histgram 是一种计算后的数，如一段时间 的百分比，平均值
+4. Summary 
+
+http://127.0.0.1:9100/metrics 可以看到#式的帮助说明和 类型 
+
 支持很多数学公式
-界面中输入  rate(process_open_fds[1m])+ rate(process_open_fds[1m])/2 ^2
 
-rate(node_cpu[1m])
+输入node_cpu会提示有 node_cpu_seconds_total (counter类型) Execute按钮后图表下方会列出所有组件的属性
+	如mode="idle"，instance="192.168.60.101" ，job="my-vm"
+	
+node_cpu_seconds_total{mode="idle"} 空闲CPU
+node_cpu_seconds_total{mode="idle"} 全部CPU
+increase({mode="idle"}[1m])  空闲CPU在1分钟内的增量，一般用于count类型 ，多用于变量比较稳定的，如硬盘容量
 
-配置文件 
-可以和grafana(显示的更好)结合使用
+sum(increase(node_cpu_seconds_total[1m])) 
+sum(increase(node_cpu_seconds_total{mode="idle"}[1m])) ,如配置了多台，会全部合并
+sum(increase(node_cpu_seconds_total{mode="idle"}[1m])) by (instance) 按指定标签做分组，instance是数据字段，表示服务器
+
+非空闲CPU占用 就是 (1 -  sum(increase(node_cpu_seconds_total{mode="idle"}[1m])) by (instance) 
+					   / sum(increase(node_cpu_seconds_total			 [1m])) by (instance))*100
+用户占用的 就是 (1 -  sum(increase(node_cpu_seconds_total{mode="user"}[1m])) by (instance) 
+					   / sum(increase(node_cpu_seconds_total			 [1m])) by (instance))*100
+
+node_cpu_seconds_total{mode=~"id.*"} 正则表达式
+node_cpu_seconds_total{mode=~"id.*"} >10 要符合条件的数据
 
 
+rate 时面一般是couter类型，表示平均每秒的增量，多用于变化较快，如硬盘IO读写
+rate(node_network_receive_bytes_total[1m]) 1分钟内的平均网络流量
+
+rate(process_open_fds[1m])+ rate(process_open_fds[1m])/2 ^2
+rate(node_cpu_seconds_total[1m])  
+
+
+topk(1,rate(node_network_receive_bytes_total[1m])) topk要最前几位最大的,只是对当前数据，对看图意义不大，会断
+
+screen 后台运行
+screen 命令进入后台，执行启动命令后，ctrl+a,d 设置为后台运行
+screen -ls 看哪些后台运行,显示前部分为 screen的ID，但不知道是什么命令
+screen -r <screen的ID> 再进入前台
+
+以下没数据？
+node_memory_Buffers_bytes
+node_memory_Cached_bytes 
+node_memory_MemFree_bytes
+
+---------node_exporter
+https://github.com/prometheus/node_exporter 上有文档 哪些是启用的
+被监控的机器必须安装 node_exporter (node_exporter-1.0.1.linux-amd64.tar.gz)，没有windows版本
+
+node_exporter 启动最好加 nohup  ,监听 9100 端口  (http://127.0.0.1:9100/metrics)
+在prometheus节点上的prometheus.yml文件的最尾处，复制已有的
+  - job_name: 'prometheus'
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    static_configs:
+    - targets: ['localhost:9090']
+做修改名字，再加一个job_name的项，node_exporter的IP:9100 ,再启服务 pkill prometheus  (processes kill)
+
+---------mysqld_exporter
+https://prometheus.io/docs/instrumenting/exporters/
+https://github.com/prometheus/mysqld_exporter
+还可监控 mysql 有 mysqld_exporter (mysqld_exporter-0.12.1.linux-amd64.tar.gz) (要先安装mysql 或 mariadb)
+
+
+可以安装mariadb , yum install mariadb\*  -y  (yum install -y mariadb\* ) 可通配安装
+
+CREATE USER 'exporter'@'localhost' IDENTIFIED BY 'exporter' WITH MAX_USER_CONNECTIONS 3;
+GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'exporter'@'localhost';
+ 
+#export DATA_SOURCE_NAME='user:password@(hostname:3306)/'
+ 
+---my.cnf
+[client]
+user=exporter
+password=exporter
+
+./mysqld_exporter  提示会监听 9104 端口  (http://127.0.0.1:9104/metrics 里面全是mysql开头的,mysql_global_status_threads_connected)
+默认会使用 ~/.my.cnf 文件   --config.my-cnf="/root/.my.cnf"
+
+--collect.auto_increment.columns
+--no-collect.auto_increment.columns
+
+相同方式在 prometheus.yml 中加入新的job_name的配置，指定IP:9104
+
+----- consul_exporter
+
+----- pushgateway 有windows 版本
+https://github.com/prometheus/pushgateway
+
+pushgateway-1.4.0.windows-amd64
+pushgateway 启动后 默认监听 9091端口 http://127.0.0.1:9091
+
+配置 prometheus 指向push gateway,在prometheus.yml文件中增加 
+ - job_name: 'my-push-gateway'
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    static_configs:
+    - targets: ['127.0.0.1:9091']
+
+开发shell脚本(也可用其它语言)推向push gateway  应该按时间间隔 定时上传，crontab 中的命令前增加  sleep 15; 
+--vi my-gateway-push.sh
+示例 分组是按{job="some_job"}
+echo "some_metric 3.14" | curl --data-binary @- http://127.0.0.1:9091/metrics/job/some_job
+
+
+示例 分组是按 {job="some_job",instance="some_instance"}
+cat <<EOF | curl --data-binary @- http://127.0.0.1:9091/metrics/job/some_job/instance/some_instance
+  # TYPE some_metric counter
+  some_metric{label="val1"} 42
+  # TYPE another_metric gauge
+  # HELP another_metric Just an example.
+  another_metric 2398.283
+EOF
+
+crontab -e 
+#分 时 日  月  星期
+*   *   *  *   *    for i in 1 2 3 ;do sleep 15; /opt/my-gateway-push.sh ;done
+
+
+在prometheus UI中就可搜索到 some_metric
+数据显示为 some_metric{exported_instance="some_instance", exported_job="some_job"}
+
+Grafana 的对显示文字太长了， legend format 可以修改为 {{exported_instance}}  
+
+
+=============Grafana (Prometheus)
+有windows，linux,docker 版本
+wget https://dl.grafana.com/oss/release/grafana-7.3.7.linux-amd64.tar.gz
+tar -zxvf grafana-7.3.7.linux-amd64.tar.gz
+
+bin/grafana-server 会提示建立很多表,看conf/defaults.init 中有配置 sqlite3
+  
+默认监听3000 端口  http://127.0.0.1:3000/ 有界面 默认有一个 admin/admin    用户名/密码 ，第一次登录要求修改密码
+ 
+---Grafana 增加 prometheus node
+Configuration －> DataSource －>  Add DataSource 按钮 -> 选择prometheus->type 默认选择 prometheus (还支持elastic search,MySQL,postGreSQL,zipkin,Jaeger,mongodb这个要安装) 
+	起名(最好为Prometheus),输入URL 是Prometheus的 如 http://127.0.0.1:9090
+	 下方的 scrape interval 默认15s －> Save
++ 按钮－> dashboard -> panel title 旁边的下拉三角 －> edit (右则面析中 Visualization可以选择Graph)－>Query 标签 中 选择数据源，
+		文本框中输入要监控的字段名 node_load1 ,有提示的（对于有 node_exporter ）表示1分钟的负载，
+		node_load1{instance="suse-vm-1:9100"} ,写属性时修改有提示，表示看指定的机器
+		node_load1{job="agent"} ,写值时有提示，表示看premetheus.yml中配置的job_name中指定的
+	+Queryr按钮可以增加多行，那在图下方就有多个可以切换
+
+legend format 可以修改为 {{instance}} 
+点图表中的legend 的颜色-> 可以修改颜色
+
+右则面板中的Legend 组中有一个  As Table的开关，To Right开关，Values组有很多开关
+			Display组可修改图中的线
+			
+图上方区域可以调整时间，图片可以保存
+
+首页上方保存按钮,下次如何打开？？？
+设置按钮->Json Model可以保存 
+
+
+
+---Grafana 增加 prometheus mysql
+
+https://github.com/percona/grafana-dashboards 说也可监控MongoDB
+数据源的名字要叫 Prometheus
+
+
+最小配置
+node_exporter  
+	 #这些默认是启用 --collector.diskstats  --collector.filefd  --collector.filesystem --collector.loadavg --collector.meminfo  
+	 					--collector.netdev  --collector.stat --collector.time --collector.uname -collector.vmstat   
+	  
+mysqld_exporter    --collect.binlog_size  --collect.info_schema.processlist   
+
+下载项目 https://github.com/percona/grafana-dashboards.git 只要dashboards目录
+
+二进制包 cd conf/provisioning/dashboards/
+rpm 包 cd  /var/lib/grafana/conf/provisioning/dashboards/
+--vi mysqld_export.yml 
+apiVersion: 1
+
+providers:
+  - name: 'mysqld_exporter'
+    orgId: 1
+    folder: ''
+    type: file
+    options:
+      path: <you git repro path>/grafana-dashboards/dashboards
+
+重启grafana ,报第4行有问题，did not find expected key,源因为官方给的缩进不对，路径如有~不行的
+
+dashboard 按钮－>manage ->  可以看到 MySQL Overview，点击进入就有图了
+
+如不配置上面的也可 + 按钮－>Import -> upload json file按钮 选择项目中的 dashboards/MySQL_Overview.json  ( 中有 "datasource": "Prometheus" 可能要修改)
+
+----报警
+trigger value 值到什么时候来报警
+
+prometheus的 alert manager 组件 不太友好
+使用 grafana + oneAlert(国内的，要收费的), 国外的 pagerDuty, grafana 也有alert 
+
+Alert按钮->Notification channel-> add channel->起名，Type中选择有 PagerDuty (还有webhook,DingDing,Email,Microsoft Teams)
+
+Grafana图下方面板中Alert标签-> Conditions组下，when中是函数如avg()，
+	OF默认值为 query (A, 5m, now) ,这里的A表示图表下方Query标签中第一个名为A的查询，
+	第二参数看几分钟前的数据(如设置过大，当第二分钟恢复了，后面会重复报警)，第三个参数表示从现在开始
+	IS ABOVE 按钮 可以点击可选IS BELOW，右边就是填的值
+	Test Rule按钮 可以测试 
+	State history 按钮 查看历史 
+	
 =============Envoy 用C++开发
 https://www.envoyproxy.io/
+L3/L3层和Http同时支持 ，gRPC 支持
+
 
 yum install yum-utils
 yum-config-manager --add-repo https://getenvoy.io/linux/centos/tetrate-getenvoy.repo
@@ -128,7 +571,7 @@ docker run --rm -it \
 
 
 
-4层/L层 代理转发器 
+4层/7层 代理转发器 
 
 Listener 管理界面端口
 Routes 可根据请求路径来选择哪个 Cluster
@@ -137,21 +580,189 @@ Endpoints 转发目的地IP端口
 
 
 ======Jaeger
+纯毛织品，贼鸥; 猎人
+
 CNCF毕业的项目,Istio使用
+灵感(inspire)来自 Dapper 和 OpenZipkin
 https://www.jaegertracing.io/
 
 open source, end-to-end distributed tracing
 
+docker pull jaegertracing/all-in-one:1.21
 
-docker pull jaegertracing/all-in-one:1.18
+docker run -d --name jaeger \
+  -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 \
+  -p 5775:5775/udp \
+  -p 6831:6831/udp \
+  -p 6832:6832/udp \
+  -p 5778:5778 \
+  -p 16686:16686 \
+  -p 14268:14268 \
+  -p 14250:14250 \
+  -p 9411:9411 \
+  jaegertracing/all-in-one:1.21
+
+有windows/linux二进制包
 
 
----------Vitness
+./jaeger-all-in-one --collector.zipkin.http-port=9411 后就可以仿问界面  http://localhost:16686/
+
+9411 端口是为Zipkin 兼容用的，是可选的
+
+使用 thrift 
+
+ 
+
+=======Fluentd ，Fluent 流畅的; 流利的
+日志收集的，像logstash
+官方文档上可以写到elastic search,mongodb上
+如部署在k8s上用 ,用DeamonSet
+
+有CentOS的rpm
+windows 下载 td-agent-4.0.1-x64.msi  （td = Treasure Data ，Inc 公司，使用C写的）
+
+--如是td-agent安装
+/etc/td-agent/td-agent.conf
+sudo systemctl restart td-agent
+/var/log/td-agent/td-agent.log
+
+----源码要安装  Ruby >= 2.1 和 bundler
+zypper search bundler
+zypper install ruby2.5-devel ruby2.5-rubygem-bundler
+
+git clone https://github.com/fluent/fluentd.git
+cd fluentd
+
+bundle install 要输入 密码
+bundle exec rake build
+gem install pkg/fluentd-xxx.gem 是上一步的提示
+sudo gem install pkg/fluentd-1.12.0.gem 写入 /usr/lib64/ruby/gems/2.5.0 目录 
+
+----
+运行 fluentd --setup ./fluent  当前目录下会生成fluent目录
+#fluentd  在 /usr/lib64/ruby/gems/2.5.0/bin/目录下，还有 /usr/bin/fluentd.ruby2.5 
+fluentd -c ./fluent/fluent.conf -vv &  #启动服务  (-v: debug, -vv: trace)
+echo '{"json":"message"}' | fluent-cat debug.test  #有fluent-cat.ruby2.5 命令 默认--port 24224,--host 127.0.0.1
+#会在屏幕上显示提交的日志 即debug.test: {"json":"message"}
+
+
+对应配置
+<match debug.**>
+  @type stdout
+  @id stdout_output
+</match>
+
+
+
+停服务 pkill -f fluentd
+
+
+
+可安装 ntpd 同步时间，jemalloc 避免内存 fragmentation（破碎）
+
+
+如果是rpm安装的 vi /etc/td-agent/td-agent.conf
+如果源码安装的
+sudo fluentd --setup /etc/fluent
+sudo vi /etc/fluent/fluent.conf
+kill -s SIGHUP <pid> #发送 SIGHUP 信息会重新加载配置文件 
+
+
+------docker版本
+默认配置为 /fluentd/etc/fluent.conf
+
+docker run -ti --rm -v /etc/fluent:/fluentd/etc fluentd -c /fluentd/etc/fluent.conf
+FLUENT_CONF 环境变量可修改默认配置
+-----
+
+
+有Java Client 版本，但没有Go 
+
+可以像tail -f 一样收集日志 
+<source>
+  @type tail
+  path /var/log/httpd-access.log
+  pos_file /var/log/td-agent/httpd-access.log.pos  #表示下次在启动，使用这个记得位置，而不是从头读文件
+  tag apache.access
+  <parse>
+    @type apache2
+  </parse>
+</source>
+
+ 
+
+---输出到elastic search 
+如果安装不是用td-agent,要执行下面来安装
+sudo  fluent-gem install fluent-plugin-elasticsearch  #有命令 fluent-gem.ruby2.5
+ 
+配置示例 ,match后的是tag与
+<match my.logs>
+  @type elasticsearch
+  @log_level info
+  host localhost
+  port 9200
+  logstash_format true   #生成logstash-<日期>
+
+#表示如果elastic search 临时不可用，可以缓存起来，如文件或内存
+#<buffer>
+#  @type file #还可是memory
+#</buffer>  
+  
+</match>
+
+测试 好像没什么效果？
+echo '{"json":"message"}' | fluent-cat my.logs
+
+---输出到MongoDB
+ 
+
+
+======Vitess
 A database clustering system for horizontal scaling of MySQL 
 https://vitess.io/  官方文档有中文语言
-	
+
+可以下载源码 构建 docker 镜像
+https://github.com/vitessio/vitess/releases/ 下载 目前9.0
+vitess-9.0.0-daa6085.tar.gz 是二进制包 还有rpm包，没有windows版本
+使用gRPC
+
+https://vitess.io/docs/overview/supported-databases/
+目前支持MySQL 5.6 - 8.0 有限制的 ,MariaDB  10.0 - 10.3
+限制 
+1. 不能用auto_increment列
+2. 分段不支持事务 ，除非用两阶段提交
+3. 只支持utf8,utf8mb4
+4. 不支持临时表
+可INNER JOIN，如子查询有group by 不支持
 
 
+
+
+要求安装 etcd, 推荐 MySQL 5.7  
+
+#sudo yum -y localinstall https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm
+#sudo yum -y install mysql-community-server etcd curl
+ 
+# CentOS
+sudo setenforce 0
+
+$HOME/.bashrc  设置PATH环境变量到bin
+
+--示例 
+事先关闭etcd,启动mysqld
+普通用户运行 examples/local/101_initial_cluster.sh
+
+pgrep -fl vtdataroot (-l  list PID and process name ,-f full process name to match )
+会看到很多的  mysqld 进程,看新进程，有修改--datadir, --log-error, --pid-file, --socket, --port , --defaults-file 
+pkill -9 -e -f '(vtdataroot|VTDATAROOT)'  (-e echo 显示什么进程被杀)
+
+http://127.0.0.1:15000/app/
+
+
+
+=======Open Policy Agent (OPA)
+https://www.openpolicyagent.org/
+0.26.0
 
 
 
