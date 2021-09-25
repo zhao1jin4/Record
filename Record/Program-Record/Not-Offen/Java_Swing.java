@@ -325,11 +325,21 @@ DataFlavor.imageFlavor
 
 JMenuItem(new DefaultEditorKit.CopyAction())
 
-fc = new JFileChooser();;
+fc = new JFileChooser();
+//fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);//设置只能选择目录
+FileNameExtensionFilter filter = new FileNameExtensionFilter("zip压缩文件(*.zip)","zip");
+fc.setFileFilter(filter);
+
 fc.setMultiSelectionEnabled(true);
+
  JFileChooser .setControlButtonsAreShown(false);//打开,取消按钮没有
 JComponent    getRootPane().setDefaultButton(clear);
 
+int result=JOptionPane.showConfirmDialog(this, "output directory not empty ,continue?");
+if(result == JOptionPane.NO_OPTION  || result == JOptionPane.CANCEL_OPTION) 
+	return;
+							
+							
 DataFlavor.javaFileListFlavor
 
 JTextArea setMargin(new Insets(5,5,5,5));

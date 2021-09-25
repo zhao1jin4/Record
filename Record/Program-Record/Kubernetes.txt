@@ -141,6 +141,10 @@ pause  为pod有一个基础容器不用启动，用来复制网络和卷的配�
 
 CRI（Container Runtime Interface),其中 dockershim，containerd和cri-o都是遵循CRI
 
+https://kubernetes.io/docs/setup/production-environment/container-runtimes/ 介绍以下三种通用的容器，官方文档只有这3种的文档
+    containerd
+    CRI-O
+    Docker
 
 
 https://kubernetes.io/docs/setup/release/notes/  下载二进制
@@ -209,7 +213,7 @@ done
 还要加 --skip-phases=preflight ???
   
 有提示(required cgroups disabled),docker是systemd, 看/var/lib/kubelet/kubeadm-flags.env 显示是systemd
-
+control group (cgroup) 限制资源分配给进程
 --
 其实还是kubelet 没有成功监听6443端口,docker的api-server没有启动???
 ps -ef | grep kubelet 发现使用的是 --container-runtime-endpoint=unix:///var/run/crio/crio.sock ???
@@ -251,8 +255,84 @@ kubectl get pod -n kube-system
 kubectl describe pod kube-flannel-ds-amd64-xxxx -n kube-system
 kubectl describe pod  coredns-xxx  -n kube-system 
 
+------fedora34安装kubernetes-1.20.x
+sudo dnf  install kubernetes 依赖下面3个 ( 1.20.5 版本 )
+	sudo dnf  install kubernetes-client
+	sudo dnf  install kubernetes-master 
+	sudo dnf  install kubernetes-node 
+sudo dnf  install kubernetes-kubeadm
 
 
+#systemctl enable docker.service
+#systemctl enable kubelet.service
+
+启动docker
+swapoff -a ,看  /usr/lib/systemd/system/kubelet.service 文件里面用的是 /etc/kubernetes/kubelet (不同于openSUSE) 中的默认配置 --fail-swap-on=false 
+sudo kubeadm init  --pod-network-cidr=10.244.0.0/16   --kubernetes-version=v1.20.8  (1.20.x几个版本中使用的pause,etcd,coredns版本不变)
+	有提示　firewalld is active, please ensure ports [6443 10250],使用的文件为/etc/kubernetes/manifests/
+	
+	firewall-cmd --zone=public --add-port=6443/tcp --permanent 		#kubernetes  master
+	firewall-cmd --zone=public --add-port=10250/tcp --permanent 	#kubernetes  slave
+	firewall-cmd --reload
+	
+也可使用 sudo kubeadm config images pull 等的时间要久一点才提示下载什么镜像及版本
+k8s.gcr.io/kube-apiserver:v1.20.8  使用国内阿里镜像站点 registry.aliyuncs.com/google_containers
+k8s.gcr.io/kube-controller-manager:v1.20.8
+k8s.gcr.io/kube-scheduler:v1.20.8
+k8s.gcr.io/kube-proxy:v1.20.8
+k8s.gcr.io/pause:3.2
+k8s.gcr.io/etcd:3.4.13-0
+k8s.gcr.io/coredns:1.7.0
+
+
+sudo docker pull registry.aliyuncs.com/google_containers/kube-apiserver:v1.20.8
+sudo docker tag registry.aliyuncs.com/google_containers/kube-apiserver:v1.20.8 k8s.gcr.io/kube-apiserver:v1.20.8
+#sudo docker image save  k8s.gcr.io/kube-apiserver:v1.20.8 -o kube-apiserver_1.20.8.tar
+测试下来，打 tag 不会立即生效，再重启的时候就生效了
+
+ 
+--k8s_download_tag.sh
+#!/bin/bash
+images=(kube-apiserver:v1.20.8 kube-controller-manager:v1.20.8 kube-scheduler:v1.20.8  kube-proxy:v1.20.8  pause:3.2 etcd:3.4.13-0 coredns:1.7.0)
+for imageName in ${images[@]} ; do
+  echo "doing ${imageName} "  
+  docker pull registry.aliyuncs.com/google_containers/$imageName 
+  docker tag registry.aliyuncs.com/google_containers/$imageName  k8s.gcr.io/$imageName
+  docker image save  k8s.gcr.io/$imageName -o $imageName.tar
+done
+
+-- 
+
+sudo kubeadm reset 
+	提示删除 ~/.kube/config , /etc/cni/net.d ,如是使用ipvs 要用ipvsadm --clear
+	有时init时还提示要删 sudo rm -rf /etc/kubernetes/, sudo rm -rf /var/lib/etcd  
+
+再次 kubeadm init 后提示
+
+	mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+
+同 CentOS的 flannel
+https://github.com/coreos/flannel/
+
+kubectl apply -f  kube-flannel.yml
+
+docker image save -o kube_flannel_v0.14.0.tar  quay.io/coreos/flannel:v0.14.0
+#docker load -i  kube_flannel_v0.14.0.tar
+
+ kubectl  get node 所有节点是   Ready  
+但 kubectl get pod -n kube-system 显示 coredns 不能工作？？
+ 
+ 
+ 
+
+-------
 -----用linux二进制包,kubelet 放PATH环境变量中,未成功??? 
 su - root
 二进制包报 检查 http://localhost:10248/healthz 失败,即内部启动kubelet没有成功 ???  日志提示systemctl status kubelet ,journalctl -xeu kubelet，可能用二进包不行的

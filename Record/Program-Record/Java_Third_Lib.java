@@ -982,6 +982,7 @@ boolean is2007=true;//true,false
 if(is2007)
 {
 	//要多加poi-ooxml-3.8.x.jar,apache项目xmlbeans的xbean.jar,poi-ooxml-schemas-3.8-x.jar
+	//大量数据时,写excel时
 	//workbook=new SXSSFWorkbook(100); // keep 100 rows in memory, exceeding rows will be flushed to disk
 	workbook=new XSSFWorkbook();
 	out=new FileOutputStream("/tmp/workbook.xlsx");
@@ -1067,7 +1068,7 @@ out.close();
  
 
 
-//读
+//读，数据量大时可使用SAX解析
 InputStream inp =file.getInputStream();
 Workbook wb = WorkbookFactory.create(inp);
 Sheet sheet = wb.getSheetAt(0);
@@ -1737,9 +1738,9 @@ org.apache.commons.lang.StringUtils  isBlank
 									
 -------------------------------commons-lang3
 <dependency>
-  <groupId>org.apache.commons</groupId>
-  <artifactId>commons-lang3</artifactId>
-  <version>3.8.1</version>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-lang3</artifactId>
+    <version>3.12.0</version>
 </dependency>
 
 -------------------------------commons logging 
@@ -3361,7 +3362,7 @@ public class UserJson {
     private String userName;
 	
 	@JsonProperty("joinDate")
-	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")// timezone="GMT+8"
     private Date joinDate;
 	
     @JsonIgnore
@@ -4503,6 +4504,7 @@ ActiveMQ有使用
 
  
 -----------Dozer 
+复制Bean属性
 https://github.com/DozerMapper/dozer/
 <dependency>
     <groupId>com.github.dozermapper</groupId>
@@ -4510,7 +4512,7 @@ https://github.com/DozerMapper/dozer/
     <version>6.5.0</version>
 </dependency>
 dozer-core-6.5.0.jar
-复制Bean属性
+
 
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
@@ -4535,6 +4537,85 @@ DestinationClassName destObject = mapper.map(sourceObject, DestinationClassName.
 
 System.out.println(destObject.getBirthday().equals(sourceObject.getBirthday()));
 
+ 
+ -------MapStruct 
+ 复制Bean属性
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
+  </properties>
+
+  <dependencies>
+ 	 <dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter</artifactId>
+	</dependency>
+	
+      <dependency>
+        <groupId>org.mapstruct</groupId>
+        <artifactId>mapstruct</artifactId>
+        <version>${org.mapstruct.version}</version>
+    </dependency> 
+	
+   <dependency>
+         <groupId>org.mapstruct</groupId>
+         <artifactId>mapstruct-processor</artifactId>
+        <version>${org.mapstruct.version}</version>
+    </dependency>  <!-- 如加这个就不用 maven-compiler-plugin 了 -->
+
+  </dependencies>
+  <build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+                <source>1.8</source>  
+                <target>1.8</target> 
+                <annotationProcessorPaths>  <!-- 对没有加mapstruct-processor依赖时 -->
+                    <path>
+                        <groupId>org.mapstruct</groupId>
+                        <artifactId>mapstruct-processor</artifactId>
+                        <version>${org.mapstruct.version}</version>
+                    </path> 
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+    </plugins>
+	
+	
+ //  依赖于  type org.springframework.stereotype.Component (spring boot)
+//mvn compile在target下生成源码
+Car car = new Car( "Morris", 5, CarType.SEDAN );
+CarDto carDto = CarMapper.INSTANCE.carToCarDto( car );
+System.out.println(carDto);
+
+
+public enum CarType {
+	SEDAN 
+}
+
+@Mapper 
+public interface CarMapper {
+    CarMapper INSTANCE = Mappers.getMapper( CarMapper.class );  
+    @Mapping(source = "numberOfSeats", target = "seatCount")
+    CarDto carToCarDto(Car car);  
+}
+
+
+public class CarDto {
+    private String make;
+    private int seatCount;
+    private String type;
+	//...
+}
+public class Car {
+    private String make;
+    private int numberOfSeats;
+    private CarType type;
+//...
+}
 -----------liquibase
 https://www.liquibase.org
 https://github.com/liquibase/liquibase

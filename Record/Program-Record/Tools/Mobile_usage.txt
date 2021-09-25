@@ -1,4 +1,7 @@
-
+投屏 手机->电视端
+	1 电视端，wifi设置附近有开关	
+	2. 手机端 Settings->more->cast->打开
+手机->电脑端
 
 ------win 360手机助手
 短信,更新软件后的目录在 X:\360Downloads\Apk
@@ -11,13 +14,19 @@
 360一键Root
 
 =============Android
+
+
 华为商店在  老版本在 /HiSpace/application ,新版本在
 360手机助手在   /360downlaod
 firefox到  /download
 碗豆下载目录 /wandoujia/app
 沃商店下载目录 /wostore
-百度商店下载目录/baidu/AppSearch/downloads
-小米商店下载目录 /MiMarket/files/
+百度商店下载目录/baidu/AppSearch/downloads 
+
+MIUI 应用市场下载目录 /data/com.xiaomi.market/files/apk
+MIUI 定时关机,设置-> 电池性能 ->电池 -> 定时开关机  ，自动任务里有定时飞时模式
+MIUI 设置应用上网权限 ，手机管家->(系统工具组中的)网络助手->联网控制 和 流量排行
+MIUI 日期和时间显示设置页面中，点击打开使用24小时
 
 
 截图  音量减小键和电源键同时按  <手机存储根>/Pictures/Screenhost  目录 

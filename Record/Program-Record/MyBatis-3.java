@@ -711,7 +711,41 @@ public User getUserCollectionJobs();
 public  User getUserById(int user_Id);
 
 
+ //不建议@中使用xml语法,里面就是用 <script></script>包起来(也可单独用在@Select中的SQL),里面就可以用 <for> ,因是XML所以<要用&lt;
+ @Lang(ＭyIdsXMLLanguageDriver.class)
+ @Select("select * from user where userId in (#{userIds})")
+ @Results(value = {
+ 		@Result(property="userName", column="user_Name") 
+ })
+ public List<User> queryByIds(@Param("userIds") List<Integer> userIds);
+ 
+ public class ＭyIdsXMLLanguageDriver extends XMLLanguageDriver implements LanguageDriver {
+    private final Pattern inPattern = Pattern.compile("\\(#\\{(\\w+)\\}\\)");
+    @Override
+    public SqlSource createSqlSource(Configuration configuration,
+                                     String script, Class<?> parameterType) {
+        Matcher matcher = inPattern.matcher(script);
+        if (matcher.find()) {
+            script = matcher.replaceAll("(<foreach collection=\"$1\" item=\"__item\" separator=\",\" >#{__item}</foreach>)");
+        }
+        script = "<script>" + script + "</script>";
+        return super.createSqlSource(configuration, script, parameterType);
+    }
+}
 
+//不建议 
+ @Select("<script>select * from user "+
+ 	    "        where  userId in" +
+         " <foreach collection=\"userIds\" item=\"item\" open=\"(\" separator=\",\" close=\")\">" +
+         " #{item}" +
+         " </foreach>"+
+          "</script>")
+ @Results(value = {
+ 		@Result(property="userName", column="user_Name") 
+ })
+ public List<User> queryByIds2(@Param("userIds") List<Integer> userIds);
+    
+    
 @UpdateProvider
 @DeleteProvider
 

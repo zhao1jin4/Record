@@ -1057,6 +1057,18 @@ if (res) {
 }
 
 
+
+现在Redis没有过期清空Map中的某个entry的功能，只能是清空Map所有的entry。Redission提供了这种功能。  测试成功
+
+//加StringCodec.INSTANCE ,key是可读的字串，value也有部分是调用对象的toString()保存的， 从redis里再取也只有按String取
+//RMapCache<String, SomeObject> keyExpireMap = redisson.getMapCache("keyExpireMap",StringCodec.INSTANCE);  
+
+RMapCache<String, SomeObject> keyExpireMap = redisson.getMapCache("keyExpireMap",);  
+keyExpireMap.put("key10", new SomeObject(), 10, TimeUnit.SECONDS);
+keyExpireMap.put("key20", new SomeObject(), 20, TimeUnit.SECONDS);
+ 
+
+
 @Configuration
 public class RedissonConfig {
  @Value("${spring.redis.host}")

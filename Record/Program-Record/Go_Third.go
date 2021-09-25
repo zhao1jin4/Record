@@ -267,7 +267,9 @@ func main() {
 	}
 	log.Printf("Greeting: %s", r.GetMessage())
 }
-------------------
+------------------ 
+
+
 
 ---中文转拼音
 https://github.com/mozillazg/go-pinyin

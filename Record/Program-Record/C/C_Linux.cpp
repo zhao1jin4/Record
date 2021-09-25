@@ -14,23 +14,26 @@ http://www.linuxforum.net/books/automake.html
 
 MySQL 源码用的boost C++ libraries 1.59 , 二进制文件名使用glibc  
 
-SUNStuio基于Netbeans的
 Anjuta
-Visual Studio Code-1.26  for linux x64
+Visual Studio Code  (Visual Studio Community )
 eclipse CDT
 CLion 基于Intellij Idea 
 
 
-gcc -o libxxxx.so -shared -fPIC a.o b.o (生成动态链接库)
-使用时和静态库一样,加在一起编译,要加头文件的,文件名用全名就可以了(不用少前缀lib,不用少后缀dll)
-C_INCLUDE_PATH=c:\MinGW\include
-CPLUS_INCLUDE_PATH=c:\MinGW\include\c++\3.4.5;c:\MinGW\include\c++\3.4.5\mingw32;c:\MinGW\include\c++\3.4.5\backward;c:\MinGW\include
-LD_LIBRARY_PATH=c:\MinGW\lib
-LIBRARY_PATH=c:\MinGW\lib
-CLASSPATH=.;
 PATH=
+命令行编译可不用设置下面环境变量
+#LIBRARY_PATH 	=  C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib
+#LD_LIBRARY_PATH 	=  C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib
 
-ranlib == ar s   建索引 /// ar crs   (create replace  symbol) xx.a yy.o
+#C_INCLUDEDE_PATH = C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\include
+#CPLUS_INCLUDE_PATH =C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\include;C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include
+ 
+复制mingw32-make.exe 为 make.exe
+
+.cpp文件要用g++,而不能用gcc
+ 
+ 
+ranlib 命令 效果同 ar s  命令   建索引 /// ar crs   (create replace  symbol) xx.a yy.o
 
 
 windows(MinGW) 下dll转换成.a
@@ -40,25 +43,12 @@ windows(MinGW) 下dll转换成.a
 	g++ -shared   -o xxx.dll yyy.cpp 来生成dll文件
 
 
---------mingw-get-inst-20111118   选择gcc,g++自动带gdb 
-
-set PATH=C:\MinGW\bin
-set LIBRARY_PATH=C:\MinGW\lib
-set C_INCLUDEDE_PATH=C:\MinGW\include
-set CPLUS_INCLUDE_PATH=C:\MinGW\lib\gcc\mingw32\4.6.1\include;C:\MinGW\include
-以下是CDT 自动识别的
-C:\MinGW\lib\gcc\mingw32\4.6.1\include\c++\mingw32
-C:\MinGW\lib\gcc\mingw32\4.6.1\include\c++
-C:\MinGW\lib\gcc\mingw32\4.6.1\include\c++\backward
-C:\MinGW\lib\gcc\mingw32\4.6.1\include-fixed
+生成动态链接库(linux)
+	gcc -o libxxxx.so -shared -fPIC a.o b.o 
+	使用时和静态库一样,加在一起编译,要加头文件的,文件名用全名就可以了(不用少前缀lib,不用少后缀dll)
 
 
-复制mingw32-make.exe 为 make.exe 就可以了！
-
- 
-
-.cpp文件要用g++,而不能用gcc
-
+------
 
 /* 如果使用的是非GNU C, 那么就忽略__attribute__ */
 　　#ifndef __GNUC__
@@ -382,7 +372,7 @@ gdb命令是linux的c的 debug环境
 用gdb 必须在g++ 是用-g 选项
 	>pwd 	//看当前目录
 	>file xxxpro (要debug的程序)
-	>breake xx.c:20//设断点xx.c的20行  ,也可只 20
+	>break xx.c:20//设断点xx.c的20行  ,也可只 20
 	>run
 	>print i		//显示i变量值
 	>po(print-object) xx
@@ -449,6 +439,17 @@ g++的选项：
 gcc test.cpp -o test `pkg-config --libs --cflags gtk+-2.0`    
 才可用include<gtk/gtk.h> 要安装gtk2-devel才行
 
+ 
+`g++ -print-prog-name=cc1plus` -v  或
+/usr/lib64/gcc/x86_64-suse-linux/9/cc1plus -v 显示的 INCLUDE 都在CDT中
+
+/etc/ld.so.conf 保存默认动态库的搜索路径，即LD_LIBRARY_PATH对应的值
+	/usr/local/lib64
+	/usr/local/lib
+	include /etc/ld.so.conf.d/*.conf   (*/)
+
+
+ 
 linux  下有
 	#include <stdio.h>
 	#include <stdlib.h>
@@ -617,6 +618,9 @@ int main(int argc, char *argv[])
 	echoserver.sin_addr.s_addr = htonl(INADDR_ANY); /* Incoming addr */
 	echoserver.sin_port = htons(atoi(argv[1])); /* server port */
 
+	//little endian 小端字节序：低字节存于内存低地址；高字节存于内存高地址  (intel全部是这个)
+	//big endian 大端字节序：高字节存于内存低地址；低字节存于内存高地址 (网络字节序)
+	
 	/* Bind the server socket */
 	if (bind(serversock, (struct sockaddr *) &echoserver, sizeof(echoserver))
 			< 0)

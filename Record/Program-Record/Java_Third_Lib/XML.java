@@ -129,6 +129,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 public static String objToXml(Object srcObj)
 {
 	XStream xStream = new XStream(new DomDriver());
+	//xstream.alias("xmlRoot", srcObj.getClass());//xml根标签名字，类可以没有任何注解
 	xStream.autodetectAnnotations(true);	// 使在Bean中的注解生效
 	return  xStream.toXML(srcObj);
 }
@@ -137,7 +138,29 @@ public static <T>  T xmlToObj(String xml,Class<T> clazz)
 {
 	if(xml == null) 
 		return null;
-	XStream xStream = new XStream(new DomDriver());
+	//XStream xStream = new XStream(new DomDriver());
+	
+  XStream xStream = new XStream(new DomDriver()){
+            //避免xml出现多余字段报错
+            @Override
+            protected MapperWrapper wrapMapper(MapperWrapper next) {
+                return new MapperWrapper(next){
+                    @Override
+                    public boolean shouldSerializeMember(Class definedIn, String fieldName) {
+                       if(definedIn==Object.class){
+                            try{
+                                return this.realClass(fieldName) !=null;
+                            }catch (Exception e){
+                                return false;
+                            }
+                       }else{
+                           return super.shouldSerializeMember(definedIn,fieldName);
+                       }
+                    }
+                };
+            }
+        };
+
 	xStream.processAnnotations(clazz);//声明使用了注解
 	Object obj = xStream.fromXML(xml);
 	return (T)obj;
@@ -152,4 +175,5 @@ public class MyRequest {
 	@XStreamImplicit(itemFieldName = "Body")
 	private List<MyBody> body;
 }
+ 
 

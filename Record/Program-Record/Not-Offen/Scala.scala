@@ -32,6 +32,14 @@ Spark 也有 Scala的支持
 Play Framework (Java & Scala)构建Web应用 ,是基于 Akka (message-driven) 文档是epub格式 ,用Adobe Digital Editor-4.5打开后,但不能复制代码,使用Calibre 就可以复制,还可前进后退,点右上角可以切换翻页和滚页模式,还有Mac 版本的
 Akka 线程创建　
 
+
+也有native了
+https://scala-lang.org/blog/2021/01/19/scala-native-0.4-release.html  
+https://github.com/scala-native/scala-native
+http://www.scala-native.org/en/latest/
+
+
+
 环境变量
 SCALA_HOME=C:\Program Files (x86)\scala\
 PATH=%PATH%;%SCALA_HOME%\bin

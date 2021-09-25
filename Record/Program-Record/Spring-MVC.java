@@ -998,14 +998,7 @@ jackson-databind-2.2.3.jar
 <!-- 	<bean id="mappingJackson2HttpMessageConverter"  class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> JSON 简配置-->
 <bean id="mappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"> <!--  produces="application/json" -->
 		<property name="objectMapper" ref="jacksonObjectMapper2"> </property>
-	</bean>
-	<bean id="jacksonObjectMapper"  class="com.fasterxml.jackson.databind.ObjectMapper">
-          <property name="dateFormat">
-              <bean class="java.text.SimpleDateFormat">
-                  <constructor-arg type="java.lang.String" value="yyyy-MM-dd HH:mm:ss"/> 
-              </bean>
-          </property>
-     </bean>
+	</bean> 
 	<!--  对enum类型中有的自定义属性会忽略，只转换每一个分号前的值  -->
 	<bean id="jacksonObjectMapper2" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
         <property name="targetObject">
@@ -1345,7 +1338,8 @@ public Map<String, Object> responseBodyJSON(HttpServletRequest request) {
 //配置 Jaxb2RootElementHttpMessageConverter
 @RequestMapping(value = "/responseBodyXML", method = RequestMethod.GET, produces="application/xml")
 @ResponseBody
-public UserDetails responseBodyXML() {
+// @PostMapping(value = "/responseBodyXML",consumes = "text/html;charset=UTF-8",produces = "text/html;charset=UTF-8")
+ public UserDetails responseBodyXML() {
 	UserDetails userDetails = new UserDetails();
 	userDetails.setUserName("Krishna");
 	userDetails.setEmailId("krishna@gmail.com");
@@ -1591,13 +1585,101 @@ testNG 和 Spring 见Spring.java
 
 
 ------------ RestTemplate
- RestTemplate template=new RestTemplate();
- Map<String,String> headers=new HashMap<>();
- headers.put("Content-Type", "application/json");
- HttpEntity<?> entity=new HttpEntity<>(headers);
- ResponseEntity< Greeting> res= template.exchange("http://127.0.0.1:8080/J_SpringMVC/reset?name=lisi",HttpMethod.GET, entity,Greeting.class);
+ ObjectMapper mapper = new ObjectMapper();
+ mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+ mapper.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+	 
+ SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();  
+ requestFactory.setConnectTimeout(8000);// 设置超时
+ requestFactory.setReadTimeout(8000);
+ RestTemplate template=new RestTemplate(requestFactory);
+ //默认解析日期格式为 yyyy-MM-dd'T'HH:mm:ss.SSSZ， RestTemplate 没有全局设置地方，只能在每个属性上加 @JsonFormat
+ 
+ //读源码的方式来修改
+template.setMessageConverters(Arrays.asList(new MappingJackson2HttpMessageConverter(mapper)));
+		 //或者
+//		 template.getMessageConverters().forEach(i->{
+//			 if(i instanceof MappingJackson2HttpMessageConverter) {//使用XML中有配置
+//				 MappingJackson2HttpMessageConverter jackson= (MappingJackson2HttpMessageConverter)i;
+//				 jackson.setObjectMapper(mapper);
+//			 }
+//		 });
+ 
+ 
+HttpHeaders headers = new HttpHeaders();   
+headers.add("Accept", MediaType.APPLICATION_JSON.toString());   
+HttpEntity<Map<String,String>> headerAndBody = new HttpEntity<>(null, headers);
+Map<String,Object> map=new HashMap<>(); 
+map.put("name", "lisi"); 
+map.put("age", 29); 
+ResponseEntity< Greeting> res= template.exchange(webRoot+"/rest/get.mvc?name={name}&age={age}",HttpMethod.GET, headerAndBody,Greeting.class,map);
+//ResponseEntity< Greeting> res= template.exchange(webRoot+"/rest/get.mvc?name={x}&age={y}",HttpMethod.GET, headerAndBody,Greeting.class,"lisi",29);
 
 
+//拦截器读一次，使用处不能再读结果了，RestTemplate必须加特殊处理
+RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
+
+//RestTemplate 支持增加拦截器 ,自己的类实现了 implements ClientHttpRequestInterceptor
+restTemplate.setInterceptors(Collections.singletonList(new WxPayAuthorizationInterceptor()));  
+
+
+HttpHeaders headers = new HttpHeaders();
+MediaType type = MediaType.parseMediaType("application/json; charset=UTF-8");
+headers.setContentType(type);
+headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+String json="{\"id\":11,\"content\":\"abc\"}";
+HttpEntity<String> formEntity = new HttpEntity<String>(json, headers);
+Greeting result = restTemplate.postForObject(webRoot+"/rest/post.mvc",  formEntity, Greeting.class);//URL不能加参数
+System.out.println(result);
+
+
+ 
+//POST form FORM_URLENCODED 使用  MultiValueMap
+HttpHeaders headers = new HttpHeaders(); 
+MediaType type = MediaType.APPLICATION_FORM_URLENCODED;
+headers.setContentType(type);
+headers.add("Accept", MediaType.APPLICATION_JSON.toString());  
+MultiValueMap<String,String> map=new LinkedMultiValueMap<>();
+map.add("username","xxx"); 
+HttpEntity<MultiValueMap<String,String>> formEntity = new HttpEntity<>(map, headers);
+String result = restTemplate.postForObject(webRoot+"/form/post.mvc",  formEntity, String.class); 
+System.out.println("read second time:"+result);
+
+	
+public class WxPayAuthorizationInterceptor implements ClientHttpRequestInterceptor {
+	@Override
+	public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
+			throws IOException {
+		HttpHeaders headers = request.getHeaders();
+		headers.add("Authorization", "xx");
+		System.out.println("rest template before=="+new String(body));
+		ClientHttpResponse resp = execution.execute(request, body);
+		System.out.println("rest template after resp Code=="+resp.getRawStatusCode());
+		
+		if(resp.getRawStatusCode()==200) { 
+			String ser = getHeader(resp, "Wechatpay-Serial");
+			
+			//拦截器读一次，使用处不能再读结果了，RestTemplate必须加特殊处理
+			StringBuilder inputStringBuilder = new StringBuilder();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(resp.getBody(),"UTF-8"));
+	        String line = bufferedReader.readLine();
+	        while (line != null) {
+	            inputStringBuilder.append(line);
+	            inputStringBuilder.append('\n');
+	            line = bufferedReader.readLine();
+	        }
+	        System.out.println("rest template after resp body=="+inputStringBuilder.toString());
+		}
+		return resp;
+	}
+	private String getHeader(ClientHttpResponse resp, String head) {
+		List<String> values = resp.getHeaders().get(head);
+		if (values!=null && values.size() > 0)
+			return values.get(0);
+		else
+			return null;
+	}
+}
 ------------ Spring整合Servlet
 
  <!--Spring整合Servlet  Filter类中就可以注入Spring容器中的类 , WebApplicationContextUtils 不如这种方便 -->
@@ -1941,7 +2023,10 @@ public class CorseWebConfig implements WebMvcConfigurer {
 	 
 }
 ----
-HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder
-        .getRequestAttributes()).getRequest();
-		
+HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+WebApplicationContext webApplicationContext=WebApplicationContextUtils.getRequiredWebApplicationContext(request.getServletContext());
+
+
+
+
 		

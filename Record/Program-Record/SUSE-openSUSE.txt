@@ -10,8 +10,12 @@ openSUSE-leap-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,
 	GStreamer是在Linux下创建流媒体的应用程序框架
 	ibus,fcitx,cyrus,TiggerVNC
 	Mesa(openGL) 
-	
-	 
+
+openSUSE  Leap 15.3  发布时间  June 02, 2021,但真机安装后启动报错？？？ VMware安装正常(15.0,15.1,15.2都正常)
+	下载iso文件不要从国内的镜像下，会在安装时报签名失败,rpm错误,导致没办法安装(vmware安装也是,说明镜像不是复制iso而各镜像站点单独生成的)
+		,日本的镜像下载的(手工生成sha256的值和官方上的一样 )只有一次提示签名失败
+
+
 Xfce桌面
 Xournal 手写笔,草图工具, journal 日报(windows 版本有 autodesk sketchbook)
 Xournalpp 是使用CPP写的
@@ -812,34 +816,7 @@ zypper install -y mariadb\*   可通配安装
 /etc/init.d/boot.local文件中添加命令(openSUSE-13.2不用了)
 echo OFF >/sys/kernel/debug/vgaswitcheroo/switch
 
----配置打印机
-Print Setting应用 -> Add按钮 ->NetWork Printer->Windows Printer via SAMBA
-输入地址形式 smb://[workgroup/]server:port/printer
-
----CUPS  (Common UNIX Printing System)
- 'Internet Printing Protocol' (IPP) 
- Line Printer Daemon (LPD) Service
  
-/etc/init.d/cups start 监听 631端口
-
-即目录 /usr/lib/systemd/system 有sshd.service 也可 systemctl start  sshd.service
- systemd-analyze plot > system.svg 生成系统启动时各服务花的时间
-systemctl | grep cups   相当于redhat的service命令
-systemctl stop cups.service 
-systemctl stop cups.path 
-systemctl stop cups.socket 
-
-systemctl start cups.service 
-
-/etc/cups/cupsd.conf 服务端
-
-/etc/cups/client.conf 客户端
-ServerName server
-
-http://127.0.0.1:631 有界面,可生成配置文件,如要仿问admin页面,要修改/etc/cups/cupsd.conf中的权限设置
-
- 
-
 -------------fcitx 输入法 
 Free Chinese Input Tool for X  
 输入文字提示背界是灰色，文字颜色
@@ -1063,7 +1040,8 @@ README 只支持ubuntu
 又提示 Xlib.error.DisplayConnectionError: Can't connect to display ":0": b'No protocol specified\n'
 
 ---
-rpm -ivh unrar-4.0.4-10.1.7.x86_64.rpm
+
+rpm -ivh unrar-4.0.4-10.1.7.x86_64.rpm  
 yast2 安装 gparted
 
 unar Record.zip  可以成功解决zip包中是windows的GBK编码的文件名  默认是和unzip生成相同的目录
@@ -1174,7 +1152,7 @@ Python写的性能不大好
 不是python 比komodoedit 要快 
 openSUSE-leap-15可以 --nodeps安装fedora20版本的rpm
 
---------- starUML 
+--------- starUML
 libXtst is needed by StarUML-4.0.1-1.x86_64
 libuuid is needed by StarUML-4.0.1-1.x86_64
 nss is needed by StarUML-4.0.1-1.x86_64
@@ -1192,13 +1170,9 @@ Java 11+ ganttproject-3.0.3000.zip是二进制包，但在linux不能启动，�
 -----Robo 3T 
 
 -要破解
-Charles－4.2.5
+Charles－4.6.1 (已破解)
 Beyond Compare 3 在 openSUSE leap-15 安装不了依赖, 4可以安装未破解
-
-Navicat-12.1
-	linux其实是用wine运行的, navicat121_premium_en_x64/wine/share/wine/   
-	chmod u+x  Navicat_Keygen_Patch_v4.3_By_DFoX.exe 
-	wine Navicat_Keygen_Patch_v4.3_By_DFoX.exe 才可运行，破解无效
+ 
 
 　
 DbVisualizer Pro 10.0.16
@@ -1439,8 +1413,8 @@ https://snapcraft.io/docs/installing-snapd
 从 Snap Store 下载，地址是 https://snapcraft.io/store
 
 --openSUSE snap
-zypper removerepo snappy 
-zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.1/ snappy
+zypper removerepo snappy  
+zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.2 snappy
 	
 zypper install snapd  安装下面 
     squashfs-4.3-lp151.2.3.x86_64.rpm		openSUSE-leap-15.1 DVD 中就有的
@@ -1448,6 +1422,7 @@ zypper install snapd  安装下面
 
 sudo systemctl enable snapd
 sudo systemctl start snapd
+ 
 
 --CentOS 7.6+ 当安装epel-release 就可
 yum install snapd

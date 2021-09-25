@@ -1,6 +1,7 @@
-﻿﻿Eclipse 4.17.0			 compiler 到jdk 14
-Eclipse 2020-12(4.18.0)   compiler 到jdk 15
-Eclipse 2021-03(4.19.0)   compiler 到jdk 15 
+﻿Eclipse 2021-06(4.20.0)   compiler 到jdk 16
+Eclipse 2021-09(4.21.0)    compiler 到jdk 16
+xxx 					  compiler 到jdk 17  LTS
+
 
 =======================================eclipse==========================
 快捷键
@@ -308,32 +309,57 @@ terminal 可以选择GitBash
 ----
 
 ===================================== Eclipse-4.15(2020-03)  插件 CDT 9.11.0
-STS-3.9.12-e4.15.0 安装 CDT 插件 help->install安装选择zip
+安装 CDT 插件 help->install安装选择zip
 	只选中CD Main Feature组
 	   CDT Option Feature组 下有 Visual C++ Support, C/C++ Docker Container
 	   Uncategorize组下有 freemarker  
-	
--------------CDT与MinGW集成----------------------------
-PATH=  D:\program\MinGW\bin
 
-LIBRARY_PATH 	= 	D:\program\MinGW\lib
-C_INCLUDEDE_PATH = 	D:\program\MinGW\include
-CPLUS_INCLUDE_PATH =D:\program\MinGW\lib\gcc\mingw32\4.6.1\include;D:\program\MinGW\include
+
+`g++ -print-prog-name=cc1plus` -v  或
+/usr/lib64/gcc/x86_64-suse-linux/9/cc1plus -v 显示的 INCLUDE 都在CDT中
+
+CDT 比 VSCode 好的地方是 鼠标滑过C的函数上，会有文档提示，但struct或C++类，类中的函数就不行了
+
+
+Debug时显示源码
+Window -> Preferences -> C/C++ -> Debug-> Common Source Lookup Path -> Add. 
+cygdrive/c	对应 c:\
+
+eclipse代码 显示变宽  windows-preferences-> C++- >Code Style-> 新建自己的->edit->line wraping标签中 修改上方的Maximun line width
+
+linux eclipse不变色解决方案  window ->preference-> C/C++ ->indexer->选中index all files
+如果有使用宏定处,鼠标指向它,待出现提示,再指向大标题,就出现宏展开的
+
+如建立的项目是UTF-8 ，控制台可能会乱码，在preferences->general->workspace -> text encoding 选择UTF-8 才行
+
+preferences->C++->Debug-> character encoding:UTF-8 重启后 编译报错代码处有中文注释，在控制台就不会乱码
+
+ 在 linux gcc 下调试  C++11 thread 有时 要做一步 tep Over(F6)才能显示源码
+	
+------------- CDT 与 MinGW 集成----------------------------
+
+PATH =  C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
 
 include目录 ,如是C项目CDT自动加
-	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include-fixed
-include目录 ,如是CPP项目CDT自动加
-	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include-fixed
-	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include\c++
-	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include\c++\backward
-	D:\program\MinGW\lib\gcc\mingw32\4.6.1\include\c++\mingw32
+	C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\include
+	C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include
+	C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include-fixed
 	
+include目录 ,如是CPP项目CDT自动加,包含上面的
+	C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include\c++
+	C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include\c++\backward
+	C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include\c++\x86_64-w64-mingw32
+
+命令行编译可不用设置下面环境变量
+#LIBRARY_PATH 	=  C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib
+#LD_LIBRARY_PATH =  C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib
+#C_INCLUDEDE_PATH = C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\include
+#CPLUS_INCLUDE_PATH =C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\include;C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\lib\gcc\x86_64-w64-mingw32\8.1.0\include
+
+ 
 Cygwin可以和Mingw同时在PATH中,而MinGW不能和Cygwin同时在PATH中(在不能编译时)
 右击项目->properties->C++ Build->Enviroment->发现PATH中的值在建立CygWin 和  MinGW 时,第一个值和最后一个值,应该删除最后一个
 
-
---SET LD_LIBRARY_PATH = c:\MinGW\lib
---CLASSPATH=.;
 
 -----------------CDT与Cygwin集成
 
@@ -360,16 +386,16 @@ Debug时记得要把.dll 文件放入PATH中
 可以把lib_include放在其它盘下,注意配置gcc,g++的include 
 
 Cygwin和MinGW可以共存使用,但有些Cygwin在windows不能编译,MinGW还是要的
-
-
-------------------
+ 
 ----------------- CDT 与 VC 集成
 ----安装VC++ 2019 Build Tool , 参考 Rust/VC 中安装 
-除了path还增加下面
+PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\bin\Hostx64\x64  (里面有cl)
 lib=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\lib\x64;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64
 include=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\include;C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt
 
 建立C++项目没有  Microsoft Visual C++ ？
+开始搜索Developer,找到 Developer Command Prompt for VS 2019 在这里启动eclipse cpp 也没有  Microsoft Visual C++ ？,看来要安装VisualStudio了
+
 
 
 ----安装Visual Studio 建立C++项目时可选 Microsoft Visual C++
@@ -377,15 +403,6 @@ include=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\
 
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.10150.0\ucrt\corecrt.h
 ------
-Debug时显示源码
-Window -> Preferences -> C/C++ -> Debug-> Common Source Lookup Path -> Add. 
-cygdrive/c	对应 c:\
-
-eclipse代码 显示变宽  windows-preferences-> C++- >Code Style-> 新建自己的->edit->line wraping标签中 修改上方的Maximun line width
-
-linux eclipse不变色解决方案  window ->preference-> C/C++ ->indexer->选中index all files
-如果有使用宏定处,鼠标指向它,待出现提示,再指向大标题,就出现宏展开的
-
 
 
 =========== Zend Studio 基于eclipse的,有PDT插件
@@ -458,6 +475,23 @@ preferences->go->Installation 设置目录(同GOROOT) C:\Go
 
 debug时依赖gdb命令 ,安装Cygwin的gdb后,调试有时中文乱码??? 控制台显示有缓存，显示顺序有问题 ???
 	
+	
+
+=========== eclipse rust 插件 Corrosion 腐蚀 (eclipse marketplace)
+有单独版本 
+https://download.eclipse.org/corrosion/releases/latest/products/  里面有CDT
+https://eclipse.github.io/corrosion/
+要先设置文件编码为UTF-8
+
+依赖于rust-gbd命令
+Settings->rust->Language Server:中有下载 rust analyzer
+
+官方提供的截图也是 linux下使用，在windows下debug没试成功???
+windows下不能运行rust-gdb --version (%USERPROFILE%\.cargo\bin下有rust-gdb) ,不兼容 stable-x86_64-pc-windows-msvc  
+安装 rust-1.54.0-x86_64-pc-windows-gnu.msi 默认位置 C:\Program Files\Rust stable GNU 1.54
+GitBash 中用 ./rust-gdb --version 可以，但怎么让 eclipse的Corrosion使用GitBash??
+
+
 =======================================eclipse 其它插件
 Eclipse Marketplace  搜索 Kotlin , MyBatis generator(可生成kotlin代码)
 mybatipse 插件(mybatis的eclipse插件) http://dl.bintray.com/harawata/eclipse/
@@ -719,7 +753,7 @@ eclipse-3.9.7 marketplace 插件 kubernetes manifest editor 0.0.2
 eclipse要marketplace安装
 	React::CodeMix 3 插件 
 	Vue.js:CodeMix 3 插件  
-(也有Python CodeMix 3 ,Go CodeMix 3语法高亮)
+(也有Python CodeMix 3 ,Go CodeMix 3语法高亮,把vscode中的功能移到eclipse中)
 
 -----Node.js IDE
 
@@ -759,21 +793,22 @@ https://marketplace.eclipse.org/content/wolfdbmanager2-rcp
 
 ----hbase 插件 无???
 
------eclipse  
-https://github.com/henningjensen/bpep
-Builder Pattern  生成代码
+-----eclipse Builder Pattern  生成代码
+https://github.com/henningjensen/bpep  已经N年不更新了
+	Download the jar file
+	Put the jar file in the eclipse/dropins directory
+	右击源码->Source   ->generate build pattern code 
 
-Download the jar file
-Put the jar file in the eclipse/dropins directory
-右击源码->Source   ->generate build pattern code 
-
-
+marketplace中搜索 builder有spark builder generator 
+	安装完成后工具栏有个按钮，在设置中可取消 Add @Generate annotation
+ 
 ------plugin lombok
 https://projectlombok.org/setup/eclipse  
 install new software 写入地址  https://projectlombok.org/p2
  
 
 
+---Alibaba Cloud Toolkit
 
 
 

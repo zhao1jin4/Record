@@ -747,6 +747,7 @@ META-INF/MANIFEST.MF 文件中的Main函数不会找classpath环境变量要用C
 :后一定要有一个空格,:前不能有空格, 多个jar包用空格分隔,可以把jar包放在目录下也可以放在根下
 引用的第三方的jar包只能放在本jar包外面( eclipse copy 选项)
 
+Manifest-Version: 1.0 #可能必须有这个
 Main-Class: org.zh.TestSWT
 Class-Path: . lib/swt.jar mysql.jar
 
@@ -792,6 +793,8 @@ String className = stackTraceElement.getClassName();
 stackTraceElement.getMethodName();
 
 throwable.printStackTrace(new PrintStream( xxx  ));
+
+throwable.printStackTrace(new PrintWriter( xxx  ));
 ---------------java.util.*
 静态内部类   只有该外部类调用此内部类
 
@@ -1030,10 +1033,52 @@ Instrumentation类的
 appendToBootstrapClassLoaderSearch(JarFile jarfile)  
 appendToSystemClassLoaderSearch(JarFile jarfile) 
 
---------------------------JDK17 据说是 LTS
+--------------------------JDK17  新特性 LTS
+https://openjdk.java.net/projects/jdk/17/ 可切换版本里有 Features 
+
+ 
 Alpine Linux
+Sealed 类正式可用
+DatagramSocket  支持 joining multicast groups,新的方法 joinGroup 和 leaveGroup
+随机数生成增强
+恢复strictfp 
 
+Foreign Function & Memory API (Incubator)
+Vector API (Second Incubator)
+----Pattern Matching for switch (Preview)
+Object o=new String("123");
+// Old code
+if (o instanceof String) {
+	String s = (String)o;
+	System.out.println(s);
+} 
+// New code
+if (o instanceof String s) {
+	System.out.println(s);
+}
+static String formatterPatternSwitch(Object o) {
+    return switch (o) {
+        case Integer i -> String.format("int %d", i);
+        case Long l    -> String.format("long %d", l);
+        case Double d  -> String.format("double %f", d);
+        case String s  -> String.format("String %s", s);
+        default        -> o.toString();
+    };
+}
+static void testFooBar(String s) {
+    switch (s) {
+        case null         -> System.out.println("Oops");
+        case "Foo", "Bar" -> System.out.println("Great");
+        default           -> System.out.println("Ok");
+    }
+}
 
+#Foreign Function & Memory API (Incubator)
+#Vector API (Second Incubator)
+
+New macOS Rendering Pipeline
+macOS/AArch64 Port
+删除 JIT Compiler，Applet API , RMI Activation,  Deprecate the Security Manager
 --------------------------JDK16 新特性
 
 
@@ -1147,9 +1192,9 @@ JMX
 	com.sun.management.jmxremote.local.port=<port#>
  
  
-//--preview 关键字record,会自动重写equals,hashCode,toString
+//--preview 关键字 record,会自动重写equals,hashCode,toString
 record Point(int x, int y) { }
-//---preview   关键字 sealed(密封)  permits
+//---preview (jdk17正式用)   关键字 sealed(密封)  permits
 //只有permits关键字后面的类， 能够实现这个接口,必须和封闭类处于同一模块（module）或者包空间（package）里
 public abstract sealed class Shape   permits Circle, Rectangle 
 {
@@ -1214,9 +1259,6 @@ switch (day) {
 
 
 --------------------------JDK12 新特性
-idea-2019.1 可选到12的编译级别， eclipse-4.12.0(2019-06)可选到12编译
- 
-
 ---switch 功能还是Preview阶段 javac 中增加 --enable-preview
 case可多个enum,可没有break;
 	
@@ -1274,6 +1316,19 @@ Oracle JDK 11 是LTS（长期支持）版本
   <version>2.0.1.Final</version> 
 </dependency>
 
+------
+
+<dependency>
+    <groupId>javax.xml.bind</groupId>
+    <artifactId>jaxb-api</artifactId>
+    <version>2.3.1</version>
+</dependency>
+ 
+<dependency>
+    <groupId>javax.ws.rs</groupId>
+    <artifactId>javax.ws.rs-api</artifactId>
+    <version>2.1.1</version>
+</dependency>
 
 //javax.jws.WebService web;//JDK 11没有这个类 
 //删java.xml.ws , java.xml.bind  ,java.xml.ws.annotation 
@@ -1373,6 +1428,8 @@ StackWalker.getInstance( StackWalker.Option.RETAIN_CLASS_REFERENCE).forEach(Syst
 
 
 --------------------------JDK9新特性
+https://openjdk.java.net/projects/jdk/9/ 可切换版本里有 Features
+
 --module-path  缩写为-p 如放JDK,为了兼容老版本的jar放 --class-path中(eclipse)
 --add-modules
 
@@ -2063,7 +2120,7 @@ getSuperclass()直接返回父亲的Class。
 得到T.class  
 //cglib 就不行了
 Class  persistentClass=(Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-
+ 
 Type type=this.getClass().getGenericSuperclass();
 Type requestType= ((ParameterizedType) type).getActualTypeArguments()[0];//MyParent<I,O>  其中[0]是第一个I
 Class<AbstractImmediateRequest>  requestClass=(Class<AbstractImmediateRequest>)requestType;
@@ -2073,6 +2130,13 @@ this.entityType = getClass().getClassLoader().loadClass(entityType);
 
 
  ParameterizedType pt = (ParameterizedType)field.getGenericType(); // field 是List<String> 得到List范型
+ 
+
+Class<WxMessage>  msgClass=(Class) ((ParameterizedType) handler.getClass().getGenericSuperclass()).getActualTypeArguments()[0];//得到范型类
+###要求父类是 extends的而不是implements，因可以多如，如
+class SubscribeEventHandler extends MessageHandler<WxSubscribeMessage> 
+ 
+ 
  ----
 WeakReference
 WeakHashMap的key被实现为一种WeakReference
@@ -2921,6 +2985,8 @@ openssl genrsa -out root-key.key 1024
 2.创建根证书请求文件
 openssl req -new -out root-req.csr -key root-key.key -keyform PEM    (对-key参数,默认PEM,可选DER)  
 #有交互Country Name(C) ,State or Province(ST) ,City,Organization(O),Organizational Unit( ),Common Name(CN),Email , 最小4位challenge password,company name
+-subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=domain.com  #CN的值要与请求地址相同的域名
+
 
 3.自签根证书
 openssl x509 -req -in root-req.csr -out root-cert.cer -signkey root-key.key -CAcreateserial -days 3650   
@@ -2947,8 +3013,8 @@ openssl rsa -noout -text -in root-key.key
 openssl genrsa -out private_key.pem 1024  (像Base64的明文)
 
 2) 创建证书
-openssl req -new -out req.csr -key private_key.pem  -keyform PEM  (对-key参数,默认PEM,可选DER)  
-#有交互Country Name ,Province ,City,Organization,Organizational Unit,Common Name,Email , 最小4位challenge password,company name
+openssl req -new -out req.csr -key private_key.pem  -keyform PEM  (对-key参数,默认PEM,可选DER)   
+
 
 3) 自签署证书
 openssl x509 -req -in req.csr -out public_key.der -outform der -signkey private_key.pem -days 3650
@@ -2967,6 +3033,7 @@ touch /etc/pki/CA/index.txt
 echo 01 > /etc/pki/CA/serial
 
 openssl genrsa -des3 -out /etc/pki/CA/private/cakey.pem 2048					 要设置密码,以后用就要输入 
+
 openssl req -new -days 365 -key  /etc/pki/CA/private/cakey.pem -out careq.pem    要输入很多CN等
 openssl ca -selfsign -in careq.pem -out cacert.pem 								 要cakey.pem的密码 , 提示输y
 # 以上两步可以合二为一
@@ -2978,7 +3045,11 @@ public static boolean verifyCert(X509Certificate userCert, X509Certificate rootC
 	PublicKey rootKey = rootCert.getPublicKey();
 	userCert.checkValidity();
 	userCert.verify(rootKey);
+
 	if (!userCert.getIssuerDN().equals(rootCert.getSubjectDN()))
+		return false;
+	//jdk16 替代方案
+	if (!userCert.getIssuerX500Principal().equals(userCert.getSubjectX500Principal()))
 		return false;
 	boolean isNotExpire =  new java.util.Date().before(userCert.getNotAfter());
 	return isNotExpire;
@@ -3323,11 +3394,19 @@ System.out.println("解码后:"+new String(de_byte));
 	return cipher.doFinal(content.getBytes("UTF-8"));  
 }  
 public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey) throws Exception {  
-	KeyGenerator kgen = KeyGenerator.getInstance("AES");  
+	KeyGenerator kgen = KeyGenerator.getInstance("AES"); 
 	kgen.init(128, new SecureRandom(decryptKey.getBytes()));  
-	  
-	Cipher cipher = Cipher.getInstance("AES");  
+	
+	Cipher cipher = Cipher.getInstance("AES");   //格式为 "algorithm/mode/padding" 或者 "algorithm",如 AES/GCM/NoPadding
 	cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(kgen.generateKey().getEncoded(), "AES"));  
+	
+	
+	//对于 AES/GCM/NoPadding  可以用下面的,未测试
+//		cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(kgen.generateKey().getEncoded(), "AES")
+//		,  new GCMParameterSpec(128, new byte[] {0x22}));//加密使用的随机串byte[]初始化向量 Initialization Vector (IV) 
+//		 //与GCMParameterSpec两个byte[]一起使用
+//		cipher.updateAAD( new byte[] {0x11});
+
 	byte[] decryptBytes = cipher.doFinal(encryptBytes);  
 	  
 	return new String(decryptBytes,"UTF-8");  
@@ -3579,8 +3658,13 @@ System.out.println(certificate.toString());  // 显示证书 有 SHA1withRSA
 java.security.cert.X509Certificate x509=( java.security.cert.X509Certificate) certificate;
 System.out.println("版本号 "+x509.getVersion());
 System.out.println("序列号 "+x509.getSerialNumber().toString(16));
+
 System.out.println("全名 "+x509.getSubjectDN());
 System.out.println("签发者全名"+x509.getIssuerDN());
+ //jdk16替代方案
+  System.out.println("全名 "+x509.getSubjectX500Principal());
+  System.out.println("签发者全名n"+x509.getIssuerX500Principal());
+  
 System.out.println("有效期起始日 "+x509.getNotBefore());
 System.out.println("有效期截至日 "+x509.getNotAfter());
 x509.checkValidity(new Date());//无返回值,抛异常
@@ -4877,6 +4961,9 @@ DateFormat formatMedium=DateFormat.getDateTimeInstance(DateFormat.MEDIUM,DateFor
 System.out.println(formatMedium.format(new Date()));// 2012-7-31 10:44:09
 yyyy-Mon-dd中的Mon月份在中文环境下Local.setDefault(Locale.CHINESE)会显示为"n月",到Oracle中就可能会报错
 
+System.out.println(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+		        .format(new Date()));;//XXX 是 +08:00
+				
 format和parse方法
 alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss'//oracle大小写无关
 
@@ -4899,7 +4986,7 @@ timer.schedule(new TimerTask(){
 
 Cloneable 接口没有方法,Object的clone方法要使用,必须实现Cloneable接口
 
- 
+clazz.getEnclosingClass() == null ,得到包装类，如内部类可得到外部类  ，null表示最顶层类（接口）
  
 -------- 
 public class TestMain<T>

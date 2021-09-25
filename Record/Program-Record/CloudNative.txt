@@ -10,7 +10,7 @@
 	prometheus(istio)
 	Jaeger(istio使用,distributed tracing 使用go开发)
 	
-	Containerd(容器,从docker分离出来)
+	Containerd(是docker的基础组件之一)
 	
 	TUF(The Update Framework  https://theupdateframework.io/ )
 	Fluentd(Build Your Unified Logging Layer https://www.fluentd.org/)
@@ -21,7 +21,8 @@
 	
 	
 	Open Policy Agent(OPA)  ( www.openpolicyagent.org )
-
+	
+	Linkerd (Service Mesh)
 =================== etcd
 https://github.com/etcd-io/etcd/
 https://etcd.io/docs/  
@@ -760,13 +761,190 @@ http://127.0.0.1:15000/app/
 
 
 
+=======TiKV 国产的 (使用Rust开发，像Etcd，也是使用gRPC，Raft)
+键值KV数据库
+
+
+使用 Prometheus 和  Grafana的端口 是默认的 如
+ Prometheus	9090
+ Node_exporter	9100
+ Grafana	3000
+
+还使用PD
+
+ 
+ nmap-ncat 软件包 ，ncat -l xx 测试端口是否被占用
+  
+ xargs -n1  
+	-n, --max-args 
+ xargs -n1 echo   如输入 a b 会传两次 echo a,echo b
+ 
+ 
+ 
+ 手工安装  下载  https://download.pingcap.org/tidb-latest-linux-amd64.tar.gz
+
+ 启动 PD 
+./bin/pd-server --name=pd1 \
+                --data-dir=pd1 \
+                --client-urls="http://127.0.0.1:2379" \
+                --peer-urls="http://127.0.0.1:2380" \
+                --initial-cluster="pd1=http://127.0.0.1:2380" \
+                --log-file=pd1.log
+  
+启动 TiKV  3个实例  (如启动失败，尝试清除数据目录)
+./bin/tikv-server --pd-endpoints="127.0.0.1:2379" \
+                --addr="127.0.0.1:20160" \
+                --data-dir=tikv1 \
+                --log-file=tikv1.log
+
+./bin/tikv-server --pd-endpoints="127.0.0.1:2379" \
+                --addr="127.0.0.1:20161" \
+                --data-dir=tikv2 \
+                --log-file=tikv2.log
+
+
+./bin/tikv-server --pd-endpoints="127.0.0.1:2379" \
+                --addr="127.0.0.1:20162" \
+                --data-dir=tikv3 \
+                --log-file=tikv3.log
+	
+				
+ 验证
+ ./bin/pd-ctl store  -u http://127.0.0.1:2379
+ #-u, --pd 
+ 
+ 
+ 
+ 如PD监听修改外网,如  192.168.111.128 
+ ./bin/pd-server --name=pd1 \
+                --data-dir=pd1 \
+                --client-urls="http://192.168.111.128:2379" \
+                --peer-urls="http://127.0.0.1:2380" \
+                --initial-cluster="pd1=http://127.0.0.1:2380" \
+                --log-file=pd1.log
+ 
+./bin/tikv-server --pd-endpoints="192.168.111.128:2379" \
+                --addr="192.168.111.128:20160" \
+                --data-dir=tikv1 \
+                --log-file=tikv1.log
+
+#pd-endpoints 为PD的地址
+#addr为本节点外网IP，这不能用127.0.0.1
+
+./bin/tikv-server --pd-endpoints="192.168.111.128:2379" \
+                --addr="192.168.111.128:20161" \
+                --data-dir=tikv2 \
+                --log-file=tikv2.log
+
+./bin/tikv-server --pd-endpoints="192.168.111.128:2379" \
+                --addr="192.168.111.128:20162" \
+                --data-dir=tikv3 \
+                --log-file=tikv3.log
+				
+			
+ 
+ 
+TiKV 底层使用自己pingcap的RocksDB,使用 Raft 一致性算法， 通过Raft操作RocksDB
+Raft 上层有 Raw 和 Transactional两种 API
+
+PD(Placement Driver ) 管理 TiKV cluster
+
+客户端使用 gRPC 和 PD 或 TiKV 交互
+
+
+ 
+ 
+ export PD_ADDR=http://127.0.0.1:2379
+./pd-ctl store 显示所有数据每个有id号
+  
+ 
+./bin/pd-ctl -i  交互模式
+>> cluster
+>> config show     
+>> config show all   
+>> config show cluster-version   #在all里面有这个选项       
+>> health                                
+ 
+ 
+>> store <id> 看某个信息，没有数据
+>> store delete <id>  
+ 
+
+如何命令行显示数据???  命令做很粗糙，提示不友好 
+tikv print 命令没有详细文档??? 
+没有界面管理工具，比较难用
+ 
+ 
+
+ <dependency>
+	    <groupId>org.tikv</groupId>
+	    <artifactId>tikv-client-java</artifactId>
+	    <version>3.1.2</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.slf4j</groupId>
+	    <artifactId>slf4j-api</artifactId>
+	    <version>1.7.32</version>
+	</dependency>
+	
+import org.tikv.common.TiConfiguration;
+import org.tikv.common.TiSession;
+import org.tikv.kvproto.Kvrpcpb;
+import org.tikv.raw.RawKVClient;
+import org.tikv.shade.com.google.protobuf.ByteString;
+
+public class TestTiKVMain {
+	public static void main(String[] args) throws Exception {
+//		String ipPort="127.0.0.1:2379";
+		String ipPort="192.168.111.128:2379";
+		TiConfiguration conf = TiConfiguration.createRawDefault(ipPort);
+		TiSession session = TiSession.create(conf);
+		RawKVClient client = session.createRawClient();
+
+		// put
+		client.put(ByteString.copyFromUtf8("k1"), ByteString.copyFromUtf8("Hello"));
+		client.put(ByteString.copyFromUtf8("k2"), ByteString.copyFromUtf8(","));
+		client.put(ByteString.copyFromUtf8("k3"), ByteString.copyFromUtf8("World"));
+		client.put(ByteString.copyFromUtf8("k4"), ByteString.copyFromUtf8("!"));
+		client.put(ByteString.copyFromUtf8("k5"), ByteString.copyFromUtf8("Raw KV"));
+
+		// get
+		ByteString result = client.get(ByteString.copyFromUtf8("k1"));
+		System.out.println(result.toStringUtf8());
+
+		// batch get
+		List<Kvrpcpb.KvPair> list = client.batchGet(new ArrayList<ByteString>() {
+			{
+				add(ByteString.copyFromUtf8("k1"));
+				add(ByteString.copyFromUtf8("k3"));
+			}
+		});
+		System.out.println(list);
+
+		// scan
+		list = client.scan(ByteString.copyFromUtf8("k1"), ByteString.copyFromUtf8("k6"), 10);
+		System.out.println(list);
+
+		// close
+		client.close();
+		session.close();
+	}
+} 
+
+
+
 =======Open Policy Agent (OPA)
 https://www.openpolicyagent.org/
 0.26.0
 
+=======containerd
+https://github.com/containerd/containerd/releases
+https://containerd.io/
 
+docker软件包有依赖这个，containerd是docker的基础组件之一
 
+kubelet 需要先要通过dockershim去调用Docker，再通过Docker去调用containerd。 
+如果你使用containerd作为K8S容器运行时的话，由于containerd内置了CRI插件，kubelet可以直接调用containerd。 
 
-
-
+官方的入门示例是用 Go语言客户端 代码示例
 

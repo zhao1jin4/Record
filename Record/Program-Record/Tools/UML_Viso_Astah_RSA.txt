@@ -154,12 +154,13 @@ state machine diagram 是状态图
 ------------Visual Paradigm  15  有Mac,Linux版 收费  UML 工具
 
 
------StarUML 3.0 (2018/07)  有Mac,Linux版   UML 工具 收费版
+-----StarUML 3.0 (2018/07)  有Mac,Linux版   UML 工具 收费版,官方说没有时间限制 evaluate(评估) 使用
 *.mdj格式文件 
 file ->export diagram as ->jpeg...
-
+model->add diagram -> sequence /flowchart/...
 ----- Enterprise Architect 13 (EA) 只windows版  收费  UML 工具
 
+----- processOn 国产在线UML流程图
 
 ----- Mindjet MindManager 2016 分支图
 

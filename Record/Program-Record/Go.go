@@ -1,4 +1,6 @@
 gopher  囊地鼠
+2009年11月 GO语言第一个版本发布。
+2012年3月 第一个正式版本Go1.0发布。
 
 https://golang.org/  要翻墙才能出去(Google 的语言) 
 支持多个平台,windows ,linux(有linux ARMv6),mac,freeBSD
@@ -81,7 +83,7 @@ preferences->go->Installation 设置目录(同GOROOT) C:\Go
 但在goClipse中 右击文件 run as -> go applcation ,如是在src目录下不能运行,必须在src目录中子目录才行
 
 debug时依赖gdb命令 ,安装Cygwin的gdb后,调试有时中文乱码??? 控制台显示有缓存，显示顺序有问题 ???
-
+----eclipse插件 CodeMix (把vscode中的功能移到eclipse中)
 ----LiteIDE
 有百度网盘，像是国产的，界面有点像eclipse，其实没有任何关系使用Qt开发的
 打断点，只能点工具栏按钮，不太方便
@@ -114,14 +116,15 @@ terminal  窗口中的文字 不能复制粘贴，不方便
 	go env -w  GO111MODULE=on  表示不下载源码 %USERPROFILE%\go\src下没有新增,%USERPROFILE%\go\pkg\mod(也有源码)和%USERPROFILE%\go\bin有新增
 
 	打开.go文件时  
-	提示 gopls 命令找不到,使用 go get -v  golang.org/x/tools/go/gopls 被墙了
+	提示 gopls 命令找不到,使用 go get -v  golang.org/x/tools/go/gopls 被墙了,如设置了go env -w GOPROXY=  也是可以的
 		https://github.com/golang/tools/tree/master/gopls
 		cd tools-master\go\gopls 执行 go install 
 		
 		#又提示要github.com/jba/templatecheck@v0.5.0 (https://github.com/jba/templatecheck)
 		#下载  "https://proxy.golang.org/github.com/jba/templatecheck/@v/v0.5.0.mod"  失败
 		#go env -w GOPROXY=https://goproxy.cn,direct 再来
-	提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装,可能不行，使用vscode的install按钮是可以的
+	提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装,如设置了go env -w GOPROXY=  也是可以的
+		 使用vscode的install按钮是可以的
 		( 
 			就一个main.go文件
 			又提示 不认导入路径  golang.org/x/tools/go/buildutil , get连接失败，被墙了
@@ -130,14 +133,18 @@ terminal  窗口中的文字 不能复制粘贴，不方便
 			再go get -v github.com/ramya-rao-a/go-outline 就可以了, ~\go\bin下就有go-outline.exe
 		)
 	
-	打开.go文件 -> 调试启动按钮
-	提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,~\go\bin下就有dlv.exe
-		(//上可以成功，这部分不用
-			https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
-			也可下载后进入目录  go install
-		)
-	写代码时 类.时 
-	提示 gocode 找不到 ,  go get -v github.com/uudashr/gopkgs/v2/cmd/gopkgs  安装 
+	#打开.go文件 -> 调试启动按钮 提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,~\go\bin下就有dlv.exe
+	#	(//上可以成功，这部分不用
+	#		https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
+	#		也可下载后进入目录  go install
+	#	)
+	新版本用 dlv-dap，支持远程调试，使用是一样的
+	
+	
+	
+	#写代码时 类.时  提示 gocode 找不到 ,  go get -v github.com/uudashr/gopkgs/v2/cmd/gopkgs  安装 
+	
+	
 	
 	安装后,Debug视图->create a launch.json file 链接->Go: Launch file 或者Go: Launch package, 生成.vscode/launch.json
 	{ 
@@ -237,8 +244,15 @@ C:\Users\<user>\AppData\Roaming\Code\User\settings.json 文件，增加了 "go.g
 
 gofmt 用来格式化代码 
 
-gcc9-go  
 
+gccgo-9  依赖于 libgo14
+gccgo-9  ./hello.go -o hello 如不加 -o 默认输出 a.out
+
+go-9 version 显示go version go1.12.2
+使用同google 的 go, 如 go-9 ./hello.go
+ 
+linux下的 go 和 go1.9 软件包的描述为 A compiled, garbage-collect
+ 
 ---hello.go
 package main //main函数所在文件的包名必须是main,同一文件夹的go文件包名必须全一样,建议用文件夹名
 
@@ -2624,7 +2638,26 @@ func readZip() {
 		fmt.Println()
 	}
 }
- 
+//----------生成图片， 如验证码，二维码用第三方库
+"image"
+"image/gif"
+"image/jpeg"
+"image/png"
+
+//----------base64
+import (
+	"encoding/base64"
+	"fmt"
+)
+secretMessage := []byte("hello你好")
+ciphertext := base64.StdEncoding.EncodeToString(secretMessage) //编码
+fmt.Printf("base64 encode: %s\n", ciphertext)
+
+decodeBytes, err := base64.StdEncoding.DecodeString(encodeString)//解码
+if err != nil {
+	log.Fatalln(err)
+}
+fmt.Println("decode res=", string(decodeBytes))
 
 //-------nexus 私服 私有仓库
 https://help.sonatype.com/repomanager3
@@ -2701,7 +2734,400 @@ func main() {
 }
 
 //----------mail
+ 报 unencrypted connection 表SMTP服务器必须配置SSL
+ 报 x509: certificate relies on legacy Common Name field, use SANs or temporarily enable Common Name matching with GODEBUG=x509ignoreCN=0
  
+GO1.15   X509 CommonName， 过时
+https://golang.google.cn/doc/go1.15#commonname
+用SAN证书 SAN(Subject Alternative Name)
+ 
+
+
+
+openssl genrsa -out ca.key 4096
+
+--ca.conf
+[ req ]
+default_bits       = 4096
+distinguished_name = req_distinguished_name
+
+[ req_distinguished_name ]
+countryName                 = Country Name (2 letter code)
+countryName_default         = CN
+stateOrProvinceName         = State or Province Name (full name)
+stateOrProvinceName_default = JiaDin
+localityName                = Locality Name (eg, city)
+localityName_default        = Shanghai
+organizationName            = Organization Name (eg, company)
+organizationName_default    = circle
+commonName                  = Common Name (e.g. server FQDN or YOUR name)
+commonName_max              = 64
+commonName_default          = domain.com
+
+--
+
+ openssl req   -new   -sha256   -out ca.csr   -key ca.key   -config ca.conf
+  openssl x509 \
+  -req \
+  -days 3650 \
+  -in ca.csr \
+  -signkey ca.key \
+  -out ca.crt
+
+---server.conf
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+
+[ req_distinguished_name ]
+countryName                 = Country Name (2 letter code)
+countryName_default         = CN
+stateOrProvinceName         = State or Province Name (full name)
+stateOrProvinceName_default = Shanghai
+localityName                = Locality Name (eg, city)
+localityName_default        = JiaDin
+organizationName            = Organization Name (eg, company)
+organizationName_default    = circle
+commonName                  = Common Name (e.g. server FQDN or YOUR name)
+commonName_max              = 64
+commonName_default          = domain.com
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1   = *.domain.com
+IP      = 10.10.3.193
+
+---
+
+openssl genrsa -out server.key 2048
+
+    openssl req \
+      -new \
+      -sha256 \
+      -out server.csr \
+      -key server.key \
+      -config server.conf
+
+
+openssl x509   -req   -days 3650   -CA ca.crt   -CAkey ca.key   -CAcreateserial   -in server.csr   -out server.pem  -extensions req_ext   -extfile server.conf
+
+报 x509: certificate signed by unknown authority
+
+cp ca.crt  /usr/share/pki/trust/anchors
+update-ca-certificates 即可
+
+
+
+---my_offical_email_simple.go 
+
+import (
+	"flag"
+	"fmt"
+	"log"
+	"net/smtp"
+)
+	flag_fromaddr := flag.String("fromaddr", "dell-pc.domain.com", "邮件发件人@后地址")
+	flag_fromuser := flag.String("fromuser", "user1", "邮件用户名")
+
+	flag_frompass := flag.String("frompass", "user1", "邮件密码")
+	flag_smtphost := flag.String("smtphost", "dell-pc.domain.com", "SMTP邮件服务器")
+	flag_mailto := flag.String("mailto", "", "收件人")
+	flag.Parse()
+	fmt.Println("fromuser=", *flag_fromuser, ",fromaddr=", *flag_fromaddr, ",frompass=", *flag_frompass,
+		",smtphost=", *flag_smtphost, ",mailto=", *flag_mailto)
+
+	if *flag_mailto == "" {
+		fmt.Println("mailto 为空")
+		return
+	}
+//go run src/go-api/email/my_offical_email_complex.go   -mailto wang@163.com
+
+	var (
+		from = *flag_fromuser + "@" + *flag_fromaddr
+		msg  = []byte("To: " + *flag_mailto + "\r\n" + //邮件中显示的收件人
+			"Subject: discount Gophers!\r\n" + //邮件主题
+			"Content-Type: text/html; charset=UTF-8\r\n" + //HTML
+			"\r\n" +
+			"This is the email body<h2>html h2</h2>")
+		recipients = []string{*flag_mailto}
+	)
+	//go run src/go-api/email/my_offical_email_simple.go -fromaddr dell-pc.domain.com -mailto wang@163.com
+	//和java一样，from不能用user1@domain.com 要用 user1@dell-pc.domain.com
+
+/* 
+// variables to make ExamplePlainAuth compile, without adding
+// unnecessary noise there.
+var (
+	from       = "user1@dell-pc.domain.com"
+	msg  = []byte("To: recipient@example.net\r\n" + //邮件中显示的收件人
+		"Subject: discount Gophers!\r\n" + //邮件主题
+		"Content-Type: text/html; charset=UTF-8\r\n" + //HTML
+		"\r\n" +
+		"This is the email body<h2>html h2</h2>") 
+	recipients = []string{"wang@163.com"}
+)
+*/
+func main() {
+
+	// hostname is used by PlainAuth to validate the TLS certificate.
+	hostname := "dell-pc.domain.com"
+	auth := smtp.PlainAuth("", "user1", "user1", hostname)
+
+	err := smtp.SendMail(hostname+":25", auth, from, recipients, msg)//SSL也要用25号端口
+	// 没有附件
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+测试成功
+
+--postfix/main.cf  TLS  不同java
+smtpd_use_tls =yes
+#smtpd_tls_loglevel = 0
+smtpd_tls_CAfile =
+smtpd_tls_CApath = /home/dell/Documents/postfix_tls_go/ca.crt
+smtpd_tls_cert_file =/home/dell/Documents/postfix_tls_go/server.pem
+smtpd_tls_key_file = /home/dell/Documents/postfix_tls_go/server.key
+
+------ 以下配置同 java mail
+--postfix/main.cf  
+mydomain = domain.com
+home_mailbox = Maildir/
+mydestination = $myhostname, localhost.$mydomain,localhost
+myhostname = dell-pc.domain.com
+mynetworks_style = subnet
+mynetworks=10.10.0.0/16,127.0.0.0/8
+inet_interfaces = all
+inet_protocols = all
+
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_type = cyrus 
+smtpd_sasl_path = smtpd 
+---
+
+zypper install cyrus-sasl-saslauthd
+saslauthd -a pam /shadow   # 建操作系统可登录用户 user1/user1
+ 
+/etc/postfix/master.cf 文件中放开 
+smtps     inet  n       -       n       -       -       smtpd 
+  -o smtpd_tls_wrappermode=yes
+  -o smtpd_sasl_auth_enable=yes
+
+还要在 /etc/services 中增加 
+smtps              465/tcp  
+
+/etc/hosts
+10.10.3.193    dell-pc
+10.10.3.193    dell-pc.domain.com
+ 
+ 
+ 
+ 
+---my_offical_email_complex.go
+package main
+
+import (
+	"flag"
+	"fmt"
+	"log"
+	"net/smtp"
+)
+
+func main() {
+	flag_fromaddr := flag.String("fromaddr", "dell-pc.domain.com", "邮件发件人@后地址")
+	flag_fromuser := flag.String("fromuser", "user1", "邮件用户名")
+
+	flag_frompass := flag.String("frompass", "user1", "邮件密码")
+	flag_smtphost := flag.String("smtphost", "dell-pc.domain.com", "SMTP邮件服务器")
+	flag_mailto := flag.String("mailto", "", "收件人")
+	flag.Parse()
+	fmt.Println("fromuser=", *flag_fromuser, ",fromaddr=", *flag_fromaddr, ",frompass=", *flag_frompass,
+		",smtphost=", *flag_smtphost, ",mailto=", *flag_mailto)
+
+	if *flag_mailto == "" {
+		fmt.Println("mailto 为空")
+		return
+	}	
+	
+	
+	
+	// Connect to the remote SMTP server.
+	c, err := smtp.Dial("dell-pc.domain.com:25")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set the sender and recipient first
+	if err := c.Mail("user1@dell-pc.domain.com"); err != nil {
+		log.Fatal(err)
+	}
+	if err := c.Rcpt(*flag_mailto ); err != nil {
+		log.Fatal(err)
+	}
+
+	// Send the email body.
+	wc, err := c.Data()
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = fmt.Fprintf(wc, "To: recipient@example.net\r\n"+ //邮件中显示的收件人
+		"Subject: go email complex title!\r\n"+ //邮件主题
+		"Content-Type: text/html; charset=UTF-8\r\n"+ //HTML
+		"\r\nThis is the email body<h2>html</h2>")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = wc.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Send the QUIT command and close the connection.
+	err = c.Quit()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+//---邮件带附件官方文档提示用  mime/multipart  包
+
+
+
+import (
+	"bytes"
+	"encoding/base64"
+	"io/ioutil"
+	"log"
+	"net/smtp"
+	"strings"
+	"time"
+)
+
+//带附件的邮件测试成功
+// define email interface, and implemented auth and send method
+type Mail interface {
+	Auth()
+	Send(message Message) error
+}
+
+type SendMail struct {
+	user     string
+	password string
+	host     string
+	port     string
+	auth     smtp.Auth
+}
+
+type Attachment struct {
+	name        string
+	contentType string
+	withFile    bool
+}
+
+type Message struct {
+	from        string
+	to          []string
+	cc          []string
+	bcc         []string
+	subject     string
+	body        string
+	contentType string
+	attachment  Attachment
+}
+
+func main() {
+	var mail Mail
+	mail = &SendMail{user: "user1", password: "user1", host: "dell-pc.domain.com", port: "25"}
+	message := Message{from: "user1@dell-pc.domain.com",
+		to:          []string{"xxx@163.com"},
+		cc:          []string{},
+		bcc:         []string{},
+		subject:     "HELLO WORLD",
+		body:        "这是邮件体<h2>大字</h2>",
+		contentType: "text/html;charset=utf-8",
+		attachment: Attachment{
+			name:        "test.jpg",
+			contentType: "image/jpg",
+			withFile:    true,
+		},
+	}
+	mail.Send(message)
+}
+
+func (mail *SendMail) Auth() {
+	mail.auth = smtp.PlainAuth("", mail.user, mail.password, mail.host)
+}
+
+func (mail SendMail) Send(message Message) error {
+	mail.Auth()
+	buffer := bytes.NewBuffer(nil)
+	boundary := "GoBoundary"
+	Header := make(map[string]string)
+	Header["From"] = message.from
+	Header["To"] = strings.Join(message.to, ";")
+	Header["Cc"] = strings.Join(message.cc, ";")
+	Header["Bcc"] = strings.Join(message.bcc, ";")
+	Header["Subject"] = message.subject
+	Header["Content-Type"] = "multipart/mixed;boundary=" + boundary
+	Header["Mime-Version"] = "1.0"
+	Header["Date"] = time.Now().String()
+	mail.writeHeader(buffer, Header)
+
+	body := "\r\n--" + boundary + "\r\n"
+	body += "Content-Type:" + message.contentType + "\r\n"
+	body += "\r\n" + message.body + "\r\n"
+	buffer.WriteString(body)
+
+	if message.attachment.withFile {
+		attachment := "\r\n--" + boundary + "\r\n"
+		attachment += "Content-Transfer-Encoding:base64\r\n"
+		attachment += "Content-Disposition:attachment\r\n"
+		attachment += "Content-Type:" + message.attachment.contentType + ";name=\"" + message.attachment.name + "\"\r\n"
+		buffer.WriteString(attachment)
+		defer func() {
+			if err := recover(); err != nil {
+				log.Fatalln(err)
+			}
+		}()
+		mail.writeFile(buffer, "/home/dell/Pictures/"+message.attachment.name) //本地文件
+	}
+
+	buffer.WriteString("\r\n--" + boundary + "--")
+	smtp.SendMail(mail.host+":"+mail.port, mail.auth, message.from, message.to, buffer.Bytes())
+	return nil
+}
+
+func (mail SendMail) writeHeader(buffer *bytes.Buffer, Header map[string]string) string {
+	header := ""
+	for key, value := range Header {
+		header += key + ":" + value + "\r\n"
+	}
+	header += "\r\n"
+	buffer.WriteString(header)
+	return header
+}
+
+// read and write the file to buffer
+func (mail SendMail) writeFile(buffer *bytes.Buffer, fileName string) {
+	file, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		panic(err.Error())
+	}
+	payload := make([]byte, base64.StdEncoding.EncodedLen(len(file)))
+	base64.StdEncoding.Encode(payload, file)
+	buffer.WriteString("\r\n")
+	for index, line := 0, len(payload); index < line; index++ {
+		buffer.WriteByte(payload[index])
+		if (index+1)%76 == 0 {
+			buffer.WriteString("\r\n")
+		}
+	}
+}
+
+
 ---testing包 自动测试 ，go test 命令
 单元测试覆盖率
 

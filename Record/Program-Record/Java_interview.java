@@ -699,9 +699,11 @@ hystrix 关开，开，关，什么时候切换，如失败，失败数+1,达到
 redis 分片的定位方法  按key取模？？？一致性hash????
 mysql 索引的定位方法 BTree
 
-缓存击穿 （指数据库中有，但缓存中没有，）
-缓存穿透（用户请求的数据全部不在缓存中，如id不存在的数据，数据库压力大，解决方安案id<0拦截，不存在的数据也缓存null）
-缓存雪崩 （大批量缓存一起期，同时查数据库压力大，解决方案，过期时间随机范围，热点数据永不过期,config set maxmemory-policy  allkeys-lru）
+缓存击穿 （指数据库中有，但缓存中没有，热点Key失效，数据压力大，热点数据的超时时间）
+缓存穿透（用户请求的数据全部不在缓存中，数据库也没有，如id不存在的数据，数据库压力大，解决方安案id<0拦截，不存在的数据也缓存null）
+
+缓存雪崩 （大批量缓存一起期，同时查数据库压力大，解决方案，过期时间随机范围，热点数据永不过期,config set maxmemory-policy  allkeys-lru），读写分离的策略
+
 雪崩 ，一个服务不可用导致一连串的服务不可用
 
  
@@ -802,7 +804,10 @@ spring的循环依赖 三个缓存，先找singletonObjects，再找 earlySingle
 主键ID生成方案--类snowflake（雪花算法）
 https://github.com/twitter-archive/snowflake  现在没了
 
-动态规划法 即 找钱算法
+动态规划法  (保存以前的计算结果 ，)
+	找钱算法  ,如要找14块（目前有10块2张，7块2张，2块2张），简单做法10和2张2块 ，但要3张，如何能让程序找出可用的最少张数， 即2张7块就可以满足要求
+		 如要找15块（目前有100块1张，10块1张，7块10张，2块10张,1块），2张7块+1张1块（3张）  而不是4张		 10+2+2+1  难道要把所有3张可能(100块的直接不参与)都列出看有没有匹配的  
+		  
 贪心算法
 
 
@@ -823,7 +828,11 @@ https://github.com/twitter-archive/snowflake  现在没了
 
 MVCC 多版本并发控制 MySQL InnoDB中的实现主要是为了提高数据库并发性能，用更好的方式去处理读-写冲突
 	为每个修改保存一个版本，版本与事务时间戳关联 快照
+	
+每行数据隐藏字段 db_trx_id、db_roll_pointer（回滚指针，指向这条记录的上一个版本（存储于rollback segment里））、db_row_id。
 
+Repeatable Read隔离级别下，则是同一个事务中的第一个快照读才会创建Read View, 之后的快照读获取的都是同一个Read View，之后的查询就不会重复生成了，所以一个事务的查询结果每次都是一样的。
+Read Committed 是每个快照读都会生成并获取最新的Read View；
 
 
 redis 的一个键的值很大 (MB),大key,lazy-free
@@ -992,5 +1001,14 @@ Eureka  自我保护机制,不可用， 默认1分钟才清除
 spring cloud gateway 默认线程数,并发高，多了也没用，CPU有关，最大连接数 spring.cloud.gateway.httpclient.pool.max-connections 没有默认值 ，
 gateway中做filter登录验证行吗，servlet记得不用请求到的
 
-websocket可以跨域 
+websocket可以跨域
+
+
+rabbitmq 消息有序,本身基于Queue就是有顺序的
+
+Redis  双写一致性
+
+
+
+ 
 

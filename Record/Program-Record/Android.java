@@ -93,6 +93,7 @@ fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
  
 ----- Android Studio
  AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8, 自带Grale , linux 下提示安装KVM提速 
+ AndroidStudio-2020.3 
  AndroidStudio-3.5.3 下载的是 gradle-5.4.1-all.zip 自带OpenJDK Jre-1.8.0_202
  AndroidStudio-4.1.2 下载的是 gradle-6.5-bin.zip
  
@@ -237,8 +238,6 @@ dependencies {
 
 AndroidManifest.xml    <application  android:debuggable="true">   相当于在IDE中打开debug
 
-
-
 -------使用Chrome,在android 上远程调度 ,手机可以通过 USB 连接电脑仿问网络
 https://developers.google.com/chrome-developer-tools/docs/remote-debugging
 
@@ -283,6 +282,11 @@ adb forward tcp:6000 localfilesystem:/data/data/org.mozilla.firefox/firefox-debu
 adb forward tcp:6000 tcp:6000
 tools->web developer->connect...连接后android手机有提示是否连接,PC的firefox中可以看到Android中的Firefox打开的网页,点击后可在PC的DeveloperTools中打JS断点调试
  
+
+------android 远程调试App 
+不能使用USB,台式机没有wifi 蓝牙
+电脑端adb connect 手机IP:5555 未试????
+adb devices
 
 -----模拟器
 

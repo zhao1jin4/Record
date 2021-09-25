@@ -1,4 +1,4 @@
- 基于　debian 的
+ 基于　debian 的,源自 Canonical 公司
  
 Ubuntu 18.04.1 LTS 的Ｄesktop DVD 1.8G　(18.04 叫 Bionic 仿生学的)
 

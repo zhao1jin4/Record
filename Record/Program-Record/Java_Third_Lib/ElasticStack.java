@@ -828,6 +828,87 @@ curl -X POST 'http://localhost:9200/user/_search?pretty' -H 'Content-Type: appli
  }'
 
 
+
+SQL 示例 https://www.elastic.co/guide/en/elasticsearch/reference/current/sql-getting-started.html
+ 
+curl -X PUT "localhost:9200/library/book/_bulk?refresh&pretty" -H 'Content-Type: application/json' -d'
+{"index":{"_id": "Leviathan Wakes"}}
+{"name": "Leviathan Wakes", "author": "James S.A. Corey", "release_date": "2011-06-02", "page_count": 561}
+{"index":{"_id": "Hyperion"}}
+{"name": "Hyperion", "author": "Dan Simmons", "release_date": "1989-05-26", "page_count": 482}
+{"index":{"_id": "Dune"}}
+{"name": "Dune", "author": "Frank Herbert", "release_date": "1965-06-01", "page_count": 604}
+'
+
+
+
+curl -X POST "localhost:9200/_sql?format=txt&pretty" -H 'Content-Type: application/json' -d'
+{
+  "query": "SELECT * FROM library WHERE release_date <'2000-01-01'"
+}
+'
+
+
+
+curl -X POST 'http://localhost:9200/library/book/_search?pretty' -H 'Content-Type: application/json' -d ' 
+ {
+  "query":
+  {
+    "match":
+    {
+      "release_date":"1965-06-01"
+    }
+  } 
+ }'
+ 
+ 
+ 
+
+
+curl -X POST 'http://localhost:9200/library/_search?pretty' -H 'Content-Type: application/json' -d ' 
+ {
+  "query":
+  {
+    "match":
+    {
+      "release_date":"1965-06-01"
+    }
+  } 
+ }'
+ 
+
+
+elasticsearch-sql-cli 命令
+sql> SELECT * FROM library WHERE release_date < '2000-01-01';
+
+
+KQL 弹窗下方可以切换为Lucene
+https://www.elastic.co/guide/en/kibana/7.14/kuery-query.html  
+https://www.elastic.co/guide/en/kibana/7.14/lucene-query.html
+
+page_count:[400 TO 499]
+page_count:[400 TO *]
+page_count:[400 TO *] AND (release_date:1989-05-26 OR author:Frank*)
+
+
+https://lucene.apache.org/core/8_9_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package.description
+
+NOT "Dan Simmons"
+W?kes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <dependency>
     <groupId>org.elasticsearch.client</groupId>
     <artifactId>elasticsearch-rest-client</artifactId>
@@ -1093,8 +1174,11 @@ cd  kibana-7.1.1-linux-x86_64/bin
 	
 
  http://127.0.0.1:5601/   有界面
-左侧菜单点management (新版本变Data)-> index management 显示已有的索引
-左侧菜单点management(新版本变Kibana) -> index patterns -> 点 Create index pattern->选择索引名字，可以用*做通配->选择时间字段@timestamp
+ 
+新增加数据 ，初始在Stack Management标签中->data 或 Kibana->
+
+左侧菜单点Data-> index management 显示已有的索引
+左侧菜单点Kibana -> index patterns -> 点 Create index pattern->选择索引名字，可以用*做通配->选择时间字段@timestamp
 左侧菜单点Discover ->
 	 首次时入 提示 Create index pattern,要先有数据写入后，才能建，即在logstash配置ouput组中index的值, my-sys-* 还要选择日期字段名 默认有@timestamp
  	 下拉可以选择my-sys-* 前缀开头的日志, 过滤条件可以选择日期范围，可选今天

@@ -26,7 +26,7 @@ README.md 文件是,idea可以识别，firefox 安装插件 markdown viewer ，�
 
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
 IDEA 2021.1		版本可以支持 JDK16
-
+IDEA 2021.2		compiler 到jdk 17  LTS
 ---缺点
 默认情况下不能调试(debug)多线程，如要调试多线程，在每个线程代码中打断点，右击断点->单选Thread(默认All), set Default 
 	run/debug窗口中右则有 个 Allow parallel run 的复选框( 2021.1 Community版本没有 ，对多线程调试支持很不好!!!)
@@ -81,7 +81,7 @@ File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
 	(如是svn:// 协议地址,不能使用visual SVN(下载后是Apache-Subversion) 中的命令行客户端,
 	可以使用SlikSvn,或者安装TortoiseSVN 取消这个配置)
 
-	 
+	VCS菜单有时没有，要在建立项目的小窗口中,或者file -> new -> project from version control 
 	VCS -> Enable Version Control Integeration..->选择SubVersion
 	VCS -> Checkout from version control ->Subversoin
 	VCS -> Browse VCS Repository->Browse Subversion Repository ,可以右击->打tag
@@ -110,7 +110,7 @@ File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
 	github上的Usr->Settings->Developer Settings菜单 -> Personal access tokens-> 菜单 ->generate  new token 按钮-> resend verify email 后->generate  new token 按钮进入界面->
 	输入名字，选择权限(全部)后，生成token
 	
-	右击文件中的行号 -> Annotate -> 可以显示 这个文件的 Git 修改历史,
+	右击文件中的行号 -> Annotate with git blame-> 可以显示 这个文件的 Git 修改历史,
 	
 ---
 像word 同时只能打开一个项目
@@ -287,9 +287,25 @@ ctrl+e 最近打开文件
 Build->Build artifacts...->默认输出在项目的out目录 
 
 
+类注释模板，在建立类时生效，也可加版权信息
+File --> settings --> Editor --> File and Code Templates --> Files --> Class ,界面文档中有说明变量
+/**
+ * @author xxx
+ *@date ${DATE} ${TIME} 
+ */
+
+ 自定义代码生成模板
+ File-->Settings-->Editor-->Live Templates	-> 可以看有现成的main是按tab生成代码
+	
+	
+	
 ====================IntelliJ IDEA plugin 
 https://plugins.jetbrains.com/
 https://plugins.jetbrains.com/idea
+
+-----maven helper 可以看依赖关系，象eclispe
+
+---主题 插件 Material theme UI
 
 ---自带插件android
 IDEA 2018.2.6 也可以建立Android 项目
@@ -354,6 +370,8 @@ settings->plugins-> 搜索 Alibaba Java Code Guidelines (有离线版)
 tools->阿里编码规约->编码扫描 (如当前打开文件，只对这个文件，否则整个项目),
 结果在inspect result视图中(view->tool windows->inspect result)
 
+----Alibaba Cloud Toolkit
+Tools ->alibaba 
 
 ---idea_plugin_mongo
 0.12.0 版本要求 idea-2016.1+ (没有SHA256不支持mongo-4.0)
@@ -411,7 +429,7 @@ view -> tool windows -> persistence 选中一个项目 右击->Generate persiste
 -----idea 插件  Builder Generator
 https://plugins.jetbrains.com/plugin/6585-builder-generator
 Code -> Generate -> 多了一个builder
-
+	复选 inner builder 和use single field
 
 ---Intellij Idea 插件 Rust 
 

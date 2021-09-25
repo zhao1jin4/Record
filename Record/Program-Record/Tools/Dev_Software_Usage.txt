@@ -1,25 +1,4 @@
-﻿ 
------Source Tree-2.4.8.0 是Git 客户端工具 免费
-GitLab 服务端
-
-SourceTreeSetup-3.3.9 要 .netframework-4.7.1,安装时可skip注册,可取消 Mercurial
-安装之后，转到用户本地文件夹下的 SourceTree 目录，没有则新建
-
-安装在 %LocalAppData%\SourceTree 目录下
-%LocalAppData%\Atlassian\SourceTree\
-
-
-会找PATH中的git，修改要重启source tree
-
-这个两种方式不行的
-C:\Program Files\TortoiseGit\bin
-%HOMEPATH%\AppData\Local\Programs\Git\mingw64\bin\  安装不能是git bash方式
-
-工具-> 选项->一般->SSH 客户端->可选 openSSH
-
-----
-
-
+﻿
 
 
 =============  DbVisualizer(所有平台) 使用JDBC all DB  ============= 
@@ -103,7 +82,7 @@ where c.table_name=t.table_name;
 
 特别的支持MongoDB 要 12.1 的版本才有,最新版本15
 	如每一行collection有一个列是数组，查询只显示有(Array) 2 elments ,要单独点击单元格可看详细(也可点右下角的JsonView),比DBeaverEE要强
-	也可写mongo脚本,,比DBeaverEE要强
+	也可写mongo脚本,比DBeaverEE要强
 	
 	
 	 右下角有一个form view按钮
@@ -446,7 +425,11 @@ https://dbeaver.com/docs/wiki/Workspace-Location/
 
 
 SQL编辑器 菜单 ->SQL编辑器(F3)
+
+winodws打开sql文件 只支持GBK，打开UTF-8乱码,同eclipse, preferences->General->workspace->Text file encoding选择 UTF-8
 不支持中文，dbeaver.ini 文件中尾加新行 -Dfile.encoding=UTF-8
+preferences->Editor->Data Editor->Binary Editors-> String encoding 是UTF-8   这个应该是对表格的编辑 
+
 
 可以方便导入csv，但不能导出成文件,可以每个表导出SQL表结构，导出SQL数据
 
@@ -464,8 +447,8 @@ SQL编辑器 菜单 ->SQL编辑器(F3)
 刚启动MySQL服务，如果没有其它工具连接，DBeaver也连接不上，报Public Key Retrieval is not allowed，修改DBeaver连接allowPublicKeyRetrieva=true
 打开表后有 ER Diagram标签 ，可以看到这个相关的主外键关系 ，生成速度快，布局好，ctrl+滑轮 不能以光标为中心
 
-设置事务自动提交  Preferences->DBeaver->Connection Type-> 复选框 auto-commit  by default
-	如关闭了auto-commit，在查询时，前后也要commit或rollback才能查到最新的数据
+设置事务自动提交  Preferences->Connections->Connection Type-> 复选框 auto-commit  by default,重启后，上方的按钮才生效
+	如关闭了auto-commit，在表格修改数据也要commit或rollback
  
 默认查询只显示前200条，Preferences->Editor->Data Editor -> ResultSet fetch size 默认为200
 
@@ -620,9 +603,40 @@ clone... -> 可以复选 load putty ->选择私钥文件
 		可以取消follow tail 
 	工具栏上的Highlighting按钮 弹窗->Add 按钮-> String中是要搜索的字串，如Warn,设置颜色，只会高亮一整行
 	下方的Search也只是高亮一整行
-	
-------------GitExtensions 免费Git工具(windows) 
-	默认要kdiff3做为比较合并工具,可选择BeyondCompare3,4 也要sh可用git,或者cygwin
+ 
+-----Source Tree-3 是Git 客户端工具 免费
+GitLab 服务端
+
+SourceTreeSetup-3.3.9 要 .netframework-4.7.1,安装时可skip注册,可取消 Mercurial
+安装之后，转到用户本地文件夹下的 SourceTree 目录，没有则新建
+
+安装在 %LocalAppData%\SourceTree 目录下
+%LocalAppData%\Atlassian\SourceTree\
+
+
+会找PATH中的git，修改要重启source tree
+
+这个两种方式不行的
+C:\Program Files\TortoiseGit\bin
+%HOMEPATH%\AppData\Local\Programs\Git\mingw64\bin\  安装不能是git bash方式
+
+工具-> 选项->一般->SSH 客户端->可选 openSSH
+
+------------GitExtensions 免费Git工具(windows ) 
+官方说跨平台使用 Mono,要是zip包解压使用 mono GitExtensions.exe
+
+Tools->Settings打开窗口Git->Config-> 在difftools下拉可选择 vscode ,找到Code.exe所在路径,下方自动生成命令
+	还可以选择很多如bc,bc3(beyond compare),diffmerge 跨平台的,自动选择为C:/Program Files/SourceGear/Common/DiffMerge/sgdm.exe 见CommonSoftware笔记 
+	winmerge,tortoisediff 是配置~/.gitconfig文件
+ 
+------------GitAhead 免费 跨平台
+黑主题，酷
+
+默认中文乱码？？没有找到地方修正
+ 
+Tools->options 窗口-> tools标签->External diff: 边上的configure按钮 ，看到有很多比较工具,也是配置~/.gitconfig文件,可使用GitExtensions配置
+
+
 
 
 ------------cygwin 使用
@@ -714,7 +728,43 @@ ls / 是没有c盘的 ,如使用C盘  ls /c 即可,
 mount 命令显示 / 挂载到  %userprofile%\AppData\Local\Programs\Git
 
 支持 <<<,如 vagrant ssh <<< sh -c "ls"
+-----MSYS2
+更新包数据库
+pacman -Syu
 
+更新基础包
+pacman -Su
+
+pacman  --help
+pacman -S --help
+ 
+
+ pacman -S --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-gdb  mingw-w64-x86_64-make
+
+ /mingw64/bin/g++ --version 显示版本为 10.3.0   (C:\msys64\mingw64\bin)
+
+
+ 已安装软件包所包含文件的列表
+  pacman -Ql mingw-w64-x86_64-gcc
+ 
+ 
+  搜索已经安装的软件包
+  pacman -Qs gcc  显示有 mingw-w64-x86_64-gcc
+
+
+  远程中查询软件包，查询位置包含了包的名字和描述：
+  pacman -Ss gcc
+
+MSYS2 带 man curl
+------ Windows Terminal
+https://github.com/microsoft/terminal/releases
+在Microsoft store上安装 Windows Terminal (也可github上下载) 
+可以像cmder,ConEnum一样是多标签式的窗口管理，默认是powershell提示符PS
+Windows Terminal可以自己建立配置文件，如使用gitbash,要配置为C:\Program Files\Git\bin\bash ，还可修改启动目录
+
+wsl.exe -d openSUSE-Leap-15.3  
+  --distribution, -d <Distro> 
+ 
 ----ConEmu (ConsoleEnumlate) 一个cmd窗口管理器 
 "三"图标->Settings->General->可以修改使用gitbash
 每次新建不会提示用哪种终端,使用最新设置的,但可以点+旁边的下拉选择cmd还是gitbash,可以Cygwin,图标变化
@@ -756,12 +806,33 @@ make all
 
 -------------Curl-Loader 在 test
 
--------------Charles 代理工具
-可linux 收费4.2.8
-默认是8888 端口,Proxy->proxy setting
+-------------Charles 代理工具  收费
+ 最新版本为4.6.1
+
+用java开发的，linux下运行  swing 界面 
+
+Proxy->proxy setting  默认是8888 端口
 
 
-Proxy->SSL proxy setting
+Proxy->SSL proxy setting -> add 增加所有主机的443 端口 ,即host写* (也可写指定的主机名才做ssl代理),port写 443
+
+#Help -> SSL Proxying -> Install Charles Root Certificate ,windows下安装这个证书
+#Help -> SSL Proxying -> Install Charles Root Certificate on a Mobile Device or Remote Browser 提示访问 chls.pro/ssl，也有提示iOS10以后的操作
+
+在手机无线中配置手动代理，输入安装Charles的电脑的网络地址，端口填8888
+
+手机就可以仿问https了，只是页面提示证书不安全
+
+chls.pro/ssl 	下载.pem文件 (也可以 Help -> SSL Proxying -> save  Charles Root Certificate传到手机 )
+	手工修改为.crt格式 才可在android安装，有一个下拉，可选择VPN and apps 和 Wlan两个选项
+
+测试成功
+
+会提示连接的客户端，是否允许，Proxy->Access control setting  把客户端IP加上
+
+#android手机 查看证书 Settings->Additional Settings 下方的 Privacy 链接-> Encryption&credentials->Trusted Credentials->User标签下
+ 
+
 
 Firefox 中　工具 -> 选项 -> 高级 -> 网络标签 -> 单击　设置．． -> 选择 [手动设置代理]
 HTTP代理   127.0.0.1   8888　
@@ -806,6 +877,10 @@ Tools >   Options  > Connections -> 打开 Allow remote computers to connect 重
 Tools >   Options  > HTTPS -> 复选Decrypt HTTPS Traffic  复选Ignore server certifcate errors(unsafe)
 	PC端可能会提示作用根证书，查看Action->Export Root Certification to Desktop
 	手机端 仿问 http://<PC-IP>:8888 页面中有下载证书的连接，做安装即可使用https
+
+-------------Fiddler Everywhere
+可在linux,mac,windows上运行 
+Fiddler Everywhere 1.6.0  (2021-05-19) 但一定在注册账号
 
 
 ------------ Hemes JMS
@@ -914,6 +989,12 @@ View->Compose Bar 下方的栏中写命令,回车发送命令
 
 rz  从本地选择文件上传到服务器(receive)
 sz  file.txt 将选定的文件发送（send）到本地机器
+
+WSL 可使用passive快捷方式 (也可使用broadcast区别是有发送显示窗口时会弹出提示来自主机)
+	可右击标题栏->属性->修改为 单一窗口模式，Xstartw会话默认为0.
+	问题是在界面里输入字符时，按一次每次都是多显示一个？？解决方法为,可右击标题栏->属性->高级->下拉到底 取消XKEYBROAD
+	剪贴板正常传递
+	
 ------------ Putty 
 对服务器只开放22端口的情况时
 
@@ -985,6 +1066,8 @@ Authentication 有 Bearer Token ,Oauth2
 
 
 ---------Jenkins  基于hudson
+阿里云中的 云效 底层也是jenkins 
+ 
 Jenkins 2.249.2 LTS (2020-10-29) 
 持续集成和持续交付( CI/CD )
 下载.war包放tomcat ,支持 Docker 
@@ -1169,13 +1252,29 @@ Rule菜单 -> Java有很多规则,如何修改?
    
   BugZilla(Perl)
   HP QC(Quality Center)
-  
+----------Software Ideas Modeler 免费下载，也是30天试用 
+12
+只有windows版本，64位的portal版本可以在linux上用wine成功运行
+
 --------- starUML 
 Evulate永久免费
 有Mac,Linux版本（Redhat,Fedora的rpm）
 
 Model->Add Diagram->Sequence Diagram
- 
+
+---------astah  
+ 收费20天试用，community 版本已经停止了
+支持linux 
+
+---------Visual Paradigm
+ 收费30天试用 
+支持linux 
+现在有 在线工具了 https://online.visual-paradigm.com 可以打开viso文件，gliffy
+
+
+
+
+
 ================Visual Studio Code 
 
 免费 有windows,linux ,mac版本
@@ -1243,7 +1342,9 @@ outline视图，打开方式 view->open view...-> 输入outline
 保存时自动格式化注释
 	Editor:Format On Save 默认是没有选中的
 		
-		
+自带预览功能 Markdown 
+	打开.md文件右上角的Open Preview to the Side 按钮，即可预览
+
 ----- Node JS
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
 
@@ -1256,9 +1357,17 @@ outline视图，打开方式 view->open view...-> 输入outline
 (View->Command Palette)ctrl+shift+p,空项目时有提示，输入命令git:clone但会提示未尾有错误，不如TortoiseGit好用
 source control 视图-> 可以右击多个文件 -> discard change ,stage change 
 				右上角的...按钮->pull,commit(没有提示输入comment),undo last commit,show git output
-				
+
 ---- 扩展(git history extension)
 右击文件/目录 -> Git:view file history
+
+---- 扩展 hexdump for VSCode
+右击文件->show 	hexdump
+		
+---- 扩展 WebAssembly
+作者为 WebAssembly Foundation  
+会高亮 wat 文件
+右击wasm文件->show  WebAssembly
 
 ---- 扩展(React)
 %HOMEPATH%\AppData\Local\Microsoft\TypeScript\3.1\node_modules\@types\react-dom
@@ -1313,13 +1422,14 @@ xdebug.remote_port = 9000
 	go env -w GOPROXY=https://goproxy.cn,direct 
 	go env -w  GO111MODULE=on  表示不下载源码 %USERPROFILE%\go\src下没有新增,%USERPROFILE%\go\pkg\mod(也有源码)和%USERPROFILE%\go\bin有新增
 	打开.go文件时  
-	提示 gopls 命令找不到,使用 go get -v  golang.org/x/tools/go/gopls 被墙了
+	提示 gopls 命令找不到,使用 go get -v  golang.org/x/tools/go/gopls 被墙了,如设置了go env -w GOPROXY=  也是可以的
 		https://github.com/golang/tools/tree/master/gopls
 		cd tools-master\go\gopls 执行 go install 
 		#又提示要github.com/jba/templatecheck@v0.5.0 (https://github.com/jba/templatecheck)
 		#下载  "https://proxy.golang.org/github.com/jba/templatecheck/@v/v0.5.0.mod"  失败
 		#go env -w GOPROXY=https://goproxy.cn,direct 再来
-	提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装,可能不行，使用vscode的install按钮是可以的
+	提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装,如设置了go env -w GOPROXY=  也是可以的
+	使用vscode的install按钮是可以的
 		( 
 			就一个main.go文件
 			又提示 不认导入路径  golang.org/x/tools/go/buildutil , get连接失败，被墙了
@@ -1328,14 +1438,14 @@ xdebug.remote_port = 9000
 			再go get -v github.com/ramya-rao-a/go-outline  就可以了, ~\go\bin下就有go-outline.exe
 		)
 	
-	打开.go文件 -> 调试启动按钮
-	提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,~\go\bin下就有dlv.exe
-		(//上可以成功，这部分不用
-			https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
-			也可下载后进入目录  go install
-		)
-	写代码时 类.时 
-	提示 gocode 找不到 ,  go get -v github.com/uudashr/gopkgs/v2/cmd/gopkgs  安装 
+	#打开.go文件 -> 调试启动按钮 提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,~\go\bin下就有dlv.exe
+	#	(//上可以成功，这部分不用
+	#		https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
+	#		也可下载后进入目录  go install
+	#	)
+	新版本用 dlv-dap，支持远程调试，使用是一样的
+	
+	#写代码时 类.时  提示 gocode 找不到 ,  go get -v github.com/uudashr/gopkgs/v2/cmd/gopkgs  安装 
 	
 	安装后,Debug视图->create a launch.json file 链接->Go: Launch file 或者Go: Launch package, 生成.vscode/launch.json
 	{ 
@@ -1426,6 +1536,12 @@ windows 安装  MinGW-x64
 	安装时architecture下拉选择x86_64,默认安装在C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
 	放PATH环境变量,g++ version 版本为 8.1
 	
+目前官方文档使用的是MSYS2 的MinGW 
+ pacman -Ss gtk4   
+ pacman -S --needed mingw-w64-x86_64-gtk4  共依赖121个包  C:\msys64\mingw64\include\gtk-4.0 做配置目录，下有gtk/gtk.h
+      /usr/include/gio-unix-2.0 变为         C:\msys64\mingw64\include\gio-win32-2.0 ,还是有其它的依赖.h找不到
+
+　
 linux下 开发安装 libstdc++6-devel-gcc7 或 libstdc++6-devel-gcc9  软件包
 	
 写示例程序 
@@ -1442,12 +1558,12 @@ int main()
 	
  Terminal > Run Build Task ->提示选择 C/C++: g++.exe build active file (另一个是gcc)
  
- 生成.exe, 支行后没有打印hello?  (或许用 Run-> Run without debuging) 重启安装完.NetFramework4.6.2后就好了
+ 生成.exe, 运行后没有打印hello?  (或许用 Run-> Run without debuging) 重启安装完.NetFramework4.6.2后就好了
  
 点debug按钮，win7下提示要安装 .NetFramework4.6.2(下载runtime版本即可) (也可用Cygwin)，默认就有生成  miDebuggerPath 指向gdb
 测试成功
 
-Linux下debug (windows MinGW) 可能要 Run and Debug按钮 (或者  Run-> Start Debug ) ->选择C++(GDB/LLDB)  ->选择一个XXX build and debug active file ，会生成一个task.json文件   "program": "${fileDirname}/${fileBasenameNoExtension}",
+Linux下debug (windows MinGW) 可能要 Run and Debug按钮 (或者  Run-> Start Debug ) ->选择C++(GDB/LLDB)  ->选择一个XXX build and debug active file ，会生成一个tasks.json文件   "program": "${fileDirname}/${fileBasenameNoExtension}",
 (这样可以一个项目中有很多main方法，只编译选中的文件,但如是多个文件组成的项目就不行了)
 
 
@@ -1455,11 +1571,74 @@ Linux下debug (windows MinGW) 可能要 Run and Debug按钮 (或者  Run-> Start
 
 因是在terminal窗口中运行，所以读到标准输入
 
----配置引用库 未成功？？？
-ctrl+, （左边设置图标->settings）打开设置 ->Extension->C/C++ ->  找C_Cpp>Default:Include Path下有Edit Settings.json （这个文件生成用户目录下，是全局设置）
+---配置引用库
+ctrl+, （左边设置图标->settings）打开设置 ->Extension->C/C++ ->  找C_Cpp>Default:Include Path下有Edit Settings.json 
+	这个文件生成用户目录下%USERPROFILE%\AppData\Roaming\Code\User\settings.json (~/.config/Code/User/settings.json),是系统用户级的
 
-(View->Command Palette)ctrl+shift+p ->输入到有提示 C/C++: Edit Configurations(JSON)会生成一个 c_cpp_properties.json 文件 "includePath": []中增加，但编译还是报错，
-task.json中修改命令参数，没有报找不到头文件，但说c_cpp_properties.json 文件 有问题？？
+(View->Command Palette)ctrl+shift+p ->输入到有提示C/C++: Edit Configurations(UI) 在Include path区One include path per line下加新的一行，失去焦点保存
+												C/C++: Edit Configurations(JSON)会生成一个 项目级的.vscode/c_cpp_properties.json 文件 "includePath": []中增加
+											
+以上工具没有显示错误,只是写代码时用的
+
+
+debug 做如下,测试成功,要有src目录和target目录
+.vscode/launch.json  
+	修改  "program": "${workspaceFolder}/target/${fileBasenameNoExtension}",
+	增加　,"preLaunchTask": "g++build"          
+
+.vscode/tasks.json  　(新增加文件)   
+  {
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "g++build",
+            "command": "g++",
+            "args": [　
+                "-I/usr/include/gtk-4.0",
+                "-I/usr/include/pango-1.0",
+                "-I/usr/include/glib-2.0",
+                "-I/usr/lib64/glib-2.0/include",
+                "-I/usr/include/sysprof-4",
+                "-I/usr/include/harfbuzz",
+                "-I/usr/include/freetype2",
+                "-I/usr/include/libpng16",
+                "-I/usr/include/libmount",
+                "-I/usr/include/blkid",
+                "-I/usr/include/fribidi",
+                "-I/usr/include/libxml2",
+                "-I/usr/include/cairo",
+                "-I/usr/include/pixman-1",
+                "-I/usr/include/gdk-pixbuf-2.0",
+                "-I/usr/include/graphene-1.0",
+                "-I/usr/lib64/graphene-1.0/include",
+                "-I/usr/include/gio-unix-2.0",　
+                "-lgtk-4",
+                "-lpangocairo-1.0",
+                "-lpango-1.0",
+                "-lharfbuzz",
+                "-lgdk_pixbuf-2.0",
+                "-lcairo-gobject",
+                "-lcairo",
+                "-lgraphene-1.0",
+                "-lgio-2.0",
+                "-lgobject-2.0",
+                "-lglib-2.0",
+                "-g",
+                "${workspaceFolder}/${relativeFile}",
+                "-o",
+                "${workspaceFolder}/target/${fileBasenameNoExtension}",
+
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            }
+        }
+    ],
+    "version": "2.0.0"
+}          
+ 
+
+
 
 手工g++命令加参数编译可以， g++ -o mysql_conn C_MySQLSelect_OK.C  -I ~/mysql-8.0.18-linux-glibc2.12-x86_64/include/ -L ~/mysql-8.0.18-linux-glibc2.12-x86_64/lib/  -l mysqlclient
 运行就找不到库 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/mysql-8.0.18-linux-glibc2.12-x86_64/lib  就可以了
@@ -1560,8 +1739,21 @@ cargo项目，修改文件,debug 测试成功
     "version": "2.0.0"
 }
 
-----Markdown 扩展
+//vscode 不能从标准输入 ,只能用命令行才行
+use std::io;
+fn main() { 
+    println!("Please input your guess."); 
+    let mut guess = String::new(); 
+    io::stdin().read_line(&mut guess)
+        .expect("Failed to read line"); 
+    println!("You guessed: {}", guess);
 
+}
+
+RUST panic 时 vscode debug 控制台中文乱码???  ,rustc命令行运行正常
+
+
+---vscode扩展 Better TOML (rust中的.toml文件编辑器)
 
 ----Kubernetes 扩展
 默认支持yaml语法高亮,按tab缩进的是两个空格

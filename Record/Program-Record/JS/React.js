@@ -1,12 +1,13 @@
  
 最早版本v0.3.0 在 Jul 2, 2013 发布,
 v15.0.0 (在Apr 8, 2016 发布)是在v0.14.8的下一版本的命名
-
-react 官方中文翻译网  https://doc.react-china.org/
  
 http://www.runoob.com/react/react-tutorial.html
+
 https://reactjs.org/
-https://github.com/facebook/react/releases   目前版本是 16.13.1
+https://zh-hans.reactjs.org/
+
+https://github.com/facebook/react/releases   目前版本是 17.0.2
 
 Flow 由 Facebook 开发,用于替代PropTypes  
 
@@ -45,8 +46,12 @@ react-toolbox
 https://react.rocks/example/react-toolbox 有示例
 
 rechart
+--使用Vue开发 
+Ford 
+--使用react开发 
+microsoft,vscode, elastic search,noe4j,swagger,Audi,Firefox MDN,Jeep,
+CSDN 有react也有vue,简书,金山词霸,拼多多 ,腾讯云/文档,优酷,阿里云 ,语雀
 
-vscode, elastic search,noe4j,swagger,Audi,CSDN,简书,金山词霸,拼多多 ,腾讯云 官方  是使用react开发的
 
 ----------------------
 默认的npm install很慢，可以使用国内的
@@ -96,7 +101,7 @@ vscode 调试node (react 的npm start )
    "program": "${workspaceFolder}/start"
 
 vscode 调试 react (create-react-app方式)
-	安装 Extenstion为Debugger for Chrome
+	安装 Extenstion为 Debugger for Chrome ,要chrome命令在PATH环境变量中 (用Debugger for Firefox测试不行?)
 	Debug视图->上方的设置按钮(或下拉add configuration,chrome lanuch)会多一个Chrome的选择,生成launch.json
 	修改"url": "http://localhost:3000" 和 npm start的地址一致,再npm start ,就可vscode打断点,chrome中操作
 	launch.json
@@ -175,21 +180,13 @@ import $ from  'jquery'
 node_modules\react\cjs下有 react.production.min.js , react.development.js
 node_modules\react-dom\cjs下有 react-dom.production.min.js , react-dom.development.js
  
-script引入的js 最新为 16.13.0
-https://www.bootcdn.cn/react/ 
-https://cdn.bootcss.com/react/16.13.0/umd/react.development.js
-https://cdn.bootcss.com/react/16.13.0/umd/react.production.min.js
+script引入的js 官方使用 unpkg.com 
+<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
 
-https://www.bootcdn.cn/react-dom/
-https://cdn.bootcss.com/react-dom/16.13.0/umd/react-dom.development.js
-https://cdn.bootcss.com/react-dom/16.13.0/umd/react-dom.production.min.js
+<script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
 
-unpkg.com 官方使用的 
-https://unpkg.com/react@16.13.1/umd/react.development.js
-https://unpkg.com/react-dom@16.13.1/umd/react-dom.development.js
-
-https://unpkg.com/react@16.13.1/umd/react.production.min.js
-https://unpkg.com/react-dom@16.13.1/umd/react-dom.production.min.js
 
 react-16.6.3 是官方最后提供的js下载可 <script src=""></script>方式使用
 源码包中的内容是npm方式，即有require
@@ -198,9 +195,9 @@ react-16.6.3 是官方最后提供的js下载可 <script src=""></script>方式�
 
 <!-- offical  
  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script> 
- 会跳转为下面版本
- <script src="https://unpkg.com/@babel/standalone@7.9.1/babel.min.js"></script> 
- <script src="https://unpkg.com/@babel/standalone@7.9.1/babel.js"></script>  
+ 会跳转为最新版本
+ <script src="https://unpkg.com/@babel/standalone@7.14.3/babel.min.js"></script>
+ <script src="https://unpkg.com/@babel/standalone@7.14.3/babel.js"></script>  
 -->  
 <!--
 	babel.min.js可以将  ECMAScript 2016 代码转为 ES5 代码 
@@ -252,7 +249,7 @@ react-16.6.3 是官方最后提供的js下载可 <script src=""></script>方式�
 		constructor(myprops)//构造器,可选的,可以加 props,把会标签的所有属性传进来
 		{
 			console.log("Id="+myprops.id)
-			super(); //一定要super();
+			super(); //一定要super();  node项目提示 super是过时了，看 https://reactjs.org/docs/legacy-context.html
 			this.state={count:0};//修改state只有在构造器中才可以this.state=
 			//其它方法要用this.setState()也应组件初始化后,如 componentDidMount
 			this.clsName=myprops.className;
@@ -312,7 +309,7 @@ react-16.6.3 是官方最后提供的js下载可 <script src=""></script>方式�
 
 	  render() {
 		return ( 
-		 // style用 {{ 双大括号  , props.children 是全部属性
+		 // style用 {{ 双大括号  , props.children 是标签的子级，这里是文本
 		<div  style={{opacity: this.state.opacity }}>  
 			<h4>{this.props.children}</h4>  
 			<h6>{this.props.author}</h6> 
@@ -382,8 +379,57 @@ react-16.6.3 是官方最后提供的js下载可 <script src=""></script>方式�
 
  </script>
 
+//---function 组件
 
-React.Component 的生命周期  will方法和did方法
+function Clock(props) {
+  return (
+    <div>
+      <h1>Hello, world!</h1>
+      <h2>现在是 {props.date.toLocaleTimeString()}.</h2>
+    </div>
+  );
+} 
+function tick() {
+  const element = (
+    <div>
+      <h1>Hello, world!</h1>
+      <h2>现在是 {new Date().toLocaleTimeString()}.</h2>
+    </div>
+  ); 
+//React 只会更新必要的部分,先会比较元素内容先后的不同，而在渲染过程中只会更新改变了的部分。
+  ReactDOM.render(
+    element, //新版本const变量也可以用，老版本只能用定时器
+    //<Clock date={new Date()} />,//组件
+    document.getElementById("timeDiv")
+  );
+} 
+setInterval(tick, 1000);
+
+
+<div id="test"></div>
+ <script type="text/babel">
+   "use strict";
+   class Life extends React.Component {
+
+     death = () => {
+       ReactDOM.unmountComponentAtNode(document.getElementById("test"));
+     };
+     render() {
+       return (
+         <div>
+           <h2>unmountComponentAtNode示例</h2>
+           <button onClick={this.death}>卸载该组件</button>
+         </div>
+       );
+     }
+   }
+   ReactDOM.render(<Life />, document.getElementById("test"));
+ </script> 
+ 
+
+
+
+React.Component 的生命周期  will 方法和 did 方法
 1. Mounting  的方法 
 
     constructor()
@@ -415,16 +461,16 @@ React.Component 的生命周期  will方法和did方法
  class Hello extends React.Component {
   render() {
 	//return React.createElement('div', null, `Hello ${this.props.toWhat}`); 
-	return e('div', null, `Hello ${this.props.toWhat}`); 
+	return e('div', null, `Hello ${this.props.toWhat}`); //<div>Hello ${this.props.toWhat}</div>
    
-	//React.createElement(标签，属性，文本)  JS用`` ,可用 e()
+	//React.createElement(标签，属性，标签的子级文本)  JS用`` ,可用 e()
 	
   }
 }
 
 ReactDOM.render(
   //React.createElement(Hello, {toWhat: 'World'}, null),
-	e(Hello, {toWhat: 'World'}, null),
+	e(Hello, {toWhat: 'World'}, null),//<Hello toWhat='World'/>
   document.getElementById('root')
 );
   
@@ -615,10 +661,12 @@ class Popper extends React.Component{
     
     preventPop(name, e){    //事件对象e要放在最后
         e.preventDefault();
+		console.log("preventPop target:" +e.target.tagName);
         alert(name);
     }
-    deleteRow(id)
+    deleteRow(e,id)
 	{
+		console.log("deleteRow target:"+e.target.tagName);
  		alert('delete'+id);
 	}
     render(){
@@ -628,7 +676,7 @@ class Popper extends React.Component{
                 {/* 通过 bind() 方法传递参数 */}
                 <a href="https://reactjs.org" onClick={this.preventPop.bind(this,this.state.name)}>Click</a>
 				<br/>				
-				<button onClick={(e) => this.deleteRow(2, e)}>Delete Row</button>     {/* 事件对象e要放在最后 */}
+				<button onClick={(e) => this.deleteRow(e,2)}>Delete Row</button>   
           
 			</div>
         );
@@ -640,9 +688,11 @@ ReactDOM.render(
 );
 
 //evt.cancelBubble = true;//原始JS方法 没用
-//以下两相可以同时用
-evt.stopPropagation();//原始JS方法可以阻止父级DIV,但不能阻止document
-evt.nativeEvent.stopImmediatePropagation();//react 可以阻止document事件,不能阻止父级DIV
+ 
+evt.stopPropagation();//react方法，可以阻止父级DIV,包括阻止document
+ //evt.nativeEvent.stopImmediatePropagation();//可以阻止document事件,不能阻止父级DIV,没用？
+ //evt.nativeEvent.stopPropagation();//可以阻止document,不能阻止父级DIV,没用？
+//JS中stopImmediatePropagation 比 stopPropagation 好的地方是，同一个组件的多个相同事件，stopImmediatePropagation可以阻止后面相同事件
 
 //-------form
 

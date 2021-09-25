@@ -570,6 +570,11 @@ public RedisCacheManagerBuilderCustomizer myRedisCacheManagerBuilderCustomizer()
 @Autowired  
 private RedisTemplate<String,String> redisTemplate;  
 
+/*incrby counter 10  加10
+  incrbyfloat counter 0.5 后变小数，但如果再加一次就变整数11而不是11.0,
+程序端要用  RedisTemplate<String, Double>，不能用  RedisTemplate<String, Object>，类型转会现Integer转为Double错误
+ */
+
 @Cacheable("cacheList") //Redis ,返回Bean 一定要Serializable
 //redis中的key为"cacheList::SimpleKey []" ,type命令显示类型为string
 

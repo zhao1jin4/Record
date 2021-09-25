@@ -64,6 +64,23 @@ docker load --input java1.8.tar
 镜像（Image）
 容器（Container）
 仓库（Repository）  存放镜像文件的场所
+
+
+---fedora
+sudo dnf -y install dnf-plugins-core
+sudo dnf config-manager \
+    --add-repo \
+    https://download.docker.com/linux/fedora/docker-ce.repo
+sudo dnf  install docker-ce
+ 
+
+---centos
+ sudo yum install -y yum-utils 
+ sudo yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+----
+ 
  
 https://hub.docker.com/
 ----- 配置镜像仓库

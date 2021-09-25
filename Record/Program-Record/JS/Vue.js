@@ -1,4 +1,4 @@
-Vue(发音像view) 最新 v2.6.11
+Vue(发音像view) v2.6.11　,现在已经有3.x版本
 
  最早在 0.6.0 版本 在 Dec 7, 2013 发布 晚于react发布5个多月的时间
  1.0.0-alpha.1   在Aug 31, 2015  发布
@@ -12,6 +12,8 @@ Vuex 类似react的redux，是吸收了Redux的经验
 Vue Router 像 react router
 Vue CLI 3+ 内部使用了 webpack
 
+使用VUE的有 gitlab 
+ 
 UI框架 
 	easyUI for Vue 
 	
@@ -24,7 +26,10 @@ UI框架
 	Ant Design of Vue  蚂蚁金服 
 	element UI 饿了么 
 
-
+    移动端框架   Vant  (国产) ，https://youzan.github.io/vant/
+			 也有React版本(社区维护)  https://github.com/mxdi9i7/vant-react  灵感来自 https://github.com/youzan/vant (同上个项目)
+ 
+ 
 Vue 比React简单 (没有用到class)
 
 vue-js-devtools 对firefox addons 最新的是 vuejs_devtools-5.1.1-fx.xpi 

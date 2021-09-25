@@ -1,21 +1,34 @@
-﻿==========C 处理json（DB返回数据做转换）
+﻿==========C 处理 json(DB返回数据做转换)
+https://github.com/DaveGamble/cJSON
+
+
+==========C 处理 yml
+
 ===========C 连接 MongoDB
 
 =========== Redis C client  hiredis 
+hiredis是官方的客户端
+https://github.com/redis/hiredis
 
 
 ===========C连接MySQL Select 
+https://dev.mysql.com/doc/index-connectors.html
+
 g++ -o mysql_conn C_MySQLSelect_OK.C  -I ~/mysql-8.0.18-linux-glibc2.12-x86_64/include/ -L ~/mysql-8.0.18-linux-glibc2.12-x86_64/lib/  -l mysqlclient
 运行就找不到库 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/mysql-8.0.18-linux-glibc2.12-x86_64/lib  就可以了
 
+//C 连接 MySQL OpenSUSE-leap-15.2 测试成功
 
-//#include <windows.h>
-//如是运行在windows 下MinGW还要加windows.h,//如是运行在windows 下MinGW还要加windows.h,对于libmysql.dll使用-l libmysql或者-lmysql,对于libmysql.lib只能使用-llibmysql,测试成功
 
-//---C++连接Mysql Fedora-9成功,RedhatEL5成功----sparc-solaris 9 失败
-//---g++ -o mysql_conn mysql_conn.cpp -L /usr/local/mysql/lib/mysql -l mysqlclient -I/usr/local/mysql/include/mysql ---------------
+//#include <windows.h> //如是运行在windows 下MinGW还要加windows.h
+//对于libmysql.dll使用-l libmysql或者-lmysql,对于libmysql.lib只能使用-llibmysql,测试成功
+//g++ -o mysql_conn C_MySQLSelect_OK.C  -I D:\Application\mysql-8.0.15-winx64\include -L D:\Application\mysql-8.0.15-winx64\lib   -llibmysql
+//g++ -o mysql_conn C_MySQLSelect_OK.C  -I D:\Application\mysql-8.0.15-winx64\include -L D:\Application\mysql-8.0.15-winx64\lib  -l mysql
+//windows 下用-l mysqlclient 不行的,win7 64位(mysql是64位的) 运行时报 找不到 LIBEAY32.dll, 网上说是 OpenSSL  1.0 之前的
+
 //# /usr/local/mysql/bin/mysql_config --libs --cflags
 
+---C_MySQLSelect_OK.C
 #include <mysql.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -81,14 +94,167 @@ int main(int argc, char *argv[])
 	} else
 	{
 		printf("Connection   Failed\n");
-		printf("Errorno=%d and  Error=%s\n",mysql_errno(&mysql),mysql_error(&mysql))
+		printf("Errorno=%d and  Error=%s\n",mysql_errno(&mysql),mysql_error(&mysql));
 		exit(-1);
 	}
 
 	mysql_close(&mysql);
 }
-//DDL就不用 mysql_store_result
 
+---C_CRUD.C
+void my_ddl(MYSQL * my_connection,char * sql)
+{
+	int res = mysql_query(my_connection, sql);
+	  if (!res) {
+		 printf("DDL  %lu rows\n", (unsigned long)mysql_affected_rows(my_connection));
+	  } else {
+		 fprintf(stderr, "DDL error %d: %s\n", mysql_errno(my_connection),
+											  mysql_error(my_connection));
+	  }
+}
+void my_query_each(MYSQL * my_connection,char * sql){
+	int res = mysql_query(my_connection, sql);
+	  if (res) {
+		 printf("SELECT error: %s\n", mysql_error(my_connection));
+	  } else {
+		   MYSQL_RES *res_ptr= mysql_use_result(my_connection);//一次返回一行结果用mysql_use_result
+		     //就不能和mysql_data_seek,mysql_row_seek,mysql_row_tell一起使用了
+		 if (res_ptr) {
+			 MYSQL_ROW sqlrow;
+			while ((sqlrow = mysql_fetch_row(res_ptr))) {
+			   unsigned int field_count = 0;
+			   while (field_count < mysql_field_count(my_connection)) {
+			        printf("%s ", sqlrow[field_count]);
+			        field_count++;
+			   }
+			   printf("\n");
+
+			}
+			mysql_free_result(res_ptr);
+		 }
+	  }
+}
+void my_display_header(MYSQL_RES * res_ptr) {
+   MYSQL_FIELD *field_ptr;
+   printf("Column details:\n");
+   while ((field_ptr = mysql_fetch_field(res_ptr)) != NULL) {
+      printf("\t Name: %s\n", field_ptr->name);
+      printf("\t Type: ");
+      if (IS_NUM(field_ptr->type)) {
+         printf("Numeric field\n");
+      } else {
+         switch(field_ptr->type) {
+            case FIELD_TYPE_VAR_STRING:
+               printf("VARCHAR\n");
+            break;
+            case FIELD_TYPE_LONG:
+               printf("LONG\n");
+            break;
+            default:
+              printf("Type is %d, check in mysql_com.h\n", field_ptr->type);
+         }
+      }
+      printf("\t Max width %ld\n", field_ptr->length);
+      if (field_ptr->flags & AUTO_INCREMENT_FLAG)
+         printf("\t Auto increments\n");
+      printf("\n");
+   }
+}
+void my_query_all_header(MYSQL * my_connection,char * sql){
+	int res = mysql_query(my_connection, sql);
+	  if (res) {
+		 fprintf(stderr, "SELECT error: %s\n", mysql_error(my_connection));
+	  } else {
+		  MYSQL_RES * res_ptr = mysql_store_result(my_connection);//mysql_store_result 一次查所有记录
+		 if (res_ptr) {
+			my_display_header(res_ptr);
+			MYSQL_ROW sqlrow;
+			while ((sqlrow = mysql_fetch_row(res_ptr))) {
+				 unsigned int field_count  = 0;
+				   while (field_count < mysql_field_count(my_connection)) {
+					  if (sqlrow[field_count])
+						  printf("%s ", sqlrow[field_count]);
+					  else
+						  printf("NULL");
+					  field_count++;
+				   }
+				   printf("\n");
+			}
+			if (mysql_errno(my_connection)) {
+			 fprintf(stderr, "Retrive error: %s\n",
+								mysql_error(my_connection));
+			}
+		 }
+		 mysql_free_result(res_ptr);
+	  }
+}
+
+void my_transaction_cn(MYSQL * my_connection){
+	  printf("character set =%s\n",mysql_character_set_name(my_connection));
+	  if (!mysql_set_character_set(my_connection, "utf8"))
+	  {
+	      printf("New client character set: %s\n",
+	             mysql_character_set_name(my_connection));
+	  }
+	 mysql_autocommit(my_connection, 0);
+	 my_ddl(my_connection,"INSERT INTO children(fname, age) VALUES('li',1)"); //因SQL是char*所不支持中文？
+	 mysql_rollback(my_connection);
+	 my_ddl(my_connection,"INSERT INTO children(fname, age) VALUES('wang', 2)");
+	 mysql_commit(my_connection);
+}
+int main(int argc, char *argv[]) {
+   MYSQL *conn_ptr;
+   conn_ptr = mysql_init(NULL);//如果参数是NULL返回新的
+   if (!conn_ptr) {
+      fprintf(stderr, "mysql_init failed\n");
+      return EXIT_FAILURE;
+   }
+   unsigned int timeout=7;
+    mysql_options(conn_ptr,MYSQL_OPT_CONNECT_TIMEOUT,(const char * )&timeout); //连接超时时间
+    mysql_options(conn_ptr,MYSQL_SET_CHARSET_NAME,"utf8");
+
+    //报  Plugin caching_sha2_password could not be loaded:  的解决方式
+    //ALTER USER zh@'%' IDENTIFIED WITH mysql_native_password   BY '123';
+	char *host="127.0.0.1",*user = "zh", *pwd = "123", *dbname = "mydb";
+	unsigned int port=3306;
+    //char * sock="/tmp/mysql.sock"; //如果host值为localhost就会使用sock连接
+    char * sock=NULL;
+
+    MYSQL* conn_res = mysql_real_connect(conn_ptr, host, user, pwd,
+    		dbname, port, sock, 0);
+   if (conn_res) {
+      printf("Connection success\n");
+   } else {
+      printf("Connection failed\n");
+      if (mysql_errno(conn_ptr)) {
+		   fprintf(stderr, "Connection error %d: %s\n", mysql_errno(conn_ptr), mysql_error(conn_ptr));
+	   }
+   }
+
+   my_ddl(conn_ptr," drop tables if exists children;");
+
+   	char * create_sql="CREATE TABLE children (\
+   	   childno int(11)  NOT NULL auto_increment,\
+   	   fname varchar(30),\
+   	   age int(11),\
+   	   PRIMARY KEY (childno)\
+   	)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
+   my_ddl(conn_ptr,create_sql);
+
+   my_ddl(conn_ptr,"INSERT INTO children(fname, age) VALUES('Ann', 3)");
+
+   my_query_each(conn_ptr, "SELECT LAST_INSERT_ID()");
+   my_query_all_header(conn_ptr, "SELECT childno, fname, age FROM children WHERE age > 2");
+   my_transaction_cn(conn_ptr);//不支持中文？
+   //SQL没有动态绑定参数
+
+
+   mysql_close(conn_ptr);
+   return EXIT_SUCCESS;
+}
+
+
+---C_MySQLTrans.C
 
 ===========C连接SQLite3
 //MinGW要调试的话,必须把sqli3.dll放在PATH中可以找到才行
@@ -315,8 +481,110 @@ int main(int argc, char **argv)
 	insert into student values(10,'张');
 */
 
+==========zlib 处理 zip 压缩
 
 
+=========Cordova-7
+
+windows 10 要用 Visual Studio 2015 
+
+npm install -g cordova
+cordova create E:/tmp/VS2015_Cordova7 org.zh VS2015_Cordova7
+cd E:/tmp/VS2015_Cordova7
+cordova platform add  windows      
+
+VS2015打开CordovaApp.sln 
+
+日志文件中报错 The source completed without providing data to receive.
+警告: 程序集绑定日志记录被关闭。
+要启用程序集绑定失败日志记录，请将注册表值 [HKLM\Software\Microsoft\Fusion!EnableLog] (DWORD)设置为 1   ，修改为1也没用
+
+
+修改代码要在CordovaApp项目下，要先cordova plugin add 再写自己的代码，否则自己的代码会丢失！！！
+ 
+windows 10 下
+右击 win8.1 项目 -> set as startup project  (如选择 windows 10 (UAP) 就不行???)
+
+ 
+----win10 支持的插件 
+ 
+
+cordova plugin add cordova-plugin-camera 
+cordova plugin add cordova-plugin-geolocation
+cordova plugin add cordova-plugin-globalization
+cordova plugin add cordova-plugin-battery-status
+cordova plugin add cordova-plugin-contacts
+cordova plugin add cordova-plugin-dialogs
+cordova plugin add cordova-plugin-file-transfer
+cordova plugin add cordova-plugin-inappbrowser
+cordova plugin add cordova-plugin-media
+cordova plugin add cordova-plugin-media-capture
+cordova plugin add cordova-plugin-network-information
+cordova plugin add cordova-plugin-splashscreen
+cordova plugin add cordova-plugin-vibration
+cordova plugin add cordova-plugin-device 
+
+
+cordova plugin ls
+ 
+----cordova plugin add cordova-plugin-device 
+	document.addEventListener("deviceready", onDeviceReady, false);
+	function onDeviceReady() {
+		var element = document.getElementById('deviceProperties');
+		element.innerHTML = 'Device Cordova: '  + device.cordova + '<br />' +   //3.5.0
+							'Device Platform: ' + device.platform + '<br />' +  //windows8
+							'Device UUID: '     + device.uuid     + '<br />' +  //
+							'Device Model: '    + device.model     + '<br />' +  //Win64
+							'Device Version: '  + device.version  + '<br />';   //6.3.xxx
+	}
+
+-----cordova plugin add cordova-plugin-dialogs
+	function alertDismissed() {
+		out("you clicked the button");
+	}
+
+	function showAlert( )
+	{
+	  navigator.notification.alert(
+				'You are the winner!',  // message
+				alertDismissed,         // callback
+				'Game Over',            // title
+				'Done'                  // buttonName
+			);
+    }
+	
+-----cordova plugin add cordova-plugin-network-information
+	document.addEventListener("offline", onOffline, false);//当3G,或者wifi网络打开,或者关闭时
+    function onOffline() {
+    	out("offline");
+    }
+    document.addEventListener("online", onOnline, false);
+    function onOnline() {
+    	out("online");
+    }
+    function checkConnection() {
+        var networkState = navigator.connection.type;
+        var states = {};
+        states[Connection.UNKNOWN]  = 'Unknown connection';
+        states[Connection.ETHERNET] = 'Ethernet connection'; 
+        states[Connection.WIFI]     = 'WiFi connection';
+        states[Connection.CELL_2G]  = 'Cell 2G connection';
+        states[Connection.CELL_3G]  = 'Cell 3G connection';
+        states[Connection.CELL_4G]  = 'Cell 4G connection';
+        states[Connection.CELL]     = 'Cell generic connection';
+        states[Connection.NONE]     = 'No network connection';
+        out('Connection type: ' + states[networkState]);
+    }
+-----cordova plugin add cordova-plugin-camera
+
+
+-----cordova plugin add cordova-plugin-geolocation
+
+
+ 如使用jquery.js 报用innerHTML不安全,要求使用toStaticHTML或createElement
+ 实际是appendChild()在断点处停止，这样jqueryMobile等插件就用不了
+https://msdn.microsoft.com/en-us/library/windows/apps/hh849625.aspx
+ 
 
 ------------------------JVM TI
 Java HotSpot VM 
@@ -837,108 +1105,5 @@ NPN_Invoke()
 
 http://blog.csdn.net/zougangx/article/category/693231
 
-=========Cordova-7
-
-windows 10 要用 Visual Studio 2015 
-
-npm install -g cordova
-cordova create E:/tmp/VS2015_Cordova7 org.zh VS2015_Cordova7
-cd E:/tmp/VS2015_Cordova7
-cordova platform add  windows      
-
-VS2015打开CordovaApp.sln 
-
-日志文件中报错 The source completed without providing data to receive.
-警告: 程序集绑定日志记录被关闭。
-要启用程序集绑定失败日志记录，请将注册表值 [HKLM\Software\Microsoft\Fusion!EnableLog] (DWORD)设置为 1   ，修改为1也没用
-
-
-修改代码要在CordovaApp项目下，要先cordova plugin add 再写自己的代码，否则自己的代码会丢失！！！
- 
-windows 10 下
-右击 win8.1 项目 -> set as startup project  (如选择 windows 10 (UAP) 就不行???)
-
- 
-----win10 支持的插件 
- 
-
-cordova plugin add cordova-plugin-camera 
-cordova plugin add cordova-plugin-geolocation
-cordova plugin add cordova-plugin-globalization
-cordova plugin add cordova-plugin-battery-status
-cordova plugin add cordova-plugin-contacts
-cordova plugin add cordova-plugin-dialogs
-cordova plugin add cordova-plugin-file-transfer
-cordova plugin add cordova-plugin-inappbrowser
-cordova plugin add cordova-plugin-media
-cordova plugin add cordova-plugin-media-capture
-cordova plugin add cordova-plugin-network-information
-cordova plugin add cordova-plugin-splashscreen
-cordova plugin add cordova-plugin-vibration
-cordova plugin add cordova-plugin-device 
-
-
-cordova plugin ls
- 
-----cordova plugin add cordova-plugin-device 
-	document.addEventListener("deviceready", onDeviceReady, false);
-	function onDeviceReady() {
-		var element = document.getElementById('deviceProperties');
-		element.innerHTML = 'Device Cordova: '  + device.cordova + '<br />' +   //3.5.0
-							'Device Platform: ' + device.platform + '<br />' +  //windows8
-							'Device UUID: '     + device.uuid     + '<br />' +  //
-							'Device Model: '    + device.model     + '<br />' +  //Win64
-							'Device Version: '  + device.version  + '<br />';   //6.3.xxx
-	}
-
------cordova plugin add cordova-plugin-dialogs
-	function alertDismissed() {
-		out("you clicked the button");
-	}
-
-	function showAlert( )
-	{
-	  navigator.notification.alert(
-				'You are the winner!',  // message
-				alertDismissed,         // callback
-				'Game Over',            // title
-				'Done'                  // buttonName
-			);
-    }
-	
------cordova plugin add cordova-plugin-network-information
-	document.addEventListener("offline", onOffline, false);//当3G,或者wifi网络打开,或者关闭时
-    function onOffline() {
-    	out("offline");
-    }
-    document.addEventListener("online", onOnline, false);
-    function onOnline() {
-    	out("online");
-    }
-    function checkConnection() {
-        var networkState = navigator.connection.type;
-        var states = {};
-        states[Connection.UNKNOWN]  = 'Unknown connection';
-        states[Connection.ETHERNET] = 'Ethernet connection'; 
-        states[Connection.WIFI]     = 'WiFi connection';
-        states[Connection.CELL_2G]  = 'Cell 2G connection';
-        states[Connection.CELL_3G]  = 'Cell 3G connection';
-        states[Connection.CELL_4G]  = 'Cell 4G connection';
-        states[Connection.CELL]     = 'Cell generic connection';
-        states[Connection.NONE]     = 'No network connection';
-        out('Connection type: ' + states[networkState]);
-    }
------cordova plugin add cordova-plugin-camera
-
-
------cordova plugin add cordova-plugin-geolocation
-
-
- 如使用jquery.js 报用innerHTML不安全,要求使用toStaticHTML或createElement
- 实际是appendChild()在断点处停止，这样jqueryMobile等插件就用不了
-https://msdn.microsoft.com/en-us/library/windows/apps/hh849625.aspx
-
-=========MPICH2 并行计算
- 
  
 

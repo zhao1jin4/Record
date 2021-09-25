@@ -401,8 +401,11 @@ Win+SHIFT+左键 将活动窗口移至左侧显示器 (当前桌面)
 win+space 切换输入法 不松手多次space来切换
 win + x 弹出菜单(相当右击开始图标)
  
-win+g  win10录屏
 
+win+g 打开 xbox game bar ,在设置->快捷方式  中可以看到其它快捷键
+win+alt+print 截图
+win+alt+r  开始录制
+	
 alt+space弹出菜单 ->按 M 移动 ,再按方向键 就可移动窗口(当窗口标题超出顶部)
  
 ---
@@ -426,6 +429,10 @@ gpedit.msc “计算机配置”-> “管理模板”->“Windows组件”->单�
 
 停 BitLocker 服务
 
+windows 10 可以直接右击 iso文件-> 装载，会在我的电脑中增加一个新的虚拟光驱盘符
+ 
+ 
+ 
 -----boot
 BCD=Boot Configuration Data
 
@@ -937,6 +944,9 @@ shutdown /t 120 /s  ,两分钟后关机
 win 7/10 默认支持 exFat 分区,不安装什么
 
 timeout 2 像linux sleep
+
+certuil -hashfile xxx.ios SHA256 #windows 7算法 SHA256 必须全是大写
+
 -------------
 运行 cmd  /t:70  /k  cd \ ,以黑字白底显示,并执行 cd \
 运行 cmd/notepad/wordpad/mspaint/regedit/explorer 命令
@@ -1010,7 +1020,7 @@ ftp -n <IP> 不要自动提示输入用户名
 如文件共享被禁用 445端口就没被监听,在services.msc启动"Serer"服务就OK
 
 win7中文版修改系统字符集为UTF8 控制面板->区域语言->管理 标签->更改系统区域设置...->选择英语(美国)->重启系统
-chcp 命令显示   活动代码页: 936 , 右击cmd窗口->属性->选项  标签->显示963 为简体中文GBK
+chcp 命令显示   活动代码页: 936 , 右击cmd窗口->属性->选项  标签->显示936 为简体中文GBK
 
 win7_unlimited 可安装界面语言,控制面板->更改显示语言->键盘和语言 标签->安装卸载语言按钮... 
 	但官方对基语言的是中文切换英文,和基语言的是英文切换中文没有语言包可以下载,只是用windows update
@@ -1099,6 +1109,16 @@ Win+R ->输入 gpedit.msc (家庭版没有这个)
 	计算机策略 -> 管理模板 -> Windows 组件 -> 关闭 Windows Defender 防病毒程序 ->双击  选择 "已启用"
 	
 关闭扫描 -> Virus & threat protection -> 展开windows Defender Antivirus options ,在perodic scanning设置为off	
+
+排除 代码目录 和 maven仓库目录
+  Type “Windows Security”
+Click on “Virus and threat protection”
+Click on “Manage settings” under “Virus & threat protection settings”
+Scroll down if needed, and then click on “Add or remove exclusions”
+For every folder shown in the notification, press the + button, select “Folder” from the menu, and select the folder.
+
+
+ 
 -----
 
 
@@ -1156,17 +1176,46 @@ Visual Studio 中的命令提示符输入 corflags  my.dll
 systeminfo 命令 可以看系统信息,有 系统类型 可知是32位还64位
 
 
-,win10 Explorer中键 功能目录向上, 浏览器返回
+win10 Explorer中键 功能目录向上, 浏览器返回
+
+
+
+#cmd 查看所有环境变量     
+set
+
+#cmd 查看单个环境变量     
+set NODE_ENV
+
+#cmd 添加/更新环境变量     
+set NODE_ENV=development
+
+#cmd 删除环境变量         
+set NODE_ENV=
 
 ------powershell  
 PowerShell Integerated Scripting Enviroment (ISE) ,文件名powershell_ise.exe 
 运行 Get-PhysicalDisk 可以看硬盘是否SSD(碎片整理和优化驱动器  中也可以看)
 资源管理器空白处，shift + 右键->open powershell window here
 
+
+Powershell 环境变量
+显示所有的 
+ls env:
+
+查看单个环境变量 (有$)
+$env:NODE_ENV
+
+添加/更新环境变量 (有$),字串值要加''
+$env:NODE_ENV='development'
+
+删除环境变量(没有$)
+del evn:NODE_ENV
+
 -----win10  Windows Subsystem for Linux(WSL)
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 是微软和Canonical(snapd)一起开发
-在 PowerShell 中开启,也可以在控制面板中添加新特性来安装,要启动虚拟机
+
+在控制面板中添加新特性来安装WSL (也可以在 PowerShell 中开启,要 BIOS 启动虚拟化)
 WSL 2 要求win10 build 19041 版本，安装新的linux内核更新
 
 资源管理器空白处，shift + 右键->open linux shell here 显示窗口为#提示符，同输入wsl命令一样，但不能运行yast2
@@ -1174,18 +1223,90 @@ WSL 2 要求win10 build 19041 版本，安装新的linux内核更新
  wsl --shutdown 会停止doker
  wsl --set-default-version 2
  wsl --list --verbose 显示安装的和运行状态,version列表示使用的是wsl 1 还是wsl 2 
- wsl --set-version openSUSE-Leap-15.2  2 把这个安装修改为wsl 2
  
-在Microsoft store界面中找 openSUSE 安装，后 openSUSE-Leap-15.2 有 启动按钮
+ wsl --set-version openSUSE-Leap-15.3  2 把这个安装修改为wsl 2
+ 要安装 WSL2 Linux kernel update package，但  wsl --list --verbose 还是1的版本
+ 
+ 
+
+
+https://docs.microsoft.com/zh-cn/windows/wsl/wsl-config
+建立文件  %UserProfile%/.wslconfig
+[wsl2]
+memory=4GB # Limits VM memory in WSL 2 to 4 GB
+processors=2 # Makes the WSL 2 VM use two virtual processors
+
+執行 wsl --shutdown 关闭WSL,再重新打开即可
+
+ 
+ 
+ 
+商店中有openSUSE leap 和 Ubuntu LTS  有比较新版本，但没有fedora版本 ，SUSE Enterprise Server 比较新的版本，但没有Redhat或CentOS
+在Microsoft store界面中找 openSUSE 安装，后 openSUSE-Leap-15.3 有 启动按钮,是命令行界面，提选择语言，建立用户后，就安装成功了
+	不能一台windows安装两个相同版本的openSUSE，应用商店提示已经安装，只能启动
 	进入提示符为$ ,su root密码为windows系统密码,后可用yast2,是命令行界面
-	
-zypper search gnome 显示的type列为pattern
-zypper install -t pattern gnome 
 
 在Microsoft store上安装 Windows Terminal (也可github上下载) , 可以像cmder,ConEnum一样是多标签式的窗口管理，默认是powershell提示符PS
-可以点下拉三角打开cmd 或者安装的 openSUSE-Leap-15.2 
-https://github.com/microsoft/terminal/releases
+可以点下拉三角打开cmd 或者安装的 openSUSE-Leap-15.3 ， 是执行 wsl.exe -d openSUSE-Leap-15.3  
+ --distribution, -d <Distro> 
+安装了Windows Terminal 后就有 win+` 可以快速打开没有标题，再按即关闭
 
+
+zypper 用root用户才能执行，zypper search xfce 也要，因会建立 /var/cache/zypp/目录
+zypper search gnome 显示的type列为pattern 
+zypper install -t pattern gnome 
+zypper install -t pattern xfce
+
+WSL 安装输入法
+	zypper install fcitx
+	zypper install  fcitx-pinyin
+	zypper install  fcitx-table-cn-wubi-pinyin
+	zypper install  fcitx-configtool　
+	设置环境变量就可自动启动(关闭startxfce4,关闭 windows terminal),点击输入法区-》重启后有输入可选　
+	xfce ,开始->session and startup 中看自启项
+	
+	
+vcxsrv(Windows X Server)
+https://sourceforge.net/projects/vcxsrv/files/vcxsrv  最近有更新2021-01-03 下载 vcxsrv-64.1.20.9.0.installer.exe   
+1.启动为Xlanuch 选择 One large window ， Display number 设置为 0，其他默认即可(start no client,只启动xserver,后面启动本地客户端，也支持XDMCP)，会出现一个空窗口。
+2.启动 export DISPLAY=localhost:0 ,  startxfce4 后前面的Xming窗口就会有界面了 
+ 
+Xlanuch 中的 openSUSE 按del,方向键时会不停在显示更多的字符？？？？要用backspace键还会停？？？
+	
+	测试下来 剪贴板的文本可互通(不能传递文件),有时不好,可能刚启动的原因？？, 但中文传输有问题，原因是linux系统没有中文字体
+	也可使用/mnt/d的方式传输
+	另一方案为安装xrdp(mstsc的服务端),rdesktop是linux客户端同mstsc
+	
+	 %USER_PROFILE%\AppData\Local\Packages\xxxxSUSE.openSUSELeap15.3_xxxxxx\LocalState\rootfs  
+	C:\Program Files\WindowsApps\xxxxSUSE.openSUSELeap15.3_xxxxxx
+	\\wsl$  可以看到各linux系统的目录
+	
+	
+	
+	echo $LANG 显示为en_US.UTF-8
+	但输入中文乱码，显示方块。 	复制 C:\Windows\Fonts\simhei.ttf  //wls$/usr/share/fonts/truetype/ (要权限的) ,测试OK,测试关闭Xlanuch
+			注意用windows10的simsunb.ttf不行！！！，有simkai.ttf楷体  测试是生效的
+	
+	搜索到了两个中文字体包
+	zypper install intlfonts-chinese-bitmap-fonts
+	zypper install wqy-zenhei-fonts   (wqy-zenhei.ttc)  测试是生效的,这个ttc也行
+	
+	切换输入法快捷键与windows有冲突的	
+	yast 的所有 界面不能显示？？ 
+	zypper install  xfcde4-terminal  里面总是不停的自动打出很多字符
+	 
+
+Xmanager(收费)  6 可使用passive快捷方式 (也可使用broadcast区别是有发送显示窗口时会弹出提示来自主机)
+	可右击标题栏->属性->修改为 单一窗口模式，Xstartw会话默认为0.
+	问题是在界面里输入字符时，按一次每次都是多显示一个？？解决方法为,可右击标题栏->属性->高级->下拉到底 取消XKEYBROAD
+	剪贴板正常传递
+ 
+ 
+
+
+有windows版本的 curl,openssl ( gitbash 也有)
+用的IP就是windows上的IP
+cd /mnt/d 就是windows的D 盘 
 
 
 --- win mac

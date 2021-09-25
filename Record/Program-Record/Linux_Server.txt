@@ -308,7 +308,88 @@ openssl x509 -req -in req.csr -out public_key.der -outform der -signkey private_
 
 以上三步也可简化为一个命令
 openssl req -x509 -out public_key.der -outform der -new -newkey rsa:1024 -keyout private_key.pem -days 3650 
-----
+
+
+
+---- Go 用SAN证书 SAN(Subject Alternative Name)
+  
+openssl genrsa -out ca.key 4096
+
+--ca.conf
+[ req ]
+default_bits       = 4096
+distinguished_name = req_distinguished_name
+
+[ req_distinguished_name ]
+countryName                 = Country Name (2 letter code)
+countryName_default         = CN
+stateOrProvinceName         = State or Province Name (full name)
+stateOrProvinceName_default = JiaDin
+localityName                = Locality Name (eg, city)
+localityName_default        = Shanghai
+organizationName            = Organization Name (eg, company)
+organizationName_default    = circle
+commonName                  = Common Name (e.g. server FQDN or YOUR name)
+commonName_max              = 64
+commonName_default          = domain.com
+
+--
+
+ openssl req   -new   -sha256   -out ca.csr   -key ca.key   -config ca.conf
+  openssl x509 \
+  -req \
+  -days 3650 \
+  -in ca.csr \
+  -signkey ca.key \
+  -out ca.crt
+
+---server.conf
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+
+[ req_distinguished_name ]
+countryName                 = Country Name (2 letter code)
+countryName_default         = CN
+stateOrProvinceName         = State or Province Name (full name)
+stateOrProvinceName_default = Shanghai
+localityName                = Locality Name (eg, city)
+localityName_default        = JiaDin
+organizationName            = Organization Name (eg, company)
+organizationName_default    = circle
+commonName                  = Common Name (e.g. server FQDN or YOUR name)
+commonName_max              = 64
+commonName_default          = domain.com
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1   = *.domain.com
+IP      = 10.10.3.193
+
+---
+
+openssl genrsa -out server.key 2048
+
+    openssl req \
+      -new \
+      -sha256 \
+      -out server.csr \
+      -key server.key \
+      -config server.conf
+
+
+openssl x509   -req   -days 3650   -CA ca.crt   -CAkey ca.key   -CAcreateserial   -in server.csr   -out server.pem  -extensions req_ext   -extfile server.conf
+
+报 x509: certificate signed by unknown authority
+
+cp ca.crt  /usr/share/pki/trust/anchors
+update-ca-certificates 即可
+
+
+
 
 openssl-1.0.1k.tar.gz
 $ ./config    可选的 --prefix
@@ -317,6 +398,29 @@ $ make test
 $ make install
 
 
+windows版本设置
+set OPENSSL_CONF=D:\Application\OpenSSL-1.1.1h_win32\OpenSSL-1.1.1h_win32\openssl.cnf
+才可用
+
+
+导出公钥
+openssl x509 -in a_cert.pem -pubkey -noout > a_pub.pem
+
+
+也有base64工具
+openssl base64 -d -A <<< \
+	'xxxxxx' > signature.txt
+ 
+ -d decode
+ -A  \single line
+ 
+验证签名
+openssl dgst -sha256 -verify a_pub.pem -signature signature.txt << EOF
+xxx
+EOF
+ 
+ 
+ 
 
 ==============Git 安装配置 使用
 Git四种协议
@@ -551,7 +655,12 @@ git branch 查看branch 有 *master
 git branch --merged 查看哪些分支已被并入当前分支
 git branch --no-merged 查看尚未合并的工作
 git branch -d testing 合并后就没用了,删本地分支
-
+git branch
+	-m
+	--move 
+		Move/rename  branch 
+	-M (大写多数的带--force，如-D)
+	 Shortcut for --move --force.
 
 git tag -l 查看tag
 git remote -v 显示对应的克隆地址
@@ -691,23 +800,27 @@ echo "# Record" >> README.md
 git init
 git add README.md
 git commit -m "first commit"
-git remote add origin https://github.com/userId/Record.git
+git remote add origin git@github.com/userId/Record.git
 git push -u origin master
 
 …or push an existing repository from the command line
 
-git remote add origin https://github.com/userId/Record.git
+git remote add origin git@github.com/userId/Record.git
 git push -u origin master
+
+
+ssh-keygen -C "user@sina.com"
+验证添加的key是否成功 ssh -T git@github.com
 
 --网页上建立github的项目Record,自己的操作记录
 cd C:\temp\Record
 git init
 git add Record
 git commit -m "xxx record version"
-git remote add origin https://github.com/userId/Record.git
+git remote add origin git@github.com/userId/Record.git
 git push -u origin master
 
-如果在空目录中取代码 git clone https://github.com/userId/Record.git
+如果在空目录中取代码 git clone git@github.com/userId/Record.git
 修改更新,加新文件
 git config --global user.email "userId@sina.com"   (windows中保存在用户主目录/.gitconfig)
 git config --global user.name "User"
@@ -760,6 +873,9 @@ wget -q -O - http://192.168.114.13:8080/jenkins/generic-webhook-trigger/invoke?t
 开源项目 webhook, github上可配置webhook,在push后,可以配置请求指定URL(webhook项目可以启动一个服务，可以配置一个可执行的文件)
 
 
+git blame -L35,53 OrderDao.java 指定行范围，查看最新被谁修改和hash,再用 git show  <hash>
+
+
 ============== 上 Git 
 ===========phpmyadmin-5.0.1
 openSUSE-leap-15.1的yast 自带 phpMyAdmin包
@@ -797,9 +913,16 @@ vi /etc/mail.rc  (mailx包中的)
 set from=user1@sina.com smtp=smtp.sina.com
 set smtp-auth-user=user1@sina.com smtp-auth-password=123
 set smtp-auth=login
- 
+
+如mailx使用tls,未测试成功，可能本地服务端配置有问题
+set smtp=smtps://dell-pc.domain.com:465   # 这里填入smtp地址
+set ssl-verify=strict               # ignore忽略证书警告
+set nss-config-dir=/etc/pki/nssdb   # 证书所在目录
+
+echo -n "" | openssl s_client -connect dell-pc.domain.com:465 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > xxx.crt
+
 -----
-===========postfix===========================
+===========postfix SMTP===========================
 ----源码安装 postfix 3.5.10
 make 提示 要先安装  db*-devel 
 
@@ -844,9 +967,10 @@ inet_interfaces = all   #默认为all，如localhost表明只能在本地邮件�
  
 inet_protocols = all   #默认为ipv4，如果支持ipv6，则可以为all 
 
-mydestination = $myhostname, localhost.$mydomain #这是默认值，参数非常重要，因为只有当发来的邮件的收件人地址与该参数值相匹配时,才自己接收
+#mydestination = $myhostname, localhost.$mydomain #这是默认值，参数非常重要，因为只有当发来的邮件的收件人地址与该参数值相匹配时,才自己接收
+mydestination = $myhostname, localhost.$mydomain，localhost  #增加localhost
 
-mynetworks=192.168.16.0/24  #要修改的，则表示这台邮件主机只转发子网192.168.16.0/24中的客户端所发来的邮件，而拒绝为其他子网转发邮件。
+mynetworks=192.168.16.0/24  #要修改的，则表示这台邮件主机只转发子网192.168.16.0/24中的客户端所发来的邮件，而拒绝为其他子网转发邮件。可以再加 ,127.0.0.0/8
 #mynetworks = hash:/etc/postfix/network_table
 
 mynetworks-style = subnet  #默认为subnet，可选的有class(A,B,C类地址), host ,subnet
@@ -876,15 +1000,19 @@ st0321@example.com  st0321001，st0321002
 daliu@example.com  lbt，liu6812@163.com
 
 执行:
-postmap /etc/postfix/virtual   生成 virtual.db
+postmap /etc/postfix/virtual   生成 virtual.db （有什么用？）
 postfix reload
+
+saslpasswd2 -c -u 'domain.com' u01  建立用户u01在指定域下（有什么用？）
+sasldblistusers2 查看建立的 
 
 
 ----
 用户别名 http://www.postfix.org/postconf.5.html#alias_maps
 postconf -d | grep alias (-d 表示 default 默认配置)
 
-alias_maps = hash:/etc/aliases   #默认配置
+alias_maps = hash:/etc/aliases   #默认配置，可以使用 mysql
+
 alias_database = hash:/etc/aliases #默认配置
 
 示例:/etc/aliases，
@@ -901,18 +1029,166 @@ st0323003，\
 postalias /etc/aliases          
 postfix reload
 
----SASL(Simple Authentication and Security Layer)
+
+
+echo -n "user1" |  base64
+dXNlcjE=
+
+echo -n "user1" | openssl base64  
+显示如  dXNlcjE=
+
+nc localhost 25
+220 dell-pc.domain.com ESMTP
+命令 ehlo localhost  (如helo localhost就没有信息下面的信息)
+250-dell-pc.domain.com
+250-PIPELINING
+250-SIZE
+250-ETRN
+250-AUTH PLAIN LOGIN
+250-ENHANCEDSTATUSCODES
+250-8BITMIME
+250-DSN
+250-SMTPUTF8
+250 CHUNKING
+命令 auth login
+334 VXNlcm5hbWU6
+输入用户名base64加密（没有tls） dXNlcjE=
+334 UGFzc3dvcmQ6
+输入密码 dXNlcjE=
+235 2.7.0 Authentication successful
+命令  mail from:user1@domain.com
+250 2.1.0 Ok
+命令  rcpt to:xxx@163.com
+250 2.1.5 Ok
+命令  data 
+xxxx
+命令   .
+250 2.0.0 Ok: queued as 8E22B12114D
+命令 quit
+221 2.0.0 Bye
+
+日志文件 /var/log/mail
+
+------------官方文档对mysql支持
+
+create user postfix@'%' identified by 'postfix' ;
+ALTER USER  postfix@'%' IDENTIFIED WITH mysql_native_password   BY 'postfix';
+create database postfixdb default character set utf8;
+grant all on postfixdb.* to postfix@'%';
+
+
+create table mxaliases(
+	id int auto_increment primary key ,
+	forw_addr varchar(50),
+	alias   varchar(50),
+	status   varchar(10) default 'normal'
+);
+
+insert into mxaliases(forw_addr,alias)values('user1@dell-pc.domain.com','user2');
+
+
+#alias_maps = mysql:/etc/postfix/mysql-aliases.cf
+
+--- mysql-aliases.cf
+#
+# mysql config file for local(8) aliases(5) lookups
+#
+ 
+user = postfix
+password = some_postfix 
+dbname = postfixdb
+
+# For Postfix 2.2 and later The SQL query template.
+# See mysql_table(5) for details.
+query = SELECT forw_addr FROM mxaliases WHERE alias='%s' AND status='normal'
+
+# This is necessary to make UTF8 queries work for Postfix 2.11 .. 3.1,
+# and is the default setting as of Postfix 3.2.
+option_group = client
+
+
+
+-----------postfix-mysql
+ zypper install postfix-mysql
+
+-----------TLS 加密传输
+http://www.postfix.org/TLS_README.html 
+
+---
+生成根证书
+
+	1.首先生成私钥
+	openssl genrsa -out root.key 2048
+	2.生成根证书签发申请文件(csr文件) , #CN的值要与请求地址相同的域名,domain.com 
+	openssl req -new -key root.key -out root.csr  -subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=domain.com 
+	3.自签发根证书(cer文件)
+	openssl x509 -req -days 3000 -sha1 -extensions v3_ca -signkey root.key -in root.csr -out root.cer
+
+使用根证书签发服务端证书
+	mkdir private
+	1.生成服务端私钥(可以给商户客户)
+	openssl genrsa -out private/server-key.pem 2048
+	2.生成证书请求文件
+	openssl req -new -key private/server-key.pem -out private/server.csr -subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=domain.com 
+			 
+	3.用根证书签发服务端证书(此时证书只有公钥，没有私钥)
+	openssl x509 -req -days 3000 -sha1 -extensions v3_req -CA root.cer -CAkey root.key -CAserial ca.srl -CAcreateserial -in private/server.csr -out private/server.cer
+
+#查看证书
+openssl x509 -noout -text -in  private/server.cer
+ 
+#cer转换为der格式
+openssl x509 -outform der -in test-private/server.cer -out private/publicserver.ccertificate.der
+
+#转换为p12/pfx格式
+openssl pkcs12 -export -in private/server.cer -inkey private/server-key.pem -out server.pfx  #要设置密码
+
+#私钥导出公钥
+openssl rsa -in private/server-key.pem -pubout -outform PEM -out server-key-pub.pem
+
+
+---
+ 
+vi /etc/postfix/main.cf 
+
+smtpd_use_tls = yes  #开关 
+#是smtpd服务端
+#是rsa
+smtpd_tls_key_file = /home/dell/Documents/postfix_tls/private/server-key.pem   
+smtpd_tls_cert_file = /home/dell/Documents/postfix_tls/private/server.cer
+smtpd_tls_CAfile = /home/dell/Documents/postfix_tls/root.cer
+smtpd_tls_CApath =
+
+ 
+
+
+/etc/postfix/master.cf 文件中放开 
+smtps     inet  n       -       n       -       -       smtpd 
+  -o smtpd_tls_wrappermode=yes
+  -o smtpd_sasl_auth_enable=yes
+
+还要在 /etc/services 中增加 
+smtps              465/tcp  
+
+再重启postfix就有465端口监听了
+
+
+
+mozilla-nss-tools 软件包安装后就有 certutil 命令
+
+
+----------------SASL(Simple Authentication and Security Layer) 就是认证用户名密码的
 http://www.postfix.org/SASL_README.html
 
-
+postconf -a  查看编译时支持  Cyrus 和 Dovecot
 SMTP服务要做登录认证,Postfix SMTP 支持 Cyrus SASL 和 Dovecot SASL 两个实现
 
-默认使用Cyrus SASL(C和Perl开发),如要使用 Dovecot SASL(C开发，可使用mysql,postgresql,sqlite,有对应的backend-xx-rpm包) 	/etc/postfix/main.cf 中 做修改 
+默认使用 Cyrus SASL(C和Perl开发),如要使用 Dovecot SASL(C开发，可使用mysql,postgresql,sqlite,有对应的backend-xx-rpm包) 	/etc/postfix/main.cf 中 做修改 
 	smtpd_sasl_type = dovecot
 
 postconf -a 查看服务端在编译时支持哪个
 postconf -A  查看客户端支持哪个
-
+postconf -m 查看是否支持 mysql, pgsql
 
 smtp   端口 25
 SMTPS  端口 465
@@ -923,14 +1199,65 @@ pop3s  端口 995  即pop3的 TLS/SSL
 pop3   端口 110
 
 --/etc/postfix/main.cf 
-smtpd_sasl_type = dovecot #或 cyrus
+smtpd_sasl_type = cyrus  # dovecot 或 cyrus
+smtpd_sasl_path = smtpd #对于cyrus 值为 smtpd  读 /etc/sasl2/smtpd.conf（老版本读/usr/lib/sasl2/下，兼容老版本优先读/usr/lib） 里有 pwcheck_method: saslauthd
+#老版本为 smtpd_sasl_application_name = smtpd
+    
+# dovecot : smtpd_sasl_type = dovecot
+#           smtpd_sasl_path = private/auth
+
 smtpd_sasl_security_options = noanonymous
-smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd  #有什么用？
 smtpd_sasl_auth_enable = yes			服务端
 smtp_sasl_auth_enable = yes			客户端
 
 -- vi /etc/postfix/sasl_passwd
 domain.com user1:pass2
+
+
+-------cyrus-sasl 支持 POP, IMAP, SMTP
+源码中有使用m4语言,autoconf 中的 “configure” 脚本依赖它
+
+zypper install cyrus-sasl-saslauthd #后才有 saslauthd testsaslauthd 命令
+
+saslauthd -v 查看所支持的密码验证机制  
+ 
+/etc/sysconfig/saslauthd 中
+#注释说看 man 8 saslauthd
+SASLAUTHD_AUTHMECH=pam #shadow 表示 直接用/etc/shadow,  pam 表示 /etc/pam.d/imap
+
+systemctl start saslauthd   查进徎  saslauthd -a pam -n 5 ,启动5个线程（其实是子进程）
+saslauthd -a pam /shadow  使用mailx测试OK的,不能和 （systemctl start saslauthd一起用）
+
+testsaslauthd -u 用户 -p  密码  ##测试,日志文件
+#---
+
+main.cf文件中
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_local_domain = '' ##默认的
+smtpd_recipient_restrictions = permit_mynetworks,permit_sasl_authenticated, reject_unauth_destination
+broken_sasl_auth_clients=yes
+smtpd_client_restrictions = permit_sasl_authenticated
+smtpd_sasl_security_options = noanonymous  #默认的
+
+
+
+smtpd_recipient_restrictions：表示通过收件人地址对客户端发来的邮件进行过滤。通常有以下几种限制规则。
+
+	permit_mynetworks：表示只要是收件人地址位于mynetworks参数中指定的网段就可以被转发邮件。 
+	permit_sasl_authenticated：表示允许转发通过SASL认证的邮件。
+	reject_unauth_destination：表示拒绝转发含未信任的目标地址的邮件。
+	
+
+就必须确保 /usr/lib/sasl2/smtpd.conf 文件中的内容为：pwcheck_method: saslauthd
+
+测试 telnet（nc） localhost 25
+输入ehlo 返回当前Postfix所支持的认证方式 两行AUTH ......
+
+
+
+-------dovecot  2  (1版本过时)
+源码中也有m4语言，autoconf 中的 “configure” 脚本依赖它
 
 
 zypper install dovecot 后
@@ -960,76 +1287,18 @@ unix_listener /var/spool/postfix/private/auth {
 systemctl start dovecot
 
 
----TLS
-http://www.postfix.org/TLS_README.html
-
-smtpd_use_tls = no
-#smtpd_tls_loglevel = 0
-smtpd_tls_CAfile =
-smtpd_tls_CApath =
-smtpd_tls_cert_file =
-smtpd_tls_key_file =
-smtpd_tls_ask_ccert = no
-smtpd_tls_received_header = no
-
-
-smtpd_tls_auth_only = yes
-
-
-#---没有 saslauthd testsaslauthd 命令??
-saslauthd -v 查看所支持的密码验证机制 
-
-/etc/sysconfig/saslauthd中
-MECH=shadow    ###直接用/etc/shadow,  ,pam /etc/pam.d/imap
-
-/etc/init.d/saslauthd start
-saslauthd -a pam /shadow  这是OK的
-
-testsaslauthd -u 用户 -p  密码  ##测试,日志文件
-#---
-
-main.cf文件中
-smtpd_sasl_auth_enable = yes
-smtpd_sasl_local_domain = '' ##默认的
-smtpd_recipient_restrictions = permit_mynetworks,permit_sasl_authenticated, reject_unauth_destination
-broken_sasl_auth_clients=yes
-smtpd_client_restrictions = permit_sasl_authenticated
-smtpd_sasl_security_options = noanonymous  #默认的
-
-
-
-（3）smtpd_recipient_restrictions：表示通过收件人地址对客户端发来的邮件进行过滤。通常有以下几种限制规则。
-
-permit_mynetworks：表示只要是收件人地址位于mynetworks参数中指定的网段就可以被转发邮件。
-
-permit_sasl_authenticated：表示允许转发通过SASL认证的邮件。
-reject_unauth_destination：表示拒绝转发含未信任的目标地址的邮件。
-
-
-就必须确保/usr/lib/sasl2/smtpd.conf文件中的内容为：pwcheck_method: saslauthd
-
-测试 telnet localhost 25
-
-telnet localhost 80
-ftp> get index.html
-
-输入ehlo 返回当前Postfix所支持的认证方式 两行AUTH ......
-
-
-cyrus-imapd-2.4(redhat-EL7.6 光盘中有的 lm_sensors)
-另一个 imap 服务器是dovecot-2.2.x redhat-EL7.6 光盘有的
-
+-----dovecot
 cp /usr/local/dovecot/etc/dovecot-example.conf /usr/local/dovecot/etc/dovecot.conf
-可以直接用dovecot就可以启动与xinetd同
+可以直接用dovecot就可以启动与  
 /usr/local/libexec/dovecot/imap-login(或者用pop3-login可加--ssl)
 
 vi /etc/dovecot.conf在protocols = imap imaps 后添加pop3 pop3s 
   
+-----cyrus-imapd 
+源码中有perl语言代码 
 
-/etc/yum.conf 中keepcache=1是保留文件,0是删
-		cachedir=/var/cache/yum
-
-service cyrus-imapd start
+zypper install cyrus-imapd 
+systemctl start cyrus-imapd 
 cyradm -u cyrus localhost
 
 cyradm --user cyrus --server localhost --auth plain
@@ -1095,8 +1364,31 @@ Cyrus-IMAP的邮件信箱位于/var/spool/imap目录下
 不可queue management 组默认postdrop
 
 
+===========上 postfix SMTP==========================
 
-===========上 postfix==========================
+
+=========== cyrus-imapd 是一个 邮件,联系人和日历服务 
+使用C和perl
+https://cyrusimap.org/ 最新版本3.0
+
+支持IMAP4和 pop3 (只可读用户的INBOX箱)
+
+# rpm -ivh imap-2002d-3.i386.rpm --nodeps
+要修改/etc/xinetd.d/imap文件把disale=yes 改为no,会有143端口监听
+telnet(nc) localhost 143 来测试可能还 要libcrypto.so.4
+
+cyrus
+./configure --with-dbdir=/usr/local/BerkeleyDB.4.6/
+	###--with-bdb-libdir or --with-bdb-incdir configure options.
+成功编译后，make depend－》make all CFLAGS=-O(看文档的,可能不行的)
+
+===========dovecot 是一个 Imap 和 Pop3  服务
+https://www.dovecot.org/
+https://wiki2.dovecot.org/
+使用C开发,最新版本2.3.9
+zypper install dovecot 有 backend-sqlite,backend-mysql,backend-pgsql
+
+
 ===========postfixadmin
 https://github.com/postfixadmin/postfixadmin
 
@@ -1131,26 +1423,6 @@ vi /etc/postfixadmin/config.inc.php 配置mysql
 
 ===========上 postfixadmin
 
-=========== cyrus-imapd 是一个 邮件,联系人和日历服务 
-使用C和perl
-https://cyrusimap.org/ 最新版本3.0
-
-支持IMAP4和 pop3 (只可读用户的INBOX箱)
-
-# rpm -ivh imap-2002d-3.i386.rpm --nodeps
-要修改/etc/xinetd.d/imap文件把disale=yes 改为no,会有143端口监听
-telnet localhost 143 来测试可能还 要libcrypto.so.4
-
-cyrus
-./configure --with-dbdir=/usr/local/BerkeleyDB.4.6/
-	###--with-bdb-libdir or --with-bdb-incdir configure options.
-成功编译后，make depend－》make all CFLAGS=-O(看文档的,可能不行的)
-
-===========dovecot 是一个 Imap 和 Pop3  服务
-https://www.dovecot.org/
-https://wiki2.dovecot.org/
-使用C开发,最新版本2.3.9
-zypper install dovecot 有 backend-sqlite,backend-mysql,backend-pgsql
 
 ---------squirrelmail
 http://squirrelmail.org/
@@ -1486,11 +1758,6 @@ location / {
 			root   html;  #windows下安装目录的html(linux是/usr/share/nginx/html)目录有/50x.html 
 	}
 	
-------nginx  HTTP2
-源码编译增加
---with-http_v2_module 选项
---with-http_ssl_module
-
 
 ------nginx Memcached
 server {   
@@ -1523,7 +1790,78 @@ max_conns=3;
 ------nginx https ssl 
 TLSV1.2,TLS( Transport Layer Security )
 http ssl 默认端口443
+
+证书颁发机构  天威诚信，具体请见：http://www.itrus.com.cn
+
 listen 443 ssl http2 default_server;  未试
+
+#openssl genrsa -out server.key 2048
+#openssl req -new -key server.key -out certreq.csr
+	Common Name： www.example.com    //通用名，此项必须与您访问提供SSL服务的服务器时所应用的域名完全匹配。
+
+将生成的csr文件提交给第三方证书颁发机构申请对应域名的服务器证书 , 假设服务器证书文件名称为server.pem
+
+ http://nginx.org/en/docs/http/configuring_https_servers.html
+ 
+ 
+windows版本设置
+set OPENSSL_CONF=D:\Application\OpenSSL-1.1.1h_win32\OpenSSL-1.1.1h_win32\openssl.cnf
+才可用
+
+
+
+生成根证书
+
+	1.首先生成私钥
+	openssl genrsa -out root.key 2048
+	2.生成根证书签发申请文件(csr文件) , #CN的值要与请求地址相同的域名,domain.com 
+	openssl req -new -key root.key -out root.csr  -subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=myserver.com
+	3.自签发根证书(cer文件)
+	openssl x509 -req -days 3000 -sha1 -extensions v3_ca -signkey root.key -in root.csr -out root.cer
+
+使用根证书签发服务端证书
+	mkdir private
+	1.生成服务端私钥(可以给商户客户)
+	openssl genrsa -out server-key.pem 2048
+	2.生成证书请求文件
+	openssl req -new -key server-key.pem -out server.csr -subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=myserver.com
+			 
+	3.用根证书签发服务端证书(此时证书只有公钥，没有私钥)
+	openssl x509 -req -days 3000 -sha1 -extensions v3_req -CA root.cer -CAkey root.key -CAserial ca.srl -CAcreateserial -in server.csr -out server.cer
+	
+
+server {
+	listen   443 ssl; 
+	
+	#http2也测试成功
+	#listen   443 ssl http2;   
+	
+	server_name  myserver.com; 
+	
+	ssl_certificate      "E:/tmp/nginx_tls/server.cer"; 
+	ssl_certificate_key  "E:/tmp/nginx_tls/server-key.pem"; 
+	ssl_session_timeout  5m;
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+	ssl_ciphers         HIGH:!aNULL:!MD5;
+	
+}
+ 
+Firefox浏览器使用自己的，并不使用操作系统，tools->options->Privacy&Security->  Certificates 组View certificates...
+	->import 选择根证书root.cer-> trust this CA identified website 测试OK 
+
+windows安装  CA证书(root.cer)
+查看 运行 mmc -> file-> add/remove snap-in...->选择certificates ->单选 place all certificate in the following store->browser...
+	->选择Trust root certification authorities->弹框提示点yes
+
+Chrome ->Settings->Privacy and Security->Advanced组->Manage certificates打开窗口里面的内容同上面
+Chrome 还是报安全问题 ???  
+
+	
+------nginx  HTTP2
+源码编译增加
+--with-http_v2_module 选项
+--with-http_ssl_module
+
 
 
 ------nginx cluster
@@ -1694,9 +2032,14 @@ http {
 nginx -p `pwd`/ -c conf/nginx.conf
 
 
+================APISIX  
+apache 顶级项目,国人开发,比Kong 牛
+基于openResty
+
 
 ================Kong
 基于openResty
+国人开发
 API网关   将安全认证，流量控制，审计日志，黑白名单等实现
 
 有docker ， kubernate 版本，

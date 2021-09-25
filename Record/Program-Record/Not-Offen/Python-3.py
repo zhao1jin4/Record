@@ -8,7 +8,7 @@ https://github.com/tensorflow/swift
 http://www.runoob.com/python3/python3-tutorial.html
 
 ActivePython 3.7
-
+Python 3.8.x(3.8.9) 是最后一个可在windows 7 上运行的版本
  
 ----eclipse marketplace安装  Python 插件 PyDev-6.2 
 

@@ -192,7 +192,7 @@ cp ./share/mysql/mysql.server /etc/rc.d/mysql  ##可以正常使用
 
  
 [mysqld]
-##datadir=/usr/local/mysql/data
+#datadir=/usr/local/mysql/data
 
 default-storage-engine=INNODB
 default-character-set=utf8
@@ -240,7 +240,7 @@ datadir =/opt/mariadb-10.5.8-linux-systemd-x86_64/data
 mysql用户下启动(不能以root用户运行)
 bin/mysqld    --defaults-file=./my.cnf  
   
--------------linux 二进制安装 mysql-5.7.17   / 8
+-------------linux 二进制安装 mysql-5.7 或 8
 mysql-8.0.18 二进制解压为tar 大小变2.6G
 
 
@@ -255,7 +255,7 @@ shell> chmod 750 mysql-files
 shell> chown -R mysql .
 shell> chgrp -R mysql . 
 shell> bin/mysqld --initialize --user=mysql #不指定配置默认在data目录 
---defaults-file=/zh/mysql-files/my.cnf   
+--defaults-file=/zh/mysql-files/my.cnf   注意 --initialize 要放在--defaults-file之后
 --explicit_defaults_for_timestamp --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --log-error=/usr/local/mysql/mysql-files/mysql-error.log 
 提示生成了临时的 root@localhost的密码
 
@@ -274,8 +274,9 @@ default-character-set=utf8
 [mysqld]
 default-storage-engine=INNODB
 character_set_server=UTF8MB4
-basedir =/opt/mysql-8.0.15-linux-glibc2.12-x86_64  --默认值是/usr/local/mysql/
-datadir =/zh/mysql-files/data
+basedir=/opt/mysql-8.0.25-linux-glibc2.17-x86_64-minimal --默认值是/usr/local/mysql/
+datadir=/opt/mysql-8.0.25-linux-glibc2.17-x86_64-minimal/data
+
 port =3306
 socket =/zh/mysql-files/mysql.sock  #默认/tmp/mysql.sock
 
@@ -347,6 +348,9 @@ mysqladmin -uroot  -p password root   -S /zh/mysql-files/mysql.sock
 
 ---- openSUSE 15 使用 mysql 客户端 要libtinfo.so.5 而实际上有libncurses6-6.1 ,zypper install libncurses5
 #二进制解压 ldd bin/mysql openSUSE-leap-15.1报找不到  libtinfo.so.5 安装zypper install libncurses5 即可
+
+--- fedora34 默认安装了　ncurses-libs-6.2-4.20200222.fc34.x86_64,　要　libncurses.so.5
+ sudo dnf install ncurses-compat-libs
 
 ---innodb参数
 innodb_fast_shutdown   0表示关闭，会缓冲区中数据写入硬盘，下次启动再读入内存，1(默认)打开
@@ -1205,8 +1209,12 @@ show variables like '%max_connections%'
 set global max_connections= 300
 --------当前运行的所有事务
 SELECT * FROM INFORMATION_SCHEMA.INNODB_TRX;
-
-当前出现的锁
+	tx_started 事务开始时间
+	tx_query
+	tx_isolation_level
+	trx_mysql_thread_id 可以用做 kill <thread_id>
+	
+当前出现的锁,查不到？权限问题？
 SELECT * FROM INFORMATION_SCHEMA.INNODB_LOCKS;
 
 
@@ -1350,7 +1358,7 @@ SHOW STATUS LIKE 'InnoDB_rows%'; 影响行数
   
 linux 的mysql 的表名是区分大小写的, 则windows不区分,字段名都不区分
 show variables like 'lower_case_table_names'
-my.cnf 中增加 lower_case_table_names=0     --  其中0：区分大小写，1：不区分大小写  重启
+my.cnf 中增加 lower_case_table_names=0     --  其中0：区分大小写，1：不区分大小写  重启　　,测试下来新表名脚本为大写,建好了并不是小写
 
 
 

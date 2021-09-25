@@ -707,6 +707,104 @@ public class TestNGAndSelenium {
 	}
 }
 
+
+
+-----powerMock 
+https://github.com/powermock/powermock
+powerMock 是基于easyMock或Mockito扩展出来的增强版本 
+Mockito和EasyMock 都不可以实现对静态函数、构造函数、私有函数、Final 函数以及系统函数的模拟
+
+支持 JUnit 和 TestNG 
+
+
+<dependency>
+  <groupId>org.powermock</groupId>
+  <artifactId>powermock-api-mockito2</artifactId>
+  <version>2.0.9</version>
+</dependency>
+<dependency>
+  <groupId>org.powermock</groupId>
+  <artifactId>powermock-api-easymock</artifactId>
+  <version>2.0.9</version>
+</dependency>
+<dependency>
+  <groupId>org.powermock</groupId>
+  <artifactId>powermock-module-junit4</artifactId>
+  <version>2.0.9</version>
+</dependency>
+<dependency>
+  <groupId>org.powermock</groupId>
+  <artifactId>powermock-module-testng</artifactId>
+  <version>2.0.9</version>
+</dependency>
+
+
+public class SourceDepend {
+    public final boolean isAlive() {
+        return false;
+    }
+}
+public class Source { 
+	public boolean callFinalMethod(SourceDepend refer) {
+        return refer.isAlive();
+    } 
+}
+
+@RunWith(PowerMockRunner.class) 
+public class JunitMockITOFinal {
+	@Test
+	@PrepareForTest(SourceDepend.class)
+	//需要使用PowerMock强大功能（Mock静态、final、私有方法等）的时候，就需要加注解@PrepareForTest。@RunWith 
+	public void testCallFinalMethod()
+	{
+	    SourceDepend depencency = PowerMockito.mock(SourceDepend.class);
+	    Source underTest = new Source();
+	    PowerMockito.when(depencency.isAlive()).thenReturn(true);
+	    Assert.assertTrue(underTest.callFinalMethod(depencency));
+	} 
+}
+
+
+
+
+public final class UserController {
+    private String say(String content) {
+        return "user say " + content;
+    } 
+	public static String getStaticName(String name) {
+	return "A_" + name;
+	}
+}
+@RunWith(PowerMockRunner.class) 
+@PrepareForTest(UserController.class)
+public class JunitMockITOPrivateStatic {
+	@InjectMocks
+    private UserController controller;
+    @Test
+    public void testPrivateMethod() throws   Exception   {
+        Method method = PowerMockito.method(UserController.class, "say", String.class);
+        Object say = method.invoke(controller, "hi");
+        Assert.assertEquals("user say hi", say);
+    }
+    @Test
+    public void mockStaticMethod() {
+        PowerMockito.mockStatic(UserController.class);//mock静态方法
+        Mockito.when(UserController.getStaticName(ArgumentMatchers.any(String.class))).thenReturn("hi");
+        String staticName = UserController.getStaticName("user");
+        Assert.assertEquals("hi", staticName); 
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 Selenium and TestNG
 ----------Selenium  自动化测试
 支持C# , Python,

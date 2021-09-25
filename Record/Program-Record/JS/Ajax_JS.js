@@ -839,6 +839,9 @@ alert(typeof(eval(prop3)[1]));//number
 各种进制转换为10进制
 parseInt("0x3ff",16)
 
+String.fromCharCode(97)//a
+'a'.charCodeAt() // 97
+
 10进制转换为二进制
 decimalNum=123
 decimalNum.toString(2)
@@ -962,7 +965,8 @@ function dynamicAddEvent()
 
 //js阻止事件冒泡二选一 ( 捕获阶段: 外-》里 , 冒泡阶段: 里-》外)
 //evt.cancelBubble = true;
-//evt.stopPropagation();
+//evt.stopPropagation();//只对产生事件对象外部事件停止传播，本对象有多个相同事件，不能阻止
+//evt.stopImmediatePropagation(); //除了对产生事件对象外部事件停止传播，,本对象有多个相同事件，可能阻止
 
  //js阻止 (链接跳转/表单中button提交) 默认行为，没有停止冒泡
  evt.preventDefault()
@@ -1221,7 +1225,8 @@ function fclick(obj){
 evt.clientX 相对于窗口客户区域的 x 坐标，其中客户区域不包括窗口自身的控件和滚动条
 evt.screenX 相对于用户屏幕的 x 坐标
 evt.offsetX 相对于触发事件的对象的 x 坐标。
-
+	pageX   鼠标指针相对于整个文档的X坐标；
+	
 offsetLeft  Html元素相对于自己的offsetParent元素的位置 
 clientLeft 是的组件边的厚度
 
@@ -1282,7 +1287,7 @@ RegExp.lastMatch属性 ($&)	//最后的全匹配
 RegExp.lastParen 属性 ($+)	//最后一个()
 RegExp.$1			//()中的
 
-"hello wang".replace("wang","li")//用法同java
+"hello wang".replace("wang","li")//用法同java,但只替换第一个,replaceAll
 "hello wang".split(" ")//用法同java
 
 var reg_phone =/^0{0,1}(13[0-9]|15[0-9])[0-9]{8}$/i;
@@ -3132,7 +3137,7 @@ async function asyncCall() {//如resolved  返回一个Promise，如rejected 抛
 
 asyncCall();
  
- Promise.all([resolveAfter2Seconds(), resolveAfter1Second()])//并发
+ Promise.all([resolveAfter2Seconds(), resolveAfter1Second()])
 	  .then((messages) => {
 	    console.log(messages[0]); // slow
 	    console.log(messages[1]); // fast
@@ -3653,6 +3658,11 @@ el.dataset.dateOfBirth = '1960-10-03'; //JS驼峰命名
 el.dataset.someDataAttr = 'mydata';
 // 'someDataAttr' in el.dataset === true
 
+-----TextDecoder
+//中文吉
+let utf8decoder = new TextDecoder(); // default 'utf-8' or 'utf8'
+let u8arr = new Uint8Array([240, 160, 174, 183]);
+console.log(utf8decoder.decode(u8arr));
 
 //----ECMAScript 2018
 //扩展语法和reset参数 

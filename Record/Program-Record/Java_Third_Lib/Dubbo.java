@@ -1,5 +1,5 @@
 
-
+Dubbo 3.x 版本开始 用protobuf了，也是使用proto3文件生成代码，抄gRPC了
 -----------------apache dubbo 2.7.x
 (包名org.apache.dubbo开头)
 https://github.com/apache/dubbo
@@ -111,6 +111,11 @@ public class Application {
         reference.setApplication(new ApplicationConfig("first-dubbo-consumer"));
         reference.setRegistry(new RegistryConfig("zookeeper://" + zookeeperHost + ":2181"));
         reference.setInterface(GreetingService.class);
+		
+		reference.setRetries(0);
+        reference.setTimeout(5*1000);
+        reference.setCheck(false); 
+		
         GreetingService service = reference.get();
         String message = service.sayHi("dubbo");
         System.out.println(message);

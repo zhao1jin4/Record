@@ -1,9 +1,8 @@
 ﻿http://nodejs.cn/api/   Node.js 中文网  v12.16.1
 
 下载msi文件,安装。也可下载.zip包解压 (最好下载LTS版本  Long Time Support)
-LTS版本为 10.16.1 LTS
-LTS版本为 12.16.1 LTS 
-
+LTS版本为 12.16.1 LTS  最后支持windows  7 的版本
+LTS版本为 14.16.1 LTS ,14 版本不支持 windows 7 
 
 Mac的pkg安装包默认安装npm,node命令到/usr/local/bin下，下载目录在/usr/local/lib/node_modules 要root权限
 
@@ -1253,6 +1252,18 @@ date = new Date(timestamp);
 res=moment.tz(timestamp, "America/Los_Angeles").format(); // 2014-06-22T09:21:08-07:00
 console.log(res); 
 
+
+-----Electron
+ Electron( JavaScript、HTML 和 CSS 构建桌面应用程序的框架),内部有使用Chrome相关的东西
+ Medis 有使用这个库
+https://github.com/electron/electron
+
+npm init
+npm install --save-dev electron 会下载 electron-v13.1.2-win32-x64.zip
+	包中有libGLESv2.dll
+	libEGL.dll   EGL 是 OpenGL ES 渲染 API 和本地窗口系统(native platform window system)之间的一个中间接口层
+	
+release 页有 chromedriver下载
 
 
 

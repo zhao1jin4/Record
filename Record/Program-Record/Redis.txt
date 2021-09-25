@@ -4,8 +4,10 @@ redis-desktop-manager-0.9.1  可以监控，可写命令好用，win二进制版
 redisclient-win32.x86_64.2.0.jar  国内的，也有4-5年不更新
 RedisStudio-en-0.1.5.exe  不能写命令，不能看数据值
 
-Medis (react ,redux开发，国人开发)可Mac上使用 https://github.com/luin/medis 
- (node项目，源码编译 npm install， npm run pack，npm start 可在linux上运行,对集群支持不是太好，命令行不会自动跳转节点，界面只能看连接节点上的key)
+Medis (react ,redux开发，国人开发)windows 和 mac有二进制版本 https://github.com/luin/medis   medis-0.16（2017年的版本）
+	使用React, Electron( JavaScript、HTML 和 CSS 构建桌面应用程序的框架) https://github.com/electron/electron
+	
+ (node项目, 源码编译 npm install(linux下依赖python2,g++), npm run pack, npm start 可在linux上运行,对集群支持不是太好，命令行不会自动跳转节点，界面只能看连接节点上的key)
 
 源码安装 npm install , npm run pack(要修改package.json加set,还是失败),npm start 
 	node即使设置了registry也会从github上下载，提示
@@ -15,8 +17,10 @@ Medis (react ,redux开发，国人开发)可Mac上使用 https://github.com/luin
     npm config set proxy http://example.com:8080
 	npm config set proxy https://registry.npm.taobao.org
 	
-类似 Medis 网页式的还有 AnotherRedisDesktopManager国人开发， 使用Vue
-
+类似 Medis 网页式的还有 AnotherRedisDesktopManager国人开发， 使用Vue,有windows,linux,mac的二进制版本
+	https://github.com/qishibo/AnotherRedisDesktopManager  ，2021年更新
+	linux下载 Another-Redis-Desktop-Manager.1.4.5.AppImage chmod755 后直接就可以使用
+	
 -----phpRedisAdmin   测试成功(nginx)
 有Docker 镜像 docker run --rm -it -e REDIS_1_HOST=myredis.host -e REDIS_1_NAME=MyRedis -p 80:80 erikdubbelboer/phpredisadmin
 
@@ -157,6 +161,7 @@ bind 默认127.0.0.1  是不能外网连接的，要修改为本机IP 或者注�
 ./redis-cli -p <port>  -h <hostname>  有交互命令如ping
 --pass 
 -a auth
+-n db
 >help 再按tab有命令组的提示,如@string
  help brpop
 >bgsave  保存到磁盘  使用LASTSAVE 命令判断 BGSAVE 命令是否执行成功
@@ -192,7 +197,8 @@ getrange greet 2 -1
 >set counter 10
 >incr counter      	加1  原子操作
 >incrby counter 10  加10
-incrbyfloat counter 0.5
+incrbyfloat counter 0.5 后变小数，但如果再加一次就变整数11而不是11.0,
+	程序端要用  RedisTemplate<String, Double>，不能用  RedisTemplate<String, Object>，类型转会现Integer转为Double错误
 >decr counter     	减1
 >decrby counter 10  减10
 >getset counter 45  先返回再设置
@@ -264,7 +270,7 @@ smove myset2 destSet 'three'
  
 sinterstore res myset1 myset2 
 sdiffstore
- 
+sscan
 
 ---有序set
 zadd myscore 80 'math'  #score 是80
@@ -345,6 +351,60 @@ info		显示所有配置
 FLUSHDB    清当前DB
 FLUSHALL   清所有DB,清所有的key
 del   <theKey>
+
+批量删除key  
+	eval "redis.call('del', unpack(redis.call('keys','startWith*')))" 0   亲测生效先select x
+	
+	下面的没测试
+	可java写程序,系统脚本,eval 命令(或 --eval <file> 参数)执行lua脚本
+	redis-cli -h 127.0.0.1 -p 6379 -n 0  keys  startwith:*  > keys.txt
+	linux shell: 
+		redis-cli -h 127.0.0.1 -p 6379 -n 0  keys  startwith:*  | xargs   redis-cli -h 127.0.0.1 -p 6379 -n 0 del
+		cat keys.txt | xargs   redis-cli -h 127.0.0.1 -p 6379 -n 0 del 
+	windows batch: 
+ 
+
+	---------clearKeyPattern.lua
+	local key1 = KEYS[1] 
+	--如果没有传至 跳过
+	if( key1 = nil || string.len(key1) <= string.len("project:111")) then
+		return -1
+	end
+
+	redis.call("select",7)
+
+	--游标的id
+	local cursor = 0
+	--查找删除的key的数量
+	local keyNum = 0
+	repeat
+	  --使用scan搜索，cursor=0的时候标识一个新的迭代期,服务器返回0的时候表示迭代已经结束
+	  local res = redis.call("scan",cursor,"MATCH",KEYS[1])
+	  if(res ~= nil and #res>=0) then
+		cursor = tonumber(res[1])
+		local ks = res[2]
+		if(ks ~= nil and #ks>0) then
+		
+		  --redis5开始是默认的，不用显示启用
+		  redis.replicate_commands() 
+		  
+		  --循环删除当前迭代器迭代出的数据
+		  for i=1,#ks,1 do
+			local key = tostring(ks[i])
+			--使用UNLINK删除，区别于del的是这个是异步执行的
+			--这条指令要版本大于4.0.0 小于4.0.0就使用del
+			redis.call("UNLINK",key)
+		  end
+		  --统计删除的key的数量
+		  keyNum = keyNum + #ks
+		end
+	  end
+	--当服务器返回0的时候，跳出循环
+	until( cursor <= 0 )
+
+	return keyNum 
+	--------- 
+
 type dest 集合是什么类型的
 
 TTL 命令可以获取某个key值的过期时间(-1表示永不过期)
@@ -786,7 +846,8 @@ rename-command KEYS ""
 rename-command SMEMBERS ""
 生产环境不建议用 KEYS ，SMEMBERS 会锁很长多秒时间，使用SCAN 做替代，SSCAN(set),HSCAN(hash),ZSCAN(sorted set)
 scan 0 表示从0开始 返回一个元素为一次使用的游标号，相当于分页查所有键，默认每页10页
-scan 0 MATCH * COUNT 20 可通配符，设置分页大小
+scan 0 MATCH * COUNT 20 可通配符 
+	(实际操作时，明明有这个键，COUNT输入20就查不到，COUNT输入1000就能查到，表示查找从第0个键到第1000个键里去找，有可能这键在1000以外)
 
 
 --------client 命令

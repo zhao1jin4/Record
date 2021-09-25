@@ -14,7 +14,7 @@ Rancher 界面工具里有Istio的支持,选中project出现Resources菜单->ist
 
 2020-11-28 istio 1.8.0 已经在 Kubernetes 版本 1.16, 1.17, 1.18, 1.19 中测试过
 2021-02-09 Istio 1.9.0 is officially supported on Kubernetes versions 1.17.0 to 1.20.x.
-
+2021-05-18 Istio 1.10     Supported Kubernetes Versions 1.18, 1.19, 1.20, 1.21
 
 
 应用程序必须使用 HTTP/1.1 或 HTTP/2.0 协议用于 HTTP 通信；HTTP/1.0 不支持
@@ -41,7 +41,7 @@ cd /opt/istio-1.8.1/tools/
 cp istioctl.bash  ~/
 cd ~
 source ~/istioctl.bash  
-后就可以istioctl  m时按tab键自动补全为 manifest (openSUSE-leap-15.1测试正常,CentOS-7.9报错)
+后就可以istioctl  m时按tab键自动补全为 manifest (openSUSE-leap-15.1,fedora34测试正常,CentOS-7.9报错)
 
 
 istioctl  version 未安装不能执行
@@ -54,7 +54,7 @@ istioctl manifest apply 会安装 default profile 配置文件,生产环境建�
 1.8.0版本变为
 istioctl manifest install --set profile=demo (可能要root用户执行)
 #istioctl         install --set profile=demo
-  
+istioctl install --set profile=demo -y
   
 istioctl  profile  list  查看共有多少种profile,像是/opt/istio-1.8.0/manifests/profiles 下的文件
 
@@ -160,7 +160,9 @@ https://istio.io/latest/docs/ops/deployment/requirements/
 	0 0.0.0.0:15006  	TCP 	Envoy inbound
 	:::15020         	HTTP	Merged Prometheus telemetry from Istio agent, Envoy, and application 
 
-
+	firewall-cmd --zone=public --add-port=15021/tcp --permanent 		#istio health 
+	firewall-cmd --reload
+	
 kubectl exec -it -n my-ns my-xx  -c istio-proxy --  netstat -tnlp   显示是由envoy 和 pilot-agent 程序来监听
     0 0.0.0.0:15021      envoy 
     0 0.0.0.0:15090      envoy

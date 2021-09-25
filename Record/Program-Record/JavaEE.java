@@ -290,9 +290,38 @@ response.setHeader("Content-disposition","inline;filename=workbook.xls");//inlin
 response.setContentType("application/x-msdownload");
 response.addHeader("Content-Disposition", "attachment;filename="+ new String(filename.getBytes("GBK"), "ISO-8859-1"));//attachment会提示下载
 ServletOutputStream output=response.getOutputStream();
+output.flush();
 output.close();//可能不要关闭
 
 =================================java mail
+<dependency>
+    <groupId>javax.mail</groupId>
+    <artifactId>javax.mail-api</artifactId>
+    <version>1.6.2</version>
+</dependency>
+
+<dependency>
+    <groupId>javax.activation</groupId>
+    <artifactId>javax.activation-api</artifactId>
+    <version>1.2.0</version>
+</dependency>
+
+以上只是能编译，不能运行，如要运行，下面中的内容也包括上面的-api中的东西
+<dependency>
+    <groupId>com.sun.mail</groupId>
+    <artifactId>javax.mail</artifactId>
+    <version>1.6.2</version>
+</dependency>
+
+<dependency>
+    <groupId>com.sun.activation</groupId>
+    <artifactId>javax.activation</artifactId>
+    <version>1.2.0</version>
+</dependency>
+
+
+
+
 发送邮件服务器
 	SMTP:Simple Mail Transfer Protocol
 接收邮件服务器 
@@ -417,10 +446,21 @@ Javax.mail.internet.MimeMessage
 	public static final String password=prop.getProperty("password"); 
 	public static final String mailTo =prop.getProperty("mailTo");   // 带@的
 	public static final String filterFromMailAddr=prop.getProperty("filterFrom");//xx@sina.com
-	public static final String addrHost="163.com";
+
+
+	//public static final String fromAddrHost="163.com";
+	//public static final String smtpHost="smtp.163.com";
+	
 	public static final String pop3Host="pop3.163.com";
-	public static final String smtpHost="smtp.163.com";
 	public static final String imapHost="imap.163.com";
+	
+		//用于发件人 user1@ 后面部分
+	public static final String fromAddrHost="dell-pc.domain.com";//dell-pc.domain.com是成功的，但改为domain.com能发送（两个证书是按domain.com做），但收不到？
+	//看postfix的日志tail -f /var/log/mail，是因为没有DNS解析domain.com （使用公网的是错的）的MX记录为 dell-pc.domain.com 
+	
+	
+	public static final String smtpHost="dell-pc.domain.com";
+	
 	
 	public static void receivePop3Mail() throws Exception
 	{
@@ -570,13 +610,77 @@ Javax.mail.internet.MimeMessage
 		Session sendsession = Session.getInstance(props, null);
 		props.put("mail.smtp.host", smtpHost);
 		props.put("mail.smtp.auth", "true");// 设置SMTP服务器需要权限认证
+		
+		/*
+---自己的postfix
+/etc/postfix/master.cf 文件中放开 
+smtps     inet  n       -       n       -       -       smtpd 
+  -o smtpd_tls_wrappermode=yes
+  -o smtpd_sasl_auth_enable=yes
+
+还要在 /etc/services 中增加 
+smtps              465/tcp  
+
+再重启postfix就有465端口监听了
+
+---
+生成根证书
+
+	1.首先生成私钥
+	openssl genrsa -out root.key 2048
+	2.生成根证书签发申请文件(csr文件) , #CN的值要与请求地址相同的域名
+	openssl req -new -key root.key -out root.csr  -subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=domain.com 
+	3.自签发根证书(cer文件)
+	openssl x509 -req -days 3000 -sha1 -extensions v3_ca -signkey root.key -in root.csr -out root.cer
+
+使用根证书签发服务端证书
+	mkdir private
+	1.生成服务端私钥(可以给商户客户)
+	openssl genrsa -out private/server-key.pem 2048
+	2.生成证书请求文件
+	openssl req -new -key private/server-key.pem -out private/server.csr -subj /C=CN/ST=Shanghai/L=JiaDing/O=DevOps/CN=domain.com 
+	3.用根证书签发服务端证书(此时证书只有公钥，没有私钥)
+	openssl x509 -req -days 3000 -sha1 -extensions v3_req -CA root.cer -CAkey root.key -CAserial ca.srl -CAcreateserial -in private/server.csr -out private/server.cer
+
+#cer转换为der格式
+openssl x509 -outform der -in test-private/server.cer -out private/publicserver.ccertificate.der
+
+#转换为p12/pfx格式
+openssl pkcs12 -export -in private/server.cer -inkey private/server-key.pem -out server.pfx  #要设置密码123
+
+#私钥导出公钥
+openssl rsa -in private/server-key.pem -pubout -outform PEM -out server-key-pub.pem
+---
+vi /etc/postfix/main.cf  TLS修改
+
+smtpd_use_tls = yes  #开关 
+#是smtpd服务端
+#是rsa
+smtpd_tls_key_file = /home/dell/Documents/postfix_tls/private/server-key.pem   
+smtpd_tls_cert_file = /home/dell/Documents/postfix_tls/private/server.cer
+smtpd_tls_CAfile = /home/dell/Documents/postfix_tls/root.cer
+smtpd_tls_CApath =
+
+
+转换 pfx 到 jks 
+keytool -importkeystore -v  -srckeystore  /home/dell/Documents/postfix_tls/server.pfx   -srcstoretype pkcs12 -srcstorepass 123   -deststoretype jks  -destkeystore serverTruststore.jks   -deststorepass servertruststorepass
+ 	
+ 测试成功 连接自己的postfix,配置了tls成功
+		*/
+		props.put("mail.smtp.ssl.enable", "true");//TLS
+		props.setProperty("mail.transport.protocol", "smtps");
+		//启动服务器时 -D
+		System.setProperty("javax.net.ssl.trustStore",			"/home/dell/Documents/postfix_tls/serverTruststore.jks");
+		System.setProperty("javax.net.ssl.trustStorePassword",	"servertruststorepass");
+		
+		
 		//mail.smtp.socketFactory.class=javax.net.ssl.SSLSocketFactory
 		//mail.smtp.socketFactory.port=
 		sendsession.setDebug(true);
 		Message message = new MimeMessage(sendsession);
 		message.addHeader("Content-type", "text/html");//对HTML格式的邮件
 		
-		message.setFrom(new InternetAddress(username + "@" + addrHost));
+		message.setFrom(new InternetAddress(username + "@" + fromAddrHost));
 		message.setRecipient(Message.RecipientType.TO, new InternetAddress(mailTo));
 		message.setSubject(subject);
 		message.setSentDate(new Date());

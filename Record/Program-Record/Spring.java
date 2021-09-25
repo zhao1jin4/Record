@@ -664,6 +664,25 @@ native2ascii -encoding utf-8(源文件的编码) source.properties source_zh.pro
 org.springframework.context.ApplicationEvent抽象类无抽象方法
 org.springframework.context.ApplicationListener接口的一个方法onApplicationEvent(ApplicationEvent event) 
 
+
+@Service
+public class MyListenerAnno  {
+	@EventListener
+	public void onApplicationEvent(ApplicationEvent event) {
+		if (event instanceof MyEvent)
+		System.out.println("MyListenerAnno i receiver your event");
+	}
+}
+public class MyEvent extends  ApplicationEvent {
+	public MyEvent(String obj) {
+		super(obj);
+		System.out.println("hello"+obj);
+	}
+}
+context.publishEvent(new MyEvent("good"));
+
+
+
 org.springframework.context.AplicationContextAware接口的一个方法setApplicationContext(ApplicationContext applicationContext)
 ApplicationContext的publishEvent(ApplicationEvent event)
 
