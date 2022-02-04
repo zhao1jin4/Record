@@ -1362,6 +1362,55 @@ public class MyValueCalculatorReplacer implements MethodReplacer{
 	</property>
 </bean>
 
+
+
+动态注册Bean
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
+import org.springframework.core.type.AnnotationMetadata;
+
+@Configuration
+public class CacheBeanRegistrar implements ImportBeanDefinitionRegistrar {
+ 
+	private static BeanDefinitionRegistry beanDefinitionRegistry;
+	@Override
+	public void registerBeanDefinitions(AnnotationMetadata annotationMetadata,
+			BeanDefinitionRegistry beanDefinitionRegistry) {
+		CacheBeanRegistrar.beanDefinitionRegistry = beanDefinitionRegistry;
+	}
+	public static BeanDefinitionRegistry getBeanDefinitionRegistry() {
+		return beanDefinitionRegistry;
+	}
+
+	public static void setBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) {
+		CacheBeanRegistrar.beanDefinitionRegistry = beanDefinitionRegistry;
+	}
+}
+
+RedissonClient redissonClient = createRedissonClient(properties);
+		
+GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+beanDefinition.setBeanClass(RedisCacheManager.class);
+
+ConstructorArgumentValues constructorArgumentValues = new ConstructorArgumentValues();
+constructorArgumentValues.addIndexedArgumentValue(0, properties);
+beanDefinition.setConstructorArgumentValues(constructorArgumentValues);
+MutablePropertyValues propertyValues = beanDefinition.getPropertyValues();
+propertyValues.add("redisAtomicLongDao", new RedissonAtomicLongDao(redissonClient));//设置属性值 ，没有再使用自动注入
+propertyValues.add("redisAtomicLongDao", new RedissonAtomicLongDao(redissonClient));
+propertyValues.add("redisSimpleDao", new RedissonSimpleDao(redissonClient));
+propertyValues.add("redisMapDao", new RedissonMapDao(redissonClient));
+propertyValues.add("redisListDao", new RedissonListDao(redissonClient));
+propertyValues.add("redisSetDao", new RedissonSetDao(redissonClient));
+propertyValues.add("redisOrderSetDao", new RedissonOrderSetDao(redissonClient));
+propertyValues.add("redisZScoreSetDao", new RedissonZScoreSetDao(redissonClient));
+propertyValues.add("redisDequeDao", new RedissonDequeDao(redissonClient));
+
+beanDefinition.setPrimary(true);
+beanDefinitionRegistry.registerBeanDefinition(entry.getKey(), beanDefinition);
+		
+		
 =========================Spring JDBC
 <bean id="nativeJdbcExtractor"    class="org.springframework.jdbc.support.nativejdbc.SimpleNativeJdbcExtractor" />
 <bean id="oracleLobHandler"  class="org.springframework.jdbc.support.lob.OracleLobHandler" lazy-init="true">

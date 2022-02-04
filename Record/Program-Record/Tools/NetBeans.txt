@@ -2,7 +2,7 @@
 ============================Netbeans-8.2 最后一个oracle版本===============================
 apache下11.2版本 支持JDK11
 apache Netbeans-12.3 (March 3, 2021) 可以到JDK 16 
-
+	   NetBeans 12.5	  可以到编译JDK 17
 右击项目->properties->sources->Source/Target binary format 下拉选择JDK版本
 
 netbeans-11.2-bin\netbeans\etc\netbeans.conf 中要修改 netbeans_jdkhome 的配置才可启动

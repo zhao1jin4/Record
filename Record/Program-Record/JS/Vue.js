@@ -1,4 +1,4 @@
-Vue(发音像view) v2.6.11　,现在已经有3.x版本
+Vue(发音像view) v2.6.11　,现在已经有3.x版本 ,不支持 IE11
 
  最早在 0.6.0 版本 在 Dec 7, 2013 发布 晚于react发布5个多月的时间
  1.0.0-alpha.1   在Aug 31, 2015  发布
@@ -32,8 +32,16 @@ UI框架
  
 Vue 比React简单 (没有用到class)
 
-vue-js-devtools 对firefox addons 最新的是 vuejs_devtools-5.1.1-fx.xpi 
-也有chrome的
+-----vue-js-devtools 
+对firefox addons 最新的是 vuejs_devtools-5.1.1-fx.xpi 
+也有chrome的,Edge版本
+也有Standalone版本
+	https://devtools.vuejs.org/guide/installation.html#settings-1 可以
+生产版本打开F12什么也没有
+
+Firefox版本既然不能检测到官方网站是Vue做的，Edge版本则可以
+
+
 
 https://cn.vuejs.org/js/vue.js
 https://unpkg.com/vue@2.6.11/dist/vue.js

@@ -34,6 +34,12 @@ apt-get remove package-names
 
 
 
+ar -vx xxx.deb   可以解压ubuntu 的deb包
+
+
+
+
+
 有Remote Desktop View 0.5.1 (gnome)
 oowriter
 

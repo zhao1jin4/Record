@@ -1,5 +1,11 @@
 ﻿
+macOS 10.15，Catalina (2019)
+macOS 11，Big Sur (2020) (停止对 32 位应用程序的支持，Photoshop 22.x 仍存在一些已知问题)
+M1 Apple Silicon ，M1是基于arm的，不能安装win10的x86版本
+
+多了 iPadOS 
 ==========================Mac OS X (Macintosh)
+darwin 达尔文 
 
 安装完成后,注意取消自动更新 
 App Store -> 系统偏好设置-> Automatic Update   默认是取消的

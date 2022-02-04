@@ -953,7 +953,8 @@ go get github.com/hazelcast/hazelcast-go-client
 https://github.com/Shopify/sarama
 https://github.com/segmentio/kafka-go
 
-
+========nacos 支持Go客户端
+ https://github.com/nacos-group/nacos-sdk-go
 
 ---Kubernetes client Go
 如读 config,secret

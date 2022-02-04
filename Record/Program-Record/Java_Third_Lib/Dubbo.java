@@ -3,47 +3,81 @@ Dubbo 3.x 版本开始 用protobuf了，也是使用proto3文件生成代码，�
 -----------------apache dubbo 2.7.x
 (包名org.apache.dubbo开头)
 https://github.com/apache/dubbo
-https://github.com/apache/dubbo-admin
+https://github.com/apache/dubbo-admin/releases 下载二进制包 
+	0.3.0  支持 Dubbo 2. 7. X ，支持 Nacos 默认用户密码root/root  配置在config/application.properties
 http://dubbo.apache.org/en-us/  
 http://start.dubbo.io  里面用的还是com.alibaba 不是最新的 (2019-11-20)
 
-2.7.4.1 有使用Unsafe类，如JDK11报 because module java.base does not export jdk.internal.misc  要用JDK1.8
-2.7.6 版本依赖一个alibaba的 spring-context-support-xx.jar 先不升级
-2.7.8 版本之前的hession2有远程执行代码的安全问题 	
+  
+2.7.8 版本之前的hession2有远程执行代码的安全问题
+2.7.14
+dubbo-registry-zookeeper 依赖的两个子项各自又依赖的 zookeeper，curator版本既然不一样，阿里就是个拉圾！！！
+	zookeeper要用高版本， org.apache.zookeeper.admin.ZooKeeperAdmin
+	curator要用低版本， org.apache.curator.framework.listen.ListenerContainer 。   Funck !!!
+	
+	如报 KeeperErrorCode = Unimplemented for /dubbo/config 说明zookeeper服务器的版本过低
+	
+ <dubbo.version>2.7.14</dubbo.version> 
  <dependency>
-    <groupId>org.apache.dubbo</groupId>
-    <artifactId>dubbo-config-spring</artifactId>
-    <version>2.7.4.1</version>
-</dependency>
- <dependency>
-   <groupId>org.apache.dubbo</groupId>
-   <artifactId>dubbo-registry-zookeeper</artifactId>
-   <version>2.7.4.1</version>
-</dependency>
+		<groupId>org.apache.zookeeper</groupId>
+		<artifactId>zookeeper</artifactId>
+		<version>3.7.0</version>
+	</dependency> 
+	<dependency>
+		<groupId>org.apache.curator</groupId>
+		<artifactId>curator-framework</artifactId>
+		<version>4.3.0</version>
+		 <exclusions>
+			<exclusion>
+				<groupId>org.apache.zookeeper</groupId>
+				<artifactId>zookeeper</artifactId>
+			</exclusion>
+		</exclusions>
+	</dependency>  
+		
+	<dependency>
+		<groupId>org.apache.dubbo</groupId>
+		<artifactId>dubbo-config-spring</artifactId>
+		<version>${dubbo.version}</version>
+	</dependency>
+	<dependency>
+	   <groupId>org.apache.dubbo</groupId>
+	   <artifactId>dubbo-registry-zookeeper</artifactId>
+	   <version>${dubbo.version}</version>
+	   <exclusions>
+		<exclusion>
+			<groupId>org.apache.zookeeper</groupId>
+			<artifactId>zookeeper</artifactId>
+		</exclusion>
+		<exclusion>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-framework</artifactId>
+		</exclusion>
+	   </exclusions>
+	</dependency>
 
-<dependency>
-   <groupId>org.apache.dubbo</groupId>
-   <artifactId>dubbo-rpc-dubbo</artifactId>
-   <version>2.7.4.1</version>
-  </dependency>
-  
-  <dependency>
-   <groupId>org.apache.dubbo</groupId>
-   <artifactId>dubbo-remoting-netty4</artifactId>
-   <version>2.7.4.1</version>
-  </dependency>
-  
-  <dependency>
-   <groupId>org.apache.dubbo</groupId>
-   <artifactId>dubbo-serialization-hessian2</artifactId>
-   <version>2.7.4.1</version>
-  </dependency>
-  <dependency>
-      <groupId>org.apache.dubbo</groupId>
-      <artifactId>dubbo-configcenter-zookeeper</artifactId>
-      <version>2.7.4.1</version>
-  </dependency> 
-  
+	<dependency>
+	   <groupId>org.apache.dubbo</groupId>
+	   <artifactId>dubbo-rpc-dubbo</artifactId>
+	   <version>${dubbo.version}</version>
+	  </dependency>
+	  
+	  <dependency>
+	   <groupId>org.apache.dubbo</groupId>
+	   <artifactId>dubbo-remoting-netty4</artifactId>
+	   <version>${dubbo.version}</version>
+	  </dependency>
+	  
+	  <dependency>
+	   <groupId>org.apache.dubbo</groupId>
+	   <artifactId>dubbo-serialization-hessian2</artifactId>
+	   <version>${dubbo.version}</version>
+	  </dependency>
+	  <dependency>
+	      <groupId>org.apache.dubbo</groupId>
+	      <artifactId>dubbo-configcenter-zookeeper</artifactId>
+	      <version>${dubbo.version}</version>
+	  </dependency> 
 //--common
 package apache_dubbo27;
 public interface GreetingService {
@@ -84,6 +118,12 @@ public class Application {
         service.setRegistry(new RegistryConfig("zookeeper://" + zookeeperHost + ":2181"));
         service.setInterface(GreetingService.class);
         service.setRef(new GreetingsServiceImpl());
+		service.setGroup("dev");
+        service.setVersion("1.0");
+        ProtocolConfig protocolConfig = new ProtocolConfig();
+        protocolConfig.setName("dubbo");
+        protocolConfig.setPort(1888);
+        service.setProtocol(protocolConfig);
         service.export();
         System.out.println("dubbo service started");
         new CountDownLatch(1).await();
@@ -111,10 +151,14 @@ public class Application {
         reference.setApplication(new ApplicationConfig("first-dubbo-consumer"));
         reference.setRegistry(new RegistryConfig("zookeeper://" + zookeeperHost + ":2181"));
         reference.setInterface(GreetingService.class);
-		
+		reference.setVersion("1.0");
 		reference.setRetries(0);
         reference.setTimeout(5*1000);
         reference.setCheck(false); 
+		reference.setGroup("dev");
+        reference.setUrl("dubbo://127.0.0.1:1888");//	启不来报 Extension name == null 原因是地址前没有dubbo://
+		
+		//ReferenceBean 是继承自  ReferenceConfig  实现了 ApplicationContextAware
 		
         GreetingService service = reference.get();
         String message = service.sayHi("dubbo");
@@ -161,7 +205,7 @@ public class SpringAnnoDubboServer {
     }
 }
 
-@Service //Dubbo的
+@DubboService() //version = "alpha"
 public class DemoServiceImpl implements DemoService {
 
 }
@@ -192,16 +236,14 @@ public class SpringAnnoDubboClient {
     }
 } 
 @Component("demoServiceComponent")
-public class DemoServiceComponent implements DemoService {
-    @Reference() //Dubbo的 check=false
+public class DemoServiceComponent  {
+    
+	@DubboReference(group="dev", version = "alpha",url="dubbo://127.0.0.1:20880",check=false)
     private DemoService demoService;
-
-    @Override
+ 
     public String sayHello(String name) {
         return demoService.sayHello(name);
-    }
-
-    @Override
+    } 
     public CompletableFuture<String> sayHelloAsync(String name) {
         return null;
     }
@@ -209,6 +251,7 @@ public class DemoServiceComponent implements DemoService {
 ---dubbo-consumer.properties
 dubbo.application.name=dubbo-demo-annotation-consumer
 dubbo.registry.address=zookeeper://127.0.0.1:2181
+#dubbo.reference.greetingService.url=dubbo://127.0.0.1:1888
 
 --- Dubbo容错
 Failover Cluster 模式  失败自动切换，当出现失败，重试其它服务器。(缺省)
@@ -368,3 +411,22 @@ Thrift是Facebook捐给Apache
 dubbo main 方法 com.alibaba.dubbo.container.Main 可实现安全关机,用JDK的ShutdownHook,
 如kill 不带-9 Provider方可以先不接收请求,如有任务等待完成,Consumer方,如有请求没有返回的等待
 eclipse启动用  com.alibaba.dubbo.container.Main 参数传 -Ddubbo.properties.file=alibaba/dubbo/server/dubbo.properties -Ddubbo.spring.config=classpath:alibaba/dubbo/server/dubbo-server.xml
+
+
+
+---dubbopostman
+cd dubbo-postman-0.2
+npm install --registry=https://registry.npm.taobao.org 
+	node-sass
+		依赖于python2
+		报没有  ToolsVersion“14.0”
+		VS2015没有卸载干净删HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\MSBuild\ToolsVersions\14.0
+		报未能加载 Visual C++ 组件“VCBuild.exe
+	  
+
+打开  Developer Command Prompt for VS 2019 ，在里面运行 npm install --registry=https://registry.npm.taobao.org 
+报 error MSB8020: The build tools for Visual Studio 2017 (Platform Toolset = 'v141') cannot be found. To build using t
+he v141 build tools, please install Visual Studio 2017 build tools
+
+
+

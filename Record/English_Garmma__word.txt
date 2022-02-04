@@ -166,7 +166,7 @@ write        wrote         written
 非限制性定语从句 ,句中有","号
 
 
-虚拟语气
+              语气
 一、与现在事实相反
 	虚拟语气的条件从句的谓语用过去式(be通常用were)，主句谓语用“should (would, could, might)+动词原形”
 If I knew her number I could ring her up. 要是我知道她的电话号码，我就可以给她打电话了。(可惜我不知道)

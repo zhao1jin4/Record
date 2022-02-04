@@ -1,5 +1,5 @@
 ﻿Eclipse 2021-06(4.20.0)   compiler 到jdk 16
-Eclipse 2021-09(4.21.0)    compiler 到jdk 16
+Eclipse 2021-09(4.21.0)    compiler 到jdk 16  打开要求JAVA_HOME是11版本
 xxx 					  compiler 到jdk 17  LTS
 
 
@@ -163,7 +163,8 @@ window->preference->xml ->xml files->editor->把line with:加大到150
 window->preference->java->code style->Formatter->New...一个,
 	在Braces标签中全选next line , Line Wraping标签中设置 Maximum line width 为150
 	Comments 中Maximum line width for comments 为150
-
+	取消格式化 javadoc ,在comments组中取消 Enable javadoc comment formating
+	 
 eclipse 中显示tab 符号,空格,回车符号(在工具条上有一个按钮),，如不能保存字符可以放在notpad 中显示出来
 
 preferences->Genel->Editors -> Text Editors->复选 insert spaces for tabs ,就会把tab 替换为空格
@@ -283,6 +284,12 @@ preferences->Java->Editor-Save Action->复选perform the selected actions on sav
 
 terminal 可以选择GitBash
 
+当前打开的文件分离多个窗口
+	window-> editor -> toggle split editor (horizontal) (Ctrl + Shift + -) 上下窗口开关
+	window-> editor -> toggle split editor (vertical) (Ctrl + Shift + [) 左右窗口开关
+	
+	
+	
 =======================================up eclipse==========================
 
 插件安装方式1
@@ -496,6 +503,9 @@ GitBash 中用 ./rust-gdb --version 可以，但怎么让 eclipse的Corrosion使
 Eclipse Marketplace  搜索 Kotlin , MyBatis generator(可生成kotlin代码)
 mybatipse 插件(mybatis的eclipse插件) http://dl.bintray.com/harawata/eclipse/
 
+eclipse marketplace上的 mybatis-1.2.4 插件
+	安装后可在接口上ctrl+点击方法名->显示open <select> in xxxx.xml
+
 ------Rational Software Architect Designer V9.6 是 eclipse-4.6.1
 可下载for websphere的包
 
@@ -512,7 +522,7 @@ mybatipse 插件(mybatis的eclipse插件) http://dl.bintray.com/harawata/eclipse
 
 Android 的 ADT-23.0.4 取消选择Native Development Tools (依赖CDT)
 
-propEdit-6.0.3 	可links安装 (dropins目录)
+properties 插件 propEdit-6.0.3 	可links安装 (dropins目录)
 
 Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna  
 	选择 GlassFish Tools 和 Oracle Weblogic Server Tools
@@ -538,6 +548,8 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 
 ---SpringToolSuite-3.9.15 (eclipse 4.18.0)  官方有STS 3版本链接到 github上
 要求JDK11
+SpringToolSuite-3.9.18 (eclipse 4.21.0)
+
 	可以在 spring的xml中(spring config editor编辑器) 输入按快捷键(content Assist)提示属性名，方法名，
 		但类名不行??? 以前可以的啊??? 3.9.10版本也不行, 但可以提示类不存在错误
 		
@@ -547,7 +559,7 @@ Oracle Enterprise Pack for Eclipse(weblogic)-12.1.3.1-luna
 	sts3 spring data  repository会报方法不存在错，其实可以自定义的,这是有问题的,但sts4没有data source explorer视图,要单独安装DTP)
 ---SpringToolSuite-4.7(eclipse 4.16.0) 
 有Visual Studio Code 版本
-4.8(4.17.0)版本能建立web项目,4.9版本不能建立 web项目,4.10版本不能建立 web项目
+4.8(4.17.0)版本能建立web项目,4.9,4.10,4.12不能建立 web项目
 
 	没有spring的xml编辑器了??? xml文件中写类或属性方法做提示了 ???, 原始xml编辑器只可按ctrl+类名有链接表示类存在.
 	有spring的 yaml 或 properties编辑器 
@@ -621,7 +633,12 @@ eclipse要eclipse jee才有data source explorer视图(sts3,sts4没有),可以建
 ---Eclipse Jetty 3.8.0  在线 marketPlace 安装, 右击web项目->run configure ... 设置context path 为  /<project-name>
 ---RunJettyRun  google.com不能仿问了
 
-----反编译插件
+----反编译插件 
+eclipse marketplace 插件 Enhanced Class Decompiler  
+	集成了 JD, Jad, FernFlower, CFR, Procyon 支持JDK8 lambda 
+	使用在左侧右击.class文件 ->open class with ->可选择FernFlower,CFR,JD-core,jad,Procyon
+	设置中Java->Decompiler->可以看下拉列表中的每个反编译器支持JDK版本,Procyon支持JDK9+,CFR支持JDK14
+	
 jd-gui 的 eclipse 版  JD-Eclipse 
 	http://jd.benow.ca/  (jdeclipse_update_site.zip  大小4.54M)
 	help ->install new .. 安装, 不依赖于任何命令

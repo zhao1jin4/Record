@@ -1,6 +1,7 @@
-https://developer.gnome.org/references  下有很多 Glib,GTK+ 3,GDK 3,libxml2,libxsl,GSON-Glib
-https://developer.gnome.org/gtk4/stable/  已经有GTK+ 4 library, version 3.94.0
+
 https://docs.gtk.org/gtk4/getting_started.html
+https://gtk-rs.org/ (fedora 软件包 rust-gtk4-devel.noarch)
+https://developer.gnome.org/ 
 
 GTK 4 除了用C开发，还支持JavaScript 和 Rust
 
@@ -158,7 +159,20 @@ debug 做如下,测试成功,要有src目录和target目录
  
 
 Gnome的项目 Anjuta-3.x ,glade-3.x 目前 还是3.x版本  
- 
+
+fedora 35 安装的GTK是4.4.1
+
+dnf install gtk
+dnf install rust
+dnf install rust-gdb.noarch
+dnf install rust-gtk4-devel.noarch
+dnf install gnome-builder  #GTK官方提示的开发工具，有依赖clang,gcc-c++ 
+	安装后 gnome-builder命令出界面，可建立,C,Rust,Python等语言项目，第一次使用时提示少包org.gnome.Sdk和org.gnome.Platform 点install按钮
+
+Flatpak 工具（gnome开发网的），构建部署App在linux上
+
+
+
 
 gtk4-demo 命令  有示例代码, 双击列表项可以运行
 gtk4-demo-application	一个有像记事本的小应用

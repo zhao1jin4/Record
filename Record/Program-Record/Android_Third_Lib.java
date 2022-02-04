@@ -1,6 +1,10 @@
+
+引用第三方jar，不使用网络，而是本地的jar包,libs目录和src目录同级
+implementation fileTree(includes: ["*.jar"],dir: 'libs')
+ 
+ 
 //------OAuth2
 https://developer.android.google.cn/training/id-auth/authenticate#java
-
 
 
 //------Ksoap 2
@@ -126,90 +130,133 @@ if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 //---android 解析条形码
 //===============Cordova  Anroid 访问真机
 
-设置PATH 环境变量为android-sdk-windows\tools 目录(有android命令) 和 android-sdk-windows\platform-tools目录(有adb命令)
-设置ANT_HOME,PATH
-有一个cordova-android-master\VERSION文件看版本
-https://www.apache.org/dist/cordova/ 下载zip
-
+环境变量 ANDROID_SDK_ROOT=C:\Users\dell\AppData\Local\Android\Sdk
+设置PATH 有 %ANDROID_SDK_ROOT%\tools\bin 目录(有avdmanager,sdkmanager命令) 和 %ANDROID_SDK_ROOT%\platform-tools目录(有adb命令)
+ gradle
  
----3.5
+有一个cordova-android-master\VERSION文件看版本
+cordova-android Version 	Supported Android API-Levels 	Equivalent Android Version
+9.X.X 						 22 - 29 						5.1 - 10.0.0
+------------离线
+https://www.apache.org/dist/cordova/ 
+	tools 		中下载 cordova-10.0.0.tgz 
+	platforms	中下载 cordova-android-10.1.1.tgz  cordova-windows-7.0.1.tgz  (支持到win10) VS2015+  Universal Windows Platform [UWP]
+	plugins		中下载 
+ 
+#D:\Application\cordova-10.0.0\package\bin\cordova.cmd  create . org.zh.cordova10 A_Cordova_10  (源码使用node命令) 
+报Cannot find module 'loud-rejection/register' 还是用在线吧
 
+cd  cordova-android-10.1.1\package\framework
+gradle build  #有要求build tools版本 30.0.3,会安装 %USERPROFILE%\AppData\Local\Android\Sdk\platforms\android-30
+会生成 build/output/aar/framework-release.aar 和 framework-debug.aar
+
+---离线 老版本的  3.5  
 $cd  cordova-android-3.5.0\cordova-android\framework
 $android update project -p . -t android-19    #android-19是看到的
 $ant jar			#当前目录生成 cordova-3.5.0.jar
 
-
 导入 eclipse->import 要使用 android/exist -> platforms\android 目录,
 可以把A_Cordova_35_CordovaLib项目删,即目录CordovaLib ,也可删cordova目录(有命令), 在libs中增加cordova-3.5.0.jar(如使用cordova run android 会自动build,不要放jar)
 
-project->clean...
-
-------------离线 
-E:\Program\cordova-android-6.3.0\package\bin\create.bat E:/A_Cordova_7 org.zh.cordova7 A_Cordova_7  
-生成的带 org\apache\cordova 源码 是AndroidStudio项目， 指定了 Grale 2.3.3 版本 修改本项目及CordovaLib 的target=android-26 为自己的 android 版本, 也编译不了 依赖下载有问题，可能是Gradle版本原因？？
-
-avdmanager.bat list target 看到SDK 版本26
-cd E:\Program\cordova-android-6.3.0\package\framework
+project->clean... 
 
 -------------在线
-要下载安装 node-v8.6 的msi安装包, 运行 npm install -g cordova 在线安装
+npm install -g cordova 
 命令安装到 
- %HOMEPATH%\AppData\Roaming\npm\cordova 是PATH位置
- %HOMEPATH%\AppData\Roaming\npm\node_modules\cordova\bin\cordova
+D:\Application\node-v12.16.1-win-x64\node_modules\cordova\
+D:\Application\node-v12.16.1-win-x64\cordova.cmd 是PATH位置  
+安装后就可用cordova 命令，cordova --version 显示11.0.0
+  
+cordova create D:/tmp/A_Cordova_11 org.zh.cordova11 A_Cordova_11
+cd D:/tmp/A_Cordova_11
+cordova platform add android		##日志显示 cordova-android@^10.1.1 和   Android target: android-30
+#cordova platform add android@^10.1.1   指定SDK版本
 
- %HOMEPATH%\AppData\Roaming\npm\node_modules\cordova\node_modules 有全部的模块
+D:\tmp\A_Cordova_11\platforms\android 是项目目录,有CordovaLib项目是org.apache的代码
+   生成的build.gradle代码是 classpath "com.android.tools.build:gradle:${cordovaConfig.AGP_VERSION}" 
+		#cdv-gradle-config.json 中 "AGP_VERSION": "4.2.2"
+	app\build.gradle代码是  gradleVersion = cordovaConfig.GRADLE_VERSION
+		#cdv-gradle-config.json  中"GRADLE_VERSION": "7.1.1" 
+	生成的	repositories.gradle  
+	
+build.gradle 	文件中有 apply from: 'CordovaLib/cordova.gradle'
+app/build.gradle 文件中有 implementation(project(path: ":CordovaLib"))
+settings.gradle 文件中有 include ":CordovaLib"
 
-
-
-安装后就可用cordova 命令
-
-cordova create E:/tmp/A_Cordova_7 org.zh.cordova7 A_Cordova_7   
-
-cd E:/tmp/A_Cordova_7
-cordova platform add android		##日志显示cordova-android@^6.2.3 和 Android target: android-25 ,这是最新的   
-cordova platform add android@^5.0.0    指定SDK版本 
-
-E:\tmp\A_Cordova_7\platforms\android 是项目目录,有org.apache的代码 , 有gradlew.bat , 能用AndroidStudio打开 
- 
- 指定了 Grale 2.3.3 版本 修改本项目及CordovaLib 的target=android-25 为自己的 android 版本, 也编译不了 依赖下载有问题，可能是Gradle版本原因？？
- 如打开项目时自动下载Gradle就可以build,提示升级Grale插件从2.3.3到3.3，如Instanct Run
+   用 AndroidStudio-2021.1 打开报 C:\Users\xx\AppData\Local\Temp\wrapper_init1.gradle' appears to be corrupted.
+   修改项目使用指向gradle-7.2-bin的解压目录(而不是gradle-wrapper.properties，也没有这个文件)后正常
+   
+   使用命令行 gradle build (7.2版本) 可以编译成功
 
 #cordova platform rm android
 #cordova platform add ios
 #cordova platform add windows
-#cordova platform add ubuntu
 #cordova platform add osx
 
 cordova platform ls
-cordova requirements  要求SDK Platform  for API level android-25 (7.1.1)
+cordova requirements(要求在项目目录下运行)  要求SDK Platform  for API level android-25 (7.1.1)
 
-cordova build 		找android命令,gradle 下载很多maven库,会下载Android SDK Platform 25,    生成gen,bin,ant-gen,ant-build目录 
-			会把 A_Cordova_35\www 覆盖到 A_Cordova_35\platforms\android\assets\www
-			会把 A_Cordova_35\plugins 覆盖到 A_Cordova_35\platforms\android\assets\www\plugins
-			会把 A_Cordova_35\config.xml 覆盖到 A_Cordova_35\platforms\android\res\xml\config.xml
+cordova build 		找android命令,gradle 下载很多maven库,会下载SDK Platform
+			会把  \www 			覆盖到  \platforms\android\app\assets\www
+			会把  \plugins		覆盖到  \platforms\android\app\assets\www\plugins
+			会把  \config.xml	覆盖到  \platforms\android\app\res\xml\config.xml
 
 #cordova build ios  只build指定平台
-#cordova build windows8
-#cordova build ubuntu
+#cordova build windows
 
 #cordova emulate android 启动模拟器
 
-#cordova run android 运行 使用 \platforms\android\ant-build\A_Cordova35-debug-unaligned.apk
-#cordova run ubuntu  只运行指定平台
+cordova run android  会下载gradle-7.1.1-all.zip 要求有环境变量  ANDROID_SDK_ROOT / JAVA_HOME (1.8.161+) / PATH
 
+本来空项目可以正常运行的
+--在执行全部 cordova plugin add xx 后报错？？
+AndroidManifest.xml
+<!--
+    android:name="org.apache.cordova.camera.FileProvider" 找不到这个类，修改为
+        android:name="androidx.core.content.FileProvider"
+-->
+
+config.xml
+<!--
+    <param name="android-package" value="org.apache.cordova.file.FileUtils" /> 找不到这个类，修改为
+   <param name="android-package" value="android.os.FileUtils" />
+-->
+	 
+ 
+--以下未成功
+注释
+build.gradle 	文件中有 apply from: 'CordovaLib/cordova.gradle'
+app/build.gradle 文件中有 implementation(project(path: ":CordovaLib"))
+settings.gradle 文件中有 include ":CordovaLib"
+
+增加
+app/libs目录 放 framework-debug.aar
+app/build.gradle 中在android{}中增加
+
+    repositories {
+        flatDir {
+            dirs 'libs' // aar目录
+        }
+    }
+dependencies {}中增加
+    implementation(name: 'framework-debug', ext: 'aar')
+--
+ 
+ 
  
 以下两相bin目录不要删
 platforms\android\cordova\node_modules\shelljs\bin
 platforms\android\cordova\node_modules\.bin
 
 ---用CLI 在线 管理插件
-cd D:/Program/eclipse_android_workspace/A_Cordova_35
+cd D:/tmp/A_Cordova_11
 
 自带 cordova-plugin-whitelist  插件
 
-cordova plugin search camera 打开网址 http://cordova.apache.org/plugins/?q=camera
+cordova plugin search camera 
+网址 http://cordova.apache.org/plugins/?q=camera
 
-cordova plugin add cordova-plugin-camera 
+cordova plugin add cordova-plugin-camera
 cordova plugin add cordova-plugin-geolocation
 cordova plugin add cordova-plugin-globalization
 cordova plugin add cordova-plugin-battery-status
@@ -222,7 +269,7 @@ cordova plugin add cordova-plugin-media-capture
 cordova plugin add cordova-plugin-network-information
 cordova plugin add cordova-plugin-splashscreen
 cordova plugin add cordova-plugin-vibration
-cordova plugin add cordova-plugin-device 
+cordova plugin add cordova-plugin-device
 
 
 Device Motion  和 Device Orientation  过时使用HTML5

@@ -11,6 +11,8 @@ https://www.jetbrains.com/go/download/other.html
 
 -----markdown语法		
 README.md 文件是,idea可以识别，firefox 安装插件 markdown viewer ，右上角有一个m图标，拖入文件或输入file:///c
+idea 插件 markdown
+
 ##		二级标题
 ###		三级标题
 ####	四级标题
@@ -25,8 +27,11 @@ README.md 文件是,idea可以识别，firefox 安装插件 markdown viewer ，�
 ------ 
 
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
-IDEA 2021.1		版本可以支持 JDK16
-IDEA 2021.2		compiler 到jdk 17  LTS
+IDEA 2021.2		compiler 到jdk 17  LTS 
+
+Idea Community 2021.3.1 版本  Android插件版本为 Android-2020.3.1 刚好差一年的版本，Idea Community 2021.2就不行
+idea 2021.3.1 对AndroidStudio-2020.3.1项目兼容性不是100%的，如NDK，Junit项目不能构建, androidTest 中的代码 右击菜单中没有 运行和调试项
+
 ---缺点
 默认情况下不能调试(debug)多线程，如要调试多线程，在每个线程代码中打断点，右击断点->单选Thread(默认All), set Default 
 	run/debug窗口中右则有 个 Allow parallel run 的复选框( 2021.1 Community版本没有 ，对多线程调试支持很不好!!!)
@@ -112,6 +117,7 @@ File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
 	
 	右击文件中的行号 -> Annotate with git blame-> 可以显示 这个文件的 Git 修改历史,
 	
+	对已经commit没有的历史记录右击-> undo commit
 ---
 像word 同时只能打开一个项目
 File->project stucture ->选择Modules标签 可以Import或者Add 多个,默认目录是在本项目的子目录 (有 Search for projects recursively)，可以修改为同级,多个web项目可独立运行
@@ -167,6 +173,9 @@ File->Settings->Editor->File Encodings
 Project Encoding: UTF-8
 
 Navigator-> implments (ctrl+T ,开源版ctrl+alt+B) 打开实现类, 也可ctrl+alt+点击
+ctrl+N 找类名 和 两次shift 再切class是一样的
+两次shift可以找jar包中的文件,如logback
+
 右击方法-> Find Usages 
 如ctrl+点方法 默认是usage 也可点旁边的小设置按钮,修改为implmenting mehtod
 
@@ -182,7 +191,10 @@ View->tool windows->project 显示项目视图
 
 设置编辑器字体大小 ile->Setting...->Editor -> Color Scheme-> Color Scheme Font，选中Use color scheme font instead of default,设置Size: 14
 设置控制台器字体大小  File->Setting...->Editor -> Color Scheme-> Console Font  16
+
 Code -> reformat code 格式化代码 (ctrl+alt+L)
+	换行字符数 Settings -> hard wrap at :120  是竖线的位置
+
 Edit->join lines (ctrl+shift+j) 把选中的代码压缩成一行
 Code -> Generate...生成getter,setter  ( alter+insert  )
 code -> completation -> basic   ( ctrl+ 空格  要修改 Setting->Keymap->Main menu中修改也可搜索 )代码提示 
@@ -204,6 +216,9 @@ Edit -> find in path  ( ctrl+shift+f ) 按文件内容查,要点右则Recursivly
  按两次 shift  按文件名查 
  
 Edit->Find->Find...(ctrl+F)   Replace...(ctrl+R) 当前文件中
+
+F3查找光标选中的下一处，同eclipse的ctrl+K
+
 Edit->Find->seach structurally-> 按文件类型搜索内容
 
 File->Settings->Editor->File Encodings  默认UTF-8  , 但建立的文件不是UTF-8的????
@@ -227,6 +242,8 @@ Navigator->class ... (  ctrl+N )
 
 Settings->Editor->Live Templates ->other 里有psvm 生成main方法 
 
+	输入 sout 提示 System.out.println();
+  
 默认最多打开10个文件，超出就会自动关闭前面打开的
 Perferences...  ->  Editor  ->General->  Editor Tabs 调整 Tab Closing Policy 的 Tab Limit 默认是10个 
 
@@ -246,7 +263,9 @@ window -> editor tabs -> tabs replacement -> show tabs in single row
 
 
 自带.ftl插件
-.properties 文件做国际化不能转换 settings->Editor->File Encodings 在面板的properties file 区设置编码UTF-8,选中transaprent natvie-to-ascii conversion 
+
+.properties 文件做国际化不能转换 
+	settings->Editor->File Encodings 在面板的properties file 区设置编码UTF-8,选中transaprent natvie-to-ascii conversion 可转换\u显示为中文
 
 
 列选择模式 选择多行光标会变高
@@ -294,21 +313,32 @@ File --> settings --> Editor --> File and Code Templates --> Files --> Class ,�
  *@date ${DATE} ${TIME} 
  */
 
- 自定义代码生成模板
- File-->Settings-->Editor-->Live Templates	-> 可以看有现成的main是按tab生成代码
-	
-	
+自定义代码生成模板
+	File-->Settings-->Editor-->Live Templates	-> 可以看有现成的main是按tab生成代码
+
+
+同一文件在多处打开
+	右击文件 ->open in right split 在新的标签中打开文件
+	右击打开文件的标签-> split down 或split right
 	
 ====================IntelliJ IDEA plugin 
 https://plugins.jetbrains.com/
 https://plugins.jetbrains.com/idea
 
+linux 版本安装在　~/.local/share/JetBrains/
+windows	%USERPROFILE%\AppData\Local\JetBrains 
+	里面有IdeaIC2021.2\plugins 目录
+			
 -----maven helper 可以看依赖关系，象eclispe
-
+		有时有问题，明明引用xstream可以编译，但就是查不到这外包
+		
 ---主题 插件 Material theme UI
 
 ---自带插件android
 IDEA 2018.2.6 也可以建立Android 项目
+idea community 2021.3.1 版本自带android插件，测试可以打开android studio 2020.3的项目
+
+
 (android SDK只可用JDK8),指定android SDK位置,有新建向导,不能和AndroidStudio同时使用同一个Android SDK
 Gradle配置成 JDK 1.8 Settings->Buld,Execution,Deployment->Build Tools->Gradle在Gradle JVM中选择正确的JDK
 IDEA 对已经有的Maven仓库会优先使用 Maven setting中配置的目录，再使用Gradle目录
@@ -340,7 +370,8 @@ https://plugins.jetbrains.com/plugin/10119-mybatisx
 	右击项目-> SonarLint -> analyze with SonarLint
 		SonarLint视图中显示 分析当前打开文件
 		
-		
+----idea 插件 RESTfultoolkit-fix
+	Ctrl  + \ 或者 Ctrl + Alt + N  (Navigate->Service)可以搜索 SpringMVC URL(@RequestMapping)
 ---jd-gui
 
 ---JRebel 热部署插件（收费）
@@ -349,6 +380,8 @@ https://plugins.jetbrains.com/plugin/10119-mybatisx
 	 
 ---lombok 插件 
 	可自动生成代码，settings->Buile,Execution,Deployment->Compilier->Annotaion process->复选 enable annotaion process
+	会生成 .apt_generated 和 .apt_generated_tests 目录
+	
 	就可以在getter/setter类前加 @Data ,会在很多类前加@Log4j,代码中就可以直接使用log.info();
 	pom.xml中加 打包时可以生成getter/setter
 	<dependency>

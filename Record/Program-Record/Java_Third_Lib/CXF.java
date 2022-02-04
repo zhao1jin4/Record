@@ -877,6 +877,38 @@ e.publish(address);
 
 ----
 @WebServiceRef
+--
+
+import javax.xml.namespace.QName;
+
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.jaxws.endpoint.dynamic.JaxWsDynamicClientFactory;
+import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+
+public class CXFDynmaicWSDLMain {
+
+	public static void main(String[] args) throws Exception {
+
+		JaxWsDynamicClientFactory clientFactory = JaxWsDynamicClientFactory.newInstance();
+		//在没有设置超时的情况下，如网络不通，会出现一直卡住的问题(createClient 方法或之后)!!!
+		String wsdlUrl="http://localhost:8000/helloWorld?wsdl";
+		Client client = clientFactory.createClient(wsdlUrl);//会内部动态生成代码
+		
+		HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
+		httpConduit.getTarget().getAddress().setValue("http://localhost:8000/helloWorld"); //可以修改WSDL中的地址
+		
+		HTTPClientPolicy policy = new HTTPClientPolicy();
+		policy.setConnectionTimeout(3 * 1000);//3秒 连接超时
+		policy.setReceiveTimeout(6 * 1000);//6秒 响应超时 
+		httpConduit.setClient(policy);
+				
+		QName sayHi=new QName("http://cxf.zh.org/","sayHi");
+		Object[] result = client.invoke(sayHi ,"李四	");
+		System.out.println(result[0]); 
+	}
+
+}
 
 ==================================CXF  RESTful Web Services   javax.ws.rs. 
 javax.ws.rs-api-2.0.1.jar

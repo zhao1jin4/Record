@@ -161,6 +161,21 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 	<activeProfile>env_development</activeProfile>   <!-- 对应上面 ,测试如不开mirror没有效果???? -->
 </activeProfiles>
 
+
+ 
+
+https://developer.aliyun.com/mvn/guide
+ 
+	public 是 central(https://repo1.maven.org/maven2/)仓和jcenter(http://jcenter.bintray.com/)仓的聚合仓,也会使用http
+	https://maven.aliyun.com/repository/public  新版本
+	https://maven.aliyun.com/nexus/content/groups/public 老版本
+		
+
+	google 源是https://maven.google.com/ 如 com/android/tools/build/gradle/4.0.0/gradle-4.0.0.pom 在这上
+	https://maven.aliyun.com/repository/google  新版本
+	https://maven.aliyun.com/nexus/content/repositories/google 老版本
+	
+	
 ---------setting.xml示例
  <localRepository>/mnt/vfat/MVN_REPO/</localRepository>
 	<servers>
@@ -415,6 +430,9 @@ artifactId 是自己的项目名
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-source-plugin</artifactId>
 			<version>2.2.1</version>
+			<configuration>
+				<skipSource>true</skipSource><!-- 不生成源码 -->
+			</configuration>
 			<executions>
 				<execution>
 					<id>attach-sources</id>
@@ -715,6 +733,10 @@ file.write(version)
 	<properties>  <!-- org.apache.maven.plugins  使用的-->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
 	</properties> 
+	<!--
+	上层dependencyManagement可盖子层的dependencyManagement
+	子项目及子级依赖中N多地方用这个包的版本做修改(它们的依赖也是dependencyManagement的)，就不用再exclusions了
+	-->
 	<dependencyManagement>
 	  <dependencies>
 		<dependency>
@@ -779,7 +801,7 @@ file.write(version)
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
 			<version>${jedis}</version>
-			<optional>true</optional> <!-- 可选的 -->
+			<optional>true</optional> <!-- 可选的项目之间依赖不传递。不设置或者false，表示传递依赖 -->
 			<exclusions>
 				<exclusion>
 					<groupId>com.xxx</groupId>
@@ -787,7 +809,11 @@ file.write(version)
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+	<dependency>
+	  <groupId>com.aliyun</groupId>
+	  <artifactId>tea</artifactId>
+	  <version>[1.1.13, 2.0.0)</version>  <!--依赖版本范围-->
+	</dependency>
 	<!-- 防止报  Missing artifact jdk.tools:jdk.tools:jar:1.6      -->
 	 <dependency>  
 		<groupId>jdk.tools</groupId>
@@ -868,7 +894,7 @@ mvn clean compile   可以几个目标一起执行
 mvn package -e 查看错误信息
 mvn clean package -Dmaven.test.skip=true    跳过编译测试类,生成.war包中的/lib/没有重复的.jar
 mvn install -DskipTests     跳过test的执行，但要编译  
-	--update-snapshots  更新snapshots的依赖包
+	-U,--update-snapshots  更新snapshots的依赖包
 	-P ,--activate-profiles <arg> 默认激活的profile
 	
 
@@ -918,6 +944,59 @@ plugin方式 mvn compile  test-compile时directory没用??outputDirectory和test
 </plugin>
 
 
+===========maven replacer 插件  
+---resources/Dockerfile_template
+FROM openjdk:%JDK_VERSION%
+ARG JAR_FILE=open-xxx/target/open-xxx-%PROJECT_VERSION%.jar
+COPY ${JAR_FILE} app.jar
+
+CMD ["java -jar app.jar","--spring.profiles.active=%PROFILE%"]
+---
+
+  <properties> 
+    <my.profile>dev</my.profile> 
+    <jdk.version>11-jdk</jdk.version> 
+  </properties>
+<plugin>
+      <groupId>com.google.code.maven-replacer-plugin</groupId>
+      <artifactId>replacer</artifactId>
+      <version>1.5.3</version>
+      <executions>
+        <execution>
+          <phase>prepare-package</phase>
+          <goals>
+            <goal>replace</goal>
+          </goals>
+        </execution>
+      </executions>
+      <configuration>
+       <ignoreMissingFile>false</ignoreMissingFile>
+       <file>${project.build.directory}/classes/Dockerfile_template</file>
+        <replacements>
+          <replacement>
+            <token>%PROJECT_VERSION%</token>
+            <value>${project.version}</value>
+          </replacement>
+           <replacement>
+            <token>%JDK_VERSION%</token>
+            <value>${jdk.version}</value>
+          </replacement>
+           <replacement>
+            <token>%PROFILE%</token>
+            <value>${my.profile}</value>
+          </replacement>
+        </replacements>
+      </configuration>
+    </plugin> 
+	
+在mvn clean install生成的.jar包中的 Dockerfile_template 中的%XXX% 被替换
+
+如使用下面老版本，变量格式为是@XXX@
+<groupId>com.google.code.maven-replacer-plugin</groupId>
+<artifactId>maven-replacer-plugin</artifactId>
+<version>1.4.0</version>
+===========
+  
 ---sonar 覆盖率maven插件
 jenkins ->配置->构建后操作步骤->Sonar,Publish Coberutra Coverage Report
 mvn clean package sonar:sonar 测试覆盖率报告(要单独的服务器)

@@ -3,6 +3,7 @@ Business Process Model and Notation (BPMN) 		Version 2.0
 
 有 Docker images
 
+7.60  版本已经有Community版本和Enterprise版本
 ----------------------jbpm-server-7.32.0 (2020-01-27)
 jbpm-server-7.32.0.Final-dist.zip包  是WildFly服务加了war部署的
 	

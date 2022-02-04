@@ -38,13 +38,13 @@ Gradle设置全局仓库 创建文件 ~/.gradle/init.gradle
 	allprojects {
 		repositories {
 			mavenLocal()
-			maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-			maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
-			maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+			maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+			maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }  //可 https, 好一些,可浏览
+			maven { url 'https://maven.aliyun.com/nexus/content/repositories/jcenter'}
 			maven { url "$rootDir/../node_modules/react-native/android" }  // react-native 的 android 版本 jar 包maven仓库位置
 		}
 	}
----上未何没用 可能因为自己的项目有 allprojects 的配置
+---上为何没用???  可能因为自己的项目有 allprojects 的配置
 /*//不能放在allprojects中
 plugins {
     id 'java'
@@ -116,6 +116,8 @@ IDEA 的Gradle视图 <项目> -> Task -> help -> dependencies 执行后控制台
 //wrapper
 空项目目录下 gradle wrapper --gradle-version 5.4 会生成 gradlew(gradle Wrapper) 可执行文件和gradle/wrapper目录,下有gradle-wrapper.properties文件，包含下载gradle对应版本bin包的URL
 就可以执行 ./gradlew build 来构建项目
+
+gradle wrapper --gradle-version 7.2 报 Your project should have a 'settings.gradle(.kts)'
 
 //kotlin
 gradle init --type java-application
@@ -319,7 +321,10 @@ buildscript {
     repositories {
         mavenLocal()
         //mavenCentral()
-        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        #maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }#老的
+		#maven { url 'https://maven.aliyun.com/repository/public'} #也会使用http
+		maven { allowInsecureProtocol = true
+				url 'https://maven.aliyun.com/repository/public' }
     } 
     dependencies {
 		//由compile变为classpath

@@ -1615,12 +1615,17 @@ map.put("age", 29);
 ResponseEntity< Greeting> res= template.exchange(webRoot+"/rest/get.mvc?name={name}&age={age}",HttpMethod.GET, headerAndBody,Greeting.class,map);
 //ResponseEntity< Greeting> res= template.exchange(webRoot+"/rest/get.mvc?name={x}&age={y}",HttpMethod.GET, headerAndBody,Greeting.class,"lisi",29);
 
+//这不能强制为String,可能是有MappingJackson2HttpMessageConverter ??报`java.lang.String` out of START_OBJECT
+//ResponseEntity< String> res= template.exchange(webRoot+"/rest/get.mvc?name={name}&age={age}",HttpMethod.GET, headerAndBody,String.class,map);
+ResponseEntity< Map> res= template.exchange(webRoot+"/rest/get.mvc?name={name}&age={age}",HttpMethod.GET, headerAndBody,Map.class,map);//可强制为Map
+ 
+ 
 
 //拦截器读一次，使用处不能再读结果了，RestTemplate必须加特殊处理
 RestTemplate restTemplate = new RestTemplate(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
 
 //RestTemplate 支持增加拦截器 ,自己的类实现了 implements ClientHttpRequestInterceptor
-restTemplate.setInterceptors(Collections.singletonList(new WxPayAuthorizationInterceptor()));  
+restTemplate.setInterceptors(Collections.singletonList(new RestLogInterceptor()));  
 
 
 HttpHeaders headers = new HttpHeaders();
@@ -1629,12 +1634,24 @@ headers.setContentType(type);
 headers.add("Accept", MediaType.APPLICATION_JSON.toString());
 String json="{\"id\":11,\"content\":\"abc\"}";
 HttpEntity<String> formEntity = new HttpEntity<String>(json, headers);
-Greeting result = restTemplate.postForObject(webRoot+"/rest/post.mvc",  formEntity, Greeting.class);//URL不能加参数
+Map<String,Object> uriVariables=new HashMap<String,Object>();
+uriVariables.put("id", "101"); 
+//Greeting result = restTemplate.postForObject(webRoot+"/rest/post.mvc?id={id}",  formEntity, Greeting.class,uriVariables);//POST可以URL参数
+//Map result = restTemplate.postForObject(webRoot+"/rest/post.mvc?id={id}",  formEntity, Map.class,uriVariables);//可强制为Map
+
+//这可以强制为String 
+String result = restTemplate.postForObject(webRoot+"/rest/post.mvc?id={id}",  formEntity, String.class,uriVariables);
+
 System.out.println(result);
 
 
  
-//POST form FORM_URLENCODED 使用  MultiValueMap
+
+
+//POST form FORM_URLENCODED 使用  MultiValueMap，还要加 AllEncompassingFormHttpMessageConverter，类型不能为String.class
+
+restTemplate.setMessageConverters(Arrays.asList( new MappingJackson2HttpMessageConverter(mapper),new AllEncompassingFormHttpMessageConverter())); 
+ 
 HttpHeaders headers = new HttpHeaders(); 
 MediaType type = MediaType.APPLICATION_FORM_URLENCODED;
 headers.setContentType(type);
@@ -1642,21 +1659,72 @@ headers.add("Accept", MediaType.APPLICATION_JSON.toString());
 MultiValueMap<String,String> map=new LinkedMultiValueMap<>();
 map.add("username","xxx"); 
 HttpEntity<MultiValueMap<String,String>> formEntity = new HttpEntity<>(map, headers);
-String result = restTemplate.postForObject(webRoot+"/form/post.mvc",  formEntity, String.class); 
+//String result = restTemplate.postForObject(webRoot+"/form/post.mvc",  formEntity, String.class); 
+Greeting result = restTemplate.postForObject(webRoot+"/form/post.mvc",  formEntity, Greeting.class);  //不能为String.class,如为Object.class返回LinkedHashMap
 System.out.println("read second time:"+result);
 
+
+
+
+//POST form MultiPart  中的字段 和上传文件   
+{
+	String path="http://127.0.0.1:8081/J_SpringBoot/multiUpload?id={id}";
 	
-public class WxPayAuthorizationInterceptor implements ClientHttpRequestInterceptor {
+	HttpHeaders headers = new HttpHeaders(); ;
+	headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+	headers.add("Content-Type",MediaType.MULTIPART_FORM_DATA_VALUE);
+	
+	//数据用 MultiValueMap 
+	 MultiValueMap<String, Object> data = new LinkedMultiValueMap<String, Object>();
+	 data.add("fileCount", "两个"); 
+	  
+	 File file1=new File("D:/bak/hello.json");
+	 File file2=new File("D:/bak/abc.json");
+	 //自己的MultiPartInputStreamResource extends InputStreamResource，用来上传附件，重写getFilename(),contentLength()
+	 Resource resource1 = new  MultiPartInputStreamResource(new FileInputStream(file1),file1.getName(),file1.length() );
+	 Resource resource2 = new  MultiPartInputStreamResource(new FileInputStream(file2),file2.getName(),file2.length() );
+	 data.add("attach", resource1);
+	 data.add("attach", resource2);
+		
+	 HttpEntity<MultiValueMap<String, Object>> headerAndBody = new HttpEntity<>(data,headers);      
+	 
+ 
+	Map<String,Object> uriVariables=new HashMap<String,Object>();
+	uriVariables.put("id", "101");
+	
+	ObjectMapper mapper = new ObjectMapper();
+	mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+	mapper.setTimeZone(TimeZone.getTimeZone("GMT+8")); 
+	restTemplate.setMessageConverters(Arrays.asList( new MappingJackson2HttpMessageConverter(mapper)));
+	restTemplate.getMessageConverters().add(new AllEncompassingFormHttpMessageConverter());//POST FORM
+	restTemplate.getMessageConverters().add(new ResourceHttpMessageConverter()); //POST MultiPart ,数据用 MultiValueMap 
+ 
+	//两种方式  如上传文件是UTF8，项目文件是GBK，文件内容Interceptor日志乱码
+	
+	ResponseEntity<Map>  response= restTemplate.exchange(path, HttpMethod.valueOf("POST"), headerAndBody,Map.class,uriVariables);
+	System.out.println("response:"+response);
+}
+
+
+public class RestLogInterceptor implements ClientHttpRequestInterceptor {
 	@Override
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
 			throws IOException {
 		HttpHeaders headers = request.getHeaders();
 		headers.add("Authorization", "xx");
-		System.out.println("rest template before=="+new String(body));
+		System.out.println("rest template before request method:"+request.getMethod()+",url==>"+request.getURI());
+		System.out.println("rest template before request header==>"+headers);
+		
+		//可能有文件上传的 byte[],如比较大图片不太好处理了，解析HTTP有点麻烦
+		//Content-Disposition: form-data; name="file"; filename="8.jpg"
+		//Content-Type: image/jpeg
+		//Content-Length: 33418
+		System.out.println("rest template before request body ==>"+new String(body,"UTF-8"));  
 		ClientHttpResponse resp = execution.execute(request, body);
-		System.out.println("rest template after resp Code=="+resp.getRawStatusCode());
+		System.out.println("rest template after resp Code==<"+resp.getRawStatusCode());
 		
 		if(resp.getRawStatusCode()==200) { 
+			System.out.println("rest template after resp header==<"+resp.getHeaders()); 
 			String ser = getHeader(resp, "Wechatpay-Serial");
 			
 			//拦截器读一次，使用处不能再读结果了，RestTemplate必须加特殊处理
@@ -1668,7 +1736,7 @@ public class WxPayAuthorizationInterceptor implements ClientHttpRequestIntercept
 	            inputStringBuilder.append('\n');
 	            line = bufferedReader.readLine();
 	        }
-	        System.out.println("rest template after resp body=="+inputStringBuilder.toString());
+	        System.out.println("rest template after resp body==<"+inputStringBuilder.toString());
 		}
 		return resp;
 	}
@@ -1678,6 +1746,38 @@ public class WxPayAuthorizationInterceptor implements ClientHttpRequestIntercept
 			return values.get(0);
 		else
 			return null;
+	}
+}
+{
+	//非正常的rest请求的响应为text/html 的 兼容处理
+	ObjectMapper mapper = new ObjectMapper();
+	mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+	mapper.setTimeZone(TimeZone.getTimeZone("GMT+8")); 
+	//restTemplate.setMessageConverters(Arrays.asList( new MyMappingJackson2HttpMessageConverter(mapper)));
+	restTemplate.setMessageConverters(Arrays.asList( new MyStringHttpMessageConverter())); 
+	 //ResourceHttpMessageConverter 处理二进制的
+}
+/**用于支持text/html的返回，这支持json解析，但如果返回错误非json就不行了
+ */
+public	class MyMappingJackson2HttpMessageConverter extends  MappingJackson2HttpMessageConverter { 
+	public MyMappingJackson2HttpMessageConverter(ObjectMapper objectMapper) {
+		super(objectMapper);
+		List<MediaType> supportedMediaTypes =new ArrayList<>  ();
+		supportedMediaTypes.add(MediaType.TEXT_HTML);
+		supportedMediaTypes.add(MediaType.APPLICATION_JSON);
+		this.setSupportedMediaTypes(supportedMediaTypes);
+	}
+}
+/**用于支持text/html的返回，对于 MyMappingJackson2HttpMessageConverter 不能处理错误，自己解析json
+ */
+public	class MyStringHttpMessageConverter extends  StringHttpMessageConverter { 
+	public MyStringHttpMessageConverter( ) { 
+		List<MediaType> supportedMediaTypes =new ArrayList<>  ();
+		supportedMediaTypes.add(MediaType.TEXT_HTML);
+		supportedMediaTypes.add(MediaType.APPLICATION_JSON);
+		supportedMediaTypes.add(MediaType.ALL);
+		super.setSupportedMediaTypes(supportedMediaTypes);
+		super.setDefaultCharset(StandardCharsets.UTF_8);
 	}
 }
 ------------ Spring整合Servlet

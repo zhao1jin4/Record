@@ -436,18 +436,18 @@ https://projects.spring.io/spring-security-oauth/docs/Home.html   有文档和�
 </dependency>
 
 ---OAuth 2.0 模式1  Authorization Code 授权码
+     
 
-用户在第三方(美团)上点击 微信图标 ，第三方带client_id参数做重定向到微信官方 (Authorization Server)
-	(如不是重定向第三方也可forward？ 但浏览器上网址是不可信的，手机app看不到地址,是不是可信的也不知道 ) 
-用户在微信官方输入密码（同意取信息可是登录后）-> 微信官方返回授权码给用户浏览器  (每次返回授权码是不一样的)
-用户浏览器 使用授权码请求第三方（期间就算被拦载也会很快被第三方使用，再用就无效，https不能对url加密） ->第三方使用用户的授权码（区分哪个用户，应该使用第三方client_id,secret） -> 微信官方 ->第三方的token
-第三方使用token (第三方没必要保存下token) 向微信官方 (Resource Server)取用户数据
+用户在第三方(美团)上点击 微信图标 ，第三方带client_id参数和每三方的重定向URI,首次跳转到微信官方 (Authorization Server)是否同意授权页(可能要登录) ->
+如用户在微信官方登录并同意后-> 微信官方(验证client_id和重定向URI的域名)返回授权码 Authorization Code给用户浏览器(每次返回授权码是不一样的) ->
+用户浏览器 使用授权码请求(可能用重定向URI)第三方(期间就算被拦载也会很快被第三方使用，再用就无效，https不能对url加密) ->
+第三方使用用户的授权码 Authorization Code(区分哪个用户,用一次就失效) -> 微信官方(Authorization Code可以标识哪个第三方和用户) ->返回第三方Access Token ->
+第三方使用Access Token (第三方保存Access Token，可选刷新Access Token) 向微信官方 (Resource Server)取用户数据
 
-	同一微信用户，同一client_id每次都返回token会过期，在到期前可以使用refresh_token的值请求更新token
-	因第三方根要保存用户数据如用户在第三方上的订单，可根据第一次请求查的数据做唯一条件
 
-提供方，要临时保存授权码,token做校验使用
-
+# 因第三方根要保存用户数据如用户在第三方上的订单，可根据第一次请求Resource Server查的数据做唯一条件
+网站返回已经登录的token应绑定IP(用户名没用)，移动端有手机号/emei更安全
+ 
 https://tools.ietf.org/html/rfc6749#page-24
 --请求报文协议  使用 application/x-www-form-urlencoded
 

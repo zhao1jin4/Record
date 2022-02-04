@@ -3,17 +3,24 @@ https://doc.opensuse.org/
 
 openSUSE leap       版本是稳定的发布版本 
 openSUSE tumbleweed 版本是为希望有最新的包
+
 openSUSE  Leap 15.2还首次提供Kubernetes支持作为正式包,也可为Windows SubSystem for Linux
+
+openSUSE  Leap 15.3  发布时间  June 02, 2021,但真机安装后启动报错？？？ VMware安装正常(15.0,15.1,15.2都正常)
+	下载iso文件不要从国内的镜像下，会在安装时报签名失败,rpm错误,导致没办法安装(vmware安装也是,说明镜像不是复制iso而各镜像站点单独生成的)
+		,日本的镜像下载的(手工生成sha256的值和官方上的一样 )只有一次提示签名失败
+
+openSUSE Leap 次要版本，大约每12个月(每年) 对齐  SUSE Linux Enterprise Service Packs
+	主要版本大约36-48个月(3-4年) 对齐 SUSE Linux Enterprise Releases
+	15.4 计划日期为 Wed, Jun 8, 2022 
+	
+	
 	
 openSUSE-leap-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,cheese摄像,Totem播放器,pidgin(可MSN,GTalk都测试过的),brasero(DVD工具)
 	Firefox
 	GStreamer是在Linux下创建流媒体的应用程序框架
 	ibus,fcitx,cyrus,TiggerVNC
 	Mesa(openGL) 
-
-openSUSE  Leap 15.3  发布时间  June 02, 2021,但真机安装后启动报错？？？ VMware安装正常(15.0,15.1,15.2都正常)
-	下载iso文件不要从国内的镜像下，会在安装时报签名失败,rpm错误,导致没办法安装(vmware安装也是,说明镜像不是复制iso而各镜像站点单独生成的)
-		,日本的镜像下载的(手工生成sha256的值和官方上的一样 )只有一次提示签名失败
 
 
 Xfce桌面
@@ -27,7 +34,9 @@ openSUSE-leap-15.2-DVD有    chromium-83 yast2 install
 	rpm -ivh ~/Downloads/google-chrome-stable_current_x86_64.rpm   ./libvulkan1-1.2.133-lp152.1.3.x86_64.rpm 
   	安装后提示/usr/bin/google-chrome-stable to provide /usr/bin/google-chrome 
 
-
+microsoft-edge-stable-97.0.1072.62-1.x86_64.rpm 
+		在openSUSE-leap-15.3下安装不需要其它的依赖(没有安装Chrome)
+		
 http://download.opensuse.org/update/leap/15.0/oss/
 http://download.opensuse.org/update/leap/15.0/non-oss/
 http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 x86_64/
@@ -64,7 +73,9 @@ docker-19.03.11_ce-lp152.1.1.x86_64.rpm 要下载的
 	 依赖了 git-core-2.25.0-lp152.1.6.x86_64.rpm
 python3-docker-compose-1.25.1-lp152.1.1.noarch.rpm 要下载的
 
----kubernetes
+---kubernetes 
+openSUSE-15.3 有 kubernetes1.20-kubeadm ,也有kubernetes1.18-kubeadm包
+
 kubernetes-master-1.18.0-lp152.1.4.x86_64 不能安装下面三个
 	kubernetes-controller-manager-1.18.0-lp152.1.4.x86_64.rpm
 	kubernetes-apiserver-1.18.0-lp152.1.4.x86_64.rpm
@@ -188,6 +199,8 @@ http://download.opensuse.org/distribution/leap/15.0/repo/oss/ 下的 noarch/
 http://nginx.org/packages/sles/15/x86_64/RPMS/
 	rpm -ivh nginx-1.14.2-1.sles15.ngx.x86_64.rpm 
 
+zypper install netcat-openbsd
+
 lsb_release -a
 cat /etc/SUSE-brand  
 cat /etc/os-release
@@ -248,22 +261,12 @@ ss -ant | grep 22  (选项同windows的netstat -an)
 开机自动登录，不用输入用户名和密码,
 		修改输入密码 yast2->security and users标签->security and users组下的user and group management->选用户->expert options->login settings->取消 auto login
 
-----有防火墙的
-
-iptables -L
-iptables -F 就可ssh登录了
-iptables -P INPUT  ACCEPT
-iptables -P OUTPUT  ACCEPT
-iptables -P FORWARD  ACCEPT
-
-iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT 
-iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
-也不能sftp传文件 
+有防火墙的
 
 
 #chkconfig --list  
  提示用 systemctl list-unit-files 有 firewalld.service 是enabled
-systemctl stop firewalld
+systemctl stop firewalld   (要不然ssh连不上) 或者 nft flush ruleset ,不是老的 iptables虽然命令还在
 systemctl disable firewalld
 
 查看开机是否启动  systemctl is-enabled sshd
@@ -785,6 +788,10 @@ zypper lr <ID> 有显示keep packages的值 On/Off ,Enabled 的值: Yes/No
 zypper pd	 列出所有可用的产品
 zypper in sqlite*  (install)
 zypper rm sqlite2	 删除软件包
+
+zypper info kubernetes1.20-kubeadm 
+
+
 
 zypper removerepo snappy 
 zypper addrepo --refresh https://download.opensuse.org/repositories/system:/snappy/openSUSE_Leap_15.1/ snappy
@@ -1601,7 +1608,7 @@ xl console
 	虚拟机里的网卡连接模拟交换机,这样模拟交换机就可以仿问外网,就可以网络安装虚拟机
 
 systemctl start libvirtd 后会创建虚拟机交换接口 , ip addr show 会多了一个网卡(测试没用???)
-	iptables -t nat -L -n
+
 
 virsh 命令创建桥接设备
 brctl 命令创建桥接设备

@@ -123,6 +123,12 @@ private int randomIn10;
 @Value("${myprop.random.int10_20}")//10-20的随机数
 private int randomInt10_20;
 
+@Value("${my-props.enable}")//yml中yes 变"true"
+private String enable; 
+
+//    @Value("${my-props.listProp2}")   //@Value 不能用于集合,List,Map是不行的
+//    private List<String> listProp2 = new ArrayList<>(); 
+
 java -jar xxx.jar --server.port=8888   也可以修改参数,会覆盖application.properties
 
 application-dev.properties：开发环境
@@ -487,14 +493,24 @@ spring.cache.redis.time-to-live=10m
 
 
 
+spring.cache.type=REDIS
+spring.cache.redis.use-key-prefix=true
+spring.cache.redis.key-prefix=AppOne::  #如没有定义CacheManager生效,如定义了computePrefixWith方法
 
 
 @SpringBootApplication 下加
 @EnableCaching//Redis
  
+ 
+ 
+@Value("${spring.cache.redis.key-prefix:MyApp::}")
+private String prefixKey;
+
+@Value("${spring.cache.redis.user-key-prefix:true}")
+private boolean usePrefixKey;
   //这个对 @Cachable有用
  @Bean
-  public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory){
+  public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory){ 
    //缓存配置对象
    RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
  
@@ -502,7 +518,12 @@ spring.cache.redis.time-to-live=10m
 //                .disableCachingNullValues()             //如果是空值，不缓存
            .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))         //设置key序列化器
            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(valueSerializer())) //设置value序列化器
-  		 ; 
+  		 
+		 .computePrefixWith(cacheName->{
+			//return "MyApp::"+cacheName;
+			return   (usePrefixKey ? String.format("%s", prefixKey) : "")  + cacheName;
+		})
+		 ; 
    return RedisCacheManager
            .builder(RedisCacheWriter.nonLockingRedisCacheWriter(redisConnectionFactory))
            .cacheDefaults(redisCacheConfiguration).build();
@@ -548,7 +569,9 @@ public RedisCacheManagerBuilderCustomizer myRedisCacheManagerBuilderCustomizer()
  }
 	 
 @Bean //这个对@cache 没用
-	public RedisTemplate<String, Object> buildRedisTemplate(RedisConnectionFactory connectionFactory) {
+	public RedisTemplate<String, Object> buildRedisTemplate(RedisConnectionFactory connectionFactory,MyStringSerializer myStringSerializer ) {
+		 
+ 	
 	      
 //		Jackson2JsonRedisSerializer<Object> jackson=new Jackson2JsonRedisSerializer<>(Object.class);
 //		 ObjectMapper mapper=new ObjectMapper();
@@ -558,7 +581,7 @@ public RedisCacheManagerBuilderCustomizer myRedisCacheManagerBuilderCustomizer()
 //		 jackson.setObjectMapper(mapper);
 		 
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-	       redisTemplate.setKeySerializer(new StringRedisSerializer());
+	       redisTemplate.setKeySerializer(myStringSerializer);//支持Prefix
 //	       redisTemplate.setValueSerializer(jackson);
 //	       redisTemplate.setHashKeySerializer(new StringRedisSerializer());
 //	       redisTemplate.setHashValueSerializer(jackson);
@@ -566,7 +589,47 @@ public RedisCacheManagerBuilderCustomizer myRedisCacheManagerBuilderCustomizer()
 	       return redisTemplate;
 	   }
 
-	 
+
+@Component
+public class MyStringSerializer implements RedisSerializer<String> {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	@Value("${spring.cache.redis.key-prefix:MyApp::}")
+	private String prefixKey;
+
+	private final Charset charset;
+
+	public MyStringSerializer() {
+		this(Charset.forName("UTF8"));
+	}
+
+	public MyStringSerializer(Charset charset) {
+		Assert.notNull(charset, "Charset must not be null!");
+		this.charset = charset;
+	}
+
+	@Override
+	public String deserialize(byte[] bytes) {
+		String saveKey = new String(bytes, charset);
+		int indexOf = saveKey.indexOf(prefixKey);
+		if (indexOf > 0) {
+			logger.warn("key缺少前缀");
+		} else {
+			saveKey = saveKey.substring(indexOf);
+		}
+		return saveKey;
+	}
+
+	@Override
+	public byte[] serialize(String string) {
+		String key = prefixKey + string;
+		return key.getBytes(charset);
+	}
+}
+
+
+
 @Autowired  
 private RedisTemplate<String,String> redisTemplate;  
 
@@ -1940,6 +2003,49 @@ spring.servlet.multipart.max-request-size  默认10MB
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-web</artifactId>
 </dependency> 
+
+<br/>upload <br/>
+<form method="post" action="/J_SpringBoot/multiUpload" enctype="multipart/form-data">
+	<input type="text" name="fileCount"><br>
+    
+    <input type="file" name="attach"><br>
+    <input type="file" name="attach"><br>
+    
+    <input type="submit" value="提交">
+</form> 
+
+
+@PostMapping("/multiUpload")
+@ResponseBody
+public MyResponse multiUpload(HttpServletRequest request) {
+	String id=request.getParameter("id");
+	System.out.println("id="+id);
+	String resMsg="";
+	MultipartHttpServletRequest  multiPart=(MultipartHttpServletRequest) request;
+	String fileCount=multiPart.getParameter("fileCount");
+	System.out.println("fileCount="+fileCount);
+	List<MultipartFile> files = multiPart.getFiles("attach");
+	String filePath = "D:/tmp/";//当/tmp时spring boot下  /不是当前盘符的根，
+	//而是 C:\Users\Administrator\AppData\Local\Temp\tomcat.8081.8781972415112657868\work\Tomcat\localhost\J_SpringBoot\
+	for (int i = 0; i < files.size(); i++) {
+		MultipartFile file = files.get(i);
+		if (file.isEmpty()) {
+			resMsg += "上传第" + (i++) + "个文件失败";
+		}
+		String fileName = file.getOriginalFilename();
+
+		File dest = new File(filePath + fileName);
+		try {
+			file.transferTo(dest);
+			System.out.println("第" + (i + 1) + "个文件上传成功");
+		} catch (IOException e) {
+			 e.printStackTrace();
+			 resMsg += "上传第" + (i++) + "个文件失败";
+		}
+	}
+	return new MyResponse(200,resMsg); 
+} 
+
 <dependency>
 	<groupId>org.springframework.boot</groupId>
 	<artifactId>spring-boot-starter-validation</artifactId>

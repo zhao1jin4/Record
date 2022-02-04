@@ -2,32 +2,20 @@
 	1 电视端，wifi设置附近有开关	
 	2. 手机端 Settings->more->cast->打开
 手机->电脑端
-
-------win 360手机助手
-短信,更新软件后的目录在 X:\360Downloads\Apk
-------win 魔方手机助手
-可以在电脑上升级,下载目录在 C:\Program Files (x86)\魔方工作室\Resources\download\app
-短信
-------
-豌豆荚
-91助手
-360一键Root
+ 
+呼叫转移功能 的设置在 拔号App 中有设置中(不是系统里的设置)
 
 =============Android
-
-
-华为商店在  老版本在 /HiSpace/application ,新版本在
-360手机助手在   /360downlaod
-firefox到  /download
-碗豆下载目录 /wandoujia/app
-沃商店下载目录 /wostore
-百度商店下载目录/baidu/AppSearch/downloads 
-
+ 
 MIUI 应用市场下载目录 /data/com.xiaomi.market/files/apk
 MIUI 定时关机,设置-> 电池性能 ->电池 -> 定时开关机  ，自动任务里有定时飞时模式
 MIUI 设置应用上网权限 ，手机管家->(系统工具组中的)网络助手->联网控制 和 流量排行
 MIUI 日期和时间显示设置页面中，点击打开使用24小时
 
+MIUI App vault 是桌面左滑的显示功能 ，有读日历，手机号，GPS权限(只有在恢复出产设置时可以拒绝，一但同意就不能再设置，是灰色)
+桌面下滑是 内容中心 App  ，权限可以调
+
+Android/data 目录只能用Android storage Access Framework 来仿问，是一个蓝色的文件夹图标
 
 截图  音量减小键和电源键同时按  <手机存储根>/Pictures/Screenhost  目录 
 拍照   /DCIM/Camera/
@@ -39,16 +27,17 @@ tencent/MobileQQ
 
 tencent/MicroMsg
 
-微信附件保存在
+微信下载别人的附件保存在
 /storage/emulated/0/Android/data/com.tencent.mm/MicroMsg/Download
 
+是发送给别人的在 
+/storage/emulated/0/Android/data/com.tencent.mm/MicroMsg/xxxxx/attachment/ 如有同名文件会自动重命名，前加数字
 
 
 QQ  备份聊天记录(复制tencent 目录,再恢复时QQ可以恢复)
 	复制tencent 目录,再恢复,微信不行,MicroMsg生成了新的UID
 
 
-金山词霸注册同步到云
 
 备份联系人(android自带功能),NoteEverything
 时钟,日历重设,浏览器收藏夹
@@ -56,8 +45,37 @@ QQ  备份聊天记录(复制tencent 目录,再恢复时QQ可以恢复)
 
 去拍照声音,进入/system/media/audio/ui目录,将里面的文件camera_click.ogg 改名或者删掉 ,VideoRecord.ogg 是录像开始,VideoRecordEnd.ogg是录像结束
 去对焦声音  
-------------Anroid app list
+
+
+
+---------app 
+华为商店在  老版本在 /HiSpace/application ,新版本在
+360手机助手在   /360downlaod
+firefox到  /download
+碗豆下载目录 /wandoujia/app
+沃商店下载目录 /wostore
+百度商店下载目录/baidu/AppSearch/downloads 
+
+
+金山词霸注册同步到云
+
 wineHQ
+
+
+------win 360手机助手
+短信,更新软件后的目录在 X:\360Downloads\Apk
+------win 魔方手机助手
+可以在电脑上升级,下载目录在 C:\Program Files (x86)\魔方工作室\Resources\download\app
+短信
+------
+豌豆荚
+91助手
+360一键Root
+
+
+
+------------Anroid app list 
+
 ---HuaWei自带 
 文件管理,
 电子邮件,
@@ -155,6 +173,9 @@ WP8主题
 CpuInfo
 Increasing Ring
 
+ConnectBot 可以当android 本地shelle 用 ，有nc命令
+ 
+ 
 ----未知
 去通知声音,禁用通知,推送,闹铃开机,定时关机,禁止应用仿问网络,百度地图监听3G网络自动启动
 

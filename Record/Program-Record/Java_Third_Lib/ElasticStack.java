@@ -1175,12 +1175,11 @@ cd  kibana-7.1.1-linux-x86_64/bin
 
  http://127.0.0.1:5601/   有界面
  
-新增加数据 ，初始在Stack Management标签中->data 或 Kibana->
-
-左侧菜单点Data-> index management 显示已有的索引
-左侧菜单点Kibana -> index patterns -> 点 Create index pattern->选择索引名字，可以用*做通配->选择时间字段@timestamp
-左侧菜单点Discover ->
-	 首次时入 提示 Create index pattern,要先有数据写入后，才能建，即在logstash配置ouput组中index的值, my-sys-* 还要选择日期字段名 默认有@timestamp
+新增加数据初始在 (management组)Stack Management标签中->(data组)Index Management->
+   显示已有的索引(management组)Stack Management标签中->(data组)Index Management->
+	左侧菜单点 (management组)Stack Management标签中->Kibana(组)Index Patterns-> 点 Create index pattern->选择索引名字，可以用*做通配->选择时间字段@timestamp
+左侧菜单点(Analytics组)Discover ->
+	 首次时入 提示 Create index pattern(同上),要先有数据写入后，才能建，即在logstash配置ouput组中index的值, my-sys-* 还要选择日期字段名 默认有@timestamp
  	 下拉可以选择my-sys-* 前缀开头的日志, 过滤条件可以选择日期范围，可选今天
  
 	 索引 _index:值为pdpm-log-2018...  

@@ -1,12 +1,16 @@
 
  ----------阿里云服务  
-分布式调度平台 SchedulerX
+分布式调度平台 SchedulerX 2, 可以程序调用API批量建立任务
 企业级分布式应用服务 EDAS
-PolarDB是阿里巴巴自研的新一代云原生关系型数据库
+PolarDB是阿里巴巴自研的新一代云原生关系型数据库,使用和MySQL一样的,DMS 是一个界面工作，有在线web版,也有安装版本https://dms.aliyun.com/static/html/download.htm，
 应用实时监控服务 (Application Real-Time Monitoring Service, 简称ARMS) 
-日志服务（SLS）是云原生观测分析平台
+日志服务（SLS）是云原生观测分析平台,像Elastic Search ，页面的搜索条件中可写  level = ERROR 
 SAE
 Edas
+DBM
+OSS  对象存储，像ceph
+
+
 
 -------------Jasper Report
 eclipse有一个BIRT
@@ -4265,3 +4269,20 @@ p2.onSuccess(new Consumer<Float>() { //p1.onSuccess
 });
 deferred1.accept("182.2");
 ===============
+
+-------------------------------commons logging 
+到2021年底，最新的还是2014年的1.2版本 ，官方只支持常用的jdk日志和log4的1版本，不支持log4j2，也不支持logback
+<dependency>
+    <groupId>commons-logging</groupId>
+    <artifactId>commons-logging</artifactId>
+    <version>1.2</version>
+</dependency>
+
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+Log logger = LogFactory.getLog(XXX.class);
+
+
+
+

@@ -2856,7 +2856,8 @@ kubectl create -f quota-test.yaml
 kubectl describe ns my-ns
 
 kubectl get deploy xxx -o yaml 看status区的日志
---------
+
+-------- horizontal-pod-autoscaler 对象
 
 
 

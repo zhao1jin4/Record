@@ -134,7 +134,43 @@ public static String objToXml(Object srcObj)
 	return  xStream.toXML(srcObj);
 }
 
-public static <T>  T xmlToObj(String xml,Class<T> clazz) 
+public static String objToXmlByXStream(Object srcObj,String root) {
+	if(srcObj==null)
+		return null;
+	//XStream xStream = new XStream();
+	//对于Java转换Xml生成字串String要以"<![CDATA[  ]]> 包含
+	NameCoder nameCoder = new NoNameCoder();
+	XStream xStream = new XStream(new XppDomDriver(nameCoder) {
+		@Override
+		public HierarchicalStreamWriter createWriter(Writer out) {
+			return new PrettyPrintWriter(out, nameCoder) {
+				boolean isUseCDATA = false; 
+				@Override
+				public void startNode(String name, Class clazz) {
+					super.startNode(name, clazz);
+					if (clazz == String.class) 
+						isUseCDATA =true;
+					else
+						isUseCDATA =false;
+				}
+				@Override
+				public void writeText(QuickWriter writer, String text) {
+					if (isUseCDATA) {
+						writer.write("<![CDATA[");
+						writer.write(text);
+						writer.write("]]>");
+					} else {
+						writer.write(text);
+					}
+				}
+			};
+		}
+	});
+	xStream.alias(root, srcObj.getClass()); //xml根标签名字，类可以没有任何注解
+	xStream.autodetectAnnotations(true);	// 使在Bean中的注解生效
+	return xStream.toXML(srcObj);  
+}
+public static <T>  T objToXmlByXStream(String xml,Class<T> clazz) 
 {
 	if(xml == null) 
 		return null;
@@ -162,18 +198,34 @@ public static <T>  T xmlToObj(String xml,Class<T> clazz)
         };
 
 	xStream.processAnnotations(clazz);//声明使用了注解
+	xStream.allowTypes(new Class[]{clazz}); //新版必须加
 	Object obj = xStream.fromXML(xml);
 	return (T)obj;
 }
-
 
 @XStreamAlias("Request") //因是最根级(上层)所以可以加在类前
 public class MyRequest {
 	@XStreamAlias("Head")
 	private MyHead head;  // 在MyHead的类前面加@XStreamAlias 无效
-	// @XStreamImplicit//隐式集合，只显示集合里的内容
+	//@XStreamImplicit//隐式集合，只显示集合里的内容
+	//这是出现多个重复的<Body>元素,没有外层的<body>(itemFieldName = "Body"是替代MyBody类的注解)
 	@XStreamImplicit(itemFieldName = "Body")
 	private List<MyBody> body;
+	
+
 }
  
+ 
+TextMessage txt=new TextMessage();
+txt.setContent("内容<a>");//会把<转换为&lt;
+txt.setCreateTime(System.currentTimeMillis());
+txt.setFromUserName("张三");
+String xml2=XmlUtil.objToXml(txt,"xml");
+System.out.println(xml2);
+ 
+List<MyBody> listBody=new ArrayList<MyBody>();
+//List<MyBody> listBody= Arrays.asList(body,body);//不能使用Arrays生产List(是内部类),生成XML问题
+//List<MyBody> listBody= Collections.singletonList(body);//不能使用Collections生产List(是内部类),生成XML问题
+//可用 mapstruct 的 Collections.newArrayList(...)
+
 

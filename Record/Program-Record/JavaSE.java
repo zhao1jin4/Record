@@ -1,4 +1,6 @@
 https://docs.oracle.com/en/java/javase/
+https://jdk.java.net/archive/  下载老版本的openJDK
+Oracle Java SE 8u211 and later under the Java SE OTN License.
 
 C:\ProgramData\Oracle\Java\javapath  目录中有java,javaw
 
@@ -623,7 +625,9 @@ UNIX要
   
 反编译器 JD-GUI-1.6.6
 JD-Eclipse-2.0.0
-------------------
+------------------DJ Java Decompiler 3.12
+收费的  http://www.neshkov.com/dj.html
+
 ------------------JDBC
 
 sun.jdbc.odbc.JdbcOdbcDriver
@@ -905,6 +909,7 @@ resXml.replaceFirst(startTag+"(.)*"+endTag ,  startTag+singStr+endTag);//修改�
  System.out.println(sb.toString());
  
   
+resultXml.replaceAll("[(^\\s?)|(\\s?\n$)]","");//删XML每行的首尾空白
  
 ---------------太难了
  
@@ -1307,13 +1312,38 @@ Oracle JDK 11 是LTS（长期支持）版本
   <groupId>org.jboss.spec.javax.xml.bind</groupId>
   <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
   <version>2.0.1.Final</version>
+</dependency> 或
+<dependency>
+    <groupId>javax.xml.bind</groupId>
+    <artifactId>jaxb-api</artifactId>
+    <version>2.3.1</version>
 </dependency>
-
 <!-- 因删 javax.ws.rs  则使用这个包--> 
 <dependency>
   <groupId>org.jboss.spec.javax.ws.rs</groupId>
   <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
   <version>2.0.1.Final</version> 
+</dependency>  或
+<dependency>
+    <groupId>javax.ws.rs</groupId>
+    <artifactId>javax.ws.rs-api</artifactId>
+    <version>2.1.1</version>
+</dependency>
+
+
+javax.xml.ws.包删
+<dependency>
+    <groupId>javax.xml.ws</groupId>
+    <artifactId>jaxws-api</artifactId>
+    <version>2.3.1</version>
+</dependency>
+
+
+javax.jws.包删
+<dependency>
+	<groupId>javax.jws</groupId>
+	<artifactId>javax.jws-api</artifactId>
+	<version>1.1</version>
 </dependency>
 
 ------
@@ -1701,7 +1731,7 @@ var th = new Thread(new MyRun());
 
 //java.util
 Base64.Encoder base64Encoder=Base64.getEncoder();
-byte[] encoded=base64Encoder.encode("这是一个中文".getBytes("UTF-8"));
+byte[] encoded=base64Encoder.encode("这是一个中文".getBytes("UTF-8"));//StandardCharsets.UTF_8
 System.out.println(new String(encoded));
 
 Base64.Decoder base64Decoder=Base64.getDecoder();
@@ -1809,7 +1839,14 @@ b.add(Integer.valueOf(6));
 List<Integer> res=Stream.of(a,b).flatMap(u->u.stream()).collect(Collectors.toList());
 System.out.println(res);//3,4,5,6
    
-   
+String[] words = new String[]{"Hello","World"};
+List<String> l = Arrays.stream(words)
+		.map(word -> word.split(""))
+		.flatMap(Arrays::stream) //把hello的Stream<String[]>和world的Stream<String[]>，转为Stream<String>
+		.distinct()//这去除就可以两个单词相同的字母，如o,l
+		.collect(Collectors.toList());
+l.forEach(System.out::print);
+		
 --------------------------JDK 7 新特性
 G1拉圾收集器   -XX:+UseG1GC -Xms2g Xmx2g -XX:MaxGCPauseMillis=500 
 
@@ -2039,6 +2076,7 @@ JDK内嵌的Annotation
 @Override   可以正确的
 @Deprecated 标明该方法是不被推荐使用的
 @SuppressWarnings({"unchecked","deprecation"});  不显示警告
+@SuppressWarnings("all")
 
 
 enum Color{ bule,yello,red};//定义一个enum类型
@@ -2236,6 +2274,10 @@ J_JavaSE\bin>javah jni.TestJavaNative 生成 jni_TestJavaNative.h.h
 //-TestCPPNative.cpp
 #include <iostream>
 #include "jni_TestJavaNative.h" //又使用了jni.h,在JDK安装目录的include下,还要一个jni_mod.h在win32目录
+
+// sudo zypper install java-11-openjdk-devel
+//  -I /usr/lib64/jvm/java-11-openjdk-11/include -I /usr/lib64/jvm/java-11-openjdk-11/include/linux/
+
 using namespace std;
 JNIEXPORT void JNICALL Java_jni_TestJavaNative_sayHello (JNIEnv * env, jobject obj)//从头文件中复制的,加参数名
 //Java开头_包名_类名_方法名,如方法被声明为static,则这里的jobject是一个jclass的引用
@@ -3424,6 +3466,7 @@ Base64.Decoder base64Decoder=Base64.getDecoder();
 byte[] decoded=base64Decoder.decode(encoded);
 System.out.println("解密后：" + aesDecryptByBytes(decoded, key));
 
+见第三方库里有AES的增强
 
 -------------MD5 被破解
 
@@ -3431,6 +3474,7 @@ MessageDigest md5 = MessageDigest.getInstance("MD5");// 确定计算方法  SHA2
 
 BASE64Encoder base64en = new BASE64Encoder();//Base64 编码  Sun过时了,
 newstr = base64en.encode(md5.digest(str.getBytes("utf-8")));// newstr加密后的字符串,str是要加密的
+//digest里面是先调用update(xxx)再digest()
 -------------MD5 加密文件
  
 public static String encryptFile(File file)
@@ -3896,6 +3940,7 @@ String   str   =   Integer.toString(Integer.parseInt(hexString,16));
 java.text.DecimalFormat   df   =   new   java.text.DecimalFormat("#,##0.00"); //小数点会四舍五入的
 String   strValue   =   df.format(doubleValue);
 
+new DecimalFormat("000000").format(3 + 1); //显示6位整数
 
 String s=String.format("%2d,%3s",12,"abc");//和C一样了
 String res=String.format("%-50s", "abcd");//左对齐,长度50个右补空格
@@ -4242,6 +4287,10 @@ ByteBuffer to=ByteBuffer.wrap(new byte[]{48,56});
 ByteBuffer.wrap(data,2,2).compareTo(to);//返回0 相等
 System.arraycopy(srcArray, srcPos,destArray, destPos, len);
 
+BigInteger lenBig=new BigInteger(lenghtByte); //二进制数组转整数
+new StringBuilder(Integer.toBinaryString(226)).reverse().toString()//十进制转二进制并反序
+
+
 ByteBuffer x.compare()
 Arrays.equals()
 
@@ -4522,7 +4571,7 @@ class放在非文件系统中,如DB,网络
 Java ClassLoader 就是用 Java 语言编写的
 有一个ClassLoader不是用java语言所编写的，而是JVM实现的一部分，这个ClassLoader就是bootstrap classloader（启动类加载器），jdk_home/lib目录下的核心api 或 -Xbootclasspath 选项
 
-一个是ExtClassLoader，这个ClassLoader是用来加载java的扩展API的,jdk_home/lib/ext目录下的jar包或 -Djava.ext.dirs 指定
+一个是ExtClassLoader，这个ClassLoader是用来加载java的扩展API的,jdk_home/lib/ext目录下的jar包(JDK11不支持了)或 -Djava.ext.dirs 指定
 一个是AppClassLoader  java -classpath/-Djava.class.path所指的目录下	ClassLoader.getSystemClassLoader()
 
 自定义ClassLoader都必须继承ClassLoader这个抽象，有一个getParent()方法，这个方法用来返回当前ClassLoader的parent，注意，这个parent不是指的被继承的类，而是在实例化该ClassLoader时指定的一个ClassLoader，如果这个parent为null，那么就默认该ClassLoader的parent是bootstrap classloader
@@ -5427,6 +5476,17 @@ for (Developer dev : serviceloader) {
 }
 
 ---AbstractQueuedSynchronized AQS
+
+------------java.util.logging
+Logger logger = Logger.getLogger("xx");
+Level level = Level.parse("INFO");
+logger.setLevel(level);
+logger.log(level, "hello");
+logger.log(level, "error",new RuntimeException("其它错误")); 
+
+
+
+
 
 
 

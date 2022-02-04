@@ -37,6 +37,7 @@ Settings->Project:<项目名> -> Project Intercepter -> 可选择python版本
 下拉显示Python:Current File ,打断点，启动按钮，即可调试
 
 ----- windows 
+https://www.python.org/downloads/windows/ 可以找到windows下的老版本二进制
 要下载 .exe安装版 ,.py文件可以双击执行
 安装版本默认安装在 %USERPROFILE%\AppData\Local\Programs\Python\Python38  Doc目录下有.chm文档,有Lib目录是源码
 
@@ -68,14 +69,17 @@ pip install -r requirements.txt  	在requirements.txt中每行写一个依赖名
 提示要TLS/SSL 不影响使用
 可不设置 PYTHONPATH=/usr/local/lib/python3.6/site-packages/PyMySQL-0.8.0-py3.6.egg
 
+提示没有 encodings 模块,设置 PYTHONPATH=D:\Application\Python36\Lib
 
 --windows pip安装 
+
 C:\Users\zh\AppData\Local\Programs\Python\Python36\Scripts>easy_install.exe pip  
 要设置 PYTHONPATH=C:\Users\zh\AppData\Local\Programs\Python\Python36\Lib\site-packages
 pip3 install PyMySQL   
 pip3 install Scrapy  				windows下要 Visual C++ 14.0 (VC2015)
 pip3 install --upgrade tensorflow 	默认CPU 
 
+D:\Application\Python36\Scripts 下就有pip 命令 提示版本老用 
 python -m pip install --upgrade pip 来升级pip到10.0.1
 pip install --upgrade pip
 

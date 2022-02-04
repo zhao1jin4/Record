@@ -38,8 +38,8 @@ gstreamer-plugins-xxx
 Cheese摄像头
 
 
-
-~/.Trash //是回收站
+~/.local/share/Trash/files 是回收站  
+~/.Trash //是回收站  
 ~/桌面  //这个目录是桌面
 
 /usr/share/pixmaps  图标文件 
@@ -231,6 +231,27 @@ Gnome 的 imageview 不可旋转图片
 !ps 表示调用历史命令中以最近的 ps开头的
 
 linux 的mv 命令不能合并,如目录中有相同目录,先合并没相同的,再用cp -r 
+
+
+ls -l --full-time  --time=atime  或 access 或 use ,显示仿问时间(-u) --full-time 以ISO格式显示,有年和时区,如用cat会变
+ls -l --full-time  --time=ctime  或 status 		,修改时间(change,-c),修改文件也同时改变仿问时间,默认的
+ls -l --full-time  --time=birth  或 creation 	,测试下来也是修改时间，并不是创建时间,Linux（包括传统 Unix）中没有“创建（creation）”时间的概念（除非使用 debugfs）
+
+stat  a.txt  可能显示三个时间的ISO格式，
+	Modify 内容最近修改的时间 
+	Change 属性最近修改的时间 
+
+touch -mt 202001011224.33 a.txt  
+	-m只修改文件的Modify时间,不修改Change
+	-a只修改文件的Access
+	-t [[CC]YY]MMDDhhmm[.ss]  格式 
+	--time=WORD 
+		WORD is access, atime, or use: equivalent to -a
+		WORD is modify or mtime: equivalent to -m
+		
+touch -at 202002011224.33 a.txt
+touch -t  202001011224.33 --time=atime a.txt  
+
 
 init 5 可以成功,OK
 修改/etc/inittab文件，将id:3:initdefault:修改为：id:5:initdefault:
@@ -550,8 +571,7 @@ ipcrm -m 删除ipc资源,可根据id,key .可删
 runlevel 查看是3还是5 运行级别 也可用 who -rH
 
 
-普通用户不能监听1024以下端口,
-1.iptables -t nat -A PREROUTING -p tcp --dport <低端口> -i eth0 -j REDIRECT --to-port <原先监听的高端口> 
+普通用户不能监听1024以下端口  
 2.rinetd
 3.ipchans -I input --proto TCP --dport <低端口> -j REDIRECT <高端口> 
 4.chmod 7755
@@ -713,9 +733,8 @@ hostname -i 查看ip  ，同ifconfig
 route add default gw 202.2.2.2 dev eth0
 
 route del default gw 202.2.2.2
-
-
-ping -c 发出报文数  -i 间隔时间　
+ 
+ping -c 发出报文数  -i 间隔时间 #同windows的ping -n
 
 traceroute IP
 netstat -anptu
@@ -790,7 +809,11 @@ curl 来请求
 	--insecure 
 	-f, --fail 失败时不输出
 	-L, --location 如有重定向，自动重新请求
-	 
+	-F, --form <name=content> Specify multipart MIME data 
+	
+	
+curl -F media=@test.jpg  
+
 iostat
 vmstat的输入格式
 procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
@@ -917,6 +940,11 @@ useradd -d <HOME DIR>  -s <SHELL>
   -m, --create-home 创建目录 
 usermod 
 	-m, --move-home
+	-g  修改了要下次登录id查看生效,
+	-G 　supplementary groups　　可与　 -a, --append　一起用
+groups 查当用户所在全部组
+cat /etc/passwd | grep groupxxx
+
 
 文件权限的中有s位的,会以root身份的执行
 
@@ -1397,10 +1425,11 @@ tar -zxvf dotnet-sdk-3.1.102-linux-x64.tar.gz  -C /opt/dotnet-sdk-3.1.102-linux-
 
 也可
 yast2 建立仓库　输入　https://packages.microsoft.com/opensuse/15/prod/ 也可直接在地址中下载 dotnet-sdk-3.1.102-x64.rpm   
- 
 https://packages.microsoft.com/config/opensuse/15/prod.repo   
  　文件内容有　https://packages.microsoft.com/opensuse/15/prod/ 
- 
+
+zypper addrepo --refresh https://packages.microsoft.com/opensuse/15/prod/  dotnet
+zypper install  dotnet-sdk-6.0
  
 dotnet 命令
  ./dotnet  --info
@@ -2004,94 +2033,6 @@ grub-md5-crypt<psd>>/etc/grub.conf ##为了好复制，psd文件中有原密码
 
 
 
-=================iptables 被 nftables 替代
-
-一个数据据包有 源地址,目标地址,协议
-
-iptables -A INPUT -p(protocol) icmp -j (jump)DROP  (Target,DROP,ACCEPT ,REJECT,LOG)
-
-icmp不可ping一个地址
-
-ip6tables -L
-iptables -L -n 显示 数字IP
-iptables -S  显示，像 iptables-save 格式
-
-iptables -F (flush)    清空规则
--D delete  从一开始
--A append
--I --insert
--Z 清零(包的个数)
--N --new 新建一个链
--X 删自己的链
--P 大P 改变默认
-
--p 小p 协议 可用! 来排除
--s --source	
---sport 源 
--d --destination 
---line-numbers 显示链的编号
--v --verbose	
-
-
-链，INPUT，OUTPUT，FORWARD(对其它机器服务,的来源和目录都不是自己)
-
-保证SSH 服务正常
-iptables -A INPUT  -p tcp   (-d 127.0.0.1)   --dport 22 -j ACCEPT  () 中可省,INPUT的目标地址,OUTPUT的源地址是本机IP
-iptables -A OUTPUT -p tcp   (-s 127.0.0.1)   --sport 22 -j ACCEPT
-
-
-iptables -P INPUT DROP  改变默认 -P 所有的 INPUT 都DROP
-iptables -P OUTPUT DROP
-iptables -P FORWARD DROP
- 
-配置文件  /etc/sysconfig/iptables
-
-iptables-save > /etc/sysconfig/iptables
-相应的有 iptables-restore
-
-
-/etc/services 找domain为53端口的是DNS
-
-为了可用使用DNS来上网,
-iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
-iptables -A INPUT -p udp --sport 53 -j ACCEPT  如果自己是DNS服务器没有指定目标端口是53,采用默认DROP
-
-iptables -D INPUT 5 删INPUT第5行
-
-为了本机可正常工作
-iptables -A INPUT -s 127.0.0.1 -d 127.0.0.1  -j ACCEPT  
-
-^IN^OUT 或者
-iptables -A OUTPUT -s 127.0.0.1 -d 127.0.0.1  -j ACCEPT
-
-^oldchar^newchar   替换上一次执行过的命令中的字符
-
-
-iptables -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT	(-sport 服务器)
--m state --state ESTAbLISHED 表示只响应有过请求的包,对没有请求过的包,不可出 m match
-
-iptables -D OUTPUT 1
-做为服务器删上一个OUTPUT 22 的链 ,
-
-做客户机
-iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT   (--dport)
-iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
-
-service iptables save
-service iptables start/stop/restart/status/condrestart/panic/save
-　
-
-iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT 
-iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
-iptables -I INPUT -p tcp --dport 25 -j ACCEPT ##SMTP
-
-iptables -A INPUT  -p icmp   -j ACCEPT 
-iptables -A OUTPUT -p icmp   -j ACCEPT
-
-iptables -P INPUT DROP  
-iptables -P OUTPUT DROP
-iptables -P FORWARD DROP 
-
 -----ipvs
 ipvsadm软件包
 ip 可操作的对像，如 netns 网络名称空间
@@ -2140,7 +2081,7 @@ firewall-cmd --get-active-zones
 
 firewall-cmd --get-default-zone  查哪个是默认zone，默认是public
 存在配置文件中 /etc/firewalld/firewalld.conf
-
+firewall-cmd --list-all
 firewall-cmd --list-all-zones
 firewall-cmd --get-services
 
@@ -2183,9 +2124,6 @@ firewall-cmd --zone=public --query-rich-rule 'rule family="ipv4" source address=
 	  
 	
 	
-iptablse -A INPUT -p tcp -dport 22 -j  LOG --log-level 5 --log-prefix "iptables::" ###记录日志 --prefix 并不是最前的
-要确保前方没有DROP, 或者ACCEPT 的规则对应的包,并在其它对应的ACCEP规则的前面才有效 
-
 /etc/syslog.conf加入
 kern.=notice    /var/log/firewall.log ###### man syslog 看到 5 是NOTICE
 注意文件中的 *.* 不要有
@@ -2195,7 +2133,7 @@ kern.=notice    /var/log/firewall.log ###### man syslog 看到 5 是NOTICE
 重启  service syslog restart
 -I　INPUT 6 插入第6条前面
 
-FORWARD是在本机是路由发送给其它人的情况下的
+FORWARD 是在本机是路由发送给其它人的情况下的
 打开内核中的转发
 要 /proc/sys/net/ipv4/ip_forward的值为1  是临时的
 /etc/sysctl.conf文件中的net.ipv4.ip_forward=1  (ctl control)
@@ -2207,16 +2145,6 @@ sysctl -p
 192.168.0.1~192.168.255.254
 以上是专用网络
 
-局域网地址反译到互联网地址时，叫NAT
-
-SNAT 源地址转换,只能发生在POSTROUTING
-DNAT 目标地址转换  只能发生在PREROUTING
-
-iptables -t nat -L -n 来显示    nat表中的信息
-iptables -t nat -A POSTROUTING -s 10.0.0.0/24(24=255.255.255.0) -j SNAT --to-source 192.168.0.254
-iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j MASQUERADE 违装(masquerade 化装)
-
-iptables -t nat -A PREROUTING -d 10.0.0.254 -p tcp -dport 80 -j DNAT --to-destination 192.168.0.1
  
 
 =================pam模块
@@ -2547,6 +2475,8 @@ tar -Jxvf xx.xz
 xz test.txt
 xz -d -k test.txt.xz  (-k --keep 保持原文件不被删除,-d --decompress )
 
+ar -vx xxx.deb   可以解压ubuntu 的deb包
+
 --------------------Raid LVM实例
 fdisk 中 t 转换类型->L 列表->fd 是Linux raid auto
 fdisk -l /dev/sd[bcd]     //可以用[]
@@ -2777,13 +2707,53 @@ rpcinfo -p 10.1.5.226  查看服务器提供的rpc服务
 	显示portmap服务指派端口（111）
 	
 mount -tnfs4 10.1.5.226:/root/shareDir  /mnt/remoteDir (要root权限)
- 
+
+------------fedora 35 tigervnc
+
+VNC Connect 是由 VNC Viewer 和 VNC  Server组成
+
+dnf install tigervnc 有vncviewer
+dnf install tigervnc-server
+vncserver :1 提示用 systemd ,有显示看 /usr/share/doc/tigervnc/HOWTO.md 文档
+
+vi /etc/tigervnc/vncserver.users 配置用户，要求用户不能是已经登录图形界面的，避免使用root
+:1=hp
+
+
+#su - hp
+vncpasswd   #创建$HOME/.vnc目录,修改密码可以删除
+
+再用  systemctl start vncserver@:1  启动(测试下来一定要用配置的用户hp启动,vncviewer才能连接上) ,会监听5901端口 (ps -ef 也会显示)
+	 
+	
+	
+systemctl status vncserver@:1 #看脚本使用的Xvnc命令,会带起 vncsession hp :1(ps -ef 也会显示)
+
+
+Fedora官方文档说
+https://docs.fedoraproject.org/en-US/fedora/rawhide/system-administrators-guide/infrastructure-services/TigerVNC/
+
+$ vncviewer 192.168.0.4:1 连接后提示不安全
+  
+
+界面是gnome2的风格
+
+---$HOME/.vnc/config 测试下来加这个文件后 vncviewer就连接不上？？
+session=gnome  #名字匹配 ls /usr/share/xsessions/  ,如未配置界面是gnome2的风格，还可 gnome,gnome-classic,gnome-xorg
+securitytypes=vncauth,tlsvnc
+desktop=sandbox
+geometry=2000x1200
+localhost
+alwaysshared
+
+
+
 --------------------tigervnc
 VNC(Virtual Network Computing)
 yum install tigervnc  (CentOS 7 DVD 自带1.8版本 只vncviwer)从 TightVNC 出来的
 yum install tigervnc-server 就有vncserver了
 
-vncserver :1 提示输入两次密码(如第二次选y),就有5901的监听,iptables -F 外部就可以输入密码连接上了,但进入界面系统的密码是启动vnc服务用户系统的密码
+vncserver :1 提示输入两次密码(如第二次选y),就有5901的监听,关防火墙 外部就可以输入密码连接上了,但进入界面系统的密码是启动vnc服务用户系统的密码
 Creating default startup script /root/.vnc/xstartup
 Creating default config /root/.vnc/config
 CentOS 7 测试OK
@@ -2835,7 +2805,7 @@ vncserver -kill :1
 
 
 关闭防火墙 
-# systemctl stop firewalld.service
+# systemctl stop firewalld.service  是使用nft, 不是老的 iptables虽然命令还在
 systemctl list-units
  systemctl list-unit-files | grep firewall
  systemctl disable firewalld.service   关闭系统开机启动
@@ -2848,6 +2818,7 @@ systemctl list-units
  
 # 重启系统
 $ sudo systemctl reboot
+systemctl reboot -i
 
 # 关闭系统，切断电源
 $ sudo systemctl poweroff
@@ -3295,6 +3266,8 @@ modinfo ext3
 modprob (依赖安装,如失败会卸载整组的模块)
 rmmod
 ============================fedora 专用的 
+fedora35(GNOME 41)升级比openSUSE leap快很多
+
 文档 https://docs.fedoraproject.org/en-US/fedora/f34/
 如要使用XFCE桌面  要安装时单独下载 Live.iso https://spins.fedoraproject.org/xfce/download/index.html
 	dnf install @xfce-desktop-environment  (https://fedoraproject.org/wiki/Xfce/zh-cn)
@@ -3324,6 +3297,7 @@ openSUSE用的是zypper，fedora是dnf 用来替代yum，现在yum还是可以�
  		#keepcache=False   默认值为False 要修改为True
  		
 dnf repolist all
+dnf repoinfo xxx
 dnf search ibus 
 
 列出所有的软件包组 
@@ -3342,6 +3316,7 @@ sudo dnf  install docker-ce
 要查看已启用的存储库中软件包的所有版本
 dnf --showduplicates list ncurses-libs
 sudo dnf install ncurses-compat-libs (mysql用的)
+dnf info kubernetes-kubeadm
  
  
 Software 应用会自动更新软件包，关闭它update preferenes->关闭 automatic upate
@@ -3412,13 +3387,13 @@ bash_profile:当用户登录时,该文件仅仅执行一次 (/etc/profile是全�
  https://mirrors.tuna.tsinghua.edu.cn/fedora/releases/34/Everything/x86_64/os/Packages/s/ 
 		scim-pinyin-0.5.92-20.fc34.x86_64.rpm ,但已经没有五笔了
 ------
+------microsoft-edge-stable-97.0.1072.62-1.x86_64.rpm 	
+	Fedora 34 上安装依赖于libatomic.so.1 使用 dnf install libatomic.x86_64
+						  liberation-fonts 使用 dnf install liberation-fonts.noarch
+
+
 gsettings list-schemas | grep keyboard
 gsettings  list-keys org.gnome.settings-daemon.peripherals.keyboard
-
-
-
-
-
  
 ----Fedora 34  root 登录 
 #sudo vi /etc/gdm/custom.conf 在daemon区增加
@@ -3856,7 +3831,7 @@ nft -f <read-from-file>
 	
 链Chain
 	type :有filter(除netdev全支持),route(只支持ip和ip6),nat(只支持ip和ip6)
-	hook: 当family为 ip, ip6 ,inet 时, hooks可选值为 prerouting, input, forward, output, postrouting.
+	hook: 当family为 ip, ip6 ,inet 时, hooks可选值为 prerouting, input, forward, output, postrouting,在kernel 5.10以后只对Inet增加了ingress
 	policy: 可选值为 accept, drop, queue, continue, return.
 	priority : NF_IP_PRI_FILTER (0) 命令只用数字
 	
@@ -3869,7 +3844,9 @@ nft -f <read-from-file>
 	nft flush chain inet mytable mychain 
 	nft rename chain inet mytable mychain mychain2
 	nft delete chain inet mytable mychain2
-	
+	 
+	显示的所有Chain (不能指定表 myTable下)
+	nft list chains inet (chains多个s) 
 	
 规则Rules
  
@@ -3878,9 +3855,16 @@ nft -f <read-from-file>
 	nft replace rule [<family>] <table> <chain> [handle <handle>] <matches> <statements>
 	nft delete rule [<family>] <table> <chain> [handle <handle>]
 
-	
-	
-	
+	示例	
+	nft add chain inet mytable my_input_chain { type filter hook input priority 0 \; }
+	nft add rule inet mytable my_input_chain tcp dport ssh accept #放开了ssh 22端口 dport=destination port
+	#nft add rule inet mytable my_input_chain tcp dport ssh drop
+
+	nft insert rule inet mytable my_input_chain tcp dport http accept
+	再 nft list ruleset 相同的chain以{}子级方式显示在一起，可能22端口先drop再accept,最终是drop的
+	nft --handle list ruleset  #显示handle  数字如8
+	nft delete rule inet mytable my_input_chain handle 8
+
 	
 	
 ----------

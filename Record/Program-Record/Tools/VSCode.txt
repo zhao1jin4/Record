@@ -1,0 +1,1021 @@
+﻿ 
+ 
+免费 有windows,linux ,mac版本
+windows zip包  VSCode-win32-x64-1.51.zip 直接解压就可用，标题菜单都是黑色
+linux 下新的标题菜单都不是黑色,只有1.30.1才是黑色
+linux zip包和rpm code-1.39.2-1571154220.el7.x86_64.rpm 在 openSUSE下可安装 
+	
+.exe方式 默认安装目录 %HOMEPATH%\AppData\Local\Programs\Microsoft VS Code
+
+zip版本可以拖入vscode,但不能拖出vscode？？？ (不能像idea一样可以ctrl+c复制文件)
+User Installer(只是当前用户使用,安装在%USER_PROFILE%AppData\Local\Programs\Microsoft VS Code)版本可以拖动方式和外部文件相互复制
+ 
+ 
+默认插件安装目录 %USERPROFILE%\.vscode\extensions
+可以命令行加参数来修改  --extensions-dir [path]  
+快捷方式修改 Code.exe --extensions-dir D:\Program\vscode_data\extensions
+
+VSCode-win32-x64-1.39.2\bin\code --help
+	  --list-extensions
+	   --extensions-dir
+bin\code --list-extensions 还是使用默认的目录 
+bin\code --list-extensions  --extensions-dir D:\Program\vscode_data\extensions
+
+离线下载插件  .vsix文件 ，安装使用VSCode-1.xx\bin\code --install-extension <path\xx.vsix>  对兼容版本有要求 
+https://marketplace.visualstudio.com
+
+
+%USERPFORILE%\AppData\Roaming\Code\User\settings.json 是保存全局设置
+
+默认文件编码为UTF-8,
+Setting->Text Editor->Files-> Encoding 组默认为UTF-8
+如果想某个文件以GBK编码打开，在下方的栏上点UTF-8->弹出提示菜单 Open With Encoding->选择GB2312
+
+File->Open Folder...
+
+自带Git,HTML,PHP
+
+取消自动打开上次文件 
+File->preferences->windows 标签->Restore Windows 选择none
+
+会自动提示已经写过的内容
+
+按tab默认缩进两个空格,修改 File->preferences->Settigns->Common Used 找Editor: Tab Size 默认为4
+	有链接 Editor:Detect Indentation 可以关闭它, 有链接Editor:Insert space 可关闭
+
+左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
+		搜索parameter有Trigger parameter Hints 默认快捷键是ctrl+shift+space
+
+在写键的时候有下拉提示,左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
+
+右击文件-> format document(alt+shift+f) 可json,可格式化java代码
+
+view ->appearance-> hide/show sidebar ctrl+b 
+	view ->appearance-> hide/show panel ctrl+j  是底部面板，有terminal,output
+	F11 全屏,有时不能取消，要alt+v调出菜单
+	
+
+
+File->preferences-> extensions  可以在线安装 各种语言的 如 C/C++(MinGW C++),Scala,Kotlin
+
+对于像springboot项目,可不使用mvn spring-boot:run ,main方法上方就有Run或Debug链接
+
+右击方法名-> Find All References  ,  peek references (shift+F12)这个是popup窗口方式 , 打开调用这个方法的所有地方
+ 
+terminal窗口中可下拉选择gitbash,下次建立terminal 生效
+
+
+outline视图，打开方式 view->open view...-> 输入outline
+Go to symbol in editor (ctrl+shift+o) , 可以当outline快速定位方法
+
+右击文件名-> show type hierachy 看类的继承关系 
+
+运行也会自动保存 
+	Task:Save Before Run默认为always  
+	
+保存时自动格式化注释
+	Editor:Format On Save 默认是没有选中的
+		
+自带预览功能 Markdown 
+	打开.md文件右上角的Open Preview to the Side 按钮，即可预览
+	
+Go -> go to bracket (ctrl+shift+\ ) 在{和}处来回跳转
+Go -> Go to File (ctrl+p) 快速打开文件 
+				ctrl+p 比 ctrl+t  好的是有最近打开历史记录
+
+Go -> Go to line (ctrl+G ) 到行号F1后自动输入一个: ,同Idea
+
+ctrl+t 输入文件名来查找,可打开jar包里的类,F1后自动输入一个#,还可加@, 如F1后再输入#第一次不一定好使,一定要这里触发才行
+ctrl+` 显示隐藏 terminal,使用注意，如果像JAVA_HOME这种环境变量的修改，如果没有这把以前开过的terminal窗口删除，那么就一直使用老的环境变量，即使重启机器也是老的
+
+左侧树的缩进加大距离，preferences->setting->搜索tree:indent (workbench->appearance->tree:indent),默认8修改为32 (相当于4个空格)
+ 
+
+显示自动换行(其实还是一行),设置中 Editor: Word Wrap Column 可以设置一行长度, 默认80,可修改为120 提示Editor: Word Wrap 为 wordWrapColumn 或 bounded生效 ,可以设置为off 取消自动换行 
+
+
+取消综略图滚动条 
+	Preferences中搜索minimap在 Editor -> Minimap: Enabled取消复选框
+	
+同一文件在多处打开
+	ctrl+alt+点击方法调用处，在新的标签中打开文件,或者 工具栏上的按钮 
+	
+鼠标滑到行号右侧后才有图标按钮，但只对左大括号的行才有
+	ctrl+shift+[ 是折叠代码，当前光标在{中}，多次按向上层
+	ctrl+shift+] 是展开	
+	
+ctrl+ \  新的窗口，这个快捷键没有对应菜单项 ？？？	
+	
+----- Node JS
+打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
+
+
+-----自带比较工具
+ 右击文件->select for Compare ,再右击一个文件 -> compare with selected 
+
+
+-----自带Git功能 
+(View->Command Palette)ctrl+shift+p 或 F1,空项目时有提示，输入命令git:clone但会提示未尾有错误，不如TortoiseGit好用
+source control 视图-> 可以右击多个文件 -> discard change ,stage change 
+				右上角的...按钮->pull,commit(没有提示输入comment),undo last commit,show git output
+ 
+右上角的...按钮->commit 只能提交全部 stage 的，可加+或-号按钮，加入或移除stage列表(新建或修改都可以)
+ 
+Explorer视图中 右击文件 -> select for compare ，再右击另一个文件 -> compare with selected
+ 
+ 切换分支时,如有修改文件没有提交,也没有stage时,提示有 stash&checkout按钮,输入名字后,在切换分支完成时自动删除这个stash
+
+右上角的file annotation按钮->  toggle file blame ,在idea中也这样的功能
+ 
+---- 扩展(git history extension)
+右击文件/目录 -> Git:view file history
+
+--- 扩展Git History Diff 比 Git History 好用，虽然显示不是表格，但可以比较不同
+	右击文件/目录 -> GitHD:view file/folder history
+ 
+---- 扩展GitLens
+  Explorer视图中 右击文件 -> open file history 可以看到这个文件的提交历史 
+  安装后有左侧gitLens按钮，切换进视图，里有不少标签面板，如stash,branches都可以在repository中看
+  可以鼠标点哪行，显示最近修改时间，修改人，comment(包括没有提交的，stash的)
+---- 扩展 hexdump for VSCode
+右击文件->show 	hexdump
+		
+---- 扩展 WebAssembly
+作者为 WebAssembly Foundation  
+会高亮 wat 文件
+右击wasm文件->show  WebAssembly
+
+---- 扩展(React)
+%HOMEPATH%\AppData\Local\Microsoft\TypeScript\3.1\node_modules\@types\react-dom
+										   项目目录\node_modules\@types\react
+https://code.visualstudio.com/docs/nodejs/reactjs-tutorial
+
+----Vetur 扩展(Vue)
+vscode 打开 .vue文件 提示推荐安装 Vetur 扩展，才可高亮显示
+VS code 插件 Vetur 安装
+Go->Go to File 输入 ext install octref.vetur 安装 也可通过界面安装
+
+-----扩展 Debugger for Chrome  (microsoft 的)被Deprecated ,有内建的debugger
+	安装后,Debug视图->上方的设置按钮会多一个Chrome的选择,生成launch.json
+	看安装时的帮助可以配置url(也只可是本地服务)或者file,指定启动时的html首页(引用js),启动debug会自动(request为launch)打开chrome,如自己打开的Chrome可能不行
+	就可以在code中打断点，而不在浏览器中打断点了
+	{
+		"type": "chrome",
+		"request": "launch",
+		"name": "Launch Chrome against localhost", 
+		//"file":"${workspaceFolder}/index.html",
+		"url": "http://localhost",//url和webRoot是配置对的
+		"webRoot": "${workspaceFolder}"
+		//runtimeExecutable 配置chrome位置
+	} 
+	
+	launch.json 在[后按 alt+/ (在Keyboard shoutcut中为Trigger Suggest)出下拉提示 {}Chrome:Attach选中后自动出默认配置
+	##request为attach方式使用，在chrome启动的快捷方式后加参数  --remote-debugging-port=9222
+	(可以debug anjular项目)
+-----扩展 Debugger for Firefox 
+像Debugger for Chrome  
+
+
+-----扩展 ”PHP Debug” 是使用Xdebug
+打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言, 选PHP ->会自动生成launch.json
+	->下拉为Listen for XDebug,再点绿色启动按钮开启调试
+	浏览器中请求页， 有断点会停
+	服务器的根目录指向当前打开目录才可
+	lanunch.json中可以修改端口
+	(linux下单个文件不会停???,web的会停)
+--php.ini
+[Xdebug]
+zend_extension="D:/Program/php-7.4.3-Win32-vc15-x64/ext/php_xdebug-2.9.2-7.4-vc15-x86_64.dll"
+
+xdebug.remote_enable = on
+xdebug.remote_autostart = 1
+;host值是本机IP
+xdebug.remote_host = 192.168.1.102
+;对应phpStorm配置中xdebug的端口
+xdebug.remote_port = 9000
+
+---Visual Studio Code(vscode) 的Go  Extension
+	go env -w GOPROXY=https://goproxy.cn,direct 
+	go env -w  GO111MODULE=on  表示不下载源码 %USERPROFILE%\go\src下没有新增,%USERPROFILE%\go\pkg\mod(也有源码)和%USERPROFILE%\go\bin有新增
+	打开.go文件时  
+	提示 gopls 命令找不到,使用 go get -v  golang.org/x/tools/go/gopls 被墙了,如设置了go env -w GOPROXY=  也是可以的
+		https://github.com/golang/tools/tree/master/gopls
+		cd tools-master\go\gopls 执行 go install 
+		#又提示要github.com/jba/templatecheck@v0.5.0 (https://github.com/jba/templatecheck)
+		#下载  "https://proxy.golang.org/github.com/jba/templatecheck/@v/v0.5.0.mod"  失败
+		#go env -w GOPROXY=https://goproxy.cn,direct 再来
+	提示 go-outline  命令找不到,使用  go get -v github.com/ramya-rao-a/go-outline 安装,如设置了go env -w GOPROXY=  也是可以的
+	使用vscode的install按钮是可以的
+		( 
+			就一个main.go文件
+			又提示 不认导入路径  golang.org/x/tools/go/buildutil , get连接失败，被墙了
+			https://github.com/golang/tools/tree/master/go/buildutil 中有
+			项目下载下来,cd tools-master\go\buildutil 执行 go install
+			再go get -v github.com/ramya-rao-a/go-outline  就可以了, ~\go\bin下就有go-outline.exe
+		)
+	
+	#打开.go文件 -> 调试启动按钮 提示 "dlv" 找不到.使用  go get -v github.com/go-delve/delve/cmd/dlv 安装,~\go\bin下就有dlv.exe
+	#	(//上可以成功，这部分不用
+	#		https://github.com/go-delve/delve/tree/master/cmd/dlv  是可浏览的
+	#		也可下载后进入目录  go install
+	#	)
+	新版本用 dlv-dap，支持远程调试，使用是一样的
+	
+	#写代码时 类.时  提示 gocode 找不到 ,  go get -v github.com/uudashr/gopkgs/v2/cmd/gopkgs  安装 
+	
+	安装后,Debug视图->create a launch.json file 链接->Go: Launch file 或者Go: Launch package, 生成.vscode/launch.json
+	{ 
+		"version": "0.2.0",
+		"configurations": [
+			  {
+				"name": "Launch file",
+				"type": "go",
+				"request": "launch",
+				"mode": "debug",
+				"program": "${file}"
+			}
+		]
+	}
+	当Go: Launch package时，一个目录（工作区）只可有一个main函数 
+	  {
+            "name": "Launch Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}"
+       }
+	   
+	debug时不依赖gdb 
+	go help get ,显示 -v verbose,-u update
+	
+
+同时debug两个go文件(如服务端和客户端),调用一个进行中,再启动另一个调试,CALL STACK 视图显示多个进程 不行????
+ launch.json中增加如下,测试不行???
+ { 
+    "version": "0.2.0",
+    "configurations": [
+		{
+            "name": "Client",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/src/adv/mynet/myrpc_client.go"
+        },
+        {
+            "name": "Server",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/src/adv/mynet/myrpc_server.go"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Server/Client",
+            "configurations": [
+                "Server",
+                "Client"
+            ],
+            //"preLaunchTask": "${defaultBuildTask}"
+        }
+    ] 
+	只能文件在不同目录，启动两个vscode来做
+	
+	 
+	
+
+Go不是在terminal窗口中运行，而是在Debug Console 窗口运行，所以读不到标准输入？？
+可能lauch.json中为 "type": "go",如C++的 为"cppdbg"是在terminal窗口中运行的
+
+fmt.Printf("请输入两个数\n")
+var x, y int
+fmt.Scan(&x, &y)
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
+fmt.Print("请输入")
+in:=bufio.NewReader(os.Stdin)
+str,_:=in.ReadString('\n'); //这里才可开始读,以\n做为结束
+fmt.Print(str)
+
+
+---------  Python  扩展
+提示安装 pylint,也可不安装
+打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言, 选Python file ->会自动生成launch.json
+下拉显示Python:Current File ,打断点，启动按钮，即可调试
+--------- C/C++  扩展
+Mac 下只支持 clang, clang --version
+windows 安装  MinGW-x64 
+	安装时architecture下拉选择x86_64,默认安装在C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
+	放PATH环境变量,g++ version 版本为 8.1
+	
+目前官方文档使用的是MSYS2 的MinGW 
+ pacman -Ss gtk4   
+ pacman -S --needed mingw-w64-x86_64-gtk4  共依赖121个包  C:\msys64\mingw64\include\gtk-4.0 做配置目录，下有gtk/gtk.h
+      /usr/include/gio-unix-2.0 变为         C:\msys64\mingw64\include\gio-win32-2.0 ,还是有其它的依赖.h找不到
+
+　
+linux下 开发安装 libstdc++6-devel-gcc7 或 libstdc++6-devel-gcc9  软件包
+	
+写示例程序 
+#include<iostream>
+using namespace std; 
+int main()
+{
+    cout<<"hello"<<endl;
+	int input;
+    cout<<"please input ";
+    cin>>input;
+    cout<<"input="<<input;
+}
+	
+ Terminal > Run Build Task ->提示选择 C/C++: g++.exe build active file (另一个是gcc)
+ 
+ 生成.exe, 运行后没有打印hello?  (或许用 Run-> Run without debuging) 重启安装完.NetFramework4.6.2后就好了
+ 
+点debug按钮，win7下提示要安装 .NetFramework4.6.2(下载runtime版本即可) (也可用Cygwin)，默认就有生成  miDebuggerPath 指向gdb
+测试成功
+
+Linux下debug (windows MinGW) 可能要 Run and Debug按钮 (或者  Run-> Start Debug ) ->选择C++(GDB/LLDB)  ->选择一个XXX build and debug active file ，会生成一个tasks.json文件   "program": "${fileDirname}/${fileBasenameNoExtension}",
+(这样可以一个项目中有很多main方法，只编译选中的文件,但如是多个文件组成的项目就不行了)
+
+
+如只是点 create a launch.json链接 （选择C++(GDB/LLDB)  ->选择一个default configuration） 只生成一个launch.json文件，如debug，要修改  "program": "enter program name, for example ${workspaceFolder}/a.out",
+
+因是在terminal窗口中运行，所以读到标准输入
+
+---配置引用库
+ctrl+, （左边设置图标->settings）打开设置 ->Extension->C/C++ ->  找C_Cpp>Default:Include Path下有Edit Settings.json 
+	这个文件生成用户目录下%USERPROFILE%\AppData\Roaming\Code\User\settings.json (~/.config/Code/User/settings.json),是系统用户级的
+
+(View->Command Palette)ctrl+shift+p ->输入到有提示C/C++: Edit Configurations(UI) 在Include path区One include path per line下加新的一行，失去焦点保存
+												C/C++: Edit Configurations(JSON)会生成一个 项目级的.vscode/c_cpp_properties.json 文件 "includePath": []中增加
+											
+以上工具没有显示错误,只是写代码时用的
+
+
+debug 做如下,测试成功,要有src目录和target目录
+.vscode/launch.json  
+	修改  "program": "${workspaceFolder}/target/${fileBasenameNoExtension}",
+	增加　,"preLaunchTask": "g++build"          
+
+.vscode/tasks.json  　(新增加文件)   
+  {
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "g++build",
+            "command": "g++",
+            "args": [　
+                "-I/usr/include/gtk-4.0",
+                "-I/usr/include/pango-1.0",
+                "-I/usr/include/glib-2.0",
+                "-I/usr/lib64/glib-2.0/include",
+                "-I/usr/include/sysprof-4",
+                "-I/usr/include/harfbuzz",
+                "-I/usr/include/freetype2",
+                "-I/usr/include/libpng16",
+                "-I/usr/include/libmount",
+                "-I/usr/include/blkid",
+                "-I/usr/include/fribidi",
+                "-I/usr/include/libxml2",
+                "-I/usr/include/cairo",
+                "-I/usr/include/pixman-1",
+                "-I/usr/include/gdk-pixbuf-2.0",
+                "-I/usr/include/graphene-1.0",
+                "-I/usr/lib64/graphene-1.0/include",
+                "-I/usr/include/gio-unix-2.0",　
+                "-lgtk-4",
+                "-lpangocairo-1.0",
+                "-lpango-1.0",
+                "-lharfbuzz",
+                "-lgdk_pixbuf-2.0",
+                "-lcairo-gobject",
+                "-lcairo",
+                "-lgraphene-1.0",
+                "-lgio-2.0",
+                "-lgobject-2.0",
+                "-lglib-2.0",
+                "-g",
+                "${workspaceFolder}/${relativeFile}",
+                "-o",
+                "${workspaceFolder}/target/${fileBasenameNoExtension}",
+
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            }
+        }
+    ],
+    "version": "2.0.0"
+}          
+ 
+
+
+
+手工g++命令加参数编译可以， g++ -o mysql_conn C_MySQLSelect_OK.C  -I ~/mysql-8.0.18-linux-glibc2.12-x86_64/include/ -L ~/mysql-8.0.18-linux-glibc2.12-x86_64/lib/  -l mysqlclient
+运行就找不到库 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/mysql-8.0.18-linux-glibc2.12-x86_64/lib  就可以了
+
+----windows下对于安装 MSVC Build Tool 做debug 
+要 Run and Debug按钮 (或者  Run-> Start Debug ) ->选择C++(Windows)->选择一个 cl.exe Build and debug Active file
+报错,help-> toggle develop tools是chrome的F12, 原因是code没有运行在 Developer Command Prompt
+开始搜索Developer,找到 Developer Command Prompt for Visual Studio 输入 cl 命令做测试，使用 code .  启动vscode才可,第二个参数表示打开当前目录
+debug 测试成功  参考 Rust/VC 中安装 MSVC Build Tool
+
+--------- Clang LLVM   扩展 codeLLDB
+Run and Debug按钮 (或者  Run-> Start Debug ) ->多一个 LLDB -> 生成的lanuch.json 中 "type": "lldb"
+
+lldb 在path中
+
+---launch.json 使用lldb建立的 ,debug win10下测试成功
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug",
+            "program": "${workspaceFolder}/bin/${fileBasenameNoExtension}.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Clang++Task"
+        }
+    ]
+}
+---launch.json  使用c++建立的,debug win10下测试成功
+修改 
+"type"为 "lldb"
+"miDebuggerPath": "D:\\App\\LLVM\\bin\\lldb.exe",
+"program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+即
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Clang启动",
+            "type": "lldb",
+            "request": "launch",
+           
+			"program": "${workspaceFolder}\\bin\\${fileBasenameNoExtension}.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false, 
+            "miDebuggerPath": "D:\\App\\LLVM\\bin\\lldb.exe",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Clang++Task"
+        }
+    ]
+}
+ ---task.json
+ {
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "Clang++Task",
+            "command": "D:\\App\\LLVM\\bin\\clang++.exe",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\bin\\${fileBasenameNoExtension}.exe"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "调试器生成的任务"
+        }
+    ],
+    "version": "2.0.0"
+}
+
+ 
+win7 下不行 报 "Could not load \"c:\\\\Users\\\\dell\\\\.vscode\\\\extensions\\\\vadimcn.vscode-lldb-1.6.10\\\\lldb\\\\bin\\\\liblldb.dll\" (err=0000007E)"
+文件是有的，但路径是用\\\\不对的 \"更不对，是用 powershell???
+
+
+
+
+--------- Rust扩展 preview
+目前不能打断点，Settings->搜索break, Debug:Allow Breakpoints Everywhere 做选中
+要 Run and Debug按钮 (或者  Run-> Start Debug ) -> windows系统 选择C++(Windows) ->修改launch.json中的   
+	"program": "${workspaceFolder}/target/debug/${workspaceFolderBasename}",
+cargo建立项目 调试测试成功，但如修改文件，要手工编译才生效
+
+launch.json 手工增加 "preLaunchTask": "rust_cargo_build", 
+preLaunchTask对应的值 rust_cargo_build 就是在tasks.json里的label字段,可复制 C/C++: g++.exe build active file 生成
+--tasks.json
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "rust_cargo_build",
+            "command": "cargo",
+            "args": [
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
+
+--最终 launch.json (windows VC)
+{ 
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "win rust cargo",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/target/debug/${workspaceFolderBasename}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [], 
+            "preLaunchTask": "rust_cargo_build", 
+            "externalConsole": false
+        }
+    ]
+}
+cargo项目，修改文件,debug 测试成功
+
+------rustc 方式 可运行，测试debug也成功
+---launch.json
+{ 
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "rustc run  current file",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/target/${fileBasenameNoExtension}.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "preLaunchTask": "rustc_build", 
+            "externalConsole": false
+            
+        }
+    ]
+}
+----tasks.json
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "rustc_build",
+            "command": "rustc",
+            "args": [
+                "${workspaceFolder}/src/${fileBasename}",
+                "--out-dir",
+                "target",
+                "-o",
+                "${workspaceFolder}/target/${fileBasenameNoExtension}.exe",
+				"-g"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
+
+//vscode 不能从标准输入 ,只能用命令行才行
+use std::io;
+fn main() { 
+    println!("Please input your guess."); 
+    let mut guess = String::new(); 
+    io::stdin().read_line(&mut guess)
+        .expect("Failed to read line"); 
+    println!("You guessed: {}", guess);
+
+}
+
+RUST panic 时 vscode debug 控制台中文乱码???  ,rustc命令行运行正常
+
+
+---vscode扩展 Better TOML (rust中的.toml文件编辑器)
+
+----Kubernetes 扩展
+默认支持yaml语法高亮,按tab缩进的是两个空格
+
+(vscode-1.30.1版本测试无效，要新的vscode-1.39.2)是Microsoft发布的 说是支持Develop, deploy and debug ,支持Minikube 环境,需要kubectl 命令
+	可以鼠标滑到有效的键上有文档提示 
+	但如果键写错不会提示 
+
+-----扩展 Java Extension Pack (Preview )Red Hat的
+包括如下扩展
+Language Support for Java by Red Hat 有gradle(不支持jdk13)支持
+Debugger for Java   要有JAVA_HOME环境变量,java在PATH中
+Maven for Java 		要mvn命令在PATH中
+Java Dependency Viewer
+Visual Studio IntelliCode
+
+右击工作区 -> Create Maven Project 
+(也可(View->Command Palette) ctrl+shift+p,空项目时有提示，输入命令maven: create Maven project，就是执行mvn命令)
+
+ctrl+. 即 quick fix 可导入类，重命名文件
+写代码像eclipse一样智能，ctrl+点类名会跳到源码，鼠标滑类上有说明 ，写类会提示所在包，自动加import
+粘贴的类没有导入,光标在类上,提示点quick fix->import xxxx
+
+右击文件->Source Action...->Override/Implement Method 和 Generate Getter and Setter
+
+
+Debug视图->上方的设置按钮->选Java ->生成launch.json
+打开有main(springboot项目加devtools)方法的.java文件 ,下拉选择Debug (Launch) - Current File 即可Debug
+
+File-> add folder to workspace...选择maven项目主目录
+
+-----扩展 Extension Pack for Java (Preview )是 Microsoft的
+包括  Red Hat的 Language Support for Java(Preview ) 要求至少JDK 11
+			除了使用JAVA_HOME 环境变量 生效的条件是要把的打开的vscode窗口关闭，再重新打开才行
+			#user.home(preferences->settings->extension->java下找Home组,
+				可搜索java.home->点edit settings.json,位于%APPDATA%\Code\User) java.home过时使用java.jdt.ls.java.home替换,设置影响界面显示报错如JDK8中没有的类，不影响启动运行
+			自动增加 "files.exclude" 项
+			
+			如果有多个JDK去编译(写的时候会自动提示的，如消失提示要重写""),这个在maven项目中指定编译级别为1.8时使用  view->command palette (调色板，颜料 ctrl+shift+p )搜索java:提示有Configure Java Runtime
+			"java.configuration.runtimes": [
+			  {
+				"name": "JavaSE-1.8",
+				"path": "/path/to/jdk-8",
+			  },
+			  {
+				"name": "JavaSE-11",
+				"path": "/path/to/jdk-11",
+			  },
+			  {
+				"name": "JavaSE-14",
+				"path": "/path/to/jdk-14",
+				"default": true
+			  },
+			]
+			
+			
+	Debugger for Java
+	Test Runner for Java
+	Maven for Java
+	Project Manager for Java
+	Visual Studio IntelliCode
+	
+
+java  右击文件->Source Action...-> organize import(shit+alt+o) 也可做批量导入,如有同名会提示做选择
+			鼠标滑过增加~错误处，提示 quick fix(ctrl+.)，如增加修改包名，也可光标放在红线处出现灯泡图标，点击有操作菜单
+		右击文件->refactor...->move..选择要移动到的目标包,也可在左侧的树中拖动
+		如重命令名，要发在左侧树中会提示refactor
+		
+Run-> add configuration 打开 launch.json 文件  ,在里面增加"args": " --spring.profiles.active=local"参数，不使用${file}的好处是不用打开文件即可启动
+ { 
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+			"args": " --spring.profiles.active=local"
+        },
+        {
+            "type": "java",
+            "name": "Launch xx Project",
+            "request": "launch",
+            "mainClass": "xxx.MainApp",
+            "projectName": "xxxProject",
+			"args": "--spring.profiles.active=local",
+			"vmArgs": "-Xms256m",
+			"preLaunchTask":"mvn_compile" ##mvn compile本身就是增量编译
+			"cwd": "${workspaceFolder}" #默认值 ${workspaceFolder}，是启动服务前的cd哪个目录
+        }, 
+		{ #java 远程调试,测试成功,但速度比idea慢太多了，遇到了java debug时源码行号不的情况 ，相同的代码在idea下就正常 (velocity)？？？
+			"type": "java",
+			"name": "remate debug",
+			"request": "attach",
+			"projectName": "myAPP",
+			"hostName": "remoteIP",
+			"port": "8000",
+
+		}
+    ]
+}
+ 
+ ---tasks.json  这个应该正常不需要的，在启动服务时正常会提示很多警告的，备份，有是明明编译有错，这个mvn compile也能能过？？？
+ {
+    "tasks": [
+        {
+            "type": "shell",  # shell类似于 cppbuild
+            "label": "mvn_compile", 
+            "command": "mvn",
+            "args": [
+                "compile"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
+
+有时报 The container 'Maven Dependencies' references non existing library 'D:\MVN_REPO\com\sun\tools\1.5.0\tools-1.5.0.jar' ( JDK1.8中的.jar 手工放maven仓库也不行的 )
+	   或 Missing artifact com.sun:tools:jar:1.5.0 (除非Proceed按钮)
+  <dependency>  
+		<groupId>com.sun</groupId>
+		<artifactId>tools</artifactId>
+		<version>1.5</version>
+		<scope>system</scope>
+		<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
+	</dependency>
+ jdk1.8才有tools.jar
+
+如项目只能用jdk1.8运行，不能用jdk11运行，就要修改项目
+	
+	
+vscode 对 Spring boot 项目使用比较方便的，不用任何配置支持 org.mapstruct(依赖 mapstruct-processor的方式，非插件)
+	还可以提示maven引用jar包的版本有安全问题，是错误级别，不能启动(除非Proceed按钮)
+            
+Mavn for java扩展设置中 maven › Executable: Prefer Maven Wrapper 默认是选中的 
+	Maven: Settings File 提示是使用默认的~/.m2/settings.xml
+	
+	Configuration > Maven: Global Settings
+	Path to Maven's global settings.xml
+
+
+Java project manager 扩展设置可以设置包的显示方式,flat或hierachical,像eclipse
+
+
+ ctrl+shift+p(F1) -> maven:history
+  
+左侧的 maven标签 
+	有刷新按钮
+	项目展开,有lifecyle里有clean,install....,也可展开plugin,有的可以右击->debug
+	
+	右击项目-> show dependency,效果同 mvn dependency:tree,只是文本,我的不能折叠???官方演示可以？？？
+							有时有BUG，看依赖明明显示已经注释  ，但还能看到 （可能是要重启刷新 ）
+							
+	如要折叠树 maven面板可以展开里面的 dependencies看依赖树，java Project面板中有所有依赖jar,没有树结构的，
+	如果要有树又可以搜索, maven面板右击项目-> show dependency
+ 
+左侧的 Java Projects 标签 
+	不能对maven的父子项目做折叠
+	可以看依赖jar包里的东西，会自动定位打的文件在左侧树的哪里
+	右上角... -> Sychronize  with editor
+	右上角... -> hierarchical view 或者 flat view 只是对包名的显示有影响 
+	右上角... ->Clean workspace ,提示重启vscode
+	
+	 ~\AppData\AppData\Roaming\Code\User\workspaceStorage  里面东西可以会很大，3G
+	 
+Java   扩展设置 中 autobuild 默认是 enabled 
+ 
+
+代码格式化 格式 java extension -> Format -> Settings: Url 可以使用eclipse的xml ,##这个测试没用？？？？
+	%USERPROFILE%\AppData\Roaming\Code\User\settings.json
+						%APPDATA%\Code\User\settings.json
+	文件中的 "java.format.settings.url": "D:\\_work\\eclipse_formatter.xml"
+
+	右击文件 -> format document with ...->如有多个，可以选择一个默认的，目前只有一个 Language support For Java(TM) By Redhat
+	 插件页的帮助命令有
+		Java: Open Java Formatter Settings 打开的也是eclipse的配置的文件 
+		Java: Update project
+		Java: clean the java language server workspace  
+
+		属性有
+		java.format.settings.profile 设置页里也有
+		
+---vscode java 问题	
+遇到了java debug时源码行号不的情况 ，相同的代码在idea下就正常 (velocity)？？？
+
+java debug时，只能第一次 到List是可以看数据，如果第二 次/级 List(List里的属性又是List)不能看数据？？？，
+		 去除java 黄色警告，如泛型检查，idea没有,如何去除？？？
+
+进入.jar中的类时，有时不会自动找源码jar包，如javax.crypto.spec 就看不到 (jdk11)？？？
+	右击打开的class文件->attch source ->选择xxx-sources.jar	找不到??? 
+	对于maven项目没有下载.jar包, 也没有地方单独下载这个.jar包源码(idea可以) 
+
+vscode java 不会自动更新maven snapshot的jar包，刷新没用？？？过了一会又好了，比较慢？？
+	一定要在idea中更新过了也报错，还要重启vscode 项目窗口才行，(直接重启时会自动更新)
+	mvn -U verify 会下载snapshot,也会compile(validate不会下载)
+	java project标签-》右击项目->update project  (但可以出现Java Build Status标签的terminal 修改文件保存，日志显示Building) 也不能更新 jar包？？
+
+vscode  java 刚修改的增加controller中的方法， 总是找不到， 再启动服务也无效？？ 原因是没有编译到target中(有的类编译有错的，也没有提示)
+		有时找不到启动类，是因没有clean后target没有类了，必须再手工 mvn compile才行,没有按钮触发？？？
+		原因启动命令是%USERPROFILE%\AppData\Local\Temp\中的一jar包，里面只有一个MANIFEST.MF文件 ，Class-Path: 有很多项,指向的是本地maven仓库的jar
+vscode 生成toString不带父类的属性，只能+super.toString();格式是[],和数组容易混，没找到怎么修改为{}
+vscode 不能找jar包中的文件,如logback
+
+在移动java文件提示窗口做重构时时,有时会出错，就不会修改包名，一这下要先备份再操作
+
+pom.xml 文件中不能ctrl+点击 <dependency> 进入看依赖的pom.xml
+vscode 不能取消格式化 javadoc 
+
+---
+vscode 提示安装 Dependency Analytics (redhat的)
+	https://github.com/fabric8-analytics    分析 pom.xml 的  vulnerable 使用 Snyk ，也支持其它语言go,npm
+	右击pom.xml文件 -> dependency analytics report ...是使用Snyk在线分析引用的.jar安全等问题
+---扩展 Java Decompiler  支持三个反编译器
+	
+	CFR 	https://www.benf.org/other/cfr/  支持到  Java 9, 12 & 14的特性代码，   cfr-0.151.jar (Feb 2021)
+		使用java -jar cfr-0.151.jar Xxx.class --methodname toString --outputdir /tmp/decompile_code
+		
+	Fernflower idea自带的，也是它自己的
+	
+	Procyon	 https://github.com/mstrobel/procyon
+	
+	跟踪代码到进入class文件时 默认使用 fernflower(生成的代码的字串是\uXXX形式)
+	java.contentProvider.preferred  可以点旁边的链接看 User(这个是生效的)和workspace 两级的配置
+	提示文本为 Preferred content provider (a 3rd party decompiler id, usually)
+	可修改为 cfr (生成的代码的字串是\uXXX形式),
+	procyon ctrl 点不进类 可能重新启动vscode,也是(生成的代码的字串是\uXXX形式) 
+	
+---扩展 Local History 作者xyz  
+	本地历史记录  ,打开的目录中生成.history目录,要.gitignore中增加.history/	
+---扩展 Lombok Annotations Support for VS Code  
+可以解决lombok编译错误
+要求maven加入  (https://projectlombok.org/setup/maven  , https://projectlombok.org/setup/gradle)
+	<dependency>
+		<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		<version>1.18.20</version>
+		<scope>provided</scope>
+	</dependency>
+%APPDATA%\Code\User\settings.json 中有引用 lombok.jar	后，前面加dependency就可以删除了
+ 
+ 编译不报错，但在使用时遇到过spring rest 请求Controlle的参数Bean没有填充值 ???
+-----vscode 扩展Gradle for Java  是microsoft的
+	 右击buil.gradle文件->show gradle task 会跳到左侧多的标签(找不到build任务，作用不大)
+	 
+	要用gradle build命令才能生成 app/build/outputs/apk/debug/app-debug.apk
+
+---vscode 扩展Android
+作者  adelphes 
+描述 为 Android debugging support for VS Code
+
+可看.webp图片文件 
+
+view ->command palette ... (ctrl+shift+p) ,输入android提示有android: view logcat (要启动了模拟器)
+
+左侧Debug按钮视图中,create a launch.json file或Run And Debug按钮(有时 下拉列表选择add configuration再点旁边的设置按钮)->选择Android 生成两配置
+{
+    "version": "0.2.0",
+    "configurations": [ 
+        {
+            "type": "android",
+            "request": "launch",
+            "name": "Android launch",
+            "appSrcRoot": "${workspaceRoot}/app/src/main",
+            "apkFile": "${workspaceRoot}/app/build/outputs/apk/debug/app-debug.apk",
+            "adbPort": 5037
+        },
+        {
+            "type": "android",
+            "request": "attach",
+            "name": "Android attach",
+            "appSrcRoot": "${workspaceRoot}/app/src/main",
+            "adbPort": 5037,
+            "processId": "${command:PickAndroidProcess}"
+        }
+    ]
+}
+
+上面的 Gradle Tasks 扩展生成apk后,选择Android launch ，点运行按钮可以debug
+
+
+debbug android 时报错找不到源码，提示没有设置ANDROID_HOME，而不是ANDROID_SDK_ROOT
+
+---vscode 扩展  Android iOS Emulator 
+主要是为Android使用的
+
+
+File -> Preferences -> Setting -> User Setting -> Extensions -> Emulator Configuration 
+	默认为 ~\\Sdk\\emulator, 
+	如当前系统为windows,要在windows处设置为 %USERPROFILE%\AppData\Local\Android\sdk\emulator,注意前不能有空格
+	
+	
+view ->command palette ... (ctrl+shift+p) ->输入  Emulator->提示 view android emulators,会执行  %USERPROFILE%\AppData\Local\Android\sdk\emulator\emulator  -list-avds
+	选择后又提示设置 ANDROID_SDK_ROOT (环境)变量
+
+
+
+---android
+sdkmanager --list 提示 explicitly with --sdk_root= or move this package into its expected location: <sdk>\cmdline-tools\latest\
+
+按提示移动目录结构，就不用单独下载了
+看到有cmdline-tools;latest (就是刚下载的) 和  platform-tools
+
+sdkmanager --install  platform-tools    第一次要 y接受license
+sdkmanager --install  extras;google;usb_driver 
+sdkmanager --install  extras;intel;Hardware_Accelerated_Execution_Manager   描述为 Intel x86 Emulator Accelerator (HAXM installer)
+
+再安装带版本的 build-tools;31.0.0 ,--list 没有显示31是什么版本(api-31是android 12)
+sdkmanager --install  build-tools;31.0.0  platforms;android-31  
+
+模拟器
+#sdkmanager --install  system-images;android-31;default;x86_64 #下载安装模拟器包
+#avdmanager create avd  --name myAVD -k system-images;android-31;default;x86_64 -d "Nexus 5" #建立模拟器
+	 -c --sdcard  : Path to a shared SD card image
+	 -p --path 默认在~/.android/avd/目录下
+	 -d --device 是使用 avdmanager list device 看的值, 没有屏幕尺寸，android studio显示为分辨率
+	  -d  6 	#6是id值 
+	  -d "Nexus 5" #是index的值   (6 和 "Nexus 5"是同一个，有下方的触模按钮，旁边的按钮无效 )
+	  
+#emulator -avd myAVD #启动,是老式的界面,命令在emulator 目录下，提示定义 ANDROID_SDK_ROOT 变量
+	 -debug <tags>     enable/disable debug messages
+	 
+#avdmanager list avd #列出已经有的模拟器
+#avdmanager delete avd  --name myAVD  #删除指定模拟器
+
+-----扩展 MySQL ,有界面,非常好用
+	作者 cweijan 
+	描述 Database Client for vscode
+	安装后左侧工具栏多出database和nosql两个按钮
+	支持MySQL,PostgreSQL,SqlLite,MongoDB,Redis,ElasticSearch,SSH(terminal和sftp),FTP (估计都是node做的)
+	点数据库旁边的open query按钮，SQL高亮
+	
+	-- MySQL 扩展,作者Jun Han ,描述 MySQL management tool,不如上面的	
+		在explerer中多了一个mysql面板->连接不友好，不能设计表结构，不能UI修改表数据
+
+	
+-----扩展 Dependency Analytics
+	是 redhat的，支持 mvn ,npm ,go,python,要PATH中这些命令
+	
+-----扩展 Spring Initializr Java Support(microsoft)
+(View->Command Palette)ctrl+shift+p,空项目时有提示，输入命令Spring Initializr:create maven project
+也是下载
+
+-----扩展 Spring Boot Extension Pack(pivotal)
+spring tool suite官方支持vscode 
+包括 Sring Boot Tools(pivotal),Spring Initializr Java Support(microsoft),Spring Boot Dashboard(microsoft)
+
+(View->Command Palette)ctrl+shift+p 或 F1后按 删> 再输入# 或者直接ctrl+t(Go->go to Symbol in workspace)  
+	#@ 可以查可以查全部@开始的注解，跳到所在位置
+	#@/ 可查所有@RequestMapping,方便查定义路径
+	#@+ 可查所有Spring Bean
+	
+写application.properties或application.yml会有提示
+但properties文件不能对中文做编码???
+
+-----扩展XML
+根据DTD,Schema 可写时有提示
+-----扩展 .proto  
+vscode-proto3 (作者，无名气) 语法高亮 ，括号，语法验证，代码完成
+Protobuf support(作者，无名气) 只语法高亮，括号,功能差一点。
+
+
+
+-----扩展 Tomcat for Java (作者，无名气)作用不大
+File->preferences->settings->extensions->tomcat configuration...->配置tomcat workspace指向空目录
+在tomcat server视图中点+ ->选择tomcat所在目录，会复制到上面的workspace目录，放配置和war等
+
+只可右击.war包，才可Debug
+
+pom.xml中修改classes文件的输出目录，对vscode实时修改文件的编译没有效果???
+右击建立tomcat项->custom JVM options 加 "-cp E:\code_workspace\java_project\mvn_web\myapp\target\classes"没用,maven也依赖很多.jar包
+
+maven插件Jetty不能识别@WebServlet
+
+------Remote - WSL 
+为windows sub linux使用的
+是Microsoft的，目前还是Preview
+
+wsl的终端中运行code .    ,F1 选择 Remote-WSL: New Window
+	里面使用的目录全是linux格式的以/开头的目录，里面的terminal也是linux环境
+
+
+-----扩展Jetty for Java(作者，无名气)
+类似  Tomcat for Java
+
+-----扩展Gadle (作者，无名气)
+
+-----扩展Kotlin (作者，无名气)
+
+-----扩展Scala Syntax (official)
+
+-----扩展 Drools (作者，无名气)
+-----扩展 Freemarker 
+
+-----扩展 Thymeleaf
+
+
+------SonarLint 有eclipse,idea,vscode版本
+ 
+

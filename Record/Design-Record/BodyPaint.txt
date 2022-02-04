@@ -1,1 +1,2 @@
-﻿
+﻿maxon 的 BodyPaint 还有一个有名的 Cinema 4D
+Adobe 的 Substance 3D  类似于 C4D

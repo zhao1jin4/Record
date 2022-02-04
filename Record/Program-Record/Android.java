@@ -1,5 +1,6 @@
 
-Monkey 是Android SDK提供的一个命令行工具， 可以简单，方便地运行在任何版本的Android模拟器和实体设备上。 Monkey会发送伪随机的用户事件流，适合对app做压力测试
+API 参考
+https://developer.android.google.cn/reference/packages
 
 -------------Android 更新 下载
 https://developer.android.google.cn  可用
@@ -17,47 +18,48 @@ https://mirrors.tuna.tsinghua.edu.cn/help/AOSP/      Android Open Source Project
 
 翻墙方法 
 免费的   1. lantern 蓝灯 (可上google,但下载Android SDK 还要设置镜像地址mirrors.neusoft.edu.cn )  
--------------windows/mac 下载选择  
 
-1. Intel x86 Emulator Accelerator(HAXM installer)
+
+-------------windows/mac 下载选择   
+ 
+1. Intel x86 Emulator Accelerator(HAXM installer),windows 对于使用模拟器的
   mac有但不能Mac运行在虚拟机中,提示使用ARM镜像(没有最新的,速度慢10倍)或者VMware打开CPU虚拟化Inter VT-x(测试可以,启动时提示GPU driver不影响使用)
   linux使用KVM
-  
-		HAXM=Hardware Accelerated Execution Manager
+  Windows 使用 HAXM=Hardware Accelerated Execution Manager
 		运行 android-sdk-windows\extras\intel\Hardware_Accelerated_Execution_Manager\silent_install.bat (MAC是silent_install.sh) (也可intelhaxm-android.exe)
 	    如启动模拟器 要求BIOS 打开 Virtualization Technology(VT)  VT-x  (VT-x不能被Hyper-V占用，即安装了docker就会)
-2. google usb 可能些手机不能识别
+		
+2. google usb (windows)可能些手机不能识别
 	右键单击[我的电脑] -> 属性 -> 设备管理器->右键单击[有问号的设备] -> 属性 -> 详细信息 -> “属性”下拉列表框选择：硬件 Id
-    右键单击选复制，如我的RedMi 5A 是 
+    右键单击选复制
+	
+	如我的RedMi 5A 是 
 		USB\VID_2717&PID_FF48&REV_0318&MI_01
-		USB\VID_2717&PID_FF48&MI_01
-
+		USB\VID_2717&PID_FF48&MI_01 
 	打开 extras\google\usb_driver\android_winusb.inf 在 [Google.NTamd64] 下面添加
+		;RedMi 5A
 		%SingleAdbInterface%        = USB_Install, USB\VID_2717&PID_FF48&MI_01
 		%CompositeAdbInterface%     = USB_Install, USB\VID_2717&PID_FF48&REV_0318&MI_01
 
 	指定搜索驱动目录,如果有无法验证该驱动的发布者提示，不管它只管安装就是了 
 	
 	有的手机(Huawei) 设置ID显示有???号可以使用 360驱动.如果能识别会提示(ADB Interface)点击安装的
+	
+	如我的RedMi 9A 是 
+		USB\VID_2717&PID_FF08&REV_0223 
+		USB\VID_2717&PID_FF08  
+	打开 extras\google\usb_driver\android_winusb.inf 在 [Google.NTamd64] 下面添加
+		;RedMi 9A
+		%SingleAdbInterface%        = USB_Install, USB\VID_2717&PID_FF08
+		%CompositeAdbInterface%     = USB_Install, USB\VID_2717&PID_FF08&REV_0223
+		
+		MiUI 系统更新版本后，这个值还会变
+		;RedMi 9A
+		%SingleAdbInterface%        = USB_Install, USB\VID_2717&PID_FF48&MI_01
+		%CompositeAdbInterface%     = USB_Install, USB\VID_2717&PID_FF48&REV_0223&MI_01
 
- LLDB, CMake 是和NDK一起用的
-LLDB 是 a next generation, high-performance debugger. 
-CMake 是 cross-platform  , build, test and package
-
-
-GPU Debugging tools
-
-source 和 goole repository是android studio初始配置会下的
-模拟器要单独下载ware和tv的(table ,phone用真机行吗)
-
-
-android-5=api 21
-android-8.1=api 27
-android-9=api 28
-android-10=api 29
-android-11=api 30
-(新建选择minSDK 21,app/build.gradle中minSdkVersion 21 ,targetSdkVersion 28,compileSdkVersion 28)
-(新建选择minSDK 27,app/build.gradle中minSdkVersion 27 ,targetSdkVersion 30,compileSdkVersion 30 )
+		
+---- 
  
 ---------------问题解决方法
 真机报
@@ -68,7 +70,260 @@ INSTALL_FAILED_USER_RESTRICTED 原因是在权限管理中的USB安装管理中�
 报 device unauthorized. This adb server's ' $ADB_VENDOR_KEYS is not set 原因是初次连接时提示的指纹没有选到，要断开手机关debug,adb kill-server
 再adb start-server ，插手机，打开debug就会再次提示接受指纹
 
-wifi 密码存储在
+ 
+android 10(Q) 是API 29
+android 11(R) 是API 30
+android 12(S) 是API 31
+android 32   是API 32 , 这个开始和API一样的名字
+
+
+----- Android Studio
+AndroidStudio-2020.3(2021-10-01),旧名4.3
+AndroidStudio-2021.1(2022-02-03) 使用的是gradle-7.2-bin.zip,win7下刚启动时一会报下adb不正常停止(对应的升级了api和tools),原因是直接运行adb就报这个错，以前是出帮助信息的，adb start-server就好了,但下次打开项目还有可能这样
+
+Idea Community 2021.3.1 版本  Android插件版本为 Android-2020.3.1 刚好差一年的版本，Idea Community 2021.2就不行
+idea 2021.3.1 对AndroidStudio-2020.3.1项目兼容性不是100%的，如NDK，Junit项目不能构建, androidTest 中的代码 右击菜单中没有 运行和调试项
+
+
+	win10,fedora34上可以用,	启动内存占1G,使用1.8G,模拟器内存4G,共5G
+ 	自带OpenJDK 11(建立的项目 gradle build 要求用jdk11), 下载的是gradle-7.0.2-bin.zip到%GRADLE_USER_HOME%下,对应的是 gradle-wrapper.properties 中的配置, android-studio\jre\bin ,
+ 
+	官方要求win8,可能发Hypervisor但没装模拟器,在win7上建空项目报%TMP%\sync.studio.tooling<i>.gradle' appears to be corrupted.  
+	如用gradle build报 MyApplication\settings.gradle' appears to be corrupted.
+	不使用gradle-wrapper,使用目前最新版本的gradle-7.2-bin就没问题了
+	但运行带 @RunWith(AndroidJUnit4.class) 的单元测试还是不行？？？
+	 
+	 idea.properties 文件 中 默认路径  
+		# idea.config.path=${user.home}/.AndroidStudio/config
+		# idea.system.path=${user.home}/.AndroidStudio/system
+ 
+
+新建选择minSDK 27,app/build.gradle中minSdkVersion 27 ,targetSdkVersion 30,compileSdkVersion 30
+AndroidStudio如果新版本兼容老版本生成代码有<android.support.constraint.ConstraintLayout>,如新建项目默认启动类是extends AppCompatActivity(Backforwards Compatibility),如取消extends Activity
+AndroidStudio2020都是<androidx.constraintlayout.widget.ConstraintLayout  都是extends AppCompatActivity，而且不会单独下载老版本的包(build-tools 是有多个版本的目录)
+用 AppCompatActivity 必须对就用 Theme.AppCompat或子 主题
+
+版本 28.0.0 是支持库的最后一个版本。我们将不再发布 android.support 库版本。 所有新功能都将在 androidx 命名空间中开发(Jetpack 库)。
+
+  
+首次启动Android Studio 指定SDK目录后，下载默认打勾选项
+	Android SDK Tools,
+	Android SDK platform-Tools 生成的android-31目录
+	Android Emulator 并没有下载模拟器镜像(不要google API,选择64位最新手机即可)
+	windows手工选择Google USB Driver
+	 
+         
+%HOMEPATH%/.gradle/wrapper/dists/gradle-<version>-bin/<uuid>/
+　		~/.gradle/wrapper/dists/gradle-<version>-bin/<uuid>/  
+下载时可中断, 再放入gradle-<version>-bin.zip   
+
+建立/导入 项目后　settings->Build,Execution,Deployment->Build Tool->Gradle->Gradle Project组下(针对项目设置的)->下拉选择Specified Location,选择路径
+	AndroiStudio会使用 GRADLE_HOME 环境变量自动设置(但还要手动下拉选择Specified Location),如果以前设置过也不行,每个项目都单独设置恶心！！！
+	
+	
+可配置gradle user home : ~/.gradle 到其它目录, AndroiStudio会使用 GRADLE_USER_HOME 环境变量,全局设置，每个项目都会用
+	$GRADLE_USER_HOME\caches\modules-2\files-2.1 里面的目录格式不同于maven的
+	gradle的是一个目录名为"org.apache",而maven是org目录下有apache,里面也不一样gradle是把xxx.pom和jar放不同目录
+
+可不使用gradle-wrapper,把项目中的gradle目录,gradlew.bat,gradlew文件删除,但.gradle目录删除，还会自动生成
+ 
+ 
+如不能运行项目 File -> sync project with gradle file 
+
+--项目改名
+settings.gradle  中的 rootProject.name
+app/build.gradle 中的 applicationId
+AndroidManifest.xml 中的 android:label
+.idea/.name 文件 中只有一个名字
+
+--
+如没有.idea/目录，下次不能打开项目报C:\Users\xx\AppData\Local\Temp\wrapper_init7.gradle' appears to be corrupted.原因为默认使用gradle-wrapper.properties ，这个文件没
+		
+默认安装目录 windows: %HOMEPATH%\AppData\Local\Android\sdk 
+				linux: ~/Android/Sdk
+				Mac: ~/Library/Android/sdk
+				
+默认工作区   %HOMEPATH%\AndroidStudioProjects
+
+如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
+在path中找到gradle命令不会下载,再配置如下
+
+
+分析依赖 gradle视图->app项目->Tasks->android->androidDependences 右击->Run  在控制台显示树
+
+
+像Word一样的单文档,一个Studio只能打开一个项目,也可以建立Module,都是在gradel子目录中,都可以单独运行,使用同一个gradle构建,生成gradlew 等文件
+File-> new -> import module
+右击project视图空白区 -> load/unload moudels ...像eclipse的close
+File-> Project Structure ... (工具栏上有按钮，配置module)
+ 
+
+File->Other Settings->Default Project Structure 中设置Android SDK位置,Android NDK,JDK 
+local.properties 中 sdk.dir= 和 ndk.dir= 
+
+File-> Setting... ->Appearance & Behavior->System Settings-> Android SDK 可以下载SDK，镜像要在建立模拟器时下载，工具栏上也有的
+ 
+
+设置菜单字体大小   File->Setting...->Appearance & Behavior-> Appearance -> Override defaul fonts by (not recommaned) 后面设置为14 (字体SimHei)
+
+设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts->Font-> Save As ...后设置字体,16
+设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font  16
+
+右击目录(libs)的jar包->add as library...
+建立项目自带的libs目录,放入jar包不会在AndroidStudio中显示,要重启才生效
+ 
+File->new -> image assets 弹出界面选择前/后背景 同,可缩放大小看实时效果,自动生成很多文件(hdpi,mdpi,xhdpi....) 
+ 
+view -> tools windows -> Device File Explorer 文件手机(模拟器)里的文件 
+ 
+打开包含要测试的代码的 Java 文件->点击要测试的类或方法，然后按 Ctrl+Shift+T 键->菜单中，点击 Create New Test。
+	也可选择Junit5/TestNG 如没有库，可以点Fix按钮自动增加依赖 
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1' 
+    testImplementation 'org.testng:testng:7.1.0'
+	但没有 androidTestImplementation 官方文档上没有说明 Junit5 使用方法，即@RunWith(里用哪个),如果在启动模拟器的测试只能用junit4
+
+
+Android 程序如错误 控制台出现的 --debug 链接，可以直接点击运行
+ 
+如何 不让gradle 下载源码包???  
+
+---打开  USB Debugging 模式 
+如为4.2以上版本 Settings > About phone -> Build number (MIUI 是点　MIUI version),点7次,返回Additional settings中有  Developer options,
+进入后可打开USB debugging,官方上说Ubuntu用户要在　plugdev　组中,即　sudo usermod -aG plugdev $LOGNAME
+	no permissions (missing udev rules? user is in the plugdev group); 看 https://developer.android.google.cn/tools/device.html
+	安装　android-sdk-platform-tools-common　包,Ubuntu上有,　udev rules for Android devices
+再打开　Install via USB (MIUI要求登录才行,恶心),
+
+/etc/udev/rules.d/ 目录有vbox的文件
+
+ar -xv android-sdk-platform-tools-common_27.0.0+12_all.deb   可以解压ubuntu 的deb包,看里的51-android.rules有说是在 https://github.com/M0Rf30/android-udev-rules
+
+git clone https://github.com/M0Rf30/android-udev-rules.git
+cd android-udev-rules
+sudo cp -v 51-android.rules /etc/udev/rules.d/51-android.rules 
+再重新连接手机,手机就会提示确认Debug签名,出现了自己的手机
+
+run/debug时又提示　License for package Android SDK Build-Tools 30.0.2 not accepted.
+cd ~/Android/Sdk/tools/bin
+./sdkmanager --licenses   #报NoClassDefFoundError: javax/xml/bind/annotation/XmlSchema, 要用jdk8,
+	(修改sdkmanager文件,把jboss-jaxb-api_2.3_spec-2.0.1.Final.jar 放 CLASSPATH,报NullPoint错)
+export JAVA_HOME=/opt/jdk-8u172-linux-x64/jdk1.8.0_172 后再	./sdkmanager --licenses  每个按y
+ 
+Ubuntu 打开调试  建立文件 /etc/udev/rules.d/51-android.rules    (udev rule)
+	SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", GROUP="plugdev" 
+	#0bb4 是手机厂商ID, 	Huawei 是 12d1
+	#MODE读写权限,GROUP是操作系统的组
+chmod a+r /etc/udev/rules.d/51-android.rules
+
+
+ 
+windows 要安装USB driver(win7 进资源管理器->找到自己的手机(Android Composite ADB) 右击->更新驱动程序软件->浏览选择  <sdk>\extras\google\usb_driver\ ,下载时要选择Google USB Driver)
+	如果不行看上方的修改android_winusb.inf文件
+	
+adb devices 才可看到
+
+
+
+
+------android 远程调试App   
+USB 连接上手机
+	adb tcpip 5555(端口号，可以指定其他值)，该命令将会重启手机上的adbd，开启网络调试功能 
+	
+电脑端adb connect 手机IP:5555 (5554) 其实是连接另一台电脑的模拟器
+adb devices -l 就多一个，第一列是IP:port
+adb disconnect 手机IP:5555 
+---- Android 11 开始支持无线wifi 　debug (MacBook 没有USB接口)
+要求手机和电脑在同一个网络中
+在手机 Developer Options中多了一个选项 Wireless debuging   
+(RedMi 9A 提示Because an app is obscuring a permission request, Settings can't verify your resonse. '网上查原因是打开了Quick Ball,还真是,吐了), 
+obscure 不清楚的
+
+点 Pair device with paring code->每次显示不同的IP:port和配对码,电脑上的终端终端运行 adb pair ipaddr:port,  输入配对码
+IP Adress & Port 中有显示IP:port ，电脑上的终端终端运行 adb connect IP:port(只能配对成功，才能adb connect成功)
+如要安装包，还是要打开 USB install
+
+
+======手机HTML,JS,CSS调试方法
+
+AndroidManifest.xml    <application  android:debuggable="true">   相当于在IDE中打开debug
+
+-------使用Chrome,在android 上远程调度 ,手机可以通过 USB 连接电脑仿问网络 
+
+---手机
+	手机Chrome中->设置->开发者工具->USB网页调试->打开 (新版本中没了???)
+	
+---电脑
+	adb forward tcp:9919 localabstract:chrome_devtools_remote
+	Chrome 的URL中输入 about:inspect  (也可 工具->检查设备),要可以看到自己的手机中Chrome打开的页
+	
+	Chrome http://localhost:9919/ 也打开手机中的网页
+	
+	port forward 按钮->弹出对话框中,每一行是一对端口转发,第一列的android手机上的端口号8080,第二列是电脑上的IP:端口,localhost:8181,复选enable port forwarding
+	
+	在手机中chrome输入127.0.0.1:8080 (只127.0.0.1)会跳到电脑chrome的 localhost:8181,手机USB直接连接电脑,可不用wifi同网断 
+	可在电脑中输入手机网页,打开,点页旁边的inspect ,但好像一直打不开????
+ 
+
+------Firefox 调试 OK
+https://developer.mozilla.org/en-US/docs/Tools/Remote_Debugging/Firefox_for_Android
+
+手机和电脑在同一个wifi网络中,手机中输电脑IP(也可外部如m.taobao.com)
+USB连线手机
+
+--Anroid 中打开 开发调试
+Firefox for Android中点菜单->设置->开发者工具->打开远程调试
+	about:config 中搜索  devtools 查看 devtools.debugger.remote-enabled 已经修改为true了,port默认6000 
+
+--PC 中 
+Tools->Web Developer->Toggle Tools 单击设置按钮->最下面的enable remote debugging已经复选 
+		about:config 中查  devtools.debugger.remote-enabled 已经修改为true了,port默认6000 
+
+adb forward tcp:6000 localfilesystem:/data/data/org.mozilla.firefox/firefox-debugger-socket
+adb forward tcp:6000 tcp:6000
+tools->web developer->connect...连接后android手机有提示是否连接,PC的firefox中可以看到Android中的Firefox打开的网页,点击后可在PC的DeveloperTools中打JS断点调试
+ 
+
+
+----真机root  未试?????
+得到root权限,bootloader加锁(刷机用)不影响得到root权限    
+设置中关闭 快速启动
+拔掉usb线,正常关机,然后按着  音量下键  + 开机键  不放约10秒 会进入bootloader (华为的bootloader加锁了进不了,得到root是不影响的)
+然后连接电脑
+fastboot devices  
+fastboot oem unlock  [解锁密码]   , 要在官方网申请
+fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
+ 检查  fastboot oem get-bootinfo
+
+
+-----模拟器
+
+按"HOME"->点屏幕中的箭头->"Settings"->Language & Input ->locale (有谷歌拼音输入法)->中文简体,
+Setting->Language & Input ->Language->选择 中文(简体) ,  界面变成中文
+设置->声音->音量 默认没有铃声,把.mp3上传到自己的目录中,可以使用拖动的方式,如 /mnt/sdcard,重新启动,"音乐"播放器->歌曲 可以自动检测到
+点击播放->按menu->用做铃声
+
+设置->日期和时间->取消 自动确定时区 和 自动确定日期时间(使用网络),时区选择 中国标准时间(北京)GMT+8
+设置->应用程序->选择后,可以卸载
+
+相机拍照默认目录 SD卡/DCIM/Camera/
+
+ctrl+f12 模拟器变为横向,要关金山词霸
+
+"Menu" 显示自己程序结果
+
+长按Home键->显示所有正在运行的程序,可以一次性清空,模拟器在选一个长按->delete
+
+真机Wifi可以设置代理,长按连接的wifi->修改网络->复选显示高级选项,代理设置为手动,输入IP和端口,用户名密码要在自带浏览器或Chrome中输入,都可以保存
+Firefox代理 的about:config->输入proxy搜索->network.proxy.http 设置IP,network.proxy.http_port 对应端口,设置network.proxy.type为1,默认是5
+
+真机Wifi可以设置VPN,如客户端是Cisco AnyConnect的VPN,android选择类型为IPSec Xauth PSK,输入服务器的地址,IPSec标识符的值为Group的值,如NN,IPSec预共享密钥的值为Group的密码,即NN的密码,保存后再连接输入用户名 和 密码前缀+动态密码
+
+
+模拟器设置上网代理
+Settings->WIRELESS & NEWORKS下的More...->Mobile Networks->Access Point Names(APN)->选择已有的->有设置proxy,port,username,password
+
+
+-----wifi 密码存储在
 #Android8.0（Oreo）之前版本
 /data/misc/wifi/wpa_supplicant.conf
 
@@ -81,89 +336,25 @@ cat /data/misc/wifi/*.conf  小米的权限被拒 */
 拨号  *#*#4636#*#*  出界面-> wlang info->wlang config->
 
 
-----真机root  未试?????
-得到root权限,bootloader加锁(刷机用)不影响得到root权限    
-设置中关闭 快速启动
-拔掉usb线,正常关机,然后按着  音量下键  + 开机键  不放约10秒 会进入bootloader (华为的bootloader加锁了进不了,得到root是不影响的)
-然后连接电脑
-fastboot devices  
-fastboot oem unlock  [解锁密码]   , 要在官方网申请
-fastboot boot cm-hero-recovery.img 	手机进入了recovery模式
- 检查  fastboot oem get-bootinfo
- 
------ Android Studio
- AndroidStudio 基于IntelliJ IDEA ,使用自带openJDK8, 自带Grale , linux 下提示安装KVM提速 
- AndroidStudio-2020.3 
- AndroidStudio-3.5.3 下载的是 gradle-5.4.1-all.zip 自带OpenJDK Jre-1.8.0_202
- AndroidStudio-4.1.2 下载的是 gradle-6.5-bin.zip
- 
-  下载时可中断,
-        　~/.gradle/wrapper/dists/gradle-<version>-all/<uuid>/   
- %HOMEPATH%/.gradle/wrapper/dists/gradle-<version>-all/<uuid>/
-  再放入gradle-<version>-all.zip  　,不能手工指定更高的版本,不能再构建???必须重新项目??
-
-　首次启动Android Studio 指定SDK目录后　会下载Android SDK Tools,Android SDK platform-Tools,Android SDK platform-Tools(共就这3个tools),Support Repository下的全部
- Android Emulator 必须手工选择下载(如使用模拟器)
- Documentation　可选手工下载
- 模拟器镜像(不要google API,选择64位最新手机即可) 及 自己想的android SDK版本自己下载
- 
- 默认安装目录 windows: %HOMEPATH%\AppData\Local\Android\sdk 
-				linux: ~/Android/Sdk
-				Mac: ~/Library/Android/sdk
- 默认工作区   %HOMEPATH%\AndroidStudioProjects
- 如不带SDK 启动时向导中修改SDK位置,或者取消后,在小窗口中Configure->SDK Manager,中配置目录名如有中文显示为方块
-在path中找到gradle命令不会下载,再配置如下
-有项目后　settings->Build,Execution,Deployment->Build Tool->Gradle->下拉选择Specified Location 选择路径/opt/gradle-5.2
-可全局配置service directory path: ~/.gradle 到其它目录,  AndroiStudio会使用 GRADLE_USER_HOME 环境变量
- GRADLE_REPO\caches\modules-2\files-2.1 ,里面的目录格式不同于maven的,gradle的是一个目录名为"org.apache",而maven是org目录下有apache
-
-如不能运行项目 File -> sync project with gradle file 
-分析依赖 gradle视图->app项目->Tasks->android->androidDependences 右击->Run  在控制台显示树
-
-如何 不让gradle 下载源码包??? 
-
-
 -----build.gradle文件 
+
 buildscript(是下载插件及依赖使用) 或 allprojects(自己项目使用) 下 
     repositories {
  
 		//最前面增加镜像
 		 mavenLocal()
-		maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
-		//maven { url 'http://mirrors.163.com/maven/repository/maven-public/' }
+		maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' } //要求一定要是https
+		//maven { url 'https://mirrors.163.com/maven/repository/maven-public/' }
 		google()
 	}
- 
-AndroidStudio如果新版本兼容老版本生成代码有<android.support.constraint.ConstraintLayout>,如新建项目默认启动类是extends AppCompatActivity(Backforwards Compatibility),如取消extends Activity
-
-
-像Word一样的单文档,一个Studio只能打开一个项目,也可以建立Module,都是在gradel子目录中,都可以单独运行,使用同一个gradle构建,生成gradlew 等文件
-File-> new -> import module
-右击project视图空白区 -> load/unload moudels ...像eclipse的close
-File-> Project Structure ... (工具栏上有按钮，配置module)
- 
-
- File->Other Settings->Default Project Structure 中设置Android SDK位置,Android NDK,JDK 
-l ocal.properties 中 sdk.dir= 和 ndk.dir= 
-
- File-> Setting... ->Appearance & Behavior->System Settings-> Android SDK 可以下载SDK，镜像要在建立模拟器时下载，工具栏上也有的
- 
-
-设置菜单字体大小   File->Setting...->Appearance & Behavior-> Appearance -> Override defaul fonts by (not recommaned) 后面设置为14 (字体SimHei)
-
-设置编辑器字体大小 File->Setting...->Editor -> Color & Fonts->Font-> Save As ...后设置字体,16
-设置控制台器字体大小 File->Setting...->Editor -> Color & Fonts->Console Font  16
-
-右击目录(libs)的jar包->add as library...
-建立项目自带的libs目录,放入jar包不会在AndroidStudio中显示,要重启才生效
- 
-
+  
 <application>\App(Module)\build\generated\source\r\debug\<package>\R.java
 <application>\App(Module)\src\androidTest
 <application>\App(Module)\src\main(同maven)
 <application>\App(Module)\src\test(同maven)
 <application>\App(Module)\libs
  
+
  ----Gradle Android 
  
  gradle-wrapper.properties
@@ -175,6 +366,10 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.android.library' 
 
 第一个项目的名字app是默认生成的,可以重命名,会修改 settings.gradle 中的内容 include:'app','otherproject'
+#也可以分两行写，如
+include ':sqlite1'
+include ':sqllite2'
+
 Application级
 	local.properties 
 		sdk.dir=D\:\\software\\android_\\tools_r28.0.2-windows
@@ -234,110 +429,23 @@ dependencies {
 	implementation ('org.apache.commons:commons-lang3:3.8.1') //表示这个包只可我用，不可给上级依赖于我的用
 	implementation ('org.apache.commons:commons-lang3:3.8.1+')//+号表示每次取最新的包 
 }
-======手机HTML,JS,CSS调试方法
 
-AndroidManifest.xml    <application  android:debuggable="true">   相当于在IDE中打开debug
-
--------使用Chrome,在android 上远程调度 ,手机可以通过 USB 连接电脑仿问网络
-https://developers.google.com/chrome-developer-tools/docs/remote-debugging
-
-windows 要安装USB driver(win7 进资源管理器->找到自己的手机(Android Composite ADB) 右击->更新驱动程序软件->浏览选择  <sdk>\extras\google\usb_driver\ ,下载时要选择Google USB Driver)
-Ubuntu 打开调试  建立文件 /etc/udev/rules.d/51-android.rules    (udev rule)
-	SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", GROUP="plugdev" 
-	#0bb4 是手机厂商ID, 	Huawei 是 12d1
-	#,MODE读写权限,GROUP是操作系统的组
-chmod a+r /etc/udev/rules.d/51-android.rules
-
----手机
-	打开  USB Debugging 模式, 如为4.2以上版本 Settings > About phone -> Build number ,点7次返回上个屏幕有  Developer options
-	手机Chrome中->设置->开发者工具->USB网页调试->打开 (新版本中没了???)
-	
----电脑
-	adb forward tcp:9919 localabstract:chrome_devtools_remote
-	Chrome 的URL中输入 about:inspect  (也可 工具->检查设备),要可以看到自己的手机中Chrome打开的页
-	
-	Chrome http://localhost:9919/ 也打开手机中的网页
-	
-	port forward 按钮->弹出对话框中,每一行是一对端口转发,第一列的android手机上的端口号8080,第二列是电脑上的IP:端口,localhost:8181,复选enable port forwarding
-	
-	在手机中chrome输入127.0.0.1:8080 (只127.0.0.1)会跳到电脑chrome的 localhost:8181,手机USB直接连接电脑,可不用wifi同网断 
-	可在电脑中输入手机网页,打开,点页旁边的inspect ,但好像一直打不开????
- 
-
-------Firefox 调试 OK
-https://developer.mozilla.org/en-US/docs/Tools/Remote_Debugging/Firefox_for_Android
-
-手机和电脑在同一个wifi网络中,手机中输电脑IP(也可外部如m.taobao.com)
-USB连线手机
-
---Anroid 中打开 开发调试
-Firefox for Android中点菜单->设置->开发者工具->打开远程调试
-	about:config 中搜索  devtools 查看 devtools.debugger.remote-enabled 已经修改为true了,port默认6000 
-
---PC 中 
-Tools->Web Developer->Toggle Tools 单击设置按钮->最下面的enable remote debugging已经复选 
-		about:config 中查  devtools.debugger.remote-enabled 已经修改为true了,port默认6000 
-
-adb forward tcp:6000 localfilesystem:/data/data/org.mozilla.firefox/firefox-debugger-socket
-adb forward tcp:6000 tcp:6000
-tools->web developer->connect...连接后android手机有提示是否连接,PC的firefox中可以看到Android中的Firefox打开的网页,点击后可在PC的DeveloperTools中打JS断点调试
- 
-
-------android 远程调试App 
-不能使用USB,台式机没有wifi 蓝牙
-电脑端adb connect 手机IP:5555 未试????
-adb devices
-
------模拟器
-
-按"HOME"->点屏幕中的箭头->"Settings"->Language & Input ->locale (有谷歌拼音输入法)->中文简体,
-Setting->Language & Input ->Language->选择 中文(简体) ,  界面变成中文
-设置->声音->音量 默认没有铃声,把.mp3上传到自己的目录中,可以使用拖动的方式,如 /mnt/sdcard,重新启动,"音乐"播放器->歌曲 可以自动检测到
-点击播放->按menu->用做铃声
-
-设置->日期和时间->取消 自动确定时区 和 自动确定日期时间(使用网络),时区选择 中国标准时间(北京)GMT+8
-设置->应用程序->选择后,可以卸载
-
-相机拍照默认目录 SD卡/DCIM/Camera/
-
-ctrl+f12 模拟器变为横向,要关金山词霸
-
-"Menu" 显示自己程序结果
-
-长按Home键->显示所有正在运行的程序,可以一次性清空,模拟器在选一个长按->delete
-
-真机Wifi可以设置代理,长按连接的wifi->修改网络->复选显示高级选项,代理设置为手动,输入IP和端口,用户名密码要在自带浏览器或Chrome中输入,都可以保存
-Firefox代理 的about:config->输入proxy搜索->network.proxy.http 设置IP,network.proxy.http_port 对应端口,设置network.proxy.type为1,默认是5
-
-真机Wifi可以设置VPN,如客户端是Cisco AnyConnect的VPN,android选择类型为IPSec Xauth PSK,输入服务器的地址,IPSec标识符的值为Group的值,如NN,IPSec预共享密钥的值为Group的密码,即NN的密码,保存后再连接输入用户名 和 密码前缀+动态密码
-
-
-模拟器设置上网代理
-Settings->WIRELESS & NEWORKS下的More...->Mobile Networks->Access Point Names(APN)->选择已有的->有设置proxy,port,username,password
-
-真机要打开debug, adb devices才可看到,设置->开发人员选项-> 选中 “USB调试”
-android 4.2 以后版本打开调试 Settings > About phone 点 Build number 七次,再前面的屏幕中有 Developer options
 
  
 ----- 命令行工具
-老版本的 tools_r25.2.3-windows\android.bat  还是有界面的,安装更新到8.1 版本后就不行了 
-新版本建议使用sdkmanager.bat avdmanager.bat 命令
-tools\bin\sdkmanager  --update  没有界面
-
 
 tools\bin\sdkmanager --update --proxy=http  --proxy_host=mirrors.neusoft.edu.cn  --proxy_port=80 --no_https   还是找不到.xml文件
 Android Studio 配置成这个 http://mirrors.neusoft.edu.cn/android/repository/repository-12.xml
 
 
 android-sdk-windows\tools\monitor.bat 会启动界面 ,即DDMS,有File Explorer
- 
-sdkmanager.bat   --list  显示同界面所有sdk列表
-  
 
-添加环境变量 ANDROID_SDK_HOME
-PATH指向tools 目录,tools/bin/ ,platform-tools目录下有adb命令
-
-Android 使用的是　dalvik 虚拟机
+添加环境变量  ANDROID_SDK_ROOT=%USER_PROFILE%\AppData\Local\Android\Sdk  
+	
+PATH指向 
+		tools(有emulator命令,emulator目录下也有)
+		tools/bin(有avdmanager和sdkmanager命令,即cmdline-tools目录下的) 
+		platform-tools (有adb命令)
 
 AVD（Android Virtual Device）
 OMS(Open Mobile System)
@@ -350,20 +458,47 @@ run configuration...新建一个Android,来运行
 导入sample,新建 Android项目->选择create project from exist source ,选目录后,会自动写Package name:的值
 
  
--------android命令
-列出模拟器类型:	( android list targets 老命令)
-使用 			avdmanager list target 看到SDK 版本
+avdmanager list target 看到SDK 版本
 
-创建模拟器:( android create avd --target 1 --name myAVD   --skin QVGA 老命令 QVGA 是在android-sdk-windows\platforms\android-15\skins目录下放外观的主题)
-	avdmanager create avd  --name myAVD -k system-images;android-27;google_apis;x86
+5.1 寸的WVGA的模拟器，不是手机的外形
+
+创建模拟器:( android create avd --target 1 --name myAVD   --skin QVGA 老命令)
+	QVGA 是在%HOME_PATH%\AppData\Local\Android\Sdk\platforms\android-31\skins目录下放外观的主题
+	
+#不能在powershell中运行,要在cmd中运行,29是android 10,31是Android 12	
+avdmanager create avd  --name myAVD -k system-images;android-27;google_apis;x86 
 			Do you wish to create a custom hardware profile? [no]
-	
-	会生成~\.android\avd\myAVD.avd目录 和 myAVD.ini文件
-	也可以在eclipse中 SDK and AVD Manager来创建
-	
+  
 
-列出自己创建的模拟器：(android list avd  老命令) avdmanager list avd
-删除模拟器 (android  delete avd --name myAVD 老命令) avdmanager delete avd  --name myAVD
+sdkmanager --list 提示 explicitly with --sdk_root= or move this package into its expected location: <sdk>\cmdline-tools\latest\
+
+按提示移动目录结构，就不用单独下载了
+看到有cmdline-tools;latest (就是刚下载的) 和  platform-tools
+
+sdkmanager --install  platform-tools    第一次要 y接受license
+sdkmanager --install  extras;google;usb_driver 
+sdkmanager --install  extras;intel;Hardware_Accelerated_Execution_Manager   描述为 Intel x86 Emulator Accelerator (HAXM installer)
+
+再安装带版本的 build-tools;31.0.0 ,--list 没有显示31是什么版本(api-31是android 12)
+sdkmanager --install  build-tools;31.0.0  platforms;android-31  
+
+模拟器
+#sdkmanager --install  system-images;android-31;default;x86_64 #下载安装模拟器包
+
+#不能在powershell中运行,要在cmd中运行,29是android 10,31是Android 12
+#avdmanager create avd  --name myAVD -k system-images;android-31;default;x86_64 -d "Nexus 5" #建立模拟器
+	 -c --sdcard  : Path to a shared SD card image
+	 -p --path 默认在~/.android/avd/目录下
+	 -d --device 是使用 avdmanager list device 看的值, 没有屏幕尺寸，android studio显示为分辨率
+	  -d  6 	#6是id值 
+	  -d "Nexus 5" #是index的值   (6 和 "Nexus 5"是同一个，有下方的触模按钮)
+	  -d "pixel_xl" # 5.5寸 #右侧的按钮无效，如关机??? 和Android Studio建立出来的不一样(是圆角iphone的外形)
+#emulator -avd myAVD #启动,是老式的界面,命令在emulator 目录下，提示定义 ANDROID_SDK_ROOT 变量
+	 -debug <tags>     enable/disable debug messages
+emulator -avd <avd_name> 命令会依次按照 $ANDROID_AVD_HOME、$ANDROID_SDK_HOME/.android/avd/ 和 $HOME/.android/avd/ 中值的顺序搜索 avd 目录。
+	
+#avdmanager list avd #列出已经有的模拟器
+#avdmanager delete avd  --name myAVD  #删除指定模拟器
 
 
 -------emulator命令
@@ -379,6 +514,7 @@ emulator @myAVD -http-proxy 172.52.17.184:8080   -dns-server 10.103.33.51
 
 
 -------adb命令
+
 platform-tools\adb
 adb(Android Debug Bridge)
 
@@ -388,11 +524,18 @@ adb start-server
 adb kill-server
 
 adb devices 显示连接的android设备或者模拟器
+adb devices -l 显示 CPU架构
+
 adb -s emulator-5554 get-state   #指定一个设备或者模拟器
 adb get-state
 
 adb push <local> <remote>
 adb pull <remote> <local>
+
+adb push classes.dex /data/local 报 couldn't create file: Permission denied '取没有权限 (Android 11 版本),用Idea中的Device File Explorer就正常
+adb push classes.dex /storage/emulated/0/Download/ 换这个目录就可以
+adb pull /storage/emulated/0/Download/out.txt D:/tmp/out.txt  #adb pull 必须放在一个目录中,不以直接放在D:/下. 
+
 启动模拟器后安装软件包用 adb install c:\ poker80.apk
 
 
@@ -415,6 +558,7 @@ adb push E:\tmp\A_Cordova_7\platforms\android\build\outputs\apk\android-debug.ap
 adb shell pm install -r  /data/local/tmp/org.zh.cordova7
 adb shell am start -n "org.zh.cordova7/org.zh.cordova7.MainActivity" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER
 
+adb shell # 在windows下的普通用户执行进入后是$，要su 命令(不用密码)后才是#
 # 查看进程列表
 adb shell ps
 # 查看指定进程状态
@@ -425,7 +569,9 @@ adb shell service list
 adb shell cat /proc/iomem
 adb shell head -n
 adb shell tail -n 
+adb shell getprop ro.product.cpu.abi 看手机CPU架构,模拟器显示 x86_64,Redmi9A 显示为armeabi-v7a
 
+cl /LD add.cpp 生成 add.dll 文件  和 link 加 /dll参数类似
 # 尝试开启root权限
 adb root
 # 关闭root权限
@@ -446,6 +592,12 @@ adb reverse --list
 adb reverse --remove tcp:8081 //REMOTE  remove specific reverse socket connection
 adb reverse --remove-all 
 
+
+
+adb -s emulator-5556 shell pm list users 			 #第一个数字是uid,pm全称package manager
+adb -s emulator-5556 shell pm create-user 10 system #创建用户uid,name,返回uid
+adb -s emulator-5556 shell am switch-user 12  		#切换用户uid ,am全称activity manager
+adb -s emulator-5556 shell pm remove-user 12 		#删除用户uid，必须这个不在使用切换为其它用户
 
 ----打包
 aapt package -m -J gen -M AndroidManifest.xml -S res -I D:\android-sdk-windows\platforms\android-16\android.jar
@@ -469,37 +621,94 @@ zipalign -v 4 testNDK_sigined.apk testNDK_align.apk   ('4' provides 32-bit align
 zipalign -c -v testNDK_align.apk  (-c check)
 
 
-dex反编译
-1.D:\Program\android-sdk-windows\platform-tools\dexdump.exe  可反编译apk包中的dex文件
-	启动模拟器　
-	 
-	adb push c:\temp\classes.dex /data/local //把dex文件上传模拟器
-	adb shell
-	dexdump /data/local/classes.dex
+======反编译工具
+---- jadx  最好用的
+	https://github.com/skylot/jadx
+	https://github.com/skylot/jadx/releases
+	
+	 Dec 20, 2021 发布 1.3.1
+	jadx-1.3.1.zip 里有 jadx-gui.bat 有界面，可以直接打开.apk文件，也可以直接打开.dex文件
+	jadx-gui-1.3.1-with-jre-win.zip  
+	
+---- dex2jar_2.1 
+https://github.com/pxb1988/dex2jar
+https://github.com/pxb1988/dex2jar/releases  在 Oct 30, 2021 版本为 v2.1
+老版本的镜像 https://sourceforge.net/projects/dex2jar/    这个最新只到2.0
 
-2. 第三方 dedexer 工具 生成的不是java代码
-	java -jar ddx.jar -d <directory> <dex file>
-	java -jar ddx1.11.jar -D -o -d C:\temp\dex_out C:\temp\classes.dex
+在AndroidStudio-2020.3.1生成的文件中测试成功
+dex2jar-2.1\dex-tools-2.1\d2j-dex2jar.bat   classes.dex -o d:/tmp/out.jar    
+#可不加-o 默认当前目录下的.\classes-dex2jar.jar,官方说是zip格式, 全是.class文件 用jad-gui打开即可
+classes.dex 里全是android框架里的类(android,androidx,com.google.android.material)
+classes2.dex 里全是生成的R类，框架的和自己的
+classes2.dex 里才是自己的类
+ 
 
-3.google code的dex2jar
-	dex2jar-0.0.7-SNAPSHOT>dex2jar c:\temp\classes.dex
-	会生成.jar,再把里面的class文件反编译 OK
+---- apktool 
+https://ibotpeaches.github.io/Apktool/  
+02 Sep 2021 版本为 v2.6.0  只能解密 AndroidManifest.xml
+.apk文件其实只是一个压缩包，用7-zip就可以打开
 
-4.apktool http://code.google.com/p/android-apktool/downloads/list
-解压apktool1.4.3.tar.bz2						中有apktool.jar,
-解压apktool-install-windows-r04-brut1.tar.bz2	中有apktool.bat,aapt.exe
-所有文件都放在同一个目录下
-apktool d XXX.apk （目标文件夹）      反编译 geek.apk到文件夹test
-apktool d *.apk ./src  测试OK
+https://ibotpeaches.github.io/Apktool/install/ 文档 下载wrapper script (windows/linux/mac) 重命名为 apktool.bat 或 apktool  (放系统 PATH 环境变量)
+https://bitbucket.org/iBotPeaches/apktool/downloads/ 下载.jar 重命名为 apktool.jar 
+
+windows下载测试  apktool v2.6.0 (没有aapt.exe)，可以解密 AndroidManifest.xml 
+(AndroidStudio-2020.3.1生成的做测试,比 AXMLPrinter2.jar 效果好)，但不能很好的解密Java文件，生成很多 .smali 文件 
+ apktool d app-debug.apk #不能加第二个参数./src
+	  
+----AXMLPrinter2 解密 AndroidManifest.xml
+http://code.google.com/p/android4me/downloads/  2022年1月看还是2008年的版本
+
+AXMLPrinter2.zip 	AXMLPrinter2 Eclipse project. 	Oct 2008 		38.8 KB 	19024 	 
+AXMLPrinter2.jar 	Prints XML document from binary XML file (with correct namespace handing & attribute formatting). 	Oct 2008 
+
+但效果不如apktool，@后变成十六进制数了
+java -jar  AXMLPrinter2.jar   AndroidManifest.xml >AndroidManifest_src.xml  
+在AndroidStudio-2020.3.1生成的文件中测试成功， 但效果不如apktool，@后变成十六进制数了
+ 
+
+---dexdump	 这个目前 没什么用
+dexdump.exe  在  android_sdk\build-tools\32.0.0 目录下 
+		如不上传模拟器 dexdump classes.dex > out.txt #对.apk,.dex文件 解出的也不是.java文件
+		
+adb shell 后
+$ which dexdump
+/apex/com.android.art/bin/dexdump
+$ dexdump /storage/emulated/0/Download/classes.dex > /storage/emulated/0/Download/out.txt #模拟器里(adb shell中)执行
+如在模拟中执行也是一样
+ 
+---- dedexer 工具  
+https://sourceforge.net/projects/dedexer/   2022年为版本 1.26, 最后更新时间为 源码2018年，jar包2013年
+
+java -jar ddx1.26.jar --help
+java -jar ddx.jar -o -D -r -d <destination directory> <source>
+java -jar ddx1.26.jar -D -o -d ./dex_out classes3.dex  #输入目录事先存在
+在AndroidStudio-2020.3.1生成的文件中测试报错 ??? I/O error: Value read: 0x39; value expected: [0x36,0x35,0x33];
 
 
---------------
+---- 加壳(加固) 和 脱壳 
+加固分dex加固和so加固，dex加固  dex2jar 可能对没有加壳的做反编译，已经加壳的要事先脱壳，加壳像是代码混淆,名字是乱的,也可能Java方法被native化了
+		
+ 应用市场要求是没有加固的，防止这个app有一些敏感的功能，违法的功能，做坏事的功能，然后是应用市场给你加固，加固之后然后发布出去
+ 有的应用市场不严格
+
+lib文件夹，如果里面有libsharea.so，这个就是腾讯的乐加固，去看Androidmanifest.xml文件，进入这个壳的application了，不是进入app原本的application了，加固之后相当于是两个apk了，要先启动壳的apk，然后通过这个壳apk，把源app的内容加载起来，放到内存里面，
+大厂的app代码很大，加壳的话会有性能问题，而且兼容性会报错，所以大厂宁愿牺牲一些安全性，但是防止客户的流失率，
+
+=========
+
 
 R类是Resource的缩写
 android.util.Log.v ,d,i,w,e 对应下面
 VERBOSE、DEBUG、INFO、WARN、ERROR
 
-
+Android 12 或 更高版本要在Manifest.xml中 (activity/receiver..) 加 android:exported="true"
+即 <activity
+            android:name=".MainActivity"
+            android:exported="true"
+	>
+	
+	
+	
 package org.zh;
 
 import android.app.Activity;
@@ -571,10 +780,13 @@ ContentResolver  query()、insert()、update()等
 ContentProvider正是用来解决在不同的应用包之间共享数据的工具。
 
 
-drawable目录 精度:高（hdpi），中（mdpi）和低（ldpi）,
+drawable目录 精度:高(hdpi)，中(mdpi)和低（ldpi),
 要注意的是drawable目录下的文件名  和 values目录的xx文件中的<drawable name="red">#7f00</drawable> 不能有相同的名字的(drawable)
 
-
+dpi=Dots Per Inch，即每英寸点数 ,h=high,m=medium,x=extend 加大
+mipmap(MIP来自于拉丁语)目录图片 有不两只的 大小/精度,是drawable之后的东西
+webp  图片压缩格式(Google开发的) ,支持透明度和动图
+   
 自动生成的 R 的一个作用是,如果res目录中的资源 没有在项目中引用,打包时不会包含res目录中未使用的资源 
 assests目录中的文件不会生成R类的引用,一定会被打包
 
@@ -625,8 +837,10 @@ OnClickListener start =new OnClickListener()
  {  
 	 public void onClick(View v)  
 	 {     
-		 startService(new Intent("com.yarin.Android.MUSIC"));  //对应于<service中
-		// Activity01.this.startService(new Intent("com.yarin.Android.MUSIC"));  
+		 //Intent intent =new Intent("com.yarin.Android.MUSIC") //对应于<service中 //新版本不行了 Service Intent must be explicit: Intent
+		 //要用 Intent intent = new Intent(MainActivity.this,MusicService.class);
+		 startService(intent);
+		
 	 }  
  };  
 
@@ -670,7 +884,7 @@ player.prepare();//缓冲 //MediaPlayer.create()的方式不要再调用prepare(
 mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {//构造器实例化MediaPlayer时这样调用
 			@Override
 			public void onPrepared(MediaPlayer mediaPlayer) {
- 				mediaPlayer.start();
+ 				mediaPlayer.start();//播放
 			}
 		});
 		
@@ -729,11 +943,18 @@ this.getContext().getContentResolver().notifyChange(uri, null);//在Provider中�
 
 对uri监听的都会知道
 this.getContext().getContentResolver().registerContentObserver(uri, true, new MyContentObserver(new Handler()));//MyContentObserver extends ContentObserver 重写onChange方法
+//Handler()过时，建议用  java.util.concurrent.Executor 或者 new Handler(Looper.myLooper())
 
 联系人的修改要加权限
  <manifest
 <uses-permission android:name="android.permission.READ_CONTACTS" />
 <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+//动态申请权限
+if(ActivityCompat.checkSelfPermission(Activity01.this, Manifest.permission.READ_CONTACTS)!= PackageManager.PERMISSION_GRANTED)
+{
+	ActivityCompat.requestPermissions(Activity01.this,new String[]{Manifest.permission.READ_CONTACTS},1);
+}
+
 //联系人存放在/data/data/com.android.providers.contacts/databases/contacts2.db文件中的raw_contacts和data表中
 ContentResolver contentResolver = getContentResolver();    
 Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);  //能得到ID,和名字,因只查raw_contacts表
@@ -833,10 +1054,7 @@ for(ContentProviderResult result : results)
 	Log.i("ContactChangeTest", result.uri.toString());
 }		
 		
-		
-		
-		
-		 
+
 //查出所有的电话本记录
 Cursor c = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);//能得到ID,和名字,因只查raw_contacts表
 startManagingCursor(c); //过时
@@ -845,8 +1063,7 @@ ListAdapter adapter = new SimpleCursorAdapter(this,android.R.layout.simple_list_
 			  new int[] { android.R.id.text1, android.R.id.text2 }
 			,CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER 
 			  );
-setListAdapter(adapter);//extend ListActivity
-
+listView.setAdapter(listAdapter);
 
 
 CallLog.Calls.CONTENT_URI;
@@ -924,18 +1141,50 @@ spinner.setOnItemSelectedListener(new OnItemSelectedListener()
 			}
 	});
 
+
+----junit
+module-name/src/test/java/    		测试没有 Android 框架依赖项,缩短执行时间
+	#运行时，右击方法名->run即可,用配置建立junit的方式反而不行
+module-name/src/androidTest/java/  测试在硬件设备或模拟器上运行 有权使用 Instrumentation
+
+在gradle中 
+testImplementation 'org.apache.httpcomponents:httpclient:4.5.13'//手工增加的 是java unit单元测试，是运行在当前电脑的jvm上的单元测试；
+androidTestImplementation 'org.apache.httpcomponents:httpclient:4.5.13'//手工增加的 是Android单元测试，是运行在Android环境的单元测试。
+
+
+----src/androidTest/java/里的方法   新建的项目不能运行？？
+   原因为\caches\modules-2\files-2.1\androidx.test.ext\junit\1.1.2\xxx\junit-1.1.2.aar\AndroidManifest.xml 里面有定义  
+  <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="28" />
+  build.gradle 中也要修改对应的值，即 targetSdk 28 ，对应的minSdk 最多只能是28 
+  警告中有说 The minSdk version should not be declared in the android manifest file. 
+ 
+build.gradle中  android { }内部增加
+  packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+  } 
+ AndroidManifest.xml中的包名和代码包名一样也可以运行
+
+
+win10 administrator运行正常
+win7上普通用户运行提示
+You need the android.permission.INSTALL_GRANT_RUNTIME_PERMISSIONS permission to use the PackageManager.INSTALL_GRANT_RUNTIME_PERMISSIONS flag
+但这个是系统App的权限
+
 ---- 新版本Android Studio Junit 测试项目	
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 @RunWith(AndroidJUnit4.class) //如加这个，运行时会启动模拟器安装apk
 public class ExampleInstrumentedTest {
     @Test
     public void useAppContext() throws Exception {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+       Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("org.zh.thejunit", appContext.getPackageName());
     }
 }
-
+Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();//生成代码使用的
+Context appContext=InstrumentationRegistry.getInstrumentation().getContext();
 
 
 
@@ -950,7 +1199,7 @@ public class ExampleInstrumentedTest {
       android:label="Snake sample tests">
   </instrumentation>  
   <instrumentation android:targetPackage= 必须 和 开头的<manifest package= 相等
-其它包里的类只要extends AndroidTestCase都可以被测试,类中的方法必须以test开头
+其它包里的类只要extends AndroidTestCase都可以被测试,类中的方法必须以test开头  
   
 package com.example.android.snake
  extends ActivityInstrumentationTestCase2<Snake> 
@@ -984,6 +1233,14 @@ COUNTRIES
 	
 <TimePicker  TimePicker  tp.setIs24HourView(true);//24小时显示
 	setOnTimeChangedListener (TimePicker.OnTimeChangedListener 
+
+poweroffTimePicker=(TimePicker)findViewById(R.id.poweroffTimePicker);
+poweroffTimePicker.setIs24HourView(true);
+//poweroffTimePicker.setCurrentHour(hour);//过时，使用setHour
+//poweroffTimePicker.setCurrentMinute(minute);//过时，使用 setMinute
+poweroffTimePicker.setHour(hour);
+poweroffTimePicker.setMinute(minute);
+
 
 <AnalogClock 带长短针的
 
@@ -1043,7 +1300,8 @@ TabHost tabHost = (TabHost) this.findViewById(R.id.myTabhost);
 tabHost.setup();//会去读 android:id="@android:id/tabcontent" , android:id="@android:id/tabs"
 
 TabSpec spec1=tabHost.newTabSpec("tag1");
-spec1.setIndicator("第一页",getResources().getDrawable(R.drawable.ic_launcher));//标题一起的图标,minSdkVersion="15" 时无效果
+//getResources().getDrawable(R.drawable.ic_launcher)过时，加第二参数theme,为null不能主题影响
+spec1.setIndicator("第一页",getResources().getDrawable(R.drawable.ic_launcher,null));//标题一起的图标,minSdkVersion="15" 时无效果
 //pec1.setIndicator(View xxx);//可以自定义drawable背景,<selector  ><item android:state_pressed="true"
 spec1.setContent(R.id.page1);
 tabHost.addTab(spec1);
@@ -1099,14 +1357,72 @@ i.setLayoutParams(new GridView.LayoutParams(85, 85));//w,h
 mNotificationManager=(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 PendingIntent pending = PendingIntent.getActivity(this, int request_code,new Intent(this, ActivityMain.class), int flag);
 
-Notification notification = new Notification.Builder(this)
+Notification notification = new Notification.Builder(this)//Android 8.0 过时
         .setContentTitle("通知栏的标题")
         .setContentText("通知栏的文本")
         // .setLargeIcon( )
         .setSmallIcon(R.drawable.face_1)
         .setContentIntent(contentIntent)//跳到intent
         .build();
+
+
+
+	//通知渠道的ID
+	String  id  = "channel_01";
+	//用户可以看到的通知渠道的名字
+	CharSequence name = "我的通道";//在MIUI的权限->通知可以显示这个名字
+	//用户可看到的通知描述
+	String description ="我的通道描述";
+	//构建NotificationChannel实例
+	NotificationChannel notificationChannel = new NotificationChannel(id,name,NotificationManager.IMPORTANCE_HIGH);
+	//配置通知渠道的属性
+	 notificationChannel.setDescription(description);
+	//设置通知出现时的闪光灯
+	notificationChannel.enableLights(true);//MIUI没用？？？ shouldShowLights()得到结果
+	notificationChannel.setLightColor(Color.RED);
+	//设置通知出现时的震动
+	notificationChannel.enableVibration(true);//MIUI没用？？？ shouldVibrate();得到结果
+	notificationChannel.setVibrationPattern(new long[]{100,200,300,400,500,400,300,200,100});
+	
+	//notificationChannel.getSound();//返回URI , content://settings/system/notification_sound
+	
+	//在notificationManager中创建通知渠道
+	mNotificationManager.createNotificationChannel(notificationChannel); 
+
+ 
+
+	Notification notification = new NotificationCompat.Builder(NotifyService.this, id)
+	
+	//Application的名字不能替代
+	.setTicker(tickerText)//没啥用？
+	.setCategory("种类")//没啥用？
+	.setContentInfo("内容ConentInfo")//没啥用？
 		
+	
+	//添加点击跳转通知跳转(MIUI上,在不重要的通知组里点击也是跳到原APP界面,要取消 notifaction shade-> group notification 就没有不重要的通知组,才有声音)
+	//这个自己弹出的浮动窗口，点击窗口的跳转（有延时）
+	.setSubText("小标题")// MIUI 要修改设置才能看到
+	.setWhen(System.currentTimeMillis()) //指定通知被创建的时间(MIUI 要修改设置才能看到)
+	
+	//指定通知的标题内容
+	.setContentTitle("This is content title")
+			//设置通知的内容
+			.setContentText("This is content text") 
+			//指定通知被创建的时间
+			.setWhen(System.currentTimeMillis())
+			//设置通知的小图标
+			.setSmallIcon(R.drawable.ic_launcher_foreground)
+			//设置通知的大图标
+			.setLargeIcon(BitmapFactory.decodeResource(getResources(),
+					R.drawable.ic_launcher_background)) 
+			//实现点击跳转后关闭通知
+			.setAutoCancel(true)
+			.build();
+
+
+
+
+
 // 100ms延迟后，振动250ms，停止100ms后振动500ms
 notification.vibrate = new long[] { 100, 250, 100, 500 };
 
@@ -1145,7 +1461,8 @@ RelativeLayout layoutLeft = (RelativeLayout) inflate.inflate(R.layout.left, null
 
 <TableLayout  >
 		<TableRow>
-			<EditText  android:password="true"   //如只可以数字 android:numeric="integer"
+			#<EditText  android:password="true"  过时 //如只可以数字 android:numeric="integer"
+			<EditText   android:inputType="textPassword" //number,date,datetime
 AndroidManifest.xml中
 <activity android:name=".ActivityLayout"
 			android:label="演示混合Layout布局"> //如是MAIN的就Activity,这个是应用的标题,也是标题栏的内容
@@ -1205,18 +1522,18 @@ listView.setOnItemClickListener(new OnItemClickListener()
 
 
 
-extends ListActivity 	覆盖onListItemClick
-setListAdapter( )
 
-<ListView android:id="@id/android:list"		//系统的名字,如果数据为空会找@id/android:empty(ListActivity中做的)
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
-<TextView android:id="@id/android:empty"	//系统的名字
+<ListView android:id="@+id/mylistView"
 	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:text="对不起，没有数据显示"/>  
+	android:layout_height="wrap_content" />
+<TextView android:id="@+id/myTextView"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content" android:text="您还没有开始写日记呢!点击下边的Menu按钮开始写日记吧:)" />
+
 
 listView.setOnItemSelectedListener(itemSelectedListener);//上下键来选择时,
+listView.setOnItemClickListener(xx);
+listView.setAdapter(listAdapter);	
 
 ----Menu
 按手机上的menu菜单时
@@ -1267,11 +1584,12 @@ public void onCreateContextMenu(ContextMenu menu, View v,
 
 res/menu目录
 main.xml
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu  xmlns:app="http://schemas.android.com/apk/res-auto"
+		xmlns:android="http://schemas.android.com/apk/res/android" >
 	<item android:id="@+id/menu_item1" 
 	    	android:title="@string/button1" 
 	    	android:icon="@drawable/ic_launcher"
-	    	android:showAsAction="always"/> <!-- 显示在顶部区,不显示在菜单中 -->
+	    	android:showAsAction="always" /> <!-- 新版本为app:showAsAction="always" 显示在顶部区,不显示在菜单中 -->
 	
 	<item android:id="@+id/file"
 	        android:title="文件" > 
@@ -1373,93 +1691,12 @@ private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 <ScrollView 可以拖动的
 
 <activity android:theme="@android:style/Theme.Holo.Dialog" >
+ 
+
+  
 
 
-FragmentTransaction ft = getFragmentManager().beginTransaction();
-Fragment prev = getFragmentManager().findFragmentByTag("My_Dialog");
-if (prev != null) {//现在这个(标识)对放框是否已经显示,如是删它
-	ft.remove(prev);
-}
-ft.addToBackStack(null);
-
-//-------
-DialogFragmentMain newFragment = new DialogFragmentMain();//自己的类
-Bundle args = new Bundle();
-args.putInt("num", mStackLevel);
-newFragment.setArguments(args);
-newFragment.show(ft, "My_Dialog");
- class DialogFragmentMain extends DialogFragment 
- {
-    @Override
-    public void onCreate(Bundle savedInstanceState) 
-    {
-        super.onCreate(savedInstanceState);
-        int mNum = getArguments().getInt("num");
-        Log.i("DialogFragmentMain","(mNum-1)%6="+(mNum-1)%6);
-
-        int style = DialogFragment.STYLE_NORMAL, theme = 0;
-        switch ((mNum-1)%6) {
-            case 1: style = DialogFragment.STYLE_NO_TITLE; break;
-            case 2: style = DialogFragment.STYLE_NO_FRAME; break;//背景透明
-            case 3: style = DialogFragment.STYLE_NO_INPUT; break;//背景透明,可以点后面的按钮
-            case 4: style = DialogFragment.STYLE_NORMAL; break;//进入单独Activity,不是浮动的
-            case 5: style = DialogFragment.STYLE_NORMAL; break;
-            case 6: style = DialogFragment.STYLE_NO_TITLE; break;
-            case 7: style = DialogFragment.STYLE_NO_FRAME; break;
-            case 8: style = DialogFragment.STYLE_NORMAL; break;
-        }
-        switch ((mNum-1)%6) {
-            case 4: theme = android.R.style.Theme_Holo; break;
-            case 5: theme = android.R.style.Theme_Holo_Light_Dialog; break;
-            case 6: theme = android.R.style.Theme_Holo_Light; break;
-            case 7: theme = android.R.style.Theme_Holo_Light_Panel; break;
-            case 8: theme = android.R.style.Theme_Holo_Light; break;
-        }
-        setStyle(style, theme);
-    }
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.dialog_text_entry, container, false);
-        return v;
-    }
-}
-
-
-DialogAlertFragmentMain newFragment = new DialogAlertFragmentMain();//自己的类
-Bundle args = new Bundle();
-args.putInt("title", R.string.alert_dialog_two_buttons_title);
-newFragment.setArguments(args);
-newFragment.show(getFragmentManager(), "11111112222222dialog");
-
-class DialogAlertFragmentMain extends DialogFragment 
-{
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        int title = getArguments().getInt("title");
-        return new AlertDialog.Builder(getActivity())
-                .setIcon(R.drawable.alert_dialog_icon)
-                .setTitle(title)
-                .setMessage(R.string.alert_dialog_two_buttons2_msg)
-                .setPositiveButton(R.string.alert_dialog_ok,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        	  Log.i("DialogAlertFragmentMain", "Positive click!");
-                        }
-                    }
-                )
-                .setNegativeButton(R.string.alert_dialog_cancel,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        	  Log.i("DialogAlertFragmentMain", "Negative  click!");
-                        }
-                    }
-                )
-                .create();
-    }
-}
-##过时的(使用DialogFragment)  showDialog(id)自定义标识ID,会调用当前Activity的OnCreateDialog(id)后再调onPrepareDialog(int id, Dialog dialog),要重写
-
-OnCreateDialog方法中
+onCreateDialog 方法中(过时,提示使用的DialogFragment也过时,目前为了兼容老的
 AlertDialog.Builder builder = new AlertDialog.Builder(this);//Context
 builder.setIcon(res);
 builder.setTitle(res);
@@ -1481,15 +1718,16 @@ builder.show();
 
 <EditText android:textAppearance="?android:attr/textAppearanceMedium" />
 
-ProgressDialog dialog = new ProgressDialog(context);//圆形动画
 
 
 
 
 
 
-SharedPreferences p =Context c.getSharedPreferences("filename", MODE_WORLD_READABLE);//不存在创建
-																Context.MODE_PRIVATE 
+
+SharedPreferences p =Context c.getSharedPreferences("filename", Context.MODE_PRIVATE);//创建模式
+	//MODE_WORLD_READABLE 过时 ，不存在创建
+																 
 String name = p.getString("key", "default");//取
 p.edit()
 	.putString("key","newValue")//存
@@ -1576,8 +1814,10 @@ TestService extends Service
 	public boolean onUnbind(Intent i) {}
 	public void onRebind(Intent i){}
 	
-	public void onStart(Intent intent, int startId){}
-	
+	//public void onStart(Intent intent, int startId){}//在4.0.3过时
+	public int onStartCommand( Intent intent, int flags,  int startId){
+		return super.onStartCommand(intent,flags,startId);  
+	}
 	public void onDestroy(){}
 }
 startService( new Intent(this, TestService.class)); // onCreate->onStart 
@@ -1603,7 +1843,12 @@ Toast.makeText(MyActivity.this, "Service connected", Toast.LENGTH_SHORT).show();
 
 
 Intent intent = new Intent(MainActivity.this, MainReceiver.class);//没有用sendBroadcast可以发给注册过的Receiver,<receiver android:name=".MainReceiver">
-PendingIntent p_intent = PendingIntent.getBroadcast(MainActivity.this, requestCode, intent, 0);
+
+//Targeting S+ (version 31 and above) requires that one of FLAG_IMMUTABLE or FLAG_MUTABLE be specified when creating a PendingIntent.
+//PendingIntent p_intent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
+PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+
 AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
 am.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),	p_intent);//RTC(Real-Time Clock)
 am.cancel(p_intent)
@@ -1650,17 +1895,25 @@ Intent intent = new Intent();
 intent.setAction(Intent.ACTION_CALL);
 intent.setData(Uri.parse("tel:15555215554"));
 或者用 new Intent(Intent.ACTION_CALL,Uri.parse("tel:15555215554"));
+
+//动态申请权限
+if(ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE)!= PackageManager.PERMISSION_GRANTED)
+{
+	ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.CALL_PHONE},1);
+}
+
 startActivity(intent);
 
 Manifest.xml中配置
 <uses-permission android:name="android.permission.CALL_PHONE"/>  //查看源码时<activity android:permission="android.permission.CALL_PHONE"
-"android.permission.CALL_PHONE"记录在 anroid.Manifest.permission. 包中.CALL_PHONE常量的值中
+"android.permission.CALL_PHONE"记录在 android.Manifest.permission. 包中.CALL_PHONE常量的值中
 
 真实手机接入电脑后,使用一个工具(screenmonitor\asm.jar 只能看,不能操作),可双在电脑的显示器中看到真实手机的屏幕
 使用前要增加 platform-tools目录到PATH环境变量中
 
 文件读写
-Environment.getExternalStorageDirectory();//得到SD卡的目录
+//得到SD卡的目录
+Environment.getExternalStorageDirectory();//过时了,用context.getCacheDir()等
 Context context=this.getContext();
 FileOutputStream outStream = context.openFileOutput(filename, Context.MODE_PRIVATE|Context.MODE_APPEND);
 FileInputStream inStream = context.openFileInput(filename);//filename是对/data/<package>/files/目录中的文件 
@@ -1737,7 +1990,8 @@ param.add(pair);
 UrlEncodedFormEntity formEntity=new UrlEncodedFormEntity(param,"UTF-8");
 HttpPost post=new HttpPost("http://127.0.0.1:8080/test/index.jsp");
 post.setEntity(formEntity);
-DefaultHttpClient client=new DefaultHttpClient();
+//DefaultHttpClient client=new DefaultHttpClient();
+HttpClient client = HttpClientBuilder.create().build();
 HttpResponse response=client.execute(post);
 int code=response.getStatusLine().getStatusCode();
 
@@ -1839,12 +2093,26 @@ onPause->onSaveInstanceState  (测试时按Home键,或按ctrl+f12)
 
 当手机收到短信时,会发出一个广播为
 <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+<uses-permission android:name="android.permission.READ_SMS"/>
+//动态申请权限
+if(ActivityCompat.checkSelfPermission(ActivityMain.this,Manifest.permission.READ_SMS)!= PackageManager.PERMISSION_GRANTED ||
+   ActivityCompat.checkSelfPermission(ActivityMain.this,Manifest.permission.RECEIVE_SMS)!= PackageManager.PERMISSION_GRANTED)
+{
+	ActivityCompat.requestPermissions(ActivityMain.this,new String[]{Manifest.permission.READ_SMS,Manifest.permission.RECEIVE_SMS},1);
+}
+
+
+
 
 Object[] pdus=(Object[])intent.getExtras().get("pdus");
 for(Object pdu:pdus)
 {
 	byte[]pduMsg=(byte[])pdu;
-	SmsMessage sms=SmsMessage.createFromPdu(pduMsg);//soon deprecated 
+	//SmsMessage sms=SmsMessage.createFromPdu(pduMsg);//6.0过时
+	String smsFormat=intent.getStringExtra("format");//3gpp
+	SmsMessage sms=SmsMessage.createFromPdu(pduMsg,smsFormat);
+
+
 	String mobile=sms.getOriginatingAddress();//发来的号码
 	String msg=sms.getMessageBody();
 	Date date= new  Date(sms.getTimestampMillis());
@@ -1872,7 +2140,16 @@ Activity.this.sendOrderedBroadcast(intent,permission),是按声明receiver的优
 
 TelephonyManager telManager=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
 telManager.listen(new MyPhoneStateListener(),PhoneStateListener.LISTEN_CALL_STATE);
-String imei = telManager.getDeviceId();//IMEI
+
+
+//动态申请权限
+if(ActivityCompat.checkSelfPermission(BlueToothActivity.this, Manifest.permission.READ_PHONE_STATE)!= PackageManager.PERMISSION_GRANTED)
+{
+	ActivityCompat.requestPermissions(BlueToothActivity.this,new String[]{Manifest.permission.READ_PHONE_STATE},1);
+}
+String imei = telManager.getDeviceId();//IMEI,过时
+String imei = telManager.getImei();//IMEI  ,要READ_PHONE_STATE权限
+
 String sn = tm.getSimSerialNumber();//序列号
 MyPhoneStateListener extends  PhoneStateListener 
 {
@@ -1922,13 +2199,21 @@ SurfaceHolder surfaceHolder=surfaceView.getHolder();
 surfaceHolder.setFixedSize(172, 144);//分辩率
 //surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);//android 3.0版本以前要设置
 player.setDisplay(surfaceHolder);
-player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+//player.setAudioStreamType(AudioManager.STREAM_MUSIC);//8.0过时
+AudioAttributes attributes=new AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
+player.setAudioAttributes(attributes);
+
 //player.reset();//After calling this method, you will have to initialize it again by setting the data source and calling prepare().
 //player.prepare();//MediaPlayer.create()的方式不要再调用prepare()
 
 //File videoFile = new File(Environment.getExternalStorageDirectory(), "movie.mp4");//模拟器是在/mnt/sdcard
 //mediaPlayer.setDataSource(videoFile.getAbsolutePath());
-mediaPlayer.setDataSource(new FileInputStream(new File("/storage/sdcard0/bluetooth/movie.mp4.mp4")).getFD());//机内部存储
+//mediaPlayer.setDataSource(new FileInputStream(new File("/storage/sdcard0/bluetooth/movie.mp4.mp4")).getFD());//机内部存储
+
+AssetFileDescriptor fd=getResources().openRawResourceFd(R.raw.movie);
+mediaPlayer.setDataSource(fd.getFileDescriptor(),fd.getStartOffset(),fd.getLength());
+
 player.start();//播放 OK
 
 
@@ -1936,7 +2221,10 @@ player.start();//播放 OK
 player.setLooping(true);
 AudioManager audioMgr=(AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
 audioMgr.setRingerMode(AudioManager.RINGER_MODE_NORMAL);//音量正常
+
 audioMgr.setRingerMode(AudioManager.RINGER_MODE_SILENT);//静音,只是图标有变化,无效果
+ //新版本报 java.lang.SecurityException: Not allowed to change Do Not Disturb(打扰) state
+ 
 audioMgr.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);//振动
 audioMgr.adjustVolume(AudioManager.ADJUST_LOWER, 0);//减小音量
 audioMgr.adjustVolume(AudioManager.ADJUST_RAISE, 0);//增大音量
@@ -1970,7 +2258,7 @@ if(event.getRepeatCount()==0){
 <LinearLayout android:gravity="right" >	里面的组件右对齐
 
 <!-- SD卡权限 -->
-<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/> 只能给系统App用了
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	
 	
@@ -2022,11 +2310,22 @@ LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup
 ---网页做UI
 使用WebView
 webView=(WebView)this.findViewById(R.id.webView);
-webView.addJavascriptInterface(new MyJavaScriptPlugin(),"myContact");//JS中使用myContact.method1来调用MyJavaScriptPlugin中method1方法
+
+//从API17开始，JS只能访问带有 @JavascriptInterface注解的Java函数。
+webView.addJavascriptInterface(new MyJavaScriptPlugin(),"myContact");//JS中使用myContact.method1来调用MyJavaScriptPlugin中method1方法(新版本要加@JavascriptInterface)
+
 webView.getSettings().setJavaScriptEnabled(true);
+
 webView.loadUrl("file:///android_asset/index.html") ;//android_asset对应assets目录,也可是http://
 webView.loadUrl("javascript:show('"+param+"')"); //调用JS方法,JS代码中有错误不会报出,最好在其它地方测试好再复制过来
 
+//新版本调用 loadUrl 报错，使用
+webView.post(new Runnable() {
+				@Override
+				public void run() {
+					webView.loadUrl("javascript:show('"+param+"')");
+				}
+			});
 
 ---
 export ->Export Android Application-> 要keystore
@@ -2302,16 +2601,28 @@ res/xml/my_widget.xml文件中
      >
 </appwidget-provider>
  
-public class MyAppWidgetProvider extends AppWidgetProvider   //Android Studio运行时，配置要把Lanch:默认的Default Activity修改为Nothing
-{
+  //Android Studio运行时,要把app项目设置中的Launch:默认的Default Activity 修改为Nothing,长按桌面下方出按钮->Widgets->找最下面刚安装(卸载和app一样)
+  //但没有办法debug??
+public class MyAppWidgetProvider extends AppWidgetProvider  
+{	
+	@RequiresApi(api = Build.VERSION_CODES.O)
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) 
 	{	
 		System.out.println("onUpdate被调用");
 //		RemoteViews views=new RemoteViews(context.getPackageName(),R.layout.my_widget_layout) ;
 //		views.setTextViewText(R.id.textView, date);
 //		appWidgetManager.updateAppWidget(appWidgetIds[0], views);
-//		//不能使用线程来做更新,广播生命周期很短,使用Service
-		context.startService(new Intent(context,TimerService.class));
+
+
+		//不能使用线程来做更新,广播生命周期很短,使用Service
+		//Android 8.0 不再允许后台service/receiver 直接通过startService方式去启动
+		context.startService(new Intent(context,TimerService.class));//失败???
+		
+		//解决方法，要求在所在方法上加@RequiresApi(api = Build.VERSION_CODES.O)
+		context.startForegroundService(new Intent(context,TimerService.class));
+		//报  Didn't find class "androidx.core.app.CoreComponentFactory",
+		//解决方法在 app/gradle.build中增加 implementation 'androidx.core:core:1.3.1'
+		
 	}
 	public void onDeleted(Context context, int[] appWidgetIds) //删除时,调用这个方法(android4.1中没有手工删除的方法,是自动的),不用再配置 <receiver> 
 	{
@@ -2499,7 +2810,7 @@ MyView extends View
 		paint.setTextSize(18);
 		canvas.drawText("中华人民共和国", 20, 300, paint);
 		
-		Bitmap bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+		Bitmap bitmap=BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);//这不能mipmap
 		canvas.drawBitmap(bitmap , 50 , 500 , paint);
 	}
 }
@@ -2599,11 +2910,19 @@ zoom.setOnZoomInClickListener(new ZoomControls.OnClickListener()
 真机目录/storage/sdcard0(是机内存)/是主目录 ,有bluetooth,Download,Pictures/Screenshots
 
 //---camera Mac上模拟器不能用
+
+android.hardware.Camera 5.0开始过时，用android.hardware.camera2包(不兼容1) ,还有一个 CameraX 库(androidx.camera包),也是5.0开始
+
 摄像头在一个时间里只能被一个Activity使用
 
 <uses-permission android:name="android.permission.CAMERA"/>	
- <uses-feature android:name="android.hardware.camera" />
- <uses-feature android:name="android.hardware.camera.autofocus" />
+<uses-feature android:name="android.hardware.camera" />
+
+<!--
+<uses-feature android:name="android.hardware.camera"  android:required="false"/> required默认为true
+-->
+
+<uses-feature android:name="android.hardware.camera.autofocus" />
  
 <SurfaceView
  
@@ -2629,6 +2948,7 @@ recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);//3gp
 recorder.setOutputFile("/mnt/sdcard/recorder.arm.3gp");
 //getCacheDir();//文件会写在 /data/data/<package>/cache目录下,可以OnDestroy时删除
+	//在模拟器上和真机上路径变为 /data/user/0/<package>/cache 
 recorder.prepare();//缓冲
 recorder.start();
 
@@ -2677,6 +2997,11 @@ camera.takePicture(null, null, new Camera.PictureCallback(){onPictureTaken(byte[
 <uses-permission android:name="android.permission.BLUETOOTH"/> <!-- 使用蓝牙的权限  -->
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/> <!--修改蓝牙操作的权限  -->
 
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+<uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE"/>
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+<uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE"/> 只系统App
+  
 BluetoothAdapter adapter= BluetoothAdapter.getDefaultAdapter();//本机的蓝牙设备
 if(adapter==null)
 {
@@ -2684,6 +3009,11 @@ if(adapter==null)
 	return;
 }
 	
+//动态申请权限
+if(ActivityCompat.checkSelfPermission(BlueToothActivity.this, Manifest.permission.BLUETOOTH_CONNECT)!= PackageManager.PERMISSION_GRANTED)
+{
+	ActivityCompat.requestPermissions(BlueToothActivity.this,new String[]{Manifest.permission.BLUETOOTH_CONNECT},1);
+}
 if(! adapter.isEnabled())
 {
 	Intent intent=new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);//有界面提示用户使用蓝牙设备,打开蓝牙权限请求,如选Yes也提示Visible on
@@ -2694,9 +3024,16 @@ Set<BluetoothDevice> devices=adapter.getBondedDevices();//本机已经配对的�
 bluetoothDevice.getName()
 bluetoothDevice.getAddress()//MAC地址
 
+
+
+//动态申请权限
+if(ActivityCompat.checkSelfPermission(BlueToothActivity.this, Manifest.permission.BLUETOOTH_CONNECT)!= PackageManager.PERMISSION_GRANTED)
+{
+	ActivityCompat.requestPermissions(BlueToothActivity.this,new String[]{Manifest.permission.BLUETOOTH_CONNECT},1);
+}
 Intent intent=new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);//可见的
 intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION,120);//可见时间,单位秒,最多300
-startActivity(intent);//有Toast提示用户开启时间
+startActivity(intent);//有Toast/(每次交互按钮允许或拒绝)提示用户开启时间
 
 
 IntentFilter filter=new IntentFilter(BluetoothDevice.ACTION_FOUND);//只接收发现蓝牙的广播
@@ -2709,8 +3046,14 @@ this.registerReceiver(new BroadcastReceiver()
 			}
 		}
 		, filter);
-		
-adapter.startDiscovery();//扫描其它蓝牙设备,是一个异步调用,每扫描到一个蓝牙,会发送一个广播
+
+
+//动态申请权限
+//if(ActivityCompat.checkSelfPermission(BlueToothActivity.this, Manifest.permission.BLUETOOTH_SCAN)!= PackageManager.PERMISSION_GRANTED)
+//{
+//	ActivityCompat.requestPermissions(BlueToothActivity.this,new String[]{Manifest.permission.BLUETOOTH_SCAN},1);
+//}
+adapter.startDiscovery();//扫描其它蓝牙设备,是一个异步调用,每扫描到一个蓝牙,会发送一个广播,???哪里收？？
  
 
 //---定位
@@ -2719,11 +3062,17 @@ adapter.startDiscovery();//扫描其它蓝牙设备,是一个异步调用,每扫
 
 模拟器Emulator Control中可以发送经纬度来测试,在模拟器上方有一个GPS的图标
 
+//动态申请权限
+if(ActivityCompat.checkSelfPermission(LocationActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED)
+{
+	ActivityCompat.requestPermissions(LocationActivity.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
+}
 //模拟器可测试要send,真机测试要到室外才有信号,闪表示正在请求信号,请求到就不闪了
 LocationManager manager= (LocationManager)this.getSystemService(Context.LOCATION_SERVICE);
 manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 20, //3秒后或大于20米 做 一更次更新(通知listener)
 		new LocationListener() 
 		{ //使用GPS做Provider,也可使用NETWORK_PROVIDER,
+			//过时Android Q 及以上不会调用
 			public void onStatusChanged(String provider, int status, Bundle extras) {
 			}
 			public void onProviderEnabled(String provider) {
@@ -2771,7 +3120,8 @@ android.Manifest.permission有所有的权限
 
 
 WifiManager wifiManager=(WifiManager) this.getSystemService(Service.WIFI_SERVICE);
-wifiManager.setWifiEnabled(true);
+wifiManager.setWifiEnabled(true);//过时 Q及以上版本不可以修改wifi状态 ，总是返回false
+//api-29开始过时，官网api没有说替代方案，不允许，为了安全吧
 int state=wifiManager.getWifiState();//WifiManager.WIFI_STATE_ENABLED
 
 //---传感器
@@ -2797,9 +3147,9 @@ Sensor.TYPE_ACCELEROMETER 加速度(重力)传感器
 		  linear_acceleration[2] = event.values[2] - gravity[2];
 
 Sensor.TYPE_PROXIMITY  距离传感器,用于电话在耳边时,锁屏
-	values[0];//
-	sensor.getMaximumRange();//是5 ,就0或5两个值
-
+	event.values[0];//值只有0或1
+	
+	
 Sensor.TYPE_LIGHT //灯光
  
 
@@ -2878,17 +3228,17 @@ matrix.postTranslate(distanceX, distanceY);
 
 //---震动
 Vibrator vibrator=(Vibrator)getApplication().getSystemService(Service.VIBRATOR_SERVICE);
-vibrator.
+//vibrator.vibrate(new long[]{1000,100,1000,200}, 0);//-1表示不重复
+VibrationEffect vibrationEffect=  VibrationEffect.createWaveform(new long[]{1000,100,1000,200}, 0);//-1表示不重复
+vibrator.vibrate(vibrationEffect );
+
 <uses-permission android:name="android.permission.VIBRATE"/>
 
-<uses-permission android:name="android.permission.DEVICE_POWER" /> <!--要project-clean -->
+<uses-permission android:name="android.permission.DEVICE_POWER" /> <!--要系统 app才行 -->
 <uses-permission android:name="android.permission.REBOOT"/> 
 
 ---
-	 <uses-permission android:name="android.permission.REBOOT"/><!--要project-clean ,可能要得到root权限 -->
-	 <uses-permission android:name="android.permission.DEVICE_POWER" />
-	 
-	 Intent intent = new Intent(Intent.ACTION_SHUTDOWN);//可以要得到root权限
+Intent intent = new Intent(Intent.ACTION_SHUTDOWN);//可以要得到root权限
 	 
 //=========上 只可真机测试
 
@@ -2947,10 +3297,16 @@ adb -s  A49947194A9B reboot  #或在shell中reboot
 adb remount  #system分区从 只读 -> 可写 ,只有获得了root权限才可能运行
 
 ------------NDK
+NDK 最新 LTS 版本 (r23b)  windows版本大小770MB, 但自带clang编译器,
+	Android Studio-2020.3 下载的到%ANDROID_SDK_ROOT%\ndk\23.1.7779620 下
+	
 Android NDK 从 r11 开始建议大家切换到 Clang, r18 中删掉 GCC 
-Android Studio 会默认下载的 SDK的 ndk-bundle 目录下
+libc++ 是针对 Clang 编译器特别重写的 C++ 标准库
+libstdc++ 则是 GCC 的对应 C++ 标准库了
 
-https://github.com/googlesamples/android-ndk/tree/master
+ 
+https://github.com/android/ndk-samples
+
 
 CMake  本地代码构建工具,也可用 ndk-build  
 LLDB  可用Android Studio 调试本地代码
@@ -2960,26 +3316,33 @@ cygpath -u D:/cygwin/bin/make  会返回/usr/bin/make
 cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make
 cygcheck -c cygwin  显示当前Cygwin 安装的版本	
 
-g++ 不正常?????
+
 
 JNI方式
 java中的native方法,linux命名规范lib<somthing>.so,库会自动放到apk包中,并签名
 java中使用System.loadLibrary("FileLoader");//表示使用libFileLoader.so文件
 windows 使用Cygwin
 
-在项目目录下建立文件 <project-path>/jni/Android.mk
+在项目目录(是app目录里面)下建立文件 <project-path>/jni/Android.mk
 可选的使用GNU make写自己的<project-path>/jni/Application.mk 文件
 
-把D:\android-ndk-r7 入在PATH中,为了使用ndk-build命令方便
-到自己的项目目录,运行ndk-build,(会读<>/jni/Android.mk文件)会生成目录obj,libs,
-有libs/armeabi/libxxx.so,gdbserver文件,gdb.setup文件
-eclipse ADT打包后的apk包中是在lib/armeabi/目录下(是lib没有s),中只有libxxx.so,gdbserver的文件
+把D:\android-ndk-r7 入在PATH中,为了使用ndk-build命令方便(提示 APP_PLATFORM 没有设置,ndk-build -v显示windows下是用MinGW)
+到自己的项目目录(是app目录里面),运行ndk-build(会读./jni/Android.mk文件)会生成目录obj,libs
 
+win10上可成功运行ndk-build 
+	生成4个目录,每个里面有 libc-native.so
+	libs\armeabi-v7a
+	libs\arm64-v8a
+	libs\x86
+	libs\x86_64
 
-
-或者 ./ndk-build -C <project-path>
-
-项目目录指AndroidManifest.xml文件所在的目录
+win7上运行ndk-build 
+	报ld: error: failed to write to the output file: Permission denied ???
+	
+或者 ./ndk-build -C <project-path>  
+	#提示 APP_PLATFORM 没设置, 默认最小SDK版本为android-16
+	#报 APP_BUILD_SCRIPT 指向了不知道的文件 ./jni/Android.mk
+	 
 ndk-build  clean    --> clean generated binaries
 ndk-build  -B V=1   --> force complete rebuild, showing commands
 
@@ -3019,6 +3382,38 @@ include $(BUILD_SHARED_LIBRARY)
 也可NDK安装目录建立apps目录, $NDK/apps/<name>/Application.mk,使用时make APP=<name>
 (不推荐的,老版本,以后可能会被删除),输出在$NDK/out/apps/<name>/下,APP_PROJECT_PATH可能被Application.mk使用
 
+---
+String pathList = System.getProperty("java.library.path", ".");
+System.out.println("------"+pathList);//值为/system/lib64:/system_ext/lib64
+  
+
+app目录下 的build.gradle文件中在android{}里面增加如下语句
+	 sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+用命令gradle build 或者 用Android Studio 2020.3.1构建(jniLib显示的图标和res目录是一样的),win10下idea 2021.3.1 点构建按钮不行
+
+打包后的apk就有lib目录了,使用模拟器里面只有x86_64目录,而不是全部
+
+如lib目录要有armeabi-v7a(最早只生成armeabi)和arm64-v8a
+android {  
+    defaultConfig {
+		//在app目录下 的build.gradle文件中android.defaultConfig下增加(写的时候没有完全提示)，如不增加x86_64，启动模拟x86_64的模拟器才有弹窗提示
+		ndk{
+            abiFilters "armeabi-v7a", "arm64-v8a","x86_64"
+        }
+	}
+}
+
+
+------------OpenGL ES 3.1 
+此 API 规范受 Android 5.0（API 级别 21）及更高版本的支持。 
+<!-- Tell the system this app requires OpenGL ES 3.1. -->
+<uses-feature android:glEsVersion="0x00030001" android:required="true" />
+    
+OpenGL ES 3.x API 可向后兼容 2.0 API
 ------------OpenGL ES  2.0
 
 doc文档 Android Training链接->Advanced Training->Displaying Graphics with OpenGL ES 也有示例代码

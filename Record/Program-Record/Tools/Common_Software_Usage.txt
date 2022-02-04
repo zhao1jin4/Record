@@ -95,6 +95,8 @@ https://view.officeapps.live.com/op/view.aspx?src=www.xxx.com/xx.xlsx
 
 File -> INfo -> protect Workbook  可以设置打开密码,mark as final 可以设置为只读
 
+不要文本超出单元格 	单元格格式 -> 对齐 -> 自动换行
+	
 excel 中可以在单元格用  ='Name List'!D8  表示引用Name List的工作表中的D8 内容,
 
 excel 中的单元格可以选择下拉
@@ -301,6 +303,7 @@ firefox63  插件 只能在线安装了(可以右击复制链接在edge里下载
 	SSHGate 
 	DownThemAll-4.2.6  可firefox74
 	Markdown viewer 右上角有一个m图标，拖入文件或输入file:///c ,linux测试无效，
+	
 	--- 新firefox 没了？？ 
 	ColorZilla-2.8  新firefox57 不兼容了？？？？
 	cacheviewer-0.7.6(Tools->字loper->CacheViewer)
@@ -365,7 +368,12 @@ Tools->options->Privacy  -> remove individual cookies ->可以看到Cookie
 Firefox 不能访问6000,6666端口
 
 Firefox 允许跨域CORS ,安装CORS Everywhere 插件 ，安装后右上角有一个 Cors E图标，绿色开启(是对全部标签生效)，粉色关闭
- 	
+
+有黑色主题
+
+
+firefox alt+滚轮 是向前/向后跳转页面
+
 -------------Chrome
 
 
@@ -448,22 +456,30 @@ chrome://flags  SameSite by default cookies 设置为禁用
 chrome 允许跨域CORS --disable-web-security --user-data-dir 一定要两个参数一起使用
 	启动chrome 后上方就一个提示，说明成功了，如果再启动一个窗口就没有了
  	
+chrome_software_reporter_tool.exe 占用系统资源很高
 
--------------Edge --------
-有win7版本，在线下载安装,版本88
+-------------Edge 
+新版本基于Chrome内核，可以在win7上安装,像chrome在线下载安装，要administrator权限才行
 
 自带flash player ...->设置->查看高级设置-> 打开  Adobe Flash Player  
-
-2018年  EdgeHTML 17
-安装目录 
-C:\Windows\SystemApps\Microsoft.MicrosoftEdge_8wekyb3d8bbwe
+ 
 
 清除浏览历史 可以选择密码项 
 	高级设置 -> 自动填充设置区->保存密码 开，管理密码 按钮-> 不能查看密码
 	
 	也不能查看Cookie
 
-
+也有linux rpm 版本和 android版本
+	比起chrome好的就是扩展没有被墙，如PostWoman(不是man,类似的黄色图标),React Developer Tools,Vue.js devtools 还是beta阶段
+	Modify Header Value (HTTP Headers) 
+	Cookies Manager
+	Self-Destructing Cookies
+	Axure RP Extension for Edge
+	EPUBReader
+	Xdebug Helper(PHP)
+	Selenium IDE
+	
+首次打开提示要登录，关闭再打开就不用了
 -------------IE --------
 
 清除
@@ -542,6 +558,13 @@ Encodeing->Ecode in UTF-8-BOM  (notepad另存为UTF-8的方式)
 Encodeing->Convert to UTF-8
 Encodeing->Convert to UTF-8-BOM
 
+可在目录中查所有文件中包含的字符
+	搜索->在文件中查找，输入文字，指定目录
+
+正则可以使用 查找替换_命名风格变为陀峰命名风格
+ 查找 _(\p{Lower})  
+ 替换 \U\1
+ 
 ---插件
 plugins->plugin amdin...->搜索hex  复选hex edit插件->install  后就有plugins-> Hex-Editor-> view in HEX 
 	以十六进制查看文件是否有UTF-8 BOM  (UltraEdit也可以,另存为可选择是否有BOM)
@@ -558,6 +581,10 @@ http://textfx.no-ip.com/textfx/版本太老  有libTidy.dll和tidycfg.ini  放un
 TextFX—>HTML Tidy->reload libTidy.dll 
 TextFX—>HTML Tidy->reFresh menu from tidycfg.ini  
 点击菜单 TextFX—>HTML Tidy—>Tidy: Reindent XML  ,会报个错,但可以用,对中文的支持不好
+
+----Notepad++ 插件JsonViewer 
+搜索 JsonViewer  复选Json Viewer 插件->install   安装后有菜单  plugins-> Json Viewer-> format json
+
 ----Notepad++ 插件HTML 可以编码,解码&#12345形式;
 http://sourceforge.net/projects/npp-plugins/files/HTMLTag/
 
@@ -692,8 +719,9 @@ alt+1 ,alt+2来切换时间切换桌面
 ZIP/RAR分卷压缩->选择文件右击->添加到压缩文件...->分卷压缩,字节->输入大小
 只有NTFS文件系统才支持大于4GB 的文件,FAT32不可以用
 
-unlocker
-netlimiter 
+unlocker 文件不能被删除，因被占用，这个工具可以知道是哪个进程占用
+
+netlimiter 对进程作网络下载限速
 
 
 UltraISO 工具->格式转换 可dmg 转  iso
@@ -813,7 +841,20 @@ https://raw.githubusercontent.com/getlantern/lantern-binaries/master/lantern-ins
 windows7+最新preview版本
 https://raw.githubusercontent.com/getlantern/lantern-binaries/master/lantern-installer-preview.exe
 
-----
+------windows版本微信
+可以设置中打开文件夹，到 %USER_PROFILE%\Documents\WeChat Files\wxid_xxxxxxx
+ 传输的文件在 
+ %USER_PROFILE%\Documents\WeChat Files\wxid_xxxxxxx\FileStorage\File
+ 视频在
+ %USER_PROFILE%\Documents\WeChat Files\wxid_xxxxxxx\FileStorage\Video
+ %USER_PROFILE%\Documents\WeChat Files\wxid_xxxxxxx\FileStorage\Applet目录是小程序安装后，安装前在
+  %USER_PROFILE%\Documents\WeChat Files\Applet\wxxxxxx\xx\__APP__.wxapkg
+  
+ Image目录里全是.dat文件,像是加密过的,
+ 聊天记录没找到
+
+----修改 文件创建时间，修改时间，访问时间的工具 NewFileTime
+	拖入文件，设置完成后，有一个像标签的按钮 Set-Time
 
 
 

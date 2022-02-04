@@ -471,6 +471,8 @@ http://<外网IP>/也可仿问
 先建立group,可选择图标(Group avatar),再建立项目时就可选择建立的组名,做为git地址的context
 为建立的项目加用户,左侧Settings->Members选择用户,在role permission中选择Developer
 
+可设置分支为protected, role 有 developer 和 maintainer，可以merge request
+
 LDAP用户支持 Microsoft Active Directory ,Apple Open Directory 和 OpenLDAP ,389 Server(fedora项目)
 默认没有开启LDAP支持
 建立用户初始密码发邮箱,但要配置SMTP , /etc/gitlab/gitlab.rb 中搜索 smtp,ldap
@@ -597,6 +599,10 @@ git log --after="2021-01-20 10:44:00" 指定日期之后的
 
 git log origin/xx_branch 显示服务端指定分支的历史记录
 git log --graph 显示图
+git log -p     展示修改的内容
+git log --stat 展示修改了哪些文件名字(无内容)
+
+
 
 git remote -v  显示有名字为 origin , clone后就有
 git remote show origin
@@ -662,6 +668,11 @@ git branch
 	-M (大写多数的带--force，如-D)
 	 Shortcut for --move --force.
 
+本地新分支后,又有commit,再push不成功,最后有提示 
+#git branch --set-upstream-to=origin/<branch> release/test2.2.0
+ git branch --set-upstream-to=origin/release/test2.2.0  release/test2.2.0
+
+
 git tag -l 查看tag
 git remote -v 显示对应的克隆地址
 
@@ -699,6 +710,7 @@ git push origin :myBranch
 远程没有有remote_branch分支并，本地已经切换到local_branch
 git push origin local_branch:remote_branch
 git push --set-upstream origin <branch_name>
+
 git push origin myBranch:myBranch
 git push <远程主机名> <本地分支名>:<远程分支名>
 git remote show 查远程主机名是什么
@@ -791,6 +803,13 @@ rebase也可做类似分支的合并
 git format-patch HEAD ^^ #最近2次commit的做 patch,HEAD~10表示最近10次
 git am --abort (am=apply mailbox) 停止应用patch
 
+git clone ,git checkout 时显示Filename too long
+git config --global core.longpaths true
+
+ 
+git switch <branchName> 切换分支 , -c/-C 建立分支  (是git checkout中的一部分功能 ，另一部分是git restore)
+git switch -   		切换到前一个分支
+ 
  
 
 ----  github操作提示
@@ -875,7 +894,7 @@ wget -q -O - http://192.168.114.13:8080/jenkins/generic-webhook-trigger/invoke?t
 
 git blame -L35,53 OrderDao.java 指定行范围，查看最新被谁修改和hash,再用 git show  <hash>
 
-
+GitLab ,Settings->Webhooks 
 ============== 上 Git 
 ===========phpmyadmin-5.0.1
 openSUSE-leap-15.1的yast 自带 phpMyAdmin包
@@ -2032,9 +2051,6 @@ http {
 nginx -p `pwd`/ -c conf/nginx.conf
 
 
-================APISIX  
-apache 顶级项目,国人开发,比Kong 牛
-基于openResty
 
 
 ================Kong
@@ -2043,7 +2059,7 @@ apache 顶级项目,国人开发,比Kong 牛
 API网关   将安全认证，流量控制，审计日志，黑白名单等实现
 
 有docker ， kubernate 版本，
-没有windows版本
+没有windows版本 ,fedora,openSUSE版本,有CentOS,有收费版本，
 
 源码安装依赖于  OpenResty 1.13.6.2  依赖openssl.h
 
@@ -2233,9 +2249,14 @@ kong-dashboard start --kong-url http://127.0.0.1:8001
 http://localhost:8080
 
 --------konga web界面工具 linux版本,比kong-dashboard功能更多
+https://pantsel.github.io/konga/ 
+https://github.com/pantsel/konga
+
  使用anjular
  kong admin 0.14.3
 https://github.com/pantsel/konga/blob/master/README.md#compatibility 兼容版本 只说了 0.14.0 版本以前
+
+docker pull pantsel/konga
  
  
 git clone https://github.com/pantsel/konga.git
@@ -2267,6 +2288,7 @@ npm run production
 
 
 ----kong docker安装
+
 docker network create kong-net
 
 使用PostgreSQL,启动
@@ -2329,6 +2351,134 @@ docker run --rm -p 8080:8080 pgbi/kong-dashboard start --kong-url http://127.0.0
 报连接不上???
  
 浏览器打开 http://localhost:8080
+
+================APISIX   网关
+apache 顶级项目,国人开发,比Kong 牛
+基于openResty, 使用lua脚本, yml配置,使用etcd
+
+没有windows版本！！！只能用docker或WSL来做
+
+如为CentOS 安装为
+sudo yum install -y https://github.com/apache/apisix/releases/download/2.9/apisix-2.9-0.el7.x86_64.rpm
+
+如为Docker安装为
+docker pull apache/apisix
+
+源码安装，要求 OpenResty 二进制文件在 PATH 中
+cd apache-apisix-2.9-src
+make deps
+
+	---OpenResty 有openSUSE-leap-15.3 二进制包
+
+	sudo rpm --import https://openresty.org/package/pubkey.gpg
+	sudo zypper ar -g --refresh --check https://openresty.org/package/opensuse/openresty.repo
+	sudo zypper mr --gpgcheck-allow-unsigned-repo openresty
+	sudo zypper --gpg-auto-import-keys refresh
+	sudo zypper install openresty
+
+	---OpenResty 有fedora-34 二进制包
+	wget https://openresty.org/package/fedora/openresty.repo
+	sudo mv openresty.repo /etc/yum.repos.d/ 
+	sudo dnf check-update 	# update the index:
+	sudo dnf install -y openresty
+	
+	---
+	提示要 LuaRocks 3.x  是Lua 模块的包管理器
+	zypper install lua51-luarocks  是2.x	   #dnf install luarocks.noarch 版本是 3.5
+	提示  lua.h: No such file or directory
+	zypper install lua51-devel				
+
+	#sudo dnf install lua-devel 安装的是5.4 ,提示没有lua-resty-dns-client 5.2.0　#安装用 luarocks install lua-resty-dns　5.2.0没有lua-5.4版本
+	#sudo luarocks install lua-resty-dns-client 5.2.0 --check-lua-versions 显示　lua-resty-dns-client 5.2.0 supports only Lua 5.1 and Lua 5.2 and Lua 5.3 but not Lua 5.4.
+ 	#sudo dnf install compat-lua compat-lua-devel 是5.1 版本
+	#sudo mv /usr/bin/lua /usr/bin/lua-5.4
+	#ln -s /usr/bin/lua-5.1  /usr/bin/lua
+
+	
+	依赖于gcc,git命令，会git下载很多rock,rockspec ,只支持lua5.1
+		zypper install git
+		
+	#提示 如果 luarocks 不是  3.x 增加下列配置到 LuaRocks 配置文件(/etc/luarocks/config-5.3.lua) 忽略它
+	提示要 header file for OPENSSL  ,用 luarocks install luasec OPENSSL_DIR=/xxx
+		
+	zypper install libopenssl-1_1-devel 
+
+	
+	#luarocks config --local variables.OPENSSL_LIBDIR /usr/lib64
+	#luarocks config --local variables.OPENSSL_INCDIR /usr/include
+	#luarocks config --local variables.LUA_INCDIR  /usr/lib64
+	#上面三行做记录吧,下面对fedora34没用,一定要dnf install openresty-openssl111-devel 才行
+	luarocks install luasec OPENSSL_DIR=/usr
+	
+	
+	
+	
+初始化 NGINX 配置文件和 etcd	
+make init  
+	提示连接不上etcd , http://127.0.0.1:2379/version
+	启动本机的etcd服务即可
+	
+运行 (就在源码的目录生成bin,conf等目录)
+make run (执行的是 ./bin/apisix start)
+
+make quit  正常停止
+make stop  立即停止
+make help
+
+
+
+export PATH=/usr/local/openresty/nginx/sbin:$PATH
+
+conf/config.yaml 文件 apisix.admin_key 配置生产环境要修改
+		有etcd的配置
+Admin API
+curl http://127.0.0.1:9080/apisix/admin/routes?api_key=abcdefghabcdefgh -i  就可仿问了api_key的值是配置文件中的
+	-i  Include protocol response headers in the output
+
+conf/apisix.yaml 中有配置 9080
+
+如使用 systemctl管理服务，要放文件到 /usr/lib/systemd/system/apisix.service
+
+------APISIX  Dashboard
+使用react的ant-design  和Go 开发
+linux二进制版本只支持CentOS 7 
+https://github.com/apache/apisix-dashboard/releases/download/v2.8.0/apisix-dashboard-2.8.0-0.x86_64.rpm
+
+docker版本要求etcd 3.4.0+
+docker pull apache/apisix-dashboard
+
+--APISIX  Dashboard 源码版本
+包括 manager-api 和 web(可选的)
+
+manager-api  要求 Golang 1.13+  ( go env -w GOPROXY=https://goproxy.cn,direct ,要设置 GOROOT 环境变量 )
+web  要求  Node.js 10.23.0+  , Yarn (npm install -g yarn)
+
+cd apache-apisix-dashboard-2.8.0-src
+make build  (WSL 上的openSUSE不行,VMware中的fedoar是可以的)
+
+cd ./output
+./manager-api  或者  nohup ./manager-api & 要先运行etcd
+./manager-api stop
+
+http://127.0.0.1:9000  admin/admin
+
+output/conf/conf.yaml 中 修改 allow_list 增加本机外网IP
+	但测试下来有BUG!!! 日志显示的IP不是浏览器上的IP
+	
+	authentication 组中配置用户名admin/admin
+	
+	有配置etcd的endpoints 
+
+	apisix-dashbord 连接的 etcd 应该是 apisix使用的etcd
+	页面上建立route后
+	./etcdctl  get /  --prefix --keys-only  
+	发现建立了/apisix/routes/
+
+---
+lua进行require绝对路径时,会从package.path中进行遍历 ，写一个 test.lua文件 里面一句 print(package.path) 
+lua test.lua执行结果显示有在最后是有/usr/share/lua/5.1/?.lua;/usr/share/lua/5.1/?/init.lua   #看样子?是通配符
+		
+
 
 ================Ceph
 openStack 使用这个火的

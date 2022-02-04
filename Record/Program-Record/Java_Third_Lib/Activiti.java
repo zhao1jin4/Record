@@ -6,7 +6,7 @@ BPMN还有很多其它图标，如何用 (6 版本ReceiveTask如继续)
 
 Activiti 7 (2019-03-29) 开始有了Activiti Cloud(收费) ,Activiti Core (开源 支持SpringBoot2.x)
 
-5和6 版本 原创作者是Tom  是JBPM4 分出来的, 但到不是Tom做的了, Tom又做了个 Flowable
+5和6 版本 原创作者是Tom  是JBPM4 分出来的, Tom又做了个 Flowable
 
 
 https://github.com/Activiti/Activiti
@@ -15,6 +15,11 @@ https://github.com/Activiti/activiti-examples
 https://activiti.gitbook.io/activiti-7-developers-guide/
  
 
+Camunda 基于 Activii5  支持DMN
+Flowable 基于 activiti6   https://github.com/Flowable 最新 6.7.1 支持DMN，BPEL
+
+DMN =Decision Model and Notation
+BPEL=Business Process Execution Language，
 
 -- Activiti Core 7 版本 变化 支持SpringBoot2.x , 强依赖了 Spring Security 
 变为25张表

@@ -1885,8 +1885,124 @@ cp /etc/fdfs/client.conf.sample  /etc/fdfs/client.conf
 
 ---
 http.anti_steal.check_token=true
-http.anti_steal.secret_key=123456
-================
+http.anti_steal.secret_key=123456 
+
+=================iptables 被 nftables 替代
+
+一个数据据包有 源地址,目标地址,协议
+
+iptables -A INPUT -p(protocol) icmp -j (jump)DROP  (Target,DROP,ACCEPT ,REJECT,LOG)
+
+icmp不可ping一个地址
+
+ip6tables -L
+iptables -L -n 显示 数字IP
+iptables -S  显示，像 iptables-save 格式
+
+iptables -F (flush)    清空规则
+-D delete  从一开始
+-A append
+-I --insert
+-Z 清零(包的个数)
+-N --new 新建一个链
+-X 删自己的链
+-P 大P 改变默认
+
+-p 小p 协议 可用! 来排除
+-s --source	
+--sport 源 
+-d --destination 
+--line-numbers 显示链的编号
+-v --verbose	
 
 
+链，INPUT，OUTPUT，FORWARD(对其它机器服务,的来源和目录都不是自己)
 
+保证SSH 服务正常
+iptables -A INPUT  -p tcp   (-d 127.0.0.1)   --dport 22 -j ACCEPT  () 中可省,INPUT的目标地址,OUTPUT的源地址是本机IP
+iptables -A OUTPUT -p tcp   (-s 127.0.0.1)   --sport 22 -j ACCEPT
+
+
+iptables -P INPUT DROP  改变默认 -P 所有的 INPUT 都DROP
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP
+ 
+配置文件  /etc/sysconfig/iptables
+
+iptables-save > /etc/sysconfig/iptables
+相应的有 iptables-restore
+
+
+/etc/services 找domain为53端口的是DNS
+
+为了可用使用DNS来上网,
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A INPUT -p udp --sport 53 -j ACCEPT  如果自己是DNS服务器没有指定目标端口是53,采用默认DROP
+
+iptables -D INPUT 5 删INPUT第5行
+
+为了本机可正常工作
+iptables -A INPUT -s 127.0.0.1 -d 127.0.0.1  -j ACCEPT  
+
+^IN^OUT 或者
+iptables -A OUTPUT -s 127.0.0.1 -d 127.0.0.1  -j ACCEPT
+
+^oldchar^newchar   替换上一次执行过的命令中的字符
+
+
+iptables -A OUTPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT	(-sport 服务器)
+-m state --state ESTAbLISHED 表示只响应有过请求的包,对没有请求过的包,不可出 m match
+
+iptables -D OUTPUT 1
+做为服务器删上一个OUTPUT 22 的链 ,
+
+做客户机
+iptables -A OUTPUT -p tcp --dport 22 -j ACCEPT   (--dport)
+iptables -A INPUT -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+
+service iptables save
+service iptables start/stop/restart/status/condrestart/panic/save
+　
+
+iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT 
+iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
+iptables -I INPUT -p tcp --dport 25 -j ACCEPT ##SMTP
+
+iptables -A INPUT  -p icmp   -j ACCEPT 
+iptables -A OUTPUT -p icmp   -j ACCEPT
+
+iptables -P INPUT DROP  
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP 
+ 
+iptablse -A INPUT -p tcp -dport 22 -j  LOG --log-level 5 --log-prefix "iptables::" ###记录日志 --prefix 并不是最前的
+要确保前方没有DROP, 或者ACCEPT 的规则对应的包,并在其它对应的ACCEP规则的前面才有效 
+
+
+局域网地址反译到互联网地址时，叫NAT
+
+SNAT 源地址转换,只能发生在POSTROUTING
+DNAT 目标地址转换  只能发生在PREROUTING
+
+iptables -t nat -L -n 来显示    nat表中的信息
+iptables -t nat -A POSTROUTING -s 10.0.0.0/24(24=255.255.255.0) -j SNAT --to-source 192.168.0.254
+iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -j MASQUERADE 违装(masquerade 化装)
+
+iptables -t nat -A PREROUTING -d 10.0.0.254 -p tcp -dport 80 -j DNAT --to-destination 192.168.0.1
+
+
+普通用户不能监听1024以下端口 
+1.iptables -t nat -A PREROUTING -p tcp --dport <低端口> -i eth0 -j REDIRECT --to-port <原先监听的高端口> 
+
+
+iptables -L
+iptables -F 就可ssh登录了
+iptables -P INPUT  ACCEPT
+iptables -P OUTPUT  ACCEPT
+iptables -P FORWARD  ACCEPT
+
+iptables -A INPUT  -p tcp   --dport 22 -j ACCEPT 
+iptables -A OUTPUT -p tcp   --sport 22 -j ACCEPT
+也不能sftp传文件 
+
+iptables -t nat -L -n

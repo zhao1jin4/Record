@@ -1,3 +1,7 @@
+alibaba openapi
+https://api.aliyun.com/#/?product=schedulerx2
+ 
+
 https://github.com/alibaba/spring-cloud-alibaba/tree/master/spring-cloud-alibaba-examples
 
 
@@ -6,14 +10,15 @@ https://github.com/alibaba/spring-cloud-alibaba/tree/master/spring-cloud-alibaba
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-            <version>2.2.1.RELEASE</version>   <!-- spring 官方最新是 2.1.0 但示例对应的源码有2.2.1-->
+            <version>2.2.6.RELEASE</version>   
             <type>pom</type>
             <scope>import</scope>
         </dependency>
     </dependencies>
 </dependencyManagement>
 
-
+ nacos 支持Go客户端
+ https://github.com/nacos-group/nacos-sdk-go
 --------Nacos 服务注册发现
 功能类似Dubbo的Zookeeper
 也是provider向注册到Nacos,consumer向Nacos取可用服务，直接连接provider而不是Nacos做通讯
@@ -23,7 +28,7 @@ https://github.com/alibaba/spring-cloud-alibaba/tree/master/spring-cloud-alibaba
 
 下载  nacos-server-1.2.1.zip
 linux 启动 ./startup.sh -m standalone
-windows 双击 startup.cmd
+windows 启 startup.cmd -m standalone
 #还带mysql的脚本
 
 http://127.0.0.1:8848/nacos/  默认用户名密码是 nacos/nacos
@@ -103,8 +108,42 @@ public class NacosConsumerApp {
 }
 
 
---------Nacos 配置
+--------Nacos 配置 
+ https://github.com/nacos-group/nacos-examples
+ 
+	<dependency>
+		<groupId>com.alibaba.cloud</groupId>
+		 <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+	</dependency>
+	 
+	@RestController
+	@RequestMapping("/config")
+	@RefreshScope
+	public class ConfigController {
 
+		@Value("${useLocalCache:false}")
+		private boolean useLocalCache;
+	}
+
+	配置加载dataId格式为
+	${spring.application.name}.${file-extension:properties} 
+	${spring.application.name}-${profile}.${file-extension:properties}
+	
+	#默认为 DEFAULT_GROUP,必须在bootstrap.properties
+	#spring.cloud.nacos.config.group=DEVELOP_GROUP
+	
+	#dataids配置多个data id以, 分隔 
+	spring.cloud.nacos.config.shared-dataids=bootstrap-common.properties,all-common.properties
+	spring.cloud.nacos.config.refreshable-dataids=bootstrap-common.properties
+
+	#可关闭自动刷新
+	#spring.cloud.nacos.config.refresh.enabled=false
+	
+	spring.cloud.nacos.config.server-addr=127.0.0.1:8848 
+	#支持 properties,yaml,yml,默认为 properties
+	spring.cloud.nacos.config.file-extension=properties
+	#spring.cloud.nacos.config.file-extension=yaml
+ 
 --------Seata 分布式事务
 Hmily 高性能异步分布式事务TCC框架 (Try,Confirm,Cancel)
 tcc-transaction 分布式事务TCC框架
@@ -353,6 +392,12 @@ service.vgroupMapping.storage-service-seata-service-group=default
 
 
 --------Sentinel 流控防护组件,限流
+
+下载 Sentinel Dashboard
+https://github.com/alibaba/Sentinel/releases
+
+java -jar sentinel-dashboard-1.8.2.jar  http://127.0.0.1:8080/ 默认用户名密码  sentinel/sentinel
+java -Dserver.port=8080 -Dcsp.sentinel.dashboard.server=localhost:8080 -Dproject.name=sentinel-dashboard -jar sentinel-dashboard-1.8.2.jar 
 
 
  

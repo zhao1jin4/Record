@@ -1,3 +1,12 @@
+在2021年有更新
+
+<dependency>
+  <groupId>org.apache.velocity</groupId>
+  <artifactId>velocity-engine-core</artifactId>
+  <version>2.3</version>
+</dependency>
+
+
 注释单行 ## XXX
 注释多行
 #* xxx
@@ -122,6 +131,27 @@ System.out.println(sw);
 </html>
 
 
+
+public static String getString(String content, Map<String, Object> mapping){
+		VelocityEngine ve = new VelocityEngine();
+		
+		Properties props = new Properties();  
+		props.put(RuntimeConstants.RUNTIME_LOG_NAME,VelocityUtil.class.getName()); //官方说在2.0以后支持 SLF4J,看代码要设置这个才行 
+	 	ve.setProperties(props);
+ 
+ 
+		StringWriter writer = new StringWriter();
+		ve.init();  
+		VelocityContext velocityContext = new VelocityContext();
+
+		mapping.forEach((k,v)-> {
+			
+			velocityContext.put(k,v);
+		});
+
+		ve.evaluate(velocityContext, writer, "", content);
+		return writer.toString();
+}
 
 
 

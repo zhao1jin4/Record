@@ -1,7 +1,5 @@
-win10 免费下载地址
-linux下仿问 
-https://自动 .microsoft.com/zh-cn/software-download/windows10ISO   Win10_2004_English_x64.iso 大小为4.9GB
 
+windows 10  2022-01-17 版本是 21H1 版本
 
 
 域名可以去https://changeip.com免费弄个
@@ -10,7 +8,6 @@ http://ip.cn/  查本机的公网IP,IP所在城市，很多地的DNS
 114.114.114.114 
 
 
-windows 10 目前(2018-03-01)最新版本是 1709 ,看安装更新后打开的网址
 
 乙的五笔 nnll
 美国代码1
@@ -232,7 +229,7 @@ sort->more...->Date created 创建日期(也是复制过来的日期)
 
 基于文件类型 type:  如 type:image,  C:\Windows\winsxs\*usertiles*\usertile*.bmp是用户图标
 基于文件名 name:
-基于文件内容 content:
+基于文件内容 content:      #win10 搜索菜单->高级属性中 下拉复选中 文件内容
 基于修改日期 datemodified:
 基于文件大小 size:
 可以在搜索栏中输入   type:"doc" content:"linq"  这里的content如果英文要是以空格分格的单词,中文不必用空格分隔
@@ -432,7 +429,13 @@ gpedit.msc “计算机配置”-> “管理模板”->“Windows组件”->单�
 windows 10 可以直接右击 iso文件-> 装载，会在我的电脑中增加一个新的虚拟光驱盘符
  
  
- 
+-----win11
+windows 11 要求硬件支持TPM(Trust Platform Module) 2.0，运行tpm.msc 查看
+还要求UEFI，64位CPU
+
+官方目前可以下载 Win11_English_x64v1.iso 文件 英文版本大小 5.18GB (2022-01-10)
+https://www.microsoft.com/software-download/windows11
+生成的下载链接是带参数的，不是一直有效的
 -----boot
 BCD=Boot Configuration Data
 
@@ -548,6 +551,8 @@ Program Files 写时可用 PROGRA~1 来替代
 win10开机自动运行 Settings-> App-> Startup
 
 window 键 +r =>msconfig 配置开机启动 (win10 在任务管理器中)
+		服务 -> 勾选隐藏Microsoft服务,可全部禁用
+ 
 msconfig中[启动中]项中有所的 注册表项CU=CURRENT_USER,LM=LOCAL_MACHINE,Wow6432Node 应该是在64位机上为了兼容32位
 HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run (win10 同任务管理器中)
 HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
@@ -750,6 +755,8 @@ rem 选项/R 表示 递归遍历目录中的目录
 for /R . %%x in (*.txt) do  echo  "%%x"    
 rem  变量 %%后只可一个字母
 
+cd 到要搜索文件的目录 
+for /r . %i in (*vcruntime.h) do @echo %i 
 
 for /L %%i in (1,1,100) do (
 	:BEGIN
@@ -856,7 +863,11 @@ ipconfig /renew
 ipconfig /renew *Local*
 
 netstat -an | find "80"
+
+ping -n 3 127.0.0.1 #只3次,同linux的ping -c
 IPV6 命令 ping6,tracert6 
+127.0.0.1  的IPV6 地址 为 ::1
+
 tracert [IP]
 nslookup
 netstat -ano 后面即可显示出相应的PID号，
@@ -886,9 +897,10 @@ route delete  <destinationIP>
 
 
 arp  协议 发广播 ,发IP地址,要Mac地址,把IP地址解析为 Mac地址,广播不能跨网段,代理arp(A网段有一台机器要B网段的Mac,路由器先返回自己的Mac,帮忙把消息转到B网段)
-arp -a  查看所有
+arp -a  查看本地所有，dyanmic是有缓存的，ping 一个新的地址会增加缓存
 arp -d <ip> 删除 
-
+	-s 增加
+	
 示例 
 route add -p 130.1.0.0  MASK 255.255.0.0  170.219.2.1 if 23   -- 这个是有线网卡的专用网
 route delete 0.0.0.0 	如有多行默认路由记录，这个命令可以一次全删		 
@@ -1117,7 +1129,8 @@ Click on “Manage settings” under “Virus & threat protection settings”
 Scroll down if needed, and then click on “Add or remove exclusions”
 For every folder shown in the notification, press the + button, select “Folder” from the menu, and select the folder.
 
-
+任务计划程序->Microsoft->windows->windows Defender ->Windows Defender Scheduled Scan，里面的属性不能修改，查可以删除任务
+ 
  
 -----
 
@@ -1145,6 +1158,8 @@ wmic process where caption="FlashHelperService.exe" get caption,commandline /val
 
 wmic process list full
 wmic process  where caption="java.exe" get caption,commandline,ProcessID /value  #ProcessID是进程ID
+wmic process where caption="java.exe" get ProcessId,commandline  
+#不能在powershell下运行,如加/value格式为ProcessId=xxx，不加就只是xxx,这个命令是多行显示一个进程信息
 
  
 win10自带Hyper-V 但要启用(像启用 IIS 一样,开始->windows 系统-> 控制面板->添加删除程序->启用特性中),在开始-> windows Accessories->Administrative Tools->Hyper-V Manager
@@ -1211,6 +1226,10 @@ $env:NODE_ENV='development'
 删除环境变量(没有$)
 del evn:NODE_ENV
 
+powershell中用( `),是空格+` 将长命令拆分为多行,`后不能有字符，空格不行
+如 ./vs_community.exe --layout D:/software/c/VS2019Community --lang  en-US `
+	--add Microsoft.VisualStudio.Component.VC.CoreIde
+	
 -----win10  Windows Subsystem for Linux(WSL)
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 是微软和Canonical(snapd)一起开发
@@ -1222,12 +1241,12 @@ WSL 2 要求win10 build 19041 版本，安装新的linux内核更新
 
  wsl --shutdown 会停止doker
  wsl --set-default-version 2
- wsl --list --verbose 显示安装的和运行状态,version列表示使用的是wsl 1 还是wsl 2 
+ wsl --list --verbose 缩写为 wsl -l -v , 显示安装的和运行状态,version列表示使用的是wsl 1 还是wsl 2 
  
  wsl --set-version openSUSE-Leap-15.3  2 把这个安装修改为wsl 2
- 要安装 WSL2 Linux kernel update package，但  wsl --list --verbose 还是1的版本
- 
- 
+ 要安装 WSL2 Linux kernel update package 
+ wsl -d openSUSE-Leap-15.3  //wsl linux系统的终端设置的命令
+ wsl -e <命令>  //执行命令
 
 
 https://docs.microsoft.com/zh-cn/windows/wsl/wsl-config
@@ -1238,7 +1257,17 @@ processors=2 # Makes the WSL 2 VM use two virtual processors
 
 執行 wsl --shutdown 关闭WSL,再重新打开即可
 
+---WSL 中的系统安装 docker
+https://docs.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-containers
+要求是使用 WSL 2 (windows 10 是比较新的版本)，用了WSL 2就不用安装HyperV
+ wsl --list --verbose  同   wsl -l -v
+ wsl --set-version openSUSE-Leap-15.3  2
  
+ ##要安装 WSL2 Linux kernel update package，但  wsl --list --verbose 还是1的版本 ##原因是win10版本比较低
+ ## wsl --shutdown 会停止doker #### docker
+ 
+但在WSL的系统中还是不能启动docker,要win10下安装 Docker Desktop，设置resouces中有WSL Integeration  ,后才可以在WSL系统中执行docker ps
+---
  
  
 商店中有openSUSE leap 和 Ubuntu LTS  有比较新版本，但没有fedora版本 ，SUSE Enterprise Server 比较新的版本，但没有Redhat或CentOS
@@ -1265,7 +1294,26 @@ WSL 安装输入法
 	设置环境变量就可自动启动(关闭startxfce4,关闭 windows terminal),点击输入法区-》重启后有输入可选　
 	xfce ,开始->session and startup 中看自启项
 	
-	
+----WSL 中的系统 不能使用sytemctl start XX ???? 如 redis
+
+	zypper addrepo --refresh https://packages.microsoft.com/opensuse/15/prod/  dotnet
+	zypper install  dotnet-sdk-6.0
+
+
+	https://github.com/arkane-systems/genie 只支持WSL2  ， 未成功 https://zhuanlan.zhihu.com/p/342519950
+	 
+----在wsl linux系统的终端中执行exit后,wsl就不能再启了???
+	status是stop,如想再启可在Microsoft Store里找到linux点open按钮启动(使用 wsl命令或者 wsl -d openSUSE-Leap-15.3 应该也可)
+	虽然显示status是Runing，但还不能进命令行？？重启机器显示status是Runing也不行？？？,过了一会status变stop
+
+	https://answers.microsoft.com/zh-hans/windows/forum/all/wsl%E6%97%A0%E6%B3%95%E5%90%AF%E5%8A%A8%E5%90%AF/f6c09976-2907-4fac-91f6-3d730feee84f 这个也不行？
+
+----
+
+wls2下的linux 使用chroot无效 ????
+----
+
+
 vcxsrv(Windows X Server)
 https://sourceforge.net/projects/vcxsrv/files/vcxsrv  最近有更新2021-01-03 下载 vcxsrv-64.1.20.9.0.installer.exe   
 1.启动为Xlanuch 选择 One large window ， Display number 设置为 0，其他默认即可(start no client,只启动xserver,后面启动本地客户端，也支持XDMCP)，会出现一个空窗口。
@@ -1279,7 +1327,7 @@ Xlanuch 中的 openSUSE 按del,方向键时会不停在显示更多的字符？�
 	
 	 %USER_PROFILE%\AppData\Local\Packages\xxxxSUSE.openSUSELeap15.3_xxxxxx\LocalState\rootfs  
 	C:\Program Files\WindowsApps\xxxxSUSE.openSUSELeap15.3_xxxxxx
-	\\wsl$  可以看到各linux系统的目录
+	win+r 输入 \\wsl$  可以看到各linux系统的目录
 	
 	
 	

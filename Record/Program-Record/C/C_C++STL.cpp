@@ -12,6 +12,156 @@ https://en.cppreference.com/w/ 参考手册 有c++17,C++20
 
 
 CDT 比 VSCode 好的地方是 鼠标滑过C的函数上，会有文档提示，但struct或C++类，类中的函数就不行了
+============Clang LLVM
+clang 发单是以k开头的 ，意思为（使）叮当地响
+
+https://clang.llvm.org/
+https://releases.llvm.org/download.html 
+二进制在 
+https://github.com/llvm/llvm-project/releases
+	amd64 x64 架构的linux版本只有 ubuntu, 还有freebsd,apple-darwin,windows
+	 
+Clang 背后的 LLVM（Low Level Virtual Machine）像 Swift、Rust 等语言都选择了以 LLVM 为后端。
+	
+	 
+windows版本的LLVM-13.0.0-win64.exe   安装后,安装后里面有clang++ ,clang-cl 命令, clangd 语言服务器 
+	可以直接  clang++ 或 clang .\hello.cpp -o hello.exe 立即成功(不加-o输出a.exe), -g 输出调试信息
+	
+	clang++ -g  -std=c++17 src/hello.cpp -o bin/hello #在windows 下，如安装了vs2019用 -std=c++11 就会报错
+	clang++ -std=c++17 -stdlib=libc++ e:\vscode_workspace\clang_demo\src\hello.cpp -o bin/hello --debug ,警告未使用 -stdlib=libc++
+	 
+	lldb 调试(对应gdb)，依赖于python36.dll 
+	 https://www.python.org/downloads/windows/ 可以找到windows下的老版本二进制
+	
+	lldb hello.exe
+	(lldb) 或者这里 file hello.exe 类似于gbd，也可用 target create hello
+	lldb -h 有帮助示例
+	lldb -p <pid>
+    lldb -n <process-name>
+	lldb -c /path/to/core 
+	(lldb) process attach --pid 7232 
+	(lldb) process attach --name test 
+	(lldb) source list # 源码列表
+	(lldb) list 10 #查看源码第10行
+	
+	(lldb) breakpoint list 		#缩写为 br l
+	(lldb) br set -n  main    #-n函数名
+	(lldb) br s -f hello.cpp -l 6 # --file --line如果位置不存在,WARNING 那么locations=0，无效
+	(lldb) help breakpoint set  #看有-f,-l -n
+	(lldb) br del 2 			#删除第2个断点
+	(lldb) breakpoint disable 1 #禁用
+	(lldb) breakpoint enable 1  #启用
+	
+	(lldb) watchpoint list 		#条件断点
+	
+	(lldb) process launch hello  #也可使用run 命令,windows 版本python 提示没有 encodings 模块,设置 PYTHONPATH=D:\Application\Python36\Lib
+	
+	(lldb) process launch -- abc #启动程序 -- 后是程序参数
+	(lldb) step #进入
+	(lldb) c 	#继续运行Continue
+	(lldb) n 	#或next,代码级逐步执行
+	(lldb) p xx #或print,或expression, call,打印你想看的变量，或者p 回车，输入表达式，再回车结速
+	
+	(lldb)th list #thread list线程列表 ，help thread
+	(lldb)thread backtrace 当前线程的调用栈
+	(lldb)th se 29 #线程选择
+	(lldb) thread continue 
+	(lldb) thread step-in    
+	(lldb) thread step-over  
+	(lldb) thread step-out
+	(lldb) 直接回车是上次执行的命令，如thread step-in 
+	
+	(lldb) memory read -f x -s 1 -c 20 &a  #-f 格式 x十六进制	,-s 1字节大小为1，-c 20 显示20*-s的字节，变a的地址
+	(lldb)command alias xx yy #定义别名
+	(lldb)command unalias xx #取消定别名
+	(lldb)settings list  #显示所有设置
+	
+	lldb 命令行调试，目前不能看到源码？？？只能用vscode调试可以看到源码
+
+clang-cl  被设计用来兼容Visual C++ 的编译器，cl.exe
+
+	兼容cl的用法
+	clang-cl /? 
+	clang-cl   /c  hello.cpp 生成hello.obj ,可以加  /I "xx\include"
+		 /c    Compile only
+
+输入lld命令提示
+lld is a generic driver.
+Invoke ld.lld (Unix), ld64.lld (macOS), lld-link (Windows), wasm-ld (WebAssembly) instead
+
+
+
+lib=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x64;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64
+
+或powershell用
+$env:lib='C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\lib\x64;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64;C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64'
+
+lld-link  hello.obj 默认生成 hello.exe
+	可用 /out:bin/hello.exe 来修改, 也有 /LIBPATH:"C:\temp\glut\lib"
+
+clang++ -c src/hello.cpp  -o bin/hello.o
+	-c   Only run preprocess, compile, and assemble steps #和gcc一样
+clang++ bin/hello.o -shared -fPIC -o bin/libhello.so  #和gcc一样
+也有类型的 -I -L 选项，虽然-help中没有-l 但linux测试是正常的
+
+
+但windows测试不行 ,-ladd 认为是找 add.lib， https://blog.csdn.net/x_studying/article/details/53561101  ?????
+clang -g --target=x86_64 -o bin/hello.exe .\src\hello.cpp    #加了  --target=x86_64 后找不到 iostream  ?????
+
+
+
+
+zypper install clang11  
+	安装了 libstdc++6-devel-gcc7-7.5.0+r278197-4.25.1.x86_64 
+#zypper install clang11-devel 这个应该没用
+
+
+clang++ -v 显示有gcc版本是7
+
+clang++ --version
+
+--hello.cpp
+#include<iostream>
+using namespace std;
+int main(int argc, char* argv[])
+{
+    if(argc>=2){
+      cout<<argv[1]<<endl;
+    }
+	int max=0;
+    max++;
+    cout<<"hello"<<endl;
+        int input;
+    cout<<"please input ";
+    cin>>input;
+    cout<<"input="<<input;
+}
+
+
+
+clang++ hello.cpp -o hello   #报找不到iostream
+clang++  hello.cpp -o hello   报 'stdlib.h' file not found
+export CPLUS_INCLUDE_PATH=/usr/include/c++/7:/usr/include/c++/7/x86_64-suse-linux:/usr/include 这个变量的目录是有先后顺序的
+clang++ -g  -std=c++11 hello.cpp -o hello   报crtbegin.o没有,用  zypper install gcc7 解决了
+ 
+
+
+clang++  -save-temps hello.cpp  -o hello  会保留.s(汇编语言)文件 
+
+
+
+zypper install lldb11  
+zypper install llvm11 
+
+#zypper install llvm11-devel 后有llvm-config ,是对于include "llvm/xx" 的情况，使用opt命令
+	llvm-config --cxxflags
+	llvm-config --ldflags
+
+sudo zypper install java-11-openjdk-devel 
+clang++ -c TestCPPNative.cpp  -I /usr/lib64/jvm/java-11-openjdk-11/include -I /usr/lib64/jvm/java-11-openjdk-11/include/linux/
+
+
+clang -g --target=x86_64 -o bin/hello.exe .\src\hello.cpp    #加了  --target=x86_64 后找不到 iostream?????
 
 ============C/C++基础
 

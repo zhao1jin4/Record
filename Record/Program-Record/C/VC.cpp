@@ -25,14 +25,14 @@ VC2010 设置环境变量
 	include=C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include
 
 
-VS2015  update 3 最后一版ISO文件(可能是最后一个运行在win7上)
+VS2015  update 3 最后一版ISO文件
 	http://download.microsoft.com/download/6/4/7/647EC5B1-68BE-445E-B137-916A0AE51304/vs2015.ent_enu.iso
 	http://download.microsoft.com/download/B/8/F/B8F1470D-2396-4E7A-83F5-AC09154EB925/vs2015.ent_chs.iso
 	断网 激活密钥：HM6NR-QXX7C-DFW2Y-8B82K-WTYJV
 	安装时不能选择安装目录,只选择C++,安装过程很慢,不如VC2010快,安装后有(C有MFC,ATL,CLR),C#,VB都有并且可以用,其它的虽然有但不能用
 	VS 2015 带的Anroid SDK(要选择安装) 在 C:\Program Files (x86)\Android\android-sdk
 	
-	VS 2015 安装后的启动路径  C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe
+	VS 2015 安装后的启动路径  C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\devenv.exe,如卸载再安装不修改安装目录
 	VC2015 设置环境变量(可不设)
 	   path=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE
 	    lib=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\lib;C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib;
@@ -48,7 +48,7 @@ VS2015  update 3 最后一版ISO文件(可能是最后一个运行在win7上)
 		
 	
 
-VS 2017.15.8 (可win10上)下载离线版本 ，有Community版本
+VS 2017  下载离线版本 ,第一次有Community免费版本
 	 C++ desktop development  	安装时多选  MFC (在Visual Studio扩展开发组选中,再选中MFC 会安装C#.Net)
 		
 	也可双击出现界面选择要安装组件，选择下载保存目录，在安装的时候有选择语言包，不选择中文就行
@@ -64,10 +64,66 @@ VS 2017.15.8 (可win10上)下载离线版本 ，有Community版本
 	安装后就不能多增加组件了，再安装总是提示安装目录不为空???
 	不能建立MFC项目，BUG????????????????
 	
-Visual Studio 2019  Version 16.5 (安装要求.NetFramework 4.6 及更高版本)
+Visual Studio 2019  最后一个官方支持的 win7(SP1)系统的,版本是 16.11.5 的有win 10 和 11 SDK(安装要求有 .NetFramework 4.6 及更高版本)
+	
+	默认安装目录 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community 可以修改 
+	   share目录 C:\Program Files (x86)\Microsoft Visual Studio\Shared 不能修改 
+	    cache目录 C:\ProgramData\Microsoft\VisualStudio\Packages  不能修改 ,选中keep cache复选框
+	只选择C++桌面开发和win 11 SDK(取消win10SDK),提示要7.39G空间
 
+	制作离线安装包
+	https://docs.microsoft.com/en-us/visualstudio/install/create-an-offline-installation-of-visual-studio?view=vs-2022&viewFallbackFrom=vs-201
+	vs_community.exe --layout D:/software/c/VS2019Community --lang  en-US 目录下会生成vs_setup.exe
+	vs_community.exe  --help
+
+	https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio?view=vs-2019
+
+	https://docs.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-community?view=vs-2019&preserve-view=true
+	Desktop development with C++组,所有Required肯定要
+	 
+	可整组,在安装时还要选择"使用c++的桌面开发" 
+	vs_community__1493033157.1634908155.exe  --layout F:/VS2019Community_en --lang en-US --add Microsoft.VisualStudio.Workload.NativeDesktop  --includeRecommended --includeOptional 下载后目录大小为8.5G，
+	里有VC.Llvm.Clang,VC.Llvm.ClangToolset,也有Windows10SDK.19041及老版本,删其它版本windows SDK大小为5.19G,里面每个包都是x86,x64两个版本
+	
+	./vs_community.exe --layout  F:/VS2019Community_en --lang en-US `  
+	--add Microsoft.VisualStudio.Component.Windows11SDK.22000 `	#界面上有Windows 11 SDK 22000, 猜对了
+	--add Microsoft.VisualStudio.ComponentGroup.UWP.Support ` 	#UWP(for win10) 
+	#powershell中用( `),是空格+` 将长命令拆分为多行,命令用./开始
+ 
+	
+	启动离线安装的命令
+	cd F:/VS2019Community_en
+	vs_setup.exe --add Microsoft.VisualStudio.Workload.NativeDesktop --noweb --includeRecommended  
+	界面已经选择好了(可取消一些,如test),win7sp1测试离线可成功安装Visual studio installer,界面中选择安装在F盘,可以成功下载安装启动建立Destop Application并成功运行
+	离线提示30天试用,Community版本要登录才可免费使用,help->register ->sig in打开嵌入式网页(估计是IE提示用edge打开，安装win7版本的edge也不行,没用上,设置edge为默认的,也不行???)
+	Tools->Options->Enviroment->account->修改下拉System Web Brower，就会打开浏览器看到URL，而不是嵌入式的,即可登录
+
+	其它选项
+	https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio?view=vs-2019
+	vs_setup.exe --layout F:/VS2019Community_en --verify
+	vs_setup.exe --layout F:/VS2019Community_en --fix
+
+	会在C:\Program Files (x86)\Windows Kits(不能选择安装目录) 安装8.1和10两个 windows SDK
+
+	制离线版本的会报一些语法错误???，控制台程序找不到windowsSDK,可是安装了？？原因BUG！！！
+		修改C:\Program Files (x86)\Windows Kits\10\DesignTime\CommonConfiguration\Neutral\UAP\10.0.19041.0\UAP.props文件开始处理的
+		<WindowsSdkDir>$([MSBUILD]::GetDirectoryNameOfFileAbove('$(MSBUILDTHISFILEDIRECTORY)', 'sdkmanifest.xml'))\</WindowsSdkDir> 修改成如下
+		<WindowsSdkDir Condition="'$(WindowsSdkDir)' == ''">$([MSBUILD]::GetDirectoryNameOfFileAbove('$(MSBUILDTHISFILEDIRECTORY)', 'sdkmanifest.xml'))\</WindowsSdkDir>
+
+	cd 到要搜索文件的目录 
+	for /r . %i in (*vcruntime.h) do @echo %i 
+	C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\include\vcruntime.h
+
+
+	cl 所在路径为  C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\bin\Hostx64\x64
+
+	clang是C家族语言(C, C++, Objective C/C++,)运行在LLVM的前端
+	右击项目节点->“属性” 。 通常，应首先选择对话框顶部的“所有配置”。 然后，在“常规” > “平台工具集”下，选择“LLVM (clang-cl)”，然后选择“确定”。
+	C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\Llvm\bin 下没有 lldb
+	clang-cl  被设计用来兼容Visual C++ 的编译器，cl.exe
+	
 Visual Studio 2019  C++ build tools 
-https://visualstudio.microsoft.com/visual-cpp-build-tools/ 下载 vs_buildtools_xxx.exe  
+	https://visualstudio.microsoft.com/visual-cpp-build-tools/ 下载 vs_buildtools_xxx.exe  
 	选 使用C++桌面开发-> 可选里 只选中MSVCv142 - VS 2019 C++ (可选windows 10 SDK)  ，大小为6.86GB
 	默认下载在 C:\ProgramData\Microsoft\VisualStudio\Packages (实际上是安装的解压目录,一个包下载在哪?)
 	默认安装在 C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools 安装后大小为2.36GB , 有VC#目录大小只为3M 
@@ -87,18 +143,32 @@ https://visualstudio.microsoft.com/visual-cpp-build-tools/ 下载 vs_buildtools_
 					enclave被包围的领土 
 
 
-	设置环境变量，PATH是追加的
+	设置环境变量，PATH是追加的,根本不同版本 BuildTools 修改为 Community 目录
 	   PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\bin\Hostx64\x64  (里面有cl)
 	    lib=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\lib\x64
 			C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\ucrt\x64
+			C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x64
 	include=C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.28.29910\include
 			C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt
+
+	
+	 
+	
 	或者
 	开始搜索Developer,找到 Developer Command Prompt for VS 2019 输入 cl 命令
 	
 	
-对 C++11, C++14, C++17，C++20 支持情况
-https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-160
+	对 C++11, C++14, C++17，C++20 支持情况
+	https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-160
+
+Visual Studio 2019 for Mac 
+	为了 Xamarin + C# 开发Mac应用 和 Azure + .NET 做 Web 开发
+	功能少了很多,只有一个版本(没有Community等版本)
+
+Visual Studio 2022 
+	官方支持系统至少是win10 
+	win7上虽然可以安装Visual studio installer 但在安装包下载后安装时提示不支持的系统，某些功能可能无法按预期工作
+
 
 
 ------------	
@@ -111,9 +181,13 @@ cl /I "C:\temp\glut\include" /c  helloOpenGL.c
 /D同gcc的-D
 /Zi  生成完整的调试信息 ( Information )
 /EHs 同步异常处理模型 (Exception Handling)
+/c    Compile only
 
 link helloOpenGL.obj /LIBPATH:"C:\temp\glut\lib"  //如果要生成.dll文件加  /DLL
 /OUT:Test.exe 	输出文件名
+
+cl /LD add.cpp 生成 add.dll 文件  和 link 加 /dll参数类似
+
 
 .C 大C结尾的文件在cl编译器被认为是C,要用.cpp才是C++
 
@@ -174,6 +248,10 @@ VS2010 右击项目->Configuration Properties->General->Platform Toolset 中 V11
 VS2013 右击项目->Retarget to windows 8.1
 
 VS2010 属性面板非默认值怎么变成粗体显示????????
+
+vs2019 取消综略图滚动条 
+	右击滚动条->scroll bar options...->Behavior 中单选中use bar mode for vertical scroll bar 
+
 
 #ifdef __cplusplus
 #endif

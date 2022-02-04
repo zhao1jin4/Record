@@ -1743,11 +1743,6 @@ org.apache.commons.lang.StringUtils  isBlank
     <version>3.12.0</version>
 </dependency>
 
--------------------------------commons logging 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-Log logger = LogFactory.getLog(XXX.class);
-
 -------------------------------commons codec 
 <dependency>
     <groupId>commons-codec</groupId>
@@ -1868,7 +1863,59 @@ if (BCrypt.checkpw(candidate, hashed))
 	System.out.println("It matches");
 else
 	System.out.println("It does not match");
+------------------------------AES 增强的
 
+/**
+ * 微信的工具类 
+ * AES采用CBC模式，数据采用PKCS#7填充至32字节的倍数；IV初始向量大小为16字节，取AESKey前16字节
+ *  <dependency>
+	    <groupId>org.bouncycastle</groupId>
+	    <artifactId>bcprov-jdk15to18</artifactId>
+	    <version>1.69</version>
+	</dependency> 
+ */
+public class WxAESUtil { 
+	static {
+		  //导入支持AES/CBC/PKCS7Padding的Provider
+		Security.addProvider(new BouncyCastleProvider());
+	}
+	
+	public static byte[]  aesDecode(byte[] encryptBytes, byte[] aesKey) {  
+		try{ 
+			byte[] ivByte= Arrays.copyOf(aesKey,16);
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding","BC");   
+			AlgorithmParameters params = AlgorithmParameters.getInstance("AES");  
+			params.init(new IvParameterSpec(ivByte));  
+	 
+			cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(aesKey, "AES"),params);    
+			byte[] decryptBytes = cipher.doFinal(encryptBytes);   
+			return decryptBytes;
+		}catch(Exception e){
+			throw new RuntimeException(e.getMessage());
+		}
+	 
+	}
+	//jdk8 版本至少为 1.8.0_161 ，如少于要官方下载JCE文件格覆盖JDK中的lib\security 目录文件  
+	//加密自己写的企业微信加密码一直不对，官方示例代码可以  (foxinmy.weixin4j 项目的 MessageUtil.加密也不行,但解密可以)
+	public static byte[] aesEncode(byte[] fromByte,  byte[] aesKey)   {  
+		try{
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding","BC");
+				IvParameterSpec iv = new IvParameterSpec(Arrays.copyOfRange(aesKey, 0, 16));
+				SecretKeySpec keySpec= new SecretKeySpec(aesKey, "AES");
+				cipher.init(Cipher.ENCRYPT_MODE, keySpec,iv);
+	//这两种结果是一样的
+//	            byte[] ivByte= Arrays.copyOf(aesKey,16);
+//	            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS7Padding","BC");
+//	            AlgorithmParameters params = AlgorithmParameters.getInstance("AES");
+//	            params.init(new IvParameterSpec(ivByte));
+//	            SecretKeySpec keySpec= new SecretKeySpec(aesKey, "AES");
+//	            cipher.init(Cipher.ENCRYPT_MODE, keySpec,params);
+			return cipher.doFinal(fromByte);  
+		}catch(Exception e){
+			throw new RuntimeException(e.getMessage());
+		}
+	}
+}
 -------------------------------commons compress
 //--tar.gz 解压
 public static void decompressTarGzFile(String tarGzFile,String outDir) 
@@ -3366,6 +3413,7 @@ public class UserJson {
     private Date joinDate;
 	
     @JsonIgnore
+	//@JsonIgnore(value=true && false)//可以根据条件来做是否序列化JSON,对于同一实体有时Add/Detail显示多的字段，有时显示少getList,Edit的字段
     private String password;
     
     @JsonProperty("favorite")
@@ -3451,7 +3499,7 @@ SerializerFeature.WriteDateUseDateFormat);
  <dependency>
   <groupId>com.google.code.gson</groupId>
   <artifactId>gson</artifactId>
-  <version>2.8.6</version>
+  <version>2.8.9</version>
 </dependency>
 
 import com.google.gson.Gson;
@@ -3464,6 +3512,34 @@ public static String formatJSONByGoogle(String json) {
 	Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	return gson.toJson(jsonObject);
 }
+
+
+
+public static <T> T json2Object(String json,Class<T> clazz){
+	Gson gson = new GsonBuilder()
+			.setPrettyPrinting()
+			.setDateFormat("yyyy-MM-dd HH:mm:ss")
+			.serializeNulls().create();
+	T obj=gson.fromJson(json, clazz);
+	return obj;
+}
+ 
+public static String  object2Json(Object obj ){
+	Gson gson = new GsonBuilder()
+			.setPrettyPrinting()
+			.setDateFormat("yyyy-MM-dd HH:mm:ss")
+			.serializeNulls().create();
+	return gson.toJson(obj);
+}
+	
+
+@SerializedName("join_date")
+private Date joinDate;
+	
+	
+@Expose(serialize = false, deserialize = false) //没用？？？
+private String password;
+    
 
 ============SnakeYaml
 在线验证yaml的好工具
@@ -3730,16 +3806,58 @@ public class MyApplication extends Application {
 
 
 ---Swagger CodeGen 3.x 
-
 <dependency>
   <groupId>io.swagger.codegen.v3</groupId>
   <artifactId>swagger-codegen-cli</artifactId>
-  <version>3.0.4</version>
+  <version>3.0.30</version>
 </dependency>
 
+
+java -jar swagger-codegen-cli-3.0.21.jar -h 
+java -jar swagger-codegen-cli-3.0.21.jar  langs 显示支持的语言
+
+java -jar swagger-codegen-cli-3.0.21.jar  generate -h
+java -jar swagger-codegen-cli-3.0.21.jar  config-help -l java
+
+java -jar swagger-codegen-cli-3.0.21.jar   generate -l  java -o out_dir -i xxx.yaml 或 xxx.json  
+
+如语言为java 有生成gradle 和 maven 配置的，vscode可提示用哪个
 java -jar swagger-codegen-cli-3.0.4.jar generate   -i http://petstore.swagger.io/v2/swagger.json -l java   -o /var/tmp/java_api_client
 是生成客户端代码,使用okhttp 和　google的gson
+ 
+java -jar swagger-codegen-cli-3.0.30.jar  generate -l  spring -o out_dir -i https://petstore.swagger.io/v2/swagger.json 
+3.0.30 生成的是 springfox 版本为 3.0.0 使用的是 swagger-annotation-2.1.2.jar 里面的包名为  io.swagger.v3.oas.annotations.Operation;
 
+
+https://petstore.swagger.io/v2/swagger.json
+
+ 如是java语言是java client代码，有buil.gradle,build.sbt,pom.xml  依赖于swagger-annotations是2的版本
+
+
+<plugin>
+	    <groupId>io.swagger.codegen.v3</groupId>
+	    <artifactId>swagger-codegen-maven-plugin</artifactId>
+	    <version>3.0.21</version>
+	    <!-- 
+		<executions>
+			<execution>
+				<goals>
+					<goal>generate</goal>
+				</goals>
+			</execution>
+		</executions>
+		 -->
+		 <configuration>
+		 	<inputSpec>c:/tmp/swagger.json</inputSpec> <!-- eclipse可以提示参数名 -->
+		 	<language>java</language>
+		 	<output>${project.build.directory}/generate-source/swagger</output>
+		 </configuration>
+	</plugin>
+mvn swagger-codegen:help 
+mvn swagger-codegen:help -Ddetail=true 可以看所有参数及说明
+mvn swagger-codegen:help -Ddetail=true -Dglobal=<global-name>
+mvn swagger-codegen:generate 生成代码
+ 
 -------------Swagger  
 类似的有 RAML(RESTful API Modeling Language)
 
@@ -3910,8 +4028,7 @@ npm run build  就可以双击index.html查看在线实时编辑，实时显示�
 ---docker版本 swagger-editor
 docker pull swaggerapi/swagger-editor
 docker run -d -p 80:8080 swaggerapi/swagger-editor
-
----swagger-ui
+ 
 
 
 
@@ -3924,6 +4041,7 @@ http://localhost:8080/M_SwaggerWeb/swagger-ui-v2/swagger-ui-dist/index.html
  
 为了记住地址，可修改index.html中的 url: "https://petstore.swagger.io/v2/swagger.json" 为这个地址
 
+swagger-ui-react
 
 <dependency>
 	<groupId>org.webjars</groupId>
@@ -4006,54 +4124,6 @@ docker run -p 80:8080 -e BASE_URL=/swagger -e SWAGGER_JSON=/foo/swagger.json -v 
 This will serve Swagger UI at /swagger instead of /.
 
 
----codegen
-<dependency>
-  <groupId>io.swagger.codegen.v3</groupId>
-  <artifactId>swagger-codegen-cli</artifactId>
-  <version>3.0.21</version>
-</dependency>
- 
-java -jar swagger-codegen-cli-3.0.21.jar -h 
-java -jar swagger-codegen-cli-3.0.21.jar  langs 显示支持的语言
-
-java -jar swagger-codegen-cli-3.0.21.jar  generate -h
-java -jar swagger-codegen-cli-3.0.21.jar  config-help -l java
-
-java -jar swagger-codegen-cli-3.0.21.jar   generate -l  java -o out_dir -i xxx.yaml 或 xxx.json  
-
-https://petstore.swagger.io/v2/swagger.json
-
- 如是java语言是java client代码，有buil.gradle,build.sbt,pom.xml  依赖于swagger-annotations是2的版本
- 语言有spring 用的还是老的swagger-annotations-1.5 版本，有使用springfox-swagger2
- 
- 
-
-<plugin>
-	    <groupId>io.swagger.codegen.v3</groupId>
-	    <artifactId>swagger-codegen-maven-plugin</artifactId>
-	    <version>3.0.21</version>
-	    <!-- 
-		<executions>
-			<execution>
-				<goals>
-					<goal>generate</goal>
-				</goals>
-			</execution>
-		</executions>
-		 -->
-		 <configuration>
-		 	<inputSpec>c:/tmp/swagger.json</inputSpec> <!-- eclipse可以提示参数名 -->
-		 	<language>java</language>
-		 	<output>${project.build.directory}/generate-source/swagger</output>
-		 </configuration>
-	</plugin>
-mvn swagger-codegen:help 
-mvn swagger-codegen:help -Ddetail=true 可以看所有参数及说明
-mvn swagger-codegen:help -Ddetail=true -Dglobal=<global-name>
-mvn swagger-codegen:generate 生成代码
-
-
-
 
  
 
@@ -4125,6 +4195,10 @@ https://projectreactor.io/
     <version>7.0.3</version>
 </dependency>
 jsr166e-1.0.jar
+
+reactor.util.function包中
+Tuple2 tuple2= Tuples.of("one","two");
+
 //--------------3版本的新代码,1或2版本老代码见Java_Not_Offen
 // https://www.infoq.com/articles/reactor-by-example/
 public class Reactor3Example {
@@ -4600,6 +4674,7 @@ public enum CarType {
 public interface CarMapper {
     CarMapper INSTANCE = Mappers.getMapper( CarMapper.class );  
     @Mapping(source = "numberOfSeats", target = "seatCount")
+	@Mapping(target = "createDate", expression = "java(new java.util.Date())")
     CarDto carToCarDto(Car car);  
 }
 
@@ -4616,6 +4691,82 @@ public class Car {
     private CarType type;
 //...
 }
+
+@Mapper
+public interface MenuConverterMapStruct{
+	MenuConverterMapStruct INSTANCE = Mappers.getMapper( MenuConverterMapStruct.class );
+	 
+	 public   List<Button> requestConvertRecursive(List<MenuItem> menuItems) ;
+	 
+	 public   List<MenuItem>   responseConvertRecursive(List<Button> buttons) ;
+	 
+	 
+		 
+	public List<NameValuePair> shortResponseConvert(List<WxMaShopAccountGetBrandListItem>  req);
+	//  @Mappings({//老版本有这个
+		@Mapping(source = "brandId", target = "value")  
+		@Mapping(source = "brandWording", target = "name") 
+	//})
+	public NameValuePair  wxMaShopAccountGetBrandListItemToNameValuePair(WxMaShopAccountGetBrandListItem item);
+
+}
+@Mapper
+public interface AddressMapper {
+	
+	AddressMapper INSTANCE = Mappers.getMapper( AddressMapper.class );
+	//多参组合
+    @Mapping(source = "person.description", target = "description")
+    @Mapping(source = "hn", target = "houseNumber") 
+    DeliveryAddressDto personAndAddressToDeliveryAddressDto(Person person, Integer hn);
+    
+
+    //enum转换
+    @ValueMappings({
+        @ValueMapping(source = "EXTRA", target = "SPECIAL"),
+        @ValueMapping(source = "STANDARD", target = "DEFAULT"),
+        @ValueMapping(source = "NORMAL", target = "DEFAULT")
+    })
+    ExternalOrderType orderTypeToExternalOrderType(OrderType orderType);
+    
+    //List中是不同类型，是JDK类型
+    @IterableMapping(numberFormat = "$#.00")
+    List<String> prices(List<Integer> prices); 
+
+    @IterableMapping(dateFormat = "dd.MM.yyyy")
+    List<String> stringListToDateList(List<Date> dates);
+    
+
+    @MapMapping(valueDateFormat = "dd.MM.yyyy")
+    Map<String, String> longDateMapToStringStringMap(Map<Long, Date> source);
+    
+    //Stream参数
+    Set<String> integerStreamToStringSet(Stream<Integer> integers); 
+    
+    //Stream参数，List中是不同自己类型类型
+    //名字以s结尾 ，生成的代码中会调用 carToCarDto()
+    List<CarDto> carsToCarDtos(Stream<Car> cars);
+    
+    @Mapping(source = "numberOfSeats", target = "seatCount")
+    CarDto carToCarDto(Car car); 
+    
+    @InheritInverseConfiguration
+    Car CarDtoToCar(CarDto car);   
+}
+
+
+@Mapper(componentModel = "spring"))//Spring来实例化进容器中,后就可以@Autowired 
+public interface SpringCarMapper { 
+    CarDto carToCarDto(Car car);
+}
+
+生成的代码有注解
+import javax.annotation.Generated; 
+@Generated(
+    value = "org.mapstruct.ap.MappingProcessor",
+    date = "2021-12-13T13:57:05+0800",
+    comments = "environment: Java 1.8.0_291"
+)
+
 -----------liquibase
 https://www.liquibase.org
 https://github.com/liquibase/liquibase
@@ -4841,4 +4992,35 @@ https://github.com/paritytrading/philadelphia
 Financial Information Exchange (FIX) engine for the JVM.
 
  
+--------------------微信开源项目，比较全/新,缓存支持Redisson
+https://gitee.com/binary/weixin-java-tools
+<dependency>
+	<groupId>com.github.binarywang</groupId>
+	<artifactId>weixin-java-miniapp</artifactId>
+	<version>4.2.0</version>
+</dependency>
+
+
+/*一般使用方法
+Config config = new Config();
+// MasterSlaveServersConfig  msConfig=config.useMasterSlaveServers();
+// msConfig.setMasterAddress(masterIPPort);
+// msConfig.addSlaveAddress(slaveIPPort);
+SingleServerConfig singConfig= config.useSingleServer();
+singConfig.setDatabase(database);
+singConfig.setAddress("redis://"+redisHost+":"+redisPort);
+singConfig.setPassword(redisAuth); 
+RedissonClient redisson = Redisson.create(config);
+
+WxMaRedissonConfigImpl wxConfig=new WxMaRedissonConfigImpl (redisson); 
+wxConfig.setAppid(channelWeiXinAccount.getAppId());
+wxConfig.setSecret(channelWeiXinAccount.getSecret());
+wxMaService=new WxMaServiceImpl();
+wxMaService.addConfig(channelWeiXinAccount.getAppId(), wxConfig);
+
+WxMaShopCatService service = new WxMaShopCatServiceImpl(wxMaService);
+resp = service.getCat();
+*/
+
+
  

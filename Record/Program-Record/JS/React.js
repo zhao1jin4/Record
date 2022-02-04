@@ -46,11 +46,14 @@ react-toolbox
 https://react.rocks/example/react-toolbox 有示例
 
 rechart
+
 --使用Vue开发 
-Ford 
+Ford
+CSDN(也有react)
+
 --使用react开发 
-microsoft,vscode, elastic search,noe4j,swagger,Audi,Firefox MDN,Jeep,
-CSDN 有react也有vue,简书,金山词霸,拼多多 ,腾讯云/文档,优酷,阿里云 ,语雀
+国外： microsoft,vscode, elastic search,noe4j,swagger-ui-react,Audi,Firefox MDN,Jeep
+国内： CSDN (也有vue),简书,金山词霸,拼多多 ,腾讯云/文档,优酷,阿里云,语雀
 
 
 ----------------------
@@ -115,6 +118,8 @@ vscode 调试 react (create-react-app方式)
 	
 	
 React Developer Tools (firefox ,chrome 插件)
+React 生产版本打开F12 有Components,Profiles标签
+
 如独立安装  npm install -g react-devtools  再 react-devtools 显示界面，监听8097
  
 

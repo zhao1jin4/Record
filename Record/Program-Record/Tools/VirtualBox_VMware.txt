@@ -217,6 +217,9 @@ vboxweb-service
 systemctl disable vboxautostart-service
 
 --------------VMWare Workstation
+
+VMWare Workstation 16 开始不支持win7
+
 VMWare Workstation 10 默认安装后全部服务启动
 VMware Authorization Service
 VMware DHCP Service
