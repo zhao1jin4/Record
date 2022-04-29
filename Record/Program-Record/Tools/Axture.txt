@@ -1,6 +1,9 @@
 ﻿Axure RP 9.0 win版本 依赖于 .NET Framework 4.5.2
 Axure RP 9.0  发布到本地后，firefox不能预览本地文件，
 	chrome要安装插件(Axture RP Extension for Chrome)才能预览本地文件，国内又上了google,等于不行！！！
+	
+	Axure RP Extension for Edge 可以，复选中Allow access to file URLs
+	
 Axure RP 8.0  生成本地HTML就可以预览
 
 有Mac版本

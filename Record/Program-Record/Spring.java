@@ -2311,6 +2311,33 @@ redisScript.setResultType(Boolean.class);
 boolean res= redisTemplate.execute(redisScript, Collections.singletonList("key"), 10, 20);//List keys,Object... args
 System.out.println(res);
 
+
+
+HashOperations<String,String,Object> hashOper=  redisTemplate.opsForHash();
+hashOper.put("userHash", "lisi", "{'token':'111'}");
+hashOper.put("userHash", "wang", "{'token':'222'}");
+Long delRes=hashOper.delete("userHash", "lisi");//1
+Boolean existKey= hashOper.hasKey("userHash", "wang");//true
+Long incRes=hashOper.increment("userHash", "count", 1);//如key不存会自动建立的 
+
+SetOperations<String,Object> set=  redisTemplate.opsForSet();
+ZSetOperations<String,Object> zset=  redisTemplate.opsForZSet();
+ListOperations<String,Object> list=redisTemplate.opsForList();
+
+//bound开头的方法，在调用时指定key，后面一直操作就是对这个key的操作
+String key="sessiones"; 
+BoundValueOperations<String,Object> boundValue=redisTemplate.boundValueOps(key);
+BoundHashOperations<String,String,Object> boundHash=redisTemplate.boundHashOps(key);
+boundHash.put("lisi", "{'token':'111'}");
+boundHash.put("wang", "{'token':'222'}");
+delRes=boundHash.delete("lisi");
+existKey=boundHash.hasKey("wang");
+incRes=boundHash.increment("count", 1);
+
+BoundListOperations<String,Object> boundList=redisTemplate.boundListOps(key);
+BoundZSetOperations<String,Object> boundZset=redisTemplate.boundZSetOps(key);
+BoundSetOperations<String,Object> boundSet=redisTemplate.boundSetOps(key);
+
 redisTemplate 就不用关闭连接
 
 ------checkandset.lua  ,LUA语言为了嵌入C/C++ 中
@@ -2404,7 +2431,7 @@ public static void springDataLettuce()
 }
 
  
- <bean   class="org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory">
+ <bean   class="org.springframework.data.redis.connection.k.LettuceConnectionFactory">
 	<constructor-arg ref="redisStandaloneConfiguration"> <!-- 同Jedis的 -->
 	</constructor-arg>
  </bean>

@@ -118,6 +118,10 @@ File->project stucture ->project ->(默认选中SDKs标签) 配置JDK
 	右击文件中的行号 -> Annotate with git blame-> 可以显示 这个文件的 Git 修改历史,
 	
 	对已经commit没有的历史记录右击-> undo commit
+	
+	commit时会 分析代码，如很多代码速度很慢，Settings -> version control -> commit 目录 中 取消 Analyze code 和 check TODO  
+	#遇到过 一点commit 或者commit & push 按钮 ，这两个又打上，删除%USERPROFILE%\AppData\Local\JetBrains\IntelliJIdeaxxx目录后就好了
+
 ---
 像word 同时只能打开一个项目
 File->project stucture ->选择Modules标签 可以Import或者Add 多个,默认目录是在本项目的子目录 (有 Search for projects recursively)，可以修改为同级,多个web项目可独立运行
@@ -301,6 +305,7 @@ shell视图修改使用git bash(支持linux命令)
 settings->tools->terminal -> shell path 中选择 Git安装目录/bin/bash.exe
 
 ctrl+e 最近打开文件
+Navigate -> Line:column   ctrl+g 跳到行号
 
 导出jar包 project structure...->artifacts-> +按钮 ->jar -> from modules with dependences... ->选Main Class,会自己建立 MANIFEST.MF 文件
 Build->Build artifacts...->默认输出在项目的out目录 

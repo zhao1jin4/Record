@@ -1,4 +1,263 @@
-﻿==========C 处理 json(DB返回数据做转换)
+﻿==========C openssl
+windows 使用 
+https://sourceforge.net/projects/openssl-for-windows/files/  是命令工具	OpenSSL-1.1.1h_win32.zip 	 	2020-12-04
+ 
+https://slproweb.com/products/Win32OpenSSL.html  是开发包，有头文件 ，也有命令工具 Win64OpenSSL-1_1_1n.exe 和 源码最新版本一致
+
+// -l crypto
+
+#include <openssl/sha.h>
+#include <openssl/md5.h>
+
+void sha1(){
+	SHA_CTX ctx;
+	SHA1_Init(&ctx);//返回整数状态码
+
+	const char * str="这是原始数据";
+	size_t len=strlen(str);
+	SHA1_Update(&ctx,str,len);//返回整数状态码
+	//可多次udpate
+	const char * str1="这是第二次数据";
+	size_t len1=strlen(str1);
+	SHA1_Update(&ctx,str1,len1);
+
+	unsigned char * res=new unsigned char[SHA_DIGEST_LENGTH];
+
+	SHA1_Final(res,&ctx);//返回整数状态码
+
+	//结果转换
+	char * hexRes=new char[SHA_DIGEST_LENGTH *2 +1];
+	for(int i=0;i<SHA_DIGEST_LENGTH;i++){
+		sprintf(&hexRes[i*2],"%02x",res[i]);
+	}
+	printf("SHA1 结果为=%s\n",hexRes);
+
+}
+void sha256(){
+	const  char * str="这是原始数据";
+	size_t len=strlen(str);
+	unsigned char * res=new unsigned char[SHA256_DIGEST_LENGTH];
+	//只可放一次数据
+	SHA256((const unsigned char *)str,len,res);//返回指向结果的指针,强转不会改变数据
+
+	//结果转换
+	char * hexRes=new char[SHA256_DIGEST_LENGTH *2 +1];
+	for(int i=0;i<SHA256_DIGEST_LENGTH;i++){
+		sprintf(&hexRes[i*2],"%02x",res[i]);
+	}
+	printf("SHA256 结果为=%s\n",hexRes);
+}
+void md5(){
+	const  char * str="这是原始数据";
+	size_t len=strlen(str);
+	unsigned char * res=new unsigned char[MD5_DIGEST_LENGTH]; 
+	MD5((const unsigned char *)str,len,res);//强转不会改变数据
+
+	//结果转换
+	char * hexRes=new char[MD5_DIGEST_LENGTH *2 +1];
+	for(int i=0;i<MD5_DIGEST_LENGTH;i++){
+		sprintf(&hexRes[i*2],"%02x",res[i]);
+	}
+	printf("MD5 结果为=%s\n",hexRes);
+}
+
+
+/*分组密码模式
+ * 1.ECB(最不建议用)
+ * 2.CBC (常用，但要多一个初始化向量)
+ * 3.CFB (要一个初始化向量)
+ * 4.OFB (要一个初始化向量)
+ * 5.CTR
+*/
+int des_ncbc(){
+	 char *keystring = "this is my key";
+	  DES_cblock key;
+	  DES_key_schedule key_schedule;
+
+	  //生成一个 key
+	  DES_string_to_key(keystring, &key);
+	  if (DES_set_key_checked(&key, &key_schedule) != 0) {
+		  printf("convert to key_schedule failed.\n");
+		  return -1;
+	  }
+
+	  //需要加密的字符串
+	  unsigned char input[] = "this is a text being encrypted by openssl";
+	  size_t len = (sizeof(input)+7)/8 * 8;// +7 表示不丢失原来的数据（向量和分组长相同，即8） ， 除8乘8的意思8的整数倍
+	  	  
+	  void  *outputTmp = malloc(len+1);
+	  unsigned char *output =(unsigned char *)outputTmp;
+	  //IV
+	  DES_cblock ivec;//向量长度为8
+
+	  //IV设置为0x0000000000000000
+	  memset((char*)&ivec, 0, sizeof(ivec));
+
+	  //加密
+	  DES_ncbc_encrypt(input, output, sizeof(input), &key_schedule, &ivec, DES_ENCRYPT);//头文件注释说话 替代DES_cbc_encrypt
+
+	  //输出加密以后的内容
+	  printf("enc: ");
+	  for (int i = 0; i < len; ++i)
+		 printf("%02x", output[i]);
+	  printf("\n");
+
+	  memset((char*)&ivec, 0, sizeof(ivec));
+
+	  //解密
+	  DES_ncbc_encrypt(output, input, len, &key_schedule, &ivec, 0);
+
+	  printf("dec : %s\n", input);
+
+	  free(output);
+}
+
+
+DH 两个创始人名的首字母
+双方都先知道两个数(被其它看到也没关系)，双方各自生成大的随机数，再做做一个运算，发送给对方（传送时要防止伪造，被其它看到也没关系，可以知道计算公式），各收到后双方再计算都可得到一个相同的值
+DH密钥至少需要1024位，才能保证有足够的中、长期安全。
+int dh_main()//p,g开始共用的
+{
+	int key_bits = 768;
+	int ret;
+	// 构造DH数据结构
+	DH *d1 = NULL;
+	d1=DH_new();
+	// 生成d密钥参数，该密钥参数是可以公开的
+	ret=DH_generate_parameters_ex(d1,key_bits,DH_GENERATOR_2,NULL);
+	if(ret!=1)
+	{
+		printf("DH_generate_parameters_ex err!\n");
+		return -1;
+	}
+	ret=DH_generate_key(d1);
+	if(ret!=1)
+	{
+		printf("DH_generate_key err!\n");
+		return -1;
+	}
+
+	// 获取d1的p,g,pub_key,pri_key
+	const BIGNUM *d1p = NULL, *d1g = NULL;
+	DH_get0_pqg(d1, &d1p, NULL, &d1g);
+	const BIGNUM *d1pub_key = NULL, *d1priv_key = NULL;
+	DH_get0_key(d1, &d1pub_key, &d1priv_key); 
+
+	//----另一方
+	// 构造DH数据结构
+	DH *d2 = NULL;
+	d2=DH_new();
+
+	// p 和 g 为公开的密钥参数，因此可以拷贝,通过p,g参数可以构造d2
+	BIGNUM *t_p = NULL, *t_g = NULL;
+	t_p=BN_dup(d1p);//复制
+	t_g=BN_dup(d1g);
+	DH_set0_pqg(d2, t_p, NULL, t_g);
+	// 生成公私钥,用于测试生成共享密钥
+	ret=DH_generate_key(d2);
+	if(ret!=1)
+	{
+		printf("DH_generate_key err!\n");
+		return -1;
+	}
+
+	const BIGNUM *d2pub_key = NULL, *d2priv_key = NULL;
+	DH_get0_key(d2, &d2pub_key, &d2priv_key);
+
+	// 计算共享密钥:d1+d2pub_key,d2+d1pub_key生成相同的共享密钥
+	unsigned char sharekey1[1024] = {0};
+	unsigned char sharekey2[1024] = {0};
+	int len1=DH_compute_key(sharekey1,d2pub_key,d1);
+	int len2=DH_compute_key(sharekey2,d1pub_key,d2);
+	if(len1!=len2)
+	{
+		printf("生成共享密钥失败\n");
+		return -1;
+	}
+	if(memcmp(sharekey1,sharekey2,len1)!=0)
+	{
+		printf("生成共享密钥失败\n");
+		return -1;
+	} 
+
+	DH_free(d1);
+	DH_free(d2);
+	return 0;
+}
+
+static unsigned char dh_g_2[] = {0x02}; 
+static unsigned char dh_pa_768[] = {...}; 
+static unsigned char dh_xa_768[] = {...	}; 
+static unsigned char dh_xb_768[] = {...}; 
+static unsigned char dh_except_b_pubkey_768[] = { ...	};
+int dh2_main()//从已有数据初始化
+{
+	int key_bits = 768;
+	int ret;
+	// 构造DH数据结构
+	DH *d1 = NULL;
+	d1=DH_new();
+	BIGNUM *p, *g, *pri1;
+	p  = BN_bin2bn(dh_pa_768, sizeof(dh_pa_768), NULL);//如果最后一个参数为NULL返回一个新的
+	g = BN_bin2bn(dh_g_2, sizeof(dh_g_2), NULL);
+	pri1 = BN_bin2bn(dh_xa_768, sizeof(dh_xa_768), NULL);
+	BIGNUM *t_p = NULL, *t_g = NULL;
+	t_p=BN_dup(p);
+	t_g=BN_dup(g);
+	DH_set0_pqg(d1, t_p, NULL, t_g);
+	DH_set0_key(d1, NULL, pri1);
+
+	ret=DH_generate_key(d1);
+	if(ret!=1)
+	{
+		printf("DH_generate_key err!\n");
+		return -1;
+	}
+
+	// 获取d1的p,g,pub_key,pri_key 
+	const BIGNUM *d1pub_key = NULL, *d1priv_key = NULL;
+	DH_get0_key(d1, &d1pub_key, &d1priv_key);
+ 
+
+	DH *d2 = NULL;
+	d2=DH_new();
+	BIGNUM *pub2,*pri2;
+
+	pub2 = BN_bin2bn(dh_except_b_pubkey_768, sizeof(dh_except_b_pubkey_768), NULL);
+	pri2 = BN_bin2bn(dh_xb_768, sizeof(dh_xb_768), NULL);
+	DH_set0_pqg(d2, t_p, NULL, t_g);
+	DH_set0_key(d2, pub2, pri2);
+
+	ret=DH_generate_key(d2);
+	if(ret!=1)
+	{
+		printf("DH_generate_key err!\n");
+		return -1;
+	}
+
+	const BIGNUM *d2pub_key = NULL, *d2priv_key = NULL; 
+	//使用前面已经有的公钥，测试
+	d2pub_key=pub2; 
+	
+	// 计算共享密钥:d1+d2pub_key,d2+d1pub_key生成相同的共享密钥
+	unsigned char sharekey1[1024] = {0};
+	unsigned char sharekey2[1024] = {0};
+	int len1=DH_compute_key(sharekey1,d2pub_key,d1);
+	int len2=DH_compute_key(sharekey2,d1pub_key,d2);
+	if(len1!=len2)
+	{
+		printf("生成共享密钥失败\n");
+		return -1;
+	}
+	if(memcmp(sharekey1,sharekey2,len1)!=0)
+	{
+		printf("生成共享密钥失败\n");
+		return -1;
+	}
+	return 0;
+}
+
+==========C 处理 json(DB返回数据做转换)
 https://github.com/DaveGamble/cJSON
 
 
@@ -364,7 +623,7 @@ void testOne()
 
 	while(sqlite3_step(stmt_sel)==SQLITE_ROW)//
 	{
-			char * name=sqlite3_column_text(stmt_sel,1);
+			const unsigned char* name=sqlite3_column_text(stmt_sel,1);
 
 			int id=sqlite3_column_int(stmt_sel,0);//=======num=====
 			printf("id=%d \t name=%s \n",id,name); //======num=====
@@ -482,109 +741,6 @@ int main(int argc, char **argv)
 */
 
 ==========zlib 处理 zip 压缩
-
-
-=========Cordova-7
-
-windows 10 要用 Visual Studio 2015 
-
-npm install -g cordova
-cordova create E:/tmp/VS2015_Cordova7 org.zh VS2015_Cordova7
-cd E:/tmp/VS2015_Cordova7
-cordova platform add  windows      
-
-VS2015打开CordovaApp.sln 
-
-日志文件中报错 The source completed without providing data to receive.
-警告: 程序集绑定日志记录被关闭。
-要启用程序集绑定失败日志记录，请将注册表值 [HKLM\Software\Microsoft\Fusion!EnableLog] (DWORD)设置为 1   ，修改为1也没用
-
-
-修改代码要在CordovaApp项目下，要先cordova plugin add 再写自己的代码，否则自己的代码会丢失！！！
- 
-windows 10 下
-右击 win8.1 项目 -> set as startup project  (如选择 windows 10 (UAP) 就不行???)
-
- 
-----win10 支持的插件 
- 
-
-cordova plugin add cordova-plugin-camera 
-cordova plugin add cordova-plugin-geolocation
-cordova plugin add cordova-plugin-globalization
-cordova plugin add cordova-plugin-battery-status
-cordova plugin add cordova-plugin-contacts
-cordova plugin add cordova-plugin-dialogs
-cordova plugin add cordova-plugin-file-transfer
-cordova plugin add cordova-plugin-inappbrowser
-cordova plugin add cordova-plugin-media
-cordova plugin add cordova-plugin-media-capture
-cordova plugin add cordova-plugin-network-information
-cordova plugin add cordova-plugin-splashscreen
-cordova plugin add cordova-plugin-vibration
-cordova plugin add cordova-plugin-device 
-
-
-cordova plugin ls
- 
-----cordova plugin add cordova-plugin-device 
-	document.addEventListener("deviceready", onDeviceReady, false);
-	function onDeviceReady() {
-		var element = document.getElementById('deviceProperties');
-		element.innerHTML = 'Device Cordova: '  + device.cordova + '<br />' +   //3.5.0
-							'Device Platform: ' + device.platform + '<br />' +  //windows8
-							'Device UUID: '     + device.uuid     + '<br />' +  //
-							'Device Model: '    + device.model     + '<br />' +  //Win64
-							'Device Version: '  + device.version  + '<br />';   //6.3.xxx
-	}
-
------cordova plugin add cordova-plugin-dialogs
-	function alertDismissed() {
-		out("you clicked the button");
-	}
-
-	function showAlert( )
-	{
-	  navigator.notification.alert(
-				'You are the winner!',  // message
-				alertDismissed,         // callback
-				'Game Over',            // title
-				'Done'                  // buttonName
-			);
-    }
-	
------cordova plugin add cordova-plugin-network-information
-	document.addEventListener("offline", onOffline, false);//当3G,或者wifi网络打开,或者关闭时
-    function onOffline() {
-    	out("offline");
-    }
-    document.addEventListener("online", onOnline, false);
-    function onOnline() {
-    	out("online");
-    }
-    function checkConnection() {
-        var networkState = navigator.connection.type;
-        var states = {};
-        states[Connection.UNKNOWN]  = 'Unknown connection';
-        states[Connection.ETHERNET] = 'Ethernet connection'; 
-        states[Connection.WIFI]     = 'WiFi connection';
-        states[Connection.CELL_2G]  = 'Cell 2G connection';
-        states[Connection.CELL_3G]  = 'Cell 3G connection';
-        states[Connection.CELL_4G]  = 'Cell 4G connection';
-        states[Connection.CELL]     = 'Cell generic connection';
-        states[Connection.NONE]     = 'No network connection';
-        out('Connection type: ' + states[networkState]);
-    }
------cordova plugin add cordova-plugin-camera
-
-
------cordova plugin add cordova-plugin-geolocation
-
-
- 如使用jquery.js 报用innerHTML不安全,要求使用toStaticHTML或createElement
- 实际是appendChild()在断点处停止，这样jqueryMobile等插件就用不了
-https://msdn.microsoft.com/en-us/library/windows/apps/hh849625.aspx
- 
 
 ------------------------JVM TI
 Java HotSpot VM 

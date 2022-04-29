@@ -2,6 +2,7 @@ http://www.omg.org/spec/BPMN/2.0/
 Business Process Model and Notation (BPMN) 		Version 2.0
 
 有 Docker images
+drools 也实现了 DMN ,是OMG制定的
 
 7.60  版本已经有Community版本和Enterprise版本
 ----------------------jbpm-server-7.32.0 (2020-01-27)

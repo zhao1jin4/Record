@@ -138,7 +138,8 @@ sudo make install 安装在 /usr/local/bin/
 
 redis-server  --version
  
-
+-----------6.2版本开始有 redis statck版本，支持数据模型 document, graph, time series
+只有二进制包,没有windows版本，linux下没有suse版本，只有ubuntu(有snap通用?),redhat/centos
 -----------
 快的原因 ，单线程，基于内存，epoll作为I/O多路复用，事件处理模型
 
@@ -845,10 +846,15 @@ rename-command FLUSHDB ""
 rename-command KEYS ""
 rename-command SMEMBERS ""
 生产环境不建议用 KEYS ，SMEMBERS 会锁很长多秒时间，使用SCAN 做替代，SSCAN(set),HSCAN(hash),ZSCAN(sorted set)
+
+SCAN cursor [MATCH pattern] [COUNT count]
+
 scan 0 表示从0开始 返回一个元素为一次使用的游标号，相当于分页查所有键，默认每页10页
 scan 0 MATCH * COUNT 20 可通配符 
-	(实际操作时，明明有这个键，COUNT输入20就查不到，COUNT输入1000就能查到，表示查找从第0个键到第1000个键里去找，有可能这键在1000以外)
-
+	(实际操作时，明明有这个键，COUNT输入20就查不到，COUNT输入1000就能查到)
+	返回第一个值是 新游标号，为一次调用 。第二个值是 数组元素，没有值就返回(empty list or set)
+	
+	 
 
 --------client 命令
 CLIENT LIST  查看客户端

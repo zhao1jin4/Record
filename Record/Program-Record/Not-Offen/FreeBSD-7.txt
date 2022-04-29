@@ -1,3 +1,5 @@
+https://github.com/freebsd/freebsd-src 源代码
+
 
 Based on BSD UNIX FreeBSD  最新版本 7.0 三张CD(必须的) 一张bootonly,一张docs 和一张livefs,共6张CD    有中国的镜像站点
 支持gnome ,kde,也有DVD版本 http://it.toolbox.com/blogs/bsd-guru/creating-your-own-freebsd-70-dvd-22791  创建DVD方法

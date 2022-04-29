@@ -1,0 +1,549 @@
+==========SUSE 
+http://download.opensuse.org/distribution/leap/15.0/repo/oss
+	bluefish-2.2.10-lp152.3.12.x86_64.rpm 
+ 
+openSUSE-leap-15.2-DVD有    chromium-83 yast2 install
+ (下载chrome-83   2020-07-12)
+	rpm -ivh ~/Downloads/google-chrome-stable_current_x86_64.rpm   ./libvulkan1-1.2.133-lp152.1.3.x86_64.rpm 
+  	安装后提示/usr/bin/google-chrome-stable to provide /usr/bin/google-chrome 
+
+microsoft-edge-stable-97.0.1072.62-1.x86_64.rpm 
+		在openSUSE-leap-15.3下安装不需要其它的依赖(没有安装Chrome)
+		 
+mysql-workbench-8.0.15-lp152.1.10.x86_64.rpm   need download
+  官方doc 说在8.0中默认使用caching_sha2_password已经集成在 libmysqlclient中了
+   
+DVD 带 vlc  播放器 
+smplayer 
+	 yasm-1.3.0-lp150.2.11.x86_64.rpm  mplayer源码依赖的
+		 
+
+pgadmin4-4.1-lp151.1.2.x86_64.rpm
+
+gparted-0.31.0-lp150.1.2.x86_64.rpm  (系统自带gnome-disks ,yast2的partitioner )
+	hfsutils-3.2.6-lp150.2.3.x86_64.rpm
+	nilfs-utils-2.2.3-lp150.1.7.x86_64.rpm
+	libgtkmm-2_4-1-2.24.5-lp150.1.8.x86_64.rpm
+
+extundelete-0.2.4-lp150.1.4.x86_64.rpm
+ 
+rpm -ivh unrar-4.0.4-10.1.7.x86_64.rpm  
+yast2 安装 gparted
+
+wireshark 依赖的Qt的包DVD中都有的
+
+
+wine-5.0-lp152.1.2.x86_64.rpm
+		wine-32bit-5.0-lp152.1.2.x86_64.rpm  依赖过多
+
+anjuta-3.28.0-lp150.1.4.x86_64.rpm
+glade-3.20.4-lp150.1.4.x86_64.rpm
+
+---stardict 因版本问题从sourceforge中删除, openSUSE-leap-15.1 yast上有 rpm
+ libpcaudio0-1.0-lp151.3.2.x86_64.rpm  
+ libespeak-ng1-1.49.2-lp151.4.3.x86_64.rpm  
+ stardict-3.0.5-lp151.3.4.x86_64.rpm  
+ stardict-sounds-wyabdcrealpeopletts-2.1.0-lp151.2.1.noarch.rpm  
+安装后  stardict 启动不了 报 Segmentation fault
+
+---有道 有道有ubuntu安装版本 二进制版本 youdao-dict-6.0.0-amd64.tar.gz
+README 只支持ubuntu
+在openSUSE-leap-15.1 安装 sudo sh ./install.sh ，运行 youdao-dict(python3写的) 
+提示No module named 'OpenGL' 找不到 , yast2安装 python3-opengl 
+又提示少 No module named 'PyQt5' 找不到 , yast2安装 python3-AnyQt
+又提示少 No module named 'Xlib'找不到 , yast2安装 python3-python-xlib 
+又提示 Xlib.error.DisplayConnectionError: Can't connect to display ":0": b'No protocol specified\n'
+
+---
+
+------ flash player 32,linux x64下有两个版本 
+(flash player  2020-12已经不支持了，firefox安装无效了，chrome自带的flash player 还可以用)
+https://get.adobe.com/cn/flashplayer/otherversions/
+https://www.adobe.com/support/flashplayer/debug_downloads.html
+
+NPAPI  适用于 Safari 和 firefox  安装方法
+		mkdir ~/.mozilla/plugins/
+		cp ~/libflashplayer.so ~/.mozilla/plugins  
+PPAPI  适用于 opera 和chrome    文件名是 libpepflashplayer.so 
+  
+	 地址栏输入 chrome://components/  显示 Flash Player  版本32.0.0.114 ,check for update 按钮可更新
+     rpm -ivh flash-player-ppapi-32.0.0.114-release.x86_64.rpm
+           其实就做了 /usr/lib/adobe-flashplugin/libpepflashplayer.so ==> /usr/lib64/flash-plugin/libpepflashplayer.so
+     
+	 如不能播放flash视频,点击http旁边的按钮->Site Settings->Flash下拉选择allow 
+
+---VirtualBox  安装
+openSUSE-leap-15.2 下使用All distributions包，即 VirtualBox-6.1.12-139181-Linux_amd64.run
+安装目录在 /opt/VirtualBox, 也是编译报错, 提示要root 运行/sbin/vboxconfig  来重做
+再次运行 VirtualBox-6.1.12-139181-Linux_amd64.run 会先卸载再安装
+卸载 删除安装包生成的文件 /etc/vbox/vbox.cfg  里有写安装目录在 /opt/VirtualBox,也删
+安装rpm包 
+rpm -ivh VirtualBox-6.1-6.1.12_139181_openSUSE150-1.x86_64.rpm , 也是编译报错, ‘skb_frag_t {aka struct bio_vec}’ has no member named ‘page_offset’; did you mean ‘bv_offset’?
+rpm -ql VirtualBox-6.1-6.1.12_139181_openSUSE150-1.x86_64 | xargs grep page_offset   是 /usr/share/virtualbox/src/vboxhost/vboxnetflt/linux/VBoxNetFlt-linux.c
+修改源码又报其它错误  VBoxNetFlt-linux.c:931:36: error: ‘skb_frag_t {aka struct bio_vec}’ has no member named ‘size’ 修改和上面一样的,查所有的共两处一起修改 ,再试OK
+
+
+提示要root 运行/sbin/vboxconfig  来重做
+ 
+ openSUSE-leap-15.1 上成功
+Creating group 'vboxusers'. VM users must be member of that group!
+/etc/vbox/vbox.cfg
+
+
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxdrv.service → /usr/lib/systemd/system/vboxdrv.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxballoonctrl-service.service → /usr/lib/systemd/system/vboxballoonctrl-service.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxautostart-service.service → /usr/lib/systemd/system/vboxautostart-service.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/vboxweb-service.service → /usr/lib/systemd/system/vboxweb-service.service.
+
+systemctl list-unit-files| grep vbox
+systemctl status vboxautostart-service
+
+
+---
+
+----vmware workstation pro 15
+默认VM位置 /var/lib/vmware/Shared VMs
+使用要安装gcc-7-,不是gcc7-7.x
+	提示要kernel healders  (linux-glibc-devel不对， 也不是kernel-devel,是kernel-default-devel)  
+	
+	启动提示must be compile and loaded into the runing kernel -> install 按钮 
+(vmware pro 15.0.0   leap-15.1成功，但leap-15.2上编译内核时失败,用vmware pro 15.5上编译也失败)
+‘skb_frag_t {aka const struct bio_vec}’ has no member named ‘page_offset’; did you mean ‘bv_offset’?
+/usr/lib/vmware/modules/source/vmnet.tar 解压 make 是./vmnet-only/userif.c
+修改源码重新打包，再试OK
+
+systemctl status vmware
+
+
+-----VMware-Horizon-Client
+chmod 755 VMware-Horizon-Client-5.0.0-12557422.x64.bundle
+su root
+./VMware-Horizon-Client-5.0.0-12557422.x64.bundle 报vmware-installer.py ImportError: No module named xml
+
+openSUSE-leap-15.1-DVD
+rpm -ivh  python-xml-2.7.14-lp151.9.3.x86_64.rpm
+	
+安装后 有复选框 Register and start installed  servcies(s) after the installation
+	
+可以记录输入过的IP,不同的登录用户 运行 vmware-view 记录不一样 
+  
+要用root运行 vmware-view  可以下拉选择到的U盘(不能弹出本地Files 中的U盘，可能虚拟机里要慢点反应) 
+
+只要是linux版本就这样，windows版本不存这个问题
+在GuestOS中按 alt +tab 被Host OS拦截,输入法win+space 被Host OS拦截 ,不方便(VMWare Workstation也是一样的问题)
+在外部系统按  alt+tab 进入虚拟机，在虚拟机里alt键还是被按住的,记得要再按一次alt解除,不方便(VMWare Workstation也是一样的问题)
+ 
+安装VMware-Horizon-Client 5版本后，出现intellij idea界面显示不清昕(windows的5版本也有问题，安装失败把4也卸载了，再安装4还安装不上了!!!)
+
+卸载方法
+		sudo	env VMWARE_KEEP_CONFIG=yes \
+	./VMware-Horizon-Client-5.0.0-12557422.x64.bundle -u vmware-horizon-client
+
+再回到4版本后intellij idea界面显示还是不清昕,intellij idea 重新启动就显示正常了
+
+
+
+----UltraEditX -16 openSUSE－15 运行OK
+----UltraEdit-3.3  压缩包 安装运行OK   带自己的Compare
+----UltraCompareX -17 压缩包
+安装依赖于libpng12.so.0，光盘中带16不行，zypper install libpng12  (yast2打开多点) 
+	ln -s /usr/lib64/libjpeg.so.8 /usr/lib64/libjpeg.so.62
+		openSUSE－15 运行OK
+-----diffuse 文件比较器,依赖于scrollkeeper,光盘中有的
+
+-----Komodo-Edit-11  运行install.sh提示安装位置~/Komodo-Edit-11,运行OK 
+Python写的性能不大好
+右击工具栏－>show menu bar
+-----bluefish 免费
+不是python 比komodoedit 要快 
+openSUSE-leap-15可以 --nodeps安装fedora20版本的rpm
+
+--------- starUML
+libXtst is needed by StarUML-4.0.1-1.x86_64
+libuuid is needed by StarUML-4.0.1-1.x86_64
+nss is needed by StarUML-4.0.1-1.x86_64
+
+libXtst6 包SUSE 已经安装   忽略依赖安装 ,安装在/opt/starUML下，启动要用图标
+
+也可用 LibreOffice Drawing（不是类似powerpoint，但只是基本图形，无UML）
+
+--------- GanttProject
+https://sourceforge.net/projects/ganttproject/files/
+Java 11+ ganttproject-3.0.3000.zip是二进制包，但在linux不能启动，什么也没有
+ 
+
+---------Mono
+　仓库	http://download.opensuse.org/repositories/Mono:/Factory/openSUSE_Factory/　
+	 zypper addrepo http://download.opensuse.org/repositories/Mono:/Factory/openSUSE_Factory/ mono
+	
+		openSUSE-leap-15 DVD中存的在包
+		rpm -ivh 	gnome-vfs2-2.24.4-lp150.2.9.x86_64.rpm ../noarch/gnome-vfs2-lang-2.24.4-lp150.2.9.noarch.rpm ../noarch/system-user-wwwrun-20170617-lp150.3.34.noarch.rpm
+		配置不删rpm
+		zypper install monodevelop 　41个包安装(主要的　mono-core-5.10.1-lp150.1.6.x86_64.rpm　,　monodevelop-5.10.0-157.114.x86_64.rpm　)
+			
+---------DiffMerge fedora版本
+ 依赖于 libpng15.so.15 而openSUSE-leap-15是16版本,
+	fedoar mirror 下载 libpng15-1.5.30-6.fc29.x86_64.rpm 安装OK
+	--fedoar mirror
+	https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-29&arch=x86_64
+	比如  http://mirrors.163.com/fedora/releases/29/Everything/x86_64/os/
+
+
+==========mysql-workbench  8 源码编译安装
+cd mysql-workbench-community-8.0.13-src   (8.0.15)
+		zypper install cmake
+		解压目录
+		mkdir wb-build
+  cd wb-build
+		cmake ..
+		zypper install gtk3-devel
+		zypper install gtkmm3-devel
+		zypper install swig
+  
+		ANTLR4 解压 antlr4-cpp-runtime-4.7.2-source.zip
+					cmake . 提示要uuid
+							zypper install libuuid-devel
+					cmake .
+					make
+					sudo make install
+					
+		zypper install python-devel
+		zypper install libmysqld-devel
+		zypper install libxml2-devel
+		zypper install gdal-devel
+		zypper install libssh-devel  (到8.0.15要新的0.8.5版本)
+					libssh-0.8.7，删除老的版本
+					   mkdir build
+								cd build
+								cmake ..
+								make
+								sudo make install (默认安装在/usr/local/下)
+							set C_INCLUDE_PATH=/usr/local/include
+							set	CPLUS_INCLUDE_PATH=/usr/local/include
+							set	LD_LIBRARY_PATH=/usr/local/lib
+	 zypper install Unixodbc-devel
+		zypper install libzip-devel  
+		zypper install libsecret-devel
+		zypper install vsqlite++-devel （到8.0.15要）
+		
+ 8.0.13和8.0.15 	日志文件中报cannot find -lpthreads (glibc-devel中有 libpthread.so,多了个s  ?????)
+ 
+ cmake  -DWITH_ANTLR_JAR=/mnt/ext4/Ext4_NEW/mysql-workbench8_src_deps/antlr-4.7.1-complete.jar ..
+		
+		 
+		--- el7 的mysql-workbench-8.0.13 ，8.0.15
+		 要  libzip.so.2 官方最新才1.5.2  cp /usr/lib64/libzip.so /usr/lib64/libzip.so.2
+			要  libssl.so.10  					 								cp /usr/lib64/libssl.so.1.0.0  /usr/lib64/libssl.so.10 
+			要  libcrypto.so.10    									cp /usr/lib64/libcrypto.so.1.0.0 /usr/lib64/libcrypto.so.10  
+		 要  libjpeg.so.62  													zypper install libjpeg62 
+							libtiff.so.5(有/usr/lib64/libtiff.so.5 )
+			还不行???
+							 
+	 
+---totem
+yast2安装所有 gstreamer-plugins-包　　
+	包括　gstreamer-plugins-libav - A ffmpeg/libav plugin for GStreamer
+	安装在　/usr/lib64/gstreamer-1.0/　目录
+https://gstreamer.freedesktop.org/modules/
+
+播放mp4 还是提示找不到MPEG-4 ACC decoder　可以播放但没有声音
+
+ACC音频解码 使用开源的FAAD　https://www.audiocoding.com/faad2.html　
+	但已经有安装　libfaad2-2.8.8-lp150.1.6.x86_64　(安装在　/usr/lib64/libfaad.so.2.0.0 是gmplayer的依赖,能播放声音)
+	pkg-config --cflags --libs gstreamer-1.0
+	
+cp /usr/lib64/libfaad.so.2.0.0 /usr/lib64/gstreamer-1.0/
+ln -s /usr/lib64/gstreamer-1.0/libfaad.so.2.0.0 /usr/lib64/gstreamer-1.0/libfaad.so.2
+　 也没用??
+
+---Mplayer-1.3 源码编译安装
+unxz -cd MPlayer-1.3.0.tar.xz | tar -xvf -
+./configure
+	要　yasm not found, use --yasm=''  
+	http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/ 下载　　yasm-1.3.0-lp150.2.11.x86_64.rpm
+	成功，并提示
+  Install prefix: /usr/local
+  Data directory: /usr/local/share/mplayer
+  Config direct.: /usr/local/etc/mplayer
+make　成功　	如用　make -j 4　就会报错
+make install
+
+/usr/local/bin/mplayer 1.mp4　没有画面???
+
+官方可以下载　Binary Codec Packages(名字上看是07年的)　,　Skins
+
+说明中是放　$prefix/lib/codecs ,即/usr/local/lib64/codecs　(看不出效果)
+
+
+
+mpalyer 1.1 可以播放avi视频，但没有声音，打开后提示audio_setup: Can't open audio device /dev/dsp: No such file or directory
+解决方法是安装snd_pcm_oss，执行 modprobe snd_pcm_oss   测试OK ，以root执行
+
+pageup,pagedown是快进10分，上下键快进1分
+*增大音量  /减小音量
+
+-----gmplayer
+mplayer 官方网页的链接网站有　MPlayer-1.2.r38117-lp150.1.4.x86_64.rpm　gmplayer-1.2.r38117-lp150.1.4.x86_64.rpm 包版本老一点
+
+rpm -ivh 	libXvMC1-1.0.10-lp150.1.7.x86_64.rpm　　openSUSE-leap-15 DVD中带的
+　
+zypper addrepo http://download.videolan.org/pub/vlc/SuSE/Leap_15.0/ vlc
+	zypper install libxvidcore4
+	zypper install libfaac
+
+	zypper addrepo http://packman.inode.at/suse/openSUSE_Leap_15.0/ packman
+	zypper install libdca0 　libfaad
+　zypper install gmplayer　就会依赖上面全部
+	
+打开.mp4文件,有声音,但不能显示画面,报　
+[ffmpeg] FFmpeg's libavcodec codec family　
+Cannot find codec 'h264' 　
+Cannot find codec 'h264_crystalhd'
+
+-------ffmpeg 跨平台的　视频录制转换(Mplayer使用的)
+仓库上有 ffmpeg-3.4.2-lp150.2.1.x86_64.rpm
+
+ffmpeg -i input.mp4 output.avi
+
+
+-------SMplayer-18.2.2
+有windows版本,没有mac版本
+
+播放mp4报
+Failed to initialize a video decoder for codec 'h264'. 
+Failed to initialize an audio decoder for codec 'aac'.
+
+-------VLC-3.0.2
+有windows,mac版本
+YaST2 -> Software -> Configuration菜单->repository-> add 按钮 输入下面地址
+http://download.videolan.org/pub/videolan/vlc/SuSE/Leap_15.0/
+
+系统自带的仓库　http://download.opensuse.org/distribution/leap/15.0/repo/oss/x86_64/　也有vlc
+
+播放mp4报
+VLC could not decode the format "h264" (H264 - MPEG-4 AVC (part 10))
+VLC could not decode the format "mp4a" (MPEG AAC Audio)
+
+========== 上SUSE
+
+-----------Redhat EL5 安装Maya2008
+[系统]－>[首选项]－>[窗口]    ,更改alt键为其它的
+[Maya 2008](redhat 提示的)
+
+chcon -t textrel_shlib_t /usr/autodesk/maya2008/lib/
+setsebool -P allow_execheap=1
+chcon -t textrel_shlib_t /usr/autodesk/maya2008/bin/plug-ins/*.so
+chcon -t textrel_shlib_t /usr/autodesk/maya2008/bin/plug-ins/image/*.so
+
+-----------  Redis Desktop Manager (官方说有，但没找到src build）
+	cd src/
+	./configure
+	qmake-qt5 && make && sudo make install
+	cd /usr/share/redis-desktop-manager/bin
+	sudo mv qt.conf qt.backup
+----------- 
+ 
+------------fedora 35 tigervnc
+
+VNC Connect 是由 VNC Viewer 和 VNC  Server组成
+
+dnf install tigervnc 有vncviewer
+dnf install tigervnc-server
+vncserver :1 提示用 systemd ,有显示看 /usr/share/doc/tigervnc/HOWTO.md 文档
+
+vi /etc/tigervnc/vncserver.users 配置用户，要求用户不能是已经登录图形界面的，避免使用root
+:1=hp
+
+
+#su - hp
+vncpasswd   #创建$HOME/.vnc目录,修改密码可以删除
+
+再用  systemctl start vncserver@:1  启动(测试下来一定要用配置的用户hp启动,vncviewer才能连接上) ,会监听5901端口 (ps -ef 也会显示)
+	 
+	
+	
+systemctl status vncserver@:1 #看脚本使用的Xvnc命令,会带起 vncsession hp :1(ps -ef 也会显示)
+
+
+Fedora官方文档说
+https://docs.fedoraproject.org/en-US/fedora/rawhide/system-administrators-guide/infrastructure-services/TigerVNC/
+
+$ vncviewer 192.168.0.4:1 连接后提示不安全
+  
+
+界面是gnome2的风格
+
+---$HOME/.vnc/config 测试下来加这个文件后 vncviewer就连接不上？？
+session=gnome  #名字匹配 ls /usr/share/xsessions/  ,如未配置界面是gnome2的风格，还可 gnome,gnome-classic,gnome-xorg
+securitytypes=vncauth,tlsvnc
+desktop=sandbox
+geometry=2000x1200
+localhost
+alwaysshared
+
+
+
+--------------------tigervnc
+VNC(Virtual Network Computing)
+yum install tigervnc  (CentOS 7 DVD 自带1.8版本 只vncviwer)从 TightVNC 出来的
+yum install tigervnc-server 就有vncserver了
+
+vncserver :1 提示输入两次密码(如第二次选y),就有5901的监听,关防火墙 外部就可以输入密码连接上了,但进入界面系统的密码是启动vnc服务用户系统的密码
+Creating default startup script /root/.vnc/xstartup
+Creating default config /root/.vnc/config
+CentOS 7 测试OK
+
+
+==========================VNC-5.2
+
+----linux 通用tar包安装
+root用户运行 ./vncinstall /usr/local/bin /usr/local/man
+
+5.2版本用  vnclicense -add DN2AB-2224A-VRGSB-7J3D9-NN3RA   增加免费的license
+6.3版本用  vnclicense -add BQ24G-PDXE4-KKKRS-WBHZE-F5RCA    Enterprise 
+
+vncserver   
+	提示 日志在 /root/.vnc/<hostname>:1.log ,
+	提示 新桌面是 <hostname>:1 (<ip>:1)
+	提示 /etc/vnc/xstartup
+
+	5.2版本 第一次运行vncserver会提示输入密码       修改密码用 vncpasswd
+	6.3版本 不会提示输入密码，登录直接用系统用户,效果不好   
+	vncpasswd  -service  (Service Mode  ,Home or Professional 版本只支持这个,远程登录控制整个电脑,可以看真电脑前的人在干什么)
+	vncpasswd  -user  	 (User Mode ,Enterprise  版,远程登录控制当前用户在登录的时,可以看真电脑前的人在干什么)
+	vncpasswd  -virtual  (Virtual Mode ,Enterprise  Linux版,看不到真电脑前的人在干什么 )
+	
+	
+vncserver :1
+依赖于xauth (gnome 或者KDE)命令
+vncserver -geometry 1366x768 :1 启动时指定分辩率
+vncserver -geometry 1340x740 :1
+
+windows 打开 VNCViewer   输入  your-server:X-display号 如192.168.190.134:1 (比用jar好处是可记住上次IP,可传剪贴板中文字符)
+netstat -an | grep 5901	 vncviewer的端口是5900+N N是你设置的X-display号 ,
+
+vncserver -kill :1
+
+~/.vnc/config.d/Xvnc 存密码
+/etc/vnc/xstartup 中有 gnome-session  (GNOME桌面,gdm) ,(KDE桌面 是 startkde& )  
+
+
+源码目录java -jar java/vcnviewer.jar 有界面,也有 vncviewer 命令 
+
+如多个客户端同时连接到同一个显示端口,则一方鼠标动,另一方鼠标也动(可做远程演示)
+
+
+
+配置防火墙来让 VNC 服务正常工作
+ firewall-cmd --permanent --add-service vnc-server
+ systemctl restart firewalld.service
+
+
+关闭防火墙 
+# systemctl stop firewalld.service  是使用nft, 不是老的 iptables虽然命令还在
+systemctl list-units
+ systemctl list-unit-files | grep firewall
+ systemctl disable firewalld.service   关闭系统开机启动
+ systemctl status firewalld.service
+ 
+------------ 
+
+----------shrew soft VPN Client
+https://www.shrew.net/download/ike 有linux 和 BSD 源码版本，说是可以mac上用,没有手机版本
+ike-2.2.1-release.tgz   Jun 05 2013 发布,到2022年也没有新的 (fedora 20也是2013年的,里面是openssl-devel-1.0.1e)
+
+
+yum install qt-devel cmake gcc-c++ openssl-devel libedit-devel flex bison
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DQTGUI=YES -DETCDIR=/etc -DNATT=YES ##README中有命令,如指定自己的目录里要有sbin,share,lib
+make    
+	--有太多的openssl问题--要使用老版本		
+	rpm -ivh openssl-devel-1.0.1e-30.fc20.x86_64.rpm  --nodeps　
+	rpm -ivh openssl-libs-1.0.1e-30.fc20.x86_64.rpm  --nodeps --force #强制安装--force --nodeps不安装依赖
+	后就只有一个bison问题,按下面解决可以正常make
+		[ 28%] Generating conf.parse.cpp
+		conf.parse.yy:44.9-27: error: expected identifier before string
+		44 | %define "parser_class_name" "conf_parser"
+
+		找　find ./ -name CMakeLists.txt | xargs grep conf.parse.cpp 为./source/iked/CMakeLists.txt
+		是用bison命令,参数为conf.parse.yy　生成的
+		原因为gnu bison 3.3 时 parser_class_name 过时，新的为 api.parser.class 没有外面的双引号
+	
+	//-------openssl老代码,新包的问题,备份
+	#make 时fedora-34 报 manager.file.cpp:682:40: error: aggregate ‘EVP_CIPHER_CTX ctx_cipher’ has incomplete type and cannot be defined
+	#修改为EVP_CIPHER_CTX *ctx_cipher=EVP_CIPHER_CTX_new(); 后面用&ctx_cipher的地方去前&
+	#删除生成目录再试,报　　
+	
+	BIGNUM *p=NULL;
+		
+	case 1:
+		 p=BN_bin2bn( group1, sizeof( group1 ),NULL );
+		if(p==NULL)
+		{
+			DH_free( dh );
+			return false;
+		}
+		if(!DH_set0_pqg(dh, p, NULL, NULL))
+		{
+			DH_free( dh );
+			return false;
+		}
+		break;
+		
+	//...	
+	unsigned char dh_g_2[] = {0x02};
+	BIGNUM *g = BN_bin2bn(dh_g_2, sizeof(dh_g_2), NULL);
+	if(g == NULL )
+	{
+		DH_free( dh );
+		return false;
+	}
+	//----
+	//MAC (message authentication code)
+	又报　HMAC_CTX_init() 没有,文档说　新版本用　  HMAC_CTX_reset(),文档不全对 ,编译提示用  HMAC_CTX_new　替代  
+	HMAC_CTX_cleanup　没有,但有新的　HMAC_CTX_free								  ,编译提示用  HMAC_CTX_reset　替代  　
+
+	HMAC_CTX * ctx_prf =HMAC_CTX_new(); 再次把对应前的&去除
+	//----
+	又报　EVP_DigestInit　没有
+	
+
+
+make install
+cd /etc/
+mv iked.conf.sample iked.conf
+#Redhat系统要 vi /etc/ld.so.conf 增加 include /usr/lib 再执行 ldconfig,验证ldconfig -p | grep ike
+使用　先 iked  ,再qikdea 有界面
+
+linux 使用时有错误　Failed to load module "pk-gtk-module",yum install PackageKit-gtk3-module-0.8.13-1.fc20.x86_64 解决了
+linux 连接时不能弹出输入用户名密码框?
+
+----------------
+
+---------免费的软件
+Robo 3T 
+diffuse 带界面 工具只能比较单个文件 不能比较目录
+anjuta
+thunderbird
+flashplayer
+FileZilla-3.44.2(要 libc.so.6 即glibc-2.28版本)
+JD-GUI
+wireshark (有源码 zypper install wireshark)
+git
+rdesktop 命令,windows远程桌面 
+tsclient 远程桌面 
+freeglut
+----pidgin 自带skype,openfetion
+   下载 QQ plugin 基于webQQ-
+Xournal 手写笔,草图工具
+	zypper install xournal
+journal 日报(windows 版本有 autodesk sketchbook)
+
+Xournalpp 是使用CPP写的
+
+
+---------要破解
+Charles－4.6.1 (已破解)
+Beyond Compare 3 在 openSUSE leap-15 安装不了依赖, 4可以安装未破解
+DbVisualizer Pro 10.0.16
+SmartGit
+Sublime 

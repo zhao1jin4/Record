@@ -29,9 +29,9 @@ dataDir=/tmp/zookeeper
 
 3.5新功能  AdminServer 是一个嵌入式 Jetty 服务器 
 admin.enableServer=false, 系统属性-D使用  zookeeper.admin.enableServer  默认启用, 设置 "false" 禁用
-zookeeper.admin.serverAddress   默认 0.0.0.0
-zookeeper.admin.serverPort		默认端口 8080  
-zookeeper.admin.commandURL		默认 "/commands"   
+admin.serverAddress   默认 0.0.0.0
+admin.serverPort		默认端口 8080  #增加配置为admin.serverPort=9090
+admin.commandURL		默认 "/commands"   
 
 http://127.0.0.1:8080/commands  显示所有接口，每个以json返回
 

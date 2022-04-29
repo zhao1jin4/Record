@@ -1,3 +1,5 @@
+官方说1.x 和 2.x 分支不再接收patch,目前是3.6.0(2022-04-28)
+
 http://www.w3school.com.cn/jquery/index.asp
 http://api.jquery.com/
 

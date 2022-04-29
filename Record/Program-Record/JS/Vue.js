@@ -34,7 +34,7 @@ Vue 比React简单 (没有用到class)
 
 -----vue-js-devtools 
 对firefox addons 最新的是 vuejs_devtools-5.1.1-fx.xpi 
-也有chrome的,Edge版本
+也有chrome版本，但没有Edge版本？？？
 也有Standalone版本
 	https://devtools.vuejs.org/guide/installation.html#settings-1 可以
 生产版本打开F12什么也没有

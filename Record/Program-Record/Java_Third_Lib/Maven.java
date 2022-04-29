@@ -77,9 +77,11 @@ mvn test-compile
 
 如单元测试报错, 控制台没有原因,要进入target/surefire-report/中的txt文件 有错误 堆栈信息
 
-
-http://search.maven.org/ 可以搜索 Maven 依赖包 
-http://www.mvnrepository.com    会提示名字是老的哪个是新的 如jsp-api,log4j
+dependency snaphot 版本的引用，可以用以前的版本的， 即2.0.0-SNAPSHOT 不使用最新，而用以前的 2.0.0-20201119.123649-260
+ 
+ 
+http://search.maven.org/ 可以搜索 Maven 依赖包    
+https://mvnrepository.com  会提示名字是老的哪个是新的 如jsp-api,log4j , 会提示版本没有安全问题,如linquibase-4.8.0 以前有安全问题
 
 Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/maven-model-builder-3.3.9.jar/org/apache/maven/model/pom-4.0.0.xml 有配置 
 <repositories>  
@@ -129,6 +131,14 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 		<repository>
 		  <snapshots>   <!-- snapshots -->
 			<enabled>false</enabled>
+			<updatePolicy>never</updatePolicy>
+			<!--
+			    always 每次构建都检查远程仓库中该依赖jar包是否有更新
+				daily 每天检查一次 (默认策略)
+				interval:XXX 指定检查时间间隔，单位是分钟。
+				never 从不检查。该策略就和正式版本的处理规则一样了。
+				如果使用公司的内网仓库，项目包中的 _remote.repositories文件变为_maven.repositories,或者直接删所有*_remote.repositories(*.lastUpdated可不删)
+				-->
 		  </snapshots>
 		  <id>my_libs_release</id>
 		  <name>My Library Releases</name>
@@ -149,8 +159,7 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 					https://repo.spring.io/libs-release/ 
 					http://maven.aliyun.com/nexus/content/groups/public
 					https://mirrors.huaweicloud.com/repository/maven/ 
-   --> 
-			-->
+		-->
 		<release_deployment_url>http://localhost:8080/my/repo</release_deployment_url>
 		<snapshot_deployment_url>http://localhost:8080/my_snapshot/repo</snapshot_deployment_url>
 	  </properties>

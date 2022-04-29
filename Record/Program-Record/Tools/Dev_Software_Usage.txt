@@ -1,4 +1,74 @@
 ﻿
+==========windows 仿问linux
+Ext2Fsd-0.69.exe  只能读ext4分区,不能写
+
+在win10 下安装测试成功
+开始->  Ext2Fsd ->Ext2 Volume Manager 启动
+	双击需要安装的 EXT 分区
+	打开Volume Manager双击ext挂载的ext分区,复选 设置为只读,不可写 , 看到语种编码默认是utf8
+	复选 固定盘符：对固定磁盘建议采用此方式  , 下拉选择盘符 -> 保存并退出
+	
+	不要使用teraCopy工具
+	
+Ext2Read 文件名 ext2explore-2.2.71.zip 在windows 10 什么也看不到,win7看不到home和boot目录下的内容
+
+
+-------------DBeaverEE 可 mongoDB , Redis,Neo4j
+有CE免费版本(不支持Mongo, Redis),CE有Neo4j，基于 eclipse
+有eclipse插件和各系统的独立包,见eclipse中
+windows版本要打开防火墙,Inbound rule
+CE版本可以查看BLOB内容 ,可以写sql时自动提示,比DBvisulizer free版本强
+
+https://dbeaver.com/docs/wiki/Workspace-Location/
+配置连接所在目录  %USERPROFILE%\AppData\Roaming\DBeaverData
+ help->installation information->Configuration有配置 
+	APPDATA=%USERPROFILE%\AppData\Roaming
+	LOCALAPPDATA=%USERPROFILE%\AppData\Local
+如要修改命令行增加 -data <path>
+如快捷方式为  dbeaver.exe -data D:\Program\dbeaver-ee-7_data 不影响license
+
+
+SQL编辑器 菜单 ->SQL编辑器(F3)
+
+winodws打开sql文件 只支持GBK，打开UTF-8乱码,同eclipse, preferences->General->workspace->Text file encoding选择 UTF-8
+不支持中文，dbeaver.ini 文件中尾加新行 -Dfile.encoding=UTF-8
+preferences->Editor->Data Editor->Binary Editors-> String encoding 是UTF-8   这个应该是对表格的编辑 
+
+
+可以方便导入csv，但不能导出成文件,可以每个表导出SQL表结构，导出SQL数据
+
+如Mongo 每一行，部分列是数组(可双击显示)或者对象(标题按二级显示)也可以正常显示,
+	但如果二级是数组,只能显示第一条??? 也不能删除一整行数据???
+查Mongo可以写像SQL一样(右击mongo集合->在SQL控制台读数据),显示select xxx , 不支持写delete 
+写Mongo脚本,SQL编辑器 菜单 ->SQL编辑器 db.bios.find({})可以,
+	但db.bios.insert({})报错clientSession can not be null???  Navicat可以
+
+
+表格 可修改现有数据 , 表格增加行在下方有个小按钮
+
+表数据较多时 显示取数据前少行, 排序表格列是调用order by来排 
+
+刚启动MySQL服务，如果没有其它工具连接，DBeaver也连接不上，报Public Key Retrieval is not allowed，修改DBeaver连接allowPublicKeyRetrieva=true
+打开表后有 ER Diagram标签 ，可以看到这个相关的主外键关系 ，生成速度快，布局好，ctrl+滑轮 不能以光标为中心
+
+设置事务自动提交  Preferences->Connections->Connection Type-> 复选框 auto-commit  by default,重启后，上方的按钮才生效
+	如关闭了auto-commit，在表格修改数据也要commit或rollback
+	不建议打开，即使是select 也有事务，执行界面的DDL操作，卡死，多个标签是不同的连接，必须每个都提交或回滚事务，才能看到数据变化
+ 
+默认查询只显示前200条，Preferences->Editor->Data Editor -> ResultSet fetch size 默认为200
+
+
+可以写SQL 时可以用:param做参数时，可以弹框输入值
+
+导出SQL,csv等格式的文件时，默认放在%USERPROFILE%目录下
+	导出SQL 可设置skip指定列,如想用id列，有一个复选项Transfer auto-generated columns
+	Data Rows per statement 可设置为1，include generated columns 和 Omit schema name  都打钩
+		
+不能运行oracle的desc命令(select * from cols where table_name='mytable' 来替代)，但sql developer可以,可以运行MySQL的desc
+不能运行oracle的show paramter processes命令,但sql developer可以
+
+连接MySQL时 , 首次登录 ,如报  Public Key Retrieval is not allowed, 要设置JDBC 参数allowPublicKeyRetrieval=true , 可能要设置JDBC 参数serverTimeZone=UTC,可能要 useSSL=false
+
 
 
 =============  DbVisualizer(所有平台) 使用JDBC all DB  ============= 
@@ -139,8 +209,7 @@ Tools->SQL History
 SHOW FULL COLUMNS FROM MyTable
 SHOW  CREATE TABLE MyTable
 
-一种数据库可以保存多个连接
-=============  DataGrip 基于 Intellij Idea
+一种数据库可以保存多个连接 
 
 =============  PL/SQL Developer ============= 
 在登录界面中数据选择中支持输入  127.0.0.1/xe  或 127.0.0.1:1521/xe  
@@ -281,7 +350,9 @@ view->Object Palette 可以看所有的表
 	右击procedure有debug  ,但是总是卡死,不能用
 	显示输入提示,如表名,字段名
 
--------------MySQL Workbench 6.3 CE 
+-------------MySQL Workbench 6.3 CE
+MySQL workbench 8.0.20 提示不支持win7，但是可以运行
+
 默认存配置位置 
 %USERPROFILE%\Roaming\MySQL\Workbench 
 
@@ -295,7 +366,7 @@ Output视图 有SQL错误提示,写SQL时也会有线波浪线的语法错误提
 字体大小,可ctrl+滚轮,editor->preferences->font & Colors 中设置字体为 12
 工具栏上有格式化SQL按钮(Beautify/reformat)
 
-delete,update where时没有主键,报错,preferences...->SQL Editor->取消复选 下面的 Safe updates,重新登录
+delete,update where时没有主键,报错,preferences...->SQL Editor->取消复选 下面的(Other组) Safe updates,重新登录
 
 
 Mysql官方的开发工具安装在/usr/bin/mysql-query-browser
@@ -309,7 +380,11 @@ edit->auto complete 显示输入提示,如表名,有时失效,不如Navicat好�
 表格右侧有 Form Editor  
 
 Server -> Data Export->只能选整个库。
-右击表->export 导出csv不能以，分隔字段。
+ 
+右击表-> Table import wizard (或者查询结果 的下方) -> import 可csv 或 json,可选择已经有的表,只支持中文为utf-8(是不带BOM的)的字符集,不能用windows自带的notepad,可用notepad++,
+	有时直接报 line contains NULL byte??,用命令行都可以成功，都比这个工具好用
+	导入失败可以看日志，导入行数,datetime日期为空不能导入，只能跳过
+右击表-> Table export wizard (或者查询结果 的下方) -> export 导出csv或 json ,不能导出SQL??。csv 默认以;分隔，可修改为,分隔。
 
 
 表格 可修改现有数据 
@@ -321,9 +396,21 @@ Server -> Data Export->只能选整个库。
  不支持调试
  select  * from xx procedure analyse() 表格中显示blob其实是字符
 ---- 
--------------MyFront 5.3 免费
+-------------MySQL-Front 6 免费
+依赖 libmysql.dll ,提示要放安装目录无效？？，放path中也不行？？
+
+
 -------------HeidiSQL
 只支持windows,只支持MySQL,MariaDB,SQLServer,SQLite实验中, 是用C客户端开发,自带.dll文件
+写SQL 时没有提示表名等
+
+只能导出SQL 不能导出csv,也不能导入csv
+	导出SQL 可设置一个sql 最多几行数据，remove auto_increment 功能没用？？？
+	
+grant super on *.* TO  myuser@localhost;  -- 虽然 super 过时
+grant super on *.* TO  myuser@'%' ;
+
+SET GLOBAL init_connect='SET AUTOCOMMIT=0';
 
 -------------SQLyog(MySQL工具收费,只windows)    
 
@@ -407,58 +494,6 @@ PHP5.6 最新版本为 php-5.6.39-Win32-VC11-x64.zip
 
 可以进入页面,没有选择SHA-256,不支持Mongo4 ??? 除非修改源码，也应该可以支持PHP7 
 extension=mongodb
-
- 
--------------DBeaverEE 可 mongoDB , Redis,Neo4j
-有CE免费版本(不支持Mongo, Redis),CE有Neo4j，基于 eclipse
-有eclipse插件和各系统的独立包,见eclipse中
-windows版本要打开防火墙,Inbound rule
-CE版本可以查看BLOB内容 ,可以写sql时自动提示,比DBvisulizer free版本强
-
-https://dbeaver.com/docs/wiki/Workspace-Location/
-配置连接所在目录  %USERPROFILE%\AppData\Roaming\DBeaverData
- help->installation information->Configuration有配置 
-	APPDATA=%USERPROFILE%\AppData\Roaming
-	LOCALAPPDATA=%USERPROFILE%\AppData\Local
-如要修改命令行增加 -data <path>
-如快捷方式为  dbeaver.exe -data D:\Program\dbeaver-ee-7_data 不影响license
-
-
-SQL编辑器 菜单 ->SQL编辑器(F3)
-
-winodws打开sql文件 只支持GBK，打开UTF-8乱码,同eclipse, preferences->General->workspace->Text file encoding选择 UTF-8
-不支持中文，dbeaver.ini 文件中尾加新行 -Dfile.encoding=UTF-8
-preferences->Editor->Data Editor->Binary Editors-> String encoding 是UTF-8   这个应该是对表格的编辑 
-
-
-可以方便导入csv，但不能导出成文件,可以每个表导出SQL表结构，导出SQL数据
-
-如Mongo 每一行，部分列是数组(可双击显示)或者对象(标题按二级显示)也可以正常显示,
-	但如果二级是数组,只能显示第一条??? 也不能删除一整行数据???
-查Mongo可以写像SQL一样(右击mongo集合->在SQL控制台读数据),显示select xxx , 不支持写delete 
-写Mongo脚本,SQL编辑器 菜单 ->SQL编辑器 db.bios.find({})可以,
-	但db.bios.insert({})报错clientSession can not be null???  Navicat可以
-
-
-表格 可修改现有数据 , 表格增加行在下方有个小按钮
-
-表数据较多时 显示取数据前少行, 排序表格列是调用order by来排 
-
-刚启动MySQL服务，如果没有其它工具连接，DBeaver也连接不上，报Public Key Retrieval is not allowed，修改DBeaver连接allowPublicKeyRetrieva=true
-打开表后有 ER Diagram标签 ，可以看到这个相关的主外键关系 ，生成速度快，布局好，ctrl+滑轮 不能以光标为中心
-
-设置事务自动提交  Preferences->Connections->Connection Type-> 复选框 auto-commit  by default,重启后，上方的按钮才生效
-	如关闭了auto-commit，在表格修改数据也要commit或rollback
- 
-默认查询只显示前200条，Preferences->Editor->Data Editor -> ResultSet fetch size 默认为200
-
-
-可以写SQL 时可以用:param做参数时，可以弹框输入值
-
-不能运行oracle的desc命令(select * from cols where table_name='mytable' 来替代)，但sql developer可以,可以运行MySQL的desc
-不能运行oracle的show paramter processes命令,但sql developer可以
-
-连接MySQL时 , 首次登录 , 要设置JDBC 参数allowPublicKeyRetrieval=true , 可能要设置JDBC 参数serverTimeZone=UTC
 
 ----------- phphbaseadmin github上已经有6年没有更新，有中文
 -----------SQuirrel SQL Client 
@@ -688,6 +723,7 @@ cygpath -m /usr/bin/make  	   会返回D:/cygwin/bin/make  -m, --mixed
 cygcheck -c cygwin  显示当前Cygwin 安装的版本	 -c, --check-setup
 
 mount 显示 c:/cygwin64  挂载到 /
+df -h  看 /cygdrive/d 
 
 ctrl+滚动滑轮 放大字体
 
@@ -729,6 +765,9 @@ mount 命令显示 / 挂载到  %userprofile%\AppData\Local\Programs\Git
 
 支持 <<<,如 vagrant ssh <<< sh -c "ls"
 -----MSYS2
+和gitbash类似，切换到D盘，直接用cd /d
+
+Arch Linux 发行版本中的工具pacman
 更新包数据库
 pacman -Syu
 
@@ -739,9 +778,15 @@ pacman  --help
 pacman -S --help
  
 
- pacman -S --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-gdb  mingw-w64-x86_64-make
+pacman -S --needed mingw-w64-x86_64-gcc mingw-w64-x86_64-gdb  mingw-w64-x86_64-make  (\msys64\mingw64\bin\mingw32-make.exe)
 
- /mingw64/bin/g++ --version 显示版本为 10.3.0   (C:\msys64\mingw64\bin)
+
+pacman -S cmake
+pacman -R cmake 卸载软件包
+pacman -Rs cmake 卸载软件包,同时删除只有该软件依赖的软件包，非常好用!!!,yum dnf zypper 没有找到这个功能
+	yum autoremove 测试没用？
+	
+ /mingw64/bin/g++ --version 显示版本为 11.2.0  (2022-03)  (C:\msys64\mingw64\bin)
 
 
  已安装软件包所包含文件的列表
@@ -754,6 +799,9 @@ pacman -S --help
 
   远程中查询软件包，查询位置包含了包的名字和描述：
   pacman -Ss gcc
+
+带GTK4包
+pacman -S mingw-w64-x86_64-gtk4 mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gcc
 
 MSYS2 带 man curl
 ------ Windows Terminal
@@ -1056,6 +1104,8 @@ export LANG=zh_CN.UTF-8
 	设置字体大小 ctrl+滚轮
 	network 标签 disable cache 禁用缓存
 ---- Postman
+https://app.getpostman.com/app/download/win64
+
 有Chrome插件版本,没有.exe版本新
 .exe默认安装在 %HOMEPATH%/AppData/Local/Postman
 

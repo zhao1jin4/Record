@@ -1111,7 +1111,7 @@ public class MyDateJsonDeserializer extends JsonDeserializer<Date>
 
 	
 @Controller
-@RequestMapping("/json") 
+@RequestMapping(value={"/json","/json2"}) //可以一个Controller多个URL
 public class JSONController //OK
 {
 		@RequestMapping(value="/queryEmployeeVO",method=RequestMethod.POST)

@@ -1018,6 +1018,16 @@ msConfig.addSlaveAddress(slaveIPPort);//可传多个node
 
 //RedissonClient redisson = Redisson.create();//默认 redis://127.0.0.1:6379
 RedissonClient redisson = Redisson.create(config);
+
+RAtomicLong userAcount= redisson.getAtomicLong("userAcount");
+if (userAcount.compareAndSet(0, 1) )
+{
+	userAcount.set(0);
+	userAcount.expire(1, TimeUnit.MINUTES);
+}
+userAcount.incrementAndGet();
+		
+
 RKeys keys=redsson.getKeys();
  Iterable<String> iter=keys.getKeys();
  iter.forEach(new Consumer<String>()  //回调的要等才行

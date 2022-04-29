@@ -17,6 +17,16 @@ dubbo-registry-zookeeper 依赖的两个子项各自又依赖的 zookeeper，cur
 	
 	如报 KeeperErrorCode = Unimplemented for /dubbo/config 说明zookeeper服务器的版本过低
 	
+	
+
+dubbo  中可以 telnet <dubbo服务ip> <dubbo.port的值如26880>
+连接后有提示 符dubbo>
+dubbo>ls: 显示服务列表
+dubbo>ls -l: 显示服务详细信息列表
+dubbo>ls XxxService: 显示服务的方法列表
+dubbo>ls -l XxxService: 显示服务的方法详细信息列表
+
+	
  <dubbo.version>2.7.14</dubbo.version> 
  <dependency>
 		<groupId>org.apache.zookeeper</groupId>
@@ -388,6 +398,7 @@ dubbo-server.xml 接口方法参数类 implements Serializable
 	
   	<dubbo:protocol name="dubbo" port="20884"  serialization="kryo"/>
   -->
+    payload 默认	8388608(=8M) 	请求及响应数据包大小限制，单位：字节
   
 </beans>
 

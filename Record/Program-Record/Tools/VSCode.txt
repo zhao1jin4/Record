@@ -25,7 +25,7 @@ bin\code --list-extensions  --extensions-dir D:\Program\vscode_data\extensions
 https://marketplace.visualstudio.com
 
 
-%USERPFORILE%\AppData\Roaming\Code\User\settings.json 是保存全局设置
+%USERPROFILE%\AppData\Roaming\Code\User\settings.json 是保存全局设置
 
 默认文件编码为UTF-8,
 Setting->Text Editor->Files-> Encoding 组默认为UTF-8
@@ -127,6 +127,9 @@ Explorer视图中 右击文件 -> select for compare ，再右击另一个文件
 
 右上角的file annotation按钮->  toggle file blame ,在idea中也这样的功能
  
+ 
+ 
+在扩展窗口的输入文本框中输入 ext:toml 显示所有打开toml插件
 ---- 扩展(git history extension)
 右击文件/目录 -> Git:view file history
 
@@ -306,7 +309,9 @@ fmt.Print(str)
 提示安装 pylint,也可不安装
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言, 选Python file ->会自动生成launch.json
 下拉显示Python:Current File ,打断点，启动按钮，即可调试
---------- C/C++  扩展
+--------- C/C++  扩展 
+对于一个项目只一个main方法的不方便,如写makefile 没有找到,可动态目录数,动态文件数的脚本,还是eclipse CDT吧
+
 Mac 下只支持 clang, clang --version
 windows 安装  MinGW-x64 
 	安装时architecture下拉选择x86_64,默认安装在C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
@@ -411,9 +416,12 @@ debug 做如下,测试成功,要有src目录和target目录
         }
     ],
     "version": "2.0.0"
-}          
- 
+}
 
+
+tasks.json文件中"tasks":组里的每一个都可以加
+  "dependsOrder": "sequence",  //表示信赖的要顺序执行
+  "dependsOn":["cmake","make"],//先执行cmake,再make
 
 
 手工g++命令加参数编译可以， g++ -o mysql_conn C_MySQLSelect_OK.C  -I ~/mysql-8.0.18-linux-glibc2.12-x86_64/include/ -L ~/mysql-8.0.18-linux-glibc2.12-x86_64/lib/  -l mysqlclient
@@ -510,6 +518,38 @@ lldb 在path中
 win7 下不行 报 "Could not load \"c:\\\\Users\\\\dell\\\\.vscode\\\\extensions\\\\vadimcn.vscode-lldb-1.6.10\\\\lldb\\\\bin\\\\liblldb.dll\" (err=0000007E)"
 文件是有的，但路径是用\\\\不对的 \"更不对，是用 powershell???
 
+--------- CMake Tools 扩展 (Microsoft的)
+
+https://code.visualstudio.com/docs/cpp/cmake-linux
+
+cmake --version
+
+F1 (Ctrl+Shift+P) -> 输入cmake:提示CMake: Quick Start -> 提示选择Clang还是GCC -> 提示输入项目名称(如cmake_demo)-> 提示选择Library还是execution
+
+会自动生成一个简单的main.cpp,build目录(里有很多东西),还有CMakeLists.txt文件
+如要后期修改 Clang还是GCC ,(Ctrl+Shift+P)-> CMake: Select a Kit. 底部状态栏也有显示,也可点击切换
+	CMake: Edit User-Local CMake Kits  可以找开 ~/.local/share/CMakeTools/cmake-tools-kits.json 就是配置Clang还是GCC
+
+(Ctrl+Shift+P) -> CMake: Select Variant -> 可选择Debbug还是Release,还有两个可不用,底部状态栏也有按钮
+(Ctrl+Shift+P) ->  CMake: Configure 生成构建文件
+(Ctrl+Shift+P) -> CMake: Build  构建,底部状态栏也有按钮
+(Ctrl+Shift+P) ->CMake: Debug 调试项目,底部状态栏也有按钮
+
+-----CMakeLists.txt
+cmake_minimum_required(VERSION 3.0.0)
+project(cmake_demo VERSION 0.1.0)
+
+include(CTest)
+enable_testing()
+
+add_executable(cmake_demo main.cpp)
+
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+include(CPack)
+-----
+
+
 
 
 
@@ -525,7 +565,7 @@ preLaunchTask对应的值 rust_cargo_build 就是在tasks.json里的label字段,
 {
     "tasks": [
         {
-            "type": "cppbuild",
+            "type": "shell",
             "label": "rust_cargo_build",
             "command": "cargo",
             "args": [
@@ -559,6 +599,52 @@ preLaunchTask对应的值 rust_cargo_build 就是在tasks.json里的label字段,
 }
 cargo项目，修改文件,debug 测试成功
 
+----当项目中有Cargo.toml时,Debug按钮提示建立文件,生成的launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'my-gtk-app'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=my-gtk-app",
+                    "--package=my-gtk-app"
+                ],
+                "filter": {
+                    "name": "my-gtk-app",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'my-gtk-app'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=my-gtk-app",
+                    "--package=my-gtk-app"
+                ],
+                "filter": {
+                    "name": "my-gtk-app",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
+
+debug 测试成功
+如修改文件,还是要加  "preLaunchTask": "rust_cargo_build",
 ------rustc 方式 可运行，测试debug也成功
 ---launch.json
 { 
@@ -583,7 +669,7 @@ cargo项目，修改文件,debug 测试成功
 {
     "tasks": [
         {
-            "type": "cppbuild",
+            "type": "shell",
             "label": "rustc_build",
             "command": "rustc",
             "args": [
@@ -617,6 +703,8 @@ RUST panic 时 vscode debug 控制台中文乱码???  ,rustc命令行运行正�
 
 
 ---vscode扩展 Better TOML (rust中的.toml文件编辑器)
+vscode 默认没有Cargo.toml没有语法高亮
+	带语法高亮，也有写时的自动提示
 
 ----Kubernetes 扩展
 默认支持yaml语法高亮,按tab缩进的是两个空格
@@ -737,20 +825,6 @@ Run-> add configuration 打开 launch.json 文件  ,在里面增加"args": " --s
     "version": "2.0.0"
 }
 
-有时报 The container 'Maven Dependencies' references non existing library 'D:\MVN_REPO\com\sun\tools\1.5.0\tools-1.5.0.jar' ( JDK1.8中的.jar 手工放maven仓库也不行的 )
-	   或 Missing artifact com.sun:tools:jar:1.5.0 (除非Proceed按钮)
-  <dependency>  
-		<groupId>com.sun</groupId>
-		<artifactId>tools</artifactId>
-		<version>1.5</version>
-		<scope>system</scope>
-		<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
-	</dependency>
- jdk1.8才有tools.jar
-
-如项目只能用jdk1.8运行，不能用jdk11运行，就要修改项目
-	
-	
 vscode 对 Spring boot 项目使用比较方便的，不用任何配置支持 org.mapstruct(依赖 mapstruct-processor的方式，非插件)
 	还可以提示maven引用jar包的版本有安全问题，是错误级别，不能启动(除非Proceed按钮)
             
@@ -803,6 +877,8 @@ Java   扩展设置 中 autobuild 默认是 enabled
 		java.format.settings.profile 设置页里也有
 		
 ---vscode java 问题	
+每次进入java maven项目 都要花很长时间处理，有构建，也有其它的，像eclipse一样不智能，idea这点比较好，只第一次做
+
 遇到了java debug时源码行号不的情况 ，相同的代码在idea下就正常 (velocity)？？？
 
 java debug时，只能第一次 到List是可以看数据，如果第二 次/级 List(List里的属性又是List)不能看数据？？？，
@@ -956,6 +1032,8 @@ sdkmanager --install  build-tools;31.0.0  platforms;android-31
 
 	
 -----扩展 Dependency Analytics
+	vulnerable dependencies in pom.xml
+
 	是 redhat的，支持 mvn ,npm ,go,python,要PATH中这些命令
 	
 -----扩展 Spring Initializr Java Support(microsoft)
@@ -997,7 +1075,8 @@ maven插件Jetty不能识别@WebServlet
 为windows sub linux使用的
 是Microsoft的，目前还是Preview
 
-wsl的终端中运行code .    ,F1 选择 Remote-WSL: New Window
+wsl的终端中运行code .   (windows的path环境变量自动带到WSL的openSUSE中) ,
+点左下角发绿色图标"><",最好选择 Remote-WSL: New Window using Distro...有可能默认的是docker (也可 F1 选择 Remote-WSL: New Window)
 	里面使用的目录全是linux格式的以/开头的目录，里面的terminal也是linux环境
 
 

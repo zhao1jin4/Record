@@ -563,6 +563,12 @@ git commit -a -v ( -a 已经跟踪的文件不用add了, -v 先看一下差异,�
 git commit --amend 如最后一次提交后，但没有push，会打开vi 可以修改这次comment
 如git clone 的地址是https时报SSL问题，可以关闭验证 git config --global http.sslVerify false
 
+如果已经push 也可修改commit中的描述消息
+	git rebase -i HEAD~3  #要修改最近3次中的某个提交说明文字,打开编辑器针对修改的，找到要修改的 把pick命令修改为edit(也有drop)，保存
+	git commit --amend  来修改 提交说明文字，可多次使用
+	git rebase --continue  结束修改
+	git push -f  强制推送到服务端(也可以git rest 到某个点，文件存在，再次commit，也可删除commit记录)
+	
 git clone git://github.com/schacon/grit.git mygrit
 #  操作基本上相当于 git init 加 git fetch
 fetch 本地仓库中还没有的数据
@@ -601,6 +607,7 @@ git log origin/xx_branch 显示服务端指定分支的历史记录
 git log --graph 显示图
 git log -p     展示修改的内容
 git log --stat 展示修改了哪些文件名字(无内容)
+git log -- <filepath>(git log <filepath>)  可以只看到该文件相关的commit记录
 
 
 
@@ -691,7 +698,7 @@ git merge  <服务器git版本最后的id>
 
 git clone -b myBranch ssh://git@xx.com/project.git  直接从分支拉代码
 
-$ git checkout -b myBranch  提示切换到新的分支了
+$ git checkout -b myBranch  提示切换到新的分支了,也是基于当前分支建立本地分支
 它是下面两条命令的简写 
 $ git branch myBranch
 $ git checkout myBranch
@@ -704,7 +711,7 @@ git merge myBranch 本地分支，也可远程分支 (git merge remotes/origin/m
 
 合并没用了，就可以删了
 git branch -d myBranch 
-git branch -r -d origin/myBranch 
+git branch -r -d origin/myBranch  ## -r --remotes
 git push origin :myBranch
 
 远程没有有remote_branch分支并，本地已经切换到local_branch
@@ -726,14 +733,16 @@ git pull origin <远程分支名>:<本地分支名>
 git pull origin <远程分支名>
 git pull 将与本地当前分支同名的远程分支 拉取到 本地当前分支上
 
-
+git删除远程分支 
+git push origin --delete [branch_name]
+ 
 git show <commit-id> 显示文件内容的差异
 
 NetBeans 切换分支生成的命令 git branch --track performance origin/performance
 
 ---建tag 
 轻量级标签就像是个不会变化的分支
-	git tag v1.4-lw
+	git tag v1.4-lw  (GitLab是要基于分支建立tag的，命令行基于哪个？当前分支？)
 	git tag
 	
 附注标签  可以加说明   
@@ -743,23 +752,32 @@ NetBeans 切换分支生成的命令 git branch --track performance origin/perfo
 默认情况下git push 并不会把标签传送到远端服务器上
 tag要单独puhs用 git push origin [tagname]
 	git push origin  v1.4
-
+	git push --tags  推所有tag 
+	git push origin --tags  
+	
 	git checkout -b branch-v1.4 v1.4  基于tag建立分支
 	
 	查tag信息
 	git log v1.0
-	git show v1.0
+	git show v1.0 可以看到 git tag -m中的消息
 	
 	
 	git tag -d <tag>
 	-d
 	--delete
+	
+	删除远程tag，要push
+	git push origin :refs/tags/tag-name 
+	
+	
+	git checkout <tag名> 提示  git switch -c <new-branch-name> 或   git switch - 撤消
+	
 ---
 如果想要恢复到修改之前的状态就使用，即自己的修改不想要了(Totorise SVN的revert某个文件)
 git checkout  文件名
  
 git reset --mix HEAD^  表示最近一次commit但没有push的，从提交记录中删除，文件还是被git管理，文件修改的内容还在
-git reset --soft HEAD^  表示最近一次commit但没有push的，从提交记录中删除，但这批文件不被git管理，文件修改的内容还在 
+git reset --soft HEAD^  表示最近一次commit但没有push的，从提交记录中删除，但这批文件不被git管理，文件修改的内容还在 (撤销最近一次commit,没有push)
 git reset --hard HEAD^  表示最近一次commit但没有push的，从提交记录中删除，但这批文件不被git管理，文件修改的内容不存在
 git reset --hard  <commit Id> 已经commit没有push做取消 ,<commit Id>是回到那次提交的状态，不是对某个文件，全局的  (新加的文件不会被删除)
 
@@ -800,8 +818,31 @@ Git 本地的多个commit合并成一个
 	#git rebase -i HEAD~5
 rebase也可做类似分支的合并
 
+
+--打patch
 git format-patch HEAD ^^ #最近2次commit的做 patch,HEAD~10表示最近10次
+git format-patch <r1>..<r2> 两次commit之前的，不包括这两个
+
 git am --abort (am=apply mailbox) 停止应用patch
+
+
+
+
+git apply是另外一种打patch的命令，其与git am的区别是：git apply并不会将commit message等打上去，打完patch后需要重新git add和git commit。
+
+
+1. git diff生成文件，用git apply应用
+git diff > xx.patch   把所有修改文件打patch文件
+git diff Test.java> Test.patch 只对一个文件打patch
+
+git apply --stat xx.patch  
+git apply --check xx.patch 检查是否可以打上
+git apply xx.patch
+
+2. git format-patch生成的patch，用git am 
+ 
+-- 
+
 
 git clone ,git checkout 时显示Filename too long
 git config --global core.longpaths true
@@ -809,7 +850,12 @@ git config --global core.longpaths true
  
 git switch <branchName> 切换分支 , -c/-C 建立分支  (是git checkout中的一部分功能 ，另一部分是git restore)
 git switch -   		切换到前一个分支
- 
+
+
+git checkout  origin/release/1.0.0  是远程分支
+再
+git switch -c <new-branch-name> 
+如撤消使用  git switch -
  
 
 ----  github操作提示

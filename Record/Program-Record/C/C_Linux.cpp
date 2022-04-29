@@ -1,17 +1,6 @@
 http://pubs.opengroup.org/onlinepubs/007908775/  linux C 参考
 
 
-http://www.linuxforum.net/books/
-http://www.linuxforum.net/books/upfaq/book1.htm   问答 教程
-
-http://book.51cto.com/art/200806/76015.htm		Linux企业集群		全
-http://book.51cto.com/art/200910/158658.htm		嵌入式Linux基础教程 在线书 部分
-http://book.51cto.com/art/200707/50861.htm		Linux服务器安全策略详解	 部分
-http://book.51cto.com/art/200910/159525.htm		Luence
-
-http://www.linuxforum.net/books/automake.html 
- 
-
 MySQL 源码用的boost C++ libraries 1.59 , 二进制文件名使用glibc  
 
 Anjuta

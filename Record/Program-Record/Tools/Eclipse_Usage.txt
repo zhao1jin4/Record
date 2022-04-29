@@ -1,7 +1,7 @@
 ﻿Eclipse 2021-06(4.20.0)   compiler 到jdk 16
-Eclipse 2021-09(4.21.0)    compiler 到jdk 16  打开要求JAVA_HOME是11版本
-xxx 					  compiler 到jdk 17  LTS
-
+Eclipse 2021-09(4.21.0)   compiler 到jdk 16  打开要求JAVA_HOME是11版本
+Eclipse 2021-12(4.22.0)	  compiler 到jdk 17  LTS
+Eclipse 2022-03(4.23.0)	  compiler 到jdk 17
 
 =======================================eclipse==========================
 快捷键
@@ -288,7 +288,9 @@ terminal 可以选择GitBash
 	window-> editor -> toggle split editor (horizontal) (Ctrl + Shift + -) 上下窗口开关
 	window-> editor -> toggle split editor (vertical) (Ctrl + Shift + [) 左右窗口开关
 	
-	
+
+【window】，选择【Preferences…】，展开【General】节点，点击【Content Types】，在窗口的右边展开【Text】节点，
+	选择相应的文件类型(如properties默认为ISO8859-1)，将窗口下边的【Default ecoding】改为UTF-8
 	
 =======================================up eclipse==========================
 
@@ -316,6 +318,12 @@ terminal 可以选择GitBash
 ----
 
 ===================================== Eclipse-4.15(2020-03)  插件 CDT 9.11.0
+eclipse-cpp-2022-03 win7下版本有问题，Debug时不显示当前变量，setbuf(stdout, NULL);显示红线，
+	老版本eclipse-cpp-2021-12正常
+Eclipse-4.22 (2021-12)  插件 CDT 10.5.0
+
+ 
+
 安装 CDT 插件 help->install安装选择zip
 	只选中CD Main Feature组
 	   CDT Option Feature组 下有 Visual C++ Support, C/C++ Docker Container
@@ -341,8 +349,15 @@ linux eclipse不变色解决方案  window ->preference-> C/C++ ->indexer->选�
 
 preferences->C++->Debug-> character encoding:UTF-8 重启后 编译报错代码处有中文注释，在控制台就不会乱码
 
- 在 linux gcc 下调试  C++11 thread 有时 要做一步 tep Over(F6)才能显示源码
-	
+在 linux gcc 下调试  C++11 thread 有时 要做一步 tep Over(F6)才能显示源码
+
+
+setbuf(stdout, NULL);//CDT 工具必须调用这个才立即输出到控制台,全局的
+//fflush(stdout);//CDT 工具必须调用这个才立即输出到控制台，局部的
+
+指定编译使用c++20 ,GCC C++ Compiler-> Miscellaneous 选项中增加 -std=c++20
+
+CDT 中 Tool Chain Editor  在windows下选择Cross构建后，不能运行，要设置为MinGW(对于安装的是MSYS2的MinGW)
 ------------- CDT 与 MinGW 集成----------------------------
 
 PATH =  C:\Program Files\mingw-w64\x86_64-8.1.0-posix-seh-rt_v6-rev0\mingw64\bin
@@ -559,7 +574,7 @@ SpringToolSuite-3.9.18 (eclipse 4.21.0)
 	sts3 spring data  repository会报方法不存在错，其实可以自定义的,这是有问题的,但sts4没有data source explorer视图,要单独安装DTP)
 ---SpringToolSuite-4.7(eclipse 4.16.0) 
 有Visual Studio Code 版本
-4.8(4.17.0)版本能建立web项目,4.9,4.10,4.12不能建立 web项目
+4.8(4.17.0)版本能建立web项目,4.9,4.10,4.12,4.13 不能建立 web项目
 
 	没有spring的xml编辑器了??? xml文件中写类或属性方法做提示了 ???, 原始xml编辑器只可按ctrl+类名有链接表示类存在.
 	有spring的 yaml 或 properties编辑器 

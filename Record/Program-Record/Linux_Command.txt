@@ -98,7 +98,10 @@ gedit -3 在打开文件时有选择编码
 
 	
 字体  在	/usr/share/fonts/truetype/   ,ecipse chrome等默认字体为mono space
- 
+fc-list 列出所有字体,都在/usr/share/fonts/xxx/
+mkdir /usr/share/fonts/chinese
+cp simhei.ttf  /usr/share/fonts/chinese
+  
 dconf-editor 图表配置工具　为配置 dconf
 
 ~/.config/autostart 目录放自动启动的配置
@@ -650,6 +653,28 @@ date -s "2008-07-01 13:27"
 time <命令>  可以显看命令的执行时间 
 
 
+----无线设备   蓝牙
+lsusb  命令
+
+hciconfig 命令
+显示 蓝牙设备是hci0
+
+
+hciconfig hci0 up
+如报 Can't init device hci0: Operation not possible due to RF-kill (132)
+是因 设置中蓝牙 被关闭，可以手工打开，或用 rfkill unblock all
+
+rfkill block wifi  相当于 设置中关闭 wifi
+rfkill unblock wlan
+ 
+rfkill list 效果同 rfkill list all  显示有 无线网卡和蓝牙
+
+rfkill block all  关闭所有
+
+hcitool scan   扫描
+ 设置中连接蓝牙后，双击连接的项->弹出窗口-> send file...选择要发送的文件
+sdptool search  xxx  不知道干什么的
+-------------
 
 iwconfig  显示当前无线网卡使用的ESSID
 iwlist wlan0 ap 显示热点Access Point信息
@@ -1850,6 +1875,9 @@ vim 源码安装 make & make instll
 
 
 ==========vi================
+vi +278 CMakeLists.txt 打开这个文件直接到指定行
+vi +:278 CMakeLists.txt 打开这个文件直接执行vi命令
+ 
 --ed编辑器中的命令
 a - 在文件的末尾添加新内容 
 w file.txt
@@ -2708,109 +2736,6 @@ rpcinfo -p 10.1.5.226  查看服务器提供的rpc服务
 	
 mount -tnfs4 10.1.5.226:/root/shareDir  /mnt/remoteDir (要root权限)
 
-------------fedora 35 tigervnc
-
-VNC Connect 是由 VNC Viewer 和 VNC  Server组成
-
-dnf install tigervnc 有vncviewer
-dnf install tigervnc-server
-vncserver :1 提示用 systemd ,有显示看 /usr/share/doc/tigervnc/HOWTO.md 文档
-
-vi /etc/tigervnc/vncserver.users 配置用户，要求用户不能是已经登录图形界面的，避免使用root
-:1=hp
-
-
-#su - hp
-vncpasswd   #创建$HOME/.vnc目录,修改密码可以删除
-
-再用  systemctl start vncserver@:1  启动(测试下来一定要用配置的用户hp启动,vncviewer才能连接上) ,会监听5901端口 (ps -ef 也会显示)
-	 
-	
-	
-systemctl status vncserver@:1 #看脚本使用的Xvnc命令,会带起 vncsession hp :1(ps -ef 也会显示)
-
-
-Fedora官方文档说
-https://docs.fedoraproject.org/en-US/fedora/rawhide/system-administrators-guide/infrastructure-services/TigerVNC/
-
-$ vncviewer 192.168.0.4:1 连接后提示不安全
-  
-
-界面是gnome2的风格
-
----$HOME/.vnc/config 测试下来加这个文件后 vncviewer就连接不上？？
-session=gnome  #名字匹配 ls /usr/share/xsessions/  ,如未配置界面是gnome2的风格，还可 gnome,gnome-classic,gnome-xorg
-securitytypes=vncauth,tlsvnc
-desktop=sandbox
-geometry=2000x1200
-localhost
-alwaysshared
-
-
-
---------------------tigervnc
-VNC(Virtual Network Computing)
-yum install tigervnc  (CentOS 7 DVD 自带1.8版本 只vncviwer)从 TightVNC 出来的
-yum install tigervnc-server 就有vncserver了
-
-vncserver :1 提示输入两次密码(如第二次选y),就有5901的监听,关防火墙 外部就可以输入密码连接上了,但进入界面系统的密码是启动vnc服务用户系统的密码
-Creating default startup script /root/.vnc/xstartup
-Creating default config /root/.vnc/config
-CentOS 7 测试OK
-
-
-==========================VNC-5.2
-
-----linux 通用tar包安装
-root用户运行 ./vncinstall /usr/local/bin /usr/local/man
-
-5.2版本用  vnclicense -add DN2AB-2224A-VRGSB-7J3D9-NN3RA   增加免费的license
-6.3版本用  vnclicense -add BQ24G-PDXE4-KKKRS-WBHZE-F5RCA    Enterprise 
-
-vncserver   
-	提示 日志在 /root/.vnc/<hostname>:1.log ,
-	提示 新桌面是 <hostname>:1 (<ip>:1)
-	提示 /etc/vnc/xstartup
-
-	5.2版本 第一次运行vncserver会提示输入密码       修改密码用 vncpasswd
-	6.3版本 不会提示输入密码，登录直接用系统用户,效果不好   
-	vncpasswd  -service  (Service Mode  ,Home or Professional 版本只支持这个,远程登录控制整个电脑,可以看真电脑前的人在干什么)
-	vncpasswd  -user  	 (User Mode ,Enterprise  版,远程登录控制当前用户在登录的时,可以看真电脑前的人在干什么)
-	vncpasswd  -virtual  (Virtual Mode ,Enterprise  Linux版,看不到真电脑前的人在干什么 )
-	
-	
-vncserver :1
-依赖于xauth (gnome 或者KDE)命令
-vncserver -geometry 1366x768 :1 启动时指定分辩率
-vncserver -geometry 1340x740 :1
-
-windows 打开 VNCViewer   输入  your-server:X-display号 如192.168.190.134:1 (比用jar好处是可记住上次IP,可传剪贴板中文字符)
-netstat -an | grep 5901	 vncviewer的端口是5900+N N是你设置的X-display号 ,
-
-vncserver -kill :1
-
-~/.vnc/config.d/Xvnc 存密码
-/etc/vnc/xstartup 中有 gnome-session  (GNOME桌面,gdm) ,(KDE桌面 是 startkde& )  
-
-
-源码目录java -jar java/vcnviewer.jar 有界面,也有 vncviewer 命令 
-
-如多个客户端同时连接到同一个显示端口,则一方鼠标动,另一方鼠标也动(可做远程演示)
-
-
-
-配置防火墙来让 VNC 服务正常工作
- firewall-cmd --permanent --add-service vnc-server
- systemctl restart firewalld.service
-
-
-关闭防火墙 
-# systemctl stop firewalld.service  是使用nft, 不是老的 iptables虽然命令还在
-systemctl list-units
- systemctl list-unit-files | grep firewall
- systemctl disable firewalld.service   关闭系统开机启动
- systemctl status firewalld.service
- 
  ---------------systemd
  Systemd 取代了initd，成为系统的第一个进程（PID 等于 1），其他进程都是它的子进程
 
@@ -3231,13 +3156,7 @@ Xbrowser 5 ->new XDMCP session ->secure XDMCP 有输入用户密码(sshd)，但�
 rdesktop 工具 (openSUSE-15自带RDP协议的远程桌面工具)  同windows的mstsc ,使用RDP协议,linux服务端xrdp
 
 
--------------gcc 的安装(4.3.1较新的)
-　% .configure --prefix=/usr/local/gcc-4.3 --enable-languages=c,c++
-	###solaris 10	--with-gmp=/usr/local/gmp --with-mpfr=/usr/local/mpfr
-　% make 
-　　这是一个漫长的过程。在我的机器上（P4-1.6），这个过程用了50多分钟。 
-　% make install 
-
+-------------gcc 
 LD_LIBRARY_PATH =/usr/local/gcc-3.4.0/lib:$LD_LIBRARY_PATH
 /etc/ld.so.conf 配置文件设置　lib 的查找路径
 pkg-config --libs --cflags gtk+-2.0
@@ -3282,6 +3201,14 @@ Fedora Media Writer 的windows 版本工具下载，可以自动下载Live.iso �
 
 硬盘安装Fedora 34是比较好的选择
 
+--------fedora　配置老版本的仓库,　安装老版本　yum install openssl-devel-1.0.1e-30.fc20 , yum install PackageKit-gtk3-module-0.8.13-1.fc20.x86_64
+---/etc/yum.repos.d/fedora-20.repo
+[fedora-20]
+name=fedora-20
+baseurl=https://archives.fedoraproject.org/pub/archive/fedora/linux/releases/20/Fedora/x86_64/os  #注意没有/,是读其中的repodata目录
+enabled=1
+gpgcheck=0
+--------
 
 --fedora mirror
  http://mirrors.fedoraproject.org/publiclist 其实是redhat的包
@@ -3482,10 +3409,10 @@ cat /etc/redhat-release
 cat /etc/system-release
 cat /etc/os-release
 ============================CentOS 专用的
-CentOS 版本 8.1 大小7GB , Stream 版本(滚动发行版) 大小8.4 GB
+CentOS Stream 版本(滚动发行版)  有8 和 9(使用gnome4) 两个版本
+CentOS Linux  版本(稳定)  最新7.9
 
-CentOS 版本 7.6 大小4.6GB
-http://mirrors.huaweicloud.com/centos/7.6.1810/os/x86_64/Packages/
+http://mirrors.huaweicloud.com/centos/7.9.2009/os/x86_64/Packages/ 
 http://mirrors.huaweicloud.com/centos/7/updates/x86_64/Packages/  只有新版本的
 
 https://www.centos.org/download/mirrors/  
@@ -3690,9 +3617,16 @@ yum -y install d4x 来在线下载安装
 yum update 
 yum list 列所有的包
 yum search xxx
+
 yum remove xxx  把依赖也自动删像ruby
+
+想把安装后的软件，卸载时也删除只有该软件依赖的包
+yum autoremove cmake 测试没用???
+
 yum deplist libcurl  查看软件包的依赖信息，依赖哪些软件包
 
+yum list –showduplicates openssl-devel 显示相同版本的
+dnf list –showduplicates openssl-devel
 -------RHEL8 新功能 
 去KDE,使用Wayland做显示服务,替代X Window,nftables( netfilter项目)替代iptables
 
@@ -3879,6 +3813,7 @@ rpm -qi 软件包名 显示安装软件包信息
 rpm -qpi 软件包名.rpm 显示未安装软件包信息
 
 rpm -e 卸载软件包
+rpm -ivh xx.rpm --nodeps --force 强制安装(冲突包的情况下),不安装依赖
 
 rpm -qpR /var/cache/yum/x86_64/7/docker-ce-stable/packages/docker-ce-19.03.12-3.el7.x86_64.rpm  查看软件包所依赖的文件
 
@@ -3941,6 +3876,7 @@ yum-config-manager   --add-repo    https://download.docker.com/linux/centos/dock
 yum-config-manager   --add-repo    https://copr.fedorainfracloud.org/coprs/vbatts/bazel/repo/epel-7/vbatts-bazel-epel-7.repo
 
 yum repolist 列出所有仓库
+yum repolist -v
 yum repolist all
 yum install xen 如版本出来过新，想要老的
 yum install xen-4.1.3
@@ -3957,8 +3893,11 @@ yum downgrade kubelet-1.18.0 kubeadm-1.18.0 kubectl-1.18.0 降级版本
  
 使用 （python-setuptools） easy_install pip 也是 python2
 
+当少.so文件时,用whatprovides　找对应的软件包和仓库　
+yum whatprovides */libpk-gtk-module*
+
 ----------snapd
-CentOS 7.6+ 当安装epel-release 就可 
+CentOS 7.6+ 当安装epel-release 完(sudo yum install epel-release)就可 
 yum install snapd
 systemctl enable --now snapd.socket
 	会创建link 从/etc/systemd/system/sockets.target.wants/snapd.socket 
@@ -4026,16 +3965,6 @@ restart 重启,help 会打开编辑器
 
 一个硬盘最多可以有 4 个 Primary + Extended 的扇区
 ------------
------------Redhat EL5 安装Maya2008
-[系统]－>[首选项]－>[窗口]    ,更改alt键为其它的
-[Maya 2008](redhat 提示的)
-
-chcon -t textrel_shlib_t /usr/autodesk/maya2008/lib/
-setsebool -P allow_execheap=1
-chcon -t textrel_shlib_t /usr/autodesk/maya2008/bin/plug-ins/*.so
-chcon -t textrel_shlib_t /usr/autodesk/maya2008/bin/plug-ins/image/*.so
------------ 
-
 
 ====rsync
 rsync -av dir/* dir2 					把dir/*的所有修改的内容再复制到dir2中 
@@ -4206,7 +4135,6 @@ date -d"-1 day"  +%s
 
 自己测试 真实的 /boot 分区 是可以恢复文件的(可能 mkfs.ext4 式就是不行的)
 
-
 ---ntfsprogs linux下恢复NTFS分区删除的文件 
 
 openSUSE-leap-15.1 自带 ntfsprogs-2016.2.22-lp151.3.2.x86_64.rpm
@@ -4229,7 +4157,7 @@ ntfsundelete -S 1K-300M -t 2d /dev/sdb4
 显示第一列是 Inode
 ntfsundelete /dev/sdb4 -u -i 108 -o jettison-1.3.3.jar -d /tmp/ntfs_restor_dir
 提示成功
-
+-------
 ----------缓存文件系统 tmpfs
 /dev/shm 是共享内存，类型是tmpfs，可把文件复制过来  df -Th ,free -m 看 share
 
@@ -4241,41 +4169,6 @@ mount -t tmpfs -o size=50m mytmp /mnt/cache
 mount -t tmpfs -o remount,size=100m mytmp /mnt/cache
 
 
-==========windows 仿问linux
-Ext2Fsd-0.69.exe  只能读ext4分区,不能写
-
-在win10 下安装测试成功
-开始->  Ext2Fsd ->Ext2 Volume Manager 启动
-	双击需要安装的 EXT 分区
-	打开Volume Manager双击ext挂载的ext分区,复选 设置为只读,不可写 , 看到语种编码默认是utf8
-	复选 固定盘符：对固定磁盘建议采用此方式  , 下拉选择盘符 -> 保存并退出
-	
-	不要使用teraCopy工具
-	
-Ext2Read 文件名 ext2explore-2.2.71.zip 在windows 10 什么也看不到,win7看不到home和boot目录下的内容
-
-----无线设备   蓝牙
-lsusb  命令
-
-hciconfig 命令
-显示 蓝牙设备是hci0
-
-
-hciconfig hci0 up
-如报 Can't init device hci0: Operation not possible due to RF-kill (132)
-是因 设置中蓝牙 被关闭，可以手工打开，或用 rfkill unblock all
-
-rfkill block wifi  相当于 设置中关闭 wifi
-rfkill unblock wlan
- 
-rfkill list 效果同 rfkill list all  显示有 无线网卡和蓝牙
-
-rfkill block all  关闭所有
-
-hcitool scan   扫描
- 设置中连接蓝牙后，双击连接的项->弹出窗口-> send file...选择要发送的文件
-sdptool search  xxx  不知道干什么的
--------------
 echo TXlQQHNzMTIz | base64 -d 显示base64解码后的原值
 
 
@@ -4309,7 +4202,7 @@ nc www.baidu.com 80
 	-w 超时时间 
 	-z 端口范围
 
-
+----
 sha256sum file.tar  > file.sha256
 
  

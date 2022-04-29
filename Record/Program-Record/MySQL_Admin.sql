@@ -23,7 +23,7 @@ default-storage-engine=INNODB
 basedir=D:\\Program\\mysql-8.0.11-winx64\\
 datadir=D:\\Program\\mysql-8.0.11-winx64\\data
 #log-error=D:\\Program\\mysql-8.0.11-winx64\\log\\mysql-error.log  #windows下没有输出控制台
-root密码默认在datadir目录下<hostname>.err文件中
+	如没有log-error选项默认输出日志在datadir目录下<hostname>.err文件中
 
 #mysqld  --defaults-file=D:/Program/mysql-8.0.11-winx64/my.ini --initialize  # root 密码在.err日志里 
 #sc create MySQL8  binpath= "\"D:/Program/mysql-8.0.11-winx64/bin/mysqld\" --defaults-file=\"D:/Program/mysql-8.0.11-winx64/my.ini\" MySQL8" type= share  start= auto displayname= "MySQL8"
@@ -986,7 +986,9 @@ JDBC driver  中加 ?zeroDateTimeBehavior=convertToNull
 
  
 load data local infile '/clientDir/xx.xls' into table myTable CHARACTER SET utf8 FIELDS TERMINATED BY ',\t' LINES TERMINATED BY '\r\n'  
-	SET name = if(name='NULL',null,name);
+	SET name = if(name='NULL',null,name); -- name是字段名
+mysql-8.0.15 client 报 ERROR 1148 (42000): The used command is not allowed with this MySQL version 
+ show variables like 'local_infile' 为 OFF,修改为 set global  local_infile=ON; 也不行,再使用 mysql --local-infile -u 重新连接就可以了
  
 mysqlimport --local dbname /clientDir/tableName.txt  --fields-terminated-by='/' --lines-terminated-by='\r\n' --default-character-set=utf8  
   -h 127.0.0.1 -P 3306 -uuser1  -puser1 
@@ -1378,15 +1380,22 @@ show status
 show status like 'Handler_read_key' -- 索引被读的,值高表示查询高效,索引建的好
 show status like 'Handler_read_rnd_next'  -- 值高表示查询低效,可以建立索引
 
-
-create database zabbix character set utf8 collate utf8_bin;
-
-collate utf8_bin 和 collate utf8_general_ci (ci为case insensitive的缩写，即大小写不敏感) 过时了，建议用 utf8mb4;
-
+ 
 utf8 一个字符占 3-byte , utf8mb4 一个字符占 4-byte(mb=max bytes),是mysql 8 的默认字符集
+show collation 
+show collation where  charset like '%utf8%' 有default字段为Yes的是为了utf8mb4_0900_ai_ci
+建表和建库可指定 collate  ( mysql 8 默认的COLLATE 为了utf8mb4_0900_ai_ci)  
+	ai表示accent insensitive（发音无关）
+	ci为case insensitive的缩写，即大小写不敏感
+	如为 utf8mb4_bin 区分大小写
+如 create database zabbix character set utf8mb4 collate utf8mb4_bin;
 
-
-
+CREATE TABLE mytable (NAME VARCHAR(20)); 
+INSERT INTO mytable(name)VALUES('lisi');
+SELECT * FROM myTable WHERE NAME ='LiSi'//可以查到，默认是 COLLATE=utf8mb4_0900_ai_ci 查询 数据大小写不敏感, utf8mb4_bin 数据大小写敏感
+ 
+ 
+ 
 MyISAM, MEMORY , MERGE 使用 table-level锁
 InnoDB 使用 row-level  锁, SELECT ... FOR UPDATE
 
@@ -1737,7 +1746,7 @@ innodb_autoinc_lock_mode  MySQL 8之前默认值为1，MySQL8开始默认值为2
 
 
 
-
+SET GLOBAL init_connect='SET AUTOCOMMIT=0';
 
 
 

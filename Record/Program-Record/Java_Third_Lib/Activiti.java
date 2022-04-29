@@ -2,6 +2,10 @@
 网页版本设计器放在自己网站
 BPMN还有很多其它图标，如何用 (6 版本ReceiveTask如继续)
 
+
+Camunda 基于 Activii5  支持DMN 
+Flowable 基于 activiti6   https://github.com/flowable   flowable-engine  
+
 ----------------Activiti Core 7 
 
 Activiti 7 (2019-03-29) 开始有了Activiti Cloud(收费) ,Activiti Core (开源 支持SpringBoot2.x)
@@ -15,13 +19,8 @@ https://github.com/Activiti/activiti-examples
 https://activiti.gitbook.io/activiti-7-developers-guide/
  
 
-Camunda 基于 Activii5  支持DMN
-Flowable 基于 activiti6   https://github.com/Flowable 最新 6.7.1 支持DMN，BPEL
 
-DMN =Decision Model and Notation
-BPEL=Business Process Execution Language，
-
--- Activiti Core 7 版本 变化 支持SpringBoot2.x , 强依赖了 Spring Security 
+-- Activiti Core 7 版本 变化 支持SpringBoot2.x , 强依赖了 Spring Security (这点不一定好)
 变为25张表
 去除了
 act_id_group
@@ -36,14 +35,20 @@ engine.getFormService(); //方法去除了
 
 新的API
 
-
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.1.10.RELEASE</version> <!-- 7.0.0.GA match with 2.1.10.RELEASE  -->
+    <relativePath/> 
+  </parent>
+  
 BOM (Bill of Materials)
 <dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.activiti.dependencies</groupId>
 			<artifactId>activiti-dependencies</artifactId>
-			<version>7.0.0.GA</version> <!-- 7.1.0.M6  有BUG -->
+			<version>7.0.0.GA</version> <!-- <!-- 7.0.0.GA match with spring boot 2.1.10.RELEASE  --> -->
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>
@@ -71,9 +76,17 @@ BOM (Bill of Materials)
 	<artifactId>mysql-connector-java</artifactId>
 </dependency>
 spring.datasource.url=jdbc:mysql://localhost:3306/activiti?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-spring.datasource.username=bpmn
-spring.datasource.password=bpmn
+spring.datasource.username=activiti
+spring.datasource.password=activiti
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+
+spring.activiti.database-schema-update=true
+#default false
+spring.activiti.db-history-used=true
+
+spring.activiti.history-level=full
+
 
 
 日志显示 使用org/activiti/db/create/activiti.mysql.create.engine.sql  (activiti-engine-7.0.0.GA.jar)
@@ -98,7 +111,7 @@ public class ActivitiCore7Tests {
     private SecurityUtil securityUtil;
 	
 
-//在执行任何代码前 会自动建立表,但没有act_hi_*表？？
+//在执行任何代码前 会自动建立表,但没有act_hi_*表,设置spring.activiti.db-history-used=true即可
 // 自动部署src/main/resources/processes目录下的所有流程(如目录有变化，会再次部署,deployment表名为SpringAutoDeployment产生新版本，相同的流程定义以前就没用了)
 
 	@Test
@@ -208,22 +221,6 @@ public class ActivitiCore7Tests {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ----------------Activiti 6
 
 Activiti (2017年12月版本是6.0,可能要翻墙)是基于JBPM-4 ,   ORM 使用 MyBatis3
@@ -304,11 +301,11 @@ ProcessEngineConfiguration config =ProcessEngineConfiguration.createProcessEngin
 ProcessEngine engine=config.buildProcessEngine();
 		
 //mysql 
-create database activiti default character set utf8;
-CREATE USER bpmn@'%'  IDENTIFIED BY 'bpmn';
-CREATE USER bpmn@localhost  IDENTIFIED BY 'bpmn';
-grant all on activiti.* to 'bpmn'@'%'  ;
-grant all on activiti.* to bpmn@localhost ;
+create database activiti default character set utf8mb4 collate utf8mb4_bin;
+CREATE USER activiti@'%'  IDENTIFIED BY 'activiti';
+CREATE USER activiti@localhost  IDENTIFIED BY 'activiti';
+grant all on activiti.* to 'activiti'@'%'  ;
+grant all on activiti.* to activiti@localhost ;
 
 activiti-6.0.0\database\create  三个文件 
 	activiti.mysql.create.engine.sql 

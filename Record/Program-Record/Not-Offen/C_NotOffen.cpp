@@ -1,5 +1,160 @@
 ﻿
 
+
+---------------------autoconf,automake
+也叫Autotools,比cmake难用多了
+
+(自动化工具)automake ,autoconf ,m4宏,libtool
+
+1.autoscan 命令,多了一个configure.scan文件,
+	#######AC_CONFIG_HEADER([config.h])修改为：AM_CONFIG_HEADER(config.h),######这行是不能在autoconf时改的，要在automake是改
+	在AC_INIT宏之后加入AM_INIT_AUTOMAKE(hello, 1.0)，hello是你的软件名称，1.0是版本号,
+	最后一行AC_OUTPUT宏填写完整变成AC_OUTPUT(Makefile)，表明autoconf和automake最终将生成Makefile文件,把configure.scan文件改名为configure.in
+AC_OUTPUT([Makefile
+                src/lib/Makefile
+                src/ModuleA/apple/core/Makefile
+                src/ModuleA/apple/shell/Makefile
+                ])
+
+
+“config.h.in” is created by `autoheader	#####AC_CONFIG_HEADERS
+
+4) 在project目录下新建NEWS、 README、 ChangeLog 、AUTHORS,INSTALL,COPYING文件  可以用automake --help来看,
+5) 将/usr/share/automake-1.X/目录下的depcomp和complie文件拷贝到本目录下
+
+2.aclocal命令，ls会发现多了一个aclocal.m4
+3.autoconf命令，ls将发现生成了一个可执行的configure
+4.编辑一个Makefile.am文件
+	AUTOMAKE_OPTIONS=foreign
+	bin_PROGRAMS=hello
+	hello_SOURCES=main.c ....
+5. automake --add-missing 命令   就会有depcomp文件 #####--copy
+6. ./configure命令
+
+
+
+automake选项
+ -a, --add-missing      add missing standard files to package
+      --libdir=DIR       directory storing library files
+
+
+在configure.in中  (后来新版本改为configure.ac，但configure.in也可以)
+	AC_PROG_CC：选择 C 编译器。如果在环境中不设置 CC 的话，则检测 gcc。
+	AC_PROG_CXX：选择 C++ 编译器。
+
+	看后有AC_CHECK_HEADERS([fcntl.h limits.h ...
+		AC_CHECK_FUNCS([bzero floor 
+	AC_OUTPUT(最后要生成的Makefile , 包括 子目录中的，中间用空格隔开) ,
+	    例如 AC_OUTPUT(Makefile  subdir/Makefile subdir1/Makefile)
+
+	如果在configure.ac中定义了一些特殊的宏，比如AC_PROG_LIBTOOL，它会调用libtoolize
+
+
+	在 configure.in 中，有一些被 autoconf 宏预先定义的变量，重要的有如下几个：
+	    bindir：安装可执行文件的目录。
+	    includedir：C 头文件目录。
+	    infodir：info 页安装目录。
+	    mandir：安装手册页的目录。
+	    sbindir：为管理员运行该该程序提供的安装路径。
+	    srcdir：为 Makefile 提供的源代码路径。
+	    top_srcdir：源代码的最上层目录。
+	    LIBS：给连接程序的 -l 选项
+	    LDFLAGS：给连接程序的 stripping（-s）和其他一些选项。
+	    DEFS：给 C 编译器的 -D 选项。
+	    CFLAGS：给 C 编译器的 debug 和优化选项。当调用了 AC_PROG_CC 才有效。
+	    CPPFLAGS：头文件搜索路径（-I)和给 C 预处理器和编译器的其他选项。
+	    CXXFLAGS：给 C++ 编译器的 debug 和优化选项。当调用了 AC_PROG_CXX 才有效。
+
+	同一个目录下编译多个程序的话， AC_CONFIG_SUBDIRS(DIR....)
+
+
+
+Makefile.am中可用的全局变量
+	
+	LDADD    所有的库
+	LDFLAGS 所有的选项
+	EXTRA_DIST
+	SUBDIRS 
+	INCLUDES = -I/include
+	LIBS = -lm -lcrypt
+
+	
+Some variables are inherited from Autoconf; these are CC, CFLAGS, CPPFLAGS, DEFS,LDFLAGS, and LIBS.
+
+
+Makefile.am含义
+	AUTOMAKE_OPTIONS  否存在标准GNU软件包中应具备的各种文件，例如AUTHORS、ChangeLog、NEWS等文件。我们将其设置成foreign时，
+	bin_PROGRAMS	要产生的可执行文件的文件名。多个用空格隔开。
+	helloworld_SOURCES  产生"helloworld"时所需要的源代码。多个源文件用空格隔开
+		如果你在bin_PROGRAMS定义了多个可执行文件，则对应每个可执行文件都要定义相对的filename_SOURCES。
+      
+	AUTOMAKE_OPTIONS=foreign 就不会提示少了文件README NEWS AUTHORS ChangeLog,不加报错时会自动生成COPYING,INSTALL两文件 
+		  foreign:Automake 将只检查绝对必须的东西.
+		    gnu:Automake 将尽可能多的检查以适应GNU标准, 这是默认项.
+
+	
+
+
+	xxx=$(shell /bin/pwd)
+
+       SUBDIRS  = dir1   这个目录没有要编译的文件 ，只包含了子目录，则只写个
+	 EXTRA_DIST= \
+	  a.h \
+	  b.h
+	 # 不用编成.o，但生成target myprogram也需要给编译器处理的头文件放这里
+
+	myprogram_LDADD = libsub1.a 这个_LDADD是关键字，
+	 # 最后生成myprogram这个执行文件，还要link src/sub1这个目录中的内容编成的一个lib :libsub1.a，
+	 
+	 myprogram_LDFLAGS = -lpthread -lglib-2.0 -L/usr/bin $(all_libraries)
+	 # myprogram还要link系统中的动态so，以此类推，需要连自编译的so,也写到这个关键字 _LDFLAGS后面就好了。
+	  
+	 AM_CXXFLAGS = -D_LINUX
+	 # 传递给g++编译器的一些编译宏定义，选项，
+
+	 INCLUDES=-IPassport -Isub1/ -I/usr/include/glib-2.0\
+	    -I/usr/lib/glib-2.0/include $(all_includes)
+	 #  传递给编译器的头文件路径。
+
+
+	noinst_LIBRARIES = libprotocol.a
+	# 不是生成可执行文件，而是静态库，target用noinst_LIBRARIES
+	 libprotocol_a_SOURCES = \
+				 alib.cpp
+	“noinst”前缀专门指定有问题的对象不被安装。
+	“check”前缀表示有问题的对象知道make check命令被执行猜被创建
+	 可用的主变量是 'PROGRAMS','LIBRARIES','LISP','SCRIPTS','DATA','HEADERS','MANS'和'TEXINFOS'
+
+'##'开头的行将被Automake 完全忽略.
+	xs = a.c b.c
+    foo_SOURCES = c.c $(xs)
+    它将使用文件：'a.c','b.c'和'c.c' 作为foo_SOURCES的内容.
+
+EXTRA_PROGRAMS
+
+$(prefix)
+$(top_srcdir)
+
+
+
+ Makefile.in是由automake生成的
+
+config.h is created by `configure` from “config.h.in”
+
+如修改源码autoscan ,autoreconf
+
+ 
+autoheader命令是autoconf软件包中的
+
+
+
+生成的make目标
+make clean
+make dist 	产生发布软件包文件(即distribution)打包成一个PACKAGE-VERSION.tar.gz压缩的   不会所config.log等打进去
+make distcheck  自动把压缩包文件解开，然后执行configure命令，并且执行make，来确认编译不出现错误
+make distclean　　类似make clean，但同时也将configure生成的文件全部删除掉，包括Makefile。 
+
+ 
 =============================SQLAPI==============
 SQL API++
 	MinGW用libsqlapi.dll
@@ -615,4 +770,3 @@ MANPATH_MAP     /usr/local/bin          /usr/local/share/man
 man国际化  /usr/share/man/zh_CN/   试过的OK,但一定要写两次man文件,
 
 -------
-

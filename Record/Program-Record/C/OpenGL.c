@@ -4,9 +4,22 @@ http://www.mesa3d.org/
 http://www.opengl.org/resources/libraries/glut/
 http://www.opengl.org/sdk/docs/man4/ 4.4 在线手册
 http://www.opengl.org/sdk/docs/man3/ 3.3 在线手册
- 
 
- 
+-----freeglut,安装测试OK
+rpm -ivh /mnt/iso/suse/x86_64/freeglut-devel-2.8.0-3.1.2.x86_64.rpm 
+rpm -ivh /mnt/iso/suse/x86_64/libglut3-2.8.0-3.1.2.x86_64.rpm
+rpm -ivh /mnt/iso/suse/noarch/xorg-x11-devel-7.6-37.1.1.noarch.rpm  有太多的依赖关系，使用yast2
+
+#include <GL/glut.h>
+#include <GL/glu.h>
+#include <GL/gl.h> 
+
+gcc -o helloOpenGL helloOpenGL.c -lglut -lGL -lGLU
+
+注意和windows不同的是GL是大写的
+-----
+
+
 Debug 要把*.dll文件放在　PATH中
 扩展名是大写的C表示cpp,是用g++编译
 opengl32.dll和glu32.dll 位于 C:\WINDOWS\system32\

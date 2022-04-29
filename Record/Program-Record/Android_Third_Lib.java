@@ -136,30 +136,22 @@ if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
  
 有一个cordova-android-master\VERSION文件看版本
 cordova-android Version 	Supported Android API-Levels 	Equivalent Android Version
+10.X.X 						 22 - 30 						5.1 - 11.0.0
 9.X.X 						 22 - 29 						5.1 - 10.0.0
 ------------离线
 https://www.apache.org/dist/cordova/ 
-	tools 		中下载 cordova-10.0.0.tgz 
-	platforms	中下载 cordova-android-10.1.1.tgz  cordova-windows-7.0.1.tgz  (支持到win10) VS2015+  Universal Windows Platform [UWP]
+	tools 		中下载 cordova-11.0.0.tgz 
+	platforms	中下载 cordova-android-10.1.2.tgz   
 	plugins		中下载 
  
-#D:\Application\cordova-10.0.0\package\bin\cordova.cmd  create . org.zh.cordova10 A_Cordova_10  (源码使用node命令) 
+#D:\Application\cordova-11.0.0\package\bin\cordova.cmd  create . org.zh.cordova11 A_Cordova_11  (源码使用node命令) 
 报Cannot find module 'loud-rejection/register' 还是用在线吧
 
-cd  cordova-android-10.1.1\package\framework
+cd  cordova-android-10.1.2\package\framework
 gradle build  #有要求build tools版本 30.0.3,会安装 %USERPROFILE%\AppData\Local\Android\Sdk\platforms\android-30
 会生成 build/output/aar/framework-release.aar 和 framework-debug.aar
 
----离线 老版本的  3.5  
-$cd  cordova-android-3.5.0\cordova-android\framework
-$android update project -p . -t android-19    #android-19是看到的
-$ant jar			#当前目录生成 cordova-3.5.0.jar
-
-导入 eclipse->import 要使用 android/exist -> platforms\android 目录,
-可以把A_Cordova_35_CordovaLib项目删,即目录CordovaLib ,也可删cordova目录(有命令), 在libs中增加cordova-3.5.0.jar(如使用cordova run android 会自动build,不要放jar)
-
-project->clean... 
-
+ 
 -------------在线
 npm install -g cordova 
 命令安装到 
@@ -184,32 +176,31 @@ app/build.gradle 文件中有 implementation(project(path: ":CordovaLib"))
 settings.gradle 文件中有 include ":CordovaLib"
 
    用 AndroidStudio-2021.1 打开报 C:\Users\xx\AppData\Local\Temp\wrapper_init1.gradle' appears to be corrupted.
-   修改项目使用指向gradle-7.2-bin的解压目录(而不是gradle-wrapper.properties，也没有这个文件)后正常
+   修改项目使用指向gradle-7.2-bin的解压目录(而不是gradle-wrapper.properties，也没有这个文件)后正常，可安装到手机
    
-   使用命令行 gradle build (7.2版本) 可以编译成功
+   使用命令行cd platforms\android , gradle build (7.2版本) 可以编译成功
 
 #cordova platform rm android
 #cordova platform add ios
-#cordova platform add windows
-#cordova platform add osx
+#cordova platform add electron
 
 cordova platform ls
-cordova requirements(要求在项目目录下运行)  要求SDK Platform  for API level android-25 (7.1.1)
+cordova requirements(要求在项目目录下运行)  显示已经安装设置的gradle,android sdk
 
-cordova build 		找android命令,gradle 下载很多maven库,会下载SDK Platform
+cordova build 	(用 gradle-7.2 就报错)
+			找android命令,gradle 下载很多maven库,会下载SDK Platform
 			会把  \www 			覆盖到  \platforms\android\app\assets\www
 			会把  \plugins		覆盖到  \platforms\android\app\assets\www\plugins
 			会把  \config.xml	覆盖到  \platforms\android\app\res\xml\config.xml
 
 #cordova build ios  只build指定平台
-#cordova build windows
 
 #cordova emulate android 启动模拟器
 
 cordova run android  会下载gradle-7.1.1-all.zip 要求有环境变量  ANDROID_SDK_ROOT / JAVA_HOME (1.8.161+) / PATH
 
 本来空项目可以正常运行的
---在执行全部 cordova plugin add xx 后报错？？
+-----在执行全部 cordova plugin add xx 后报错？？
 AndroidManifest.xml
 <!--
     android:name="org.apache.cordova.camera.FileProvider" 找不到这个类，修改为
@@ -223,7 +214,7 @@ config.xml
 -->
 	 
  
---以下未成功
+-----以下未成功
 注释
 build.gradle 	文件中有 apply from: 'CordovaLib/cordova.gradle'
 app/build.gradle 文件中有 implementation(project(path: ":CordovaLib"))
@@ -240,7 +231,7 @@ app/build.gradle 中在android{}中增加
     }
 dependencies {}中增加
     implementation(name: 'framework-debug', ext: 'aar')
---
+-----
  
  
  
@@ -258,25 +249,80 @@ cordova plugin search camera
 
 cordova plugin add cordova-plugin-camera
 cordova plugin add cordova-plugin-geolocation
-cordova plugin add cordova-plugin-globalization
+
 cordova plugin add cordova-plugin-battery-status
-cordova plugin add cordova-plugin-contacts
+
+
 cordova plugin add cordova-plugin-dialogs
-cordova plugin add cordova-plugin-file-transfer
-cordova plugin add cordova-plugin-inappbrowser
-cordova plugin add cordova-plugin-media
-cordova plugin add cordova-plugin-media-capture
+cordova plugin add cordova-plugin-inappbrowser 
 cordova plugin add cordova-plugin-network-information
 cordova plugin add cordova-plugin-splashscreen
 cordova plugin add cordova-plugin-vibration
 cordova plugin add cordova-plugin-device
 
+/*
+cordova plugin add cordova-plugin-file   //新的，但版本太新了，media，media-capture提示
+The Android Persistent storage location now defaults to "Internal". Please check this plugin's README to see if your app
+	lication needs any changes in its config.xml.
 
-Device Motion  和 Device Orientation  过时使用HTML5
+	If this is a new application no changes are required.
+
+	If this is an update to an existing application that did not specify an "AndroidPersistentFileLocation" you may need to
+	add:
+
+		  "<preference name="AndroidPersistentFileLocation" value="Compatibility" />"
+
+	to config.xml in order for the application to find previously stored files.
+
+	Adding cordova-plugin-file to package.json
+
+*/
+/*
+cordova plugin add cordova-plugin-file-transfer 提示，新的文档上没有这个了,Java类还报错(自动安装了 cordova plugin add cordova-plugin-file )
+	The Android Persistent storage location now defaults to "Internal". Please check this plugin's README to see if your application needs any changes in its config.xml.
+
+	If this is a new application no changes are required.
+
+	If this is an update to an existing application that did not specify an "AndroidPersistentFileLocation" you may need to
+	add:
+
+		  "<preference name="AndroidPersistentFileLocation" value="Compatibility" />"
+
+	to config.xml in order for the application to find previously stored files.
+
+	Adding cordova-plugin-file-transfer to package.json
+
+cordova plugin remove cordova-plugin-file-transfer
+cordova plugin remove cordova-plugin-file
+*/
+
+cordova plugin add cordova-plugin-media //(自动安装了 cordova-plugin-file 要求的版本 )
+		
+	The Android Persistent storage location now defaults to "Internal". Please check this plugin's README to see if your application needs any changes in its config.xml.
+
+	If this is a new application no changes are required.
+
+	If this is an update to an existing application that did not specify an "AndroidPersistentFileLocation" you may need to
+	add:
+
+		  "<preference name="AndroidPersistentFileLocation" value="Compatibility" />"
+
+	to config.xml in order for the application to find previously stored files.
+
+	Adding cordova-plugin-media to package.json
+
+cordova plugin add cordova-plugin-media-capture 
  
-<项目目录>\node_modules 目录 , plugins 目录 , platforms\android\assets\www\plugins目录中 有增加
-<项目目录>\config.xml			文件中有增加
-<项目目录>\platforms\android 是android的工作目录
+cordova plugin add cordova-plugin-screen-orientation
+
+#cordova plugin add cordova-plugin-contacts  新的官方文档没有了
+#cordova plugin add cordova-plugin-globalization 新的官方文档没有了
+Device Motion  过时使用HTML5
+
+
+<项目目录>\node_modules 目录 
+<项目目录>\config.xml	文件中有增加
+<项目目录>\platforms\android 是android的工作目录, platforms\android\app\src\main\assets\www\plugins 目录中 有增加
 
 cordova plugin ls  查看已安装的插件
 
@@ -284,22 +330,42 @@ cordova plugin rm  cordova-plugin-camera    删插件
 
 
 
-------- cordova plugin add cordova-plugin-camera  v6.2.3  (7)
+------- cordova plugin add cordova-plugin-camera
 
-res/xml/config.xml 新增加
-<feature name="Camera">
-	<param name="android-package" value="org.apache.cordova.camera.CameraLauncher" />
-</feature>
+package.json 中增加
+	"cordova-plugin-camera": {
+		"ANDROIDX_CORE_VERSION": "1.6.+"
+	  },
+node_modules 目录中增加
+
+plugins/fetch.json {}中增加
+	 "cordova-plugin-camera": {
+		"source": {
+		  "type": "registry",
+		  "id": "cordova-plugin-camera@6.0.0"
+		},
+		"is_top_level": true,
+		"variables": {}
+	  },
+plugins/android.json   "installed_plugins": 下增加
+    "cordova-plugin-camera": {
+      "ANDROIDX_CORE_VERSION": "1.6.+",
+      "PACKAGE_NAME": "org.zh.cordova11"
+    },
+	
+platforms\android\android.json
+	{
+	  "xml": "<feature name=\"Camera\"><param name=\"android-package\" value=\"org.apache.cordova.camera.CameraLauncher\" /></feature>",
+	  "count": 1
+	}, 	
+platforms\android\app\src\main/res/xml/config.xml 新增加
+	<feature name="Camera">
+		<param name="android-package" value="org.apache.cordova.camera.CameraLauncher" />
+	</feature>
  
-多了org.apache.cordova.camera包,有CameraLauncher 类
 
-AndroidManifest.xml 新增加
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-
-platforms\android\assets\www\ 下多了 plugins\cordova-plugin-camera\www
-		Camera.js,CameraConstants.js,CameraPopoverHandle.js,CameraPopoverOptions.js
---platforms\android\assets\www\cordova_plugins.js  文件中
+		
+----platforms\android\app\src\main\assets\www\cordova_plugins.js  文件中
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 	module.exports = [ 下新增
 		 {
@@ -337,9 +403,49 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
 	
 	];
 	module.exports.metadata = { 下新增
-		"cordova-plugin-camera": "2.4.1",
+		"cordova-plugin-camera": "6.0.0",
 	}
 });
+ 
+platforms\android\app\src\main\assets\www\plugins 下多了
+	cordova-plugin-camera 目录 
+	
+多了org.apache.cordova.camera包,有CameraLauncher 类
+
+AndroidManifest.xml 新增加
+	MAIN  activity中增加
+		<provider android:authorities="${applicationId}.cordova.plugin.camera.provider" android:exported="false" android:grantUriPermissions="true" android:name="org.apache.cordova.camera.FileProvider">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/camera_provider_paths" />
+		</provider>
+	
+	<application>同级增加	
+	<queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.PICK" />
+        </intent>
+        <intent>
+            <action android:name="com.android.camera.action.CROP" />
+            <data android:mimeType="image/*" android:scheme="content" />
+        </intent>
+    </queries>
+	
+platforms\android\app\src\main\res\xml\camera_provider_paths.xml
+	<paths xmlns:android="http://schemas.android.com/apk/res/android">
+		<cache-path name="cache_files" path="." />
+	</paths>
+
+build.gradle增加
+  implementation "androidx.core:core:1.6.+"
+  
+android\project.properties增加
+	cordova.system.library.1=androidx.core:core:1.6.+
+ 
 ---开发
 function getPhoto(source) {
 	navigator.camera.getPicture(onPhotoURISuccess, onFail, { quality: 50, 
@@ -380,31 +486,62 @@ function onPhotoDataSuccess(imageData) {
  
  
 	
---- cordova plugin add org.apache.cordova.geolocation
---- cordova plugin add org.apache.cordova.globalization
- navigator.globalization.getPreferredLanguage(
-    	    	    function (language) {alert('language: ' + language.value + '\n');},
-    	    	    function () {alert('Error getting language\n');}
-    	    	);//zh-CN
-				
-	  navigator.globalization.getDatePattern(
-	        function (date) { alert('pattern: ' + date.pattern + '\n'); },
-	        function () { alert('Error getting pattern\n'); },
-	        { formatLength: 'short', selector: 'date and time' }
-	    );//short 是 yyyy-M-d HH:mm
-		
-	//用 getDatePattern
-	 navigator.globalization.stringToDate(
-			    '2014-12-24',
-			    function (date) {alert('month:' + date.month +
-			                           ' day:'  + date.day   +
-			                           ' year:' + date.year  + '\n');},
-			    function () {alert('Error getting date\n');},
-			    {selector: 'date'}
-			);
-			
+-------- cordova plugin add org.apache.cordova.geolocation
+--取一次
+document.addEventListener("deviceready", onDeviceReady, false); 
+function onDeviceReady() {
+	navigator.geolocation.getCurrentPosition(onSuccess, onError);
+} 
+function onSuccess(position) {
+	var element = document.getElementById('geolocation');
+	element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
+						'Longitude: '          + position.coords.longitude             + '<br />' +
+						'Accuracy: '           + position.coords.accuracy              + '<br />' +
+						 'Timestamp: '         + position.timestamp          + '<br />';
+}
+
+// onError Callback receives a PositionError object 
+function onError(error) {
+	alert('code: '    + error.code    + '\n' +
+			'message: ' + error.message + '\n');
+}
+--取多次 
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    var watchID = null; 
+    function onDeviceReady() { 
+        var options = { enableHighAccuracy: true };
+        watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
+    } 
+    
+	var i=0;
+    function onSuccess(position) {
+        var element = document.getElementById('geolocation');
+        element.innerHTML = 'Latitude: '  + position.coords.latitude      + '<br />' +
+                            'Longitude: ' + position.coords.longitude     + '<br />' +
+                             '次数: '(i++);
+    }
+
+    // clear the watch that was started earlier
+    // 
+    function clearWatch() {
+        if (watchID != null) {
+            navigator.geolocation.clearWatch(watchID);
+            watchID = null;
+        }
+    }
+
+    // onError Callback receives a PositionError object
+    //
+    function onError(error) {
+      alert('code: '    + error.code    + '\n' +
+            'message: ' + error.message + '\n');
+    }
+
+
+
 --- cordova plugin add org.apache.cordova.battery-status
---- cordova plugin add org.apache.cordova.contacts
+ 
 --- cordova plugin add org.apache.cordova.dialogs
 	function onPrompt(results) {
 		alert("You selected button number " + results.buttonIndex + " and entered " + results.input1);
@@ -548,9 +685,10 @@ function onPhotoDataSuccess(imageData) {
 	//---
 	var captureSuccess = function(mediaFiles) {
     	    var i, path, len;
-    	    for (i = 0, len = mediaFiles.length; i < len; i += 1) {
-    	        path = mediaFiles[i].fullPath;
-    	        alert("captureSound file in "+path);
+    	    for (i = 0, len = mediaFiles.length; i < len; i += 1) { 
+				//out("capture video i:"+mediaFiles[i]);
+				out("capture video i fullPath:"+mediaFiles[i].fullPath);
+				out("capture video i name:"+mediaFiles[i].name);
     	    }
     	};
 	var captureError = function(error) {
@@ -580,18 +718,22 @@ function onPhotoDataSuccess(imageData) {
         states[Connection.NONE]     = 'No network connection';
         alert('Connection type: ' + states[networkState]);
     }
-	
---- cordova plugin add cordova-plugin-splashscreen
-android系统在config.xml中加
-<!--  位于  res/drawable*/devices.png   -->
-<preference name="SplashScreen" value="devices" />
-<preference name="SplashScreenDelay" value="3000" />
 
 --- cordova plugin add org.apache.cordova.vibration
-navigator.notification.vibrate(1500);
-//wait时间,vibrate时间,.....
-navigator.notification.vibrateWithPattern([100, 500,1000, 2000] , 3);//重复3次
-navigator.notification.cancelVibration();
+
+// Vibrate for 3 seconds
+navigator.vibrate(3000);
+
+
+// Vibrate for 1 second
+// Wait for 1 second
+// Vibrate for 3 seconds
+// Wait for 1 second
+// Vibrate for 5 seconds
+navigator.vibrate([1000, 1000, 3000, 1000, 5000]);
+
+navigator.vibrate(0)//取消
+
 
 
 
@@ -620,7 +762,7 @@ platforms\android\assets\www\cordova_plugins.js 中 module.exports = [ 中增加
 function onDeviceReady() {
 	var element = document.getElementById('deviceProperties');
 
-	element.innerHTML = 'Device Name: '     + device.name     + '<br />' +  
+	element.innerHTML = 'Device manufacturer: '  + device.manufacturer + '<br />' +   
 						'Device Cordova: '  + device.cordova + '<br />' +   
 						'Device Platform: ' + device.platform + '<br />' + 
 						'Device UUID: '     + device.uuid     + '<br />' +  
@@ -630,6 +772,81 @@ function onDeviceReady() {
 <p id="deviceProperties">Loading device properties...</p>
  
 
+------- cordova plugin add cordova-plugin-splashscreen 新版本测试不行
+android系统在config.xml中加  
+<preference name="SplashScreenDelay" value="3000" />
+
+
+--platforms\android\app\src\main\assets\res\screen\android\config.xml  或 res\screen\android\config.xml 
+(res是和www同级的)
+
+<platform name="android">
+	<!--
+        land short for landscape mode
+        port short for portrait mode
+         add the -night keyword in between the layout and size keywords of the image's density attribute value. E.g.: land-night-hdpi
+    -->
+    <splash src="res/screen/android/splash-port-hdpi.png" density="hdpi"/>
+    <splash src="res/screen/android/splash-port-ldpi.png" density="ldpi"/>
+    <splash src="res/screen/android/splash-port-mdpi.png" density="mdpi"/>
+    <splash src="res/screen/android/splash-port-xhdpi.png" density="xhdpi"/>
+    <splash src="res/screen/android/splash-port-xxhdpi.png" density="xxhdpi"/>
+
+    <!-- Landscape -->
+    <splash src="res/screen/android/splash-land-hdpi.png" density="land-hdpi" />
+    <splash src="res/screen/android/splash-land-ldpi.png" density="land-ldpi" />
+    <splash src="res/screen/android/splash-land-mdpi.png" density="land-mdpi" />
+    <splash src="res/screen/android/splash-land-xhdpi.png" density="land-xhdpi" />
+    <splash src="res/screen/android/splash-land-xxhdpi.png" density="land-xxhdpi" />
+    <splash src="res/screen/android/splash-land-xxxhdpi.png" density="land-xxxhdpi" />
+
+    <!-- Portrait -->
+    <splash src="res/screen/android/splash-port-hdpi.png" density="port-hdpi" />
+    <splash src="res/screen/android/splash-port-ldpi.png" density="port-ldpi" />
+    <splash src="res/screen/android/splash-port-mdpi.png" density="port-mdpi" />
+    <splash src="res/screen/android/splash-port-xhdpi.png" density="port-xhdpi" />
+    <splash src="res/screen/android/splash-port-xxhdpi.png" density="port-xxhdpi" />
+    <splash src="res/screen/android/splash-port-xxxhdpi.png" density="port-xxxhdpi" />
+  
+    <!-- Dark Mode -->
+    <splash src="res/screen/android/splash-land-night-hdpi.png" density="land-night-hdpi" />
+    <splash src="res/screen/android/splash-land-night-ldpi.png" density="land-night-ldpi" />
+    <splash src="res/screen/android/splash-land-night-mdpi.png" density="land-night-mdpi" />
+    <splash src="res/screen/android/splash-land-night-xhdpi.png" density="land-night-xhdpi" />
+    <splash src="res/screen/android/splash-land-night-xxhdpi.png" density="land-night-xxhdpi" />
+    <splash src="res/screen/android/splash-land-night-xxxhdpi.png" density="land-night-xxxhdpi" />
+
+    <splash src="res/screen/android/splash-port-night-hdpi.png" density="port-night-hdpi" />
+    <splash src="res/screen/android/splash-port-night-ldpi.png" density="port-night-ldpi" />
+    <splash src="res/screen/android/splash-port-night-mdpi.png" density="port-night-mdpi" />
+    <splash src="res/screen/android/splash-port-night-xhdpi.png" density="port-night-xhdpi" />
+    <splash src="res/screen/android/splash-port-night-xxhdpi.png" density="port-night-xxhdpi" />
+    <splash src="res/screen/android/splash-port-night-xxxhdpi.png" density="port-night-xxxhdpi" />
+</platform>
+
+/*
+--- cordova plugin add org.apache.cordova.globalization 新的官方文档没有
+ navigator.globalization.getPreferredLanguage(
+    	    	    function (language) {alert('language: ' + language.value + '\n');},
+    	    	    function () {alert('Error getting language\n');}
+    	    	);//zh-CN
+				
+	  navigator.globalization.getDatePattern(
+	        function (date) { alert('pattern: ' + date.pattern + '\n'); },
+	        function () { alert('Error getting pattern\n'); },
+	        { formatLength: 'short', selector: 'date and time' }
+	    );//short 是 yyyy-M-d HH:mm
+		
+	//用 getDatePattern
+	 navigator.globalization.stringToDate(
+			    '2014-12-24',
+			    function (date) {alert('month:' + date.month +
+			                           ' day:'  + date.day   +
+			                           ' year:' + date.year  + '\n');},
+			    function () {alert('Error getting date\n');},
+			    {selector: 'date'}
+			);
+*/		
 ----管理插件使用plugman
 npm install -g plugman   必须有 git  命令
 plugman --platform android --project D:\Program\eclipse_android_workspace\A_Cordova_3 --plugin <name|url|path> 
@@ -638,11 +855,11 @@ plugman --platform android --project D:\Program\eclipse_android_workspace\A_Cord
 ------------------插件开发
 res/xml/config.xml中加
 <feature name="MyPlugin">
-	<param name="android-package" value="org.zh.cordova7.MyPlugin" />
+	<param name="android-package" value="org.zh.cordova11.MyPlugin" />
 	<param name="onload" value="true" />
 </feature>
 //---Adnroid本地
-package org.zh.cordova3;
+package org.zh.cordova11;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
@@ -734,7 +951,8 @@ config.xml中配置开始页  <content src="index.html" /> 也可http://host
 
 //===============Cordova  iOS 访问真机
 Cordova-3.5 要Xcode-5.x
-
+Cordova-11  要 Xcode 11.0 (the minimum required version) runs only on OS X version 10.14.4 (Mojave) 
+ 
 1.建立项目使用 create命令  空目录 包名 项目名
 Cordova-2.7/iOS/cordova-ios-master/bin/create ~/Program/Xcode-4.5_workspace/iOS_Cordova org.zh iOS_Cordova
 

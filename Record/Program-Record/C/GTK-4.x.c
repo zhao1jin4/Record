@@ -1,9 +1,37 @@
+GTK等架构也是基于XWindow 
 
 https://docs.gtk.org/gtk4/getting_started.html
-https://gtk-rs.org/ (fedora 软件包 rust-gtk4-devel.noarch)
 https://developer.gnome.org/ 
 
 GTK 4 除了用C开发，还支持JavaScript 和 Rust
+https://gtk-rs.org/ 
+
+----rust 开发gtk4
+https://gtk-rs.org/gtk4-rs/stable/latest/book/
+	MSys2 中 pacman -S mingw-w64-x86_64-gtk4 mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gcc
+			 pacman -S mingw-w64-x86_64-gdb
+		
+		修改rustup工具链
+		rustup toolchain install stable-gnu
+		rustup default stable-gnu
+
+		Cargo.toml中的 dependencies 中增加
+			gtk = { version = "0.4.6", package = "gtk4" } //https://crates.io/crates/gtk4 显示最新版本
+			
+		cargo run 会下载依赖，默认到 %USER_PROFILE%\.cargo\registry\cache\mirrors.aaaa.cn-xxxx 目录下
+		编译很多模块，要花很长时间(每个项目都是单独要做的)，target占用2G 空间，win7 rust 运行未成功？？在win10下占用1.4G,rust 可以成功
+		
+	linux 只要 gtk4-devel,Cargo.toml加一样的, 即可成功,但还是每个项目要单独rustc编译好久,占用1.3G,fedora-35 软件包 rust-gtk4-devel.noarch,34没有
+		cargo run 正常
+		但cargo buid 不行,报 no targets specified in the manifest,要在Cargo.toml中增加
+			[[bin]]
+			name ="my-gtk-app"
+			path ="src/first_gtk4.rs"
+	
+在windows下使用rust-gnu的速度很慢,cargo build (13秒) 和 cargo run(7秒) ,toolchain也不支持msvc的,依赖编译就报错	
+------
+
+
 
 zypper install gtk3-devel 软件包
 
@@ -156,6 +184,135 @@ debug 做如下,测试成功,要有src目录和target目录
     ],
     "version": "2.0.0"
 }          
+ 
+ 
+ 
+ ----------- msys2  gtk4  win10测试成功(win7不行?原因可能是msys2中的python-3.9，而win7最高只支持以3.8.x, gdb命令直接报错)
+ --tasks.json
+ {
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "g++build",
+            "command": "g++",
+            "args": [　
+                "-ID:/msys64/mingw64/include/gtk-4.0",
+                "-ID:/msys64/mingw64/include/pango-1.0",
+                "-ID:/msys64/mingw64/include",
+                "-ID:/msys64/mingw64/include/glib-2.0",
+                "-ID:/msys64/mingw64/lib/glib-2.0/include",
+                "-ID:/msys64/mingw64/include/harfbuzz",
+                "-ID:/msys64/mingw64/include/freetype2",
+                "-ID:/msys64/mingw64/include/libpng16",
+                "-ID:/msys64/mingw64/include/fribidi",
+                "-ID:/msys64/mingw64/include/cairo",
+                "-ID:/msys64/mingw64/include/lzo",
+                "-ID:/msys64/mingw64/include/pixman-1",
+                "-ID:/msys64/mingw64/include/gdk-pixbuf-2.0",
+                "-ID:/msys64/mingw64/include/graphene-1.0",
+                "-ID:/msys64/mingw64/lib/graphene-1.0/include",
+                "-mfpmath=sse",
+                "-msse",
+                "-msse2",
+                "-pthread",
+                "-mms-bitfields",
+                "-lintl",
+                
+                "-g",
+                "${workspaceFolder}/${relativeFile}",
+                "-o",
+                "${workspaceFolder}/target/${fileBasenameNoExtension}",
+
+                "-LD:/msys64/mingw64/lib",
+                "-lgtk-4",
+                "-lpangowin32-1.0",
+                "-lpangocairo-1.0",
+                "-lpango-1.0",
+                "-lharfbuzz",
+                "-lgdk_pixbuf-2.0",
+                "-lcairo-gobject",
+                "-lcairo",
+                "-lgraphene-1.0",
+                "-lgio-2.0",
+                "-lgobject-2.0",
+                "-lglib-2.0"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}",
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
+
+
+
+---launch.json
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/target/${fileBasenameNoExtension}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "D:/msys64/mingw64/bin/gdb.exe",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],"preLaunchTask": "g++build"
+           　
+        }
+    ]
+}
+
+--c_cpp_properties.json  这个只影响 工具不显示错误，也就说只有includePath是最有价值的，像compilerPath，compilerArgs可以删除
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "D:/msys64/mingw64/include/gtk-4.0",
+                "D:/msys64/mingw64/include/pango-1.0",
+                "D:/msys64/mingw64/include",
+                "D:/msys64/mingw64/include/glib-2.0",
+                "D:/msys64/mingw64/lib/glib-2.0/include",
+                "D:/msys64/mingw64/include/harfbuzz",
+                "D:/msys64/mingw64/include/freetype2",
+                "D:/msys64/mingw64/include/libpng16",
+                "D:/msys64/mingw64/include/fribidi",
+                "D:/msys64/mingw64/include/cairo",
+                "D:/msys64/mingw64/include/lzo",
+                "D:/msys64/mingw64/include/pixman-1",
+                "D:/msys64/mingw64/include/gdk-pixbuf-2.0",
+                "D:/msys64/mingw64/include/graphene-1.0",
+                "D:/msys64/mingw64/lib/graphene-1.0/include"
+            ],
+            "defines": [],
+            "compilerPath": "D:/msys64/mingw64/bin/g++",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "-lgtk-4 -lpangocairo-1.0 -lpango-1.0 -lharfbuzz -lgdk_pixbuf-2.0 -lcairo-gobject -lcairo -lgraphene-1.0 -lgio-2.0 -lgobject-2.0 -lglib-2.0 "
+            ]
+        }
+    ],
+    "version": 4
+}
+
  
 
 Gnome的项目 Anjuta-3.x ,glade-3.x 目前 还是3.x版本  

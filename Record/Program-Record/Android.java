@@ -74,8 +74,8 @@ INSTALL_FAILED_USER_RESTRICTED 原因是在权限管理中的USB安装管理中�
 android 10(Q) 是API 29
 android 11(R) 是API 30
 android 12(S) 是API 31
-android 32   是API 32 , 这个开始和API一样的名字
-
+android 32    是API 32 , 这个开始和API一样的名字
+android Tiramisu   是API Tiramisu  ,  这个开始用名字了
 
 ----- Android Studio
 AndroidStudio-2020.3(2021-10-01),旧名4.3
@@ -239,9 +239,12 @@ adb disconnect 手机IP:5555
 obscure 不清楚的
 
 点 Pair device with paring code->每次显示不同的IP:port和配对码,电脑上的终端终端运行 adb pair ipaddr:port,  输入配对码
-IP Adress & Port 中有显示IP:port ，电脑上的终端终端运行 adb connect IP:port(只能配对成功，才能adb connect成功)
+手机界面的IP Adress & Port 中有显示IP:port ，电脑上的终端终端运行 adb connect IP:port(只能配对成功，才能adb connect成功)
 如要安装包，还是要打开 USB install
 
+adb xxx命令卡到不动？？？,杀全部adb进程，再重启android studio
+命令连接上，但android studio 不显示？？,换有线也是一样的，再换无线又好了？？？，好时就一个adb进程
+不稳定总是offline
 
 ======手机HTML,JS,CSS调试方法
 

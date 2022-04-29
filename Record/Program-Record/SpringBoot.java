@@ -614,8 +614,6 @@ public class MyStringSerializer implements RedisSerializer<String> {
 		String saveKey = new String(bytes, charset);
 		int indexOf = saveKey.indexOf(prefixKey);
 		if (indexOf > 0) {
-			logger.warn("key缺少前缀");
-		} else {
 			saveKey = saveKey.substring(indexOf);
 		}
 		return saveKey;

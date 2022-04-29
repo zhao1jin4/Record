@@ -34,7 +34,11 @@ win10 微软五笔
 bing,baidu.com 搜索引擎支持  site:xxx.com   要搜索的内容     的格式来搜索
 
 
-
+--微软的进程分析工具
+https://docs.microsoft.com/en-us/sysinternals/downloads/process-explorer
+	v16.43
+view -> tree 以树形显示进程 
+view->lower pane view ->dll 显示下方加载的DLL
 
 
 ========LibreOffice
@@ -114,7 +118,8 @@ excel 去网格   视图->取消选择网格线
 excel =MAX($B$4,$C$4) 前加表示绝对引用,如复制单元时,不会改变公式
 
 excel 中ctrl+;输入当前日期,4.50E+10,ctrl+下键可以到最底
-
+	 日期转换成文本函数	=TEXT(L2,"YYYY-MM-DD HH:mm:ss")
+	
 excel 中以某一列不能有相同的值,如有背景色变,
 		选中列Home标签->style 部分->Condiation format(条件格式化)->manage rules...->new rule...->
 		选择 format only unique or duplicate values,单击format按钮设置背景色
@@ -127,7 +132,7 @@ Excel 生成批量手机号码,先输入两个,选择中列,开始->编辑,填�
 Excel 展开与折叠 ,选数据区->goup,ungroup,subtotal ,选数据区->Data->Sort->先排序表->按列->分类汇总
 excel 选择数据区，数据->记录单，可以下一条
 
-excel 取消科学计数法,丢失精度,  数据(data)->Data Tools组中的 Text on Columns->next->next->单选Text 再Finish
+excel 取消科学计数法,丢失精度,  数据(data)->Data Tools组中的 Text on Columns(中文为 "分列")->next->next->单选Text 再Finish
 
  页面布局 ->背景 (删除背景)-> 选择图片
  Libre Calc 插入->图片 ，右击图片->Arrange-> To Background
@@ -144,7 +149,10 @@ PMT函数计算等额本息还款
 
 =VLOOKUP 函数
 VLOOKUP(要查找的单元格,要查找的矩形区的(不一定是第一列),如果找到显示矩形区(第二个参数)的第几列,FALSE)   -- false表示精确匹配,true表示模糊
-数据类型相同
+
+第三个参数的区域可以X:Y 这种多列
+
+要求 数据类型相同,如果找不到 是N/A 错误（不是数据类型或其它错误时），可用iferror()做逻辑处理
 
 principal  本金
 
@@ -167,6 +175,8 @@ roundup(14.3,0) 向上舍入函数
 trim()函数去空格，复制列 -> 选择性粘贴选 数值
 数据 菜单标签 -> 数据工具组 的 删除重复项  按钮
 
+数据 删除重复项，可以选择多列
+
 Excel 的ABC列显示为123原因为
 文件 -> 选项 -> Excel选项 -> 公式 -> 使用公式 把 R1C1引用样式 取消
 
@@ -176,6 +186,10 @@ viwe->gridline的开关，是否显示网格,灰色的边框
 
 如直接打开UTF-8的csv文件乱码，Data ->from text->选择文件->向导中->单选delimited->只复选一个comma
 
+单元格内换行， 按 ctrl+enter  (alt+enter)
+
+excel中的单元格和字串拼接的方式 , ="hi " & A1 & ",welcome" 
+	="insert("&U2&","&D2&")"    ，如U2为A,D2为B,结果为 insert(A,B)
 
 --------PowerPoint
 制作播放菜单
@@ -444,7 +458,8 @@ Settins-> Download 可以打开 Ask where to save each file before downloading
 clear browser data 在要advance标签中选中password
 在Pepole组 passwords-> 可以查看哪些网站做了保存密码,只要输入系统管理员密码,就可查看密码!!!!
 
-
+chrome://version 看到有command line 的参数,为启动浏览器传的命令行参数 
+ 
 chrome://about/  列出所有的连接工具
 Chrome工具 自带的工具 chrome://net-internals/  
 
@@ -470,7 +485,10 @@ chrome_software_reporter_tool.exe 占用系统资源很高
 	也不能查看Cookie
 
 也有linux rpm 版本和 android版本
-	比起chrome好的就是扩展没有被墙，如PostWoman(不是man,类似的黄色图标),React Developer Tools,Vue.js devtools 还是beta阶段
+	比起chrome好的就是扩展没有被墙，如
+	PostWoman(不是man,类似的黄色图标),
+	React Developer Tools,
+	Vue 没有???
 	Modify Header Value (HTTP Headers) 
 	Cookies Manager
 	Self-Destructing Cookies
@@ -480,6 +498,9 @@ chrome_software_reporter_tool.exe 占用系统资源很高
 	Selenium IDE
 	
 首次打开提示要登录，关闭再打开就不用了
+
+edge打开页时设置为 about:blank
+
 -------------IE --------
 
 清除
@@ -545,7 +566,8 @@ Notepad++ 工具栏中的 Function List按钮,Spell Check 按钮
 取消()字符的自动配对, preferences->auto-complete-> 取消复选 [,{,",'
 
 使用notepad++ 新建文件并保存生成的是UTF-8编码 
-(如使用记事本打开GBK的另存为UTF-8,开头有一个错误字符,UTF8的BOM头,windows重定符> 会改变已有文件的字符集)
+(如使用windows记事本notepad打开GBK的另存为UTF-8,开头有一个错误字符,UTF8的BOM头,windows重定符> 会改变已有文件的字符集)
+右下角，有显示文件的字符集编码，也可在菜单 编码->中找到选中的
 
 View -> ford all 折叠全部
 
@@ -572,6 +594,9 @@ plugins->plugin amdin...->搜索hex  复选hex edit插件->install  后就有plu
 plugins->plugin amdin...->搜索 compare 没安装上 
 Notepad++ 有文件比较器，是对打开的文件，Plugins->compare->compare  ,之后用clear results 取消比较
 ctrl+enter 可以自动完成单词
+
+plugins->plugin amdin...->复选 Explorer ，会在左则有目录树结构->install 
+	plugins->Explorer->Explorer... 但会报错
 
 ----Notepad++ 插件TextFX , 格式化显示XML  OK
 http://sourceforge.net/projects/npp-plugins/files/TextFX/ 
@@ -612,12 +637,20 @@ ctrl+w关闭全部标签窗口,不是当前打开标签???
 alt+拖动 可以选择中部分列
  
 ------Bluefish  
-windows版本会在线下载GTK+等包,有的还失败
+有linux,mac版本
+windows版本会在线下载GTK+等包,(2.2.12版本下载为gtk2)
 
 不能按列选择，不方便 
 
 不能使用shift + tab 缩进选中的行，不方便 ,使用工具栏的indent,unindent按钮
-不能高亮yaml/yml文件
+ 
+ 
+Document ->Language Mode->没有SQL, yaml/yml ??
+
+
+
+右击下角有显示字符集
+	Docuemnt->Character Encoding->当前的前显示为. ,可以修改符集，有GBK和UTF-8(是不带bom的)
 
 开头有空格/tab 回车换行时以当前行为准
 
@@ -626,6 +659,8 @@ Edit -> Preferences... ->默认inital document setting标签下 取消复选 ena
 
 字体大小 
 Edit -> Preferences... ->Editor Stettings 标签下的Font & color 标签-> editor Font:旁边的按钮点弹出窗口->设置字体为12
+
+View -> Side Panel 可以当管理文件
 
 File->open recent 没有最近打开文件， 在打开对话框中也有Recent 
 document -> wrap text 自动换行
@@ -638,6 +673,7 @@ Preferences -> files->backup & Recovery->取消 Create backup file during file s
 
 缩进快捷键  
  ctrl + > 和 ctrl + <
+
 
 
 ------TextEditor  (linux)
@@ -856,7 +892,38 @@ https://raw.githubusercontent.com/getlantern/lantern-binaries/master/lantern-ins
 ----修改 文件创建时间，修改时间，访问时间的工具 NewFileTime
 	拖入文件，设置完成后，有一个像标签的按钮 Set-Time
 
+------Everything
+Everything 只找C盘，Search->Add Filter->在search:中写C: ，上面起名如search_only_c_driver，Search菜单出现刚起的名
+
+ ------ Dependency Walker 工具
+ 查看exe文件依赖哪些文件,如dll
+如打开explorer.exe，右击打开.exe->full path可以看全路径 
+  
 
 
+----teamviwer 的国产版 向日葵
+----内网通
+
+----------VPN 工具集
+shrew soft VPN Client  https://www.shrew.net/download/ike 有linux 和 BSD 源码版本，说是可以mac上用,没有手机版本
+	ike-2.2.1-release.tgz   Jun 05 2013 发布,到2022年也没有新的  
+	每次都要输入用户名密码
+	家里的联通网络，可能要开外网(model不能用路由器功能，要设置拔号上网)，而不是公网（一个小区公共使用的)
+	连接上后，不能切换wifi网络，如果这样不能再连接，只能重启电脑。
+			  或者切换网络前断开连接。
+	
+阿里的(smartag-app)   https://help.aliyun.com/document_detail/102544.html  没有linuxt版本，有mac版本，Android,iOS
+	会记录输入的用户名密码，不用每次输入
+	
+
+MotionPro 有linux 命令行,Mac 版本,手机版本也有
+	https://client.arraynetworks.com.cn:8080/zh/troubleshooting 页面名叫ArrayVPN ,软件名叫MotionPro    北京华耀科技有限公司  AG安全接入系统 ,有一个单独的硬件
+
+Cisco AnyConnect Secure Mobility Client 
+	用过 3版本的 predeploy
+	https://www.cisco.com/c/en/us/support/security/anyconnect-secure-mobility-client-v4-x/model.html
+	有linux,macos,Windows 10 ARM64版本的
+	
+	
 
 

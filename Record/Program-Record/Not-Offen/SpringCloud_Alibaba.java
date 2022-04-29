@@ -123,6 +123,9 @@ public class NacosConsumerApp {
 
 		@Value("${useLocalCache:false}")
 		private boolean useLocalCache;
+		
+		@Value("${fromDate:2020-10-01}")//在配置中一定要为  fromDate: '2020-10-01' ,即加'',如没有''是按Date类型接收再toString就不是这个格式
+		private String dateStr;
 	}
 
 	配置加载dataId格式为

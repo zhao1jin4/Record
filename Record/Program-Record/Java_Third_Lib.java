@@ -4775,7 +4775,7 @@ Pro 版本是收费的
 <dependency>
   <groupId>org.liquibase</groupId>
   <artifactId>liquibase-core</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.0</version> <!-- 4.8.0 版本没有安全问题 https://mvnrepository.com -->
 </dependency>
 
  

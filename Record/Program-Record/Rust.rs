@@ -27,7 +27,7 @@ https://source.android.google.cn/
 rust-gdb --version  依赖于gdb  , zypper install  gdb
 
 
---rust windows 依赖VC++   (也是失败的)
+--rust windows 依赖VC++  ，也可使用rustup toolchain修改为gnu就不依赖VC++
 stup-init.exe 提示Rust requires the Microsoft C++ build tools for Visual Studio 2013 or later 
 
 https://visualstudio.microsoft.com/visual-cpp-build-tools/ 下载 vs_buildtools_xxx.exe 
@@ -54,18 +54,30 @@ https://visualstudio.microsoft.com/visual-cpp-build-tools/ 下载 vs_buildtools_
 	Microsoft C++ 生成工具 ,命令行界面（例如，持续集成工作流中）生成面向 Windows 的 C++ 库和应用程序， 无需使用 Visual Studio(有Commnity版本)
 	或者安装Visual Studio 2013 及以上版本时选择C++ Tools
 	 
+	也可修改默认的工具链 stable-msvc 到  stable-gnu
+		rustup toolchain install stable-gnu  下载 stable-x86_64-pc-windows-gnu
+		rustup default stable-gnu
+		
+		rustup default 查看默认
+		rustup toolchain list 查看
+		rustup show
+		rustup toolchain uninstall stable-x86_64-pc-windows-msvc
+
 https://forge.rust-lang.org/infra/other-installation-methods.html 中下载 rust-1.51.0-x86_64-pc-windows-msvc.msi  ,里也有rust-up的下载地址(window gnu)
 虽然有rustc cargo 命令，但运行时还是依赖VC++ 工具包
 还有 x86_64-pc-windows-gnu 版本
 
 
-使用rustup-init.exe安装 默认 %USERPROFILE%\.cargo 在bin下有多的rustup命令, 可用 CARGO_HOME 来修改 
-
+使用rustup-init.exe安装 默认 %USERPROFILE%\.cargo 可用 CARGO_HOME 来修改 
+有bin目录，下有多的rustup,rustc,cargo命令, 有registry目录，放下载的依赖
 
 Rust编译问题Blocking waiting for file lock on package cache , 
 删除后~\.cargo\registry\index\* ,报连接不上 https://github.com/rust-lang/crates.io-index , 是因没有配置 .cargo\config.toml
 cargo build会显示配置的地址
  
+%USERPROFILE%/.rustup/settings.toml 中有配置默认为 stable-x86_64-pc-windows-gnu
+%USERPROFILE%/.rustup/toolchains 下东西很多,如果下载过两个版本,有2.5GB大小,是 rustup toolchain 命令生成的
+
 
 ---visual studio code 的Rust扩展 preview
 目前不能打断点，Settings->搜索break, Debug:Allow Breakpoints Everywhere 做选中
@@ -78,7 +90,7 @@ preLaunchTask对应的值 rust_cargo_build 就是在tasks.json里的label字段,
 {
     "tasks": [
         {
-            "type": "cppbuild",
+            "type": "shell",
             "label": "rust_cargo_build",
             "command": "cargo",
             "args": [
@@ -119,6 +131,52 @@ preLaunchTask对应的值 rust_cargo_build 就是在tasks.json里的label字段,
 }
 
 cargo项目，修改文件,debug 测试成功
+----当项目中有Cargo.toml时,Debug按钮提示建立文件,生成的launch.json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'my-gtk-app'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=my-gtk-app",
+                    "--package=my-gtk-app"
+                ],
+                "filter": {
+                    "name": "my-gtk-app",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'my-gtk-app'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=my-gtk-app",
+                    "--package=my-gtk-app"
+                ],
+                "filter": {
+                    "name": "my-gtk-app",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
+
+debug 测试成功
+
 ------rustc 方式 可运行，测试debug也成功
 ---launch.json
 { 
@@ -143,7 +201,7 @@ cargo项目，修改文件,debug 测试成功
 {
     "tasks": [
         {
-            "type": "cppbuild",
+            "type": "shell",
             "label": "rustc_build",
             "command": "rustc",
             "args": [
@@ -161,6 +219,13 @@ cargo项目，修改文件,debug 测试成功
     ],
     "version": "2.0.0"
 }
+---vscode 扩展 Better TOML  
+vscode 默认没有Cargo.toml没有语法高亮
+ (在扩展窗口的输入文本框中输入 ext:toml 显示所有打开toml插件)
+	带语法高亮，也有写时的自动提示
+TOML = Tom's Obvious, Minimal Language 
+
+
 //vscode 不能从标准输入 ,只能用命令行才行
 use std::io;
 fn main() { 
@@ -172,6 +237,7 @@ fn main() {
 
 }
 RUST panic 时 vscode debug 控制台中文乱码???  ,rustc命令行运行正常
+
 
 
 
@@ -190,7 +256,12 @@ Settings->rust->Language Server:中有下载 rust analyzer 也可手工下载 ht
 
 官方提供的截图也是 linux下使用，在windows下debug没试成功???
 windows下不能运行rust-gdb --version (%USERPROFILE%\.cargo\bin下有rust-gdb) ,不兼容 stable-x86_64-pc-windows-msvc  
-安装 rust-1.54.0-x86_64-pc-windows-gnu.msi 默认位置 C:\Program Files\Rust stable GNU 1.54
+安装 rust-1.58.1-x86_64-pc-windows-gnu.msi 默认位置 C:\Program Files\Rust stable GNU 1.58 修改默认位置，如 D:\App\Rust-GNU-1.58 ,安装包370M,安装后1.5G
+rustup toolchain link rust-gnu D:\App\Rust-GNU-1.58 建立后 %USERPROFILE%/.rustup/toolchains 目录下有一个名为rust-gnu的快捷方式
+rustup default rust-gnu
+rustup toolchain list -v 显示指向的路径
+rustup run rust-gnu rustc 做测试
+
 GitBash 中用 ./rust-gdb --version 可以，但怎么让 eclipse的Corrosion使用GitBash??
 
 
@@ -205,6 +276,8 @@ linux　版本　eclipse rust Corrosion 报不能找swt相关.so(xfce4桌面，�
 	
 rustc --print sysroot
 
+
+rustup update stable 在线升级
 
 ----------Intellij Idea 插件 Rust 
 
@@ -236,7 +309,7 @@ rustc src/hello.rs --out-dir target  -o target/hello.exe -g
 建立项目  cargo new myproject 会生成 Cargo.toml文件(vscode扩展 Better TOML) 依赖管理 ,格式像npm
 代码的包/库 叫 crate
 构建用 cargo build  会生成 Cargo.lock 文件，像npm，生成在target/debug 目录中
-构建和运行 cargo run (使用也像npm)
+构建和运行 cargo run (使用也像npm) 也会下载依赖
 cargo install xxx 安装某个包
 
 cargo check 比 cargo build快，检查代码编译是否正确 
@@ -317,6 +390,7 @@ https://doc.rust-lang.org/cargo/reference/source-replacement.html
 registry = "git://mirrors.ustc.edu.cn/crates.io-index"
 #local-registry = "path/to/registry"
 
+
 # 如指定git那私 branch/tag/rev 是可选的
 #git = "https://example.com/path/to/repo"
 # branch = "master"
@@ -345,6 +419,7 @@ publish = ["my-registry"] #表示只能发布这个私有仓库上
 
 [dependencies]
 other-crate = { version = "1.0", registry = "my-registry" }
+gtk = { version = "0.4.6", package = "gtk4" } //https://crates.io/crates/gtk4 显示最新版本  ,win7 msys2 运行未成功？？
 
 使用命令
 cargo login --registry=my-registry  
@@ -356,8 +431,8 @@ cargo publish --registry=my-registry
 
 cargo tree 显示依赖树
 
+cargo run 会下载依赖，默认到 %USER_PROFILE%\.cargo\registry\cache\mirrors.ustc.edu.cn-xxxx 目录下
 
- 
  
 
 C++23没有反射

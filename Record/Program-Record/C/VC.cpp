@@ -1,4 +1,4 @@
-https://docs.microsoft.com/en-us/
+://docs.microsoft.com/en-us/
 https://docs.microsoft.com/en-us/cpp/
 
 MFC=Mirosoft Foundation Class
@@ -64,12 +64,13 @@ VS 2017  下载离线版本 ,第一次有Community免费版本
 	安装后就不能多增加组件了，再安装总是提示安装目录不为空???
 	不能建立MFC项目，BUG????????????????
 	
-Visual Studio 2019  最后一个官方支持的 win7(SP1)系统的,版本是 16.11.5 的有win 10 和 11 SDK(安装要求有 .NetFramework 4.6 及更高版本)
-	
+Visual Studio 2019  最后一个官方支持的 win7(SP1)系统的,版本是 16.11.5 (安装要求有 .NetFramework 4.6 及更高版本)
+	2022-04-24 就不再支持2019了，要求用2022
+		
 	默认安装目录 C:\Program Files (x86)\Microsoft Visual Studio\2019\Community 可以修改 
 	   share目录 C:\Program Files (x86)\Microsoft Visual Studio\Shared 不能修改 
 	    cache目录 C:\ProgramData\Microsoft\VisualStudio\Packages  不能修改 ,选中keep cache复选框
-	只选择C++桌面开发和win 11 SDK(取消win10SDK),提示要7.39G空间
+	只选择C++桌面开发和win 11 SDK(取消其它win SDK),提示要7.39G空间
 
 	制作离线安装包
 	https://docs.microsoft.com/en-us/visualstudio/install/create-an-offline-installation-of-visual-studio?view=vs-2022&viewFallbackFrom=vs-201
@@ -83,12 +84,26 @@ Visual Studio 2019  最后一个官方支持的 win7(SP1)系统的,版本是 16.
 	 
 	可整组,在安装时还要选择"使用c++的桌面开发" 
 	vs_community__1493033157.1634908155.exe  --layout F:/VS2019Community_en --lang en-US --add Microsoft.VisualStudio.Workload.NativeDesktop  --includeRecommended --includeOptional 下载后目录大小为8.5G，
-	里有VC.Llvm.Clang,VC.Llvm.ClangToolset,也有Windows10SDK.19041及老版本,删其它版本windows SDK大小为5.19G,里面每个包都是x86,x64两个版本
+	里有VC.Llvm.Clang,VC.Llvm.ClangToolset,删所有版本windows SDK大小为5.7G,只要win11SDK 加 MFC 共占6.5G(必须要有一个才能开发),里面每个包都是x86,x64两个版本
 	
 	./vs_community.exe --layout  F:/VS2019Community_en --lang en-US `  
-	--add Microsoft.VisualStudio.Component.Windows11SDK.22000 `	#界面上有Windows 11 SDK 22000, 猜对了
+	--add Microsoft.VisualStudio.Component.Windows11SDK.22000 `	#界面上有Windows 11 SDK 22000, 猜对了(win7sp1测试成功)
 	--add Microsoft.VisualStudio.ComponentGroup.UWP.Support ` 	#UWP(for win10) 
+	--add Microsoft.VisualStudio.Component.VC.CMake.Project  
+	
 	#powershell中用( `),是空格+` 将长命令拆分为多行,命令用./开始
+	
+	Windows 11 SDK (10.0.22000) 这个可以单独下载ISO https://developer.microsoft.com/zh-cn/windows/downloads/windows-sdk/ 显示支持 Windows 7 SP1
+	
+	
+	单个组件加选择 "适用于最新v142生成工具的C++ MFC(x86和x64)，英文为C++ MFC for latest v142 build tool(x86&x64)" (安装时界面也有这个选项) VC项目中用
+	
+	或者 
+	
+	单独下载离线安装包 ./vs_community.exe --layout  F:/VS2019Community_en --lang en-US --add Microsoft.VisualStudio.Component.VC.14.20.MFC 如果后期再运行，会把前面下载过的2019的小版本做更新16.11.10(2022-02)
+	再 vs_setup.exe --add Microsoft.VisualStudio.Component.VC.14.20.MFC 单独安装,出现的安装界面还要再选择一次，是离线安装的
+	
+	for /r . %i in (*afxwin.h) do @echo %i
  
 	
 	启动离线安装的命令
@@ -102,7 +117,8 @@ Visual Studio 2019  最后一个官方支持的 win7(SP1)系统的,版本是 16.
 	https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio?view=vs-2019
 	vs_setup.exe --layout F:/VS2019Community_en --verify
 	vs_setup.exe --layout F:/VS2019Community_en --fix
-
+				 --remove
+					
 	会在C:\Program Files (x86)\Windows Kits(不能选择安装目录) 安装8.1和10两个 windows SDK
 
 	制离线版本的会报一些语法错误???，控制台程序找不到windowsSDK,可是安装了？？原因BUG！！！
@@ -121,6 +137,11 @@ Visual Studio 2019  最后一个官方支持的 win7(SP1)系统的,版本是 16.
 	右击项目节点->“属性” 。 通常，应首先选择对话框顶部的“所有配置”。 然后，在“常规” > “平台工具集”下，选择“LLVM (clang-cl)”，然后选择“确定”。
 	C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\Llvm\bin 下没有 lldb
 	clang-cl  被设计用来兼容Visual C++ 的编译器，cl.exe
+	
+	
+	安装项选择还有 Linux Development with C++(其实就cmake for linux) ,Android/iOS 使用C++开发 ,Game里有Unreal,Cocos2d
+	
+	社区版本过了试用期，也要登录微信账号才能使用，去除不容易？？
 	
 Visual Studio 2019  C++ build tools 
 	https://visualstudio.microsoft.com/visual-cpp-build-tools/ 下载 vs_buildtools_xxx.exe  
@@ -157,9 +178,14 @@ Visual Studio 2019  C++ build tools
 	或者
 	开始搜索Developer,找到 Developer Command Prompt for VS 2019 输入 cl 命令
 	
-	
+右击解决方案下的项目 -> General-> C++ Language standard 可选择 /std:c++20 来编译项目
+
 	对 C++11, C++14, C++17，C++20 支持情况
 	https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-160
+
+可安装  Rust Extension for VS2017 (VS2019太大了，不建议)
+
+Microsoft.VisualStudio.Workload.NativeCrossPlat 是为Linux的C++开发(VS2019太大了，不建议)
 
 Visual Studio 2019 for Mac 
 	为了 Xamarin + C# 开发Mac应用 和 Azure + .NET 做 Web 开发
@@ -169,7 +195,7 @@ Visual Studio 2022
 	官方支持系统至少是win10 
 	win7上虽然可以安装Visual studio installer 但在安装包下载后安装时提示不支持的系统，某些功能可能无法按预期工作
 
-
+多线程调试,调试时Debug->Windows->Threads或Parallel Stack(工具栏上有按钮 ，可放大/缩小视图)
 
 ------------	
 项目删无用目录<Solution_Name>.VC.db 和所有的Debug目录
@@ -212,9 +238,10 @@ Tools->options->Text Editor->C/C++->在 Display中 选中 Line Numbers
 						 完成单词 (alter + -> 始终有效)
 
 格式化代码 ,ctrl+a 全选 edit->advance->format selection(ctrl+k,ctrl+F)
-注释 ,选择代码 edit->advance->comment和uncomment ,是使用 /* */的形式
+注释 ,选择代码 edit->advance->comment/uncomment block  (ctrl+shift+/) , line 是ctrl+k,ctrl+/  ，工具栏上也有按钮
+				但有不管点哪个菜单，不管哪个快捷键，都只是 /* */ 或  // 中的一种形式 ？？？BUG？？？
 
-view -> Navigate Backward ctrl+-
+view -> Navigate Backward ctrl+- 返回
 view -> Navigate Forward  ctrl+shift+-
 
 windows ->reset window layout
@@ -252,6 +279,20 @@ VS2010 属性面板非默认值怎么变成粗体显示????????
 vs2019 取消综略图滚动条 
 	右击滚动条->scroll bar options...->Behavior 中单选中use bar mode for vertical scroll bar 
 
+VC2019 中strcpy,fopen 函数 报不安全错误
+	项目->属性->C/C++->预处理器(preprocessor)->预处理器定义(preprocessor Definitions)中添加 _CRT_SECURE_NO_WARNINGS 这个预定义。
+
+	如使用swprintf函数就要加， _CRT_NON_CONFORMING_SWPRINTFS
+	
+tools->customize...->窗口中选command标签->Add command...按钮->Advance Save options...后会File菜单左侧多这个菜单 ，打开当前文件，可以设置保存文件字符集UTF-8 without signature  (codepage 65001)
+
+对代码有中文字串，会编译报 C2001 错,解决办法
+	1. 最后加英文的.  
+	2. 修改文件字符集 UTF-8 不带without signature (codepage 1200) //有人报BUG了意思像是不能解决？拉圾？,eclipse CDT怎么正常？
+	3. 项目属性->Configuration Properties -> C/C++ -> All Options -> Additional Options 增加 /utf-8,即可
+										 ->Advanced -> Character set  下拉变成了加粗的 use unicode character set 
+										 但输入的控制台是乱码的，因是GBK，
+										 /source-charset:utf-8 /execution-charset:GBK 这两个不能合/utf-8一起使用
 
 #ifdef __cplusplus
 #endif
@@ -1955,7 +1996,7 @@ BOOL WINAPI SetEvent( //设置为 signaled ,其它线程不用等
 );
 CloseHandle(_event);//可以关闭
 
-------CriticalSection
+------CriticalSection 临界区
 CRITICAL_SECTION 结构体
 
 1. void WINAPI InitializeCriticalSection(//建立
@@ -1963,6 +2004,7 @@ CRITICAL_SECTION 结构体
 );
 
 2. void WINAPI EnterCriticalSection(//只可一个进入,如不能进入,会一直等到可以进入
+//如同一个线程可多次进入，但对应的也要多次离开
   __in_out      LPCRITICAL_SECTION lpCriticalSection
 );
 3. void WINAPI LeaveCriticalSection(//
@@ -2763,12 +2805,18 @@ getchar();
  
 
 =============edge 插件开发
-https://code.msdn.microsoft.com/How-to-add-a-Hello-World-4af3463b
 
-地址栏输入  about:flags
-开发者设置 ->选中 启用开发人员扩展功能(这可能让设备处于危险之中) ->重启edge生效
 
+地址栏输入  about:flags  有一些开关
+
+（chrome版本的edge）Manage extension 中左则有一个developer mode 开关->有 Load unpacked 按钮 和 pack extension 按钮->重启edge生效
 ...按钮->扩展->加载扩展->选择目录 
+
+
+https://docs.microsoft.com/zh-cn/microsoft-edge/extensions-chromium/getting-started/part1-simple-extension 新的教程
+
+https://code.msdn.microsoft.com/How-to-add-a-Hello-World-4af3463b
+这个 edge_extenstion_hello 示例和官方第二个示例一样，点击事件没有反应，但按钮可以显示在工具栏上
 
 在一个目录中建立文件
 ---manifest.json  文件 
@@ -2832,7 +2880,7 @@ document.addEventListener("click", function(e) {
   </body>
 </html>
 
---GetTabInfo.csshtml {
+--GetTabInfo.css {
   width: 350px;
 }
 

@@ -1,3 +1,4 @@
+win7不再支持的软件 有python,node,visual studio,android ndk,vsocde插件codeLLDB
 
 windows 10  2022-01-17 版本是 21H1 版本
 
@@ -152,7 +153,7 @@ Wireless Zero Configuration  服务WZC启动才能用无线
 
 可以停止 windows 的服务
 Adobe Acrobat Service
-windows update
+windows update #这个不能阻止下载更新包，advance options中关闭
 net Limiter 3
 XLService	是Thunder
 VMWare
@@ -282,6 +283,7 @@ windows 10 可以关闭它,设置->个性化->开始->关闭   在"开始"菜单
 	也可在设备管理器在看到两个, dxdiag 名称栏中 看到的是显示名,是集成的显卡
 	
 附件->系统工具->资源监视器, 也可任务管理器->性能->资源监视器， 看进程有线程数的列
+
 
 附件->系统工具->任务计划,也可右击计算机->管理 中删没用的,如Google ,Baidu update
 右击计算机->管理->事件查看器, 性能 ,任务计划
@@ -427,15 +429,49 @@ gpedit.msc “计算机配置”-> “管理模板”->“Windows组件”->单�
 停 BitLocker 服务
 
 windows 10 可以直接右击 iso文件-> 装载，会在我的电脑中增加一个新的虚拟光驱盘符
- 
+
+
+
+win10系统清理系统垃圾文件  win+R键打开运行，输入“cleanmgr.exe” 选择C盘（也可右击C盘->属性->disk cleanup 按钮打开窗口）
+	windows update cleanup 多达3.5G
+	System error memory dump 多达1.5
+	Temporary files 多达5.5G
+
+%USERPROFILE%\AppData\Roaming\Code 里面占多达 7G  是vscode的东西 
+%USERPROFILE%\AppData\Local\Docker 占1G多
+%USERPROFILE%\AppData\Local\Google 占1G,里可删除 AnroidStudio老版本产生的文件 
+%USERPROFILE%\AppData\Local\JetBrains 占3G,可删除 老版本产生的文件 
+%USERPROFILE%\AppData\Local\Microsoft 占1.5G
+%USERPROFILE%\AppData\Local\Microsoft\Outlook
+--
+%USERPROFILE%\AppData\Local\Packages 占1.5G 这个不能删，是win10 app
+%USERPROFILE%\AppData\Local\Postman  占1G 这个不能删，
+%USERPROFILE%\AppData\Local\Programs 占1G 有VSCode，GIMP 这个不能删
+%USERPROFILE%\AppData\Local 除以上3个，删除后，其它共占6G
+
+dism.exe /Online /Cleanup-Image /AnalyzeComponentStore，自动的扫描Winsxs文件夹，显示出文件夹的大小等情况。
+清理Winsxs文件夹
+dism.exe /online /Cleanup-Image /StartComponentCleanup （没有效果，可能是cleanmgr.exe已经做过了）
+
+
+Everything 只找C盘，Search->Add Filter->在search:中写C: ，上面起名如search_only_c_driver，Search菜单出现刚起的名
+
+win 10 C盘118G 用半年，清理后，只有30G可用，很紧张(自己的App目录6G + VS2019 8G)
+
  
 -----win11
 windows 11 要求硬件支持TPM(Trust Platform Module) 2.0，运行tpm.msc 查看
 还要求UEFI，64位CPU
 
+只有Pro和Home两个版本
+
 官方目前可以下载 Win11_English_x64v1.iso 文件 英文版本大小 5.18GB (2022-01-10)
 https://www.microsoft.com/software-download/windows11
 生成的下载链接是带参数的，不是一直有效的
+
+-----win12
+网上说win12在开发中，要求两个TPM
+
 -----boot
 BCD=Boot Configuration Data
 
@@ -773,6 +809,15 @@ rem pause 会提示 Press any key to continue . . .
 rem do 的前后 要有空格
 
 
+rem 如在for 的 do 后加()后里的命令会显示在控制台上
+rem \cn\com\*.lastUpdated
+for /f %%i in ('dir /b /s "H:\MVN_REPO\cn\com\*_remote.repositories"') do ( 
+	rem del /s /q %%i
+	echo %%i
+)
+pause
+
+
 %1 返回批处理的第一个参数
 %2 返回批处理的第二个参数
 %*  一次返回全部参数
@@ -884,6 +929,7 @@ taskkill /im  redis-server.exe  (im=image)
 taskkill /im  redis* 通配符只可用在最后
 
 
+
 netstat  -r  显示网卡号
 route print  显示路由
 route print 130*
@@ -965,9 +1011,20 @@ certuil -hashfile xxx.ios SHA256 #windows 7算法 SHA256 必须全是大写
 运行 gpedit.msc/services.msc 
 
 运行 mstsc 远程桌面
- (service.msc中有Remote Desktop Services) 使用RDP协议  右击我的电脑 -> 属性 -> 远程设置 ->选中 允许远程协助连接这台计算机
+ (service.msc中有Remote Desktop Services) 使用RDP协议  右击我的电脑 -> 属性 -> 远程设置 ->选中 允许远程协助连接这台计算机,
+	下方还要单选 Allow connections from  computers runing any version of Remote Desktop
+	防火墙是默认是通过的，开着没关系
+	#gpedit.msc->计算机配置->Windows设置->安全设置->本地策略->安全选项->网络访问：本地账户的共享和安全模型(Sharing and Security model for local accounts)->classic
+	
+	可以传送文件，mstsc的show options->Local Resources->More...按钮->drivers选择中本机的硬盘符。
+		可以被远程访问，可以相互复制文件(远程主机中以类似于远程驱动器的方式显示),设置是一直保存的，提示有安全问题
+		
+	
 	官方说win10家庭版没有远程桌面	
-运行 dxdiag 就可以看到显卡信息,看到的有可能有共享内存，win10下设置-> “显示”选项-> 高级 -> 显示适配器属性-> 有显示专用显存和共享显存
+	建立的标准用户默认是不能远程登录的，没有权限 ，修改为管理员就可以了
+	
+	
+运行 dxdiag 就可以看到显卡信息(win7的 DirectX 版本为11),看到的有可能有共享内存，win10下设置-> “显示”选项-> 高级 -> 显示适配器属性-> 有显示专用显存和共享显存
 
 运行 wmic命令
 
@@ -1099,7 +1156,7 @@ win10 右击.iso文件 -> 装载 ，会自动生成虚拟光驱
 
 金山毒霸可以让windows Defender 服务停止.
 
-
+可以把 windows update 服务disable 了，如果manual也会启动，可以stop
 windows Defender -> "病毒和威胁保存"设置->关闭 实时保护 
 
 windows Defender -> 防火墙和网络保护->允许应用通过防火墙 选中 远程协助 ，选 专用网络 和 公有网络 
@@ -1131,6 +1188,7 @@ For every folder shown in the notification, press the + button, select “Folder
 
 任务计划程序->Microsoft->windows->windows Defender ->Windows Defender Scheduled Scan，里面的属性不能修改，查可以删除任务
  
+
  
 -----
 
@@ -1208,6 +1266,9 @@ set NODE_ENV=development
 set NODE_ENV=
 
 ------powershell  
+
+$psversiontable 或 $host 查看powershell版本
+
 PowerShell Integerated Scripting Enviroment (ISE) ,文件名powershell_ise.exe 
 运行 Get-PhysicalDisk 可以看硬盘是否SSD(碎片整理和优化驱动器  中也可以看)
 资源管理器空白处，shift + 右键->open powershell window here
@@ -1229,7 +1290,11 @@ del evn:NODE_ENV
 powershell中用( `),是空格+` 将长命令拆分为多行,`后不能有字符，空格不行
 如 ./vs_community.exe --layout D:/software/c/VS2019Community --lang  en-US `
 	--add Microsoft.VisualStudio.Component.VC.CoreIde
-	
+
+
+Get-Date 命令显示日和时间，默认格式为 Thursday, February 17, 2022 2:02:25 PM
+Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
+
 -----win10  Windows Subsystem for Linux(WSL)
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 是微软和Canonical(snapd)一起开发
@@ -1238,6 +1303,10 @@ https://docs.microsoft.com/en-us/windows/wsl/install-win10
 WSL 2 要求win10 build 19041 版本，安装新的linux内核更新
 
 资源管理器空白处，shift + 右键->open linux shell here 显示窗口为#提示符，同输入wsl命令一样，但不能运行yast2
+
+重启WSL
+    wsl --shutdown
+    wsl
 
  wsl --shutdown 会停止doker
  wsl --set-default-version 2
@@ -1268,9 +1337,8 @@ https://docs.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-containers
  
 但在WSL的系统中还是不能启动docker,要win10下安装 Docker Desktop，设置resouces中有WSL Integeration  ,后才可以在WSL系统中执行docker ps
 ---
- 
- 
-商店中有openSUSE leap 和 Ubuntu LTS  有比较新版本，但没有fedora版本 ，SUSE Enterprise Server 比较新的版本，但没有Redhat或CentOS
+商店中有openSUSE leap,Ubuntu LTS,SUSE Enterprise Server,Oracle Linux(有7.9和8.5还没有9) 有比较新的版本,
+	但没有fedora,Redhat或CentOS
 在Microsoft store界面中找 openSUSE 安装，后 openSUSE-Leap-15.3 有 启动按钮,是命令行界面，提选择语言，建立用户后，就安装成功了
 	不能一台windows安装两个相同版本的openSUSE，应用商店提示已经安装，只能启动
 	进入提示符为$ ,su root密码为windows系统密码,后可用yast2,是命令行界面
@@ -1279,6 +1347,31 @@ https://docs.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-containers
 可以点下拉三角打开cmd 或者安装的 openSUSE-Leap-15.3 ， 是执行 wsl.exe -d openSUSE-Leap-15.3  
  --distribution, -d <Distro> 
 安装了Windows Terminal 后就有 win+` 可以快速打开没有标题，再按即关闭
+
+
+	
+Store 安装，要求登录微软账户，登录后会自动在 "邮件" 应用中建立帐户，自动为系统用户绑定了这个微软帐户(不好删)
+	Store帐户，可以log out,用户信息还是在的，再登录要密码的。
+	邮件帐户 好删,但还是不输入密码又加上了(Account&Email中)？？？危险！！！,可能是系统用户没有解绑(官方网页账户也删除了硬件绑定)
+	系统用户 新版本win10没有"改用为本地帐户登录" 的选项可点,网上都是在注册表做的,
+		----虽无效，但看不到是权限问题
+		进入HKEY_LOCAL_MACHINE\SAM\SAM\Domains\Account\Users 项
+			只能看到SAM项，下面没有了，其实是因为权限问题，你需要右键SAM项，权限设置，添加administrator用户完全控制，然后F5刷新
+		查找其项下“Names\Administrator”项默认值0x{ID}
+		HKEY_LOCAL_MACHINE\SAM\SAM\Domains\Account\Users\00000{ID}\ 下并没有网上说的那几项？？
+		----测试OK,操作中Defender有提示的
+		备份注册表，删除
+		HKEY_CURRENT_USER\Software\Microsoft\IdentityCRL\UserExtendedProperties\xxx@xx.com 和
+		HKEY_USERS\.DEFAULT\Software\Microsoft\IdentityCRL\StoredIdentities\xxx@xx.com，然后删除注册表xxx@xx.com项，
+		开始菜单里注销微软账户；再次登录后，显示是本地账号，但是微软账号依然存在，
+		删除
+		HKEY_CURRENT_USER\Software\Microsoft\IdentityCRL 和
+		HKEY_USERS\.DEFAULT\Software\Microsoft\IdentityCRL 项，
+		再次在开始菜单里注销账户；重新登录后，在设置-账户-电子邮件和应用账户下，单击微软账户xxx@xx.com，点击“删除”即可。
+ 
+ 		
+	同一台电脑，一个用户安装了Windows Terminal 的应用,另一个下用户找不到,C:\Program Files\WindowsApps\Microsoft.WindowsTerminal_<ver>_<ran>\WindowsTerminal.exe 不能运行
+	wsl里的系统也是找不到，只要是Store 安装的只限于当前用户可见
 
 
 zypper 用root用户才能执行，zypper search xfce 也要，因会建立 /var/cache/zypp/目录
@@ -1294,22 +1387,30 @@ WSL 安装输入法
 	设置环境变量就可自动启动(关闭startxfce4,关闭 windows terminal),点击输入法区-》重启后有输入可选　
 	xfce ,开始->session and startup 中看自启项
 	
+在wsl linux系统的终端中执行exit后,遇到过wsl就不能再启了?? 
+wsl --unregister <DistributionName>
+wsl --unregister openSUSE-Leap-15.3 (所有安装的东西都没了) 再重新打开,不用下载iso,安装很快,再exit就只是关闭当前窗口,wsl -l 	-v 还是Running状态
+
+不能使用where命令
+ 	gcm where -All 命令显示 有一个别名where指向Where-Object 优先级高于 C:\Windows\system32\where.exe
+	alias  | findstr gcm 显示 gcm 是  Get-Command的别名
+	
+	del alias:where 和 Remove-Item alias:\where
+	报del : Alias was not removed because alias where is constant or read-only.
+	del alias:where -Force  和 Remove-Item alias:\where -Force     (测试成功，只对当前窗口生效)
+	
+	Remove-Alias -Name  where -Scope global -Force    #是 7.2版本才有的(测试成功，只对当前窗口生效)，官方文档只有这个版本，但win10上是5.1（这点做的不好），还要升级
+	winget search Microsoft.PowerShell  看id
+	winget install --id Microsoft.Powershell --source winget  也是从github下载，地址是错的，要单独从github网上搜索地址才能下载,如下载.zip包是不用安装即可使用的
+	 
+
 ----WSL 中的系统 不能使用sytemctl start XX ???? 如 redis
 
 	zypper addrepo --refresh https://packages.microsoft.com/opensuse/15/prod/  dotnet
 	zypper install  dotnet-sdk-6.0
 
-
 	https://github.com/arkane-systems/genie 只支持WSL2  ， 未成功 https://zhuanlan.zhihu.com/p/342519950
 	 
-----在wsl linux系统的终端中执行exit后,wsl就不能再启了???
-	status是stop,如想再启可在Microsoft Store里找到linux点open按钮启动(使用 wsl命令或者 wsl -d openSUSE-Leap-15.3 应该也可)
-	虽然显示status是Runing，但还不能进命令行？？重启机器显示status是Runing也不行？？？,过了一会status变stop
-
-	https://answers.microsoft.com/zh-hans/windows/forum/all/wsl%E6%97%A0%E6%B3%95%E5%90%AF%E5%8A%A8%E5%90%AF/f6c09976-2907-4fac-91f6-3d730feee84f 这个也不行？
-
-----
-
 wls2下的linux 使用chroot无效 ????
 ----
 
@@ -1348,7 +1449,32 @@ Xmanager(收费)  6 可使用passive快捷方式 (也可使用broadcast区别是
 	可右击标题栏->属性->修改为 单一窗口模式，Xstartw会话默认为0.
 	问题是在界面里输入字符时，按一次每次都是多显示一个？？解决方法为,可右击标题栏->属性->高级->下拉到底 取消XKEYBROAD
 	剪贴板正常传递
+	
+-------WSL Oracle Linux 7.9 安装xfce
+yum seach epel 有 oracle-epel-release-el7
+yum install oracle-epel-release-el7
+yum grouplist 看有Xfce
+yum groupinstall Xfce
+
+--测试OK
+启动Xlanuch 设置为0,注意要勾选Disable access control ,否则会报错  Authorization required, but no authorization protocol specified
+
+WSL2用 ipfconfig的 WSL网卡的 IP
+export windows_host=`ipconfig.exe | grep -n4 WSL | tail -n 1 | awk -F":" '{ print $2 }' | sed 's/^[ \r\n\t]*//;s/[ \r\n\t]*$//'`
+export DISPLAY=$windows_host:0
+或者
+export DISPLAY=`cat /etc/resolv.conf | grep nameserver | awk '{print $2}'`:0
+
+startxfce4 界面像gnome2 和 openSUSE 的不一样
+
+xfce界面中 utf8文件打开显示方块,测试成功
+	mkdir /usr/share/fonts/chinese
+	cp simhei.ttf  /usr/share/fonts/chinese
+	
+	
+里面的终端不能上下左右键??,上键出8,有时候是好的??可能XLaunch的原因吧，可按alt+方向键解除，可安装bluefish
  
+-------
  
 
 
@@ -1356,6 +1482,11 @@ Xmanager(收费)  6 可使用passive快捷方式 (也可使用broadcast区别是
 用的IP就是windows上的IP
 cd /mnt/d 就是windows的D 盘 
 
+---安全
+win7中毒hao123, 所有浏览器都会设置为hao123为主页，但如果使用任务管理器打开浏览器和cmd打开就正常,快捷方式也没有参数
+	在chrome 中输入chrome://version  看到有command line 的参数为hao123
+	
+windows 双击启动，或者右击打开应用 都是由explorer.exe 创建的进程	
 
 --- win mac
 如ipad提示是否可以访问照片和视频,这个只是在我的电脑中出多的新存储是否可以读写

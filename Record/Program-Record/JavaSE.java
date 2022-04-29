@@ -1037,6 +1037,49 @@ Main-Class: instrument.InstrumentMain
 Instrumentation类的
 appendToBootstrapClassLoaderSearch(JarFile jarfile)  
 appendToSystemClassLoaderSearch(JarFile jarfile) 
+--------------------------JDK18  新特性
+默认utf-8, Charset.defaultCharset() 返回 UTF-8
+
+简单的web服务器   jwebserver   默认是绑定到  0.0.0.0 ，端口为8000
+		 jwebserver -p 9000 -b 0.0.0.0  
+		默认使用当前目录  ， -d 指定其它目录 
+		
+javaDoc 中显示代码，不再使用<pre> </pre>了 ,@snippet 默认 lang="java"
+/**
+{@snippet :
+   public static void main(String... args) {
+       System.out.println("Hello, World!");
+   }
+}
+*/
+
+/**
+{@snippet lang="properties" :
+   house.number=42
+   house.street=Main St.
+   house.town=AnyTown, USA
+}
+*/
+
+增加链接
+/**
+{@snippet lang="java" :
+   public static void main(String... args) {
+       System.out.println("Hello, World!");      // @link substring="println" target="PrintStream#println(String)"
+   }
+}
+*/ 
+高亮
+/**
+{@snippet :
+   public static void main(String... args) {    // @highlight region substring="text" type=highlighted
+       var text = "";                           
+       System.out.println(text);
+   }                                            // @end
+}
+*/
+
+ZGC Supports String Deduplication 两分
 
 --------------------------JDK17  新特性 LTS
 https://openjdk.java.net/projects/jdk/17/ 可切换版本里有 Features 
@@ -1459,6 +1502,8 @@ StackWalker.getInstance( StackWalker.Option.RETAIN_CLASS_REFERENCE).forEach(Syst
 
 --------------------------JDK9新特性
 https://openjdk.java.net/projects/jdk/9/ 可切换版本里有 Features
+
+package-info.java 放在包下，可以直接对包做 @Deprecated
 
 --module-path  缩写为-p 如放JDK,为了兼容老版本的jar放 --class-path中(eclipse)
 --add-modules

@@ -1,8 +1,23 @@
 ﻿
-macOS 10.15，Catalina (2019)
-macOS 11，Big Sur (2020) (停止对 32 位应用程序的支持，Photoshop 22.x 仍存在一些已知问题)
-M1 Apple Silicon ，M1是基于arm的，不能安装win10的x86版本
+https://github.com/apple/darwin-xnu  内核XNU是Darwin的一部分, XNU (X is Not Unix),来处FreeBSD和Mach,运行在x86_64上(2022-02-12显示最新更新7个月以前)
+	Darwin是 UNIX 操作系统 ，苹果所有操作系统的基础
 
+https://www.xquartz.org/  MacOS 的界面 ，X.Org(实现 X window)的一个版本  XQuartz 2.8.1 - 2021-04-26
+	Install Xquartz to get X11 support on MacOS
+	OS X Mountain Lion后OS X不再附带X11,用户需要自行前往XQuartz网站下载
+
+macOS 10.15 Catalina (2019) 可能最后一个公支持intel CPU的
+
+macOS 11，Big Sur (2020) (停止对 32 位应用程序的支持，Photoshop 22.x 仍存在一些已知问题)
+	网上说同时支持Apple M1和Intel CPU
+	https://www.apple.com.cn/newsroom/2020/11/macos-big-sur-is-here/
+	2020 年 11 月 13 日 Big Sur 现已登场此次更新为 Apple 强大的 M1 芯片精心打造
+	
+	M1芯片名 Apple Silicon(硅) ，M1是基于arm的，不能安装win10的x86版本
+	
+macOS  Monterey (version 12)
+	网上说 Intel版Mac  可升级
+	
 多了 iPadOS 
 ==========================Mac OS X (Macintosh)
 darwin 达尔文 

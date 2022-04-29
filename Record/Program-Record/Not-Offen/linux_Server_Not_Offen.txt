@@ -728,7 +728,82 @@ define(`confLOCAL_MAILER',`cyrus2')
 define(`CYRUSV2_MAILER_ARGS',`FILE /var/lib/imap/socket/lmtp')
 MAILER(cyrusv2)
 
-  
+
+-----------------------------------安装oracle 11g
+ORACLE 11g SUSE-10 redhat-4 ,redhat-4
+
+net.core.rmem_max =4194304
+net.core.rmem_default=  4194304
+net.core.wmem_max =262144
+net.core.wmem_default = 262144
+kernel.sem = 250 32000 100 128
+net.ipv4.ip_local_port_range = 1024 65000
+
+
+
+root 运行 /opt/oracle/oraInventory/orainstRoot.sh
+	/opt/oracle/product/root.sh
+https://zhHost.com:1158/em  是enterprise manager
+
+
+不用安装java  ,用自带java 命令
+
+sqlplus 下不能ctrl+z
+
+oracle 用户 不能dbshut   ???????
+ORACLE_HOME_LISTNER is not SET, unable to auto-stop Oracle Net Listener
+Usage: /opt/oracle/product/bin/dbshut ORACLE_HOME
+ 
+---------SUSE-10  安装oracle 11g response-------OK------------------
+
+net.core.rmem_max =4194304
+net.core.rmem_default=  4194304
+net.core.wmem_max =262144
+net.core.wmem_default =        262144
+kernel.sem = 250 32000 100 128
+net.ipv4.ip_local_port_range = 1024 65000
+
+
+有/opt/oracle/oradata 
+
+把install/response/ee.rsp文件中<V 的所有都设置好
+
+只安装软件,不安装数据库，有dbca的
+
+/etc/oraInst.loc中记录内容是
+inventory_loc=/opt/oracle/oraInventory  ###目录最好不存在,也可以为空，/opt/oracle/product 也要为空
+inst_group=oinstall
+
+./runInstaller -silent  -responseFile /home/oracle/database-11g/install/response/ee.rsp
+
+###responseFile 一定要用绝对路径,(不要用-responseFile=/xxx)否则会报resp文件找不到参数
+	DEP_MODE(InstallType),
+	TLDepModes(TopLevelInstallType)
+
+也会打印出检查结果，但有错误他不会停止，要自己看，可以root用户su oracle 来安装
+
+.........等待
+提示root 用户运行脚本：
+	/opt/oracle/product/root.sh
+	###还有一个呢？？？？	
+
+
+还要复制init.ora 到initSID.ora文件，
+改db_name=SID
+改control_files=('','')
+才能启动
+按提示改share pool大小
+没有建立控件文件
+ORA-00205: error in identifying control file, check alert log for more info
+卸载ORACLE时，/etc/oratab文件记录SID
+
+10g response安装－－－－－－－－－－－－－
+$./runInstaller -record -destinationFile /tmp/install_database.rsp
+10g会生这个文件，11g 不会生成的
+SUSE-10 可以安装oracle 10g ,但是如果用了rsp 文件检查平台时失败(要SUSE－9)
+
+------------------ 
+
 
 ==========================CentOS-5.2安装Oracle11g=========================
 

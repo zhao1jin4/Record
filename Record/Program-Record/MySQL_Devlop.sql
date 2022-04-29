@@ -4,6 +4,9 @@ MariaDB windows 安装版本 自带 HeidiSQL 客户端工具(只有windwos版本
 https://dev.mysql.com/doc/index-other.html MySQL  Sample Database
 https://dev.mysql.com/doc/employee/en/ Employees    https://launchpad.net/test-db  https://github.com/datacharmer/test_db
 
+MySQL workbench 8.0.20 提示不支持win7，但是可以运行
+
+
 PHPMyAdmin
 SQL Diagnostic Manager (www.idera.com)
 

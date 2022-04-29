@@ -8,8 +8,11 @@ https://docs.microsoft.com/zh-cn/cpp/cpp/cpp-language-reference?view=msvc-160   
 https://docs.microsoft.com/zh-cn/cpp/standard-library/cpp-standard-library-reference?view=msvc-160  STL ，看下来以c开头的头文件里面都没什么东西 
  
 http://cplusplus.com/ 参考手册 有c++11
-https://en.cppreference.com/w/ 参考手册 有c++17,C++20
+https://en.cppreference.com/w/ 参考手册 有C++11, C++14, C++17, C++20, C++23  
+http://cppds.com/ 中文的
 
+Compiler Explorer 在线在编译执行c++工具，可以看生成的汇编
+https://godbolt.org/
 
 CDT 比 VSCode 好的地方是 鼠标滑过C的函数上，会有文档提示，但struct或C++类，类中的函数就不行了
 ============Clang LLVM
@@ -20,8 +23,11 @@ https://releases.llvm.org/download.html
 二进制在 
 https://github.com/llvm/llvm-project/releases
 	amd64 x64 架构的linux版本只有 ubuntu, 还有freebsd,apple-darwin,windows
-	 
-Clang 背后的 LLVM（Low Level Virtual Machine）像 Swift、Rust 等语言都选择了以 LLVM 为后端。
+
+Clang 5完全支持c++17(编译选项  	-std=c++17 )，后面版本的状态 
+https://clang.llvm.org/cxx_status.html 
+
+Clang 背后的 LLVM (Low Level Virtual Machine) 像 Swift、Rust 等语言都选择了以 LLVM 为后端。
 	
 	 
 windows版本的LLVM-13.0.0-win64.exe   安装后,安装后里面有clang++ ,clang-cl 命令, clangd 语言服务器 
@@ -120,6 +126,8 @@ clang++ -v 显示有gcc版本是7
 
 clang++ --version
 
+
+	
 --hello.cpp
 #include<iostream>
 using namespace std;
@@ -163,6 +171,10 @@ clang++ -c TestCPPNative.cpp  -I /usr/lib64/jvm/java-11-openjdk-11/include -I /u
 
 clang -g --target=x86_64 -o bin/hello.exe .\src\hello.cpp    #加了  --target=x86_64 后找不到 iostream?????
 
+
+setbuf(stdout, NULL);//CDT 工具必须调用这个才立即输出到控制台,全局的
+//fflush(stdout);//CDT 工具必须调用这个才立即输出到控制台，局部的
+
 ============C/C++基础
 
 int max(x,y) //函数声明无参数类型
@@ -189,6 +201,11 @@ sizeof(str);
 int a[3][4];
 *(*(a+0)+1) 表示a[0][1]的值
 *(a[i]+j)或者*(*(a+i)+j)  是a[i][j]的值
+
+int x12=(*(x+1))[2];//x[1][2]
+
+int x01=*(*x+1)+2;//值为a[0][1]+2=4,注意错的
+int x12_error1=*(x+1)[2];//错的
 
 
 int (*p)[4]  //表示指针变量 ,指向4个int的数组,p先与*结合表示是一个指针
@@ -252,6 +269,7 @@ union P //共用体,最长的
 	int grade;
 	char posistion[10];
 }
+union P p2; //使用时最前的union可有可无
 
 enum Fruit {apple, pear=2, orange, banana} frt1;
 enum Fruit frt2;//C使用
@@ -459,7 +477,7 @@ catch (exception& e)
 	cerr << "exception caught: " << e.what() << endl;
 }
 
-double triangle(double x)throw(int,double)//可能是int,也能是double
+//double triangle(double x)throw(int,double)//,c++17 不能在throw()里面加int等(可能是int,也能是double)
 double triangle(double x) throw()//这个函数不能throw出来
 
 
@@ -1182,12 +1200,13 @@ testarg(L"ISI", 3,  L"3 & 4",4);//L
 		fclose (pFile);
 		wprintf (L"\nThe file contains %d dollar sign characters ($).\n",n);//wprintf函数
 		}
+	
 	}
 	 
 	//----------wchar_t 与　数　转换
 	wchar_t result[20];
-	swprintf(result,L"%ld",-123.33);//MinGW
-	//swprintf(result,20,L"%ld",-123.33);//Cygwin
+	swprintf(result,L"%ld",-123.33); 
+	swprintf(result,20,L"%ld",-123.33); 
 	wprintf (L"number  ->　wchar_t* ,use  swpritnf ,result:%ls \n",result);
 
 	double num=wcstod(L"-456.33",NULL);//wchar_t ->  double数字
@@ -1209,7 +1228,7 @@ testarg(L"ISI", 3,  L"3 & 4",4);//L
 	//-----mbsrtowcs      char* 中文  ->  wchar_t *的转换
 	//const char *str      = "Hello世界";
 	const char *str        = "世界Hello";//9+1
-	int str_len=strlen(str);//怎么会是11 ??????
+	int str_len=strlen(str);//vc是9，MinGW是11(一个汉字3个)
 	wchar_t    *wstr = (wchar_t *)calloc(str_len, sizeof(wchar_t));	//分配空间
 	//wchar_t wstr[str_len];
 	mbstate_t  state1;
@@ -1226,14 +1245,14 @@ testarg(L"ISI", 3,  L"3 & 4",4);//L
 	printf("wchar_t* MUST ENU  ->  char*  : %s\n", to);
  
 //-------------------------------wctype.h   C++11 C11
-	int result=iswalnum(L'a');
+	int result=iswalnum(L'a');//wal=world alpha
 	result=iswalnum(L'中');
 	result=iswdigit(L'3');
 	result=iswdigit(L'A');//a-f或者A-F,十六进制
 	//以上返回0表示假,正数表示真
 
 	 int i=0;
-	  wchar_t *str = L"Test String.\n";
+	 const wchar_t *str = L"Test String.\n";//vc一定要加const
 	  wchar_t c;
 	  wctype_t check = wctype("lower");
 	  /*
@@ -1332,7 +1351,15 @@ int readWriteTextFile()
 
 
 	outfile.close();
-
+	//------------按行读文本文件
+		ifstream file1{"d:/temp/f1.dat"};
+		vector<string> lines{};
+		string line{};
+		while(getline(file1,line)){
+			cout<<line<<endl;
+			lines.push_back(line);
+		}
+		file1.close();
 	//------------读文本 文件
 
 	ifstream infile;
@@ -1568,7 +1595,7 @@ for ( it=mylist.begin() ; it != mylist.end(); it++ )
 cout << " " << *it;
 
 
-//---set
+//---set 排序的，不允许重复
 set<int> myset;
 set<int>::iterator set_iter;
 set_iter=myset.begin();
@@ -1583,7 +1610,8 @@ myset.insert (mapints,mapints+3);
 cout << "排序的没有重复元素的Set  " << *set_iter;
 for (set_iter=myset.begin(); set_iter!=myset.end(); set_iter++)
  cout << " " << *set_iter;
-
+ 
+//--multiset 排序的，允许重复
 
 //---stack,
 stack<int> s;
@@ -1625,7 +1653,7 @@ cout<<"可以有相同的key,也是排序的 multimap   "<<endl;
 for ( multimap_iter=mymultimap.begin() ; multimap_iter != mymultimap.end(); multimap_iter++ )
   cout << (*multimap_iter).first << " => " << (*multimap_iter).second << endl;
 
-//--C++11中新加 unordered_map,unordered_multimap,unordered_set,unordered_multiset,,,,,forward_list,,array
+//--C++11中新加 unordered_map,unordered_multimap,unordered_set,unordered_multiset,forward_list,array
 //  http://www.cplusplus.com/reference/stl/unordered_map/
 
 
@@ -1757,6 +1785,7 @@ Ptr<int> ip;  // decltype(ip) is int*
 
 //Map的值是变类型的，老的方式
 template <typename T>
+//typedef map<int,T> mapType;//不能直接这样,必须放在struct里
 struct  MyMap{
 	typedef map<int,T> mapType;
 };
@@ -1856,7 +1885,8 @@ int main()
 int* b = new int[3] { 1, 2, 0 };//初始化
 int array[]{1,2,3};
 int array1[]={1,2,3};
-
+int* b1 = new int[] { 1, 2, 0 };
+		
 
 //声明了一个二维数组，它的有2列，行数还不确定。
 int **a = new int*[2];
@@ -1945,6 +1975,13 @@ private:
     std::vector<int> mVec;
 };
 
+{ //以前的作法
+	int a[] = {0, 1, 2, 3};
+	std::vector<int> vec(a, a+sizeof(a));//首尾指针
+	//或
+	std::vector<int> v;
+	v.push_back(1);
+}
 std::vector<int> v = { 1, 2, 3, 4 };
 //initializer_list 初始化列表
 MyNumber myNum = { 1, 2, 3, 4 };
@@ -1987,7 +2024,7 @@ string longstr="<html> \
 		";
 cout<<longstr.c_str()<<endl;//string用c_str(),显示的前面空格还是有的,输出并没有换行 每行加\来分隔
 //R
-string path=R"(c:\tmp\my.txt)"; //使用R
+string path=R"(c:\tmp\my.txt)"; //使用R"(  )"   
 cout<<path<<endl; //有没有c_str() 输出\t都是制表符
 
 string bodystr=R"(<body> 
@@ -1999,7 +2036,7 @@ cout<<path<<endl;
 
 
 //	const double const_pi=3.14;
-//	constexpr double two_pi=2*const_pi;//报错
+//	constexpr double two_pi=2*const_pi;//报错,编译阶段确定的值，const_pi不能确定，如函数参数
 //	int n=2;
 //	constexpr double n_pi=n*const_pi;//报错
 	constexpr double pi2=3.14*2;
@@ -2014,6 +2051,7 @@ constexpr int sumByNum(int num){
 }
 constexpr int sum=sumByNum(5);//函数也要声明constexpr
 
+volatile int safeVar ;//同java
 
 ----auto 
 
@@ -2034,7 +2072,7 @@ template<class T> void printAuto()
 	auto res=T::get(); //auto动态类型
 	cout<<res<<endl;
 }	 
-template<class T,class U> auto  addAuto(T a,U b) -> decltype(a+b) //返回类型是auto,通过decltype计算出，后加->
+template<class T,class U> auto  addAuto(T a,U b) -> decltype(a+b) //返回类型是auto,通过decltype计算出，后加->(返回类型不能是decltype因还不知道模板类型)
 {
 	 return a+b;
 }
@@ -2046,6 +2084,14 @@ auto national_debt=14400000000000LL;//long long
 auto& ref=d;//ref是d的别名
 ref=33;
 auto* ptr=&d;
+auto  ptr1=&d;
+
+const auto pi =3.14;
+auto p2=pi; //不能带const类型，是double类型
+
+volatile int tickets=10;
+auto tickets2 =tickets;//不能带volatile类型，是int类型
+
 //函数参数不能是auto
 //auto myarray[]={1,3,4};//auto不可初始化数组
  int myarray[]={1,3,4};
@@ -2086,8 +2132,8 @@ int var3;
 decltype(var1+var2) var4; 
 decltype(var3=var1+var2) var5=var1;
 
-decltype (leftValueRef(1,2)) myLeft=22;//不会调用函数,类型为 const bool&
-decltype (rightValueRef(1,2)) myRight=22;//类型为 const bool&&
+decltype (leftValueRef(1,2)) myLeft=22;//不会调用函数,类型为 const int&
+decltype (rightValueRef(1,2)) myRight=22;//类型为 const int&&
 
 const int mynum=2;
 decltype(mynum) mynum2=3;//const int
@@ -2151,6 +2197,7 @@ f(); // 输出：123
 	};
 	// 绑定可调用函数
 	function<int(int)> ff3 = bind([](int a) {return a; }, placeholders::_1);
+	int res=ff3(20);//20传给placeholders::_1 再传给 a,再调用
 	
 	//对于没有捕获任何变量的 lambda 表达式，还可以转换成一个普通的函数指针：
 	using func_ptr = int(*)(int);
@@ -2164,7 +2211,7 @@ f(); // 输出：123
 
 //final 关键字放在函数后面，并函数只可是类的，必须是重写了父类的virtual函数，表示不可再被子类重写
 //final 关键字放在类后面 表示不可被继承
-//override 关键字放在函数后面 表示 重写了父类的virtual函数，可有可无，易读
+//override 关键字放在函数后面 表示 重写了父类的virtual函数，可有可无(和final没有先后顺序)，易读
 
 list<list<string>> l;// 其中的 >> ，原来中间必须有空格 "> >",现在可没有空格
 
@@ -2178,17 +2225,18 @@ public :
 		return avg; //必须是static函数
 	}
 	/*
-	//linux下不可用 operator ()
+	//VC报错,有了  operator funcptr() 不可用 operator ()
+	//MinGW可以
 	operator ()(int a){
 		return a+1;
 	}
+	//VC报错,MinGW可以
 	operator ()(int a,string b){
 		cout<<b<<endl;
 		return a ;
-	}
-	*/
-	/* 
-	operator ()(int a,int b){//优先级高于 operator funcptr
+	} 
+	 //VC报错,MinGW中 先执行这，再执行 operator funcptr
+	operator ()(int a,int b){ 
 			cout<<b<<endl;
 			return a ;
 		}
@@ -2212,7 +2260,7 @@ cout<<res<<endl;
 res=my(11);//运算符重载
 res=my(22,"abc");
 
-using intPtr= int MyClass::*;//指向类的属性的指针
+using intPtr= int MyClass::*;//指向类的int属性的指针
 intPtr p1=&MyClass::num;
 my.*p1=22;//属性名，可以是动态的
 
@@ -2228,13 +2276,24 @@ function<int(int,int)> f3  = my;
 function<int(int,int)> f4= myadd;
 
 //bind
-res=bind(myadd,1,3)();
+res=bind(myadd,1,3)();//类似JS 的 ECMA 新版本功能
 res=bind(myadd,placeholders::_1,20)(10);//placeholders::_1表示第一个参数，使用实参数
 res=bind(myadd,placeholders::_1,20)(10,30);//已经绑定了，值不能再修改了，
 
 class Test
 {
 public:
+	Test(const Test& a) : m_num(new int(*a.m_num))
+    {
+        cout << "copy & construct" << endl;
+    }
+	Test(Test&& a) : m_num(a.m_num)
+    {
+    	//只VC调用到？？？
+    	a.m_num=nullptr;//两个指向同一地址，防止一个析构回了，另一个不能用
+ 	    cout << "move && construct" << endl;
+    }
+	
 	void output(int x, int y)
 	{
 		cout << "x: " << x << ", y: " << y << endl;
@@ -2244,22 +2303,34 @@ public:
 Test t;
 // 绑定类成员函数
 function<void(int, int)> ff1 =
-	bind(&Test::output, &t, placeholders::_1, placeholders::_2);
+	bind(&Test::output, &t, placeholders::_1, placeholders::_2);//第二个实例要的，后三个是Bind参数
 // 绑定类成员变量(公共)
 function<int&(void)> ff2 = bind(&Test::m_number, &t);
 
+ff1(520, 1314); //实例函数
+ff2() = 2333;//修改属性  
+
 ----右值  move,forward
+
+Test getTest(){
+	Test t ;
+	return t;
+}
 
 //lvalue 是 locator value 的缩写，rvalue 是 read value 的缩写
 //左值是指存储在内存中、有明确存储地址（可取地址）的数据；
 //右值是指可以提供数据值的数据（不可取地址）； 右值引用（ R-value reference），标记为 &&
 
-Test   t2 =t1;// 需要拷贝，调用了复制构造函数
+int && a1 =10;
+//int && b=a1;//报错 a有名是左值引用 ，用 move
+int && b=move(a1);//对于list就不用复制了
 
+Test   t2 =t1;// 需要拷贝，调用了复制构造函数
+Test  t00 = getTest();//GCC因为有赋值没有析构,但VC调用了Test(Test&& a)再调用析构
 Test t;
 Test x;
 //decltype(x) && v1 = t;          // error
-decltype(x) && v2 = move(t);    // 转换 右值  到 左值 引用,没有复制动作
+decltype(x) && v2 = move(t);    // 转换 左值  到 右值引用,没有复制动作
 
 //常量左值引用是一个万能引用类型
 const Test& t33 = Test();
@@ -2270,6 +2341,13 @@ const Test& t44 = x;
 	int x = 520, y = 1314;
 	auto&& v1 = x;
 	auto&& v2 = 250;
+	auto&& v3 = v2;
+	
+	const int& c=10;
+	const int&& d=10;
+	auto && v4=c;//v4类型为 const int &,只一个&
+	auto && v5=d;//v5类型为 const int &,只一个&
+			
 	//decltype(x)&& v3 = y;   // error,因decltype不用推算
 	cout << "v1: " << v1 << ", v2: " << v2 << endl;
 }
@@ -2279,13 +2357,13 @@ void testForward(T && v)//当 左值 和 左值引用 传来，变为左值引�
 {
 	printValue(v); //已经命名，全是左值，即使参数是右值，右值引用
 	printValue(move(v));//move转换为右值，全是右值
-	printValue(forward<T>(v));//forward模板 当T为左值引用类型时，t将被转换为T类型的左值，其它都是右值
+	printValue(forward<T>(v));//forward模板 当T为左值引用类型时，v将被转换为T类型的左值，其它都是右值
 	cout << endl;
 }
 //T && 要推算	
 testForward(forward<int>(num));//右值传过去，forward模板 当T为左值引用类型时，t将被转换为T类型的左值，其它都是右值
 testForward(forward<int&>(num));//左值引用传过去
-testForward(forward<int&&>(num));//右值传过去，forward模板 当T为左值引用类型时，t将被转换为T类型的左值，其它都是右值
+testForward(forward<int&&>(num));//右值传过去，forwar d模板 当T为左值引用类型时，t将被转换为T类型的左值，其它都是右值
 
 
 
@@ -2310,7 +2388,7 @@ shared_ptr<int> p1(p);
 shared_ptr<int> p2(p1);//另一个指针初始化 
 shared_ptr<int> p3 = p1;//赋值初始化
 
-std::shared_ptr<int>  p4 = std::move(p3); //p3转移给p4
+std::shared_ptr<int>  p4 = std::move(p3); //p3转移给p4，另一个功能为转换为右值
 // shared_ptr<int> p4(std::move(p3));//写法2
 {
 	//make_shared 初始化
@@ -2374,9 +2452,9 @@ struct Test2 :public enable_shared_from_this<Test2>
 	}
 }; 
 shared_ptr<Test2> sp1(new Test2);
-cout << "use_count: " << sp1.use_count() << endl;
+cout << "use_count: " << sp1.use_count() << endl;//1
 shared_ptr<Test2> sp2 = sp1->getSharedPtr();
-cout << "use_count: " << sp1.use_count() << endl;
+cout << "use_count: " << sp1.use_count() << endl;//2
 
 
 //循环引用
@@ -2407,13 +2485,14 @@ bp->aptr = ap;
 { //--头文件 <ratio>
 			 ratio<1,1000 > millisecond;// 代表的是 1/1000 秒，也就是 1 毫秒
 }
-{ //--头文件 <chrono>
+{ //--头文件 <chrono> 慢性的，长期的
    chrono::hours h(1);                          // 一小时
 	chrono::duration<int, ratio<1000>> ks(3);    // 3000 秒
 
 	// chrono::duration<int, ratio<1000>> d3(3.5);  // error
 	chrono::duration<double> dd(6.6);               // 6.6 秒
-
+	//看源码有 using seconds	= duration<_GLIBCXX_CHRONO_INT64_T>;
+ 
 	// 使用小数表示时钟周期的次数
 	chrono::duration<double, std::ratio<1, 30>> hz(3.5);//时钟周期为 1/30 秒，共有 3.5 个时钟周期，所以 hz 表示的时间间隔为 1/30*3.5 秒
 
@@ -2422,8 +2501,8 @@ bp->aptr = ap;
 	std::chrono::microseconds us = 2*ms;     // 6000 微秒
 
 	//count()周期数
-	std::cout <<  "3 ms duration has " << ms.count() << " ticks\n"
-			  <<  "6000 us duration has " << us.count() << " ticks\n"
+	std::cout <<  "3 ms duration has " << ms.count() << " ticks\n"//MinGW不能Debug
+			  <<  "6000 us duration has " << us.count() << " ticks\n"//MinGW不能Debug
 			  <<  "3.5 hz duration has " << hz.count() << " ticks\n";
 
 	chrono::minutes t1(10);
@@ -2480,29 +2559,51 @@ bp->aptr = ap;
 
 	// 小数时长：不要求 duration_cast
 	duration<double, ratio<1, 1000>> fp_ms = dt;
-	cout << "f() took " << fp_ms.count() << " ms, "
+	cout << "f() took " << fp_ms.count() << " ms, "//在这 MinGW 不能debug
 		<< "or " << int_ms.count() << " whole milliseconds\n";
 }
 
 ----线程
+//C++的多线程，在Debug打断点时只能让CPU选择线程，不能像Java的Eclipse一样，手工切到要运行的线程的断点上
+
 linux下要加 -l pthread,原因为pthread不是linux的默认库
 
 #include <thread>
 
 
 
+class Oper {
+public:
+   void operator() (){
+		cout<<"in operator (),in thread ..."<<endl;
+	}
+}; 
+class OperWithParam {
+	public:
+	   void operator() (string msg){
+			cout<<"in operator (),in thread ...,msg="<<msg<<endl;
+		}
+	};
+	
+Oper op;
+thread t001(op);//要运算符重载()
+//或者没有名字
+thread t002((Oper()));
+
+thread t003(OperWithParam(),"lisi");
+
 void func(int num, string str)
 {
 	for (int i = 0; i < 4; ++i)
 	{
 		cout << "子线程: i = " << i << "num: "
-			 << num << ", str: " << str << endl;
+			<< num << ", str: " << str.c_str() << endl;//CDT显示num=breakpoint-modifiedxxxxxx  很多东西,不正常？？
 
-//			auto now = chrono::system_clock::now();
-//			chrono::seconds sec(1);
-//			this_thread::sleep_until(now + sec);//time_point类型
+		auto now = chrono::system_clock::now();
+		chrono::seconds sec(1);
+		this_thread::sleep_until(now + sec);//time_point类型
 
-		// sleep_for()： duration 类型
+		this_thread::sleep_for(sec); //duration 类型
 
 		this_thread::yield();
 
@@ -2523,7 +2624,7 @@ cout << "线程t1的线程ID: " << t1.get_id() << endl;
  //t.join();//如还没执行完毕，主线程阻塞
  //t1.join();
  t.detach();//不会阻塞,分离之后，在主线程退出之前，它可以脱离主线程继续独立的运行 ,主线程退出也会一并销毁创建出的所有子线程
- t1.detach();
+ t1.detach();//detach后不能再join
 
  {
 	thread t;
@@ -2571,12 +2672,47 @@ void do_something(int age, string name)
 	
 	
 	//使用哨兵锁管理互斥锁 lock_guard  构造时自动锁，退出作用域析构时自动解锁
-	lock_guard<mutex> lock(g_num_mutex);
+	lock_guard<mutex> mylock(g_num_mutex);
 		  
 }
 
-recursive_mutex 允许同一线程多次获得互斥锁,可递归调用,建议少用,转换非递归
 
+mutex mymutex1,mymutex2;
+std::lock(mymutex1,mymutex2);//同时时间锁住至少两个
+//...
+//mymutex1.unlock();
+//mymutex2.unlock();
+//或者用
+ lock_guard<mutex> myguard1(mymutex1,std::adopt_lock);//加参数std::adopt_lock, 因std::lock()已经做了
+ lock_guard<mutex> myguard2(mymutex2,std::adopt_lock);
+
+ //unique_lock 比lock_guard灵活,效率低一点,也是自动解锁,除了支持adopt_lock，还支持try_to_lock和defer_lock
+ mutex mymutex3;
+ unique_lock<mutex> myunique(mymutex3,std::try_to_lock);//前面不能已经lock
+
+ mutex mymutex4;
+ unique_lock<mutex> mydefer(mymutex4,std::defer_lock);
+ mydefer.lock();//这开始才加锁
+
+//unique_lock 虽然会自己解锁，但也支持手工解锁
+ myunique.unlock();
+ mydefer.unlock();
+ //unique_lock 还支持继续再锁
+ myunique.lock();
+ mydefer.lock();
+ 
+myunique.unlock();//多作的手工解锁也不会有错
+mutex * my4=mydefer.release();//取消在构造时指定的mutex,如果已经加锁状态，要手工解锁mymutex4
+my4->unlock();
+
+mutex mymutex5;
+unique_lock<mutex> mydefer5(mymutex5,std::defer_lock);
+unique_lock<mutex> mydefer6(std::move(mydefer5));//mutex的所有权做转移
+
+
+recursive_mutex 允许同一线程多次获得互斥锁,可递归调用,建议少用,转换非递归
+recursive_timed_mutex m_re_time;  //也有lock_for,lock_until方法
+ 
 ---
 #include <condition_variable>
 
@@ -2585,11 +2721,11 @@ condition_variable m_notEmpty;   //condition_variable
 condition_variable m_notFull;    
  void put(const int& x)
 {
-	unique_lock<mutex> locker(m_mutex);  //unique_lock 包装一个 mutex
-	while (m_queue.size() == m_maxSize)//为何不用if,wait会假醒？
+	unique_lock<mutex> locker(m_mutex);  //unique_lock 包装一个 mutex,比lock_guard灵活,效率低一点
+	while (m_queue.size() == m_maxSize)//用循环 可以以多次满的情况
 	{
 		cout << "任务队列已满, 请耐心等待..." << endl; 
-		m_notFull.wait(locker);//还有wait_for和wait_until方法,第二个参数可传一个函数，返回true不阻塞，返回false阻塞(看源码)
+		m_notFull.wait(locker);//还有wait_for和wait_until方法,第二个参数可传一个函数，返回true不阻塞，返回false阻塞(看源码),可防止假醒
 	} 
 	m_queue.push_back(x);
 	cout << x << " 被生产" << endl; 
@@ -2628,7 +2764,7 @@ int res=m_value.load();
 
 ----promise
 #include <future>
-void TestFuture(promise<string> p){
+void TestFuture(promise<string> p){//如果参数形式为promise<string> & p,就要使用std:ref(p)传过来
 	cout<<"sub thread begin wait"<<endl;
 	this_thread::sleep_for(1s);
 	p.set_value("calc value is 200");
@@ -2643,8 +2779,38 @@ string res=future.get();//阻塞
 cout<<"main thread get  sub thread value"<<res<<endl;
 thread1.detach();
 
-getchar();
- 
+
+
+---async
+int asyncFunc(int a){
+	cout<<"asyncFunc thread begin wait,thread id="<<this_thread::get_id()<<",a="<<a<<endl;
+	this_thread::sleep_for(2s);//2s=duration,运算符重载了""s
+	return 5;
+}
+
+//auto future1 = std::async(asyncFunc,20);//开线程，看源码, 看源码launch::async|launch::deferred 两个由系统自动选择
+auto future1 = std::async(launch::deferred,asyncFunc,20);//deferred不会立即启动，而是在wait()或者get()时启动,还是使用调用者的线程做的
+
+future1.wait();//等待线程，不返回结果，future也有 wait_for  和 wait_until方法
+
+future_status status=future1.wait_for(std::chrono::seconds(1));
+if(status == future_status::timeout){
+	cout<<"wait for is timeout"<<endl;
+}else if (status == future_status::ready){
+	cout<<"wait for is  ready"<<endl;
+}else if (status == future_status::deferred){
+	cout<<"wait for is  deferred"<<endl;
+}
+//int val=future1.get();//如不调用wait(),会阻塞,future是转移数据，不能调用两次get()
+//cout<<"async thread value"<<val<<endl;
+
+cout<<"future1.valid="<<future1.valid()<<endl;//1
+//std::shared_future<int> shared(move(future1));//move到右值,shared_feture是复制的，可多次读
+std::shared_future<int> shared=future1.share();
+cout<<"future1.valid="<<future1.valid()<<endl;//0
+cout<<"shared="<<shared.get()<<endl;
+cout<<"shared="<<shared.get()<<endl;
+
 
 ------注意的问题
 class Obj{
@@ -2661,81 +2827,907 @@ class Obj{
 		~Obj(){
 			cout<<"Obj deconstructor"<<endl;
 		}
-		int m_i=0;
+		int m_i=0; //可选的加mutable关键字
 		static void thread_work_ptr( unique_ptr<int> ptr){
 			ptr.reset(new int(250));//重新指定智能指针管理的原始内存
 		}
 	};
-void myPrint(const int & i,//如用&,要加const(&int是复制，地址不同)
-			const char * mychar,//如用* 要用const(编译报错信息很难识别原因),如主线程提前结束空间释放，如子线程退出前就可能会有问题
+//vs2019,CDT工具一定要这作用域结束时,才会断点到子线程 .CDT有时会一直卡住也进不子子线程
+void myPrint(const int & i,//如用&,要加const(int&是复制值，地址不同)
+			 char * mychar,//如主线程提前结束空间释放，如子线程退出前就可能会有问题
 			string mystr,
-			const Obj &obj,
+			const Obj &obj,//const 必须有
 				Obj &obj1,
-			const Obj * obj2
+			    Obj * obj2
 )
 {
 	cout<<"obj.m_id="<<obj.m_i<<endl;
-	obj1.m_i=30;
-	cout<<"obj2.m_id="<<(*obj2).m_i<<endl;
+	obj1.m_i=30;//detach 不安全的
+	cout<<"obj2.m_id="<<(*obj2).m_i<<endl;//detach 不安全的
 
 	cout<<"MyPrint i="<<i<<endl;
-	cout<<"mychar="<< mychar<<endl;//不安全
+	cout<<"mychar="<< mychar<<endl;//detach 不安全的
 	cout<<"mystr="<<mystr.c_str()<<endl;
-
+	printf("mystr=%s\n",mystr.c_str());//mystr为string类型，printf用%s参数传mystr.c_str()
 }
-	
 
+		
+		
  int myvar=30;
 char mychar[] ="this is my char array";
 int myobjInt=3;
 
 Obj obj(10);
-thread t(myPrint,myvar,mychar,//指针不安全
+thread t(myPrint,myvar,
+		mychar,//指针不安全
 	   string(mychar),//mychar[]到string是稳式转换，是先启动子线程再转换的，有可能主线已经结束，解决方法string(mychar)
-	   myobjInt, //myobjInt 整数 转换  ,根据日志发现在转换是在子线程中做的
+	   myobjInt, //myobjInt 整数 转换 ,函数要加const ,根据日志发现在转换是在子线程中做的
 	   std::ref(obj1),//传递引用
-	   &obj //参数只能用const Obj* obj ,不能用const Obj &obj
+	   &obj //参数只能用  Obj* obj ,不能用 Obj &obj
 );
-t.detach();
+t.join();
+//t.detach();//可能会主线程结束了，内存回收了，里的又访问了东西，不安全
 cout<<obj1.m_i<<endl;//被子线程修改过
 
 
 
 unique_ptr<int> p1(new int(10));
 //类中的方法，要是static,不能是某个对象的方法
-thread t1(Obj::thread_work_ptr,std::move(p1));// 传能指针用move
+thread t1(Obj::thread_work_ptr,std::move(p1));// 传指能针用move
+
+/*
+#include<stdio.h>//C老式的
+#include<cstdio>//C新式的
+
+<array> 头文件
+
+noexcept 话在函数后面表示没有异常
+
+explicit 明确的,显示的 ，implicit 不言明,隐式的
+		explicit放在构造函数前，表示 不能发生相应的隐式类型转换
+
+
+*/
 
 ========== C++14
-https://gcc.gnu.org/projects/cxx-status.html#cxx14
--std=c++14
-Visual Studio 2015 支持多半
-gcc 6.1 以上  -std=c++14 或者 -std=gnu++14
 
 int bin = 0b101010; //前缀0b或0B开头表示二进制
 int bin1 = 0B101010;
 
+int million=1'000'000; //千位分隔
+int million2=1'00'0'000;//'随意位置
 
 
+int auto square(double side){ //支持返回auto,对地复杂的模板类型，方便很多
+	return side*side;
+}
+
+//windows下CDT环境， constexpr不能放main函数中，会导致不能运行,必须重启CDT才可？？为何c++11_new.cpp文件中sumByNum是好的？？
+constexpr double pi=3.14;
+constexpr double two_pai=2*pi;//编译时确定值，而不是运行时
+
+//windows下CDT环境，constexpr函数不能开，会导致不能运行,必须重启CDT才可？？为何c++11_new.cpp文件中sumByNum是好的？？
+constexpr int fib(int num){ //constexpr 表在函数上,编译时运行
+		if(num==1)
+			return 1;
+		if(num==0)
+			return 0;
+		return fib(num-2)+fib(num-1);
+	}
+static_assert(fib(10)==55,"unexpected num."); //如果计算值不对，就会编译时报错，编译时运行
+
+
+
+template<typename T>
+constexpr T pi_type=T(3.14);//模板可以定义变量 
+
+template<typename M>
+constexpr M max_num=M(1000);
+
+template<> //钻石语法,指定不同的值
+constexpr char max_num<char>('Z');
+
+cout<<pi_type<int><<endl;
+cout<<max_num<float><<endl;
+cout<<max_num<char><<endl;
+		
+[[deprecated("this is should not use ,we recommend use others")]]//编译时出这个warning信息
+void oldFunc(){
+	cout<<"oldFunc"<<endl;
+}
+
+
+#include <memory>
+//智能指针的增强make_unique，要加<memory>头文件
+auto pcat=make_unique<Cat>();//返回类型为unique_ptr，自动调用构造，结果时自动析构
+//现在c++ 大多数情况不需要new和delete
+auto p = make_unique<double[]>(10);//指向 10元素的double数组 的指针
+
+
+auto second=1s;//1s=1秒
+auto hour=1h;
+auto minute=1min;
+auto millsecond=1ms;
+
+auto hello="world";//类型为 const  char * 
+ auto hellos="world"s;//s类型为string
+
+ chrono::milliseconds ten_sencond=10s;//做函数参数比int要好
+ cout<<ten_sencond.count()<<endl;
+ auto plus_sencond=ten_sencond+second;//重载了+，结果为单位小的
+ cout<<plus_sencond.count()<<endl;
+
+ std::pair point{2,5}; //pair 只可两个元素，模板可有可无
+ std::pair<double,string> point2(2.2,"ss");
+ cout<<point.first<<point.second<<endl;
+
+ std::tuple  student3(10,"lisi",89.5);//要<tuple>头文件,tuple可多个元素
+ tuple<int,string> student2(10,"lisi");//也可两个元素
+ int id= std::get<0>(student2);
+ string name=std::get<string>(student2);// 如只有一个string类型才可以这样用
+ cout<<id<<name<<endl;
+
+
+
+
+auto myAutoFunc = [](auto x, auto y) {return x + y;}; //可以参数是auto,返回值也是auto,不会出错
+cout<<"myAutoFunc="<<myAutoFunc(2,3)<<endl;
+auto myAutoFuncString = [](auto const& x, auto const& y) {return x + y;};//可加const&
+cout<<"myAutoFuncString="<<myAutoFuncString("abc"s,"def"s)<<endl;
+
+
+
+std::unique_ptr<int> ptr(new int(10));
+auto lambda = [value = std::move(ptr)] {return *value;};//[]里可以做赋值
+cout<<"lambda="<<lambda()<<endl;
+
+auto pNum=make_unique<int>(64);
+auto f2=[u{move(pNum)}](int a){//unique_ptr移动
+//auto f2=[u =move(pNum)](int a){//写法2
+	cout<<(*u)<<a<<endl;
+};
+f2(20);
+
+
+
+
+
+
+
+
+int x = 4;
+auto y = [&r = x, x = x+1]()->int {//r前加&才可修改，没指定类型。先执行逗号前，再执行逗号后
+	//第一次 r=4,x=5
+	r += 2;
+	return x+2;
+ }();  // Updates ::x to 6, and initializes y to 7.
+ //结束时为什么x是6？？
 
 
 ========== C++17
-https://docs.microsoft.com/en-us/previous-versions/hh567368(v=vs.140)
-https://blogs.msdn.microsoft.com/vcblog/2017/12/19/c17-progress-in-vs-2017-15-5-and-15-6/
-Visual Studio 2017.15.8 支持多半
-
-https://gcc.gnu.org/projects/cxx-status.html#cxx17
-
 gcc 8 以上
 g++ -std=c++17
     -std=gnu++17  启用GNU扩展特性
 
+namespace nestnamespace{//嵌入多层的namespace
+	namespace xx{
 
-========== C++20   验验阶段
+	}
+}
+namespace nestnamespace::yy{//写法2 
+
+}
+	
+vector<string> names={"wang","li","zhang","sun"};
+{//作用域
+	const auto it=find(begin(names),end(names),"wang");
+	if(it != end(names)){
+		*it="***";//候改它
+	}
+	printVector("after wang",names);
+}
+{
+	const auto it=find(begin(names),end(names),"li");//可以继续叫it
+	if(it != end(names)){
+		*it="**";
+	}
+	printVector("after li",names);
+}
+//if()中使用;号多隔多条语句，使用最后一个做结果,效果同上,switch( ; )也可以这做用
+if(const auto it=find(begin(names),end(names),"zhang");it != end(names)){
+	*it="****";
+}
+printVector("after zhang",names);
+
+if(const auto it=find(begin(names),end(names),"sun");it != end(names)){//也可以继续用变量it
+	*it="***";
+}
+printVector("after sun",names);
+
+
+for(int i=0;i<10;i++){
+
+}
+for(int i=0;i<10;i++){ //可以继续用变量i
+
+}
+
+template <typename T>
+auto printTypeValue(T const& value){
+	if constexpr (is_integral<T>::value)//编译时,当条件不符合的，会被丢掉，就不会报错
+	//if(is_integral<T>::value)//运行时,编译时并不知道value是什么类型
+	{
+		cout<<"T is int "<<value<<endl;
+	}else
+	{
+		//编译时,知道是string.length()，而不是int.length(),用constexpr不报错
+		cout<<"T is not int "<<value.length()<<endl;
+	}
+}
+printTypeValue(20);
+printTypeValue("this is string"s);
+
+map<string,int> mymap;//<map>
+mymap.insert ({"chinese",100} );
+auto mypair= mymap.insert ({"chinese",100} );
+if(mypair.second)//如已经存在就失败，和java的存在覆盖是不一样的
+{
+	cout<<"put success"<<endl;
+}else
+{
+	cout<<"put fail"<<endl;
+	auto iter=mypair.first;//已存在的元素是什么
+	//老的遍历方式
+	for (auto  map_iter=mymap.begin() ; map_iter != mymap.end(); map_iter++ )
+	{
+		cout << (*map_iter).first << " => " << (*map_iter).second << endl;//first是key,second是value,默认按key排序的
+	}
+
+}
+auto [position,success]= mymap.insert ({"chinese",100} ); //命名更加清晰
+//新的遍历方式
+for(const auto & [lang,score] : mymap)//命名更清晰
+{
+	cout<<"lang="<<lang<<",score="<<score<<endl;
+}
+
+void myfunction () throw () {//c++17 不能在throw()里面加int等
+  throw  0.32;
+}
+
+
+scoped_lock my_scope_lock;//  <mutex>头文件
+ 
+ 
+========== C++20   
+https://gcc.gnu.org/projects/cxx-status.html#cxx20  验验阶段
+https://docs.microsoft.com/en-us/cpp/overview/visual-cpp-language-conformance?view=msvc-160
+
+
 -std=gnu++2a
 -std=c++20 (use -std=c++2a in GCC 9 and earlier) 
 gcc 11 版本还有两个不支持
 
+struct rectangle{
+	int weight : 3;//增加:3意思是3bit
+	int height : 6=10;//可以加默认值
 
+};
+struct S{
+	int i ;
+	float f{};
+	double d;
+	S():d(1.0),i(2){};//warning上说d是最后初始化的,字段的最后，不受构造器的影响
+}; 
+
+void structParam(rectangle r)
+{
+	cout<<r.weight<<endl;
+}
+	 
+cout<<sizeof(rectangle)<<endl;
+rectangle r1{10,20};//老的方式,因设置:3,所以报warning溢出
+rectangle r{weight:10,height:20};//初始化,ISO不允许GNU设计的
+
+//S s{d:1.0,i:10};//报错,i和声明字段顺序不一样
+structParam({weight:23,height:10});//{}传参数转换为struct
+
+auto max_lamda=[]<typename T>(T x,T y){//lamda支持模板
+	return x>y?x:y;
+}; 
+cout<<max_lamda(3,5)<<endl;
+
+
+
+
+std::array data{1,2,3}; //<array>头文件C++11，以前就有的
+auto total=0;
+for(std::size_t pos=0;const auto v: data){ //for : 循环，可以在前加语句
+	total+=(v*pos);
+	pos++;
+}
+
+struct Obj{
+	std::array<int,3> data={1,2,3};//初始化列表
+	const auto &get_data(){ //可加&
+		return data;
+	}
+};
+Obj get_obj(){
+	return Obj{};
+}
+//total=8
+for(const auto v: get_obj().get_data()){//可直接用，有&
+	total+=v;
+}
+
+
+
+struct Box{
+	int x ;
+	int y;
+};
+auto box1=Box{.x=1, .y=1};//designate 命名 ，属性前加.
+auto box2=Box{.x{2}, .y=1};
+//auto box3=Box{.x(3), .y=1}
+auto box4=Box{ //在结构体初始化时可以 属性= 后面值为lamda
+	.x=[](){
+		return 1;
+	}(),
+	.y=1
+};
+
+
+template<typename T>
+struct BoxTemp{
+		T x ;
+		int y;
+	};
+auto box5=BoxTemp<int>{
+		.x=[](){
+			return 1;
+		}(),
+		.y=1
+	};
+
+
+
+auto int_ptr=make_unique<int>(20);
+auto printAddr=[](const auto &p){
+	cout<<std::to_address(p)<<endl;//to_address转换为C的地址
+};
+printAddr(int_ptr);
+int num=3;
+printAddr(&num);
+auto ages=vector<int>{20,30};
+printAddr(ages.begin());
+
+
+auto simple_lamda=[]{return 5;};//没有参数时可以没有()
+auto simple_lamda2 = simple_lamda;//lamda可以复制
+decltype(simple_lamda)  simple_lamda3 ;//decltype可用于lamda上
+decltype([]{})  simple_lamda4 ;
+
+
+//--示例1
+auto file_clean =[](FILE * f){
+	fclose(f);
+	cout<<"the file closed"<<endl;
+};
+auto file_ptr=unique_ptr<FILE,decltype(file_clean)>(fopen("c:/tmp/a.txt","r"),file_clean);//decltype里可是lamda
+//--示例2
+//<set>头文件,第一个参数是初始化列表，第二参数比较器
+std::set myset{ {Box{1,2}},[](const auto &left ,const auto &right){
+			return left.x>left.x;
+		}
+ }; 
+//模板第一个参数元素类型，第二个比较器
+std::set<Box,decltype([](const auto &left ,const auto &right){
+	return left.x>left.x;
+})> myset2 ;
+
+
+
+struct Base
+{
+	//virtual int get_value()=0; 是纯虚函数
+	//const成员函数才能被一个const类对象调用
+	//[[nodiscard]] 指定函数的返回值不应被丢弃。 如果调用方丢弃返回值，则编译器会生成警告
+	//constexpr virtual 函数 一起使用
+	[[nodiscard]] constexpr virtual int get_value() const =0;
+};
+struct Derived:Base
+{
+	[[nodiscard]] constexpr   int get_value()const override{
+		//const成员函数不能使用非const变量
+		return 5;
+	}
+};
+
+//<array>头文件，C++11,模板第一是类型，第二个大小
+const std::array<const Base *,5> data{&d1,&d2,&d3,&d4,&d5};
+
+
+constexpr int const_dynamic(){
+	if(std::is_constant_evaluated())//<type_traits>头文件,如果使用contexpr或const x= 接收这个函数值就是true
+	//if constexpr(std::is_constant_evaluated())//是否在编译时间，条件一直成立
+	{
+		return 5;
+	}else{
+		return 10;
+	}
+}
+
+//C++11
+start = Numbers.begin() ; 
+end = Numbers.end() ;
+//remove函数要引入<algorithm>头文件,“需要被删除”的元素被移到了区间的尾部。它返回一个迭代器，指向第一个“需要被删除”的元素。
+//begin()只要<vector>头文件,其实就是vec.begin();
+// remove all elements from Numbers that match 10
+last = remove(start, end, 10) ; 
+cout << "Total number of elements removed from Numbers = "  << end - last << endl ;
+cout << "有效的元素为of Numbers { " ;
+for(it = start; it != last; it++)
+	cout << *it << " " ;
+cout << " }\n" << endl ;
+//后面的并没有删除元素，只是修改了元素
+for ( auto it=Numbers.begin() ; it != Numbers.end() ; it++ )
+{
+	cout << " " << *it;
+}
+
+//---
+ for (std::vector<int>::iterator it = c.begin(); it != c.end(); ) {
+	  if (*it % 2 == 0) {
+		  it = c.erase(it);//遍历时删除 ，要重新赋值才行，返回iterator是跟随最后删除的元素
+	  } else {
+		  ++it;
+	  }
+  }
+
+//新的方式
+vector v2{1,2,4,5,6};
+std::erase(v2,5);
+
+
+struct NoConstructBox{
+	int x ;
+	int y;
+	NoConstructBox()=delete; //防止有默认的构造
+	NoConstructBox(int _x){
+		x=_x;
+	}
+};
+//NoConstructBox no_box{1,2};//C++11的功能,如有 NoConstructBox()=delete;这样报错
+NoConstructBox no_box{1};
+
+
+
+
+template<typename Callable,typename ... Param> //模板可以动态数
+auto bind_values(Callable callable,Param ... param){
+	//auto lamda = [=](){
+	auto lamda = [callable=move(callable), ...param=move(param)](){//...放前面展开参数,多个值用逗号分隔
+		return callable(param...);
+	};
+	return lamda;
+}
+int add(int one,int two){
+	return one+two;
+}
+auto bind_func=bind_values(add,1,2);//如果个数不对，会编译报错
+cout<<"bind_func:"<<bind_func()<<endl;
+
+
+
+//bind_front 用来替代bind函数
+//auto mybind=std::bind_front(add,1); //<functional>头文件,可只传部分参数
+auto mybind=std::bind_front(&add,1); //&add
+cout<<"bind_front:"<<mybind(2)<<endl;//补齐其它的
+
+struct Man {
+		int id;
+		string name;
+		auto operator <=> (const Man & m )const=default; //编译器生成比较，根据声明字段顺序比
+		//如没有则 提示Man' is not derived from 'const std::optional<_Tp>'
+	};
+set<Man> peoples{{1,"lisi"},{2,"wang"}};//<set>头文件，set里的元素要有比较功能
+Man m1{1,"lisi"};
+Man m2{2,"wang"};
+cout<< "m1 == m2?" <<( m1 == m2 )<<endl;
+
+
+
+constexpr auto mysort(auto data){
+	std::sort(begin(data),end(data));//std::sort
+	return data;
+}
+constexpr auto sorted_data=mysort(std::array{20,44,52,78,65,44});
+static_assert(std::is_sorted(begin(sorted_data), end(sorted_data)));//std::is_sorted
+cout<<sorted_data[0]<<endl;
+
+
+
+constexpr auto get_value_inner(){
+	int * i=new int{5};//没有delete
+	return i;
+}
+constexpr auto get_value(){
+	int * i=new int{}; //声明为constexpr类型的,如果接收这个函数的返回值使用constexpr，在这用new分配内存，就必须在constexpr的范围内(编译时间内)delete
+	delete i;
+	//嵌套函数里没有delete,后面也要补delete
+	auto p=get_value_inner();
+	auto val=*p;
+	delete p;//这补的
+	//如果先delete p;再auto val=*p;编译时就会报错
+	
+	return val;
+//		return 1;
+}
+int val=get_value();
+constexpr int val2=get_value();//如函数内部用new，就必须在编译时间做delete
+
+
+//只可以匹配两个float参数传进来，不能是两个int(模板做类型限制)
+//floating_point 浮点,_v=value (std::enable_if_t 中_t=type)
+template<typename Float>
+auto myadd(const Float x,const Float y) requires std::is_floating_point_v<Float>{
+	return x+y;
+}
+//--方式二
+template<typename T>
+concept floating_point=std::is_floating_point_v<T>;
+template<floating_point Float>
+auto myadd2(const Float x,const Float y) {
+	return x+y;
+}
+//--方式三
+template<typename T>
+concept floating_point2=std::is_floating_point_v<T>;
+//				auto myadd3(const floating_point2 auto x,const floating_point2 auto  y) {//加auto,参数可以是不同类型小数
+floating_point2 auto myadd3(const floating_point2 auto x,const floating_point2 auto  y) {//返回也可修改
+	return x+y;
+}
+
+ 
+myadd(3.1,4.1);
+myadd2(3.1,4.1);
+myadd3(1.5,1.6f);//可以是不同类型小数
+
+constexpr int const_method(){
+	return 22;
+}
+constinit static auto i=4; //constinit 编译时初始化 ,加static 因为本地变量不能为const
+constinit static auto i1 = const_method();//如函数没 constexpr 会报错
+
+
+
+template<typename FuncObj>
+auto use_func(FuncObj obj)
+{
+	return obj();
+}
+template<typename FuncObj>
+auto use_func2(FuncObj obj)
+	requires requires {&FuncObj:: operator();} //不能传 函数名 即 指向函数的指针
+{
+	return obj();
+}
+template<typename T> concept has_call_operator=requires {&T:: operator();};//要以;结尾
+
+template<typename FuncObj>
+auto use_func3(FuncObj obj)
+	requires  has_call_operator<FuncObj> //简化为使用concept
+{
+	return obj();
+}
+int empty_func(){
+	return 1;
+}
+
+use_func([](){});
+use_func(empty_func);
+use_func2([](){});
+//use_func2(empty_func);//编译失败， 不匹配规则，不能传 函数名 即 指向函数的指针
+use_func3([](){});
+//use_func3(empty_func);//编译失败
+
+
+struct [[nodiscard("struct no receive value^^^")]]  NoDis{ //函数调用后的返回这个struct ,也要有接收值，否则warning ,[[nodiscard]]也可放struct前面
+
+	[[nodiscard]]  NoDis(int){ 
+	 }
+};
+NoDis get_no_dis(){
+	return NoDis(3);
+}
+
+//NoDis(2);
+get_no_dis();//这没有接收有warning
+//NoDis s=get_no_dis();
+
+
+
+void jthread_job(std::stop_token token){
+	while(!token.stop_requested()){//判断停止消息
+		std::this_thread::sleep_for(1ms);
+		cout<<"jthread job"<<endl;
+	}
+}
+jthread t1(jthread_job);//jthread
+std::this_thread::sleep_for(10ms);
+t1.request_stop();//停止消息
+t1.join();
+
+cout<<"5的二进制1的个数为"<<std::bitset<32>(5).count()<<endl; //<bitset>头文件
+cout<<"3的二进制1的个数为(无符号整数) popcount 为"<< std::popcount(3u) <<endl; //<bit>头文件，只可是unsign 整数类型，数字后加u
+cout<<"5和7的中间值为"<<std::midpoint(5,7)<<endl;//<numeric>头文件中 ,5+7/2
+const int nums[]={1,2,3};
+std::array<int,3> myarray=std::to_array(nums);//std::to_array
+std::to_array("22");
+
+
+
+//likely和unlikely(linux内核中有自带的宏定义)，我们可给编译器一种暗示，即该分支条件被满足的概率比较大或比较小。而编译器利用这一信息优化其机器指令，
+if(argc>1) [[unlikely]] //对应的有   [[likely]]
+	cout<<"argc>1"<<endl;
+else  [[likely]]
+	cout<<"argc<=1"<<endl;
+
+std::cout<<"pi   派的值为"<<std::setprecision (30)<<std::numbers::pi<<std::endl;//<numbers>头文件中的名称空间为 std::numbers
+std::cout<<"pi_v double派"<<std::setprecision (30)<<std::numbers::pi_v<long double><<std::endl;//发现值和上面的不一样，这个比下面的要准一点
+
+std::vector<int> scores{66,77,88};
+cout<<scores[log,2]<<endl;//逗号分隔数组，warning提示过时,返回下标为2的元素
+
+
+
+throw std::logic_error("logic error");
+//consteval 类似于constexpr constinit
+ 
+
+//========== trivially  
+//----------1
+	template<typename Contained>
+	struct Optional{
+
+		union { Contained data; };//union的特别用法,没有名字???
+		//Contained data;
+
+		bool initialized=false;
+
+		constexpr Optional &operator=(Contained && data){
+			this->data=std::move(data);//仿问data??
+			initialized=true;
+			return *this;
+		}
+		~Optional()=default;
+		/*
+		 //加这个 static_assert 失败
+		~Optional(){
+			if(initialized){
+				data.~Contained();//仿问data?? 显示调用析构函数
+			}
+		}
+		*/
+	};
+
+//----------2
+	template<typename Type>
+	struct Optional_nontrivial{
+		~Optional_nontrivial(){
+			static_cast<Type *>(this)->data.~Contained();//static_cast函数强转
+		}
+	};
+	struct Optional_trivial{
+
+	 };
+
+	template<typename Contained>
+	struct Optional2: std::conditional_t<std::is_trivially_destructible_v<Contained>,//用继承 conditional_t条件
+										Optional_trivial,//条件成立时用
+										Optional_nontrivial<Optional<Contained>>//条件不成立时用
+										>
+	{
+		union { Contained data; };
+
+		bool initialized=false;
+
+		constexpr Optional2 &operator=(Contained && data){
+			this->data=std::move(data);
+			initialized=true;
+			return *this;
+		}
+
+	};
+	//--------3
+	template<typename Contained>
+	struct Optional3
+	{
+		union { Contained data; };
+
+		bool initialized=false;
+
+		constexpr Optional3 &operator=(Contained && data){
+			this->data=std::move(data);
+			initialized=true;
+			return *this;
+		}
+		//新的,使用concept去约束 析构
+		constexpr ~Optional3() requires( ! std::is_trivially_destructible_v<Contained>)
+		{
+			if(initialized){
+				data.~Contained();
+			}
+		}
+		constexpr ~Optional3()=default;
+	};
+
+
+Optional<int> obj;
+obj=5;
+
+//断言失败影响编译(如自己实现~Optional(){}就会失败)
+static_assert(std::is_trivially_destructible_v<Optional<int>>);//trivially 平凡地(即简单数据类型)，要<type_traits>头文件
+//static_assert(std::is_trivially_destructible_v<Optional<string>>);//失败，string是简单数据类型
+
+static_assert( std::is_trivially_destructible_v<Optional2<int>>);
+static_assert(!std::is_trivially_destructible_v<Optional2<string>>);
+
+static_assert( std::is_trivially_destructible_v<Optional3<int>>);
+static_assert(!std::is_trivially_destructible_v<Optional3<string>>);
+//==========
+enum struct MyColor{ //enum后可加struct
+	red=1,
+	green=2,
+	blue=3,
+};
+string to_string_color(const MyColor c){
+//		switch(c){
+//		case MyColor::red:
+//			return "red";
+//		case MyColor::green:
+//			return "green";
+//		case MyColor::blue:
+//			return "blue";
+//		return "unkown";
+//		}
+
+	//新的方式,类似于import，可用于函数中
+	using enum MyColor;
+	switch(c){
+	case red://省了前缀
+		return "red";
+	case green:
+		return "green";
+	case  blue:
+		return "blue";
+	return "unkown";
+	}
+}
+namespace myns{
+	using enum MyColor;//可用namespace中
+}
+struct WrapColor{
+	using enum MyColor;//可用于struct中
+	MyColor used=red;
+}; 
+MyColor use_color=myns::red;
+
+consteval int sqr(int n){//consteval
+	return n*n;
+}
+int res=sqr(100);//函数使用consteval,参数不能是变量
+int x=10;
+//res = sqr(x);//参数是变量错误
+
+void log(const std::string_view message,  //string_view
+		 const std::source_location location =
+			   std::source_location::current())// <source_location>头文件
+{
+	std::cout << "file: "
+			  << location.file_name() << "("
+			  << location.line() << ":"
+			  << location.column() << ") `"
+			  << location.function_name() << "`: "
+			  << message << '\n';
+}
+
+log("Hello world!");
+
+
+
+//--<ranges> 头文件 像java stream api
+auto const ints = {0,1,2,3,4,5};
+auto even = [](int i) { return 0 == i % 2; };
+auto square = [](int i) { return i * i; }; 
+//老的方式,函数嵌套，第一个参数是输入
+//std::views::filter ,std::views::transform
+for (int i : std::views::transform(std::views::filter(ints, even), square)) {
+	std::cout << i << ' ';
+}
+std::cout << '\n';
+//管道当输入
+for (int i : ints | std::views::filter(even) | std::views::transform(square)) {
+	std::cout << i << ' ';
+}
+}
+
+
+//--类似Java CyclicBarrier
+void TestBar(int i,barrier<>*bar){
+	cout<<"sub thread begin wait"<<endl;
+	this_thread::sleep_for(1s);
+	//bar->wait(bar->arrive());//当有3个线程时才开始同时执行
+	 bar->arrive_and_wait();//合并两个函数
+	 //也有 bar->arrive_and_drop(); 不常用
+	cout<<"sub thread do job at same time,thread_id="<<this_thread::get_id()<<endl;
+
+}
+int count=3;
+barrier bar(count);
+for(int i=0;i<count;i++)
+{
+	thread th(TestBar,i,&bar);
+	th.detach();
+} 
+
+this_thread::sleep_for(5s);
+
+
+class Person{
+public:
+	Person(int age):age(age){};
+	bool operator == (const Person & p){ //如重载了== 就不用重载!=
+		return p.age == age;
+	}
+private :
+	int age;
+
+};
+Person p1{11},p2{22};
+cout<< (p1!=p2) <<endl;//如重载了== 就不用重载!= ,要加()
+cout<< (p1==p2) <<endl;
+
+//--<concepts> 头文件， 比模板好的是，只能用指定的类型，而不是所有的类型
+template<typename T>
+concept MyInt=same_as<T,int> ||same_as<T,long> ||same_as<T,long long>||same_as<T,unsigned int>||same_as<T,unsigned long>;
+template<MyInt T>
+T add(T a,T b){
+	return a+b;
+}
+int res=add(2,3);//不能使用float,double
+
+
+
+Warning中有 -pedantic 选项(卖弄学问的)
+
+
+https://en.cppreference.com/w/cpp/language/coroutines
+Coroutine 定义在 <coroutine> 头文件中
+
+std::coroutine_handle<X>//struct可带模板
+
+std::suspend_always //普通struct
+std::suspend_never  //普通struct
+
+
+throw std::runtime_error("xx");
+ 
+
+auto myfunc(std::jthread& out) {
+	
+}
+std::jthread out;
+co_await myfunc(out ); //等待coroutiner执行有返回值，不一定执行完
+
+co_yield  10;	暂停执行返回一个值(co_yield 关键字)
+co_return 5;	完成执行返回一个值(co_return 关键字)
+
+
+//---module 模块 像JDK9,都还是实验阶段
+GCC要加编译选项 -fmodules-ts
+VC2019 要项目属性->C/C++->Language->Enable Experimental下拉选择module
 
 ========== C++23  验验阶段
 GCC 11 版本还有一个不支持
