@@ -1,0 +1,88 @@
+
+======================containerd 
+1.6.6
+CNCF 毕业项目，docker的子组件，但新版本k8s不直接支持docker了，建立用containerd
+ 
+systemctl  start  containerd	 
+要安装 flannel，yast安装cni-plugin-flannel ,也不能正常  systemctl  start  containerd 
+默认为 unix:///run/containerd/containerd.sock
+ 
+
+-----ctr 命令( containerd-ctr 软件包)  是 containerd 的一个客户端工具。
+containerd-ctr version 命令(ctr version)
+
+设置别名
+alias ctr='containerd-ctr'
+ctr -v  显示的是containerd的版本
+
+ctr image ls 缩写为 ctr i ls 
+
+crictl 使用命名空间 k8s.io，即crictl image list 和 ctr -n=k8s.io image list(多两行) 效果一样
+
+ctr -n=k8s.io image list -q 只显示ref列
+
+ctr -n k8s.io i pull -k k8s.gcr.io/pause:3.6 
+	--namespace value, -n value
+	--skip-verify, -k  skip SSL certificate validation
+
+成功示例
+ctr -n k8s.io i pull -k docker.io/library/redis:latest #即crictl pull redis拉的镜像，这必须加docker.io/library
+
+ctr中 containers 是镜像实例化的一个虚拟环境，提供一个磁盘，模拟空间，就好比你电脑处于关机状态一样。
+ctr中 tasks 是将容器运行起来，电脑开机了 ，初始化进程等 ，task就是的这么个形式。
+
+
+   
+ctr -n=k8s.io  container info  <CONTAINER-ID> 和 crictl inspect <CONTAINER-ID> 效果一样的
+
+ctr plugins ls 
+
+ctr task ls   查看运行容器，类似  docker ps
+
+ctr ns list  显示有 default  k8s.io 两个，ctr默认查看的是default命名空间
+
+#crictl 没有导入导出命令
+ctr image export
+ctr -n k8s.io image export redis.tar docker.io/library/redis:latest 刚成功pull的也报错？？
+
+ctr image import 
+
+---
+
+-----crictl 命令 (cri-tools软件包) 是 CRI 兼容的容器运行时命令行接口
+
+crictl stats   既然默认是找 /var/run/crio/crio.sock
+cat  /etc/crictl.yaml  显示为
+runtime-endpoint: unix:///var/run/crio/crio.sock
+修改为
+runtime-endpoint: unix:///run/containerd/containerd.sock
+就可以 crictl  stats 等同  crictl --runtime-endpoint unix:///run/containerd/containerd.sock stats
+
+和docker命令差不多
+crictl -v  显示的是cri-tools包的版本
+crictl pull redis
+
+crictl images  
+crictl 使用命名空间 k8s.io，即crictl image list 和 ctr -n=k8s.io image list (多两行) 效果一样
+
+#crictl 没有导入导出命令
+
+crictl ps
+
+
+crictl logs [command options] CONTAINER-ID
+
+crictl  pods 查k8s的
+
+crictl logs  <CONTAINER-ID>
+crictl stats 显示container占用CPU，内存，DISK
+
+crictl --runtime-endpoint unix:///run/cri-dockerd.sock ps
+crictl --runtime-endpoint unix:///run/cri-dockerd.sock logs <container_id>
+
+----- 
+
+  
+  
+  
+  

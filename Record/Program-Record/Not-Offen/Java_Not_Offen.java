@@ -1,15 +1,482 @@
 
- ----------阿里云服务  
-分布式调度平台 SchedulerX 2, 可以程序调用API批量建立任务
-企业级分布式应用服务 EDAS
-PolarDB是阿里巴巴自研的新一代云原生关系型数据库,使用和MySQL一样的,DMS 是一个界面工作，有在线web版,也有安装版本https://dms.aliyun.com/static/html/download.htm，
-应用实时监控服务 (Application Real-Time Monitoring Service, 简称ARMS) 
-日志服务（SLS）是云原生观测分析平台,像Elastic Search ，页面的搜索条件中可写  level = ERROR 
-SAE
-Edas
-DBM
-OSS  对象存储，像ceph
+========================阿里云服务  
+SchedulerX 2 分布式调度平台 ，可以程序调用API批量建立任务
+EDAS 企业级分布式应用服务 （被SAE替代）
+PolarDB 和使用MySQL一样,是阿里巴巴自研的新一代云原生关系型数据库,DMS 是一个界面工作，有在线web版,也有安装版本https://dms.aliyun.com/static/html/download.htm，
 
+ARMS  应用实时监控服务 (Application Real-Time Monitoring Service ) 
+SLS 像Elastic Search ，日志服务，是云原生观测分析平台,页面的搜索条件中可写  level = ERROR 
+DBM 像PHPMyAdmin数据库管理界面
+
+-------------SchedulerX 2  alibaba 云的 定时器
+<dependency>
+	<groupId>com.aliyun</groupId>
+	<artifactId>aliyun-java-sdk-schedulerx2</artifactId>
+	<version>1.0.5</version>
+</dependency>
+
+<dependency>
+	<groupId>com.aliyun</groupId>
+	<artifactId>aliyun-java-sdk-core</artifactId>
+	<version>4.3.3</version>
+</dependency>
+
+import com.aliyuncs.DefaultAcsClient;
+import com.aliyuncs.profile.DefaultProfile;
+import com.aliyuncs.schedulerx2.model.v20190430.*;
+import com.aliyuncs.schedulerx2.model.v20190430.ListGroupsResponse.Data.AppGroup;
+import com.aliyuncs.schedulerx2.model.v20190430.ListJobsResponse.Data.Job;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+ 
+public class ScheImportExport {
+
+    public static void main(String[] args) throws Exception {
+
+        String testNS = "aa";
+        String devNS = "bb";
+        String uat2NS ="bb";
+
+        String fromGroup="xx.defaultGroup";
+        String toGroup="yy.defaultGroup";
+
+        //deleteJob(uat2NS,true,toGroup);
+
+        String  excelPath = "d:\\workbook_aa_uat.xlsx";
+        exportExcelFromEnv(uat2NS,fromGroup,excelPath);
+        //importNewFromExcelToEnv(uat2NS,toGroup,excelPath);
+
+
+
+    }
+
+    public static  DefaultAcsClient getClient(){
+        //鉴权使用的AccessKeyID。
+        String accessKeyId = "xxx";
+        //鉴权使用的AccessKeySecret。
+        String accessKeySecret = "xxx";
+
+
+        // OpenAPI的接入点，具体参见支持地域列表和购买实例的地域。
+        String regionId = "cn-shanghai";
+        //产品名称
+        String productName = "schedulerx2";
+        //参见支持地域列表，选择Domain。
+        String domain = "schedulerx.cn-shanghai.aliyuncs.com";
+        //构建OpenAPI客户端。
+        DefaultProfile.addEndpoint(regionId, productName, domain);
+        DefaultProfile defaultProfile = DefaultProfile.getProfile(regionId, accessKeyId, accessKeySecret);
+        DefaultAcsClient client = new DefaultAcsClient(defaultProfile);
+        return client;
+    }
+    public static void deleteJob(String useNS,boolean realDelete,String delGroupId) throws  Exception {
+
+        DefaultAcsClient client= getClient();
+
+        ListGroupsRequest request = new ListGroupsRequest();
+        //命名空间ID。
+        request.setNamespace(useNS);
+        ListGroupsResponse response;
+        List<AppGroup> appGroups;
+        response = client.getAcsResponse(request);
+        if (!response.getSuccess()) {
+            System.out.println(response.getMessage());
+        } else {
+            appGroups = response.getData().getAppGroups();
+            for (AppGroup appGroup : appGroups) {
+                if (!appGroup.getGroupId().equals(delGroupId)) {
+                    continue;
+                }
+                System.out.println("delete groupId=" + appGroup.getGroupId() + ", appKey=" + appGroup.getAppKey());
+                ListJobsRequest requestJob = new ListJobsRequest();
+                //命名空间。
+                requestJob.setNamespace(useNS);
+
+                //应用ID。
+                requestJob.setGroupId(appGroup.getGroupId());
+                ListJobsResponse responseJob;
+                responseJob = client.getAcsResponse(requestJob);
+                if (!responseJob.getSuccess()) {
+                    System.out.println(responseJob.getMessage());
+                } else {
+                    List<Job> jobs = responseJob.getData().getJobs();
+                    for (Job job : jobs) {
+                        Long jobId=job.getJobId();
+                        if(realDelete){
+                            DeleteJobRequest delRequest = new DeleteJobRequest();
+                            delRequest.setNamespace(useNS);
+                            delRequest.setGroupId(appGroup.getGroupId());
+                            delRequest.setJobId(jobId);
+                            DeleteJobResponse delResponse = client.getAcsResponse(delRequest);
+                            if (!delResponse.getSuccess()) {
+                                System.out.println("DeleteJob:"+delResponse.getMessage());
+                            }else {
+                                System.out.println("DeleteJob:"+jobId);
+                            }
+                        }else
+                        {
+                            DisableJobRequest disableJobRequest = new DisableJobRequest();
+                            disableJobRequest.setNamespace(useNS);
+                            disableJobRequest.setGroupId(appGroup.getGroupId());
+                            disableJobRequest.setJobId(jobId);
+                            DisableJobResponse disResponse = client.getAcsResponse(disableJobRequest);
+                            if (!disResponse.getSuccess()) {
+                                System.out.println("DisableJob: "+disResponse.getMessage());
+                            } else {
+                                System.out.println("DisableJob: "+jobId);
+                            }
+                        }
+
+                    }
+                }
+            }
+        } 
+
+     }
+
+     public static void importNewFromExcelToEnv(String toNS,String newGroupId,String excelPath) throws  Exception {
+        DefaultAcsClient client= getClient();
+
+
+        //任务类型
+        Map<String,String> executeModeMap = new HashMap<String,String>();
+        executeModeMap.put("standalone", "单机运行");
+        executeModeMap.put("grid", "内存网格");
+        executeModeMap.put("batch", "网格计算");
+        executeModeMap.put("broadcast", "广播运行");
+        executeModeMap.put("parallel", "并行计算");
+        executeModeMap.put("sharding", "分片运行");
+        //时间类型
+        Map<String,String> timeTypeMap = new HashMap<String,String>();
+        timeTypeMap.put("1", "cron");
+        timeTypeMap.put("-1", "无时间类型");
+        timeTypeMap.put("100", "api");
+        timeTypeMap.put("3", "fixed_rate");
+        timeTypeMap.put("4", "second_delay");
+        //Status
+        Map<String,String> statusMap = new HashMap<String,String>();
+        statusMap.put("1", "启用");
+        statusMap.put("0", "禁用");
+
+
+        String[] title = {"Group-Id","任务Id","名称","Processor类名","任务参数", "任务类型", "时间类型", "时间表达式", "状态"};
+        List<Map<String,String>>  excelList= ReadExcelFile.readExcel(excelPath,title);
+//      String serverGroupId=serverList.get(0).get("Group-Id");//这只取第一个就可以了
+
+
+         //create Group
+         CreateAppGroupRequest groupRequest = new CreateAppGroupRequest();
+         groupRequest.setNamespace(toNS);
+         groupRequest.setGroupId(newGroupId);
+
+         groupRequest.setNamespaceName(toNS+"_Name");
+         groupRequest.setAppName(toNS+"_App");
+         groupRequest.setDescription(newGroupId+"_desc");
+
+         CreateAppGroupResponse groupResponse = client.getAcsResponse(groupRequest);
+         System.out.println("建立组的结果："+new Gson().toJson(groupResponse));
+
+        for (Map<String,String> excelMap : excelList) {
+//            String groupId=excelMap.get("Group-Id");
+//            if(!serverGroupIds.contains(groupId)) //group名字不一样，开发环境以dev结尾，测试环境以test结尾
+//            {
+//                //create Group
+//                CreateAppGroupRequest groupRequest = new CreateAppGroupRequest();
+//                groupRequest.setNamespace(toNS);
+//                groupRequest.setGroupId(groupId);
+//                CreateAppGroupResponse groupResponse = client.getAcsResponse(groupRequest);
+//                System.out.println("建立组的结果："+new Gson().toJson(groupResponse));
+//                //add groupId to list
+//                serverGroupIds.add(groupId);
+//            }
+            String excelJobName=excelMap.get("名称");
+            boolean existsJob=false;
+
+//            for (Map<String,String> serverMap : serverList) {
+//                String serverJobName=serverMap.get("名称");
+//                if(serverJobName.equals(excelJobName))
+//                {
+//                    existsJob=true;
+//                    break;
+//                }
+//            }
+//            if(existsJob)
+//            {
+//                continue;
+//            }else
+//            {
+                //create job
+                System.out.println("开始建立Job ："+excelJobName );
+                CreateJobRequest request = new CreateJobRequest();
+                request.setNamespace(toNS);
+                request.setGroupId(newGroupId);//应该使用系统中的groupId,而不是excel group
+                request.setName(excelJobName);
+                request.setClassName(excelMap.get("Processor类名"));
+                request.setParameters(excelMap.get("任务参数"));
+
+                request.setExecuteMode(findMapKey(executeModeMap,excelMap.get("任务类型")));
+                request.setTimeType(Integer.parseInt(findMapKey(timeTypeMap,excelMap.get("时间类型"))));
+                request.setJobType("java");
+                request.setContent("echo 'hello'");
+                request.setTimeExpression(excelMap.get("时间表达式"));
+                    //不能设置状态,单独禁用接口
+                //scheInfo.put("状态", statusMap.get(job.getStatus().toString()));
+
+                CreateJobResponse response = client.getAcsResponse(request);
+                System.out.println("建立Job的结果："+new Gson().toJson(response));
+
+//            }
+        }
+    }
+
+    public static String findMapKey(Map<String,String> map,String value){
+        for(Map.Entry<String,String>  entry:map.entrySet()){
+            if(entry.getValue().equals(value)){
+                return entry.getKey();
+            }
+        }
+        System.err.print("NULL "+value );
+        return null;
+    }
+    public static  List<Map<String,String>>  readFromSheduleX(String ns,String groupId) throws Exception {
+
+        DefaultAcsClient client= getClient();
+
+        //任务类型
+        Map<String,String> executeModeMap = new HashMap<String,String>();
+        executeModeMap.put("standalone", "单机运行");
+        executeModeMap.put("grid", "内存网格");
+        executeModeMap.put("batch", "网格计算");
+        executeModeMap.put("broadcast", "广播运行");
+        executeModeMap.put("parallel", "并行计算");
+        executeModeMap.put("sharding", "分片运行");
+        //时间类型
+        Map<String,String> timeTypeMap = new HashMap<String,String>();
+        timeTypeMap.put("1", "cron");
+        timeTypeMap.put("-1", "无时间类型");
+        timeTypeMap.put("100", "api");
+        timeTypeMap.put("3", "fixed_rate");
+        timeTypeMap.put("4", "second_delay");
+        //Status
+        Map<String,String> statusMap = new HashMap<String,String>();
+        statusMap.put("1", "启用");
+        statusMap.put("0", "禁用");
+
+
+
+        ListGroupsRequest request = new ListGroupsRequest();
+        //命名空间ID。
+        request.setNamespace(ns);
+        ListGroupsResponse response;
+        List<AppGroup> appGroups;
+
+        List<Map<String,String>> scheList = new ArrayList<Map<String,String>>();
+        Map<String,String> scheInfo = new HashMap<String,String>();
+
+
+        response = client.getAcsResponse(request);
+        if (!response.getSuccess()) {
+            System.out.println(response.getMessage());
+        } else {
+            appGroups = response.getData().getAppGroups();
+            for (AppGroup appGroup : appGroups) {
+                if(!appGroup.getGroupId().equals(groupId)){
+                    continue;
+                }
+                System.out.println("groupId=" + appGroup.getGroupId() + ", appKey=" + appGroup.getAppKey());
+                 ListJobsRequest requestJob = new ListJobsRequest();
+                //命名空间。
+                requestJob.setNamespace(ns);
+
+                //应用ID。
+                requestJob.setGroupId(appGroup.getGroupId());
+                ListJobsResponse responseJob;
+                responseJob = client.getAcsResponse(requestJob);
+                if (!responseJob.getSuccess()) {
+                    System.out.println(responseJob.getMessage());
+                } else {
+                    List<Job> jobs = responseJob.getData().getJobs();
+                    for (Job job : jobs) {
+                        System.out.println("jobId:" + job.getJobId() + ", name:" + job.getName() + ", status=" + job.getStatus());
+                        scheInfo = new HashMap<String,String>();
+                        scheInfo.put("Group-Id", appGroup.getGroupId());
+                        scheInfo.put("任务Id", job.getJobId().toString());
+                        scheInfo.put("名称",job.getName() );
+                        scheInfo.put("Processor类名", job.getClassName());
+                        scheInfo.put("任务参数", job.getParameters());
+                        scheInfo.put("执行类型", executeModeMap.get(job.getExecuteMode()));
+                        scheInfo.put("时间类型", timeTypeMap.get(job.getTimeConfig().getTimeType().toString()));
+                        scheInfo.put("时间表达式", job.getTimeConfig().getTimeExpression());
+                        scheInfo.put("状态", statusMap.get(job.getStatus().toString()));
+
+                        scheList.add(scheInfo);
+                    }
+                }
+            }
+        }
+        return scheList;
+
+    }
+    public static void exportExcelFromEnv(String useNS,String groupId,String excelPath) throws Exception {
+        List<Map<String,String>> scheList=  readFromSheduleX(useNS,groupId);
+
+        List<String> sheetName = new ArrayList<>();
+
+        sheetName.add("定时任务");
+
+        String[] title = {"Group-Id","任务Id","名称","Processor类名","任务参数", "执行类型", "时间类型", "时间表达式", "状态"};
+        CreateExcelFile.createExcelXls(excelPath, sheetName, title);
+        CreateExcelFile.writeToExcelXls(excelPath, sheetName.get(0), scheList);
+
+    }
+}
+
+-------------SLS
+
+log.info("{} 请求外部系统参数为:{}",this.getClass().getSimpleName(),thirdRequest.getData());
+
+对应aliyun SLS 数据处理-》加工
+
+e_keep(e_match("message", r"([\w|\W]+)\s(响应外部系统结果为|请求外部系统参数为){1}:([\w|\W]+)$"))
+e_regex(
+    "message",
+    r"^([\w|\W]+)\s(响应外部系统结果为|请求外部系统参数为){1}:([\w|\W]+)$",
+    ["clientClass", "weixin_cn", "in_out"],
+)
+e_keep_fields(F_META, r"level|time|thread|message|clientClass|weixin_cn|in_out")
+
+
+
+([^\|]*)\|([^\|]*) 对于日志格式是以|分隔的多列，如 |INFO|IP|
+
+
+
+
+ <dependency>
+            <groupId>com.aliyun.openservices</groupId>
+            <artifactId>aliyun-log</artifactId>
+            <version>0.6.31</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+//https://help.aliyun.com/document_detail/29030.htm?spm=a2c4g.11186623.0.0.6eef4551jWf8Nd#t13239.html
+	
+	// 语法 https://help.aliyun.com/document_detail/43772.htm?spm=a2c4g.11186623.0.0.14751235NRetRT
+	public static void main(String[] args) {
+		String endpoint="";
+		String accessKey="";
+		String secretKey=""; 
+		Client logClient = new Client(endpoint, accessKey, secretKey);
+		 
+		
+		String project="uat-env";
+		String logStore="project01";
+		String query=""; 
+		/*
+			
+		查询语句|分析语句
+		
+		--查询语句
+		全文查询 PUT and cn-shanghai表示查询同时包含关键字PUT和cn-shanghai的日志。 
+		 
+		配置字段索引后，您可以指定字段名称和字段值（Key:Value）进行查询
+		如request_time>60 and request_method:Ge*表示查询request_time字段值大于60且request_method字段值以Ge开头的日志。 
+		
+		
+		在词的中间或者末尾加上模糊查询关键字，即星号（*）或问号（?）
+		
+		例如request_time in [100 200]或request_time in (100 200]。 
+		--分析语句 像SQL
+		
+		
+		*/ 
+		
+String query="apiUri: /api/integration/weixin/getOfficialAccountInfo"; //apiUrl字段必须建立索引才行
+//https://help.aliyun.com/document_detail/90732.htm?spm=a2c4g.11186623.0.0.5f4b19cdUUneeO#task-jqz-v55-cfb
+
+
+
+int fromTime=(int)(System.currentTimeMillis()/ 1000) - 60*60*24;//24小时前
+int toTime=(int)(System.currentTimeMillis() / 1000);
+
+GetHistogramsRequest req=	new GetHistogramsRequest(project, logStore, null,
+		 query, fromTime, toTime); 
+ // 获取当前条件下的日志总数
+ try {
+	long total = logClient.GetHistograms(req) .GetTotalCount();
+	System.out.println("--total ="+ total);
+	int offset=0;
+	int pageSize=20; 
+	GetLogsRequest logReq= new GetLogsRequest(project, logStore, fromTime, toTime, null,
+				query,
+				offset, pageSize, true); 
+	GetLogsResponse getLogsResponse=logClient.GetLogs(logReq);
+	ArrayList<QueriedLog> queriedLogs = getLogsResponse.GetLogs(); 
+	queriedLogs.forEach(slsLog -> {
+			// 铺平日志返回内容到MAP中
+			ArrayList<LogContent> mContents = slsLog.GetLogItem().GetLogContents();
+			if (mContents.isEmpty()) {
+				return;
+			} 
+			System.out.println("----");
+			mContents.forEach(content -> {
+				// 过滤掉SLS保留字段
+				if (content.GetKey().startsWith("__")) {
+					return;
+				}
+				System.out.println("\t"+content.GetKey()+"="+ content.GetValue());
+			});
+//		            Date docDate=new Date(slsLog.GetLogItem().GetTime()*1000 );//这个时间不准的 
+//		            String cnDateStr=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(docDate);
+//		            System.out.println("--slsLog.Time = "+cnDateStr); 
+		});		        
+} catch (LogException e) {
+	e.printStackTrace();
+}
+	
+	
+
+log.info("client uri:{},client class:{},traceId:{}, 请求外部系统参数为:{}",uri,simpleClass,traceId,thirdRequest.getData());
+ThirdResponse resultOut = protocol.send(thirdRequest);
+log.info("client uri:{},client class:{},traceId:{}, 响应外部系统结果为:{}",uri,simpleClass,traceId,resultOut.getData());
+
+
+e_keep(e_match("message", r"([\w|\W]+)\s(响应外部系统结果为|请求外部系统参数为){1}:([\w|\W]+)$"))
+e_regex(
+    "message",
+    r"^client uri:([\w|\W]+),client class:([\w|\W]+),traceId:([\w|\W]+),\s(响应外部系统结果为|请求外部系统参数为){1}:([\w|\W]+)$",
+    ["apiUri", "clientClass", "traceId","inOutDesc", "inOutParam"],
+)
+e_keep_fields(
+    F_META, r"level|time|thread|location|message|apiUri|clientClass|traceId|inOutDesc|inOutParam"
+)
+
+
+
+
+
+
+
+
+
+  
+-------------OSS (Object Storage Service)  alibaba 云的 对象存储 像ceph
+ // 创建OSSClient实例。
+OSS ossClient = new OSSClientBuilder().build(ENDPOINT, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
+// 上传Byte数组。
+ossClient.putObject(bucketName, filePath, new ByteArrayInputStream(bytes));
+
+// 关闭OSSClient。
+ossClient.shutdown();
 
 
 -------------Jasper Report
@@ -120,6 +587,73 @@ public static void genFile(JasperPrint jasperPrint,JRAbstractExporter exporter,F
 	out.write(fileArray);
 	out.close();
 }
+
+===============================japer report 老版本=========================
+iReport设计工具   会在用户主目录中生成一个.ireport 文件夹
+
+option->选项->语言->
+build->compile->保存文件.jrxml
+			生成.java
+build->jreview
+build->执行报表 (右上角的按钮)
+build->pdf view
+option->setting->external program->pdf >选择pdf浏览器   xls 是excel 格式的
+build->compile
+build->执行报表
+
+java2d 像翻书一样
+
+
+
+ireport wizard->
+data->connections/datasource
+如不是mysql 要把jar包放入lib目录,再重启ireport
+完成后
+可以右击字段->proerty->text field->表达式是绿色表示成功,蓝色表示失败,可点按钮进行编辑
+
+
+option->setting->backup->no
+		compiler->default compilation directory
+
+
+PDF(itext)默认是不显示中文的
+下载插件,http://iextpdf.sourceforge.net/
+iTextAsian.jar(ireport 中有的)
+选中文字->propety->font-> 改PDF font name 为STSong-Light   .下方的PDF Encoding 改为UCS2-H (Chinese Simplified)   H代表水平   V代表垂直
+
+
+TILE 只在第一页的上面显示
+pageHeader 在每页上面的都有(在 Title 下)
+
+pageFooter  (last page footer)
+detail
+
+column Hear
+column footer
+
+summary  最后一页的的下面
+
+框红色是错误的(选中时)  黄色是正确的
+
+
+build ->set connect active  是显示所有的(build->)
+data ->report qurey->写 select  语句
+
+F 图标  $F{username} 显示username 字段的数据->右击property->text field->绿是对,蓝是错,可双击下方中的
+
+
+ view->feild/variables(new java.uitl.Date())
+$V{name}   name是变量名  可以从左侧(Document Structure)拖过来
+或者从 libaray窗口中拖 page x of y ,curentDate
+
+
+
+$P{xx}   parameter 中有一个 选择 user a prompt   如是String 类型要加" "   运行时要你输入值 
+
+
+右击 $F ->propery ->在 ..中可以按条件来显示返回 boolean (用java来写,中可$F{username}) new java.lang.oolean("".equlse($F{username}))  ,但还是会占用行的
+
+
 -------------DynamoDB AWS 亚马逊云的 NoSQL
 https://docs.aws.amazon.com/zh_cn/dynamodb/index.html 
 
@@ -307,14 +841,6 @@ List<Reply> latestReplies = mapper.query(Reply.class, queryExpression);
 -------------Amazon S3 (Simple Storage Service)  ,亚马逊云的 对象存储 
 S3 bucket
 
--------------OSS (Object Storage Service)  alibaba 云的 对象存储
- // 创建OSSClient实例。
-OSS ossClient = new OSSClientBuilder().build(ENDPOINT, ACCESS_KEY_ID, ACCESS_KEY_SECRET);
-// 上传Byte数组。
-ossClient.putObject(bucketName, filePath, new ByteArrayInputStream(bytes));
-
-// 关闭OSSClient。
-ossClient.shutdown();
 
 
 ======================ActiveMQ   JMS
@@ -2242,74 +2768,6 @@ l. 将FCKeditor目录下及子目录下所有以“_”下划线开头的文件�
 
 -----------------------上-FCKeditor
 
-===============================japerreport=========================
-
-
-iReport设计工具   会在用户主目录中生成一个.ireport 文件夹
-
-option->选项->语言->
-build->compile->保存文件.jrxml
-			生成.java
-build->jreview
-build->执行报表 (右上角的按钮)
-build->pdf view
-option->setting->external program->pdf >选择pdf浏览器   xls 是excel 格式的
-build->compile
-build->执行报表
-
-java2d 像翻书一样
-
-
-
-ireport wizard->
-data->connections/datasource
-如不是mysql 要把jar包放入lib目录,再重启ireport
-完成后
-可以右击字段->proerty->text field->表达式是绿色表示成功,蓝色表示失败,可点按钮进行编辑
-
-
-option->setting->backup->no
-		compiler->default compilation directory
-
-
-PDF(itext)默认是不显示中文的
-下载插件,http://iextpdf.sourceforge.net/
-iTextAsian.jar(ireport 中有的)
-选中文字->propety->font-> 改PDF font name 为STSong-Light   .下方的PDF Encoding 改为UCS2-H (Chinese Simplified)   H代表水平   V代表垂直
-
-
-TILE 只在第一页的上面显示
-pageHeader 在每页上面的都有(在 Title 下)
-
-pageFooter  (last page footer)
-detail
-
-column Hear
-column footer
-
-summary  最后一页的的下面
-
-框红色是错误的(选中时)  黄色是正确的
-
-
-build ->set connect active  是显示所有的(build->)
-data ->report qurey->写 select  语句
-
-F 图标  $F{username} 显示username 字段的数据->右击property->text field->绿是对,蓝是错,可双击下方中的
-
-
- view->feild/variables(new java.uitl.Date())
-$V{name}   name是变量名  可以从左侧(Document Structure)拖过来
-或者从 libaray窗口中拖 page x of y ,curentDate
-
-
-
-$P{xx}   parameter 中有一个 选择 user a prompt   如是String 类型要加" "   运行时要你输入值 
-
-
-右击 $F ->propery ->在 ..中可以按条件来显示返回 boolean (用java来写,中可$F{username}) new java.lang.oolean("".equlse($F{username}))  ,但还是会占用行的
-
-
 ============================================resin 配置
 设置端口 
 <server-default>
@@ -2358,7 +2816,7 @@ resin 一定log4j.jar 而tomcat 只要commons-loggin.jar  就可以了
 
 
 
-----eclipse 信成
+----eclipse 集成
 
 
 给httpd加上运行参数:-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=12345 ,远程调试端口一般是8453

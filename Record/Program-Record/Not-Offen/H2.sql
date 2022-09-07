@@ -1,5 +1,12 @@
 ﻿
 ========================H2
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>2.1.214</version> 
+</dependency>
+
+
 \h2-2012-04-08\h2\bin\h2.bat 双击它,会弹出IE,打开仿问数据的界面
 ----Embedded内存运行方式
 Saved Settings:中默认选择Generic H2(Embedded)
@@ -23,7 +30,7 @@ Connection conn=DriverManager.getConnection("jdbc:h2:tcp://localhost/~/test","sa
 		//jdbc:h2:tcp://localhost/test
 		//jdbc:h2:mem
 java -cp h2*.jar org.h2.tools.Server -tcpShutdown tcp://localhost:9092 停止
-
+-- 2.x版本  BIGINT和INT不能加(20)
 create table IF NOT EXISTS  student
 (
 	id INTEGER auto_increment NOT NULL PRIMARY KEY,
@@ -33,8 +40,9 @@ create table IF NOT EXISTS  student
 );
 insert into student (name,age,birthday) values('lisi李',25,'2012-10-22');
 
-create sequence IF NOT EXISTS SEQ_student_ID start with 1 ;
-
+create sequence IF NOT EXISTS SEQ_student_ID start with 1 ; 
+select NEXT VALUE FOR SEQ_student_ID
+select CURRENT VALUE FOR SEQ_student_ID
 
 
 

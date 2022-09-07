@@ -628,6 +628,8 @@ $ lsnrctl status listenername
 
 brew install mongodb 在线下载安装
 
+brew  像linux的yum ,dnf ,zypper 等工具
+
 ---TextWrangler （不兼容 macOS 10.13 (High Sierra)）新版本改为 BBEdit-12 是收费的
 TextWrangler  中 view->Hide/Show File   ,打开文件时要把文件拖到左边的(File)窗口中
 TextWrangler  中 preferences->Application标签->取消 Reopen Documents that were open at last quit

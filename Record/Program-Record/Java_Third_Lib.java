@@ -1615,6 +1615,10 @@ public class MyListener extends ContextAwareBase  implements LoggerContextListen
 		started=true;
 	}
 }
+
+
+logback 自定义 appender 自己的类继承自 UnsynchronizedAppenderBase
+
 -------------jCIFS   samba SMB
 	apache commons VFS2 库的CIFS协议 其实是用 jCIFS 
 
@@ -2310,6 +2314,110 @@ public static void proxyTest() throws Exception
 	reader.close();
 }
 
+
+
+
+	
+---httpclient  https 忽略验证安全,用指定证书，TLS版本,测试过
+ public static SSLContext createignoreVerifySSL() throws Exception {
+        SSLContext sc = SSLContext.getInstance("TLS");
+
+        // 实现一个X509TrustManager接口，用于绕过验证，不用修改里面的方法
+        X509TrustManager trustManager = new X509TrustManager() {
+            @Override
+            public void checkClientTrusted(
+                    java.security.cert.X509Certificate[] paramArrayOfX509Certificate,
+                    String paramString) {
+            }
+
+            @Override
+            public void checkServerTrusted(
+                    java.security.cert.X509Certificate[] paramArrayOfX509Certificate,
+                    String paramString) {
+            }
+
+            @Override
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        };
+
+        sc.init(null, new TrustManager[]{trustManager}, null);//https 忽略验证安全
+
+        //用指定证书
+//        char[] password = merId.toCharArray();
+//        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+//        KeyStore ks = KeyStore.getInstance("PKCS12");
+//        ks.load(Files.newInputStream(Paths.get(certPath)), password);
+//        kmf.init(ks, password);
+//        sc.init(kmf.getKeyManagers(), null, new SecureRandom());
+
+        return sc;
+    }
+	
+try {
+	  /*
+	有问题的URL
+	https://jk.shcepp.com/cepsi/ceppSignInter
+	https://jk.shcepp.com/cepoi/order/orderlist.htm
+	https://www.shfda.org/platform/rest/v2/enterprises
+
+	https://reg.blemall.com/
+	https://reg.blemall.com/afb/search.php
+
+	*/
+	CloseableHttpClient httpClient   = null;
+	if(url.substring(0,5).equalsIgnoreCase("https"))
+	{
+		//采用绕过验证的方式处理https请求
+		SSLContext sslcontext = createignoreVerifySSL();//自己的方法
+
+		Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+				.register("http", PlainConnectionSocketFactory.INSTANCE)
+				//.register("https", new SSLConnectionSocketFactory(sslcontext))//不指定TLS版本
+				.register("https", new SSLConnectionSocketFactory(
+						sslcontext, new String[]{"TLSv1","TLSv1.1","TLSv1.2","TLSv1.3","SSLv3"}, null, new DefaultHostnameVerifier()))//指定TLS版本,所有版本在ProtocolVersion.TLS10
+				.build();
+		PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+		httpClient = HttpClients.custom().setConnectionManager(connManager).build();
+	}else
+	{
+		httpClient=HttpClients.createDefault();
+	}
+
+	RequestConfig config = RequestConfig.custom()
+			.setConnectTimeout(10000)
+			.setSocketTimeout(10000)
+			.setConnectionRequestTimeout(3000)
+			.build();
+	//POST
+	HttpPost httppost = new HttpPost(url);
+	httppost.setHeader("Content-Type", "application/json");
+	httppost.setConfig(config);
+	StringEntity stringEntity = new StringEntity("{\"id\":123}","utf-8");
+	httppost.setEntity(stringEntity);
+	CloseableHttpResponse response = httpClient.execute(httppost);
+
+	//GET
+//            HttpGet httpGet = new HttpGet(url);
+//            httpGet.setConfig(config);
+//            CloseableHttpResponse response = httpClient.execute(httpGet);
+
+	if (response.getStatusLine().getStatusCode() == 200) {
+		System.out.println("OK");
+	}
+} catch (Exception e) {
+	log.error("HttpClient https  error ", e);
+}
+
+ 
+	
+
+//单独设置的连接超时
+RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(readTimeoutMs).setConnectTimeout(connectTimeoutMs).build();
+httpPost.setConfig(requestConfig);
+
+看TLS版本，Firefox 在地址左侧图标点击就可以看,edge或chrome  要打开 "开发者工具" 的security标签里有显示 
 
 -----------------------------okhttp
 支持HTTP/2 ， TLS 
@@ -3454,6 +3562,10 @@ mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true); //允许使用�
 String str= json2String();
 UserJson user=mapper.readValue(str, UserJson.class);
 //JsonNode node=mapper.readTree( str);   //通用对象
+
+ObjectNode root=mapper.createObjectNode();//也可以使用Map
+root.put("name","lisi");
+
 ============alibaba JSON  
 https://github.com/alibaba/fastjson
 
@@ -4612,7 +4724,14 @@ DestinationClassName destObject = mapper.map(sourceObject, DestinationClassName.
 System.out.println(destObject.getBirthday().equals(sourceObject.getBirthday()));
 
  
- -------MapStruct 
+ -------MapStruct spring boot
+ 对于使用idea工具 
+ 要 File→settings→Compiler的User-local build process VM options (overrides Shared options)设置
+ -Djps.track.ap.dependencies=false
+ 
+ eclipse就不用
+ 
+ 
  复制Bean属性
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -4662,6 +4781,7 @@ System.out.println(destObject.getBirthday().equals(sourceObject.getBirthday()));
  //  依赖于  type org.springframework.stereotype.Component (spring boot)
 //mvn compile在target下生成源码
 Car car = new Car( "Morris", 5, CarType.SEDAN );
+car.setMadeDate("2010-10-01");
 CarDto carDto = CarMapper.INSTANCE.carToCarDto( car );
 System.out.println(carDto);
 
@@ -4675,7 +4795,9 @@ public interface CarMapper {
     CarMapper INSTANCE = Mappers.getMapper( CarMapper.class );  
     @Mapping(source = "numberOfSeats", target = "seatCount")
 	@Mapping(target = "createDate", expression = "java(new java.util.Date())")
-    CarDto carToCarDto(Car car);  
+	
+	@Mapping(target = "firstBuyDate", dateFormat = "yyyy-MM-dd",source="madeDate")//属性在父类中也是可以的
+	CarDto carToCarDto(Car car);  
 }
 
 

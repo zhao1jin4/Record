@@ -8,7 +8,7 @@ linux zip包和rpm code-1.39.2-1571154220.el7.x86_64.rpm 在 openSUSE下可安�
 .exe方式 默认安装目录 %HOMEPATH%\AppData\Local\Programs\Microsoft VS Code
 
 zip版本可以拖入vscode,但不能拖出vscode？？？ (不能像idea一样可以ctrl+c复制文件)
-User Installer(只是当前用户使用,安装在%USER_PROFILE%AppData\Local\Programs\Microsoft VS Code)版本可以拖动方式和外部文件相互复制
+User Installer 只是当前用户使用,版本可以拖动方式和外部文件相互复制,默认安装在%USERPROFILE%\AppData\Local\Programs\Microsoft VS Code,在win10可以选择,win7 为何没有提示直接安装在上次安装的老目录？？
  
  
 默认插件安装目录 %USERPROFILE%\.vscode\extensions
@@ -27,10 +27,14 @@ https://marketplace.visualstudio.com
 
 %USERPROFILE%\AppData\Roaming\Code\User\settings.json 是保存全局设置
 
-默认文件编码为UTF-8,
-Setting->Text Editor->Files-> Encoding 组默认为UTF-8
+默认文件编码为UTF-8,Setting->Text Editor->Files-> Encoding 组默认为UTF-8
+
 如果想某个文件以GBK编码打开，在下方的栏上点UTF-8->弹出提示菜单 Open With Encoding->选择GB2312
 
+自动推导文件的编码 
+	搜索 files.autoGuessEncoding 选中 Files: Auto Guess Encoding，就可以自动打开GB2312和UTF-8的文件 
+	
+	
 File->Open Folder...
 
 自带Git,HTML,PHP
@@ -42,14 +46,13 @@ File->preferences->windows 标签->Restore Windows 选择none
 
 按tab默认缩进两个空格,修改 File->preferences->Settigns->Common Used 找Editor: Tab Size 默认为4
 	有链接 Editor:Detect Indentation 可以关闭它, 有链接Editor:Insert space 可关闭
-
-左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
-		搜索parameter有Trigger parameter Hints 默认快捷键是ctrl+shift+space
-
-在写键的时候有下拉提示,左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space可修改
-
+ 
+在写键的时候有下拉提示,左下角的manage按钮->keyboard shortcuts->搜索suggest有Trigger Suggest 默认快捷键是ctrl+space 和 ctrl+i  
+			搜索parameter有Trigger parameter Hints 默认快捷键是ctrl+shift+space
+			
 右击文件-> format document(alt+shift+f) 可json,可格式化java代码
-
+			Java › Format › Settings: Url  可以导入eclipse生成的格式化文件 ,默认配置的 eclipse-formatter.xml 可能找不到,配置绝对路径也没用???
+	
 view ->appearance-> hide/show sidebar ctrl+b 
 	view ->appearance-> hide/show panel ctrl+j  是底部面板，有terminal,output
 	F11 全屏,有时不能取消，要alt+v调出菜单
@@ -98,14 +101,17 @@ ctrl+` 显示隐藏 terminal,使用注意，如果像JAVA_HOME这种环境变量
 	Preferences中搜索minimap在 Editor -> Minimap: Enabled取消复选框
 	
 同一文件在多处打开
-	ctrl+alt+点击方法调用处，在新的标签中打开文件,或者 工具栏上的按钮 
+	ctrl+alt+点击方法调用处，在新的标签中打开文件,或者 工具栏上的"窗户"按钮 (ctrl+ \ )这个快捷键没有对应菜单项 ？？？	
 	
 鼠标滑到行号右侧后才有图标按钮，但只对左大括号的行才有
 	ctrl+shift+[ 是折叠代码，当前光标在{中}，多次按向上层
 	ctrl+shift+] 是展开	
+
 	
-ctrl+ \  新的窗口，这个快捷键没有对应菜单项 ？？？	
-	
+高亮选一个词后，同时高亮其它相同的词，不如notepad++ ,
+	vscode这个不区分大小写，而且会选中词的一半 (如选string中，也会选中  StringUtils 中的部分 )
+ 
+
 ----- Node JS
 打开一个目录 -> 左侧点Debug视图->上方的设置按钮会提示哪个语言 如node.js ->会自动生成launch.json->再点绿色启动按钮开启调试
 
@@ -432,7 +438,8 @@ tasks.json文件中"tasks":组里的每一个都可以加
 报错,help-> toggle develop tools是chrome的F12, 原因是code没有运行在 Developer Command Prompt
 开始搜索Developer,找到 Developer Command Prompt for Visual Studio 输入 cl 命令做测试，使用 code .  启动vscode才可,第二个参数表示打开当前目录
 debug 测试成功  参考 Rust/VC 中安装 MSVC Build Tool
-
+--------- 扩展 C/C++ Extension Pack 
+	有CMake功能 
 --------- Clang LLVM   扩展 codeLLDB
 Run and Debug按钮 (或者  Run-> Start Debug ) ->多一个 LLDB -> 生成的lanuch.json 中 "type": "lldb"
 
@@ -547,106 +554,68 @@ add_executable(cmake_demo main.cpp)
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
------
+----- 
+
+---------  扩展 rust-analyzer 替代 rust 
+
+https://rust-analyzer.github.io/manual.html
+要求有rust标准库的源码才行，安装方法 rustup component add rust-src  (如离线安装包安装并设置default toolchaint 会报 xxx  is a custom toolchain 错误，rust-init默认安装就正常)
+源码安装在 %USERPROFILE%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src
+
+rustup component  list
+
+#可选的  rust-analyzer ，eclipse rust插件Corrosion要的
+%USERPROFILE%\.local\bin\rust-analyzer 可能是 vscode 扩展 rust-analyzer 生成的
 
 
 
+只是写代码有提示，点方法跟踪进入(也只是对有Cargo.toml文件 的项目),Find All References
 
 
---------- Rust扩展 preview
-目前不能打断点，Settings->搜索break, Debug:Allow Breakpoints Everywhere 做选中
-要 Run and Debug按钮 (或者  Run-> Start Debug ) -> windows系统 选择C++(Windows) ->修改launch.json中的   
-	"program": "${workspaceFolder}/target/debug/${workspaceFolderBasename}",
-cargo建立项目 调试测试成功，但如修改文件，要手工编译才生效
+codeLLDB扩展(测试下来win10可以，win7不行)的介绍有提到rust,如项目中Cargo.toml文件会自动生成很多配置，可以成功debug 
 
-launch.json 手工增加 "preLaunchTask": "rust_cargo_build", 
-preLaunchTask对应的值 rust_cargo_build 就是在tasks.json里的label字段,可复制 C/C++: g++.exe build active file 生成
---tasks.json
-{
-    "tasks": [
-        {
-            "type": "shell",
-            "label": "rust_cargo_build",
-            "command": "cargo",
-            "args": [
-                "build"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}",
-            }
-        }
-    ],
-    "version": "2.0.0"
-}
+对于测试，方法上直接Debug的灰字，点击就可Debug 
 
---最终 launch.json (windows VC)
-{ 
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "win rust cargo",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/target/debug/${workspaceFolderBasename}",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [], 
-            "preLaunchTask": "rust_cargo_build", 
-            "externalConsole": false
-        }
-    ]
-}
-cargo项目，修改文件,debug 测试成功
-
-----当项目中有Cargo.toml时,Debug按钮提示建立文件,生成的launch.json
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
+当项目中有Cargo.toml时,Debug按钮提示建立文件,生成的launch.json
+	{ 
+		"configurations": [ 
+		{
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'my-gtk-app'",
+            "name": "Debug executable 'myproject'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=my-gtk-app",
-                    "--package=my-gtk-app"
+                    "--bin=myproject",
+                    "--package=myproject"
                 ],
                 "filter": {
-                    "name": "my-gtk-app",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'my-gtk-app'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=my-gtk-app",
-                    "--package=my-gtk-app"
-                ],
-                "filter": {
-                    "name": "my-gtk-app",
+                    "name": "myproject",
                     "kind": "bin"
                 }
             },
             "args": [],
             "cwd": "${workspaceFolder}"
         }
-    ]
+	]
+	} 
+---rustc 方式 可运行，测试debug也成功  launch.json 为
+{ 
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug",
+			"program": "${workspaceFolder}/target/${fileBasenameNoExtension}.exe",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "rustc_build"
+		}
+	]
 }
 
-debug 测试成功
-如修改文件,还是要加  "preLaunchTask": "rust_cargo_build",
-------rustc 方式 可运行，测试debug也成功
----launch.json
+---vc的cppvsdbg (launch.json )在win10下可以debug,win7下不能debug,但可以运行
 { 
     "version": "0.2.0",
     "configurations": [
@@ -688,6 +657,17 @@ debug 测试成功
     "version": "2.0.0"
 }
 
+/* 变量备份 ${file} 是全路径文件名 
+ "args": [
+		"-g",
+		"${file}",
+		"-o",
+		"${fileDirname}\\${fileBasenameNoExtension}.exe"
+*/
+
+ 
+ 
+
 //vscode 不能从标准输入 ,只能用命令行才行
 use std::io;
 fn main() { 
@@ -721,6 +701,12 @@ Maven for Java 		要mvn命令在PATH中
 Java Dependency Viewer
 Visual Studio IntelliCode
 
+
+可以直接识别eclipse的项目，Java Proejcts标签...按钮->Configure Classpath可以看到 默认就是src为源码目录,bin为输出目录 ,可以读到eclipse的classpth设置的jar
+Java Proejcts标签下可以击项目名->ReBuild All ,会在bin目录下生成文件
+idea项目不能识别，可以Configure Classpath界面中增加jar包
+
+
 右击工作区 -> Create Maven Project 
 (也可(View->Command Palette) ctrl+shift+p,空项目时有提示，输入命令maven: create Maven project，就是执行mvn命令)
 
@@ -737,36 +723,21 @@ Debug视图->上方的设置按钮->选Java ->生成launch.json
 File-> add folder to workspace...选择maven项目主目录
 
 -----扩展 Extension Pack for Java (Preview )是 Microsoft的
-包括  Red Hat的 Language Support for Java(Preview ) 要求至少JDK 11
-			除了使用JAVA_HOME 环境变量 生效的条件是要把的打开的vscode窗口关闭，再重新打开才行
-			#user.home(preferences->settings->extension->java下找Home组,
-				可搜索java.home->点edit settings.json,位于%APPDATA%\Code\User) java.home过时使用java.jdt.ls.java.home替换,设置影响界面显示报错如JDK8中没有的类，不影响启动运行
-			自动增加 "files.exclude" 项
-			
-			如果有多个JDK去编译(写的时候会自动提示的，如消失提示要重写""),这个在maven项目中指定编译级别为1.8时使用  view->command palette (调色板，颜料 ctrl+shift+p )搜索java:提示有Configure Java Runtime
-			"java.configuration.runtimes": [
-			  {
-				"name": "JavaSE-1.8",
-				"path": "/path/to/jdk-8",
-			  },
-			  {
-				"name": "JavaSE-11",
-				"path": "/path/to/jdk-11",
-			  },
-			  {
-				"name": "JavaSE-14",
-				"path": "/path/to/jdk-14",
-				"default": true
-			  },
-			]
-			
-			
-	Debugger for Java
-	Test Runner for Java
-	Maven for Java
-	Project Manager for Java
-	Visual Studio IntelliCode
+包括  Red Hat的 Language Support for Java(Preview ) 要求至少JDK 11 
+Debugger for Java
+Test Runner for Java
+Maven for Java
+Project Manager for Java
+Visual Studio IntelliCode
+
+
+	除了使用JAVA_HOME 环境变量 生效的条件是要把的打开的vscode窗口关闭，再重新打开才行
+
+	%APPDATA%\Code\User\settings.json	设置 java.jdt.ls.java.home  表示JAVA_HOME， 影响界面显示报错如JDK8中没有的类，不影响启动运行
+	自动增加 "files.exclude" 项
 	
+	在maven项目中指定编译级别为1.8时使用  view->command palette (调色板，颜料 ctrl+shift+p )搜索java:提示有Configure Java Runtime，打开界面
+
 
 java  右击文件->Source Action...-> organize import(shit+alt+o) 也可做批量导入,如有同名会提示做选择
 			鼠标滑过增加~错误处，提示 quick fix(ctrl+.)，如增加修改包名，也可光标放在红线处出现灯泡图标，点击有操作菜单
@@ -829,16 +800,18 @@ vscode 对 Spring boot 项目使用比较方便的，不用任何配置支持 or
 	还可以提示maven引用jar包的版本有安全问题，是错误级别，不能启动(除非Proceed按钮)
             
 Mavn for java扩展设置中 maven › Executable: Prefer Maven Wrapper 默认是选中的 
-	Maven: Settings File 提示是使用默认的~/.m2/settings.xml
+	Maven: Settings File 提示是使用默认的~/.m2/settings.xml 
+		(Edit按钮打开项目中.vscode/settings.json增加  "maven.settingsFile": "")
 	
 	Configuration > Maven: Global Settings
-	Path to Maven's global settings.xml
+	Path to Maven's global settings.xml 文本框中默认是空的
 
-
+	Settings中 Java › Maven: Update Snapshots  下选中force update 
+ 
 Java project manager 扩展设置可以设置包的显示方式,flat或hierachical,像eclipse
 
 
- ctrl+shift+p(F1) -> maven:history
+ ctrl+shift+p(F1) -> maven:history 的功能 是最近使用的mavn命令的历史
   
 左侧的 maven标签 
 	有刷新按钮
@@ -857,8 +830,9 @@ Java project manager 扩展设置可以设置包的显示方式,flat或hierachic
 	右上角... -> hierarchical view 或者 flat view 只是对包名的显示有影响 
 	右上角... ->Clean workspace ,提示重启vscode
 	
-	 ~\AppData\AppData\Roaming\Code\User\workspaceStorage  里面东西可以会很大，3G
-	 
+	 %USERPROFILE%\AppData\Roaming\Code\User\workspaceStorage  里面东西可以会很大，3G
+	  
+	  
 Java   扩展设置 中 autobuild 默认是 enabled 
  
 
@@ -884,8 +858,7 @@ Java   扩展设置 中 autobuild 默认是 enabled
 java debug时，只能第一次 到List是可以看数据，如果第二 次/级 List(List里的属性又是List)不能看数据？？？，
 		 去除java 黄色警告，如泛型检查，idea没有,如何去除？？？
 
-进入.jar中的类时，有时不会自动找源码jar包，如javax.crypto.spec 就看不到 (jdk11)？？？
-	右击打开的class文件->attch source ->选择xxx-sources.jar	找不到??? 
+进入.jar中的类时，右击打开的class文件->attch source ->选择xxx-sources.jar	找不到??? 
 	对于maven项目没有下载.jar包, 也没有地方单独下载这个.jar包源码(idea可以) 
 
 vscode java 不会自动更新maven snapshot的jar包，刷新没用？？？过了一会又好了，比较慢？？
@@ -897,7 +870,7 @@ vscode  java 刚修改的增加controller中的方法， 总是找不到， 再�
 		有时找不到启动类，是因没有clean后target没有类了，必须再手工 mvn compile才行,没有按钮触发？？？
 		原因启动命令是%USERPROFILE%\AppData\Local\Temp\中的一jar包，里面只有一个MANIFEST.MF文件 ，Class-Path: 有很多项,指向的是本地maven仓库的jar
 vscode 生成toString不带父类的属性，只能+super.toString();格式是[],和数组容易混，没找到怎么修改为{}
-vscode 不能找jar包中的文件,如logback
+vscode 不能找jar包中的文件,如logback.xml
 
 在移动java文件提示窗口做重构时时,有时会出错，就不会修改包名，一这下要先备份再操作
 
@@ -1020,16 +993,19 @@ sdkmanager --install  build-tools;31.0.0  platforms;android-31
 #avdmanager list avd #列出已经有的模拟器
 #avdmanager delete avd  --name myAVD  #删除指定模拟器
 
------扩展 MySQL ,有界面,非常好用
-	作者 cweijan 
-	描述 Database Client for vscode
+---- 扩展  MySQL  图标为 橙蓝组合的数据库图标 
+	有界面 ，建立的连接旁边有按钮进入 命令行控制台,表导出导入功能要收费
+	
 	安装后左侧工具栏多出database和nosql两个按钮
 	支持MySQL,PostgreSQL,SqlLite,MongoDB,Redis,ElasticSearch,SSH(terminal和sftp),FTP (估计都是node做的)
 	点数据库旁边的open query按钮，SQL高亮
-	
-	-- MySQL 扩展,作者Jun Han ,描述 MySQL management tool,不如上面的	
+-- MySQL 扩展,作者Jun Han ,描述 MySQL management tool,不如上面的	
 		在explerer中多了一个mysql面板->连接不友好，不能设计表结构，不能UI修改表数据
 
+
+-----扩展  SQL Database Projects  Preview   是Microsoft的
+
+-----扩展  MongoDB for VS Code Preview 是MongoDB官方的
 	
 -----扩展 Dependency Analytics
 	vulnerable dependencies in pom.xml

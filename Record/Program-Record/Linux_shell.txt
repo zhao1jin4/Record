@@ -2,6 +2,10 @@ windows下的command.com
 rmmod pcspkr 不出声音
  /etc/shells  存所有的SHELL
 echo $SHELL
+
+echo -e "hello \t wold" #-n 可认\t
+echo -n 不要尾部的换行 也可用 tr -d \n
+
 可运行子shell    exit
 help 显示所有的命令
 ll命令 
@@ -137,6 +141,10 @@ dirname /tmp/file  返回/tmp
 dirname $0  当前执行的脚本所在目录
 echo $PWD 当前目录
 
+echo current dir is ${PWD} #取变量
+echo current dir is $PWD #取变量
+echo login user is $(who) #执行命令
+
 basename /tmp/aa.txt 返回文件名 aa.txt
 
 declare  -r 只读变量  -i 整数  可用+改变含义(除-r)  export 来看
@@ -229,8 +237,12 @@ done
 标准错误２
 
 我们可以使用的是3-9文件描述符
+/dev/stdin 链接到 /proc/self/fd/0
+/dev/stdout 链接到 /proc/self/fd/1
+/dev/stderr 链接到 /proc/self/fd/2
 
-comand 1>filename 把标准输出(1可以省)重定向一个文件中
+comand 1>filename 把标准输出(1可以省)重定向一个文件中,默认如果文件已经存在会被覆盖，可用set -C 或 noclobber 如果文件已经存在，用>会就会报错
+
 command >filename 2 >&1 把标准输出和标准错误一起重定向文件中############
 
 command >>filename 2 >&1 把标准输出和标准错误一起重定向文件中(追加)############
@@ -252,7 +264,7 @@ cat xx.txt yy.txt如果正常输出n ,如果错误输出error
 grep "stand" stand.txt >grep.out 2>&1  如果错误(2)重定向到１所代表的(标准输出),1又输出到文件
 
 
-exec ./xx.file 运行后启动新的shell,代替原shell,会环境变量恢复默认
+exec ./xx.file 运行后启动新的shell,代替原shell,会环境变量恢复默认,后面脚本不会被执行
 
 
 exec 3<&0 0<name.txt     #打开3的打描述来自0 0来自文件  , 不会关闭当前的shell
@@ -279,7 +291,7 @@ man test
 3.test OPTION
 
 if test -f  myfile.txt
-if [-f myfile.txt]
+if [ -f myfile.txt ]
 
 -a (and)   -o (or)
 -n 字符长度非0
@@ -314,6 +326,16 @@ case $xx in
 ;;					##########最后一个  ;; 可有可无
 esac
 
+
+echo "Is it morning? type yes/no" 
+read noon
+case ${noon} in 
+	[yY]*) echo "yes ,morning" ;;
+	[nN]*) echo "no ,afternoon" ;;
+	u*|U*) echo "i don't know" ;;
+	*) echo "wrong type in" ;;
+esac
+
 ---------------
 for var in 1 2 3   #red orange  如加"red orange"认为一个 (以空白做为分隔,如空格,换行)
 do
@@ -327,11 +349,25 @@ done
 for file in `ls *.sh` ;do
 done
 
-至少一次
-until []
-do 
-...	
+
+foo=1 
+while [ ${foo} -le 20 ]
+do
+	echo "while add one,foo=${foo}" 
+	
+	#赋值
+	foo=$((foo+1))
 done
+
+
+foo=1 
+#until与while相反，until是条件不成立时执行
+until [ ${foo} -le 20 ]
+do
+	echo "until add one,foo=${foo}"  
+	foo=$((foo+1))
+done
+
 
 
 
@@ -406,6 +442,9 @@ find ./ -perm -7 -print | xargs chomd o-w
 
  
 find ./ -name '*.txt' -type f -print|  xargs  cat -n  | grep   payType=\'00\'
+find ./ \(-name *.txt ||  -newer ./VPN.txt \) -type f  -print
+find ./ \(-name *.txt && -newer ./VPN.txt \) -type f  -print
+
 
 grep "2008-20:5[0-9]" file1 #[0-9]正则
 fgrep  快迅  -n显示内容和行号,-i不区分大小写,-v xx 不显示xx,
@@ -456,6 +495,38 @@ function  killProc()
 killProc tomcat-web
 
 
+
+
+
+calc(){
+	echo "all @ param=" $@
+	echo "all * param=" $*
+#局部变量
+ local	i=1
+   while : #死循环 while : 同while true  
+	do
+		i=$((i+1))
+		if [ $i -gt 10 ] ;then
+			break #对应的有coninue 
+		fi
+		echo "i=$i"
+	done 
+	
+
+	printf "program name=$0 , param1=$1\n"
+	
+	#return `expr $1 + $2` #expr 的取值要用 `` 或 $( ) 
+	#return $(expr $1 + $2) #`` 可用 ()  替代
+	
+	return $(( $1 + $2)) #expr 可用 $(( )) 用于算术
+	
+}
+set $(date) #从这开始，date命令的输出做为参数，即可$2取月
+echo "this month is $2"
+ 
+calc 11 22
+echo "calc return $?"
+
 ---------
 
 sed -n '20p'     /var/log/messages    显示20行
@@ -497,7 +568,7 @@ p 打印
 
 
 
-sort  
+sort   排序文件里的行
 -t  健全符
 -r 返排
 sort -t "/" +2n mfyile  以 /分隔,第三列当数字来排序
@@ -556,7 +627,7 @@ echo "total: ${totalline}"
 
 
 
-getopts
+---getopts 示例 my_getopts.sh
 
 while getopts ahfvc: OPTION   ###-a -h  或者-ah ,(:表示有值的-c 123,如-c=33,值是=33)
 do
@@ -571,11 +642,16 @@ do
 			x=$OPTARG        ##得到参数的值
 			echo "$x"
 		;;
-		\?)			##对没有给值的处理
-			echo "没有得到值 -c "
+		\?)
+			echo "未知选项"
 		;;
 	esac
 done
+echo total $OPTIND options and arg #$OPTIND 最后一个下标
+----
+#不能传没有的选项报错，./my_getopts.sh  -ah -w -c "c1c2"  xxx yy ,但也会继续执行 
+#./my_getopts.sh  -i -ah -c "c1c2"  xxx yy
+
 
 *) 匹配所有的
 a | b) #可以用 |,还可以用[]正则
@@ -714,6 +790,7 @@ kill -s SIGHUP (PID)
 
 kill -1 (PID)会杀子进程 
 
+格式为 trap <command> <signal> ,当收到信号时做指定动作,如要恢复默认值command前加-,如要忽略信号，信号传''
 
 trap 'fun' 2 3 ##捕获2 3 信号,如捕获到做 fun所定义的函数,#如发出信号 4 系统处理
 
@@ -721,6 +798,7 @@ exit 1 退出
 
 trap -l 显示信号关系名称,使用时要省略SIG前缀,如SIGHUP要使用HUP
 
+trap 列出关联的
 
 myfile="cat cmd.txt";`eval $myfile`  # cmd.txt 里有一个ls命令
 syslog  服务,写日志
@@ -791,13 +869,18 @@ done
 提示时A是覆盖所有的
 
 
+foo=10
+x=foo
+eval y='$'$x
+echo $y;
+
 
 eval 
 printf
 
 $(ls *.rpm)
 
-expr 相当于$(( ))
+expr 相当于$(( )) ,不全对
 `` 相当于$()
 : 相当于 true
 [ ] 相当于 test
@@ -805,11 +888,11 @@ expr 相当于$(( ))
 exec xxx "yy"
 exec  3<file 向文件描述符输
 
- 
+
 grep -E [a-z]\{10\} xx.txt    -E 扩展的有？，* ，+ {n},{n,},{n,m}
 grep a[[:blank]] yy.txt
-
-
+grep -E [a-z]{10} VPN.txt #即{ }也可不转议
+grep -E Th.[[:blank:]] xx.txt
 ed 文件名<<EOF
 >vi命令
 
@@ -822,18 +905,29 @@ sh -x xxx 或者　set -o  xtrace set -x 处理后之后显示
 		+o　取消设置
 		set -o xtrace 打开
 		set +o xtrace 关闭　　　echo $PS4
+		
+----命令行下和图表界面 dialog
+yum install dialog
 
-dialog --msgbox "hello" 9 18  ##(高，宽)
+dialog --msgbox "hello" 9 18  ##(高，宽)，要点一下OK
+
 dialog --title "confirm" --yesno "Are you willing to take part ?" 9 18
+#选 yes $?返回0,no $?返回1
 if [ $? != 0 ] ; then
-        dialog --infobox "OK" 5 20
+        dialog --infobox "OK" 5 20  #立即退出实时交互
         sleep 2
         dialog --clear
         exit 0
-fi
+fi 
 
+多选checklist
+dialog --title "check Me" --checklist "pick number" 15 25 3 1 "one" "off"  2 "two" "on" 3 "three" "off" 2>res.txt
+结果输出到标准错误中,3表示3组
 
+dialog --title "question" --inputbox "enter your age" 9 30 2>res.txt
 
+单选menu
+dialog --title "music " --menu "select you love music" 15 30 4 1 "classical" 2 "JAzzy"  3 "Country" 4 "other" 2>res.txt
 
 
 ----------Shell的调试
@@ -923,6 +1017,21 @@ calc
 test123
 test456
 
+myfunc(){
+	#这是双坚线，与用 ＆＆
+	if [ -f hello.txt ] || [ -f word.txt ] ;then
+		printf "hello.txt  or world.txt in this dir \n"
+	else
+		printf "can not found hello.txt  or world.txt in this dir \n"
+	fi
+}
+
+#调用不用加（）
+myfunc
+
+#$()和``一样
+res=$(myfunc) #可以把函数中的echo或printf当返回值
+echo "res=${res}"
 
 
 
@@ -1041,10 +1150,25 @@ done
 sed -i "s/1030/1031/g" `grep 1030 -rl ./*.log`
 
 
+只有1-20行中的内容做替换
+sed -i 1,20s/1.0.0-SNAPSHOT/1.0.0.RELESE/ ./server/pom.xml
+
+# 批量替换所有pom.xml文件中前20行<parent>部分中的内容 <version>2.0.0-SNAPSHOT 修改为 <version>2.0.0.RELEASE
+find ./ -name pom.xml   -print|  grep '<version>2.0.0-SNAPSHOT' -rl  | xargs   sed -i "1,20s/<version>2.0.0-SNAPSHOT/<version>2.0.0.RELEASE/g" 
+
+
+
+
 mkdir v{1,2,3,4,5}
 
 
 
 
+lpr 打印文件(Line printer)
+man bash | col -b 不会一页一页的暂停，会部显示
+col(colation 过滤; 粗滤) 
 
+ls main.{o,c} 显示main.ｏ,main.c
+file main.o 
+file main.c 可显示文件的类型的信息，如文本或二进制
 

@@ -4,18 +4,32 @@ https://doc.opensuse.org/
 openSUSE leap       版本是稳定的发布版本 
 openSUSE tumbleweed 版本是为希望有最新的包
 
+openSUSE Leap 次要版本，大约每12个月(每年) 对齐  SUSE Linux Enterprise Service Packs
+	主要版本大约36-48个月(3-4年) 对齐 SUSE Linux Enterprise Releases
+ 
+ 
 openSUSE  Leap 15.2还首次提供Kubernetes支持作为正式包,也可为Windows SubSystem for Linux
 
 openSUSE  Leap 15.3  发布时间  June 02, 2021,但真机安装后启动报错？？？ VMware安装正常(15.0,15.1,15.2都正常)
 	下载iso文件不要从国内的镜像下，会在安装时报签名失败,rpm错误,导致没办法安装(vmware安装也是,说明镜像不是复制iso而各镜像站点单独生成的)
 		,日本的镜像下载的(手工生成sha256的值和官方上的一样 )只有一次提示签名失败
 
-openSUSE Leap 次要版本，大约每12个月(每年) 对齐  SUSE Linux Enterprise Service Packs
-	主要版本大约36-48个月(3-4年) 对齐 SUSE Linux Enterprise Releases
+ openSUSE Leap 15.4    Jun-19 2022 已经发布  
+ (大白菜制作U盘启动成功USB-ZIP)安装时,硬盘分区时,提示要有BIOS Boot Loader类型的分区,自己建不出,建议的有,再删btrfs分区
  
- 15.4 计划日期为 Wed, Jun 8, 2022  
-	开始使用dnf,gnome-4.1,Git服务器Pagure
+	开始使用dnf,gnome-4.1(版本为41.2),Git服务器Pagure,
+	kubernetes-1.17,1.18,1.19,1.20都有,但刚发时，已经有kubernetes-1.24,1.20是最后一个支持版本
+		
+	安装连网前建立 关闭 packagekit，一个软件更新的工具，没有提示日志显示在下载软件包，zypper 不能安装其它包
+	systemctl stop packagekit  
+	systemctl disable packagekit  #是 static 的，disable没用，再登录又启动了？？zypper remove PackageKit
+	terminal 有黑色主题
 	
+	bluefish 不能去Spell check???
+	
+yast2 增加仓库地址 ，有kubernetes-1.24.3 
+https://download.opensuse.org/tumbleweed/repo/oss/
+
 	
 openSUSE-leap-15自带的gnome软件 libreOffice,evolution,evince,gimp,inkscape,cheese摄像,Totem播放器,pidgin(可MSN,GTalk都测试过的),brasero(DVD工具)
 	Firefox
@@ -691,6 +705,10 @@ echo OFF >/sys/kernel/debug/vgaswitcheroo/switch
 
  
 -------------fcitx 输入法 
+
+sudo zypper install fcitx-table-cn-wubi-pinyin
+
+ 
 Free Chinese Input Tool for X  
 输入文字提示背界是灰色，文字颜色
 
@@ -708,7 +726,7 @@ start ->fcitx configuration-> input method ->  这里就是切换输入法是有
 
 (/etc/sysconfig/language 设置 INPUT_METHOD="fcitx"  ,logoff也没用  有文件/etc/X11/xim.d/fcitx )
 
-/etc/profile 仅限于传统的X11  /etc/environmen (说明是被 pam_env 模块解析的)设置变量
+/etc/profile 仅限于传统的X11  /etc/environment (说明是被 pam_env 模块解析的)设置变量
 （下面的配置放~/.bashrc文件中，fcitx在xfce桌面上也是生效的）
 
 export XMODIFIERS=@im=fcitx
@@ -1472,6 +1490,7 @@ vi /etc/X11/xdm/xdm-config 注销掉这一行(45行上 在起点加以个!)
 systemctl  restart xdm  (openSUSE方式,没有177端口监听???? 测试不行)
 /etc/init.d/xdm restart
 
+openSUSE-leap-15.4  原DVD 自带 Xfce-4.16 桌面 
 openSUSE-leap-15.1 Rescue LiveCD 默认是Xfce桌面 体积最小,也有Gnome,KDE桌面版本
 	zypper install  -t pattern  xfce  (基于GTK的，ibus 输入法比gnome快很多,在登录时点设置图标下拉可以切换桌面,gnome有好多次在使用chrome查找时死机)
 

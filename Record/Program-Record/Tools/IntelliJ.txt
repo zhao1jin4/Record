@@ -28,6 +28,7 @@ idea 插件 markdown
 
 ====================IntelliJ IDEA    要JDK1.8 才能启动64位版本
 IDEA 2021.2		compiler 到jdk 17  LTS 
+IDEA 2022.2     compiler 到jdk18,19是expermental
 
 Idea Community 2021.3.1 版本  Android插件版本为 Android-2020.3.1 刚好差一年的版本，Idea Community 2021.2就不行
 idea 2021.3.1 对AndroidStudio-2020.3.1项目兼容性不是100%的，如NDK，Junit项目不能构建, androidTest 中的代码 右击菜单中没有 运行和调试项
@@ -325,7 +326,12 @@ File --> settings --> Editor --> File and Code Templates --> Files --> Class ,�
 同一文件在多处打开
 	右击文件 ->open in right split 在新的标签中打开文件
 	右击打开文件的标签-> split down 或split right
-	
+
+ ---MapStruct   对于使用idea工具 
+ 要 File→settings→Compiler的User-local build process VM options (overrides Shared options)设置
+ -Djps.track.ap.dependencies=false
+ 
+ 
 ====================IntelliJ IDEA plugin 
 https://plugins.jetbrains.com/
 https://plugins.jetbrains.com/idea
@@ -561,6 +567,11 @@ Settings->Rust-> Standard library 中设置rust主目录
 https://plugins.jetbrains.com/plugin/8182-rust/docs/rust-debugging.html  
 中说只可Intellij Idea的 Ulimated版本, GoLand,CLion,PyCharm Pro才行
 
+
+Settings->Language& Frameworks -> Rust->
+	Standard Library :默认检测到 %USERPROFILE%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust
+	ToolChain location :默认检测到 %CARGO_HOME%\bin
+	
 -----UpSource  免费的
 用来做Code review
 

@@ -104,7 +104,8 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
 
  
 <server>
-   <id>releases</id> <!-- id对应 pom.xml中的 <distributionManagement> 中的Id的值   -->
+   <id>releases</id> 
+   <!-- id对应 pom.xml中的 <distributionManagement> 中的Id的值 ,也对应于 <mirror> <id> 中的值    -->
    <username>admin</username>
    <password>admin123</password>
  </server>
@@ -115,7 +116,7 @@ Maven的安装文件自带了中央仓库的配置, 打开jar文件$M2_HOME/lib/
  </server>
 <mirrors>
 	<mirror>
-		<id>mirrorId</id>  
+		<id>myrepo</id>  
 		<mirrorOf>*</mirrorOf>  
 		<!-- 可为 *   或者 env_development,central (https://repo.maven.apache.org/maven2/) 
 	
@@ -283,13 +284,18 @@ artifactId 是自己的项目名
   <name>MyProjectApp</name> <!-- 一些工具会显示为项目名,如NetBeans -->
   <groupId>com.mycompany.myproject.app</groupId>
   <artifactId>myproject_app</artifactId>  
-  <version>1.1.0-SNAPSHOT</version> 	<!-- 如有父版本,这里不用指定 -->
+  <version>1.1.0-SNAPSHOT</version> 	<!-- 如有父版本,这里不用指定 -->  
   <packaging>jar</packaging>  <!-- jar,war,pom -->
-  <!-- 对  <packaging>pom</packaging> 时module是项目名,如deploy facade时,应把parent级 pom中其它的module注释，在parent级做deploy
+  
+  <description>项目描述</description>
+  
+  <!-- 对  <packaging>pom</packaging> 时module是项目名,如deploy facade时,应把parent级  
+  pom中其它的module注释，在parent级做deploy
   <modules>
 	    <module>myproject-facade</module>
   </modules>
   --> 
+  
   <build> 
 	<finalName>${project.artifactId}-${project.version}</finalName>
 	<resources>
@@ -1004,6 +1010,122 @@ CMD ["java -jar app.jar","--spring.profiles.active=%PROFILE%"]
 <groupId>com.google.code.maven-replacer-plugin</groupId>
 <artifactId>maven-replacer-plugin</artifactId>
 <version>1.4.0</version>
+
+===========maven 自带 插件批量修改版本,有很多子模块 <parent><version>中的版本不能使用变量  
+
+https://www.mojohaus.org/versions-maven-plugin/examples/set.html
+
+mvn versions:set -DnewVersion=2.2.1-SNAPSHOT
+mvn versions:revert 使用备份做还原
+mvn versions:commit 删除备份的
+
+也可使用linux shell脚本来修改
+find ./ -name pom.xml   -print|  grep '<version>2.0.0-SNAPSHOT' -rl  | xargs   sed -i "1,20s/<version>2.0.0-SNAPSHOT/<version>2.0.0.RELEASE/g"
+
+===========maven git-commit-id-plugin  插件  
+
+https://github.com/git-commit-id/git-commit-id-maven-plugin
+如果JDK11用5.0.0 groupId不同
+<plugin>
+	<groupId>io.github.git-commit-id</groupId>
+	<artifactId>git-commit-id-maven-plugin</artifactId>
+	<version>5.0.0</version>
+<plugin>
+  
+如果JDK8 用 4.0.0 groupId不同
+   <plugin>
+		<groupId>pl.project13.maven</groupId>
+		<artifactId>git-commit-id-plugin</artifactId>
+		<version>4.0.0</version>
+    <plugin>   
+	   
+  
+ <build>
+        <resources><!-- 这个可以不要,是要全部 -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering> 
+                <includes> 
+                    <include>**/*.properties</include> 
+                    <include>**/*.yml</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.0.0</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <includeOnlyProperties>  <!-- 这个可以不要,是显示全部 -->
+                         <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+                        <includeOnlyProperty>git.branch</includeOnlyProperty>
+                        <includeOnlyProperty>git.build.host</includeOnlyProperty>
+                        <includeOnlyProperty>^git.commit.message.(short|full)$</includeOnlyProperty>
+                    </includeOnlyProperties>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+插件会在target/classes下生成文件git.properties,但还要写个工具来查看才行
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+
+@RestController
+@RequestMapping("/git")
+public class GitInfoController {
+    private static final Logger LOG= LoggerFactory.getLogger(GitInfoController.class);
+
+    private final String gitProperties = "git.properties";
+
+    @GetMapping(value = "/info")
+    @ResponseBody
+    public String getVersionInfo() {
+        String res="";
+        try {
+          res=readFromInputStream(getClass().getClassLoader().getResourceAsStream(gitProperties));
+        } catch (IOException e) {
+            LOG.error("get git info error:",e);
+            res=e.getMessage();
+        }
+        return res;
+    }
+    private String readFromInputStream(InputStream inputStream) throws IOException {
+        StringBuilder resultStringBuilder = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                resultStringBuilder.append(line).append("\n");
+            }
+        }
+        return resultStringBuilder.toString();
+    }
+}
 ===========
   
 ---sonar 覆盖率maven插件

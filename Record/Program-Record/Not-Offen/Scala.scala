@@ -1,3 +1,7 @@
+
+Linkerd 基于Twitter的Finagle项目并和后者一样，最初是由Scala语言编写， 由于最初版本的内存占用广受诟病， 为Kubernetes定制，用Rust和Go语言编写
+ 
+
 ﻿<dependency>
     <groupId>org.scala-lang</groupId>
     <artifactId>scala-library</artifactId>

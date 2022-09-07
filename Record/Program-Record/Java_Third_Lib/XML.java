@@ -174,8 +174,10 @@ public static <T>  T objToXmlByXStream(String xml,Class<T> clazz)
 {
 	if(xml == null) 
 		return null;
-	//XStream xStream = new XStream(new DomDriver());
-	
+  //XStream xStream = new XStream(new DomDriver());//DomDriver默认会把单下划线变成双下划线 
+  //XStream xStream = new XStream(new DomDriver(null,new XmlFriendlyNameCoder("_-","_")));//解决双下划线
+  //XStream xStream =new XppDomDriver(nameCoder) //没有单下划线变成双下划线的问题 
+  
   XStream xStream = new XStream(new DomDriver()){
             //避免xml出现多余字段报错
             @Override

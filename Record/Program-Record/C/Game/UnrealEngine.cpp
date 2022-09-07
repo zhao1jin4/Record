@@ -1,10 +1,13 @@
 Visual Studio 2019 中有这个库，使用C++开发 (Unity使用C#开发，过去12个月整体财务规模达到20万美金以上的企业需购买,按年收费)
 可以运行的平台包括三个桌面系统(windows,linux,MacOS),两大移动平台(Anroid,iOS)及 XBox，PlayStation
-UE(UnrealEngine) 目前最新为4.27版本, 有5的体验版本,官方有介绍在github上有源代码
+UE(UnrealEngine) 目前最新4版本为4.27版本, 有5的版本,(虚幻引擎5取消了对32位平台的支持。)
 发行收费，100万美元以后开始收5%分成费
 
 虽然锐龙5600G的核心还不足以应对大型3A游戏，但是对于主流游戏已经具有很强的可玩性
 3A游戏泛指的是高成本、高质量、高体量的单机游戏
+
+官方有介绍在github上有源代码 
+https://github.com/EpicGames/UnrealEngine
 
 下载 要 Epic  帐户
 

@@ -35,8 +35,10 @@ windows版本的LLVM-13.0.0-win64.exe   安装后,安装后里面有clang++ ,cla
 	
 	clang++ -g  -std=c++17 src/hello.cpp -o bin/hello #在windows 下，如安装了vs2019用 -std=c++11 就会报错
 	clang++ -std=c++17 -stdlib=libc++ e:\vscode_workspace\clang_demo\src\hello.cpp -o bin/hello --debug ,警告未使用 -stdlib=libc++
+	
+	lldb-13 依赖于python36.dll   注意 PYTHONPATH 环境变量
+	lldb-14 依赖于python310.dll (win7不行的)
 	 
-	lldb 调试(对应gdb)，依赖于python36.dll 
 	 https://www.python.org/downloads/windows/ 可以找到windows下的老版本二进制
 	
 	lldb hello.exe
@@ -498,13 +500,16 @@ int min(int a,int b)
 {
 	return a<b?a:b;
 }
-int (*returnFuncInPointer(int a))(int,int)//返回指向函数的指针
+void* returnFunc(){
+  return (void*)min;
+}
+int (*returnFuncInPointer(int a))(int,int)//返回指向函数的指针,不易读
 {
 	 int (*p) (int ,int);//定义指向函数的针;
 	 p=min;
 	 return p;
 }
-//或者用
+//或者用,linux 信号处理函数signal就是这样的形式
 typedef int (*FuncInPointer) (int ,int);
 FuncInPointer  returnFuncInPointer2(int a)
 {
@@ -536,7 +541,31 @@ int chars[5]={0,1,2};
 int (*pointer)[5];//是指针,指向int[5]的数组
 pointer = &chars;
 printf("%d",(*pointer)[2]);//2
+//--
+typedef int (*FUNC)(int, int);
+  FUNC func1 = min;
+  printf("%d\n",  func1(11,22));
+  printf("%d\n",  (*func1)(11,22));
 
+  FUNC func2 = &min;
+  printf("%d\n",  (*func2)(10,20));
+  printf("%d\n",  func2(10,20));
+
+  int(*minPtr2)(int,int)=&min;
+  int(**minPtr3)(int,int)=&minPtr2;//"指向函数指针" 的 指针
+  printf("%d\n",  (**minPtr3)(22,33));
+
+  FUNC func3 = NULL;
+  void* funcVoid=(void*)min;
+  *(void **) (&func3) =funcVoid;//=前面是void*类型
+  *((void **) (&func3)) =funcVoid;//就是func3取地址，再强制为void ** 类型，再取值，再赋值(即先强转再赋值)
+  printf("%d\n",  (*func3)(10,20));
+   printf("%d\n",  func3(10,20));
+//--
+void* func=returnFunc();
+ int (*pMin)(int,int);
+ pMin=(int (*)(int,int))func;//void* 强制转换为指向函数的指针
+ printf("%d\n", pMin(22,33));
 //--
 FuncInPointer arrayCom[5];//是数组,里存放指针向函数的指针
 arrayCom[0]=min;
@@ -664,10 +693,19 @@ FILE *p=freopen("c:/my.txt","w",FILE *);//一般用于stdin,stdout,stderr的重�
 fclose(fp);
 remove("c:/my.txt");//删除文件
 rename("c:/my.txt","c:/my_1.txt");//重命名文件
-FILE * f=tmpfile();//以wb+方式
-char * tmpname(NULL);//返回不同一个文件名字串,内部静态数组的指针
-char * tmpname(char s[L_tmpnam]);//存入s中,至少L_tmpnam空间
+FILE * f=tmpfile();//以wb+方式 ,多线程比tmpnam更安全
+char * tmpnam(NULL);//返回不同一个文件名字串,内部静态数组的指针  `tmpnam' is dangerous, better use `mkstemp'
+char * tmpnam(char s[L_tmpnam]);//存入s中,至少L_tmpnam空间
 
+int tmpfd;
+char temp[] = "template-XXXXXX";//返回底层的文件描述符,要求６个Ｘ结尾的字符串
+tmpfd = mkstemp(temp);
+printf("template = %s\n", temp);//会把６个Ｘ替换的
+FILE *tmpFile=fdopen(tmpfd,"r");
+fclose(tmpFile);
+//close(fd);
+
+  
 void setbuf (FILE* stream, char*　buf)
 //缓冲区长度 BUFSIZ 缺省值为512字节,如buf为NULL不带缓冲
 
@@ -676,9 +714,18 @@ int setvbuf(FILE * stream,char * buf,int mode ,size_t size);
 //打开文件后,用户可建立自己的文件缓冲区,而不使用fopen()函数打开文件设定的默认缓冲区,用malloc
 
 vprintf,vfprintf,vsprintf 由va_start初初始化,由va_arg调用
-#include <sdtarg.h.
+#include <sdtarg.h>
 
-fscanf,scanf
+fscanf
+
+
+int a[2][3]={{1,2,3},{4,5,6}};//初始化方式 
+scanf("%d",&a[0][0]);//必须有 &
+
+char* str="20";
+int num=0;
+sscanf(str,"%d",&num);//可做类型转换
+
 
 fgetc,fgets,fputc,fputs
 int getc(FIFLE *);
@@ -877,7 +924,24 @@ time ( &timestamp );
 struct tm * tm_now = gmtime ( &timestamp );//转成GMT时间
 printf ("GMT 北京+8 时间:  %02d:%02d\n", (tm_now->tm_hour + 8)%24, tm_now->tm_min);//%02d可显示00,而不是一个0
 
- 
+
+
+time_t rawtime;
+struct tm * timeinfo;
+time ( &rawtime );//把当前的时间截写入
+
+timeinfo = localtime ( &rawtime );//转为当地时间,可以读年月日等
+char buffer [80];
+//f=format
+strftime (buffer,80,"%Y-%m-%d %H:%M:%S %Z",timeinfo);//把日期转字串,%Y-%m-%d %H:%M:%S  ,%X表示%H:%M:%S ,%Z 为CST或China Standard Time
+printf ("Date is: %s\n",buffer);
+
+
+
+struct tm  timeinfo2;
+strptime("2022-05-09 11:21:13 CST ","%Y-%m-%d %H:%M:%S %Z",&timeinfo2 );//p=parse
+printf ("parse date is: %s\n",asctime(&timeinfo2));
+	
 //------ math.h
 printf("%f\n",exp(3));//e的3次方
 printf("%f\n",pow(10.0,3));//10的3次方
@@ -971,7 +1035,7 @@ testarg(L"ISI", 3,  L"3 & 4",4);//L
 	fclose(f);
 
 	char bufferFile [L_tmpnam];//长度最小值 宏L_tmpnam
-	tmpnam (bufferFile);//返回一个文件名
+	tmpnam (bufferFile);//返回一个文件名 `tmpnam' is dangerous, better use `mkstemp'
 	printf ("带参的临时文件名:%s\n",bufferFile);
 	char * pointer = tmpnam (NULL);//如果传NULL使用返回值,下次调用会覆盖这部分区域
 	printf ("NULL参的临时文件名: %s\n",pointer);
@@ -1148,8 +1212,12 @@ testarg(L"ISI", 3,  L"3 & 4",4);//L
 
 	//calloc和malloc,参数不同
 	printf ("操作系统环境变量path: %s\n",getenv ("PATH"));//操作系统环境变量
+	putenv("LOG_ROOT=/tmp/log");
+	printf ("我的进程内部变量LOG_ROOT: %s\n",getenv ("LOG_ROOT"));
+		
 	i=system ("dir");//执行操作系统命令,返回值0表示执行成功
 	printf ("The value returned was: %d.\n",i);
+
 
 	div_t divresult;
 	divresult = div (38,5);//同样的还有ldiv(long div)

@@ -1,4 +1,5 @@
 GTK等架构也是基于XWindow 
+wayladn (近年一直更新) 替代 X11 (很多年没有更新) ,GTK QT 还要移值
 
 https://docs.gtk.org/gtk4/getting_started.html
 https://developer.gnome.org/ 
@@ -187,7 +188,7 @@ debug 做如下,测试成功,要有src目录和target目录
  
  
  
- ----------- msys2  gtk4  win10测试成功(win7不行?原因可能是msys2中的python-3.9，而win7最高只支持以3.8.x, gdb命令直接报错)
+ ----------- msys2  gtk4  win10测试成功(win7不行?原因msys2中的python-3.9，而win7最高只支持以3.8.x, gdb命令直接报错)
  --tasks.json
  {
     "tasks": [

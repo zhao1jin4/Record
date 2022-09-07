@@ -6,7 +6,7 @@ https://www.elastic.co/guide/index.html
 支持 k8s https://www.elastic.co/guide/en/cloud-on-k8s/current/index.html
  
 
-elasticsearch-7.4.1 要求用JDK11 
+elasticsearch-7.4.1 要求用JDK11
 windows/linux 都是单独的包
 
  
@@ -80,7 +80,7 @@ vi config/jvm.options
 ES_JAVA_OPTS="-Xms1g -Xmx1g"  ./bin/elasticsearch   #要求Xms和Xmx要一样大
 bin\elasticsearch   启动   http://localhost:9200/  有JSON 返回，包含版本信息的cluser_name,lucene_version
 -d 后台启动
-
+ 提示建议用 ES_JAVA_HOME 代替 JAVA_HOME
 
 curl -X GET "localhost:9200/_cat/health?v&pretty"
 
@@ -292,7 +292,7 @@ curl -X GET "localhost:9200/bank/_search?pretty" -H 'Content-Type: application/j
 "terms" 下增加 "execution_hint": "map" 默认值为 global_ordinals
 https://www.elastic.co/guide/en/elasticsearch/reference/7.5/search-aggregations-bucket-terms-aggregation.html#search-aggregations-bucket-terms-aggregation-execution-hint
 
-可能是基于Lucene的groupgin实现的
+可能是基于Lucene的grouping实现的
 
 curl -X GET "localhost:9200/bank/_search?pretty" -H 'Content-Type: application/json' -d'
 {

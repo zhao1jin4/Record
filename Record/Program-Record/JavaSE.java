@@ -1538,7 +1538,7 @@ FileInputStream resource2 = new FileInputStream("c:/tmp/input2.txt");
 module J_JavaSE
 {
 	requires java.base;
-	requires java.desktop;
+	requires java.desktop;//为javax.swing.*
 	requires java.sql;
 	requires java.sql.rowset;
 	requires java.rmi;
@@ -3265,8 +3265,11 @@ if(hs == SSLEngineResult.HandshakeStatus.NEED_UNWRAP)//NEED_WRAP,NEED_TASK
 	Runnable task=engine.getDelegatedTask();
 	new Thread(task).start();
 }
+ 
 
-//有 HttpsURLConnection
+HttpsURLConnection.setDefaultSSLSocketFactory(xx)是全局修改
+HttpsURLConnection conn=(HttpsURLConnection)new URL("https://www.baidu.com").openConnection();
+conn.setSSLSocketFactory(xx);//就局部修改
 
 CertPathParameters pkixParams = new PKIXBuilderParameters(someKeystore,  new X509CertSelector());
 ManagerFactoryParameters trustParams =  new CertPathTrustManagerParameters(pkixParams);
@@ -3996,6 +3999,8 @@ String.format("today: %1$tY-%<tm-%<td", c);//%< 表示使用和前一个相同,�
 String.format("now=%1$tY-%<tm-%<td %<tH:%<tM:%<tS.%<tL ",new java.util.Date());
 
 c.getActualMaximum(Calendar.DAY_OF_MONTH);//得到当月的最后一天
+
+Calendar.HOUR_OF_DAY
 
 System.currentTimeMillis();
  
@@ -5327,6 +5332,10 @@ if (sm != null) {
 }
 
 java -Djava.security.manager  -Djava.security.policy=bin/security/mytest/test.policy security.mytest.SecurityMainApp
+
+报 No appropriate protocol (protocol is disabled or cipher suites are inappropriate)
+jdk1.8.291\jre\lib\security\java.security文件中有 	jdk.tls.disabledAlgorithms=   TLSV1.1 这个选项要去除
+	
 
 jdk1.8.0\jre\lib\security 有示例
 ---policytool 命令有界面 生成policy 文件 test.policy

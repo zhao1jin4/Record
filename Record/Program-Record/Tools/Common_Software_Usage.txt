@@ -83,6 +83,8 @@ Project 2019其实就是Project 2016,卸载时看详细版本是一样的
 删打开文件历史记录,world 中 右击历史记录->clear unpined document  ,但下次打开一样的有新的记录
 或者修改 file->options->advanced->Display组中 show this number of recent documents的值,只是改显示,但记录还是在的
 
+建立目录 :目录文字要有heading n样式，references 菜单 -> 第一个按钮 Table of Content
+
 win10任务栏中的图标历史清除,找不到???
 -----Word 2010
 可以比较两个文档，Totoris SVN diff 修改world文件时会自动打开word来比较
@@ -307,7 +309,7 @@ firefox63  插件 只能在线安装了(可以右击复制链接在edge里下载
 			0.1.6版本测试下来可以，注意开关为灰文字表示关闭,每次修改都要先删再加，都要新加标签，不方便
 	
 	Cookies Manager   在工具栏右侧有按钮 
-	
+	Cookie AutoDelete 
 	Self-Destructing Cookies (WebEx)  关闭tab时删cookie 安装后在工具栏上(不能localstorage)
 	开发使用 Exploit-Me  工具集  XSS-Me, SQL Inject Me
 	
@@ -536,6 +538,10 @@ UltraEdit 把GBK编码的文件认为是UTF-8,	高级-->配置-->文件处理-->
 
 
 Mac UltraEdit 3.3  "文件" ->"比较文件...", 自带UltraCompare Lite 2.3.0.3
+----------sublime
+
+---------Atom
+
 
 ---------Editplus
 打开大文件速度快,但选择速度慢,如果一行过长，通过水平滚动条不能拖动最后一个字符，要用end键才行，BUG
@@ -587,6 +593,8 @@ Encodeing->Convert to UTF-8-BOM
  查找 _(\p{Lower})  
  替换 \U\1
  
+正则表达式区配数字
+	CSDN	data-line-number="([0-9]{1})"
 ---插件
 plugins->plugin amdin...->搜索hex  复选hex edit插件->install  后就有plugins-> Hex-Editor-> view in HEX 
 	以十六进制查看文件是否有UTF-8 BOM  (UltraEdit也可以,另存为可选择是否有BOM)
@@ -618,7 +626,9 @@ TextWrangler  中 view->Hide/Show File   ,打开文件时要把文件拖到左�
 TextWrangler  中 preferences->Application标签->取消 Reopen Documents that were open at last quit
 TextWrangler  中 File->Reopen with encoding->Chinese GBK 可以对打开的文件是乱码做修改 （保存时可选择文件编码）
 
----- Komodo-Edit
+---- Komodo-Edit 12
+使用python开发，慢启动要6秒，bluefish或linux text editor启动只要不到1秒
+
 Edit -> preferences ->Syntax checking->取消enable复选框
 
 	Edit->Current File Setting...->设置文件编码 
@@ -638,7 +648,7 @@ alt+拖动 可以选择中部分列
  
 ------Bluefish  
 有linux,mac版本
-windows版本会在线下载GTK+等包,(2.2.12版本下载为gtk2)
+windows版本会在线下载GTK+等包,(2.2.12版本下载为gtk2),版本的会出现部分中文显示方块的问题，不建议用
 
 不能按列选择，不方便 
 
@@ -651,6 +661,7 @@ Document ->Language Mode->没有SQL, yaml/yml ??
 
 右击下角有显示字符集
 	Docuemnt->Character Encoding->当前的前显示为. ,可以修改符集，有GBK和UTF-8(是不带bom的)
+		-> add remove ... 增加GBK，可自动识别GBK编码的文件
 
 开头有空格/tab 回车换行时以当前行为准
 
@@ -673,8 +684,9 @@ Preferences -> files->backup & Recovery->取消 Create backup file during file s
 
 缩进快捷键  
  ctrl + > 和 ctrl + <
-
-
+------Brackets 
+支持windows 和mac
+  
 
 ------TextEditor  (linux)
 不能按列选择，不方便 
@@ -821,6 +833,8 @@ DivX 有时作用也不大
 可以看到每个文件编码 UTF-8 是否带BOM 
 
 工具栏 Rules按钮 -> Comparison 标签中，取消compare timestamps,即不比较文件的修改时间
+	Filters按钮弹出的窗口可以增加exclude 目录，如target,.idea,.git等,显示文本内容为-target\;-.idea\;-.git\
+
 -----------------------UltraCompare 18 
 有windows,linux,mac版本
 windows版本没有中文问题

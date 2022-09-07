@@ -810,16 +810,32 @@ Sec-WebSocket-Version: 13
 
 	
 =============================JSON
+
 <dependency>
     <groupId>javax.json</groupId>
     <artifactId>javax.json-api</artifactId>
-    <version>1.1</version>
+    <version>1.1.4</version>
 </dependency>
+
 <dependency>
     <groupId>org.glassfish</groupId>
     <artifactId>javax.json</artifactId>
-    <version>1.1</version>
+    <version>1.1.4</version>
 </dependency>
+
+mvnrepository 上提示使用jarkata的(最近有更新),search.maven.org上没有提示 ,类名都一样，只是包名不一样
+
+ <dependency>
+	<groupId>jakarta.json</groupId>
+	<artifactId>jakarta.json-api</artifactId>
+	<version>2.1.0</version>
+</dependency>
+<dependency>
+    <groupId>org.eclipse.parsson</groupId>
+    <artifactId>jakarta.json</artifactId>
+    <version>1.1.0</version>
+</dependency>
+
 
 import javax.json.Json;
 import javax.json.JsonArray;
@@ -828,7 +844,7 @@ import javax.json.JsonStructure;
 //--生成
 JsonBuilderFactory bf = Json.createBuilderFactory(null);
 JsonStructure struct =bf.createObjectBuilder()
-            .add("firstName", "John")
+            .add("firstName", "John")//如值为null报空指针错误
             .add("age", 25)
             .add("address", bf.createObjectBuilder()
                 .add("streetAddress", "21 2nd Street")

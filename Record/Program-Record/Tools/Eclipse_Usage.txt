@@ -1,8 +1,7 @@
-﻿Eclipse 2021-06(4.20.0)   compiler 到jdk 16
-Eclipse 2021-09(4.21.0)   compiler 到jdk 16  打开要求JAVA_HOME是11版本
+﻿Eclipse 2021-09(4.21.0)   compiler 到jdk 16  打开要求JAVA_HOME是11版本
 Eclipse 2021-12(4.22.0)	  compiler 到jdk 17  LTS
 Eclipse 2022-03(4.23.0)	  compiler 到jdk 17
-
+Eclipse 2022-06(4.24.0)	  compiler 到jdk 18
 =======================================eclipse==========================
 快捷键
 alt +/
@@ -668,10 +667,9 @@ sourceforge 的 JadClipse
 	可 links和dropins 安装jadclipse,目录要自己建立 jadclipse3.3\eclipse\plugins,放  net.sf.jadclipse_3.3.0.jar
 	references有jad,但报Cannot run program "jad",依赖于jad命令
 
----Shell 编辑器插件
-	ShellEd   help->install->选net.sourceforge.shelled-site-2.0.3.zip,在线安装依赖,.sh显示为$图标,open with -> shell editor
- 
-	
+---Shell 编辑器插件  
+
+
 ---liferay help->install 可选择 liferayIDE,不选择mobile,maven
 
 --Hadoop 插件 

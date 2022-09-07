@@ -37,7 +37,7 @@ gstreamer-plugins-xxx
 
 Cheese摄像头
 
-
+cd ~otherUser 可进其它用户的主目录，但只能在shell中使用，程序中不行
 ~/.local/share/Trash/files 是回收站  
 ~/.Trash //是回收站  
 ~/桌面  //这个目录是桌面
@@ -81,11 +81,13 @@ Super+`    (切换同一应用打开的多窗口 )
 
 Super+A：显示应用程序菜单
 
----	
+---
+gnome-tweak-tool (Activies -> Utilities->Tweaks)
+
 #gconf-editor 配置界面没有gedit的项,类似windows的注册表一样的东西
- 
-gnome3 桌面上不能放文件 ，gnome-tweak-tool (Activies -> Utilities->Tweaks) -> Extensions -> Desktop Icon   桌面上显示两个图标，一个回收站，一个主目录
-		# Desktop ->把 把所有的都打开,就可以在桌面上放文件了 
+
+   
+		
 左侧的工具栏图标   /usr/share/applications/bcompare.desktop
 
 gedit  显示行号->preference->View -> display line numbers
@@ -124,11 +126,10 @@ https://wiki.gnome.org/Personalization 下有extensions  但没有themes
 
 Gnome3的扩展存放在/usr/share/gnome-shell/extensions/目录  与 ~/.local/share/gnome-shell/extensions/ 目录下
 
-gnome-shell-extension-prefs  的开Shell Extenstions窗口 (Tweaks 应用也可有这些配置),有很多开关
-  #Alternate Tab          按alt+tab相同的应用是在显示在一组
+gnome-shell-extension-prefs (Extension应用) 的开 Extenstions窗口 (Tweaks 应用也可有这些配置),有很多开关
   Applications Menu      是否在窗口左上角显示gnome2风格的菜单
   Places Status Indicator在左上角是否显示到某个目录的快捷菜单
-  Desktop Icon     	   桌面上显示两个图标，一个回收站，一个主目录
+  Desktop Icon      	   桌面上显示两个图标，一个回收站，一个主目录 
   Window List            显示像windows的任务栏 ,在任务栏中也不能拖动应用
         可以设置按钮,设置always group windows 后看不出一个应用打开了多个窗口，Group windows when space is limited,默认是Never group windows
   Workspace Indicator    在右上角显示当前在哪个虚拟桌面
@@ -157,6 +158,7 @@ gnome shell  大多数图形代码用JavaScript写成 使用OpenGL来渲染图�
 GNOME Shell 扩展就像那些可以安装在 GNOME 之上的第三方附加组件和插件
 gnome-shell --version
 
+GNOME Builder 开发工具
 ---
 修改默认程序  Settings->Details->Default Application 但是没有文本编辑器的(Komodo Edit 增加右键菜单第一项,快捷键是enter)
 WPS linux版安装后 ，右键菜单有新建doc...
@@ -211,7 +213,7 @@ ctrl+alt+L 锁屏(xflock4命令)，但要安装  zypper install xlockmore ，锁
 	
    lightdm 应用 设置锁屏，作用在什么地方？
 		
-Thunar 资源管理器中 当前目录搜索文件 是像windows一样，只找当前目录的一级，不会像gnome那样找所有子级
+Thunar 资源管理器中 当前目录搜索文件 是像windows一样，只找当前目录的一级，不会像gnome那样找所有子级。　还是多标签管理的方便
 
 Terminal  显示太够宽 再次启动就好了,  如果命令是复制的，再近上键调不出复制的命令，不方便 ？？
 Note 显示太够宽???
@@ -390,7 +392,10 @@ ls -l /proc/<PID>/exe  是一个链接
 file /proc/<PID>/exe  
 lsof -c mongod  查看这个字符开头的命令所打开的文件
 
- 
+ls -l  /proc/<PID>/cwd  是一个链接 工作目录
+cat /proc/<PID>/cmdline  命令行
+cat /proc/<PID>/environ  环境变量 
+
 聊天用write,talk
 write root pts/2 对方只显示,不能回复,要双方都使用write
 talk  135.251.27.76  pts/1  #可能要安装talk-server
@@ -483,6 +488,7 @@ unlink 效果同 rm
  
  
 LD_LIBRARY_PATH Solaris/Linux
+
 
 linux开通组播命令
 route add -net 224.0.0.0 netmask 240.0.0.0 dev eth0
@@ -720,7 +726,9 @@ windows 下打linux文件用,写字板来打开
 
 /dev/cdrom -> sr0
 
+eject 或
 eject cdrom  
+
 Nero 记录光盘 ，ISO 标签栏，文件名长度ISO (1，最多8＋32，最多31)
 
 
@@ -729,7 +737,11 @@ find  /var/cache/yum/x86_64/7/  -name '*.rpm' -exec mv  {}  ./ceph_storage_clust
 
 cdrecord dev=b,t,l -v -dao schillix-0.1.iso
  ls --color=tty 可以高亮 或  --color=always
- 
+
+ls -li 显示inode ,第三３列表示链接(ls 命令)数　 ,权限第一列b表示块文件/dev/sda1
+ls -l 第5列为主设备号，第6为次设备号 如  /dev/null 是 1,3
+lsdev (安装procinfo 软件包)
+
 alias ls='ls --color=always -ahl'
 unalias 
 
@@ -918,7 +930,8 @@ ls -l
 ls -ltu 按仿问时间排序和显示
 ls -lu  显示仿问时间按名字排序
 ls -ltc 	显示和排序按	ctime (time of last modification of file status information)
-
+ls -lF  显示权限是s开头文件名以=()结尾 ,表示Socket . 
+			权限最前显示为 p,最后标识显示|,表示管道. 
 
 linux 文件没有创建时间, 有状态改变时间(chmod) , 有访问时间( more命令)
 ext4文件系统可查创建时时
@@ -934,7 +947,7 @@ debugfs: quit 退出
 stat temp.c 查看文件详情
 
 ln	 软链接可跨分区
-	硬链接不可以跨分区
+	硬链接不可以跨分区,不可目录，容易环状
 
 
 du -h 显示目录使用的空间
@@ -1129,7 +1142,11 @@ echo "user01 ALL = (root) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/user01
 sudo chmod 0440 /etc/sudoers.d/user01
 
 
-mail 看邮件  /var/spool/mail/root  ,如 cron 任务语法错误
+mail 看邮件  /var/spool/mail/root  ,如 cron 任务语法错误  
+dnf whatprovides *bin/mail 要安装mailx
+
+mail -s "Mail Subject"　-u root </dev/null   (发邮件依赖于sendmail不行了)
+mailx 和　mail是同一个文件
 
 === 上命令
 ------/etc/crontab
@@ -1219,7 +1236,7 @@ printf "%x\n" <TID> 的线程TID置换为16进制
 /proc/meminfo   lsmem命令
 free ,vmstat 5可每5秒自动更新
 iostat
-nice -20~19   默认0，值越小越快 ， 进程优先级
+nice -20~19   默认0，值越小越快 ， 进程优先级,renice ,ps -el 有PRI列
 & 后台运行  fg jobs ctrl +z
 　
 telinit q  重新加载initab  文件
@@ -1234,6 +1251,8 @@ ps -e -o 'pid,comm,args,pcpu,rsz,vsz,stime,user,uid'
 	 %cpu 别名pcup 
 	 stime  启动时间，如小于24小时显示"HH:MM" 否则显示 (三个字母的月份两位天)
 看内存CPU像 ps aux
+
+ps -lx 显示进程状态STAT为S (sleep),l表示multi-threaded,+表示前台进程,R(Runing),N低优先级
 
 top 工具
 	显示标题
@@ -1618,6 +1637,7 @@ set fileencodings=utf-8,gbk
 
 打开显示正常后, :set fileencoding=utf-8  ,再:w the_utf8.txt  ,就把gbk的转换为utf8文件了
 
+file main.c 可显示文件的类型的信息，如文本或二进制
 ---查看文件字符集
 file -i the_utf8.txt 如果文件和系统编码相同则显示utf8,否则GBK就显示为iso-8859-1,同有中文显示为us-ascii
 vi 中 :set  fileencoding 可显示文件字符集 ,GBK对应的是 CP936,有时也为latin1,没有中文时显示就是系统字符集,不对???
@@ -2543,7 +2563,7 @@ ldd /sbin/raidstart  来检查 raidstart 命令运行时要哪些库文件,复�
 
 raidstart 要读/etc/raidtab文件,也要复制到./etc下
 
-gzip xxx -c >xxx.gz
+gzip xxx -c >xxx.gz 压成
 gzip xxx 自动把文件压成xxx.gz 原文件消失 
 gzip -d xxx.gz  解压
 
@@ -3158,6 +3178,12 @@ rdesktop 工具 (openSUSE-15自带RDP协议的远程桌面工具)  同windows的
 
 -------------gcc 
 LD_LIBRARY_PATH =/usr/local/gcc-3.4.0/lib:$LD_LIBRARY_PATH
+
+替代LD_LIBRARY_PATH的另一个方式
+/lib64/ld-linux-x86-64.so.2 --library-path ./ ./test #格式为　--library-path 查找路径　程序名,不用加-l参数　
+
+ldd /bin/ls 命令打印现所依赖的共享库
+
 /etc/ld.so.conf 配置文件设置　lib 的查找路径
 pkg-config --libs --cflags gtk+-2.0
 
@@ -3165,6 +3191,8 @@ gcc的环境变量 CPATH(-I选项),C_INCLUDE_PATH,CPLUS_INCLUDE_PATH,OBJC_INCLUD
 
 ldconfig	生成/etc/ld.so.cache文件, LD_LIBRARY_PATH 或者 /etc/ld.so.conf 	里只 include ld.so.conf.d/*.conf	
 因此当安装完一些库文件，(例如刚安装好glib)，或者修改ld.so.conf增加新的库路径后，需要运行一下 /sbin/ldconfig
+
+
 
 pkg-config	PKG_CONFIG_PATH
 pkg-config --modversion glib-2.0 显示大于这个版本的 ,一般在prefix/lib/pkgconfig,文件以.pc扩展名	 
@@ -3185,7 +3213,9 @@ modinfo ext3
 modprob (依赖安装,如失败会卸载整组的模块)
 rmmod
 ============================fedora 专用的 
+https://rpmfusion.org/ 官方没有软件包，如mplayer 
 fedora35(GNOME 41)升级比openSUSE leap快很多
+fedora32 开始默认是btrfs 分区
 
 文档 https://docs.fedoraproject.org/en-US/fedora/f34/
 如要使用XFCE桌面  要安装时单独下载 Live.iso https://spins.fedoraproject.org/xfce/download/index.html
@@ -3200,6 +3230,9 @@ Fedora Media Writer 的windows 版本工具下载，可以自动下载Live.iso �
 单选 高级-> BLIVET GUI 是一个硬盘分区的界面工具
 
 硬盘安装Fedora 34是比较好的选择
+
+
+fedora34的gnome桌面的文件浏览器不能新建标签(可以使用xfce的thunar file manager)，xfce桌面中的就可以
 
 --------fedora　配置老版本的仓库,　安装老版本　yum install openssl-devel-1.0.1e-30.fc20 , yum install PackageKit-gtk3-module-0.8.13-1.fc20.x86_64
 ---/etc/yum.repos.d/fedora-20.repo
@@ -3273,10 +3306,15 @@ xfce(依赖ibus-gtk2)下也可安装im-chooser包,im-chooser 命令启动(gnome4
 
 
 -----fcitx
+
+
+
 sudo dnf install  fcitx
 sudo dnf install  fcitx-pinyin
 sudo dnf install  fcitx-table-chinese
 sudo dnf install  fcitx-configtool    就有App fcitx config 
+
+
 也可 im-chooser 命令启动(gnome4下如启动失败) input method selector -> use Fcitx 边上的Preferences...
 
 后重启也没有fcitx进程？？？ fcitx config也没有配置？？？  fcitx 命令后就有进程了 上面的配置就有输入法了，取消show only current language
@@ -3377,7 +3415,6 @@ fedora 默认也有 PackageKit 软件包，大写字母，有命令pkcon
 	
 
 
-fedora34的gnome桌面的文件浏览器不能新建标签(可以使用xfce的thunar file manager)，xfce桌面中的就可以
 
 市场上(Software)可安装file-roller(GNOME桌面,进程名),安装后名字叫Archive Manager,有界面的 压缩 解压缩 工具　
 	ll　/proc/xxx/exe 显示链接到　/app/bin/file-roller 但这个文件不存在?　不是snap软件,可能是安装在 gnome-software内部
@@ -3569,49 +3606,104 @@ rpm 解包 rpm2cpio FileName.rpm | cpio -div
 	-U upgrade
 	
 -------------redhat rpm-build
-可以安装rpm-build 来安装 *.src.rpm 等同于解压->./configure ->make 不过会提示少 openssl-devel
- /usr/src/redhat/SOURCE目录下
-vsftp.src.rpm的示例
+可以安装rpm-build 软件包有rpmbuild命令
+ 
+--- myapp.spec 文件示例
+Vendor:           Wrox Press
+Distribution:     Any
+Name:	          myapp
+Release:          1
+Packager:         neil@provider.com
+License:	  Copyright 2007 Wiley Publishing, Inc.
+Group:            Applications/Media
+Provides:         myapp
 
-/usr/src/redhat
-	BUILD目录：编译时存放临时文件
+#Requires:         mysql-3.23
+#Requires:         mysql>=3.23
+#表示依赖任何版本的mysql
+Requires:         mysql
+
+Autoreqprov:      on
+Version:          1.0
+Summary:          Trivial application
+
+#Source:           myapp-1.0.tar.gz
+#%{}是宏,在注释里也会被展开，对应前面的变量。
+#默认找 ~/<当前.spec文件所在目录名>/SOURCES/ 目录下的文件
+Source:           %{name}-%{version}.tar.gz
+
+#Buildroot　在哪个目录构建，，设置后可使用变量$RPM_BUILD_ROOT　引用这个值，测试实际上不是？？？
+#值可以使用%{_tmppath},%{_bindir},%{_mandir}变量 
+Buildroot:	%{_tmppath}/%{name}-%{version}-root
+
+%description
+MyAPP Trivial Application
+
+A trivial application used to demonstrate development tools.
+
+This version pretends it requires MySQL 3.23.
+
+Authors: Neil Matthew and Richard Stones
+
+%prep
+%setup
+#%setup -q 安静模式
+
+%build
+make
+
+#%make_install 会调用make install
+%install
+#_tmppath=/var/tmp
+echo "_tmppath=%{_tmppath}"
+
+#_bindir=/usr/bin
+echo "_bindir=%{_bindir}"
+
+#_mandir=/usr/share/man
+echo "_mandir=%{_mandir}"
+
+#RPM_BUILD_ROOT=~/<当前.spec文件所在目录名>/BUILDROOT/myapp-1.0-1.x86_64
+echo "RPM_BUILD_ROOT=${RPM_BUILD_ROOT}"
+
+
+#make install　这样不行
+mkdir -p $RPM_BUILD_ROOT%{_bindir}
+mkdir -p $RPM_BUILD_ROOT%{_mandir}/man1/
+install -m755 myapp $RPM_BUILD_ROOT%{_bindir}/myapp
+install -m755 myapp.1 $RPM_BUILD_ROOT%{_mandir}/man1/myapp.1
+gzip $RPM_BUILD_ROOT%{_mandir}/man1/myapp.1
+
+
+#%clean
+make clean
+
+%post
+#安装前后执行的命令，这个没有被执行？
+touch /tmp/rpmbuild_post.txt
+
+#软件包中的所有文件
+%files
+#这个些是在目录~/<当前.spec文件所在目录名>/BUILDROOT/myapp-1.0-1.x86_64中找
+/usr/bin/myapp
+/usr/share/man/man1/myapp.1.gz
+#%{_bindir}/myapp
+#%{_mandir}/man1/myapp.1.gz
+
+---
+rpmbuild  -ba  myapp.spec 建立源码包和二进制包
+
+生成在~/<当前.spec文件所在目录名>　，目录结构 
+ 	BUILD目录：编译时存放临时文件
 	SOURCES目录：存放.tar.gz源码包   
-	SPECS目录：存放spec文件          ###   http://svn.rpmforge.net/svn/trunk/rpms/	下有mplayer 和unrar的spec 文件   
 	RPMS目录：存放打包好的rpm文件	
 	SRPMS目录：存放src.rpm文件
+	
+	#SPECS目录：存放spec文件 
 
-spec文件   rpmbuild  -ba vsftpd.spec  ()
-	Summary: the First RPM of Howard
-	Name: hellow
-	Version: 0.1
-	Release: 1
-	Vendor:Ace soft (howard_ace@hotmail.com )
-	Source0:hellow-0.1-1.tar.gz
-	%description
-		My test hellow
-	%prep
-		tar –xzvf $RPM_SOURCES_DIR/hellow-0.1-1.tar.gz
-	%build
-		cd $RPM_BUILD_DIR/hellow
-		./configure
-		make
-	%install
-		cd $RPM_BUILD_DIR/hellow
-		make install
-	%clean
-		rm –fr $RPM_BUILD_DIR/hellow
-	%defattr(-,root,root
-		/usr/bin/hellow
-	%doc $RPM_BUILD_DIR/hellow/readme
+rpmbuild  --rebuild myapp-1.0-1.src.rpm
 
-
-
-#rpm -ivh vsftpd-1.2.1-3E.1.src.rpm
-#cd /usr/src/redhat/SPECS/
-#rpmbuild  -ba vsftpd.spec
-#cd /usr/src/redhat/RPMS/i386
-#rpm -ivh vsftpd-1.2.1-3E.1.i386.rpm
-
+-----------
 
 yum -y install d4x 来在线下载安装
 yum update 
@@ -4207,3 +4299,12 @@ sha256sum file.tar  > file.sha256
 
  
  | json_pp 格式化json
+ 
+ install 命令复制文件和设置属性
+ install -m755 xx.txt /tmp/yy.txt 权限755
+ install -m 755 xx.txt /tmp/yy.txt
+ 
+ 
+ 
+ 
+ 

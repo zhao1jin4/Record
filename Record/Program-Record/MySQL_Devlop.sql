@@ -409,6 +409,14 @@ select DATE_ADD(current_date,INTERVAL '18:30:00' HOUR_SECOND);
 				  
 select DATE_SUB(now(), interval 1 month)  --前一个月
 
+ SELECT EXTRACT(YEAR FROM '2019-07-02');
+ 
+ SELECT EXTRACT(YEAR_MONTH FROM '2019-07-02 01:02:03'); -- YEAR_MONTH 是关键字 在存储过程中自己不能用这个名字
+       
+  SELECT EXTRACT(DAY_MINUTE FROM '2019-07-02 01:02:03');
+       
+  SELECT EXTRACT(MICROSECOND  FROM '2003-01-02 10:30:00.000123');
+     
 
 SELECT FROM_DAYS(736153);  
 select TO_DAYS('2015-07-07');
@@ -1167,7 +1175,7 @@ call simpleproc(@y);
 
 delimiter  //
 drop  FUNCTION if exists hello //
-CREATE FUNCTION hello (s CHAR(20))
+CREATE FUNCTION hello (s CHAR(20)) -- 必须指定长度，可以是varchar(20)
   RETURNS CHAR(50) DETERMINISTIC  -- Function dbForge一定要有DETERMINISTIC
   BEGIN
     DECLARE res VARCHAR(30);
@@ -1271,6 +1279,23 @@ BEGIN
     END IF;
   END;;
   
+  
+  
+create   trigger add_inventory
+ AFTER INSERT  ON inventory
+FOR EACH ROW   
+BEGIN   
+	declare  exist_row int;
+  	select count(*) into exist_row from product_kind WHERE id=new.product_id;  
+   if exist_row = 0 then
+   	 insert into product_kind(id,name,count) values(22,'gen',new.num );
+   ELSE
+   -- ELSEIF 
+	   UPDATE product_kind
+	  SET count=count + new.num 
+	   WHERE id=new.product_id;  
+   END IF;
+END;
  -----view
 CREATE VIEW customer_list
 AS

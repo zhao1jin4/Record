@@ -2,7 +2,7 @@
 第一个有版本号的 Rust 编译器于2012 年 1 月发布
 Rust 1.0 是第一个稳定版本，于 2015年5月15日发布。
 
-可替代C/C++  (GTK 4 支持用Rust开发)
+可替代C/C++  ,跨平台比c++好，比如Socket功能(GTK 4 支持用Rust开发)
 多处理器支持好，并发好
 没有拉圾回收
 擅长 WebAssembly ，Firefox浏览器
@@ -11,7 +11,8 @@ microsoft 有支持
 https://docs.microsoft.com/zh-cn/windows/dev-environment/rust/overview
 https://foundation.rust-lang.org/ 基金会里除了microsoft还有goole,aws,facebook
 https://github.com/microsoft/windows-rs
-
+https://doc.rust-lang.org/std/index.html
+https://doc.rust-lang.org/std/all.html
 
 https://github.com/Rust-for-Linux/linux  (google支持的) 不是要将所有 Linux 内核中的 C 代码替换成 Rust
 
@@ -79,106 +80,65 @@ cargo build会显示配置的地址
 %USERPROFILE%/.rustup/toolchains 下东西很多,如果下载过两个版本,有2.5GB大小,是 rustup toolchain 命令生成的
 
 
----visual studio code 的Rust扩展 preview
-目前不能打断点，Settings->搜索break, Debug:Allow Breakpoints Everywhere 做选中
-要 Run and Debug按钮 (或者  Run-> Start Debug ) -> windows系统 选择C++(Windows) 生成 launch.json
-修改了 "program": "${workspaceFolder}/target/debug/${workspaceFolderBasename}",
-cargo建立项目 调试测试成功，但如修改文件，要手工编译才生效
-launch.json 手工增加 "preLaunchTask": "rust_cargo_build", 
-preLaunchTask对应的值 rust_cargo_build 就是在tasks.json里的label字段,可复制 C/C++: g++.exe build active file 生成
---tasks.json
-{
-    "tasks": [
-        {
-            "type": "shell",
-            "label": "rust_cargo_build",
-            "command": "cargo",
-            "args": [
-                "build"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}",
-            }
-        }
-    ],
-    "version": "2.0.0"
-}
-/* 变量备份 ${file} 是全路径文件名 
- "args": [
-		"-g",
-		"${file}",
-		"-o",
-		"${fileDirname}\\${fileBasenameNoExtension}.exe"
-*/
+---vscode 扩展 rust-analyzer 替代 rust
+ 
+https://rust-analyzer.github.io/manual.html
+要求有rust标准库的源码才行，安装方法 rustup component add rust-src  (如离线安装包安装并设置default toolchaint 会报 xxx  is a custom toolchain 错误，rust-init默认安装就正常)
+源码安装在 %USERPROFILE%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust\library\std\src
 
---最终 launch.json (windows VC)
-{ 
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "win rust cargo",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/target/debug/${workspaceFolderBasename}",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [], 
-            "preLaunchTask": "rust_cargo_build", 
-            "externalConsole": false
-        }
-    ]
-}
+rustup component  list
 
-cargo项目，修改文件,debug 测试成功
-----当项目中有Cargo.toml时,Debug按钮提示建立文件,生成的launch.json
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
+#可选的  rust-analyzer ，eclipse rust插件Corrosion要的
+%USERPROFILE%\.local\bin\rust-analyzer 可能是 vscode 扩展 rust-analyzer 生成的
+
+
+
+ 只是写代码有提示，点方法跟踪进入(也只是对有Cargo.toml文件 的项目),Find All References
+ 
+ 
+ codeLLDB扩展的介绍有提到rust,如项目中Cargo.toml文件会自动生成很多配置，可以成功debug 
+
+对于测试，方法上直接Debug的灰字，点击就可Debug 
+
+当项目中有Cargo.toml时,Debug按钮提示建立文件,生成的launch.json
+	{ 
+		"configurations": [ 
+		{
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'my-gtk-app'",
+            "name": "Debug executable 'myproject'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=my-gtk-app",
-                    "--package=my-gtk-app"
+                    "--bin=myproject",
+                    "--package=myproject"
                 ],
                 "filter": {
-                    "name": "my-gtk-app",
-                    "kind": "bin"
-                }
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}"
-        },
-        {
-            "type": "lldb",
-            "request": "launch",
-            "name": "Debug unit tests in executable 'my-gtk-app'",
-            "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=my-gtk-app",
-                    "--package=my-gtk-app"
-                ],
-                "filter": {
-                    "name": "my-gtk-app",
+                    "name": "myproject",
                     "kind": "bin"
                 }
             },
             "args": [],
             "cwd": "${workspaceFolder}"
         }
-    ]
+	]
+	} 
+---rustc 方式 可运行，测试debug也成功  launch.json 为
+{ 
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug",
+			"program": "${workspaceFolder}/target/${fileBasenameNoExtension}.exe",
+			"args": [],
+			"cwd": "${workspaceFolder}",
+			"preLaunchTask": "rustc_build"
+		}
+	]
 }
-
-debug 测试成功
-
-------rustc 方式 可运行，测试debug也成功
----launch.json
+---vc的cppvsdbg (launch.json )在win10下可以debug,win7下不能debug,但可以运行
 { 
     "version": "0.2.0",
     "configurations": [
@@ -219,6 +179,15 @@ debug 测试成功
     ],
     "version": "2.0.0"
 }
+
+
+/* 变量备份 ${file} 是全路径文件名 
+ "args": [
+		"-g",
+		"${file}",
+		"-o",
+		"${fileDirname}\\${fileBasenameNoExtension}.exe"
+*/
 ---vscode 扩展 Better TOML  
 vscode 默认没有Cargo.toml没有语法高亮
  (在扩展窗口的输入文本框中输入 ext:toml 显示所有打开toml插件)
@@ -255,8 +224,10 @@ Settings->rust->Language Server:中有下载 rust analyzer 也可手工下载 ht
 	$ chmod +x ~/.local/bin/rust-analyzer
 
 官方提供的截图也是 linux下使用，在windows下debug没试成功???
-windows下不能运行rust-gdb --version (%USERPROFILE%\.cargo\bin下有rust-gdb) ,不兼容 stable-x86_64-pc-windows-msvc  
-安装 rust-1.58.1-x86_64-pc-windows-gnu.msi 默认位置 C:\Program Files\Rust stable GNU 1.58 修改默认位置，如 D:\App\Rust-GNU-1.58 ,安装包370M,安装后1.5G
+windows下不能运行rust-gdb --version (%CARGO_HOME%\bin下有rust-gdb) ,不兼容 stable-x86_64-pc-windows-msvc  
+安装 rust-1.58.1-x86_64-pc-windows-gnu.msi 默认位置 C:\Program Files\Rust stable GNU 1.58 修改默认位置，如 D:\App\
+rust gnu 1.62 ,安装包241M,安装后1.09G
+
 rustup toolchain link rust-gnu D:\App\Rust-GNU-1.58 建立后 %USERPROFILE%/.rustup/toolchains 目录下有一个名为rust-gnu的快捷方式
 rustup default rust-gnu
 rustup toolchain list -v 显示指向的路径
@@ -279,18 +250,24 @@ rustc --print sysroot
 
 rustup update stable 在线升级
 
-----------Intellij Idea 插件 Rust 
+----------Intellij Idea 插件 Rust   开源的
 
+Intellij  Community 可安装，也可用于Android Studio 
+ 
+	
 https://plugins.jetbrains.com/plugin/8182-rust/
 0.3.144.3766-211 			 2021.1   		Mar 29, 2021 
 	又依赖于toml
 	https://plugins.jetbrains.com/plugin/8195-toml
+ 
 
-Settings->Rust-> Standard library 中设置rust主目录
-可以运行(使用 cargo)，Community版本 不能打断点
+可以建立rust项目，运行项目只认有 cargo.toml 的项目 ！！！  
 
-https://plugins.jetbrains.com/plugin/8182-rust/docs/rust-debugging.html  
-中说只可Intellij Idea的 Ulimated版本, GoLand,CLion,PyCharm Pro才行
+Settings->Language& Frameworks -> Rust->
+	Standard Library :默认检测到 %USERPROFILE%\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib\rustlib\src\rust
+	ToolChain location :默认检测到 %CARGO_HOME%\bin
+	  
+打断点必须是收费工具Intellij Idea的 Ulimated版本, GoLand,CLion,PyCharm Pro才行
 
 
 ---main.rs
@@ -431,7 +408,7 @@ cargo publish --registry=my-registry
 
 cargo tree 显示依赖树
 
-cargo run 会下载依赖，默认到 %USER_PROFILE%\.cargo\registry\cache\mirrors.ustc.edu.cn-xxxx 目录下
+cargo run 会下载依赖，默认到 %USERPROFILE%\.cargo\registry\cache\mirrors.ustc.edu.cn-xxxx 目录下
 
  
 
@@ -644,7 +621,7 @@ fn main() {
     let mut s = String::from("hello"); 
     let r1 = &s; // 没问题 （读锁可多个）
     let r2 = &s; // 没问题 （读锁可多个）
-    let r3 = &mut s; // 大问题
+    //let r3 = &mut s; // 大问题
     println!("{}, {}, and {}", r1, r2, r3);
     //不能在拥有不可变引用的同时拥有可变引用（有读锁了，也不能有写锁）
  
@@ -660,12 +637,12 @@ fn calculate_length(s: &String) -> usize {//这里不能修改值
 fn change(some_string: &mut String) {
     some_string.push_str(", world");
 }
-
+/*
 fn dangle() -> &String {
     let s = String::from("hello");
 
     &s//s会被回收的，不能返回 ， dangle悬荡
-}
+}*/
 fn no_dangle() -> String {
     let s = String::from("hello"); 
     s
@@ -697,7 +674,7 @@ fn main(){
 
     let mut s = String::from("hello world"); 
     let word = first_word2(&s); 
-    //s.clear(); // 错误! 
+    //s.clear(); // 错误!  原因为上面的first_word2(&s);的函数声明是不可变的(没有mut)，这里不能再为可变的
     println!("the first word is: {}", word);
 
 
@@ -706,7 +683,7 @@ fn main(){
     let my_string_literal = "hello world";
 
     // first_word 中传入字符串字面值的 slice
-    let word = first_word2(&my_string_literal[..]);
+    let word = first_word2(&my_string_literal[..]);//切片类型为 str 不是String,函数参数类型为 &str
     println!("1the first word is: {}", word); 
     // 这样写也可以，即不使用 slice 语法！
     let word = first_word2(my_string_literal);
@@ -1175,12 +1152,14 @@ fn read_username_from_file3() -> Result<String, io::Error> {
 
 use std::fs;  
 fn read_username_from_file4() -> Result<String, io::Error> {
-    fs::read_to_string("hello.txt")
+    fs::read_to_string("hello.txt")//找的位置是运行程序时的当前目录 
 }
 
 
 //---10-2 error
- use std::error::Error;
+ use std::error::Error;//是一个 trait 
+ //io::Error  进入为  std::io::Error  ，是一个struct ，只是文件读写的错误
+ //Err
  use std::fs::File;
  
   //main 函数的一个有效的返回值是 ()
@@ -1252,6 +1231,13 @@ fn main() {
     let p3 = p1.mixup(p2);
 
     println!("p3.x = {}, p3.y = {}", p3.x, p3.y);
+	
+	let num="123";
+    match num.parse::<i32>().map(|i| i * 2) { //函数模板用::
+        Ok(n) => println!("{n}"),//{}内是变量
+        Err(..) => {}
+    }
+	
 } 
 
 struct Point<T, U> {
@@ -1275,7 +1261,7 @@ impl<T, U> Point<T, U> {
  
 use std::fmt::Display;
 
-//scala也有trait 特点，特征）,类型Java的 接口
+//scala也有trait 特点，特征）,类似Java的 接口
 
 pub trait Summary {
     // fn summarize(&self) -> String;
@@ -1410,7 +1396,7 @@ struct Pair<T> {
 }
 
 impl<T> Pair<T> {
-    fn new(x: T, y: T) -> Self {
+    fn new(x: T, y: T) -> Self {  //返回类型,大写S
         Self {
             x,
             y,
@@ -1461,7 +1447,7 @@ fn main(){
         .next()
         .expect("Could not find a '.'");
     let i = ImportantExcerpt { part: first_sentence };
-    //i 和 first_sentence 生命周期要相同
+ 
 
 /*
     生命周期省略规则
@@ -1489,7 +1475,8 @@ fn longest(x: &str, y: &str) -> &str {
 // &i32        // 引用
 // &'a i32     // 带有显式生命周期的引用，   生命周期名字为a
 // &'a mut i32 // 带有显式生命周期的可变引用 
-fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {//这些a 生命周期必须存在得一样久
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+	//它的实际含义是 longest 函数返回的引用的生命周期与传入该函数的引用的生命周期的较小者一致。 
     if x.len() > y.len() {
         x
     } else {
@@ -1675,12 +1662,17 @@ fn it_adds_two2() {
 }
 //cargo test --test integration_test  -- --nocapture
   
- 
+  
+  
+//let case_sensitive = env::var("CASE_INSENSITIVE").is_err();//返回的是is_err()的值
+let case_sensitive = env::var("CASE_INSENSITIVE").unwrap();//读环境变量 返回Result
+  
+  
 //---16  闭包
 
 fn  add_one_v1   (x: u32) -> u32 { x + 1 }//函数
 let add_one_v2 = |x: u32| -> u32 { x + 1 };//闭包
-let add_one_v3 = |x: u32|        { x +1 }; //新版本参数必须要有类型
+let add_one_v3 = |x: u32|        { x +1 }; //新版本参数必须要有类型,因有+1操作，如直接返回就可以没有
 let add_one_v4 = |x: u32|          x +1 ;
 
 let example_closure = |x:u32| x;
@@ -1754,6 +1746,8 @@ assert!(equal_to_x(y));
 //-------17 iterator 
 let v1 = vec![1, 2, 3];
 let v1_iter = v1.iter();
+assert_eq!(v1_iter.next(), Some(&1));//数字前也能加引用
+ 
 let total: i32 = v1_iter.sum();//聚合计算
 assert_eq!(total, 6);
 
@@ -1781,7 +1775,7 @@ impl Counter {
     }
 }
 impl Iterator for Counter {
-    type Item = u32;
+    type Item = u32;//有点像C中的typedef ,next 方法都会返回一个包含了此具体类型值的
 
     fn next(&mut self) -> Option<Self::Item> { //自定义迭代器
         self.count += 1;
@@ -1804,7 +1798,7 @@ assert_eq!(counter.next(), Some(5));
 assert_eq!(counter.next(), None);
 
 //------------19 智能指针  Box
-use crate::List::{Cons, Nil};
+use crate::List::{Cons, Nil}; //自己定义的
 
 fn main() {
     let b = Box::new(5); //Box<T> 在堆上储存数据
@@ -1842,7 +1836,7 @@ enum List {
     Nil,
 }
 
-struct MyBox<T>(T); 
+struct MyBox<T>(T);   //元组结构体，self.0来引用这个
 
 impl<T> MyBox<T> {
     fn new(x: T) -> MyBox<T> {
@@ -1863,6 +1857,7 @@ impl<T> Deref for MyBox<T> { //实现 Deref
 struct CustomSmartPointer {
     data: String,
 } 
+//Drop  全路径为 std::ops::Drop 可省，标准库的前奏是包含每个模块中自动导入的所有东西的模块 ，即https://doc.rust-lang.org/std/all.html 下都自动导入，Box,Option等
 impl Drop for CustomSmartPointer {//值离开作用域时应该执行的代码的方式是实现 Drop
     fn drop(&mut self) {
         println!("Dropping CustomSmartPointer with data `{}`!", self.data);
@@ -1963,7 +1958,9 @@ fn main() {
         children: RefCell::new(vec![]),
     });
 
-    println!("leaf parent = {:?}", leaf.parent.borrow().upgrade());//调用 Weak<T> 实例的 upgrade 方法，这会返回 Option<Rc<T>>
+    println!("leaf parent = {:?}", leaf.parent.borrow().upgrade());//调用 Weak<T> 实例的 upgrade 方法，这会返回 Option<Rc<T>>,新的返回 Option<Arc<T>>
+    // ‘Arc’ stands for ‘Atomically Reference Counted’. (thread-safe)
+    //upgrade 方法 如值还未被丢弃，则结果是 Some  如已被丢弃，则结果是 None
 
     let branch = Rc::new(Node {
         value: 5,
@@ -1993,7 +1990,7 @@ use std::thread;
 use std::time::Duration;
 
 fn main() { 
-    //新线程,调用 thread::spawn 函数并传递一个闭包
+    //新线程,调用 thread::spawn 函数并传递一个闭包,spawn返回一个 JoinHandle<T>   ，join方法返回  Result
     let handle = thread::spawn(|| { 
         for i in 1..10 {
             println!("hi number {} from the spawned thread!", i);
@@ -2224,7 +2221,7 @@ fn main() {
     assert_eq!(maybe_some_len, Some(13));
     //println!("maybe_some_string: {:?}", maybe_some_string);//这不能使用maybe_some_string
    //----
-   let text_length: Option<usize> =  Some("Hello, world!".to_string()).map(|s| s.len());//加as_ref() 报错，因没有变量
+   let text_length: Option<usize> =  Some("Hello, world!".to_string()).map(|s| s.len());//加as_ref() 报错，因没有变量,测试没有错误
    println!("still can print text: {:?}", text_length);
    let text_length: Option<usize> =  Some(String::from("Hello, World!")).map(|s| s.len());//error
    println!("still can print text: {:?}", text_length);
@@ -2232,6 +2229,10 @@ fn main() {
   //Option的take()方法
  //Option的as_ref()方法, 需要 Option 中值的引用而不是获取其所有权
 }
+
+ fn request_review(self: Box<Self>) -> Box<dyn State>; //self: Box<Self>  和 &self 一样？
+
+
 //---23 match
 fn main() {
     let favorite_color: Option<&str> = None;
@@ -2242,8 +2243,8 @@ fn main() {
         println!("Using your favorite color, {}, as the background", color);
     } else if is_tuesday {
         println!("Tuesday is green day!");
-    } else if let Ok(age) = age { //新的match(if let)
-        if age > 30 {
+    } else if let Ok(age1) = age { //新的match(if let)
+        if age1 > 30 {
             println!("Using purple as the background color");//print
         } else {
             println!("Using orange as the background color");
@@ -2294,7 +2295,7 @@ fn main() {
         _ => println!("anything"),
     }
     match x {
-        1..=5 => println!("one through five"),  //..=是范围  1-5
+        1..=5 => println!("one through five"),  //..=是范围  1-5,还有 for number in (1..4).rev()  范围 1-3
         _ => println!("something else"),
     }
     let x = 'c'; 
@@ -2389,7 +2390,7 @@ fn main() {
     let msg = Message::Hello { id: 5 };
 
     match msg {
-        Message::Hello { id: id_variable @ 3..=7 } => { //@ 设置变量保存值 
+        Message::Hello { id: id_variable @ 3..=7 } => { //@ 设置变量保存值,还要求值的范围
             println!("Found an id in range: {}", id_variable)
         },
         Message::Hello { id: 10..=12 } => {
@@ -2437,8 +2438,8 @@ fn main(){
     }
 
     let mut v = vec![1, 2, 3, 4, 5, 6]; 
-    let r = &mut v[..]; 
-    //let (a, b) = r.split_at_mut(3);  //split_at_mut 函数
+    let r = &mut v[..]; //..全部切片
+    //let (a, b) = r.split_at_mut(3);  //Vec的split_at_mut 函数，在索引为3的位置（1开始），切成两个数组 
     let (a, b) =split_at_mut( r,3);
 
     assert_eq!(a, &mut [1, 2, 3]);
@@ -2449,7 +2450,7 @@ fn main(){
     let address = 0x01234 ;//不安全的
     let r = address as *mut i32; 
     let slice: &[i32] = unsafe {  //无需将 split_at_mut 函数的结果标记为 unsafe
-        slice::from_raw_parts_mut(r, 10000)
+        slice::from_raw_parts_mut(r, 10000)//功能为在指定位置开始的长度，返回一个可变的切片
     };
   
     unsafe {
@@ -2607,7 +2608,7 @@ fn main() {
 
     println!("A baby dog is called a {}", Dog::baby_name());
     // println!("A baby dog is called a {}",Animal::baby_name());  //不知道使用哪个同名函数
-    println!("A baby dog is called a {}", <Dog as Animal>::baby_name()); //类型转换
+    println!("A baby dog is called a {}", <Dog as Animal>::baby_name()); //类型转换,调用指定类的同名方法
  
    let p= Point{x:3,y:4};
    p.outline_print();
@@ -2635,9 +2636,9 @@ impl Animal for Dog {
 
 use std::fmt;
 
-trait OutlinePrint: fmt::Display { //: 类似继承,或者  类型定义
+trait OutlinePrint: fmt::Display { //: 类似继承(同c++),或者  类型定义
     fn outline_print(&self) {
-        let output = self.to_string();//因有fmt::Display可以to_string()
+        let output = self.to_string();//因有fmt::Display可以to_string(),会调用实现Display的fmt
         let len = output.len();
         println!("{}", "*".repeat(len + 4)); //repeat() 函数
         println!("*{}*", " ".repeat(len + 2));
@@ -2693,14 +2694,14 @@ fn main(){
     //函数指针实现了所有三个闭包 trait（Fn、FnMut 和 FnOnce）
     let list_of_numbers = vec![1, 2, 3];
     let list_of_strings: Vec<String> = list_of_numbers
-    .iter()
-    .map(|i| i.to_string())//map参数为闭包  
-    .collect();
+		.iter()
+		.map(|i| i.to_string())//map参数为闭包  
+		.collect();
      
     let list_of_numbers = vec![1, 2, 3];
     let list_of_strings: Vec<String> = list_of_numbers
         .iter()
-        .map(ToString::to_string)//map参数为函数指针 , ::
+        .map(ToString::to_string)//map参数为函数指针 , :: ,ToString::to_string
         .collect();
 
      enum Status {
@@ -2731,7 +2732,7 @@ fn do_twice(f: fn(i32) -> i32, arg: i32) -> i32 { //fn 被称为 函数指针（
     f(arg) + f(arg)
 }
 
-//返回闭包 放在 Box中 ，dyn约束类型
+//返回闭包 放在 Box中 ，dyn约束类型, 大写Fn ,如没有dyn 可以用小写fn, dyn后只可trait,即大写Fn
 fn returns_closure() -> Box<dyn Fn(i32) -> i32> {
     Box::new(|x| x + 1)
 }
@@ -2825,8 +2826,8 @@ fn main() {
     for stream in listener.incoming() {
         let stream = stream.unwrap();
 
-        println!("Connection established!");
-        for stream in listener.incoming() {
+        println!("Connection established!");// 为了只打印一次这个，上面的for只循环一次
+        for stream in listener.incoming() {//返回 Incoming 实现了 Iterator ,可以 for循环 ,内部类型为 type Item = Result<TcpStream, Error>
             let stream = stream.unwrap();
 
             handle_connection(stream);
@@ -2836,7 +2837,7 @@ fn main() {
 fn handle_connection(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
 
-    stream.read(&mut buffer).unwrap();
+    stream.read(&mut buffer).unwrap();//返回Result<usize> 
 
     let response = "HTTP/1.1 200 OK\r\n\r\n";
 

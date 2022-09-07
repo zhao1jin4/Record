@@ -1,4 +1,4 @@
-win7不再支持的软件 有python,node,visual studio,android ndk,vsocde插件codeLLDB
+`win7不再支持的软件 有python,node,visual studio,android ndk,vsocde插件codeLLDB
 
 windows 10  2022-01-17 版本是 21H1 版本
 
@@ -237,6 +237,7 @@ sort->more...->Date created 创建日期(也是复制过来的日期)
 
 控制面板中 搜索 index，打开 Indexing Options对话框 (也可搜索目录后，点上方的黄色提示条)，可以设置索引目录，就可直接搜索文件内容
 
+win 10 按文件名搜索 ，有时搜不到？？？ 不如直接用命令 dir *kubelet.go* /s
 
 win7 有一个 snippingtool 截图工具,StikyNot 便利贴,关闭后再次打开,会记住,但还要记住去打开
 
@@ -406,6 +407,8 @@ win+alt+print 截图
 win+alt+r  开始录制
 	
 alt+space弹出菜单 ->按 M 移动 ,再按方向键 就可移动窗口(当窗口标题超出顶部)
+
+按 win+; 可输入 表情
  
 ---
 改变桌面图标大小  按ctrl+拖动滚轮
@@ -447,7 +450,8 @@ win10系统清理系统垃圾文件  win+R键打开运行，输入“cleanmgr.ex
 %USERPROFILE%\AppData\Local\Packages 占1.5G 这个不能删，是win10 app
 %USERPROFILE%\AppData\Local\Postman  占1G 这个不能删，
 %USERPROFILE%\AppData\Local\Programs 占1G 有VSCode，GIMP 这个不能删
-%USERPROFILE%\AppData\Local 除以上3个，删除后，其它共占6G
+%USERPROFILE%\AppData\Local\Kingsoft 是金山词霸
+%USERPROFILE%\AppData\Local 除以上 ，删除后，其它共占6G
 
 dism.exe /Online /Cleanup-Image /AnalyzeComponentStore，自动的扫描Winsxs文件夹，显示出文件夹的大小等情况。
 清理Winsxs文件夹
@@ -457,7 +461,7 @@ dism.exe /online /Cleanup-Image /StartComponentCleanup （没有效果，可能�
 Everything 只找C盘，Search->Add Filter->在search:中写C: ，上面起名如search_only_c_driver，Search菜单出现刚起的名
 
 win 10 C盘118G 用半年，清理后，只有30G可用，很紧张(自己的App目录6G + VS2019 8G)
-
+清理后windows目录占38G 
  
 -----win11
 windows 11 要求硬件支持TPM(Trust Platform Module) 2.0，运行tpm.msc 查看
@@ -912,6 +916,8 @@ netstat -an | find "80"
 ping -n 3 127.0.0.1 #只3次,同linux的ping -c
 IPV6 命令 ping6,tracert6 
 127.0.0.1  的IPV6 地址 为 ::1
+	IPV6 Multicast 多播地址的前缀   11111111      FF
+
 
 tracert [IP]
 nslookup
@@ -920,13 +926,31 @@ netstat -ano 后面即可显示出相应的PID号，
 也可用 netstat -anob
 
 windows查进程命令
+
 wmic process get processid,caption,commandline | find "java.exe"   
 wmic process where "caption = 'java.exe' and commandline like '%server-1.properties%'" get processid
 	ProcessId
 	6016
+	
 taskkill /pid 6016 /f
 taskkill /im  redis-server.exe  (im=image)
 taskkill /im  redis* 通配符只可用在最后
+
+查看命令参数
+wmic process where caption="FlashHelperService.exe" get caption,commandline /value
+
+wmic process list full
+wmic process  where caption="java.exe" get caption,commandline,ProcessID /value  #ProcessID是进程ID
+wmic process where caption="java.exe" get ProcessId,commandline  
+#不能在powershell下运行,如加/value格式为ProcessId=xxx，不加就只是xxx,这个命令是多行显示一个进程信息
+ 
+
+TASKLIST  命令显示进程
+TASKLIST | findstr redis
+TASKLIST | find /C ".exe"   ,/C 表示计数
+TASKLIST  /FI "SESSIONNAME eq Services"
+TASKLIST  /FI "SESSIONNAME eq Console"   #FI=Filter
+TASKLIST /V  有显示标题，有时是参数 #V=verbos
 
 
 
@@ -1203,22 +1227,6 @@ windows 商店 ，总是开机自启,停服务 Appx  ,Cortana 一直在
 wsappx 进程是windows 商店的(可以在windows 商店中关闭自动更新)
  
  
-TASKLIST  命令显示进程
-TASKLIST | findstr redis
-TASKLIST | find /C ".exe"   ,/C 表示计数
-TASKLIST  /FI "SESSIONNAME eq Services"
-TASKLIST  /FI "SESSIONNAME eq Console"   #FI=Filter
-TASKLIST /V  有显示标题，有时是参数 #V=verbos
-
-
-查看命令参数
-wmic process where caption="FlashHelperService.exe" get caption,commandline /value
-
-wmic process list full
-wmic process  where caption="java.exe" get caption,commandline,ProcessID /value  #ProcessID是进程ID
-wmic process where caption="java.exe" get ProcessId,commandline  
-#不能在powershell下运行,如加/value格式为ProcessId=xxx，不加就只是xxx,这个命令是多行显示一个进程信息
-
  
 win10自带Hyper-V 但要启用(像启用 IIS 一样,开始->windows 系统-> 控制面板->添加删除程序->启用特性中),在开始-> windows Accessories->Administrative Tools->Hyper-V Manager
 开启菜单中有Hyper-V Manager 的管理界面
@@ -1295,6 +1303,12 @@ powershell中用( `),是空格+` 将长命令拆分为多行,`后不能有字符
 Get-Date 命令显示日和时间，默认格式为 Thursday, February 17, 2022 2:02:25 PM
 Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 
+显示链接目标 (或者rust生成的,右击属性->界面中看不到)
+ls | format-table name,linktype,target
+
+重命名文件
+rename-Item 'hello copy.html' -NewName 'hello.html'
+	
 -----win10  Windows Subsystem for Linux(WSL)
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 是微软和Canonical(snapd)一起开发
@@ -1403,6 +1417,8 @@ wsl --unregister openSUSE-Leap-15.3 (所有安装的东西都没了) 再重新�
 	winget search Microsoft.PowerShell  看id
 	winget install --id Microsoft.Powershell --source winget  也是从github下载，地址是错的，要单独从github网上搜索地址才能下载,如下载.zip包是不用安装即可使用的
 	 
+	WSL 要where后要加.exe 即where.exe java
+	WSL中 linux版本jdk中的java不能运行
 
 ----WSL 中的系统 不能使用sytemctl start XX ???? 如 redis
 
@@ -1417,23 +1433,23 @@ wls2下的linux 使用chroot无效 ????
 
 vcxsrv(Windows X Server)
 https://sourceforge.net/projects/vcxsrv/files/vcxsrv  最近有更新2021-01-03 下载 vcxsrv-64.1.20.9.0.installer.exe   
-1.启动为Xlanuch 选择 One large window ， Display number 设置为 0，其他默认即可(start no client,只启动xserver,后面启动本地客户端，也支持XDMCP)，会出现一个空窗口。
+1.启动为XLaunch 选择 One large window ， Display number 设置为 0，其他默认即可(start no client,只启动xserver,后面启动本地客户端，也支持XDMCP)，会出现一个空窗口。
 2.启动 export DISPLAY=localhost:0 ,  startxfce4 后前面的Xming窗口就会有界面了 
  
-Xlanuch 中的 openSUSE 按del,方向键时会不停在显示更多的字符？？？？要用backspace键还会停？？？
+XLaunch 中的 openSUSE 按del,方向键时会不停在显示更多的字符？？？？要用backspace键还会停？？？
 	
 	测试下来 剪贴板的文本可互通(不能传递文件),有时不好,可能刚启动的原因？？, 但中文传输有问题，原因是linux系统没有中文字体
 	也可使用/mnt/d的方式传输
 	另一方案为安装xrdp(mstsc的服务端),rdesktop是linux客户端同mstsc
 	
-	 %USER_PROFILE%\AppData\Local\Packages\xxxxSUSE.openSUSELeap15.3_xxxxxx\LocalState\rootfs  
+	 %USERPROFILE%\AppData\Local\Packages\xxxxSUSE.openSUSELeap15.3_xxxxxx\LocalState\rootfs  
 	C:\Program Files\WindowsApps\xxxxSUSE.openSUSELeap15.3_xxxxxx
 	win+r 输入 \\wsl$  可以看到各linux系统的目录
 	
 	
 	
 	echo $LANG 显示为en_US.UTF-8
-	但输入中文乱码，显示方块。 	复制 C:\Windows\Fonts\simhei.ttf  //wls$/usr/share/fonts/truetype/ (要权限的) ,测试OK,测试关闭Xlanuch
+	但输入中文乱码，显示方块。 	复制 C:\Windows\Fonts\simhei.ttf  //wls$/usr/share/fonts/truetype/ (要权限的) ,测试OK,测试关闭XLaunch
 			注意用windows10的simsunb.ttf不行！！！，有simkai.ttf楷体  测试是生效的
 	
 	搜索到了两个中文字体包
@@ -1457,7 +1473,7 @@ yum grouplist 看有Xfce
 yum groupinstall Xfce
 
 --测试OK
-启动Xlanuch 设置为0,注意要勾选Disable access control ,否则会报错  Authorization required, but no authorization protocol specified
+启动XLaunch 设置为0,注意要勾选Disable access control ,否则会报错  Authorization required, but no authorization protocol specified
 
 WSL2用 ipfconfig的 WSL网卡的 IP
 export windows_host=`ipconfig.exe | grep -n4 WSL | tail -n 1 | awk -F":" '{ print $2 }' | sed 's/^[ \r\n\t]*//;s/[ \r\n\t]*$//'`
@@ -1474,9 +1490,9 @@ xfce界面中 utf8文件打开显示方块,测试成功
 	
 里面的终端不能上下左右键??,上键出8,有时候是好的??可能XLaunch的原因吧，可按alt+方向键解除，可安装bluefish
  
--------
+-----win11  WSA =Windows SubSystem for Android
  
-
+-----
 
 有windows版本的 curl,openssl ( gitbash 也有)
 用的IP就是windows上的IP

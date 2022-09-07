@@ -38,6 +38,7 @@ wine-5.0-lp152.1.2.x86_64.rpm
 
 anjuta-3.28.0-lp150.1.4.x86_64.rpm
 glade-3.20.4-lp150.1.4.x86_64.rpm
+GNOME Builder 开发工具
 
 ---stardict 因版本问题从sourceforge中删除, openSUSE-leap-15.1 yast上有 rpm
  libpcaudio0-1.0-lp151.3.2.x86_64.rpm  
@@ -268,19 +269,19 @@ unxz -cd MPlayer-1.3.0.tar.xz | tar -xvf -
 make　成功　	如用　make -j 4　就会报错
 make install
 
+pageup,pagedown是快进10分，上下键快进1分
+*增大音量  /减小音量
+
+
+
 /usr/local/bin/mplayer 1.mp4　没有画面???
 
 官方可以下载　Binary Codec Packages(名字上看是07年的)　,　Skins
 
 说明中是放　$prefix/lib/codecs ,即/usr/local/lib64/codecs　(看不出效果)
-
-
-
 mpalyer 1.1 可以播放avi视频，但没有声音，打开后提示audio_setup: Can't open audio device /dev/dsp: No such file or directory
 解决方法是安装snd_pcm_oss，执行 modprobe snd_pcm_oss   测试OK ，以root执行
 
-pageup,pagedown是快进10分，上下键快进1分
-*增大音量  /减小音量
 
 -----gmplayer
 mplayer 官方网页的链接网站有　MPlayer-1.2.r38117-lp150.1.4.x86_64.rpm　gmplayer-1.2.r38117-lp150.1.4.x86_64.rpm 包版本老一点

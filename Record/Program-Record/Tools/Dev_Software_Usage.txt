@@ -638,9 +638,15 @@ clone... -> 可以复选 load putty ->选择私钥文件
 		可以取消follow tail 
 	工具栏上的Highlighting按钮 弹窗->Add 按钮-> String中是要搜索的字串，如Warn,设置颜色，只会高亮一整行
 	下方的Search也只是高亮一整行
- 
+-----GitLab Git服务端管理界面
+
+保护的分支，可以指定人push
+	Settings页面下找到Protected Branches，有如下两种解决方法 
+		1.可以直接点该分支旁的Unprotect按钮，解除保护，但是这种方法不推荐
+		2.第二种方法是在Allowed to push下选择允许那些角色或具体那些用户可以提交，在这里可以选择你自己		
+
 -----Source Tree-3 是Git 客户端工具 免费
-GitLab 服务端
+
 
 SourceTreeSetup-3.3.9 要 .netframework-4.7.1,安装时可skip注册,可取消 Mercurial
 安装之后，转到用户本地文件夹下的 SourceTree 目录，没有则新建
@@ -1115,6 +1121,35 @@ file->setting->general 有显示保存文件默认在是%HOMEPATH%/Postman/files
 Authentication 有 Bearer Token ,Oauth2
 
 右上角 第二行 有环境变量相关功能的图标，设置好变量如webRoot,token 使用格式为{{webRoot}}
+
+
+--在pre request script 标签中可以生成动态变量
+
+pm.globals.unset("vid");
+pm.globals.unset("Key");
+pm.globals.set("vid", "100001");
+
+postman.setGlobalVariable("Key","1TPf743G94j20SzK5x85cw1Grv86J558r")
+vid = postman.getGlobalVariable("vid")
+
+var moment = require('moment');                           
+var data = moment().format(" YYYY-MM-DD HH:mm:ss");      
+console.log(data);
+pm.globals.set("timestamp", data);                          
+
+
+timestamp = postman.getGlobalVariable("timestamp");
+KEY_WORD = postman.getGlobalVariable("Key");
+var str = "APPKEY="+vid+"&VID="+vid+"&TIMESTAMP="+timestamp+KEY_WORD;
+var strmd5= CryptoJS.MD5(str).toString();
+postman.setGlobalVariable("sign",strmd5);
+
+----
+后就可以在form 表单的值中使用{{vid}} 引用上面脚本产生的变量vid值 ，
+表单的值为格式为大的json，可以json中部分的字段值替换为{{vid}}
+
+
+
 
 
 ---------Jenkins  基于hudson

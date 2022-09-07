@@ -23,6 +23,11 @@
 	Open Policy Agent(OPA)  ( www.openpolicyagent.org )
 	
 	Linkerd (Service Mesh)
+	
+	SPIFFE = The Secure Production Identity Framework For Everyone 
+	SPIRE is a production-ready implementation of the SPIFFE APIs
+	 
+		
 =================== etcd
 https://github.com/etcd-io/etcd/
 https://etcd.io/docs/  
@@ -948,3 +953,17 @@ kubelet 需要先要通过dockershim去调用Docker，再通过Docker去调用co
 
 官方的入门示例是用 Go语言客户端 代码示例
 
+
+
+=======Linkerd (Service Mesh)
+是业界的第一款Service Mesh框架
+
+Linkerd：Linkerd使用 Scala语言编写 ，运行于JVM，底层基于Twitter的Finagle库，并对其做了相应的扩展。
+Linkerd2：使用Go语言和Rust语言完全重写了Linkerd，专门用于Kubernetes。
+
+=======SPIFFE SPIRE
+SPIFFE = The Secure Production Identity Framework For Everyone 
+SPIRE is a production-ready implementation of the SPIFFE APIs
+		SVID=SPIFFE Verifiable Identity Document 
+		
+		

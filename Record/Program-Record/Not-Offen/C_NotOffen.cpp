@@ -703,7 +703,7 @@ solaris 控制台运行.bin文件显示彩色文字
 man -w 显示man 搜索路径
 man -w fork 
 man2html ./xxx.1 > xxx.html
-groff －Thtml -mandoc ld.1 > ld.html
+groff -Thtml -mandoc ld.1 > ld.html
 2、测试显示效果
 $ groff -Tascii -man hello.1   
 

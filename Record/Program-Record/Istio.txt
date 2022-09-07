@@ -15,7 +15,7 @@ Rancher 界面工具里有Istio的支持,选中project出现Resources菜单->ist
 2020-11-28 istio 1.8.0 已经在 Kubernetes 版本 1.16, 1.17, 1.18, 1.19 中测试过
 2021-02-09 Istio 1.9.0 is officially supported on Kubernetes versions 1.17.0 to 1.20.x.
 2021-05-18 Istio 1.10     Supported Kubernetes Versions 1.18, 1.19, 1.20, 1.21
-
+2022-09-06 Istio 1.15	     支持kubernetes	1.22, 1.23, 1.24, 1.25			
 
 应用程序必须使用 HTTP/1.1 或 HTTP/2.0 协议用于 HTTP 通信；HTTP/1.0 不支持
 

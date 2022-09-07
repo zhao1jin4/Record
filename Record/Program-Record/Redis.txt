@@ -140,7 +140,25 @@ redis-server  --version
  
 -----------6.2版本开始有 redis statck版本，支持数据模型 document, graph, time series
 只有二进制包,没有windows版本，linux下没有suse版本，只有ubuntu(有snap通用?),redhat/centos
+
+-----------redis  7 源码编译安装成功(OpenSUSE-leap-15.4)
+ 直接make即可，不用进src目录 
+  
+cc: error: ../deps/hiredis/libhiredis.a: No such file or directory
+cc: error: ../deps/lua/src/liblua.a: No such file or directory
+cc: error: ../deps/hdr_histogram/libhdrhistogram.a: No such file or directory
+cc: error: ../deps/linenoise/linenoise.o: No such file or directory
+
+cd 这些目录 再make即可，
+lua 目录要 make linux 
+	luaconf.h:275:10: fatal error: readline/readline.h: No such file or directory
+	 #include <readline/readline.h>
+
+	sudo zypper install  readline-devel
 -----------
+
+
+
 快的原因 ，单线程，基于内存，epoll作为I/O多路复用，事件处理模型
 
 
@@ -849,7 +867,8 @@ rename-command SMEMBERS ""
 
 SCAN cursor [MATCH pattern] [COUNT count]
 
-scan 0 表示从0开始 返回一个元素为一次使用的游标号，相当于分页查所有键，默认每页10页
+scan 0 第一次迭代使用 0 作为游标， 表示开始一次新的迭代。第二次迭代使用的是第一次迭代时返回的游标
+		 默认每页10页
 scan 0 MATCH * COUNT 20 可通配符 
 	(实际操作时，明明有这个键，COUNT输入20就查不到，COUNT输入1000就能查到)
 	返回第一个值是 新游标号，为一次调用 。第二个值是 数组元素，没有值就返回(empty list or set)

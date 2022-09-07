@@ -313,6 +313,26 @@ $+所有非唯一的依赖文件列表,依原先的顺序排列
 $%只适用于程序档案库,目的成员名(当目的是档案库时)
 
 
+预定义的变量  及 默认值
+MAKE=make
+	
+AR=ar
+AS=as
+CC=cc
+CPP=$(CC) -E
+CXX=g++
+RM=rm -f
+ARFLAGS= #没有默认值
+ASFLAGS= #没有默认值
+CFFLAGS= #没有默认值
+CPPFLAGS= #没有默认值
+CXXFLAGS= #没有默认值
+
+
+make 命令默认执行第一个规则
+
+ 
+
 
 
 
@@ -1256,13 +1276,143 @@ ar工具来维护、管理静态库，我们就不需要考虑这一步 ,不要m
 
 对于一个双后缀规则的目标“.x.a”，经过make转换后会产生两个模式规则：“(%.o): %.x” 和“%.a: %.x”。
 
+make -p 先执行make命令,再显示内置规则
+gcc -MM main.c 生产一个依赖清单，如头文件，可用于makefile
+----makefile 示例
+CC=gcc
+DEST=hello.c
+CFLAGS= -Wall -O2
+LIB=mymath.a
+SOURCES=min.c max.c avg.c
+OBJECTS=${SOURCES:.c=.o}
+all : hello
+hello : mathlib
+	${CC} -o ${DEST:.c=} ${DEST} ${LIB}
+mathlib : min.o max.o avg.o
+	ar crs ${LIB} ${OBJECTS} 
+.PHONY :clean 
+.PHONY :install uninstall
+
+clean:
+	rm -f ${OBJECTS} ${LIB}
+install:
+	cp hello /usr/bin/hello 
+uninstall:
+	rm -f /usr/bin/hello
+
+--------makefile 示例 使用VPATH
+CFLAGS = -Iadd -Isub -O2
+
+#VPATH　搜索add和sub目录
+VPATH=add:sub
+
+OBJS = add_int.o add_float.o sub_int.o sub_float.o main.o
+TARGET = calc
+CC=g++
+#默认找第一个规则
+#--方式一
+#$(TARGET):$(OBJS) #依赖.ｏ,.ｏ会自动根据.ｃ生成
+#	$(CC) -o $(TARGET) $(OBJS) $(CFLAGS)　#必须tab键开头是命令，可用\分隔多行
+
+ #--方式二
+#$(TARGET): $(OBJS)
+#目标是多个，每个都做相同的事。把所有依赖于.o替换为依赖于.c
+#$(OBJS): %.o: %.c 
+	#$<依赖的第一个，此处为maic.c　，$@　依赖的目标，此处为calc
+#	$(CC) -c $(CFLAGS) $< -o $@  
+
+#--方式三
+$(TARGET): $(OBJS)
+	#$^所有不重复的依赖列表
+	$(CC) -o $@ $^ $(CFLAGS)
+	
+clean:
+	-$(RM) $(TARGET)  #前加"-"表示如果出错继续执行
+	-$(RM) $(OBJS)
+
+
+------------makefile 子目录make
+#使用export向子目录的makefile传递变量
+export DEST_DIR=${shell pwd}/out
+
+DIRS=sub add .
+#foreach 格式为var,list,item_out
+#wildcard 可用*匹配
+FILES=$(foreach dir ,$(DIRS),$(wildcard $(dir)/*.c)) 
+#patsubst格式　pattern,replacement,in_text
+OBJS=$(patsubst %.c,%.o,$(FILES))
+
+#默认找第一个规则 
+$(TARGET): $(DEST_DIR) main.o
+	#(cd add && $(MAKE))#要使用shell命令外要加(　)
+	#(cd add ; $(MAKE))#也可用;分隔
+	
+	$(MAKE) -C add #大写的Ｃ
+	$(MAKE) -C sub
+	#$(CC) -o $(TARGET) $(DEST_DIR)/*.o  #依赖不能用* ???
+	$(CC) -o $(TARGET) $(OBJ_INDIR)
+$(DEST_DIR):
+	mkdir -p $(DEST_DIR)
+	
+--add/makefile
+add:
+	$(CC) -xc++ -c add_int.c add_float.c  #gcc -xc++  表示Ｃ＋＋语言
+	echo  "coming var DEST_DIR = $(DEST_DIR)" #使用父级传来的变量
 
 ----makefile 示例 检查操作系统
-ifeq ($(OS),Windows_NT)
+UNAME = $(shell uname)
+all:
+	echo "OS=$(OS)" #是空的
+ifeq ($(OS),Windows_NT)#可以条件
 	RM=del
+    echo "Windows"
 else
 	RM=rm
-endif 
+	echo "not Windows"
+endif
+
+ifeq ($(UNAME), Linux)
+	echo "Linux"
+endif
+ifeq ($(UNAME), Solaris)
+	echo "Solaris"
+endif
+
+
 .PHONY: clean
 clean: 
 	$(RM) *.html
+	
+----makefile 示例 ，命令前加@，表示不将这个命令输出到标准输出
+all: myapp
+CC = gcc
+INSTDIR = /usr/local/bin
+INCLUDE = .
+CFLAGS = -g -Wall -ansi
+myapp: main.o 2.o 3.o
+	$(CC) -o myapp main.o 2.o 3.o
+main.o: main.c a.h
+	$(CC) -I$(INCLUDE) $(CFLAGS) -c main.c
+2.o: 2.c a.h b.h
+	$(CC) -I$(INCLUDE) $(CFLAGS) -c 2.c
+3.o: 3.c b.h c.h
+	$(CC) -I$(INCLUDE) $(CFLAGS) -c 3.c
+
+clean:
+	-rm main.o 2.o 3.o
+
+install: myapp
+	@if [ -d $(INSTDIR) ]; \
+	then \
+		cp myapp $(INSTDIR);\
+		chmod a+x $(INSTDIR)/myapp;\
+		chmod og-w $(INSTDIR)/myapp;\
+		echo "Installed in $(INSTDIR)";\
+	else \
+		echo "Sorry, $(INSTDIR) does not exist";\
+	fi
+
+----
+	
+	
+	

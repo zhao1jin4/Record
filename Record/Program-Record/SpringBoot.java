@@ -2108,6 +2108,14 @@ public UserEntity  headerUser( @HeaderUser UserEntity headerUser)
 }
 
 
+@RequestMapping(value="/postBodyString",method=RequestMethod.POST)
+@ResponseBody 
+public Date postBodyString(@RequestBody  String bodyJson) //对同一接口，根据json中的一个方法名字段决定其它字段
+//SpringMVC项目请求头不能加Content-Type application/json??? Spring Boot项目就可以
+{
+}
+
+
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer 
 {
@@ -2744,6 +2752,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class User {
 
     @ApiModelProperty("姓名") 
+	//@ApiModelProperty(value = "姓名", required = true)
     private String name;
     
     

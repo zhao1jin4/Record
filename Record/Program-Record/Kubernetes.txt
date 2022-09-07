@@ -255,6 +255,178 @@ kubectl get pod -n kube-system
 kubectl describe pod kube-flannel-ds-amd64-xxxx -n kube-system
 kubectl describe pod  coredns-xxx  -n kube-system 
 
+-------------openSUSE-leap-15.4 安装 kubernetes v1.24.3 cri-docker 配置 tumbleweed 仓库 未成功 ???
+
+yast2 增加仓库地址 ，有kubernetes-1.24.3 官方最新1.25
+https://download.opensuse.org/tumbleweed/repo/oss/ 
+ 
+	
+systemctl stop crio.service
+systemctl disable crio.service
+防火墙最好关闭吧，systemctl stop/disable firewalld ，
+swapoff -a  或者   --fail-swap-on=false设置在 vi /etc/sysconfig/kubelet （但这样会很慢，disk占用100%）
+
+kubernetes 1.24  开始删除了 dockershim ，如果想继续用docker ，就要安装cri-dockerd,  https://github.com/Mirantis/cri-dockerd  v0.2.5 
+	CRI socket  默认 /run/cri-dockerd.sock  
+	
+https://github.com/Mirantis/cri-dockerd/releases 有el7,fc35的二制包，下载cri-dockerd-0.2.5.amd64.tgz 报 Segmentation fault ？
+
+源码安装 	go env -w GOPROXY=https://goproxy.cn,direct 
+cd cri-dockerd
+mkdir bin
+go build -o bin/cri-dockerd
+mkdir -p /usr/local/bin
+install -o root -g root -m 0755 bin/cri-dockerd /usr/local/bin/cri-dockerd
+cp -a packaging/systemd/* /etc/systemd/system
+sed -i -e 's,/usr/bin/cri-dockerd,/usr/local/bin/cri-dockerd,' /etc/systemd/system/cri-docker.service
+systemctl daemon-reload
+systemctl enable cri-docker.service
+systemctl enable --now cri-docker.socket
+
+
+ 
+https://registry.opensuse.org/cgi-bin/cooverview 有网页，显示kubic/开头的镜像
+如 docker pull registry.opensuse.org/kubic/kube-apiserver:v1.24.3
+
+----k8s_img_down.sh
+#!/bin/bash
+images=(kube-apiserver:v1.24.3 kube-controller-manager:v1.24.3 kube-scheduler:v1.24.3  kube-proxy:v1.24.3 pause:3.7 pause:3.6 etcd:3.5.0 coredns:v1.8.6) 
+for imageName in ${images[@]} ; do
+  echo "downloading ${imageName} "  
+  docker pull registry.opensuse.org/kubic/$imageName
+		docker tag  registry.opensuse.org/kubic/$imageName  k8s.gcr.io/$imageName 
+ # docker image save  k8s.gcr.io/$imageName -o $imageName.tar
+done
+----
+
+vi /etc/sysconfig/kubelet (不会被reset)修改如下   (修改/var/lib/kubelet/kubeadm-flags.env没用，每次kubeadm 值会被修改)
+	--container-runtime=remote --container-runtime-endpoint=/run/cri-dockerd.sock
+
+#主机名可能要修改，hostnamectl set-hostname node1 , 还要/etc/hosts增加    <192.xxx的IP>  node1,可能要重启
+
+kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.24.3  --cri-socket /run/cri-dockerd.sock  --skip-phases=preflight 
+
+提示  Usage of CRI endpoints without URL scheme is deprecated  
+日志提示下载 k8s.gcr.io/pause:3.6
+
+
+kubeadm 成功了 ，但日志总是报 Error getting node" err="node \"node1\" not found" 也不影响？？
+
+按提示执行如下
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+ export KUBECONFIG=/etc/kubernetes/admin.conf
+
+才能执行 kubectl get node
+
+systemctl status kubelet 已经成功了
+
+
+journalctl  -eu kubelet  日志提示 很多标志过时，1.27版本会删除很多，又一个大变版本
+
+----安装 flannel
+yast安装cni-plugin-flannel
+
+zypper install flannel-k8s-yaml
+kubectl  apply -f /usr/share/k8s-yaml/flannel/kube-flannel.yaml
+kubectl get node -o wide -n kube-system  
+flannel 已经Runing ,日志 Container runtime network not ready" ？？？
+
+For Kubernetes v1.17+
+Make sure a flanneld binary exists at /opt/bin/flanneld on each node 
+kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml 
+linux二进制包有flanneld
+tar.gz源码包有Documentation/kube-flannel.yml
+
+
+
+---以下失败
+kubeadm config images pull --cri-socket /run/cri-dockerd.sock
+
+ ---- 排错
+
+kubectl get pod -n kube-system 
+	显示coredns 是  Pending ？？？ 
+kubectl describe pods coredns -n kube-system 
+	显示有taint (Not Ready)所以 Pending
+	 
+kubectl get pod coredns-7cb95cd867-2w9kb -n kube-system  -o yaml
+kubectl logs  coredns-7cb95cd867-2w9kb -c coredns -n kube-system 容器没有创建
+
+
+kubectl logs   kube-flannel-ds-jrnc6  -n kube-system 
+kubectl describe pods kube-flannel-ds -n kube-system 
+
+
+看日志连接IP地址不对 kubeadm reset 即可，可能是昨天的IP
+
+---如使用containerd
+要 systemctl  start  containerd	失败，报cni config load failed: no network config found in /etc/cni/net.d: cni plugin not initialized: failed to load cni config 
+要安装 flannel，yast安装cni-plugin-flannel ,就可以正常  systemctl  start  containerd
+ 
+
+ 
+-------------openSUSE-leap-15.4 安装 kubernetes v1.24.3 containerd
+vi /etc/sysconfig/kubelet  
+	修改为 unix:///var/run/containerd/containerd.sock 测试成功, unix:///run/containerd/containerd.sock这个应该也行
+   
+kubeadm init  --pod-network-cidr=10.244.0.0/16  --kubernetes-version=v1.24.3  --cri-socket  unix:///var/run/containerd/containerd.sock  --skip-phases=preflight
+  
+  
+containerd日志提示不能下载 	"k8s.gcr.io/pause:3.6"  要用  
+  crictl pull   registry.opensuse.org/kubic/pause:3.6 
+  ctr -n k8s.io i tag  registry.opensuse.org/kubic/pause:3.6  k8s.gcr.io/pause:3.6 
+  
+crictl image ls 自动下载的   没有coredns镜像？？也没有报下载错误    
+	registry.opensuse.org/kubic/etcd                      3.5.3-0         
+	registry.opensuse.org/kubic/kube-apiserver            v1.24.3         
+	registry.opensuse.org/kubic/kube-controller-manager   v1.24.3         
+	registry.opensuse.org/kubic/kube-proxy                v1.24.3         
+	registry.opensuse.org/kubic/kube-scheduler       	  v1.24.3                     
+
+
+  
+containerd日志提示 plugin type=\"flannel\" failed (add): failed to find plugin \"flannel\" in path [/opt/cni/bin]"   和老版本一样的提示
+  
+  cni-plugins-1.1.1-1.6.x86_64 包在yast中也有，不过安装在/usr/libexec/cni/
+  mkdir /opt/cni/bin
+  cp /usr/libexec/cni/*  /opt/cni/bin
+  
+  又报coredns 容器中 open /run/flannel/subnet.env: no such file or directory 
+
+  
+  ctr -n=k8s.io containers ls  或者 crictl ps  没有coredns运行？？？
+  ctr -n=k8s.io  task ls 
+  crictl  pods  没有coredns运行？？？
+
+kubeadm init  成功后，按提示执行了脚本，	kubectl get pod 没有数据？？
+	
+	
+	crictl --runtime-endpoint unix:///run/cri-dockerd.sock ps
+	crictl --runtime-endpoint unix:///run/cri-dockerd.sock logs <container_id>
+	
+--排错
+  如报 Found multiple CRI endpoints on the host. Please define which one do you wish to use by setting the 'criSocket' field in the kubeadm configuration file: unix:///var/run/containerd/containerd.sock, unix:///var/run/cri-dockerd.sock
+  使用 kubeadm reset --cri-socket  unix:///var/run/cri-dockerd.sock 即可
+  
+  
+  
+/var/run/containerd/containerd.sock文件没了？？？？
+/run/containerd/containerd.sock文件没了？？？？
+启动失败？？？ 是systemd的问题？？ 直接用containerd可以启动，一会再用systemctl启动就可以了
+  
+---失败
+如使用 
+项目 https://github.com/containernetworking/plugins , cni-plugins-linux-amd64-v1.1.1.tgz 里全是二进制文件 
+两节点都做 
+rm /opt/cni/bin/*
+tar -zxvf cni-plugins-linux-amd64-v1.1.1.tgz  -C /opt/cni/bin  不行failed to find plugin \"flannel\" in path [/opt/cni/bin]"   和老版本一样的提示,这里的文件yast包中的少sleep noop flannel
+
+plugins-1.1.1.tar.gz 源码包中 没有 subnet.env 文件 
+
+	
+ 
+
 ------fedora34安装kubernetes-1.20.x
 sudo dnf  install kubernetes 依赖下面3个 ( 1.20.5 版本 )
 	sudo dnf  install kubernetes-client

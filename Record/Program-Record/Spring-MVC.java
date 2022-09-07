@@ -1780,6 +1780,16 @@ public	class MyStringHttpMessageConverter extends  StringHttpMessageConverter {
 		super.setDefaultCharset(StandardCharsets.UTF_8);
 	}
 }
+
+
+--- RestTemplate 增加TLS 证书支持
+HttpComponentsClientHttpRequestFactory tlsSupportFactory=new HttpComponentsClientHttpRequestFactory();
+tlsSupportFactory.setHttpClient(client);//http client的组件 
+tlsSupportFactory.setConnectTimeout(this.connectTimeout);
+tlsSupportFactory.setReadTimeout(this.readTimeout);
+
+RestTemplate restTemplate=new RestTemplate(new BufferingClientHttpRequestFactory(tlsSupportFactory));
+
 ------------ Spring整合Servlet
 
  <!--Spring整合Servlet  Filter类中就可以注入Spring容器中的类 , WebApplicationContextUtils 不如这种方便 -->
